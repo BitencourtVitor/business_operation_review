@@ -15,7 +15,7 @@ import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { createPortal } from 'react-dom';
 import type { TooltipItem } from 'chart.js';
-import Modal from './modal';
+import Modal, { ViewModal } from './modal';
 
 dayjs.extend(isBetween);
 
@@ -375,9 +375,6 @@ function getMostRecentMonthKey<T>(obj: Record<string, T>) {
 interface TimesheetAnalysisProps {
   usuario_responsavel_id: string; // responsável pela tela
   tela_id: string;
-  user_role: string;
-  user_setor_id: string;
-  isAdmin: boolean;
   ofThisScreen: boolean;
   planos_iniciais?: PlanoAcao[];
 }
@@ -401,16 +398,8 @@ function PartitionLoading() {
   );
 }
 
-export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, user_role, user_setor_id, isAdmin, ofThisScreen, planos_iniciais = [] }: TimesheetAnalysisProps) {
-  // Log de depuração para permissões
-  console.log(
-    'DEBUG PERMISSAO:',
-    'user_role:', user_role,
-    'user_setor_id:', user_setor_id,
-    'tela_id:', tela_id,
-    'isAdmin:', isAdmin,
-    'ofThisScreen:', ofThisScreen
-  );
+export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, ofThisScreen, planos_iniciais = [] }: TimesheetAnalysisProps) {
+  // Removido console.log de DEBUG PERMISSAO
   const [allData, setAllData] = useState<TimesheetRow[]>([]); // cache de todos os dados
   const [data, setData] = useState<TimesheetRow[]>([]);
   const [corporation, setCorporation] = useState<string[]>([]);
@@ -693,103 +682,11 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
     setError(errors);
   }, [errors]);
 
+  // Estados para cache global de todas as telas
+  const [globalCache, setGlobalCache] = useState<Record<string, { highlights: Destaque[], oportunidades: Oportunidade[] }>>({});
   const [allHighlights, setAllHighlights] = useState<Destaque[]>([]);
   const [allOportunidades, setAllOportunidades] = useState<Oportunidade[]>([]);
-  // const [allPlanos, setAllPlanos] = useState<PlanoAcao[]>([]);
-
-  // Função reutilizável para buscar todos os dados individuais
-  const fetchAllIndividual = async () => {
-    let highlights: Destaque[] = [];
-    let oportunidades: Oportunidade[] = [];
-    // let planos: PlanoAcao[] = [];
-    const cache = sessionStorage.getItem('individual_data_cache');
-    if (cache) {
-      try {
-        const parsed = JSON.parse(cache);
-        highlights = parsed.highlights || [];
-        oportunidades = parsed.oportunidades || [];
-        // planos = parsed.planos || [];
-      } catch { /* ignore */ }
-    } else {
-      // Destaques
-      const { data: destaques } = await supabase.from('destaques').select('*').eq('usuario_id', usuario_responsavel_id).eq('tela_id', tela_id);
-      highlights = destaques || [];
-      // Destaques positivos/negativos
-      const { data: positivos } = await supabase.from('destaques_positivos').select('*');
-      const { data: negativos } = await supabase.from('destaques_negativos').select('*');
-      highlights = highlights.map(d => ({
-        ...d,
-        positivos: (positivos || []).filter((p: { destaque_id: string; texto: string }) => p.destaque_id === d.id).map((p: { texto: string }) => p.texto),
-        negativos: (negativos || []).filter((n: { destaque_id: string; texto: string }) => n.destaque_id === d.id).map((n: { texto: string }) => n.texto),
-      }));
-      // Oportunidades
-      const { data: ops } = await supabase.from('oportunidades').select('*').eq('usuario_id', usuario_responsavel_id).eq('tela_id', tela_id);
-      const { data: desafios } = await supabase.from('desafios').select('*');
-      const { data: melhorias } = await supabase.from('melhorias').select('*');
-      oportunidades = (ops || []).map((op: Oportunidade) => ({
-        ...op,
-        desafios: (desafios || []).filter((d: { oportunidade_id: string; texto: string }) => d.oportunidade_id === op.id).map((d: { texto: string }) => d.texto),
-        melhorias: (melhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
-      }));
-      sessionStorage.setItem('individual_data_cache', JSON.stringify({ highlights, oportunidades }));
-    }
-    setAllHighlights(highlights);
-    setAllOportunidades(oportunidades);
-  };
-
-  // useEffect para carregar ao montar
-  useEffect(() => {
-    fetchAllIndividual();
-  }, []);
-
-  // Corrigir o useEffect para buscar destaques e oportunidades sempre que usuario_responsavel_id ou tela_id mudar
-  useEffect(() => {
-    if (usuario_responsavel_id && tela_id) {
-      setPartitionLoading(true);
-      sessionStorage.removeItem('individual_data_cache');
-      Promise.resolve(fetchAllIndividual()).finally(() => setPartitionLoading(false));
-    }
-  }, [usuario_responsavel_id, tela_id]);
-
-  // Agrupar dados por mês/ano
-  const highlightsByMonth = groupByMonthYear(allHighlights);
-  const oportunidadesByMonth = groupByMonthYear(allOportunidades);
-  // Para planos de ação, agrupar por mês/ano do plano (criado_em) e também dos subplanos
-  // function planosByMonth(planos: PlanoAcao[]): Record<string, PlanoAcao[]> {
-  //   const result: Record<string, PlanoAcao[]> = {};
-  //   if (!planos || planos.length === 0) return result;
-  //   planos.forEach(plano => {
-  //     let keys: string[] = [];
-  //     if (plano.acoes && plano.acoes.length > 0) {
-  //       keys = plano.acoes.map(a => {
-  //         const ano = a.data_limite.slice(0, 4);
-  //         const mes = a.data_limite.slice(5, 7);
-  //         return `${ano}-${mes}`;
-  //       });
-  //     } else if (plano.criado_em) {
-  //       const ano = plano.criado_em.slice(0, 4);
-  //       const mes = plano.criado_em.slice(5, 7);
-  //       keys = [`${ano}-${mes}`];
-  //     }
-  //     keys.forEach(key => {
-  //       if (!result[key]) result[key] = [];
-  //       if (!result[key].includes(plano)) result[key].push(plano);
-  //     });
-  //   });
-  //   return result;
-  // }
-  // const planosByMonthMap = planosByMonth(allPlanos);
-
-  // Função para formatar título do card
-  function formatMonthYear(key: string) {
-    const [ano, mes] = key.split('-');
-    const nomeMes = mes ? dayjs(`${ano}-${mes}-01`).format('MMMM') : '';
-    return `${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)} / ${ano}`;
-  }
-
-  // Estados de expansão para cada partição
-  const [openDestaques, setOpenDestaques] = React.useState(() => getMostRecentMonthKey(highlightsByMonth));
-  const [openOportunidades, setOpenOportunidades] = React.useState(() => getMostRecentMonthKey(oportunidadesByMonth));
+  const [partitionLoading, setPartitionLoading] = useState(false);
 
   // --- Agrupamento dinâmico da tabela ---
   const [groupBy, setGroupBy] = useState<'team' | 'error'>('team');
@@ -832,6 +729,110 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
     return Object.fromEntries(entries);
   }, [data, groupBy, sortBy, sortDir]);
 
+  // Função reutilizável para buscar todos os dados individuais
+  const fetchAllIndividual = async () => {
+    let highlights: Destaque[] = [];
+    let oportunidades: Oportunidade[] = [];
+    
+    // Verificar se já temos cache para esta tela
+    const cacheKey = `tela_${tela_id}_user_${usuario_responsavel_id}`;
+    const cachedData = globalCache[cacheKey];
+    
+    if (cachedData) {
+      console.log('📦 Usando cache para:', cacheKey);
+      highlights = cachedData.highlights;
+      oportunidades = cachedData.oportunidades;
+    } else {
+      console.log('🔄 Buscando dados do banco para:', cacheKey);
+      
+      // Sempre buscar dados frescos do banco para garantir consistência
+      // Destaques
+      const { data: destaques } = await supabase
+        .from('destaques')
+        .select('*')
+        .eq('usuario_id', usuario_responsavel_id)
+        .eq('tela_id', tela_id);
+      
+      highlights = destaques || [];
+      
+      // Destaques positivos/negativos
+      const { data: positivos } = await supabase.from('destaques_positivos').select('*');
+      const { data: negativos } = await supabase.from('destaques_negativos').select('*');
+      
+      highlights = highlights.map(d => ({
+        ...d,
+        positivos: (positivos || []).filter((p: { destaque_id: string; texto: string }) => p.destaque_id === d.id).map((p: { texto: string }) => p.texto),
+        negativos: (negativos || []).filter((n: { destaque_id: string; texto: string }) => n.destaque_id === d.id).map((n: { texto: string }) => n.texto),
+      }));
+      
+      // Oportunidades
+      const { data: ops } = await supabase
+        .from('oportunidades')
+        .select('*')
+        .eq('usuario_id', usuario_responsavel_id)
+        .eq('tela_id', tela_id);
+      
+      const { data: desafios } = await supabase.from('desafios').select('*');
+      const { data: melhorias } = await supabase.from('melhorias').select('*');
+      
+      oportunidades = (ops || []).map((op: Oportunidade) => ({
+        ...op,
+        desafios: (desafios || []).filter((d: { oportunidade_id: string; texto: string }) => d.oportunidade_id === op.id).map((d: { texto: string }) => d.texto),
+        melhorias: (melhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
+      }));
+      
+      // Salvar no cache global
+      setGlobalCache(prev => ({
+        ...prev,
+        [cacheKey]: { highlights, oportunidades }
+      }));
+      
+      console.log('💾 Dados salvos no cache:', cacheKey);
+    }
+    
+    // Atualizar estados para exibição (apenas dados da tela atual)
+    setAllHighlights(highlights);
+    setAllOportunidades(oportunidades);
+    
+    return { highlights, oportunidades };
+  };
+
+  // useEffect único e robusto para carregar dados
+  useEffect(() => {
+    if (usuario_responsavel_id && tela_id) {
+      console.log('🔄 Carregando dados para tela:', tela_id, 'usuário:', usuario_responsavel_id);
+      
+      // Iniciar loading
+      setPartitionLoading(true);
+      
+      // Buscar dados
+      fetchAllIndividual()
+        .catch((error) => {
+          console.error('Erro ao carregar dados:', error);
+        })
+        .finally(() => {
+          setPartitionLoading(false);
+        });
+    }
+  }, [usuario_responsavel_id, tela_id]); // Dependências específicas
+
+  // Agrupar dados por mês/ano
+  const highlightsByMonth = groupByMonthYear(allHighlights);
+  const oportunidadesByMonth = groupByMonthYear(allOportunidades);
+  
+  // Estados de expansão para cada partição - SOLUÇÃO ROBUSTA
+  const [openDestaques, setOpenDestaques] = React.useState<string>('');
+  const [openOportunidades, setOpenOportunidades] = React.useState<string>('');
+  
+  // Removido: expansão inicial automática - agora todos os botões começam retraídos
+
+  // Função para formatar título do card
+  function formatMonthYear(key: string) {
+    const [ano, mes] = key.split('-');
+    const nomeMes = mes ? dayjs(`${ano}-${mes}-01`).format('MMMM') : '';
+    return `${nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1)} / ${ano}`;
+  }
+
   // --- NO FINAL DO COMPONENTE ---
   // refs para sincronização de largura
   const thRefs = useRef<(HTMLTableCellElement | null)[]>([]);
@@ -872,6 +873,12 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
   const [modalType, setModalType] = useState<'destaque' | 'oportunidade' | 'plano' | null>(null);
   const [modalData, setModalData] = useState<Destaque | Oportunidade | PlanoAcao | null>(null);
 
+  // NOVO: Estados para o modal de visualização
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [viewModalType, setViewModalType] = useState<'destaque' | 'oportunidade' | 'plano' | null>(null);
+  const [viewModalData, setViewModalData] = useState<Destaque | Oportunidade | PlanoAcao | null>(null);
+  const [responsavelNome, setResponsavelNome] = useState<string>('');
+
   // Funções utilitárias para objetos vazios
   function emptyDestaque(mes: string, ano: string): Destaque {
     return {
@@ -901,7 +908,7 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
   function emptyPlanoAcao(): PlanoAcao {
     return {
       id: '',
-      usuario_id: usuario_responsavel_id, // Corrigido: usar usuario_responsavel_id
+      usuario_id: usuario_responsavel_id,
       titulo: '',
       descricao: '',
       criado_em: new Date().toISOString(),
@@ -939,12 +946,33 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
     setModalOpen(true);
   }
 
-  // --- NOVO MODELO DE PLANOS DE AÇÃO ---
-  // --- PLANOS DE AÇÃO NOVO MODELO ---
-  const [planosAbertos, setPlanosAbertos] = useState<PlanoAcao[]>(planos_iniciais);
+  // NOVO: Função para abrir modal de visualização
+  function openViewModal(type: 'destaque' | 'oportunidade' | 'plano', data: Destaque | Oportunidade | PlanoAcao | null = null) {
+    if (!data) return;
+    
+    // Buscar nome do responsável
+    const fetchResponsavelNome = async () => {
+      try {
+        const { data: userData } = await supabase
+          .from('usuarios')
+          .select('nome_completo')
+          .eq('id', data.usuario_id)
+          .single();
+        
+        setResponsavelNome(userData?.nome_completo || 'Usuário não encontrado');
+      } catch (error) {
+        setResponsavelNome('Usuário não encontrado');
+      }
+    };
+    
+    fetchResponsavelNome();
+    setViewModalType(type);
+    setViewModalData(data);
+    setViewModalOpen(true);
+  }
 
-  // Novo: Estado de expansão para subplanos
-  // const [openSubplanoId, setOpenSubplanoId] = useState<string>('');
+  // --- NOVO MODELO DE PLANOS DE AÇÃO ---
+  const [planosAbertos, setPlanosAbertos] = useState<PlanoAcao[]>(planos_iniciais);
 
   // Estado global para todos os planos e ações
   const [allPlanos, setAllPlanos] = useState<PlanoAcao[]>([]);
@@ -978,8 +1006,6 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
 
   // Estado de expansão para planos de ação (por id do plano)
   const [openPlanoId, setOpenPlanoId] = useState<string>('');
-
-  const [partitionLoading, setPartitionLoading] = useState(false);
 
   return (
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -1191,11 +1217,24 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
                         <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
+                          <button
+                            type="button"
+                            className="btn btn-link p-0 ms-1"
+                            style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              openViewModal('destaque', destaques[0]);
+                            }}
+                            aria-label="Expandir em modal"
+                            title="Expandir em modal"
+                          >
+                            <i className="bi bi-box-arrow-up-left" />
+                          </button>
                           {ofThisScreen && (
                             <button
                               type="button"
                               className="btn btn-link p-0 ms-2"
-                              style={{ color: 'var(--color-accent-primary)', fontSize: 18, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                              style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
                               onClick={e => {
                                 e.stopPropagation();
                                 openModal('destaque', destaques[0]);
@@ -1230,11 +1269,24 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
                       <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 ms-1"
+                          style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            openViewModal('destaque', destaques[0]);
+                          }}
+                          aria-label="Expandir em modal"
+                          title="Expandir em modal"
+                        >
+                          <i className="bi bi-box-arrow-up-left" />
+                        </button>
                         {ofThisScreen && (
                           <button
                             type="button"
                             className="btn btn-link p-0 ms-2"
-                            style={{ color: 'var(--color-accent-primary)', fontSize: 18, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                            style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
                             onClick={e => {
                               e.stopPropagation();
                               openModal('destaque', destaques[0]);
@@ -1283,11 +1335,24 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
                         <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{formatMonthYear(key)}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 18, color: 'inherit' }} />
+                          <button
+                            type="button"
+                            className="btn btn-link p-0 ms-1"
+                            style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              openViewModal('oportunidade', oportunidades[0]);
+                            }}
+                            aria-label="Expandir em modal"
+                            title="Expandir em modal"
+                          >
+                            <i className="bi bi-box-arrow-up-left" />
+                          </button>
                           {ofThisScreen && (
                             <button
                               type="button"
                               className="btn btn-link p-0 ms-2"
-                              style={{ color: 'var(--color-accent-primary)', fontSize: 18, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                              style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
                               onClick={e => {
                                 e.stopPropagation();
                                 openModal('oportunidade', oportunidades[0]);
@@ -1322,11 +1387,24 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
                       <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{formatMonthYear(key)}</span>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 18, color: 'inherit' }} />
+                        <button
+                          type="button"
+                          className="btn btn-link p-0 ms-1"
+                          style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            openViewModal('oportunidade', oportunidades[0]);
+                          }}
+                          aria-label="Expandir em modal"
+                          title="Expandir em modal"
+                        >
+                          <i className="bi bi-box-arrow-up-left" />
+                        </button>
                         {ofThisScreen && (
                           <button
                             type="button"
                             className="btn btn-link p-0 ms-2"
-                            style={{ color: 'var(--color-accent-primary)', fontSize: 18, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                            style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
                             onClick={e => {
                               e.stopPropagation();
                               openModal('oportunidade', oportunidades[0]);
@@ -1370,11 +1448,24 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
                         <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <i className={`bi ${openPlanoId === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 18, color: 'inherit' }} />
+                          <button
+                            type="button"
+                            className="btn btn-link p-0 ms-1"
+                            style={{ color: 'var(--color-text-secondary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              openViewModal('plano', plano);
+                            }}
+                            aria-label="Expandir em modal"
+                            title="Expandir em modal"
+                          >
+                            <i className="bi bi-box-arrow-up-left" />
+                          </button>
                           {ofThisScreen && (
                             <button
                               type="button"
                               className="btn btn-link p-0 ms-2"
-                              style={{ color: 'var(--color-accent-primary)', fontSize: 18, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                              style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
                               onClick={e => {
                                 e.stopPropagation();
                                 openModal('plano', plano);
@@ -1445,7 +1536,15 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
           anoSelecionado={year}
           mesSelecionado={month}
           onSaved={async () => {
-            sessionStorage.removeItem('individual_data_cache');
+            // Limpar cache específico da tela para forçar refresh
+            const cacheKey = `tela_${tela_id}_user_${usuario_responsavel_id}`;
+            setGlobalCache(prev => {
+              const newCache = { ...prev };
+              delete newCache[cacheKey];
+              return newCache;
+            });
+            
+            // Recarregar dados frescos do banco
             await fetchAllIndividual();
             // Recarregar planos e ações
             const { data: planosData } = await supabase.from('planos_de_acao').select('*');
@@ -1453,6 +1552,18 @@ export default function TimesheetAnalysis({ usuario_responsavel_id, tela_id, use
             setAllPlanos(planosData || []);
             setAllAcoes(acoesData || []);
           }}
+        />, 
+        document.body
+      )}
+      
+      {/* NOVO: Modal de visualização completa */}
+      {viewModalOpen && viewModalType && createPortal(
+        <ViewModal
+          show={viewModalOpen}
+          onClose={() => setViewModalOpen(false)}
+          type={viewModalType as 'destaque' | 'oportunidade' | 'plano'}
+          data={viewModalData}
+          responsavelNome={responsavelNome}
         />, 
         document.body
       )}

@@ -56,6 +56,15 @@ type ModalProps = {
   mesSelecionado?: string;
 };
 
+// NOVO: Modal de visualização completa
+type ViewModalProps = {
+  show: boolean;
+  onClose: () => void;
+  type: ModalType;
+  data: Destaque | Oportunidade | PlanoAcao | null;
+  responsavelNome?: string; // Nome completo do responsável
+};
+
 // Utilitário para exibir feedback
 function Feedback({ message, type }: { message: string; type: 'success' | 'error' }) {
   return (
@@ -75,8 +84,6 @@ function Feedback({ message, type }: { message: string; type: 'success' | 'error
 
 const Modal: React.FC<ModalProps> = (props) => {
   const { show, onClose, type, data, onSaved, anoSelecionado = '', mesSelecionado = '' } = props;
-  // DEBUG: props principais
-  console.log('[MODAL DEBUG] Renderizando Modal | show:', show, '| type:', type, '| data:', data);
 
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -133,8 +140,7 @@ const Modal: React.FC<ModalProps> = (props) => {
 
   React.useEffect(() => {
     if (type === 'oportunidade' && oportunidade) {
-      console.log('[DEBUG MODAL] Estado local oportunidade:', oportunidade);
-      console.log('[DEBUG MODAL] Estado local desafios:', oportunidade.desafios, '| melhorias:', oportunidade.melhorias);
+      // Removido console.log de DEBUG
     }
   }, [oportunidade, type]);
 
@@ -180,7 +186,6 @@ const Modal: React.FC<ModalProps> = (props) => {
   // Ao abrir o modal OU ao trocar o destaque em edição, setar mês/ano do destaque ou do período selecionado
   React.useEffect(() => {
     if (type === 'destaque' && show) {
-      console.log('[DEBUG MODAL] data:', data, 'mesSelecionado:', mesSelecionado, 'anoSelecionado:', anoSelecionado);
       if (data && (data as Destaque).mes && (data as Destaque).ano) {
         setMes(String((data as Destaque).mes).padStart(2, '0'));
         setAno(String((data as Destaque).ano));
@@ -222,8 +227,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     
     // Debug para plano
     if (type === 'plano' && data) {
-      console.log('[DEBUG MODAL] Plano recebido no modal:', data);
-      console.log('[DEBUG MODAL] usuario_id do plano:', (data as PlanoAcao).usuario_id);
+      // Plano carregado
     }
   }, [show, type, data]);
 
@@ -259,7 +263,6 @@ const Modal: React.FC<ModalProps> = (props) => {
   function addAcao() {
     if (!plano) return;
     const newId = 'temp_' + Math.random().toString(36).slice(2);
-    console.log('[DEBUG MODAL] Adicionando nova ação com ID temporário:', newId);
     const newAcao: Acao = {
       id: newId,
       plano_id: plano.id,
@@ -296,11 +299,6 @@ const Modal: React.FC<ModalProps> = (props) => {
     if (!plano || !originalPlano) return false;
     
     const changed = JSON.stringify(plano) !== JSON.stringify(originalPlano);
-    console.log('[DEBUG MODAL] hasPlanoChanged:', changed);
-    if (changed) {
-      console.log('[DEBUG MODAL] Plano atual:', JSON.stringify(plano, null, 2));
-      console.log('[DEBUG MODAL] Plano original:', JSON.stringify(originalPlano, null, 2));
-    }
     return changed;
   }
 
@@ -643,9 +641,6 @@ const Modal: React.FC<ModalProps> = (props) => {
         }
 
         // --- NOVO: Comparação profunda e update/insert/delete para plano, ações ---
-        console.log('[DEBUG MODAL] Salvando plano:', plano);
-        console.log('[DEBUG MODAL] Plano tem ID?', !!plano.id);
-        console.log('[DEBUG MODAL] Original plano:', originalPlano);
         
         // Verificar se o usuario_id está definido
         if (!plano.usuario_id) {
@@ -654,17 +649,12 @@ const Modal: React.FC<ModalProps> = (props) => {
           return;
         }
         
-        console.log('[DEBUG MODAL] usuario_id do plano:', plano.usuario_id);
-        
         // Verificar se o usuário existe na tabela usuarios
-        console.log('[DEBUG MODAL] Verificando se usuário existe na tabela usuarios...');
         const { data: usuarioExists, error: usuarioCheckError } = await supabase
           .from('usuarios')
           .select('id')
           .eq('id', plano.usuario_id)
           .single();
-        
-        console.log('[DEBUG MODAL] Resultado da verificação de usuário:', { usuarioExists, usuarioCheckError });
         
         if (usuarioCheckError || !usuarioExists) {
           console.error('[DEBUG MODAL] Usuário não encontrado na tabela usuarios:', plano.usuario_id);
@@ -672,16 +662,7 @@ const Modal: React.FC<ModalProps> = (props) => {
           return;
         }
         
-        console.log('[DEBUG MODAL] Usuário verificado com sucesso');
-        
         if (plano.id && originalPlano) {
-          console.log('[DEBUG MODAL] Entrando no fluxo de atualização');
-          console.log('[DEBUG MODAL] Comparando campos:');
-          console.log('[DEBUG MODAL] - titulo:', plano.titulo, 'vs', originalPlano.titulo, '=', plano.titulo !== originalPlano.titulo);
-          console.log('[DEBUG MODAL] - descricao:', plano.descricao, 'vs', originalPlano.descricao, '=', plano.descricao !== originalPlano.descricao);
-          console.log('[DEBUG MODAL] - data_inicio:', plano.data_inicio, 'vs', originalPlano.data_inicio, '=', plano.data_inicio !== originalPlano.data_inicio);
-          console.log('[DEBUG MODAL] - data_fim:', plano.data_fim, 'vs', originalPlano.data_fim, '=', plano.data_fim !== originalPlano.data_fim);
-          
           // 1. Atualizar plano de ação se mudou
           const planoMudou = (
             plano.titulo !== originalPlano.titulo || 
@@ -690,11 +671,7 @@ const Modal: React.FC<ModalProps> = (props) => {
             // Remover data_fim da comparação pois agora é calculada automaticamente
           );
           
-          console.log('[DEBUG MODAL] Plano mudou?', planoMudou);
-          
           if (planoMudou) {
-            console.log('[DEBUG MODAL] Atualizando plano existente:', plano.id);
-            
             // Calcular data final baseada nas ações
             const calcularDataFinalParaSalvar = () => {
               if (plano.acoes.length === 0) return '';
@@ -716,28 +693,17 @@ const Modal: React.FC<ModalProps> = (props) => {
               console.error('[DEBUG MODAL] Erro ao atualizar plano:', updateError);
               throw updateError;
             }
-            console.log('[DEBUG MODAL] Plano atualizado com sucesso');
-          } else {
-            console.log('[DEBUG MODAL] Plano não mudou, pulando atualização');
           }
           
           // 2. Ações
-          console.log('[DEBUG MODAL] Processando ações. Total de ações:', plano.acoes.length);
-          console.log('[DEBUG MODAL] Ações originais:', originalPlano.acoes.length);
-          
           let acoesModificadas = 0;
           
           for (const acao of plano.acoes) {
-            console.log('[DEBUG MODAL] Processando ação:', acao.id, acao.titulo);
             const origAcao = originalPlano.acoes.find(a => a.id === acao.id);
-            console.log('[DEBUG MODAL] Ação encontrada no original?', !!origAcao, 'ID:', acao.id);
             
               if (acao.id && origAcao) {
-              console.log('[DEBUG MODAL] Ação existente encontrada');
-              
               // Verificar se a ação tem pelo menos um título
               if (!acao.titulo.trim()) {
-                console.log('[DEBUG MODAL] Ação existente sem título, pulando atualização');
                 continue;
               }
               
@@ -747,10 +713,8 @@ const Modal: React.FC<ModalProps> = (props) => {
                   acao.status !== origAcao.status ||
                   acao.data_limite !== origAcao.data_limite
               );
-              console.log('[DEBUG MODAL] Ação mudou?', acaoMudou);
               
               if (acaoMudou) {
-                console.log('[DEBUG MODAL] Atualizando ação:', acao.id);
                 const { error: acaoError } = await supabase.from('acoes').update({
                     titulo: acao.titulo,
                     responsavel: acao.responsavel,
@@ -761,18 +725,15 @@ const Modal: React.FC<ModalProps> = (props) => {
                   console.error('[DEBUG MODAL] Erro ao atualizar ação:', acaoError);
                   throw acaoError;
                 }
-                console.log('[DEBUG MODAL] Ação atualizada com sucesso');
                 acoesModificadas++;
               } else {
-                console.log('[DEBUG MODAL] Ação não mudou, pulando atualização');
+                // linha removida
               }
             } else if (!origAcao) {
               // Nova ação - não existe no original
-              console.log('[DEBUG MODAL] Inserindo nova ação para plano:', plano.id);
               
               // Verificar se a ação tem pelo menos um título
               if (!acao.titulo.trim()) {
-                console.log('[DEBUG MODAL] Ação sem título, pulando inserção');
                 continue;
               }
               
@@ -787,34 +748,26 @@ const Modal: React.FC<ModalProps> = (props) => {
                 console.error('[DEBUG MODAL] Erro ao inserir ação:', insertAcaoError);
                 throw insertAcaoError;
               }
-              console.log('[DEBUG MODAL] Nova ação inserida com sucesso');
               acoesModificadas++;
-            } else {
-              console.log('[DEBUG MODAL] Ação com ID válido mas não encontrada no original, pulando');
             }
           }
           
           // Deletar ações removidas
-          console.log('[DEBUG MODAL] Verificando ações removidas');
           for (const origAcao of originalPlano.acoes) {
             const aindaExiste = plano.acoes.some(a => a.id === origAcao.id);
-            console.log('[DEBUG MODAL] Ação original', origAcao.id, 'ainda existe?', aindaExiste);
             
             if (!aindaExiste) {
-              console.log('[DEBUG MODAL] Deletando ação:', origAcao.id);
               const { error: deleteError } = await supabase.from('acoes').delete().eq('id', origAcao.id);
               if (deleteError) {
                 console.error('[DEBUG MODAL] Erro ao deletar ação:', deleteError);
                 throw deleteError;
               }
-              console.log('[DEBUG MODAL] Ação deletada com sucesso');
               acoesModificadas++;
               }
             }
           
           // Só mostrar sucesso se algo foi realmente modificado
           const algoFoiModificado = planoMudou || acoesModificadas > 0;
-          console.log('[DEBUG MODAL] Algo foi modificado?', algoFoiModificado, '(plano mudou:', planoMudou, ', ações modificadas:', acoesModificadas, ')');
           
           if (algoFoiModificado) {
             setFeedback({ message: 'Plano de ação salvo com sucesso!', type: 'success' });
@@ -888,7 +841,13 @@ const Modal: React.FC<ModalProps> = (props) => {
         }
         
         // Limpa cache para forçar refresh
-        sessionStorage.removeItem('individual_data_cache');
+        // Limpar todos os caches relacionados para garantir atualização em todas as telas
+        const keys = Object.keys(sessionStorage);
+        keys.forEach(key => {
+          if (key.startsWith('individual_data_cache_')) {
+            sessionStorage.removeItem(key);
+          }
+        });
       }
       if (onSaved) onSaved();
     } catch (err: unknown) {
@@ -1510,8 +1469,6 @@ const Modal: React.FC<ModalProps> = (props) => {
   }
 
   // Antes do return do JSX
-  console.log('[MODAL DEBUG] Antes do return | show:', show);
-  console.log('[MODAL DEBUG] renderForm Importanto:', type);
 
   return (
     <>
@@ -1576,3 +1533,339 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
+
+// NOVO: Modal de visualização completa
+const ViewModal: React.FC<ViewModalProps> = ({ show, onClose, type, data, responsavelNome }) => {
+  const [visible, setVisible] = useState(show);
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+    if (show) {
+      setVisible(true);
+      setIsClosing(false);
+    } else if (visible) {
+      setIsClosing(true);
+      setTimeout(() => {
+        setVisible(false);
+        setIsClosing(false);
+      }, 250);
+    }
+  }, [show, visible]);
+
+  // Função para formatar data
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  // Função para formatar mês/ano
+  const formatMonthYear = (mes: string, ano: string) => {
+    if (!mes || !ano) return '';
+    const mesStr = String(mes).padStart(2, '0');
+    const anoStr = String(ano);
+    const date = new Date(`${anoStr}-${mesStr}-01`);
+    return date.toLocaleDateString('pt-BR', {
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Função para renderizar conteúdo baseado no tipo
+  const renderContent = () => {
+    if (!data) return <div style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: 20 }}>Nenhum dado disponível.</div>;
+
+    switch (type) {
+      case 'destaque': {
+        const destaque = data as Destaque;
+        return (
+          <div style={{ padding: '20px 0' }}>
+            {/* Positivos */}
+            <div style={{ marginBottom: 20 }}>
+              <h6 style={{ color: '#1bbf5c', fontWeight: 600, fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="bi bi-hand-thumbs-up" /> Positivos
+              </h6>
+              <div style={{ background: 'rgba(0,200,100,0.04)', borderRadius: 8, padding: 16, minHeight: 60 }}>
+                {destaque.positivos && destaque.positivos.length > 0 ? (
+                  destaque.positivos.map((item, index) => (
+                    <div key={index} style={{ color: '#1bbf5c', fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>•</span>
+                      <span style={{ flex: 1, lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span style={{ color: '#1bbf5c', fontSize: 14, fontStyle: 'italic' }}>Nenhum destaque positivo registrado.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Negativos */}
+            <div>
+              <h6 style={{ color: '#dc3545', fontWeight: 600, fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="bi bi-hand-thumbs-down" /> Negativos
+              </h6>
+              <div style={{ background: 'rgba(220,53,69,0.04)', borderRadius: 8, padding: 16, minHeight: 60 }}>
+                {destaque.negativos && destaque.negativos.length > 0 ? (
+                  destaque.negativos.map((item, index) => (
+                    <div key={index} style={{ color: '#dc3545', fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>•</span>
+                      <span style={{ flex: 1, lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span style={{ color: '#dc3545', fontSize: 14, fontStyle: 'italic' }}>Nenhum destaque negativo registrado.</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      case 'oportunidade': {
+        const oportunidade = data as Oportunidade;
+        return (
+          <div style={{ padding: '20px 0' }}>
+            <div style={{ marginBottom: 20 }}>
+              <h6 style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 18, marginBottom: 16 }}>
+                {oportunidade.titulo || 'Sem título'}
+              </h6>
+            </div>
+
+            {/* Desafios */}
+            <div style={{ marginBottom: 20 }}>
+              <h6 style={{ color: '#e67e22', fontWeight: 600, fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="bi bi-exclamation-triangle" /> Desafios
+              </h6>
+              <div style={{ background: 'rgba(230, 126, 34, 0.08)', borderRadius: 8, padding: 16, minHeight: 60 }}>
+                {oportunidade.desafios && oportunidade.desafios.length > 0 ? (
+                  oportunidade.desafios.map((item, index) => (
+                    <div key={index} style={{ color: '#e67e22', fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>•</span>
+                      <span style={{ flex: 1, lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span style={{ color: '#e67e22', fontSize: 14, fontStyle: 'italic' }}>Nenhum desafio registrado.</span>
+                )}
+              </div>
+            </div>
+
+            {/* Melhorias */}
+            <div>
+              <h6 style={{ color: '#2e86de', fontWeight: 600, fontSize: 16, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <i className="bi bi-lightbulb" /> Melhorias
+              </h6>
+              <div style={{ background: 'rgba(46, 107, 230, 0.08)', borderRadius: 8, padding: 16, minHeight: 60 }}>
+                {oportunidade.melhorias && oportunidade.melhorias.length > 0 ? (
+                  oportunidade.melhorias.map((item, index) => (
+                    <div key={index} style={{ color: '#2e86de', fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <span style={{ fontSize: 18, lineHeight: 1, marginTop: 2 }}>•</span>
+                      <span style={{ flex: 1, lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))
+                ) : (
+                  <span style={{ color: '#2e86de', fontSize: 14, fontStyle: 'italic' }}>Nenhuma melhoria registrada.</span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      case 'plano': {
+        const plano = data as PlanoAcao;
+        return (
+          <div style={{ padding: '20px 0' }}>
+            {/* Título do Plano */}
+            <div style={{ marginBottom: 24 }}>
+              <h6 style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 20, marginBottom: 8 }}>
+                {plano.titulo || 'Sem título'}
+              </h6>
+            </div>
+
+            {/* Descrição */}
+            <div style={{ marginBottom: 24 }}>
+              <h6 style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 16, marginBottom: 12 }}>Descrição</h6>
+              <div style={{ 
+                background: 'var(--color-background-secondary)', 
+                borderRadius: 8, 
+                padding: 16, 
+                color: 'var(--color-text-secondary)',
+                fontSize: 15,
+                lineHeight: 1.5
+              }}>
+                {plano.descricao || 'Sem descrição'}
+              </div>
+            </div>
+
+            {/* Período */}
+            <div style={{ marginBottom: 24 }}>
+              <h6 style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 16, marginBottom: 12 }}>Período</h6>
+              <div style={{ 
+                background: 'var(--color-background-secondary)', 
+                borderRadius: 8, 
+                padding: 20,
+                fontSize: 15
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 40 }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ color: 'var(--color-text-secondary)', fontSize: 13, marginBottom: 4 }}>Data de Início</div>
+                    <div style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{formatDate(plano.data_inicio)}</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ color: 'var(--color-text-secondary)', fontSize: 13, marginBottom: 4 }}>Data de Fim</div>
+                    <div style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>{formatDate(plano.data_fim)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Ações */}
+            <div>
+              <h6 style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 16, marginBottom: 16 }}>Ações</h6>
+              {plano.acoes && plano.acoes.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {plano.acoes.map((acao, index) => {
+                    let statusIcon = 'bi-arrow-repeat';
+                    let statusColor = '#e67e22';
+                    if (acao.status === 'Done' || acao.status === 'concluída') {
+                      statusIcon = 'bi-check-circle';
+                      statusColor = '#1bbf5c';
+                    } else if (acao.status === 'Overdue') {
+                      statusIcon = 'bi-exclamation-octagon';
+                      statusColor = '#dc3545';
+                    }
+
+                    return (
+                      <div key={index} style={{ 
+                        background: 'var(--color-background-secondary)', 
+                        borderRadius: 8, 
+                        padding: '10px 16px',
+                        border: '1px solid var(--color-border-divider)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
+                          <i className={`bi ${statusIcon}`} style={{ color: statusColor, fontSize: 18, marginTop: 2, flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ color: 'var(--color-text-primary)', fontSize: 16, fontWeight: 500, marginBottom: 8 }}>
+                              {acao.titulo}
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: 24, fontSize: 14, color: 'var(--color-text-secondary)' }}>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: 12, marginBottom: 2 }}>Responsável</div>
+                                <div style={{ fontWeight: 500 }}>{acao.responsavel}</div>
+                              </div>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: 12, marginBottom: 2 }}>Status</div>
+                                <div style={{ color: statusColor, fontWeight: 500 }}>{acao.status}</div>
+                              </div>
+                              <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: 12, marginBottom: 2 }}>Prazo Limite</div>
+                                <div style={{ fontWeight: 500 }}>{formatDate(acao.data_limite)}</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ 
+                  background: 'var(--color-background-secondary)', 
+                  borderRadius: 8, 
+                  padding: 20,
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 14,
+                  fontStyle: 'italic',
+                  textAlign: 'center'
+                }}>
+                  Nenhuma ação registrada.
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
+
+      default:
+        return <div style={{ color: 'var(--color-text-secondary)', textAlign: 'center', padding: 20 }}>Tipo não suportado.</div>;
+    }
+  };
+
+  return (
+    <>
+      <div className={`modal fade show custom-modal-anim${isClosing ? ' closing' : ''}`} tabIndex={-1} style={{ display: 'block', zIndex: 2400 }}>
+        <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: 800 }}>
+          <div className="modal-content" style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: '1.5px solid var(--color-border-divider)', zIndex: 2400, position: 'relative' }}>
+            <div className="modal-header px-4 py-3 d-flex flex-row gap-2 align-items-center" style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+              <h5 className="modal-title d-flex flex-row gap-2" style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
+                <p style={{ color: 'var(--color-text-secondary)', marginBottom: 0 }}>Visualizar</p>
+                <p style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
+                  {type === 'destaque' && 'Destaque'}
+                  {type === 'oportunidade' && 'Oportunidade'}
+                  {type === 'plano' && 'Plano de Ação'}
+                </p>
+              </h5>
+              <button type="button" className="btn-close" aria-label="Close" onClick={onClose} style={{ filter: 'invert(1)' }} />
+            </div>
+            
+            {/* Cabeçalho com data e responsável */}
+            <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  {type === 'destaque' && data && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                      <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                      <span>
+                        Período: {formatMonthYear((data as Destaque).mes, (data as Destaque).ano)}
+                      </span>
+                    </div>
+                  )}
+                  {type === 'oportunidade' && data && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                      <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                      <span>
+                        Período: {formatMonthYear((data as Oportunidade).mes, (data as Oportunidade).ano)}
+                      </span>
+                    </div>
+                  )}
+                  {type === 'plano' && data && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                      <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                      <span>
+                        Início: {formatDate((data as PlanoAcao).data_inicio)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                {responsavelNome && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                    <i className="bi bi-person" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                    <span style={{ fontWeight: 500 }}>
+                      Responsável: {responsavelNome}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="modal-body" style={{ padding: '0 24px 24px', background: 'var(--color-background-primary)' }}>
+              {renderContent()}
+            </div>
+
+            <div className="modal-footer" style={{ borderTop: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 10 }}>
+              <button type="button" className="btn btn-secondary" onClick={onClose} style={{ borderRadius: 6, fontWeight: 500, minWidth: 90 }}>Fechar</button>
+            </div>
+          </div>
+        </div>
+        <div className="modal-backdrop fade show" style={{ zIndex: 2300 }}></div>
+      </div>
+    </>
+  );
+};
+
+export { ViewModal };

@@ -5,7 +5,28 @@ import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import Cookies from 'js-cookie';
 import TimesheetAnalysis from './timesheet_analysis';
-import type { PlanoAcao } from './timesheet_analysis';
+import AccountingIndicators from './accounting_indicators';
+
+// Interface para PlanoAcao (comum entre os componentes)
+interface PlanoAcao {
+  id: string;
+  usuario_id: string;
+  titulo: string;
+  descricao: string;
+  criado_em: string;
+  data_inicio: string;
+  data_fim: string;
+  acoes: Acao[];
+}
+
+interface Acao {
+  id: string;
+  plano_id: string;
+  titulo: string;
+  responsavel: string;
+  status: string;
+  data_limite: string;
+}
 
 interface DashboardProps {
   user: User;
@@ -295,16 +316,24 @@ export default function Dashboard({ user, onLogout }: DashboardProps) {
         }}
       >
         {usuarioId && telaId && usuarioResponsavelTelaId && (
-          <TimesheetAnalysis
-            usuario_id={usuarioId}
-            usuario_responsavel_id={usuarioResponsavelTelaId}
-            tela_id={telaId}
-            user_role={role}
-            user_setor_id={''}
-            isAdmin={role === 'dev'}
-            ofThisScreen={role === 'dev' || (!!permissoes[telaId] && role === 'admin_setor')}
-            planos_iniciais={planosResponsavel}
-          />
+          telas.find(t => t.id === telaId)?.descricao === 'Accounting Indicators' ? (
+            <AccountingIndicators
+              usuario_responsavel_id={usuarioResponsavelTelaId}
+              tela_id={telaId}
+              user_role={role}
+              user_setor_id={''}
+              isAdmin={role === 'dev'}
+              ofThisScreen={role === 'dev' || (!!permissoes[telaId] && role === 'admin_setor')}
+              planos_iniciais={planosResponsavel}
+            />
+          ) : (
+            <TimesheetAnalysis
+              usuario_responsavel_id={usuarioResponsavelTelaId}
+              tela_id={telaId}
+              ofThisScreen={role === 'dev' || (!!permissoes[telaId] && role === 'admin_setor')}
+              planos_iniciais={planosResponsavel}
+            />
+          )
         )}
       </main>
     </div>
