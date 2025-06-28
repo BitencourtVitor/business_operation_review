@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import type { ChartEvent, ActiveElement } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import dayjs from 'dayjs';
 import type { TooltipItem } from 'chart.js';
@@ -668,9 +669,6 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
   // Estados para cache global de todas as telas
   const [globalCache, setGlobalCache] = useState<Record<string, { highlights: Destaque[], oportunidades: Oportunidade[] }>>({});
 
-  // NOVO: Estado para dados do timesheet
-  const [timesheetData, setTimesheetData] = useState<Array<{date: string, add_dollar: string, remove_dollar: string}>>([]);
-
   // Funções auxiliares
   function groupByMonthYear<T extends { mes: string | number; ano: string | number }>(arr: T[]): Record<string, T[]> {
     return arr.reduce((acc, item) => {
@@ -911,13 +909,7 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
   }, [allData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedCategory]);
 
   // Calcular métricas
-  const totalReceivable = filteredData
-    .filter(d => d.type === 'receivables')
-    .reduce((sum, d) => sum + d.open_balance, 0);
-  
-  const totalPayable = filteredData
-    .filter(d => d.type === 'payables')
-    .reduce((sum, d) => sum + d.open_balance, 0);
+  // Removido: totalReceivable e totalPayable - não utilizados
   
   // Função para calcular aging details
   const calculateAgingDetails = (type: 'receivables' | 'payables' | 'all') => {
@@ -1207,6 +1199,10 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
     plugins: {
       legend: { 
         display: true,
@@ -1234,6 +1230,26 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
             const label = context.dataset.label || '';
             const value = context.parsed.y;
             return `${label}: ${value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}`;
+          },
+          afterBody: function(context: TooltipItem<'line'>[]) {
+            if (context.length === 0) return '';
+            
+            const dataIndex = context[0].dataIndex;
+            const allValues = chartDatasets.map(dataset => ({
+              label: dataset.label,
+              value: dataset.data[dataIndex] || 0,
+              color: dataset.borderColor
+            })).filter(item => item.value > 0);
+            
+            if (allValues.length <= 1) return '';
+            
+            const total = allValues.reduce((sum, item) => sum + item.value, 0);
+            const lines = allValues.map(item => {
+              const percentage = total > 0 ? ((item.value / total) * 100).toFixed(1) : '0.0';
+              return `  • ${item.label}: ${item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} (${percentage}%)`;
+            });
+            
+            return ['', 'Todos os valores do período:', ...lines];
           }
         }
       },
@@ -1292,6 +1308,10 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
         },
       },
     },
+    onHover: (event: ChartEvent, activeElements: ActiveElement[]) => {
+      // Funcionalidade de destacar linha da grade removida para evitar problemas de tipos
+      // O tooltip enriquecido já fornece a funcionalidade principal
+    },
   };
 
   // Estilo para selects customizados (igual ao timesheet)
@@ -1308,45 +1328,8 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
   // Função utilitária para comparar ano/mês em qualquer formato de dado
   // Função removida - não utilizada
   
-  // Funções utilitárias para objetos vazios
-  function emptyDestaque(mes: string, ano: string): Destaque {
-    return {
-      id: '',
-      usuario_id: usuario_responsavel_id,
-      tela_id: tela_id,
-      mes,
-      ano,
-      criado_em: new Date().toISOString(),
-      positivos: [],
-      negativos: [],
-    };
-  }
-  function emptyOportunidade(mes: string, ano: string): Oportunidade {
-    return {
-      id: '',
-      usuario_id: usuario_responsavel_id,
-      tela_id: tela_id,
-      mes,
-      ano,
-      titulo: '',
-      criado_em: new Date().toISOString(),
-      desafios: [],
-      melhorias: [],
-    };
-  }
-  function emptyPlanoAcao(): PlanoAcao {
-    return {
-      id: '',
-      usuario_id: usuario_responsavel_id,
-      titulo: '',
-      descricao: '',
-      criado_em: new Date().toISOString(),
-      data_inicio: '',
-      data_fim: '',
-      acoes: [],
-    };
-  }
-
+  // Funções utilitárias para objetos vazios - REMOVIDAS (não utilizadas)
+  
   function openModal(type: 'destaque' | 'oportunidade' | 'plano', data: Destaque | Oportunidade | PlanoAcao | null = null) {
     setModalType(type);
     setModalData(data);
@@ -1367,7 +1350,7 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
           .single();
         
         setResponsavelNome(userData?.nome_completo || 'Usuário não encontrado');
-      } catch (error) {
+      } catch {
         setResponsavelNome('Usuário não encontrado');
       }
     };
@@ -1380,38 +1363,20 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
 
   // Calcular o valor de recebíveis do último ponto do gráfico
   let lastReceivable = 0;
+  let lastPayable = 0;
   if (chartLabels.length > 0 && chartDatasets.length > 0) {
     // Procura o dataset de Receivables
     const receivablesDataset = chartDatasets.find(ds => ds.label && ds.label.toLowerCase().includes('receivable'));
     if (receivablesDataset && receivablesDataset.data.length > 0) {
       lastReceivable = receivablesDataset.data[receivablesDataset.data.length - 1] || 0;
     }
-  }
-
-  // Buscar dados do timesheet_analysis
-  useEffect(() => {
-    async function fetchTimesheet() {
-      const { data, error } = await supabase.from('timesheet_analysis').select('*');
-      if (!error && data) setTimesheetData(data);
+    
+    // Procura o dataset de Payables
+    const payablesDataset = chartDatasets.find(ds => ds.label && ds.label.toLowerCase().includes('payable'));
+    if (payablesDataset && payablesDataset.data.length > 0) {
+      lastPayable = payablesDataset.data[payablesDataset.data.length - 1] || 0;
     }
-    fetchTimesheet();
-  }, []);
-
-  // Função para pegar o último ponto do período selecionado
-  function getLastTimesheetValues() {
-    let filtered = timesheetData;
-    if (selectedYear) filtered = filtered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
-    if (selectedMonth) filtered = filtered.filter(d => d.date && d.date.split('-')[1] === selectedMonth);
-    if (filtered.length === 0) return { add: 0, rem: 0 };
-    // Ordenar por data e pegar o último
-    const sorted = filtered.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const last = sorted[sorted.length - 1];
-    return {
-      add: parseFloat(last.add_dollar) || 0,
-      rem: parseFloat(last.remove_dollar) || 0,
-    };
   }
-  const { add: lastAddDollar, rem: lastRemoveDollar } = getLastTimesheetValues();
 
   return (
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -1599,26 +1564,26 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
                 {/* Total Receivable */}
                 <MetricTooltip 
                   title="Total Receivable" 
-                  content="Valor adicionado (recebíveis) no último ponto do período visualizado."
+                  content="Valor de recebíveis no último ponto do período visualizado."
                   agingDetails={receivablesAgingDetails}
                 >
                   <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 120, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)', cursor: 'help' }}>
                     <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Total Receivable</span>
                     <span style={{ color: '#1bbf5c', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
-                      {lastAddDollar.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {lastReceivable.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
                 </MetricTooltip>
                 {/* Total Payable */}
                 <MetricTooltip 
                   title="Total Payable" 
-                  content="Valor removido (pagáveis) no último ponto do período visualizado."
+                  content="Valor de pagáveis no último ponto do período visualizado."
                   agingDetails={payablesAgingDetails}
                 >
                   <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 120, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)', cursor: 'help' }}>
                     <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Total Payable</span>
                     <span style={{ color: '#dc3545', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
-                      {lastRemoveDollar.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {lastPayable.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
                 </MetricTooltip>
@@ -1631,7 +1596,7 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
                   <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 120, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)', cursor: 'help' }}>
                     <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Total Outstanding</span>
                     <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
-                      {(lastAddDollar + lastRemoveDollar).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      {(lastReceivable + lastPayable).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                     </span>
                   </div>
                 </MetricTooltip>
