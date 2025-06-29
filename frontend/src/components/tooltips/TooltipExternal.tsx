@@ -1,12 +1,15 @@
-import React from 'react';
 import type { TooltipExternalProps } from '../../types/accounting';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 
 export default function TooltipExternal({
   tooltip,
   chartLabels,
-  chartDatasets
-}: Omit<TooltipExternalProps, 'year' | 'month' | 'canvas' | 'data'>) {
+  chartDatasets,
+  year,
+  month,
+  canvas,
+  data,
+}: TooltipExternalProps) {
   if (!tooltip || !tooltip.opacity || (tooltip.opacity as number) === 0) {
     return null;
   }

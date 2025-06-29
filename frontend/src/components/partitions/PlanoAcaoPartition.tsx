@@ -127,7 +127,7 @@ export default function PlanoAcaoPartition({
       <div className="custom-scrollbar d-flex flex-column gap-1" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {planosComAcoes.length === 0 ? (
           <PartitionCard>
-            <EmptyMessage text="No action plan found." showEdit={isAdmin} onEdit={onEdit} icon="bi-map" />
+            <EmptyMessage message="No action plan found." showEdit={isAdmin} onEdit={onEdit} icon="bi-map" />
           </PartitionCard>
         ) : (
           planosComAcoes.map(plano => (

@@ -187,7 +187,7 @@ export default function DestaquesPartition({
             if (!destaques || destaques.length === 0) {
               return (
                 <PartitionCard>
-                  <EmptyMessage text="No highlights found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
+                  <EmptyMessage message="No highlights found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
                 </PartitionCard>
               );
             }
@@ -275,7 +275,7 @@ export default function DestaquesPartition({
           })()
         ) : Object.keys(destaquesByMonth).length === 0 ? (
           <PartitionCard>
-            <EmptyMessage text="No highlights found." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
+            <EmptyMessage message="No highlights found." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
           </PartitionCard>
         ) : (
           Object.entries(destaquesByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([key, destaques]) => (

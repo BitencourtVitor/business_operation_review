@@ -1,19 +1,10 @@
-import React from 'react';
-
 export default function PartitionLoading() {
   return (
-    <div style={{
-      minHeight: 120,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '100%',
-      height: '100%',
-      background: 'transparent',
-    }}>
-      <div className="spinner-border" style={{ width: 40, height: 40, color: 'var(--color-accent-primary)' }} role="status">
+    <div style={{ height: '100%', minHeight: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+      <div className="spinner-border" role="status" style={{ width: 24, height: 24, color: 'var(--color-accent-primary)' }}>
         <span className="visually-hidden">Carregando...</span>
       </div>
+      <span style={{ color: 'var(--color-text-secondary)', fontSize: 15 }}>Carregando...</span>
     </div>
   );
 } 

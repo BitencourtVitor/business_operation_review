@@ -188,7 +188,7 @@ export default function OportunidadesPartition({
             if (!oportunidades || oportunidades.length === 0) {
               return (
                 <PartitionCard>
-                  <EmptyMessage text="No opportunities found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-lightbulb" />
+                  <EmptyMessage message="No opportunities found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-lightbulb" />
                 </PartitionCard>
               );
             }
@@ -291,7 +291,7 @@ export default function OportunidadesPartition({
           })()
         ) : Object.keys(oportunidadesByMonth).length === 0 ? (
           <PartitionCard>
-            <EmptyMessage text="No opportunities found." showEdit={isAdmin} onEdit={onEdit} icon="bi-lightbulb" />
+            <EmptyMessage message="No opportunities found." showEdit={isAdmin} onEdit={onEdit} icon="bi-lightbulb" />
           </PartitionCard>
         ) : (
           Object.entries(oportunidadesByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([key, oportunidades]) => (

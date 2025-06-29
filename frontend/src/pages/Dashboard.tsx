@@ -6,6 +6,7 @@ import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import TimesheetAnalysis from './TimesheetAnalysis';
 import AccountingIndicators from './AccountingIndicators';
+import PermitControl from './PermitControl';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -192,6 +193,8 @@ export default function Dashboard() {
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Accounting Indicators':
         return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'Permit Control':
+        return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       default:
         return (
           <div className="container-fluid">
