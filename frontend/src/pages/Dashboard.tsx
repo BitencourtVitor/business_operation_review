@@ -27,7 +27,6 @@ export default function Dashboard() {
   const [role, setRole] = useState('');
   const [telas, setTelas] = useState<Tela[]>([]);
   const [permissoes, setPermissoes] = useState<Permissao>({});
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [usuarioId, setUsuarioId] = useState<string>('');
 
   // Buscar dados do usuário e telas
@@ -113,12 +112,6 @@ export default function Dashboard() {
     await supabase.auth.signOut();
     sessionStorage.clear();
     navigate('/login');
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Recarregar dados aqui se necessário
-    setTimeout(() => setIsRefreshing(false), 1000);
   };
 
   const handleSetMainContent = (telaId: string) => {
@@ -294,28 +287,6 @@ export default function Dashboard() {
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            type="button"
-            onClick={handleRefresh}
-            className="btn-secondary-custom d-flex align-items-center justify-content-center"
-            style={{ 
-              width: 36, 
-              height: 32, 
-              fontSize: 14, 
-              marginBottom: 0, 
-              marginTop: 0,
-              transition: 'all 0.2s ease'
-            }}
-            title="Atualizar dados"
-            disabled={isRefreshing}
-          >
-            <i 
-              className={`bi bi-arrow-repeat ${isRefreshing ? 'spinning' : ''}`} 
-              style={{
-                animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
-              }}
-            />
-          </button>
           <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 16 }}>
             {nomeCompleto || user.email}
           </span>
