@@ -1,7 +1,6 @@
 /* Removido import de Tailwind. Adicione estilos globais se necessário. */
 
 * {
-  transition: all 0.05s ease-in-out;
   box-sizing: border-box;
 }
 
@@ -87,13 +86,14 @@ input::placeholder, textarea::placeholder {
   font-weight: 600;
   font-size: 16px;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
-  transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 .btn-primary-custom:hover, .btn-primary-custom:focus {
-  background: var(--color-accent-primary);
+  background: var(--color-accent-primary) !important;
   filter: brightness(0.92);
   color: #fff;
   outline: none;
+  transform: none;
 }
 
 .btn-secondary-custom {
@@ -103,13 +103,14 @@ input::placeholder, textarea::placeholder {
   border-radius: 8px;
   font-weight: 500;
   font-size: 16px;
-  transition: background 0.3s, color 0.3s, border 0.3s;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 .btn-secondary-custom:hover, .btn-secondary-custom:focus {
   background: var(--color-background-primary);
   color: var(--color-accent-primary);
   border-color: var(--color-accent-primary);
   outline: none;
+  transform: none;
 }
 
 .btn-sidebar {

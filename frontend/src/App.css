@@ -54,17 +54,16 @@
   border-radius: 8px;
   padding: 8px 16px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease;
   cursor: pointer;
 }
 
 .btn-primary-custom:hover {
-  background: var(--color-accent-secondary);
-  transform: translateY(-1px);
+  transform: none;
 }
 
 .btn-primary-custom:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
@@ -76,13 +75,14 @@
   border-radius: 8px;
   padding: 8px 16px;
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
 }
 
 .btn-secondary-custom:hover {
   background: var(--color-background-primary);
   border-color: var(--color-accent-primary);
+  transform: none;
 }
 
 .btn-secondary-custom:disabled {
