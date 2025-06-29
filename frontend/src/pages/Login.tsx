@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
+import type { Theme } from '../types/common';
 
-interface LoginProps {
-  email: string;
-  password: string;
-  loading: boolean;
-  error: string;
-  setEmail: (email: string) => void;
-  setPassword: (password: string) => void;
-  onLogin: (e: React.FormEvent) => void;
-}
-
-export default function Login({ email, password, loading, error, setEmail, setPassword, onLogin }: LoginProps) {
+export default function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [localError, setLocalError] = useState('');
   const [remember, setRemember] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
+  const [theme, setTheme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
 
   // Preencher senha automaticamente se lembrar senha
   useEffect(() => {
@@ -27,7 +25,7 @@ export default function Login({ email, password, loading, error, setEmail, setPa
       setPassword(rememberedPassword);
       setRemember(true);
     }
-  }, [email, setPassword]);
+  }, [email]);
 
   // Persistir tema no cookie e aplicar classe
   useEffect(() => {
@@ -47,32 +45,59 @@ export default function Login({ email, password, loading, error, setEmail, setPa
       setPassword(Cookies.get('rememberedPassword') || '');
       setRemember(true);
     }
-  }, [setEmail, setPassword]);
+  }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLocalError('');
+    setError('');
+    
     if (!email || !password) {
       setLocalError('Preencha email e senha.');
-      e.preventDefault();
       return;
     }
     if (!/\S+@\S+\.\S+/.test(email)) {
       setLocalError('Email inválido.');
-      e.preventDefault();
       return;
     }
-    if (remember) {
-      Cookies.set('remember', 'true', { expires: 365 });
-      Cookies.set('rememberedEmail', email, { expires: 365 });
-      Cookies.set('rememberedPassword', password, { expires: 365 });
-    } else {
-      Cookies.remove('remember');
-      Cookies.remove('rememberedEmail');
-      Cookies.remove('rememberedPassword');
+
+    setLoading(true);
+    console.log('Tentando fazer login com:', email);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      console.log('Resposta do Supabase:', { data, error });
+
+      if (error) {
+        console.error('Erro no login:', error);
+        setError(error.message);
+      } else if (data.user) {
+        console.log('Login bem-sucedido:', data.user);
+        
+        if (remember) {
+          Cookies.set('remember', 'true', { expires: 365 });
+          Cookies.set('rememberedEmail', email, { expires: 365 });
+          Cookies.set('rememberedPassword', password, { expires: 365 });
+        } else {
+          Cookies.remove('remember');
+          Cookies.remove('rememberedEmail');
+          Cookies.remove('rememberedPassword');
+        }
+        
+        // Limpa o sessionStorage para garantir dados atualizados após login
+        sessionStorage.clear();
+        
+        navigate('/dashboard');
+      }
+    } catch {
+      setError('Erro inesperado ao fazer login');
+    } finally {
+      setLoading(false);
     }
-    // Limpa o sessionStorage para garantir dados atualizados após login
-    sessionStorage.clear();
-    onLogin(e);
   };
 
   const handleThemeToggle = () => {
@@ -96,6 +121,7 @@ export default function Login({ email, password, loading, error, setEmail, setPa
     justifyContent: 'center',
     transition: 'background 0.3s, color 0.3s, border 0.3s',
   };
+  
   const errorStyle: React.CSSProperties = {
     background: 'var(--color-background-secondary)',
     color: 'var(--color-accent-primary)',
@@ -155,6 +181,8 @@ export default function Login({ email, password, loading, error, setEmail, setPa
               </span>
               <input
                 type="email"
+                id="email"
+                name="email"
                 className="form-control"
                 style={{
                   background: 'var(--color-background-primary)',
@@ -187,6 +215,8 @@ export default function Login({ email, password, loading, error, setEmail, setPa
               </span>
               <input
                 type="password"
+                id="password"
+                name="password"
                 className="form-control"
                 style={{
                   background: 'var(--color-background-primary)',

@@ -1967,4 +1967,4 @@ export default function AccountingIndicators({ usuario_responsavel_id, tela_id, 
       )}
     </div>
   );
-} 
+}

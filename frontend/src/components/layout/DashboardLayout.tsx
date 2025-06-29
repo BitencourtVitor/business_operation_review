@@ -1,130 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { supabase } from '../supabaseClient';
-import logoWhite from '../assets/logo_white.png';
-import logoBlack from '../assets/logo_black.png';
-import TimesheetAnalysis from './TimesheetAnalysis';
-import AccountingIndicators from './AccountingIndicators';
-import type { Theme } from '../types/common';
-import type { User } from '@supabase/supabase-js';
+import React from 'react';
+import type { Tela, Permissao } from '../../types/common';
+import { ROLES } from '../../utils/constants';
 
-interface Tela {
-  id: string;
-  descricao: string;
+interface DashboardLayoutProps {
+  user: { email: string };
+  onLogout: () => void;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+  nomeCompleto: string;
+  role: string;
+  telas: Tela[];
+  mainContent: string;
+  onSetMainContent: (telaId: string) => void;
+  permissoes: Permissao;
+  isRefreshing: boolean;
+  onRefresh: () => void;
+  children: React.ReactNode;
 }
 
-interface Permissao {
-  [telaId: string]: boolean;
-}
-
-export default function Dashboard() {
-  const navigate = useNavigate();
-  const [theme, setTheme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
-  const [telaId, setTelaId] = useState<string>('');
-  const [user, setUser] = useState<User | null>(null);
-  const [nomeCompleto, setNomeCompleto] = useState('');
-  const [role, setRole] = useState('');
-  const [telas, setTelas] = useState<Tela[]>([]);
-  const [permissoes, setPermissoes] = useState<Permissao>({});
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [usuarioId, setUsuarioId] = useState<string>('');
-
-  // Buscar dados do usuário e telas
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-      setUser(user);
-
-      // Buscar dados do usuário
-      const { data: usuario } = await supabase
-        .from('usuarios')
-        .select('id, nome_completo')
-        .eq('email', user.email)
-        .single();
-
-      if (usuario) {
-        setUsuarioId(usuario.id);
-        setNomeCompleto(usuario.nome_completo);
-
-        // Buscar perfil do usuário
-        const { data: perfil } = await supabase
-          .from('perfis')
-          .select('tipo')
-          .eq('usuario_id', usuario.id)
-          .single();
-
-        if (perfil) {
-          setRole(perfil.tipo);
-        }
-
-        // Buscar telas
-        const { data: telasData } = await supabase
-          .from('telas')
-          .select('id, descricao');
-        setTelas(telasData || []);
-
-        // Buscar permissões
-        const { data: usuariosTelas } = await supabase
-          .from('usuarios_telas')
-          .select('tela_id')
-          .eq('usuario_id', usuario.id);
-        
-        const permissoesObj: Permissao = {};
-        (usuariosTelas || []).forEach(rel => {
-          permissoesObj[rel.tela_id] = true;
-        });
-        setPermissoes(permissoesObj);
-
-        // Definir tela inicial como Timesheet Analysis
-        if (telasData && telasData.length > 0) {
-          const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
-          if (timesheetTela) {
-            setTelaId(timesheetTela.id);
-          } else {
-            setTelaId(telasData[0].id);
-          }
-        }
-      }
-    };
-
-    fetchUserData();
-  }, [navigate]);
-
-  // Persistir tema no cookie e aplicar classe
-  useEffect(() => {
-    Cookies.set('theme', theme, { expires: 365 });
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [theme]);
-
-  const handleThemeToggle = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    sessionStorage.clear();
-    navigate('/login');
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // Recarregar dados aqui se necessário
-    setTimeout(() => setIsRefreshing(false), 1000);
-  };
-
-  const handleSetMainContent = (telaId: string) => {
-    setTelaId(telaId);
-  };
-
+export default function DashboardLayout({
+  user,
+  onLogout,
+  theme,
+  setTheme,
+  nomeCompleto,
+  role,
+  telas,
+  mainContent,
+  onSetMainContent,
+  permissoes,
+  isRefreshing,
+  onRefresh,
+  children
+}: DashboardLayoutProps) {
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
@@ -156,7 +64,7 @@ export default function Dashboard() {
     };
     let icon = null;
     
-    if (role === 'dev') {
+    if (role === ROLES.DEV) {
       label = 'Developer';
       const isDark = document.documentElement.classList.contains('dark');
       style = {
@@ -166,7 +74,7 @@ export default function Dashboard() {
         color: isDark ? '#BFA100' : '#FFD700',
       };
       icon = <i className="bi bi-gem" style={{ marginRight: 6, fontSize: 12, verticalAlign: 'middle' }} />;
-    } else if (role === 'manager' || role === 'gestor') {
+    } else if (role === ROLES.MANAGER || role === ROLES.GESTOR) {
       label = 'Manager';
       style = {
         ...style,
@@ -175,7 +83,7 @@ export default function Dashboard() {
         color: 'var(--color-accent-primary)',
       };
       icon = <i className="bi bi-award" style={{ marginRight: 6, fontSize: 14, verticalAlign: 'middle' }} />;
-    } else if (role === 'admin_setor') {
+    } else if (role === ROLES.ADMIN_SETOR) {
       label = 'Admin';
       if (adminTelasDescricoes.length > 0) {
         label += ' • ' + adminTelasDescricoes.join(' | ');
@@ -186,79 +94,8 @@ export default function Dashboard() {
     return <span style={style}>{icon}{label}</span>;
   }
 
-  // Renderizar conteúdo principal baseado na tela selecionada
-  const renderMainContent = () => {
-    const tela = telas.find(t => t.id === telaId);
-    if (!tela) return null;
-
-    // Verificar se o usuário é responsável pela tela selecionada
-    const isResponsavelPelaTela = permissoes[telaId] || role === 'dev';
-
-    switch (tela.descricao) {
-      case 'Timesheet Analysis':
-        return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
-      case 'Accounting Indicators':
-        return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
-      default:
-        return (
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col-12">
-                <div className="card" style={{ 
-                  background: 'var(--color-background-primary)',
-                  border: '1.5px solid var(--color-border-divider)',
-                  borderRadius: 10
-                }}>
-                  <div className="card-body">
-                    <h5 className="card-title" style={{ color: 'var(--color-text-primary)' }}>
-                      {tela.descricao}
-                    </h5>
-                    <p style={{ color: 'var(--color-text-secondary)' }}>
-                      Conteúdo da página {tela.descricao} será implementado em breve.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-    }
-  };
-
-  if (!user || !telaId) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        background: 'var(--color-background-primary)',
-        color: 'var(--color-text-secondary)'
-      }}>
-        <div className="spinner-border" role="status" style={{ 
-          width: 40, 
-          height: 40, 
-          color: 'var(--color-accent-primary)',
-          marginBottom: '16px'
-        }}>
-          <span className="visually-hidden">Carregando...</span>
-        </div>
-        <p style={{ 
-          margin: 0, 
-          fontSize: '14px',
-          fontWeight: 500,
-          color: 'var(--color-text-secondary)'
-        }}>
-          Carregando...
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)' }}>
-      {/* Header */}
       <header
         style={{
           width: '100%',
@@ -277,7 +114,7 @@ export default function Dashboard() {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 215, minWidth: 215, height: '100%', justifyContent: 'center', borderRight: '1.5px solid var(--color-border-divider)'}}>
           <img
-            src={theme === 'dark' ? logoWhite : logoBlack}
+            src={theme === 'dark' ? '/src/assets/logo_white.png' : '/src/assets/logo_black.png'}
             alt="Logo"
             style={{
               width: '75%',
@@ -296,7 +133,7 @@ export default function Dashboard() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button
             type="button"
-            onClick={handleRefresh}
+            onClick={onRefresh}
             className="btn-secondary-custom d-flex align-items-center justify-content-center"
             style={{ 
               width: 36, 
@@ -322,14 +159,14 @@ export default function Dashboard() {
           {renderRoleBadge()}
           <button
             type="button"
-            onClick={handleThemeToggle}
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
             className="btn-secondary-custom d-flex align-items-center justify-content-center"
             style={{ width: 42, height: 38, fontSize: 16, marginBottom: 0, marginTop: 0 }}
           >
             <i className={`bi ${theme === 'dark' ? 'bi-moon-stars' : 'bi-sun'}`}/>
           </button>
           <button
-            onClick={handleLogout}
+            onClick={onLogout}
             className="btn-secondary-custom d-flex align-items-center justify-content-center"
             style={{ width: 42, height: 38, fontSize: 16, marginLeft: 4 }}
             title="Sair"
@@ -338,8 +175,7 @@ export default function Dashboard() {
           </button>
         </div>
       </header>
-
-      {/* Sidebar */}
+      
       <aside
         id="sidebar"
         className="justify-content-between"
@@ -368,9 +204,9 @@ export default function Dashboard() {
           {telas.map(tela => (
             <button
               key={tela.id}
-              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
               style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onClick={() => handleSetMainContent(tela.id)}
+              onClick={() => onSetMainContent(tela.id)}
             >
               <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
               {tela.descricao}
@@ -381,8 +217,7 @@ export default function Dashboard() {
           <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 10 }}>What matters isn't the company's mistakes, but how it responds to them.</span>
         </div>
       </aside>
-
-      {/* Main Content */}
+      
       <main
         style={{
           position: 'fixed',
@@ -390,12 +225,12 @@ export default function Dashboard() {
           left: 215,
           width: 'calc(100vw - 215px)',
           height: 'calc(100vh - 64px)',
-          overflow: 'auto',
+          overflow: 'hidden',
           background: 'transparent',
           zIndex: 10,
         }}
       >
-        {renderMainContent()}
+        {children}
       </main>
     </div>
   );
