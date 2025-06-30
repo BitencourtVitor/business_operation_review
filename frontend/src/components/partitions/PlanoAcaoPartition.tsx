@@ -132,10 +132,9 @@ export default function PlanoAcaoPartition({
                 <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className={`bi ${openPlanoId === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                  <button
-                    type="button"
+                  <div
                     className="btn btn-link p-0 ms-1"
-                    style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                    style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                     onClick={async (e) => {
                       e.stopPropagation();
                       if (onView) {
@@ -202,32 +201,29 @@ export default function PlanoAcaoPartition({
                           } else {
                             onView(plano);
                           }
-                        } catch (error) {
+                        } catch {
                           onView(plano);
                         } finally {
                           setLoadingView('');
                         }
                       }
                     }}
-                    disabled={loadingView === plano.id}
-                    aria-label="Expandir em modal"
                     title="Expandir em modal"
                   >
                     <i className={`bi ${loadingView === plano.id ? 'bi-hourglass-split' : 'bi-box-arrow-up-left'}`} />
-                  </button>
+                  </div>
                   {isAdmin && (
-                    <button
-                      type="button"
+                    <div
                       className="btn btn-link p-0 ms-2"
-                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                       onClick={e => {
                         e.stopPropagation();
                         if (onEdit) onEdit();
                       }}
-                      aria-label="Editar"
+                      title="Editar"
                     >
                       <i className="bi bi-pencil" />
-                    </button>
+                    </div>
                   )}
                 </div>
               </button>

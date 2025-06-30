@@ -40,8 +40,6 @@ const calculateProcessingTime = (permit: PermitRow): number => {
 };
 
 export default function PermitCarousel({ filteredData, selectedSituation }: PermitCarouselProps) {
-  console.log('PermitCarousel: Componente renderizando com', filteredData.length, 'dados');
-  
   const [selected, setSelected] = useState<PermitRow | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [showIssued, setShowIssued] = useState(true);
@@ -791,7 +789,8 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

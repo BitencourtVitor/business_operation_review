@@ -14,10 +14,16 @@ interface Oportunidade {
   melhorias: string[];
 }
 
+// Interface estendida para compatibilidade com setModalData
+interface OportunidadeWithNavigation extends Oportunidade {
+  oportunidadesList?: Oportunidade[];
+  initialIndex?: number;
+}
+
 interface OportunidadeViewModalProps {
   show: boolean;
   onClose: () => void;
-  data: Oportunidade | null;
+  data: OportunidadeWithNavigation | null;
   responsavelNome?: string;
   oportunidadesList?: Oportunidade[];
   initialIndex?: number;
@@ -26,8 +32,8 @@ interface OportunidadeViewModalProps {
 const OportunidadeViewModal: React.FC<OportunidadeViewModalProps> = (props) => {
   const { show, onClose, data, responsavelNome } = props;
   // Permitir receber oportunidadesList e initialIndex via data (para compatibilidade com setModalData)
-  const oportunidadesList = (data && (data as any).oportunidadesList) || props.oportunidadesList || [];
-  const initialIndex = (data && (data as any).initialIndex) || props.initialIndex || 0;
+  const oportunidadesList = (data && data.oportunidadesList) || props.oportunidadesList || [];
+  const initialIndex = (data && data.initialIndex) || props.initialIndex || 0;
   const [visible, setVisible] = useState(show);
   const [isClosing, setIsClosing] = useState(false);
   const [currentIdx, setCurrentIdx] = useState(initialIndex);
@@ -122,7 +128,7 @@ const OportunidadeViewModal: React.FC<OportunidadeViewModalProps> = (props) => {
                     <button
                       type="button"
                       className="d-flex align-items-center justify-content-center"
-                      onClick={() => setCurrentIdx(idx => Math.max(0, idx - 1))}
+                      onClick={() => setCurrentIdx((idx: number) => Math.max(0, idx - 1))}
                       disabled={currentIdx === 0}
                       style={{
                         width: 36,
@@ -146,7 +152,7 @@ const OportunidadeViewModal: React.FC<OportunidadeViewModalProps> = (props) => {
                     <button
                       type="button"
                       className="d-flex align-items-center justify-content-center"
-                      onClick={() => setCurrentIdx(idx => Math.min(oportunidadesList.length - 1, idx + 1))}
+                      onClick={() => setCurrentIdx((idx: number) => Math.min(oportunidadesList.length - 1, idx + 1))}
                       disabled={currentIdx === oportunidadesList.length - 1}
                       style={{
                         width: 36,
@@ -197,7 +203,7 @@ const OportunidadeViewModal: React.FC<OportunidadeViewModalProps> = (props) => {
                   </h6>
                   <div style={{ background: 'rgba(230, 126, 34, 0.08)', borderRadius: 8, padding: 16, minHeight: 60 }}>
                     {currentData.desafios && currentData.desafios.length > 0 ? (
-                      currentData.desafios.map((item, index) => {
+                      currentData.desafios.map((item: string, index: number) => {
                         const parsed = parseAsterisksFormatting(item);
                         const bold = isBold(parsed);
                         return (
@@ -223,7 +229,7 @@ const OportunidadeViewModal: React.FC<OportunidadeViewModalProps> = (props) => {
                   </h6>
                   <div style={{ background: 'rgba(46, 107, 230, 0.08)', borderRadius: 8, padding: 16, minHeight: 60 }}>
                     {currentData.melhorias && currentData.melhorias.length > 0 ? (
-                      currentData.melhorias.map((item, index) => {
+                      currentData.melhorias.map((item: string, index: number) => {
                         const parsed = parseAsterisksFormatting(item);
                         const bold = isBold(parsed);
                         return (

@@ -115,11 +115,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     const fetchResponsavelData = async () => {
       if (!telaId) return;
 
-      console.log('AccountingIndicators: Buscando responsável pela tela:', telaId);
-      console.log('AccountingIndicators: Usuário logado ID:', usuarioId);
-      console.log('AccountingIndicators: Role:', role);
-      console.log('AccountingIndicators: isResponsavelPelaTela:', isResponsavelPelaTela);
-
       // Buscar usuário responsável pela tela
       const { data: usuariosTelas } = await supabase
         .from('usuarios_telas')
@@ -129,18 +124,14 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       if (usuariosTelas && usuariosTelas.length > 0) {
         const responsavelId = usuariosTelas[0].usuario_id;
         setUsuarioResponsavelId(responsavelId);
-        console.log('AccountingIndicators: Responsável pela tela:', responsavelId);
 
         // Definir permissões de edição
         if (role === 'dev') {
           setPodeEditar(true);
-          console.log('AccountingIndicators: DEV - pode editar tudo');
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
-          console.log('AccountingIndicators: Responsável pela tela - pode editar');
         } else {
           setPodeEditar(false);
-          console.log('AccountingIndicators: Não responsável pela tela - não pode editar');
         }
 
         // Definir quais usuários buscar dados (responsável + dev se aplicável)
@@ -149,9 +140,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
-        console.log('AccountingIndicators: Usuários para buscar dados:', usuariosParaBuscarArray);
       } else {
-        console.warn('AccountingIndicators: Nenhum responsável encontrado para tela:', telaId);
         setUsuarioResponsavelId('');
         setPodeEditar(false);
         setUsuariosParaBuscar([]);
