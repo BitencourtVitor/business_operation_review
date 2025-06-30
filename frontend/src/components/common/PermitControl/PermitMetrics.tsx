@@ -41,6 +41,18 @@ export default function PermitMetrics({ allData }: PermitMetricsProps) {
     }).length,
   };
 
+  // Calcular tempo médio de emissão (em dias)
+  const issuedPermits = allData.filter(row => row.situacao === 'Issued' && row.emissao && row.solicitacao);
+  const averageEmissionTime = issuedPermits.length > 0 
+    ? issuedPermits.reduce((total, row) => {
+        const requestDate = new Date(row.solicitacao);
+        const emissionDate = new Date(row.emissao);
+        const diffTime = emissionDate.getTime() - requestDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return total + diffDays;
+      }, 0) / issuedPermits.length
+    : 0;
+
   return (
     <div className="d-flex flex-row align-items-center justify-content-between" style={{ borderBottom: '1px solid var(--color-border-divider)', borderTop: '1px solid var(--color-border-divider)' }}>
       <h4 className='d-flex justify-content-start ps-4 mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>Current Status</h4>
@@ -76,6 +88,15 @@ export default function PermitMetrics({ allData }: PermitMetricsProps) {
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Issued</span>
             <span style={{ color: 'var(--positive-color)', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
               {currentMetrics.issued}
+            </span>
+          </div>
+        </MetricTooltip>
+        {/* Tempo Médio de Emissão */}
+        <MetricTooltip title="Tempo Médio de Emissão" content="Tempo médio em dias entre solicitação e emissão dos permits.">
+          <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 140, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Avg Emission Time</span>
+            <span style={{ color: 'var(--color-accent-primary)', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
+              {Math.round(averageEmissionTime)}d
             </span>
           </div>
         </MetricTooltip>

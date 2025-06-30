@@ -12,7 +12,7 @@ import type { PermitRow } from '../types/permit';
 import { usePermitData } from '../hooks/usePermitData';
 import PermitFilters from '../components/common/PermitControl/PermitFilters';
 import PermitMetrics from '../components/common/PermitControl/PermitMetrics';
-import PermitTable from '../components/common/PermitControl/PermitTable';
+import PermitCarousel from '../components/common/PermitControl/PermitCarousel';
 import { PermitChart } from '../components/common/PermitControl/PermitChart';
 import DestaquesPartition from '../components/partitions/DestaquesPartition';
 import OportunidadesPartition from '../components/partitions/OportunidadesPartition';
@@ -370,8 +370,8 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             {/* Métricas */}
             <PermitMetrics allData={permitData} />
           </div>
-          {/* Tabela */}
-          <PermitTable filteredData={filteredData} />
+          {/* Carrossel de Cards */}
+          <PermitCarousel filteredData={filteredData} selectedSituation={selectedSituation} />
         </div>
         <div id="individual_data" style={{ width: '35%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
