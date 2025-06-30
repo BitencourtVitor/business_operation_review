@@ -286,6 +286,12 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     return filtered;
   }, [permitData, selectedYear, selectedMonth, selectedModel, selectedSituation, selectedJobsite]);
 
+  // Debug: verificar se o carrossel está sendo renderizado
+  useEffect(() => {
+    console.log('PermitControl: filteredData length:', filteredData.length);
+    console.log('PermitControl: PermitCarousel deve estar renderizando');
+  }, [filteredData]);
+
   // Funções para modais
   const handleSave = async () => {
     // Recarregar dados das partições após salvar
