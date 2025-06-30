@@ -146,8 +146,8 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
             Permit Cards
           </h4>
           <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
-            {/* Controle de ordenação */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1 }}>
+            {/* Controles de ordenação */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
               <div style={{ display: 'flex', gap: 4 }}>
                 {situationOrder.map((situation) => {
@@ -201,7 +201,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
               </div>
             </div>
             {/* Ordenação por Tempo de Processamento */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by Time</span>
               <button 
                 onClick={() => setSortByProcessingTime(prev => prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc')}
@@ -222,7 +222,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
               </button>
             </div>
             {/* Toggle Show Issued */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Show Issued</span>
               <button 
                 onClick={isSingleStatusSelected ? undefined : () => setShowIssued(!showIssued)}
@@ -273,7 +273,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
         </h4>
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
           {/* Controle de ordenação */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
             <div style={{ display: 'flex', gap: 4 }}>
               {situationOrder.map((situation) => {
@@ -327,7 +327,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
             </div>
           </div>
           {/* Ordenação por Tempo de Processamento */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by Time</span>
             <button 
               onClick={() => setSortByProcessingTime(prev => prev === 'asc' ? 'desc' : prev === 'desc' ? null : 'asc')}
@@ -348,7 +348,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
             </button>
           </div>
           {/* Toggle Show Issued */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Show Issued</span>
             <button 
               onClick={isSingleStatusSelected ? undefined : () => setShowIssued(!showIssued)}
