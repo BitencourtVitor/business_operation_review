@@ -112,11 +112,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     const fetchResponsavelData = async () => {
       if (!telaId) return;
 
-      console.log('PermitControl: Buscando responsável pela tela:', telaId);
-      console.log('PermitControl: Usuário logado ID:', usuarioId);
-      console.log('PermitControl: Role:', role);
-      console.log('PermitControl: isResponsavelPelaTela:', isResponsavelPelaTela);
-
       // Buscar usuário responsável pela tela
       const { data: usuariosTelas } = await supabase
         .from('usuarios_telas')
@@ -126,18 +121,14 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       if (usuariosTelas && usuariosTelas.length > 0) {
         const responsavelId = usuariosTelas[0].usuario_id;
         setUsuarioResponsavelId(responsavelId);
-        console.log('PermitControl: Responsável pela tela:', responsavelId);
 
         // Definir permissões de edição
         if (role === 'dev') {
           setPodeEditar(true);
-          console.log('PermitControl: DEV - pode editar tudo');
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
-          console.log('PermitControl: Responsável pela tela - pode editar');
         } else {
           setPodeEditar(false);
-          console.log('PermitControl: Não responsável pela tela - não pode editar');
         }
 
         // Definir quais usuários buscar dados (responsável + dev se aplicável)
@@ -146,9 +137,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
-        console.log('PermitControl: Usuários para buscar dados:', usuariosParaBuscarArray);
       } else {
-        console.warn('PermitControl: Nenhum responsável encontrado para tela:', telaId);
         setUsuarioResponsavelId('');
         setPodeEditar(false);
         setUsuariosParaBuscar([]);
@@ -286,16 +275,9 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     return filtered;
   }, [permitData, selectedYear, selectedMonth, selectedModel, selectedSituation, selectedJobsite]);
 
-  // Debug: verificar se o carrossel está sendo renderizado
-  useEffect(() => {
-    console.log('PermitControl: filteredData length:', filteredData.length);
-    console.log('PermitControl: PermitCarousel deve estar renderizando');
-  }, [filteredData]);
-
   // Funções para modais
   const handleSave = async () => {
     // Recarregar dados das partições após salvar
-    console.log('handleSave chamado, incrementando refreshTrigger');
     setRefreshTrigger(prevTrigger => prevTrigger + 1);
   };
 
@@ -493,7 +475,43 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             }}
             onView={async (oportunidade) => {
               setModalType('oportunidade');
-              setModalData(oportunidade);
+              
+              // Buscar todas as oportunidades do período para permitir navegação
+              const { data: todasOportunidades } = await supabase
+                .from('oportunidades')
+                .select('*')
+                .eq('usuario_id', usuarioResponsavelId)
+                .eq('tela_id', telaId)
+                .eq('mes', Number(oportunidade.mes))
+                .eq('ano', Number(oportunidade.ano));
+              
+              if (todasOportunidades && todasOportunidades.length > 0) {
+                // Buscar desafios e melhorias para todas as oportunidades
+                const { data: todosDesafios } = await supabase.from('desafios').select('*');
+                const { data: todasMelhorias } = await supabase.from('melhorias').select('*');
+                
+                const oportunidadesCompletas = todasOportunidades.map(op => ({
+                  ...op,
+                  mes: op.mes.toString(),
+                  ano: op.ano.toString(),
+                  desafios: (todosDesafios || []).filter((d: { oportunidade_id: string; texto: string }) => d.oportunidade_id === op.id).map((d: { texto: string }) => d.texto),
+                  melhorias: (todasMelhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
+                }));
+                
+                // Encontrar o índice da oportunidade atual na lista
+                const currentIndex = oportunidadesCompletas.findIndex(op => op.id === oportunidade.id);
+                
+                // Passar a lista completa e o índice atual para o modal
+                setModalData({
+                  ...oportunidade,
+                  oportunidadesList: oportunidadesCompletas,
+                  initialIndex: currentIndex >= 0 ? currentIndex : 0
+                } as Oportunidade & { oportunidadesList?: Oportunidade[]; initialIndex?: number });
+              } else {
+                // Fallback: passar apenas a oportunidade individual
+                setModalData(oportunidade);
+              }
+              
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

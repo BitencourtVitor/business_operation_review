@@ -442,7 +442,43 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             }}
             onView={async (oportunidade) => {
               setModalType('oportunidade');
-              setModalData(oportunidade);
+              
+              // Buscar todas as oportunidades do período para permitir navegação
+              const { data: todasOportunidades } = await supabase
+                .from('oportunidades')
+                .select('*')
+                .eq('usuario_id', usuarioResponsavelId)
+                .eq('tela_id', telaId)
+                .eq('mes', Number(oportunidade.mes))
+                .eq('ano', Number(oportunidade.ano));
+              
+              if (todasOportunidades && todasOportunidades.length > 0) {
+                // Buscar desafios e melhorias para todas as oportunidades
+                const { data: todosDesafios } = await supabase.from('desafios').select('*');
+                const { data: todasMelhorias } = await supabase.from('melhorias').select('*');
+                
+                const oportunidadesCompletas = todasOportunidades.map(op => ({
+                  ...op,
+                  mes: op.mes.toString(),
+                  ano: op.ano.toString(),
+                  desafios: (todosDesafios || []).filter((d: { oportunidade_id: string; texto: string }) => d.oportunidade_id === op.id).map((d: { texto: string }) => d.texto),
+                  melhorias: (todasMelhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
+                }));
+                
+                // Encontrar o índice da oportunidade atual na lista
+                const currentIndex = oportunidadesCompletas.findIndex(op => op.id === oportunidade.id);
+                
+                // Passar a lista completa e o índice atual para o modal
+                setModalData({
+                  ...oportunidade,
+                  oportunidadesList: oportunidadesCompletas,
+                  initialIndex: currentIndex >= 0 ? currentIndex : 0
+                } as Oportunidade & { oportunidadesList?: Oportunidade[]; initialIndex?: number });
+              } else {
+                // Fallback: passar apenas a oportunidade individual
+                setModalData(oportunidade);
+              }
+              
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

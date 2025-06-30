@@ -1,4 +1,5 @@
 import React, { useRef, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import type { PermitRow } from '../../../types/permit';
 
 interface PermitCarouselProps {
@@ -387,6 +388,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
             WebkitOverflowScrolling: 'touch',
             flex: '1 1 0%',
             minHeight: 0,
+            maxHeight: '100%',
           }}
           onMouseDown={onMouseDown}
         >
@@ -405,6 +407,8 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
                 cursor: 'pointer',
                 position: 'relative',
                 transition: 'box-shadow 0.2s, border 0.2s',
+                maxHeight: 'calc(100vh - 200px)',
+                overflow: 'auto',
               }}
               onMouseEnter={() => setHovered(permit.id)}
               onMouseLeave={() => setHovered(null)}
@@ -492,7 +496,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
         </div>
       </div>
       {/* Modal simples */}
-      {selected && (
+      {selected && createPortal(
         <div
           style={{
             position: 'fixed',
@@ -529,11 +533,262 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
             }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Conteúdo do modal aqui */}
-            <div style={{ padding: '20px' }}>
-              <h3>Modal de Teste</h3>
-              <p>Dados: {selected.jobsite}</p>
-              <button onClick={() => setSelected(null)}>Fechar</button>
+            {/* Header */}
+            <div style={{ 
+              padding: '16px 24px', 
+              borderBottom: '1px solid var(--color-border-divider)', 
+              background: 'var(--color-background-primary)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h5 style={{ 
+                color: 'var(--color-text-primary)', 
+                fontSize: 24, 
+                fontWeight: 400, 
+                margin: 0,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <span style={{ color: 'var(--color-text-secondary)' }}>Visualizar</span>
+                <span>Permit</span>
+              </h5>
+              <button
+                onClick={() => setSelected(null)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  fontSize: 22, 
+                  color: 'var(--color-text-secondary)', 
+                  cursor: 'pointer',
+                  padding: 0,
+                  width: 32,
+                  height: 32,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title="Fechar"
+              >
+                ×
+              </button>
+            </div>
+            {/* Sub-header */}
+            <div style={{ 
+              padding: '10px 20px', 
+              borderBottom: '1px solid var(--color-border-divider)', 
+              background: 'var(--color-background-secondary)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                  <i className="bi bi-building" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                  <span>Jobsite: {selected.jobsite || 'N/A'}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                  <i className="bi bi-geo-alt" style={{ color: 'var(--color-accent-primary)', fontSize: 15 }} />
+                  <span>Endereço: {selected.lot_address || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+            {/* Body */}
+            <div style={{ 
+              padding: '24px', 
+              background: 'var(--color-background-primary)',
+              flex: 1,
+              overflowY: 'auto'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {/* Status */}
+                <div>
+                  <h6 style={{ 
+                    color: 'var(--color-text-primary)', 
+                    fontWeight: 600, 
+                    fontSize: 16, 
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}>
+                    <i className="bi bi-info-circle" /> Status
+                  </h6>
+                  <div style={{ 
+                    background: 'var(--color-background-secondary)', 
+                    borderRadius: 8, 
+                    padding: 16,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}>
+                    <span style={{ 
+                      fontSize: 10, 
+                      color: STATUS[selected.situacao as keyof typeof STATUS]?.color || 'var(--color-text-secondary)' 
+                    }}>
+                      <i className={STATUS[selected.situacao as keyof typeof STATUS]?.icon || 'bi-circle'} />
+                    </span>
+                    <span style={{ 
+                      color: 'var(--color-text-primary)', 
+                      fontWeight: 500, 
+                      fontSize: 15 
+                    }}>
+                      {selected.situacao || 'N/A'}
+                    </span>
+                  </div>
+                </div>
+                {/* Informações Gerais */}
+                <div>
+                  <h6 style={{ 
+                    color: 'var(--color-text-primary)', 
+                    fontWeight: 600, 
+                    fontSize: 16, 
+                    marginBottom: 12,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8
+                  }}>
+                    <i className="bi bi-card-text" /> Informações Gerais
+                  </h6>
+                  <div style={{ 
+                    background: 'var(--color-background-secondary)', 
+                    borderRadius: 8, 
+                    padding: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 8
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Modelo:</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>{selected.model || 'N/A'}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Data de Solicitação:</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>{formatDate(selected.solicitacao)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Data de Aplicação:</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>{formatDate(selected.aplicacao)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Data de Emissão:</span>
+                      <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>{formatDate(selected.emissao)}</span>
+                    </div>
+                    {/* Tempo de Processamento */}
+                    {selected.solicitacao && (
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Tempo de Processamento:</span>
+                        <span style={{ 
+                          color: selected.situacao === 'Issued' ? 'var(--positive-color)' : 'var(--challenges-color)', 
+                          fontSize: 14, 
+                          fontWeight: 500,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}>
+                          <i className="bi bi-clock" style={{ fontSize: 10 }} />
+                          {calculateProcessingTime(selected)}d
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {/* Observação */}
+                {selected.observacao && (
+                  <div>
+                    <h6 style={{ 
+                      color: 'var(--color-text-primary)', 
+                      fontWeight: 600, 
+                      fontSize: 16, 
+                      marginBottom: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
+                    }}>
+                      <i className="bi bi-chat-text" /> Observação
+                    </h6>
+                    <div style={{ 
+                      background: 'var(--color-background-secondary)', 
+                      borderRadius: 8, 
+                      padding: 16,
+                      minHeight: 60
+                    }}>
+                      <span style={{ 
+                        color: 'var(--color-text-primary)', 
+                        fontSize: 14, 
+                        lineHeight: 1.4,
+                        fontStyle: 'italic'
+                      }}>
+                        {selected.observacao}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {/* Arquivo */}
+                {selected.arquivo && (
+                  <div>
+                    <h6 style={{ 
+                      color: 'var(--color-text-primary)', 
+                      fontWeight: 600, 
+                      fontSize: 16, 
+                      marginBottom: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8
+                    }}>
+                      <i className="bi bi-file-earmark" /> Documento
+                    </h6>
+                    <div style={{ 
+                      background: 'var(--color-background-secondary)', 
+                      borderRadius: 8, 
+                      padding: 16
+                    }}>
+                      <a 
+                        href={selected.arquivo} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        style={{ 
+                          color: 'var(--color-accent-primary)', 
+                          fontWeight: 500, 
+                          fontSize: 14,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          textDecoration: 'none'
+                        }}
+                      >
+                        <i className="bi bi-file-earmark-pdf" />
+                        Abrir arquivo
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Footer */}
+            <div style={{ 
+              borderTop: '1px solid var(--color-border-divider)', 
+              background: 'var(--color-background-primary)', 
+              display: 'flex', 
+              justifyContent: 'flex-end', 
+              alignItems: 'center', 
+              gap: 10,
+              padding: '16px 24px'
+            }}>
+              <button 
+                type="button" 
+                onClick={() => setSelected(null)}
+                style={{ 
+                  borderRadius: 6, 
+                  fontWeight: 500, 
+                  minWidth: 90,
+                  padding: '8px 16px',
+                  background: 'var(--color-background-secondary)',
+                  color: 'var(--color-text-primary)',
+                  border: '1px solid var(--color-border-divider)',
+                  cursor: 'pointer'
+                }}
+              >
+                Fechar
+              </button>
             </div>
           </div>
         </div>
