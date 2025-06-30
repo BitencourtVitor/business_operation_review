@@ -113,11 +113,6 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
     const fetchResponsavelData = async () => {
       if (!telaId) return;
 
-      console.log('TimesheetAnalysis: Buscando responsável pela tela:', telaId);
-      console.log('TimesheetAnalysis: Usuário logado ID:', usuarioId);
-      console.log('TimesheetAnalysis: Role:', role);
-      console.log('TimesheetAnalysis: isResponsavelPelaTela:', isResponsavelPelaTela);
-
       // Buscar usuário responsável pela tela
       const { data: usuariosTelas } = await supabase
         .from('usuarios_telas')
@@ -127,18 +122,14 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
       if (usuariosTelas && usuariosTelas.length > 0) {
         const responsavelId = usuariosTelas[0].usuario_id;
         setUsuarioResponsavelId(responsavelId);
-        console.log('TimesheetAnalysis: Responsável pela tela:', responsavelId);
 
         // Definir permissões de edição
         if (role === 'dev') {
           setPodeEditar(true);
-          console.log('TimesheetAnalysis: DEV - pode editar tudo');
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
-          console.log('TimesheetAnalysis: Responsável pela tela - pode editar');
         } else {
           setPodeEditar(false);
-          console.log('TimesheetAnalysis: Não responsável pela tela - não pode editar');
         }
 
         // Definir quais usuários buscar dados (responsável + dev se aplicável)
@@ -147,9 +138,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
-        console.log('TimesheetAnalysis: Usuários para buscar dados:', usuariosParaBuscarArray);
       } else {
-        console.warn('TimesheetAnalysis: Nenhum responsável encontrado para tela:', telaId);
         setUsuarioResponsavelId('');
         setPodeEditar(false);
         setUsuariosParaBuscar([]);
@@ -256,7 +245,6 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
   const handleSave = async () => {
     // Recarregar dados das partições após salvar
     // As partições carregam seus próprios dados, então não precisamos fazer nada aqui
-    console.log('handleSave chamado, incrementando refreshTrigger');
     setRefreshTrigger(prevTrigger => prevTrigger + 1);
   };
 

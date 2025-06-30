@@ -53,14 +53,9 @@ export default function PlanoAcaoPartition({
   useEffect(() => {
     const fetchPlanosEAcoes = async () => {
       if (!usuarioResponsavelId) {
-        console.log('PlanoAcaoPartition: Aguardando usuarioResponsavelId');
-        console.log('usuarioResponsavelId:', usuarioResponsavelId);
         return;
       }
       
-      console.log('PlanoAcaoPartition: Buscando planos para usuarioResponsavelId:', usuarioResponsavelId);
-      console.log('PlanoAcaoPartition: Usuários para buscar:', usuariosParaBuscar);
-      console.log('PlanoAcaoPartition: Recarregando dados, refreshTrigger:', refreshTrigger);
       setLoading(true);
       try {
         // Buscar planos de ação de todos os usuários relevantes
@@ -78,8 +73,6 @@ export default function PlanoAcaoPartition({
         
         const { data: planosData } = await planosQuery;
         
-        console.log('PlanoAcaoPartition: Planos encontrados:', planosData);
-        
         // Buscar ações
         const { data: acoesData } = await supabase
           .from('acoes')
@@ -87,7 +80,6 @@ export default function PlanoAcaoPartition({
         
         setAllPlanos(planosData || []);
         setAllAcoes(acoesData || []);
-        console.log('PlanoAcaoPartition: Dados recarregados com sucesso');
       } catch (error) {
         console.error('Erro ao carregar planos de ação:', error);
       } finally {
@@ -149,15 +141,11 @@ export default function PlanoAcaoPartition({
                       if (onView) {
                         setLoadingView(plano.id);
                         try {
-                          console.log('PlanoAcaoPartition: Iniciando busca robusta de dados para visualização do plano:', plano.id);
-                          
                           // PASSO 1: Buscar todas as ações do plano para recalcular data_fim
                           const { data: todasAcoes } = await supabase
                             .from('acoes')
                             .select('*')
                             .eq('plano_id', plano.id);
-                          
-                          console.log('PlanoAcaoPartition: Ações encontradas:', todasAcoes);
                           
                           // PASSO 2: Calcular a nova data_fim baseada nas ações
                           const calcularDataFim = (acoes: Acao[]) => {
@@ -168,7 +156,6 @@ export default function PlanoAcaoPartition({
                           };
                           
                           const novaDataFim = calcularDataFim(todasAcoes || []);
-                          console.log('PlanoAcaoPartition: Nova data_fim calculada:', novaDataFim);
                           
                           // PASSO 3: Atualizar a data_fim no banco ANTES de buscar os dados
                           if (novaDataFim !== null) {
@@ -179,8 +166,6 @@ export default function PlanoAcaoPartition({
                             
                             if (updateError) {
                               console.error('Erro ao atualizar data_fim:', updateError);
-                            } else {
-                              console.log('PlanoAcaoPartition: data_fim atualizada no banco para:', novaDataFim);
                             }
                           }
                           
@@ -209,23 +194,15 @@ export default function PlanoAcaoPartition({
                             
                             // VERIFICAÇÃO FINAL: Garantir que a data_fim está correta
                             if (dadosCompletos.data_fim !== novaDataFim) {
-                              console.warn('PlanoAcaoPartition: data_fim não foi atualizada corretamente!');
-                              console.warn('Esperado:', novaDataFim, 'Recebido:', dadosCompletos.data_fim);
-                              
                               // Forçar a data_fim correta no objeto
                               dadosCompletos.data_fim = novaDataFim || '';
-                              console.log('PlanoAcaoPartition: data_fim forçada para:', dadosCompletos.data_fim);
                             }
                             
-                            console.log('PlanoAcaoPartition: Dados completos e atualizados carregados:', dadosCompletos);
-                            console.log('PlanoAcaoPartition: data_fim final:', dadosCompletos.data_fim);
                             onView(dadosCompletos);
                           } else {
-                            console.error('Plano não encontrado após atualização');
                             onView(plano);
                           }
                         } catch (error) {
-                          console.error('Erro ao buscar dados completos:', error);
                           onView(plano);
                         } finally {
                           setLoadingView('');

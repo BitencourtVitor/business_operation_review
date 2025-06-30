@@ -95,14 +95,9 @@ export default function OportunidadesPartition({
   useEffect(() => {
     const fetchOportunidades = async () => {
       if (!usuarioResponsavelId || !telaId) {
-        console.log('OportunidadesPartition: Aguardando usuarioResponsavelId ou telaId');
-        console.log('usuarioResponsavelId:', usuarioResponsavelId);
-        console.log('telaId:', telaId);
         return;
       }
       
-      console.log('OportunidadesPartition: Buscando oportunidades para usuarioResponsavelId:', usuarioResponsavelId, 'telaId:', telaId);
-      console.log('OportunidadesPartition: Usuários para buscar:', usuariosParaBuscar);
       setLoading(true);
       try {
         // Buscar oportunidades de todos os usuários relevantes
@@ -121,8 +116,6 @@ export default function OportunidadesPartition({
         
         const { data: oportunidades } = await oportunidadesQuery;
         
-        console.log('OportunidadesPartition: Oportunidades encontradas:', oportunidades);
-        
         if (oportunidades) {
           // Buscar desafios e melhorias
           const { data: desafios } = await supabase.from('desafios').select('*');
@@ -136,11 +129,9 @@ export default function OportunidadesPartition({
             melhorias: (melhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
           }));
           
-          console.log('OportunidadesPartition: Oportunidades completas:', oportunidadesCompletas);
           setAllOportunidades(oportunidadesCompletas);
         }
       } catch (error) {
-        console.error('Erro ao carregar oportunidades:', error);
       } finally {
         setLoading(false);
       }

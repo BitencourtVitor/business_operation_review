@@ -78,6 +78,27 @@ export default function Login() {
       } else if (data.user) {
         console.log('Login bem-sucedido:', data.user);
         
+        // Chamar edge function para atualizar tabelas do banco
+        try {
+          console.log('Chamando edge function para atualizar tabelas...');
+          const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
+            body: { 
+              userId: data.user.id,
+              email: data.user.email 
+            }
+          });
+          
+          if (edgeFunctionError) {
+            console.error('Erro na edge function:', edgeFunctionError);
+            // Não bloquear o login se a edge function falhar
+          } else {
+            console.log('Edge function executada com sucesso:', edgeFunctionData);
+          }
+        } catch (edgeFunctionError) {
+          console.error('Erro ao chamar edge function:', edgeFunctionError);
+          // Não bloquear o login se a edge function falhar
+        }
+        
         if (remember) {
           Cookies.set('remember', 'true', { expires: 365 });
           Cookies.set('rememberedEmail', email, { expires: 365 });
@@ -260,10 +281,19 @@ export default function Login() {
           <button
             type="submit"
             className="btn-primary-custom"
-            style={{ height: 42, width: '100%' }}
+            style={{ height: 42, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
             disabled={loading}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? (
+              <>
+                <span className="spinner-border" role="status" style={{ width: 20, height: 20, color: '#fff', borderWidth: 2, marginRight: 10 }}>
+                  <span className="visually-hidden">Carregando...</span>
+                </span>
+                <span>Entrando...</span>
+              </>
+            ) : (
+              'Entrar'
+            )}
           </button>
         </form>
       </div>

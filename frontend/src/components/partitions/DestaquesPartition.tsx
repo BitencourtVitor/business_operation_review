@@ -94,14 +94,9 @@ export default function DestaquesPartition({
   useEffect(() => {
     const fetchDestaques = async () => {
       if (!usuarioResponsavelId || !telaId) {
-        console.log('DestaquesPartition: Aguardando usuarioResponsavelId ou telaId');
-        console.log('usuarioResponsavelId:', usuarioResponsavelId);
-        console.log('telaId:', telaId);
         return;
       }
       
-      console.log('DestaquesPartition: Buscando destaques para usuarioResponsavelId:', usuarioResponsavelId, 'telaId:', telaId);
-      console.log('DestaquesPartition: Usuários para buscar:', usuariosParaBuscar);
       setLoading(true);
       try {
         // Buscar destaques de todos os usuários relevantes
@@ -120,8 +115,6 @@ export default function DestaquesPartition({
         
         const { data: destaques } = await destaquesQuery;
         
-        console.log('DestaquesPartition: Destaques encontrados:', destaques);
-        
         if (destaques) {
           // Buscar positivos e negativos
           const { data: positivos } = await supabase.from('destaques_positivos').select('*');
@@ -135,11 +128,9 @@ export default function DestaquesPartition({
             negativos: (negativos || []).filter((n: { destaque_id: string; texto: string }) => n.destaque_id === d.id).map((n: { texto: string }) => n.texto),
           }));
           
-          console.log('DestaquesPartition: Destaques completos:', destaquesCompletos);
           setAllDestaques(destaquesCompletos);
         }
       } catch (error) {
-        console.error('Erro ao carregar destaques:', error);
       } finally {
         setLoading(false);
       }
