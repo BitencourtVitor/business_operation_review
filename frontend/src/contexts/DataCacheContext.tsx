@@ -1,6 +1,6 @@
 import React, { useState, type ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
-import { fetchAllRows } from '../utils/dataUtils';
+import { fetchAllRows, normalizeUtf8String } from '../utils/dataUtils';
 import { DataCacheContext, type CacheData } from './DataCacheContextTypes';
 
 
@@ -91,12 +91,12 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           date: String(r.date_field ?? ''),
           date_field: String(r.date_field ?? ''),
           inv_date: String(r.inv_date ?? ''),
-          transaction_type: String(r.transaction_type ?? ''),
+          transaction_type: normalizeUtf8String(String(r.transaction_type ?? '')),
           inv_num: String(r.inv_num ?? ''),
-          customer_full_name: String(r.customer_full_name ?? ''),
+          customer_full_name: normalizeUtf8String(String(r.customer_full_name ?? '')),
           due_date: String(r.due_date ?? ''),
           open_balance: Number(r.open_balance ?? 0),
-          category: String(r.category ?? ''),
+          category: normalizeUtf8String(String(r.category ?? '')),
           aging_intervals: String(r.aging_intervals ?? ''),
           type: 'receivables' as const,
         };
@@ -110,12 +110,12 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           date: String(p.date_field ?? ''),
           date_field: String(p.date_field ?? ''),
           expense_date: String(p.expense_date ?? ''),
-          transaction_type: String(p.transaction_type ?? ''),
+          transaction_type: normalizeUtf8String(String(p.transaction_type ?? '')),
           bill_num: String(p.bill_num ?? ''),
-          vendor_display_name: String(p.vendor_display_name ?? ''),
+          vendor_display_name: normalizeUtf8String(String(p.vendor_display_name ?? '')),
           due_date: String(p.due_date ?? ''),
           open_balance: Number(p.open_balance ?? 0),
-          category: String(p.category ?? ''),
+          category: normalizeUtf8String(String(p.category ?? '')),
           aging_intervals: String(p.aging_intervals ?? ''),
           type: 'payables' as const,
         };
@@ -207,10 +207,10 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       const timesheetData = (dbData || []).map((row) => ({
         id: String(row.id ?? ''),
         date: row.date ? new Date(row.date).toISOString().split('T')[0] : '',
-        nome: String(row.nome ?? ''),
-        error: String(row.error ?? ''),
-        team: String(row.team ?? ''),
-        corporation: String(row.corporation ?? ''),
+        nome: normalizeUtf8String(row.nome),
+        error: normalizeUtf8String(row.error),
+        team: normalizeUtf8String(row.team),
+        corporation: normalizeUtf8String(row.corporation),
         payrate: String(row.payrate ?? ''),
         add_time_hour: String(row.add_time_hour ?? ''),
         remove_time_hour: String(row.remove_time_hour ?? ''),
@@ -271,14 +271,14 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
 
       const permitData = (dbData || []).map((row) => ({
         id: String(row.id ?? ''),
-        model: String(row.model ?? ''),
-        jobsite: String(row.jobsite ?? ''),
-        lot_address: String(row.lot_address ?? ''),
-        situacao: String(row.situacao ?? ''),
+        model: normalizeUtf8String(row.model),
+        jobsite: normalizeUtf8String(row.jobsite),
+        lot_address: normalizeUtf8String(row.lot_address),
+        situacao: normalizeUtf8String(row.situacao),
         solicitacao: row.solicitacao ? new Date(row.solicitacao).toISOString().split('T')[0] : '',
         aplicacao: row.aplicacao ? new Date(row.aplicacao).toISOString().split('T')[0] : '',
         emissao: row.emissao ? new Date(row.emissao).toISOString().split('T')[0] : '',
-        observacao: String(row.observacao ?? ''),
+        observacao: normalizeUtf8String(row.observacao),
         arquivo: String(row.arquivo ?? ''),
       }));
 

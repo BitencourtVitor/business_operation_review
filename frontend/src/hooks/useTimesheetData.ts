@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import type { TimesheetRow } from '../types/timesheet';
+import { normalizeUtf8String } from '../utils/dataUtils';
 
 export function useTimesheetData() {
   const [data, setData] = useState<TimesheetRow[]>([]);
@@ -24,10 +25,10 @@ export function useTimesheetData() {
       const transformedData: TimesheetRow[] = (timesheetData || []).map(row => ({
         id: row.id.toString(),
         date: row.date,
-        nome: row.nome || '',
-        error: row.error || '',
-        team: row.team || '',
-        corporation: row.corporation || '',
+        nome: normalizeUtf8String(row.nome),
+        error: normalizeUtf8String(row.error),
+        team: normalizeUtf8String(row.team),
+        corporation: normalizeUtf8String(row.corporation),
         payrate: row.payrate?.toString() || '',
         add_time_hour: row.add_time_hour?.toString() || '',
         remove_time_hour: row.remove_time_hour?.toString() || '',

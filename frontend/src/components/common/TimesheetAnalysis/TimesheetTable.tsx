@@ -1,15 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { TimesheetRow } from '../../../types/timesheet';
+import TimesheetTableModal from '../../modals/TimesheetTableModal';
 
 interface TimesheetTableProps {
   filteredData: TimesheetRow[];
+  years?: string[];
 }
 
-export default function TimesheetTable({ filteredData }: TimesheetTableProps) {
+export default function TimesheetTable({ filteredData, years = [] }: TimesheetTableProps) {
   // Estados para agrupamento e ordenação da tabela
-  const [groupBy, setGroupBy] = React.useState<'team' | 'payrate'>('team');
+  const [groupBy, setGroupBy] = React.useState<'team' | 'error'>('team');
   const [sortBy, setSortBy] = React.useState<'total' | 'hours' | 'name' | 'removed'>('total');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
+  const [showModal, setShowModal] = useState(false);
 
   // Dados agrupados para a tabela
   const groupedData = useMemo(() => {
@@ -55,14 +58,32 @@ export default function TimesheetTable({ filteredData }: TimesheetTableProps) {
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
-        <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-          Data Overview
-        </h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+            Data Overview
+          </h4>
+          <button 
+            onClick={() => setShowModal(true)}
+            className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+            style={{ 
+              marginLeft: 5,
+              width: 28,
+              height: 28,
+              fontSize: 14,
+              padding: 0,
+              borderRadius: 14,
+              transition: 'all 0.2s ease',
+            }}
+            title="Expandir tabela"
+          >
+            <i className="bi bi-arrows-angle-expand d-flex align-items-center justify-content-center" />
+          </button>
+        </div>
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }} className='justify-content-between'>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
             <button onClick={() => setGroupBy('team')} style={{ background: groupBy === 'team' ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', color: groupBy === 'team' ? '#fff' : 'var(--color-accent-primary)', border: '1.5px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 16px', fontWeight: 500, fontSize: 14, cursor: 'pointer' }}>Teams</button>
-            <button onClick={() => setGroupBy('payrate')} style={{ background: groupBy === 'payrate' ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', color: groupBy === 'payrate' ? '#fff' : 'var(--color-accent-primary)', border: '1.5px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 16px', fontWeight: 500, fontSize: 14, cursor: 'pointer' }}>Errors</button>
+            <button onClick={() => setGroupBy('error')} style={{ background: groupBy === 'error' ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', color: groupBy === 'error' ? '#fff' : 'var(--color-accent-primary)', border: '1.5px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 16px', fontWeight: 500, fontSize: 14, cursor: 'pointer' }}>Errors</button>
           </div>
           {/* Ordenação */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
@@ -133,6 +154,13 @@ export default function TimesheetTable({ filteredData }: TimesheetTableProps) {
           </table>
         </div>
       </div>
+      
+      <TimesheetTableModal 
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        data={filteredData}
+        years={years}
+      />
     </>
   );
 } 

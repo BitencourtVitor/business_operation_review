@@ -195,9 +195,11 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
       const anos = [...new Set(all.map((d: TimesheetRow) => (typeof d.date === 'string' && d.date.split('-')[0]) || undefined).filter((v): v is string => !!v))].sort((a, b) => Number(b) - Number(a));
       setYears(anos);
       
-      // Selecionar ano atual se existir, senão o mais recente
+      // Selecionar 2025 como padrão, senão ano atual, senão o mais recente
+      const anoPadrao = '2025';
       const anoAtual = dayjs().format('YYYY');
-      if (anos.includes(anoAtual)) setSelectedYear(anoAtual);
+      if (anos.includes(anoPadrao)) setSelectedYear(anoPadrao);
+      else if (anos.includes(anoAtual)) setSelectedYear(anoAtual);
       else if (anos.length > 0 && typeof anos[0] === 'string') setSelectedYear(anos[0]);
     };
 
@@ -326,7 +328,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             <TimesheetMetrics filteredData={filteredData} />
           </div>
           {/* Tabela */}
-          <TimesheetTable filteredData={filteredData} />
+          <TimesheetTable filteredData={filteredData} years={years} months={months} />
         </div>
         <div id="individual_data" style={{ width: '35%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
@@ -487,38 +489,32 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             isAdmin={podeEditar}
-            onEdit={async () => {
+            onEdit={async (plano) => {
               setModalType('plano');
-              // Buscar planos existentes do usuário
-              const { data: planos } = await supabase
-                .from('planos_de_acao')
+              // Buscar ações do plano específico
+              const { data: acoes } = await supabase
+                .from('acoes')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId);
+                .eq('plano_id', plano.id);
               
-              if (planos && planos.length > 0) {
-                const plano = planos[0];
-                // Buscar ações do plano
-                const { data: acoes } = await supabase
-                  .from('acoes')
-                  .select('*')
-                  .eq('plano_id', plano.id);
-                
-                setModalData({
-                  ...plano,
-                  acoes: acoes || [],
-                });
-              } else {
-                setModalData({
-                  id: '',
-                  usuario_id: usuarioResponsavelId,
-                  titulo: '',
-                  descricao: '',
-                  criado_em: new Date().toISOString(),
-                  data_inicio: '',
-                  data_fim: '',
-                  acoes: [],
-                });
-              }
+              setModalData({
+                ...plano,
+                acoes: acoes || [],
+              });
+              setModalOpen(true);
+            }}
+            onAdd={async () => {
+              setModalType('plano');
+              setModalData({
+                id: '',
+                usuario_id: usuarioResponsavelId,
+                titulo: '',
+                descricao: '',
+                criado_em: new Date().toISOString(),
+                data_inicio: '',
+                data_fim: '',
+                acoes: [],
+              });
               setModalOpen(true);
             }}
             onView={async (plano) => {

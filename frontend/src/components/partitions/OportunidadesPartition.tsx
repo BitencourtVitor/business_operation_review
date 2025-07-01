@@ -170,7 +170,11 @@ export default function OportunidadesPartition({
 
   return (
     <div style={{ flex: '1 1 0%', minHeight: 0, display: 'flex', flexDirection: 'column', gap: 0, marginBottom: 0, borderBottom: '1px solid var(--color-border-divider)', padding: 10, backgroundColor: 'var(--color-background-primary)' }}>
-      <div className='fw-light' style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 5, background: 'transparent', zIndex: 2 }}>Oportunidades</div>
+      <div className='fw-light d-flex justify-content-evenly' style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 10, background: 'transparent', zIndex: 2 }}>
+        <div className='d-flex align-items-center justify-content-center'>
+          <i className='bi bi-lightbulb me-2'></i> Oportunidades
+        </div>
+      </div>
       <div className="custom-scrollbar d-flex flex-column gap-1" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {selectedYear && selectedMonth ? (
           (() => {

@@ -8,6 +8,7 @@ interface MultiSelectDropdownProps {
   placeholder?: string;
   allLabel?: string;
   dropdownTitle?: string;
+  disablePortal?: boolean;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -16,7 +17,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   onChange,
   placeholder = 'Selecionar',
   allLabel = 'Todos',
-  dropdownTitle
+  dropdownTitle,
+  disablePortal = false
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -189,7 +191,11 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
       </button>
       {/* Pré-renderiza o dropdown invisível ao montar, e visível ao abrir */}
-      {hasPreRendered && createPortal(dropdownJSX, document.body)}
+      {hasPreRendered && (
+        disablePortal
+          ? dropdownJSX
+          : createPortal(dropdownJSX, document.body)
+      )}
     </div>
   );
 };

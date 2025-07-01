@@ -414,18 +414,21 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
         // Insert - criar novo plano usando o usuario_id do responsável pela tela
         // O usuario_id já deve estar correto no objeto plano (definido na página)
         const dataFimCalculada = calcularDataFim(plano.acoes);
-        console.log('Data fim calculada para insert:', dataFimCalculada);
         const planoParaInserir = {
           ...plano,
-          data_fim: dataFimCalculada
+          ...(dataFimCalculada && { data_fim: dataFimCalculada })
         };
         
         const planoPrincipal = Object.fromEntries(
           Object.entries(planoParaInserir)
-            .filter(([k, v]) => !['acoes', 'id'].includes(k) && v !== undefined && v !== '')
+            .filter(([k, v]) => {
+              if (['acoes', 'id', 'criado_em'].includes(k)) return false;
+              if (v === undefined || v === null) return false;
+              if (typeof v === 'string' && v.trim() === '') return false;
+              return true;
+            })
         );
         
-        console.log('Dados do plano para inserir:', planoPrincipal);
         const { data: inserted, error } = await supabase.from('planos_de_acao').insert([planoPrincipal]).select('id').single();
         if (error) throw error;
         
@@ -665,6 +668,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <button
                                 type="button"
                                 onClick={() => removeAcao(index)}
+                                disabled={acao.status === 'Overdue'}
                                 className="d-flex align-items-center justify-content-center flex-row gap-2"
                                 style={{
                                   width: 100,
@@ -674,19 +678,24 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   marginTop: 0,
                                   borderRadius: 6,
                                   fontWeight: 500,
-                                  background: 'var(--color-background-secondary)',
-                                  color: 'var(--negative-color)',
+                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--negative-color)',
                                   border: '1.5px solid var(--color-border-divider)',
                                   transition: 'background 0.3s, color 0.3s, border 0.3s',
-                                  cursor: 'pointer',
+                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'pointer',
+                                  opacity: acao.status === 'Overdue' ? 0.5 : 1,
                                 }}
                                 onMouseEnter={(e) => {
-                                  e.currentTarget.style.background = 'var(--color-background-primary)';
-                                  e.currentTarget.style.borderColor = 'var(--negative-color)';
+                                  if (acao.status !== 'Overdue') {
+                                    e.currentTarget.style.background = 'var(--color-background-primary)';
+                                    e.currentTarget.style.borderColor = 'var(--negative-color)';
+                                  }
                                 }}
                                 onMouseLeave={(e) => {
-                                  e.currentTarget.style.background = 'var(--color-background-secondary)';
-                                  e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                                  if (acao.status !== 'Overdue') {
+                                    e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                    e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                                  }
                                 }}
                               >
                                 <i className="bi bi-trash" />
@@ -704,14 +713,16 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 type="text"
                                 value={acao.titulo}
                                 onChange={(e) => updateAcao(index, { titulo: e.target.value })}
+                                disabled={acao.status === 'Overdue'}
                                 style={{
                                   width: '100%',
                                   padding: '6px 8px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: 'var(--color-background-primary)',
-                                  color: 'var(--color-text-primary)',
+                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
                                 }}
                                 placeholder="Título da ação"
                               />
@@ -723,14 +734,16 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <select
                                 value={acao.responsavel}
                                 onChange={(e) => updateAcao(index, { responsavel: e.target.value })}
+                                disabled={acao.status === 'Overdue'}
                                 style={{
                                   width: '100%',
                                   padding: '6px 8px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: 'var(--color-background-primary)',
-                                  color: 'var(--color-text-primary)',
+                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
                                 }}
                               >
                                 <option value="">Select responsible</option>
@@ -762,6 +775,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <select
                                 value={acao.status}
                                 onChange={(e) => updateAcao(index, { status: e.target.value })}
+                                disabled={acao.status === 'Overdue'}
                                 style={{
                                   alignItems: 'center',
                                   width: '150px',
@@ -769,13 +783,16 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: 'var(--color-background-primary)',
-                                  color: 'var(--color-text-primary)',
+                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
                                 }}
+                                title={acao.status === 'Overdue' ? 'Status alterado automaticamente pelo sistema' : ''}
                               >
                                 <option value="">Selecione</option>
                                 <option value="Pending">Pending</option>
                                 <option value="Done">Done</option>
+                                {acao.status === 'Overdue' && <option value="Overdue" disabled>Overdue</option>}
                               </select>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
@@ -786,15 +803,18 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 type="date"
                                 value={acao.data_limite}
                                 onChange={(e) => updateAcao(index, { data_limite: e.target.value })}
+                                disabled={acao.status === 'Overdue'}
                                 style={{
                                   width: '150px',
                                   padding: '6px 8px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: 'var(--color-background-primary)',
-                                  color: 'var(--color-text-primary)',
+                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
                                 }}
+                                title={acao.status === 'Overdue' ? 'Data limite não pode ser alterada para ações atrasadas' : ''}
                               />
                             </div>
                           </div>
