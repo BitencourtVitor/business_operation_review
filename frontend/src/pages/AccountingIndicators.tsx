@@ -21,7 +21,7 @@ import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
 
 // Hooks
-import { useAccountingData } from '../hooks/useAccountingData';
+import { useAccountingDataCached } from '../hooks/useAccountingDataCached';
 
 // Interfaces para os dados das partições (igual ao TimesheetAnalysis)
 interface Destaque {
@@ -100,12 +100,13 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   const { 
     data: accountingData, 
     loading: dataLoading, 
+    error: accountingError,
     years, 
     months, 
     agingIntervals, 
     receivablesCategories, 
     payablesCategories 
-  } = useAccountingData();
+  } = useAccountingDataCached();
 
   // Atualizar telaId quando props mudarem
   useEffect(() => {
@@ -246,46 +247,48 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       };
     }
 
-    // Agrupar por data e calcular totais
-    const dataByDate = new Map<string, { receivables: number; payables: number }>();
-    
-    filteredData.forEach(row => {
-      if (row.date && row.open_balance > 0) {
-        const date = row.date;
-        const current = dataByDate.get(date) || { receivables: 0, payables: 0 };
-        
-        if (row.type === 'receivables') {
-          current.receivables += row.open_balance;
-        } else if (row.type === 'payables') {
-          current.payables += row.open_balance;
-        }
-        
-        dataByDate.set(date, current);
+    // Função para pegar o valor do ponto mais tardio para cada grupo
+    function getLastValue(type: 'receivables' | 'payables') {
+      // Filtrar só o tipo
+      const groupData = filteredData.filter(d => d.type === type && d.open_balance > 0 && d.date);
+      if (!groupData.length) return 0;
+      // Se filtrando por ano e mês: pegar o último dia do mês
+      if (selectedYear && selectedMonth) {
+        // Pega o maior dia
+        const lastDay = Math.max(...groupData.map(d => Number(d.date.split('-')[2])));
+        const last = groupData.filter(d => Number(d.date.split('-')[2]) === lastDay);
+        return last.reduce((sum, d) => sum + d.open_balance, 0);
       }
-    });
-    
-    // Pegar a data mais recente
-    const sortedDates = Array.from(dataByDate.keys()).sort();
-    const lastDate = sortedDates[sortedDates.length - 1];
-    const lastData = dataByDate.get(lastDate) || { receivables: 0, payables: 0 };
+      // Se filtrando só por ano: pegar o último mês do ano
+      if (selectedYear && !selectedMonth) {
+        // Pega o maior mês
+        const lastMonth = Math.max(...groupData.map(d => Number(d.date.split('-')[1])));
+        const lastMonthData = groupData.filter(d => Number(d.date.split('-')[1]) === lastMonth);
+        // Dentro do mês, pega o maior dia
+        const lastDay = Math.max(...lastMonthData.map(d => Number(d.date.split('-')[2])));
+        const last = lastMonthData.filter(d => Number(d.date.split('-')[2]) === lastDay);
+        return last.reduce((sum, d) => sum + d.open_balance, 0);
+      }
+      // Se não filtrar nada: pega o último valor disponível
+      // (maior ano, maior mês, maior dia)
+      const lastDate = groupData.map(d => d.date).sort().pop();
+      const last = groupData.filter(d => d.date === lastDate);
+      return last.reduce((sum, d) => sum + d.open_balance, 0);
+    }
 
-    // Calcular aging details
+    // Calcular aging details (mantém igual)
     const calculateAgingDetails = (type: 'receivables' | 'payables' | 'all') => {
       const relevantData = type === 'all' 
         ? filteredData 
         : filteredData.filter(d => d.type === type);
-      
       const agingMap = new Map<string, number>();
-      
       relevantData.forEach(row => {
         if (row.aging_intervals && row.open_balance > 0) {
           const current = agingMap.get(row.aging_intervals) || 0;
           agingMap.set(row.aging_intervals, current + row.open_balance);
         }
       });
-      
       const total = Array.from(agingMap.values()).reduce((sum, value) => sum + value, 0);
-      
       return Array.from(agingMap.entries()).map(([interval, value]) => ({
         interval,
         value,
@@ -297,22 +300,100 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       });
     };
 
+    const lastReceivable = getLastValue('receivables');
+    const lastPayable = getLastValue('payables');
+
     return {
-      lastReceivable: lastData.receivables,
-      lastPayable: lastData.payables,
+      lastReceivable,
+      lastPayable,
       receivablesAgingDetails: calculateAgingDetails('receivables'),
       payablesAgingDetails: calculateAgingDetails('payables'),
       outstandingAgingDetails: calculateAgingDetails('all')
     };
-  }, [filteredData]);
+  }, [filteredData, selectedYear, selectedMonth]);
 
   // Função para salvar dados (igual ao TimesheetAnalysis)
   const handleSave = async () => {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  if (!telaId || !usuarioResponsavelId) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        width: '100%',
+        background: 'var(--color-background-primary)',
+        color: 'var(--color-text-secondary)'
+      }}>
+        <div className="spinner-border" role="status" style={{ 
+          width: 40, 
+          height: 40, 
+          color: 'var(--color-accent-primary)',
+          marginBottom: '16px'
+        }}>
+          <span className="visually-hidden">Carregando...</span>
+        </div>
+        <p style={{ 
+          margin: 0, 
+          fontSize: '14px',
+          fontWeight: 500,
+          color: 'var(--color-text-secondary)'
+        }}>
+          Carregando...
+        </p>
+      </div>
+    );
+  }
+
   if (dataLoading) {
-    return <div>Carregando...</div>;
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        width: '100%',
+        background: 'var(--color-background-primary)',
+        color: 'var(--color-text-secondary)'
+      }}>
+        <div className="spinner-border" role="status" style={{ 
+          width: 40, 
+          height: 40, 
+          color: 'var(--color-accent-primary)',
+          marginBottom: '16px'
+        }}>
+          <span className="visually-hidden">Carregando dados...</span>
+        </div>
+        <p style={{ 
+          margin: 0, 
+          fontSize: '14px',
+          fontWeight: 500,
+          color: 'var(--color-text-secondary)'
+        }}>
+          Carregando dados de Accounting...
+        </p>
+      </div>
+    );
+  }
+
+  if (accountingError) {
+    return (
+      <div className="alert alert-danger" role="alert" style={{
+        margin: '20px',
+        padding: '16px',
+        borderRadius: '8px',
+        border: '1px solid #dc3545',
+        backgroundColor: '#f8d7da',
+        color: '#721c24'
+      }}>
+        <strong>Erro ao carregar dados:</strong> {accountingError}
+      </div>
+    );
   }
 
   return (

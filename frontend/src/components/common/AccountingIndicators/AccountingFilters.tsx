@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
+// No topo do arquivo, antes do componente:
+const AGING_BUTTON_WIDTH = 180; // largura do botão
+const AGING_DROPDOWN_WIDTH = 200; // largura da lista suspensa aberta
+const CATEGORY_BUTTON_WIDTH = 180; // largura do botão de categoria
+const CATEGORY_DROPDOWN_WIDTH = 360; // largura da lista suspensa aberta de categoria
+
 // MultiSelectDropdown copiado exatamente do backup
 function MultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos', dropdownTitle }: {
   options: string[];
@@ -58,8 +64,8 @@ function MultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos
         position: 'absolute',
         zIndex: 1000,
         top: dropdownPos.top,
-        left: dropdownPos.left + dropdownPos.width - Math.max(dropdownPos.width, 400),
-        width: Math.max(dropdownPos.width, 400),
+        left: dropdownPos.left + dropdownPos.width - AGING_DROPDOWN_WIDTH,
+        width: AGING_DROPDOWN_WIDTH,
         background: 'var(--color-background-primary)',
         color: 'var(--color-text-primary)',
         border: '1.5px solid var(--color-border-divider)',
@@ -104,7 +110,7 @@ function MultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos
           {selected.length === 0
             ? 'Nenhum'
             : selected.length === options.length
-              ? allLabel
+              ? 'Todos'
               : `${selected.length} selecionados`}
         </span>
         <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
@@ -215,8 +221,8 @@ function DualCategoryDropdown({
         position: 'absolute',
         zIndex: 1000,
         top: dropdownPos.top,
-        left: dropdownPos.left + dropdownPos.width - Math.max(dropdownPos.width, 400),
-        width: Math.max(dropdownPos.width, 400),
+        left: dropdownPos.left + dropdownPos.width - CATEGORY_DROPDOWN_WIDTH,
+        width: CATEGORY_DROPDOWN_WIDTH,
         background: 'var(--color-background-primary)',
         color: 'var(--color-text-primary)',
         border: '1.5px solid var(--color-border-divider)',
@@ -527,8 +533,8 @@ export default function AccountingFilters({
           {separateAging ? 'ON' : 'OFF'}
         </button>
       </div>
-      {/* Aging Interval (igual ao backup) */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
+      {/* Aging Interval */}
+      <div className="input-group" style={{ minWidth: AGING_BUTTON_WIDTH, maxWidth: AGING_BUTTON_WIDTH, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
         <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
           <i className="bi bi-hourglass-split" style={{ fontSize: 17 }} />
         </span>
@@ -537,7 +543,7 @@ export default function AccountingFilters({
         </div>
       </div>
       {/* Category - Filtro duplo */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 19, display: 'flex' }}>
+      <div className="input-group" style={{ minWidth: CATEGORY_BUTTON_WIDTH, maxWidth: CATEGORY_BUTTON_WIDTH, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 19, display: 'flex' }}>
         <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
           <i className="bi bi-tags" style={{ fontSize: 17 }} />
         </span>

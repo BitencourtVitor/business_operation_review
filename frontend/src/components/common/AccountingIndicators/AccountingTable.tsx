@@ -65,18 +65,13 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
   // Agrupamento 2: Por Customer (soma por customer e category)
   const customerGroups = useMemo(() => {
     const groups = new Map<string, CustomerGroup>();
-    
     // Primeiro, agrupar por invoice para pegar o mais recente de cada
     const invoiceGroups = new Map<string, { date: string; balance: number; entityName: string; category: string; type: 'receivables' | 'payables' }>();
-    
     filteredData.forEach(row => {
       const key = row.type === 'receivables' ? row.inv_num : row.bill_num;
       const entityName = row.type === 'receivables' ? row.customer_full_name : row.vendor_display_name;
-      
       if (!key || !entityName) return;
-      
       const currentDate = row.date_field || row.date;
-      
       if (!invoiceGroups.has(key) || dayjs(currentDate).isAfter(dayjs(invoiceGroups.get(key)!.date))) {
         invoiceGroups.set(key, {
           date: currentDate,
@@ -87,10 +82,10 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
         });
       }
     });
-    
-    // Agora somar por customer e category
+    // Agora somar por entidade (cliente ou fornecedor) e categoria e tipo
     invoiceGroups.forEach(({ balance, entityName, category, type }) => {
-      const key = `${entityName}-${category}-${type}`;
+      // Para selectedGroup==='all', separar clientes e fornecedores mesmo com nome igual
+      const key = `${entityName}-${type}-${category}`;
       if (groups.has(key)) {
         groups.get(key)!.open_balance += balance;
       } else {
@@ -103,9 +98,8 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
         });
       }
     });
-    
     return Array.from(groups.values());
-  }, [filteredData]);
+  }, [filteredData, selectedGroup]);
 
   // Função de ordenação
   const sortData = (data: InvoiceGroup[] | CustomerGroup[]) => {
@@ -229,15 +223,18 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
     }
   };
 
-  // Determinar o nome do agrupamento
-  const getGroupByLabel = () => {
+  // Determinar o nome do agrupamento para o botão
+  const getGroupByLabel = (which: 'invoices' | 'customers') => {
+    if (selectedGroup === 'all') {
+      return which === 'invoices' ? 'Transactions' : 'Entities';
+    }
     switch (selectedGroup) {
       case 'receivables':
-        return 'Invoices';
+        return which === 'invoices' ? 'Invoices' : 'Customers';
       case 'payables':
-        return 'Bills';
+        return which === 'invoices' ? 'Bills' : 'Vendors';
       default:
-        return 'Transactions';
+        return which === 'invoices' ? 'Transactions' : 'Entities';
     }
   };
 
@@ -250,6 +247,27 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
         return 'Bill';
       default:
         return 'Transaction';
+    }
+  };
+
+  const renderSortByOptions = () => {
+    if (groupBy === 'invoices') {
+      return (
+        <>
+          <option value="date">Date</option>
+          <option value="invoice">{getSortByLabel()}</option>
+          <option value="customer">{getEntityColumnName()}</option>
+          <option value="balance">Balance</option>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <option value="customer">{getEntityColumnName()}</option>
+          <option value="category">Category</option>
+          <option value="balance">Balance</option>
+        </>
+      );
     }
   };
 
@@ -278,7 +296,7 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
                 cursor: 'pointer' 
               }}
             >
-              {getGroupByLabel()}
+              {getGroupByLabel('invoices')}
             </button>
             <button
               onClick={() => setGroupBy('customers')}
@@ -293,7 +311,7 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
                 cursor: 'pointer' 
               }}
             >
-              {selectedGroup === 'payables' ? 'Vendors' : 'Customers'}
+              {getGroupByLabel('customers')}
             </button>
           </div>
 
@@ -317,20 +335,7 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
                   minWidth: 110,
                 }}
               >
-                {groupBy === 'invoices' ? (
-                  <>
-                    <option value="date">Date</option>
-                    <option value="invoice">{getSortByLabel()}</option>
-                    <option value="customer">{getEntityColumnName()}</option>
-                    <option value="balance">Balance</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="customer">{getEntityColumnName()}</option>
-                    <option value="category">Category</option>
-                    <option value="balance">Balance</option>
-                  </>
-                )}
+                {renderSortByOptions()}
               </select>
               <i
                 className="bi bi-chevron-down"

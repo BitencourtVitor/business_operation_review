@@ -47,7 +47,7 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
   let caretY: number = 0;
   let receivablesValue: number = 0;
   let payablesValue: number = 0;
-  let agingValues: Array<{ label: string; value: number; color: string }> = [];
+  const agingValues: Array<{ label: string; value: number; color: string }> = [];
 
   const safeTooltip = tooltip as {
     opacity?: number;
@@ -76,20 +76,59 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
     const dia = label.padStart(2, '0');
     const rows = data.filter(row => row.date_field && row.date_field.split('-')[2] === dia);
     
-    if (separateAging && selectedGroup !== 'payables') {
-      // Separar por aging interval
+    if (separateAging && selectedGroup === 'receivables') {
+      // Receivables por aging
       const agingIntervals = [...new Set(rows.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
       const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
-      
-      agingValues = agingIntervals.map((aging, index) => {
+      agingIntervals.forEach((aging, index) => {
         const value = rows
           .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.open_balance > 0)
           .reduce((sum, d) => sum + d.open_balance, 0);
-        return {
+        agingValues.push({
           label: `Receivables - ${aging}`,
           value,
           color: colors[index % colors.length]
-        };
+        });
+      });
+    } else if (separateAging && selectedGroup === 'payables') {
+      // Payables por aging
+      const agingIntervals = [...new Set(rows.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
+      agingIntervals.forEach((aging, index) => {
+        const value = rows
+          .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.open_balance > 0)
+          .reduce((sum, d) => sum + d.open_balance, 0);
+        agingValues.push({
+          label: `Payables - ${aging}`,
+          value,
+          color: colors[index % colors.length]
+        });
+      });
+    } else if (separateAging && selectedGroup === 'all') {
+      // Ambos
+      const receivablesAgingIntervals = [...new Set(rows.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      const payablesAgingIntervals = [...new Set(rows.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
+      const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
+      receivablesAgingIntervals.forEach((aging, index) => {
+        const value = rows
+          .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.open_balance > 0)
+          .reduce((sum, d) => sum + d.open_balance, 0);
+        agingValues.push({
+          label: `Receivables - ${aging}`,
+          value,
+          color: receivablesColors[index % receivablesColors.length]
+        });
+      });
+      payablesAgingIntervals.forEach((aging, index) => {
+        const value = rows
+          .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.open_balance > 0)
+          .reduce((sum, d) => sum + d.open_balance, 0);
+        agingValues.push({
+          label: `Payables - ${aging}`,
+          value,
+          color: payablesColors[index % payablesColors.length]
+        });
       });
     } else {
       receivablesValue = rows
@@ -108,31 +147,135 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
     const mes = label.padStart(2, '0');
     const rows = data.filter(row => row.date_field && row.date_field.split('-')[1] === mes);
     
-    if (separateAging && selectedGroup !== 'payables') {
-      // Separar por aging interval
+        if (separateAging && selectedGroup !== 'payables') {
+      // Separar por aging interval - usar valor mais recente por transação
       const agingIntervals = [...new Set(rows.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
       const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
-      
-      agingValues = agingIntervals.map((aging, index) => {
-        const value = rows
+    
+      agingIntervals.forEach((aging, index) => {
+        // Agrupar por transação e pegar o valor mais recente
+        const receivablesByTransaction: Record<string, { value: number; date: string }> = {};
+        rows
           .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.open_balance > 0)
-          .reduce((sum, d) => sum + d.open_balance, 0);
-        return {
+          .forEach(d => {
+            const transaction = d.inv_num;
+            const currentDate = d.date_field!;
+            if (transaction && (!receivablesByTransaction[transaction] || currentDate > receivablesByTransaction[transaction].date)) {
+              receivablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+            }
+          });
+        
+        const value = Object.values(receivablesByTransaction).reduce((sum, val) => sum + val.value, 0);
+        agingValues.push({
           label: `Receivables - ${aging}`,
           value,
           color: colors[index % colors.length]
-        };
+        });
+      });
+        } else if (separateAging && selectedGroup !== 'receivables') {
+      // Separar payables por aging interval
+      const agingIntervals = [...new Set(rows.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
+    
+      agingIntervals.forEach((aging, index) => {
+        // Agrupar por transação e pegar o valor mais recente
+        const payablesByTransaction: Record<string, { value: number; date: string }> = {};
+        rows
+          .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.open_balance > 0)
+          .forEach(d => {
+            const transaction = d.bill_num;
+            const currentDate = d.date_field!;
+            if (transaction && (!payablesByTransaction[transaction] || currentDate > payablesByTransaction[transaction].date)) {
+              payablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+            }
+          });
+        
+        const value = Object.values(payablesByTransaction).reduce((sum, val) => sum + val.value, 0);
+        agingValues.push({
+          label: `Payables - ${aging}`,
+          value,
+          color: colors[index % colors.length]
+        });
+      });
+    } else if (separateAging && selectedGroup === 'all') {
+      // Separar ambos por aging interval
+      const receivablesAgingIntervals = [...new Set(rows.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      const payablesAgingIntervals = [...new Set(rows.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
+      
+      const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
+      const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
+      
+      // Adicionar receivables por aging
+      receivablesAgingIntervals.forEach((aging, index) => {
+        const receivablesByTransaction: Record<string, { value: number; date: string }> = {};
+        rows
+          .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.open_balance > 0)
+          .forEach(d => {
+            const transaction = d.inv_num;
+            const currentDate = d.date_field!;
+            if (transaction && (!receivablesByTransaction[transaction] || currentDate > receivablesByTransaction[transaction].date)) {
+              receivablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+            }
+          });
+        
+        const value = Object.values(receivablesByTransaction).reduce((sum, val) => sum + val.value, 0);
+        agingValues.push({
+          label: `Receivables - ${aging}`,
+          value,
+          color: receivablesColors[index % receivablesColors.length]
+        });
+      });
+      
+      // Adicionar payables por aging
+      payablesAgingIntervals.forEach((aging, index) => {
+        const payablesByTransaction: Record<string, { value: number; date: string }> = {};
+        rows
+          .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.open_balance > 0)
+          .forEach(d => {
+            const transaction = d.bill_num;
+            const currentDate = d.date_field!;
+            if (transaction && (!payablesByTransaction[transaction] || currentDate > payablesByTransaction[transaction].date)) {
+              payablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+            }
+          });
+        
+        const value = Object.values(payablesByTransaction).reduce((sum, val) => sum + val.value, 0);
+        agingValues.push({
+          label: `Payables - ${aging}`,
+          value,
+          color: payablesColors[index % payablesColors.length]
+        });
       });
     } else {
-      receivablesValue = rows
-        .filter(d => d.type === 'receivables' && d.open_balance > 0)
-        .reduce((sum, d) => sum + d.open_balance, 0);
+      // Agrupar por transação e pegar o valor mais recente
+      const receivablesByTransaction: Record<string, { value: number; date: string }> = {};
+       rows
+         .filter(d => d.type === 'receivables' && d.open_balance > 0)
+         .forEach(d => {
+           const transaction = d.inv_num;
+           const currentDate = d.date_field!;
+           if (transaction && (!receivablesByTransaction[transaction] || currentDate > receivablesByTransaction[transaction].date)) {
+             receivablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+           }
+         });
+      
+      receivablesValue = Object.values(receivablesByTransaction).reduce((sum, val) => sum + val.value, 0);
     }
     
     if (selectedGroup !== 'receivables') {
-      payablesValue = rows
-        .filter(d => d.type === 'payables' && d.open_balance > 0)
-        .reduce((sum, d) => sum + d.open_balance, 0);
+      // Agrupar por transação e pegar o valor mais recente
+      const payablesByTransaction: Record<string, { value: number; date: string }> = {};
+       rows
+         .filter(d => d.type === 'payables' && d.open_balance > 0)
+         .forEach(d => {
+           const transaction = d.bill_num;
+           const currentDate = d.date_field!;
+           if (transaction && (!payablesByTransaction[transaction] || currentDate > payablesByTransaction[transaction].date)) {
+             payablesByTransaction[transaction] = { value: d.open_balance, date: currentDate };
+           }
+         });
+      
+      payablesValue = Object.values(payablesByTransaction).reduce((sum, val) => sum + val.value, 0);
     }
     
     periodo = dayjs(`${year}-${mes}-01`).format('MM/YYYY');
@@ -162,6 +305,11 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
     if (absTop + tooltipHeight > rect.bottom - padding) absTop = rect.bottom - tooltipHeight - padding;
   }
 
+  // Dentro do AccountingTooltipExternal, após calcular agingValues:
+  // Separar agingValues em dois arrays: receivablesAgingValues e payablesAgingValues
+  const receivablesAgingValues = agingValues.filter(item => item.label.startsWith('Receivables'));
+  const payablesAgingValues = agingValues.filter(item => item.label.startsWith('Payables'));
+
   return createPortal(
     <div
       ref={tooltipRef}
@@ -176,8 +324,8 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
         borderRadius: 10,
         boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
         padding: 16,
-        minWidth: 350,
-        maxWidth: 450,
+        minWidth: 400,
+        maxWidth: 500,
         zIndex: 9999,
         opacity: 0.9,
         pointerEvents: 'none',
@@ -190,8 +338,8 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {agingValues.length > 0 ? (
           <>
-            {agingValues.map((item, index) => {
-              // Se aging, o index do tooltip é o mesmo do ponto focado
+            {/* Receivables aging */}
+            {receivablesAgingValues.map((item, index) => {
               const isFocused = dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === index;
               return (
                 <div key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
@@ -209,24 +357,32 @@ const AccountingTooltipExternal = React.memo(function AccountingTooltipExternal(
                 </div>
               );
             })}
-            {selectedGroup === 'all' && (
+            {/* Linha separadora se houver payables */}
+            {payablesAgingValues.length > 0 && (
               <hr style={{ border: 0, borderTop: '1px solid var(--color-border-divider)', margin: '8px 0' }} />
             )}
-            {selectedGroup === 'all' && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ 
-                    width: 12, 
-                    height: 12, 
-                    borderRadius: '50%', 
-                    backgroundColor: '#dc3545',
-                    flexShrink: 0
-                  }} />
-                  <span style={{ color: dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === agingValues.length ? '#dc3545' : 'var(--color-text-secondary)', fontWeight: dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === agingValues.length ? 700 : 400 }}>Payables</span>
+            {/* Payables aging */}
+            {payablesAgingValues.map((item, index) => {
+              // O index do dataset para payables começa após os de receivables
+              const datasetIndex = receivablesAgingValues.length + index;
+              const isFocused = dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === datasetIndex;
+              return (
+                <div key={datasetIndex} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ 
+                      width: 12, 
+                      height: 12, 
+                      borderRadius: '50%', 
+                      backgroundColor: item.color,
+                      flexShrink: 0
+                    }} />
+                    <span style={{ color: isFocused ? item.color : 'var(--color-text-secondary)', fontWeight: isFocused ? 700 : 400 }}>{item.label}</span>
+                  </div>
+                  <span style={{ color: isFocused ? item.color : 'var(--color-text-secondary)', fontWeight: isFocused ? 700 : 500 }}>{item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
                 </div>
-                <span style={{ color: dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === agingValues.length ? '#dc3545' : 'var(--color-text-secondary)', fontWeight: dataPoints && dataPoints[0] && dataPoints[0].datasetIndex === agingValues.length ? 700 : 500 }}>{payablesValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
-              </div>
-            )}
+              );
+            })}
+            {/* Total de payables (se for o caso) pode ser exibido abaixo, se desejar */}
           </>
         ) : (
           <>
@@ -298,7 +454,7 @@ export function AccountingChart({
     const chartLabels: string[] = [];
     const chartDatasets: Array<{
       label: string;
-      data: number[];
+      data: (number | null)[];
       borderColor: string;
       backgroundColor: string;
       pointBackgroundColor: string;
@@ -308,44 +464,47 @@ export function AccountingChart({
       borderWidth: number;
       fill: boolean;
       tension: number;
+      spanGaps: boolean;
     }> = [];
 
     if (selectedYear && selectedMonth) {
       // Gráfico dia a dia do mês selecionado
-      const receivablesByDay: Record<string, number> = {};
-      const payablesByDay: Record<string, number> = {};
+      const receivablesByDay: Record<string, { value: number; date: string }> = {};
+      const payablesByDay: Record<string, { value: number; date: string }> = {};
       
-      // Receivables: para cada dia, somar o menor open_balance de cada transação (inv_num)
+      // Receivables: para cada dia, pegar o open_balance mais recente de cada transação (inv_num)
       filteredData.filter(row => row.type === 'receivables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0).forEach(row => {
         const dia = String(Number(row.date_field!.split('-')[2])).padStart(2, '0');
         const transaction = row.inv_num; // Código da transação
         const key = `${dia}-${transaction}`;
-        if (!receivablesByDay[key] || row.open_balance < receivablesByDay[key]) {
-          receivablesByDay[key] = row.open_balance;
+        const currentDate = row.date_field!;
+        if (!receivablesByDay[key] || currentDate > receivablesByDay[key].date) {
+          receivablesByDay[key] = { value: row.open_balance, date: currentDate };
         }
       });
       
-      // Payables: para cada dia, somar o menor open_balance de cada transação (bill_num)
+      // Payables: para cada dia, pegar o open_balance mais recente de cada transação (bill_num)
       filteredData.filter(row => row.type === 'payables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0).forEach(row => {
         const dia = String(Number(row.date_field!.split('-')[2])).padStart(2, '0');
         const transaction = row.bill_num; // Código da transação
         const key = `${dia}-${transaction}`;
-        if (!payablesByDay[key] || row.open_balance < payablesByDay[key]) {
-          payablesByDay[key] = row.open_balance;
+        const currentDate = row.date_field!;
+        if (!payablesByDay[key] || currentDate > payablesByDay[key].date) {
+          payablesByDay[key] = { value: row.open_balance, date: currentDate };
         }
       });
       
-      // Agrupar por dia - somar todas as transações distintas
+      // Agrupar por dia - somar todas as transações distintas (usando os valores mais recentes)
       const receivablesSumByDay: Record<string, number> = {};
       Object.keys(receivablesByDay).forEach(key => {
         const dia = key.split('-')[0];
-        receivablesSumByDay[dia] = (receivablesSumByDay[dia] || 0) + receivablesByDay[key];
+        receivablesSumByDay[dia] = (receivablesSumByDay[dia] || 0) + receivablesByDay[key].value;
       });
       
       const payablesSumByDay: Record<string, number> = {};
       Object.keys(payablesByDay).forEach(key => {
         const dia = key.split('-')[0];
-        payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key];
+        payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key].value;
       });
       
       // Coletar todos os dias válidos presentes nos dados (com open_balance > 0)
@@ -359,29 +518,27 @@ export function AccountingChart({
       const diasComDados = Array.from(diasValidosSet).sort((a, b) => Number(a) - Number(b));
       chartLabels.push(...diasComDados);
 
-      if (separateAging && selectedGroup !== 'payables') {
-        // Separar receivables por aging interval
+      if (separateAging && selectedGroup === 'receivables') {
+        // Só aging de Receivables
         const agingIntervals = [...new Set(filteredData.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655']; // Gradação de verde
-        
+        const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
         agingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(dia => {
-            // Para cada dia, pegar o menor open_balance de cada transação (inv_num) por aging
-            const receivablesByDayAndAging: Record<string, number> = {};
+            const receivablesByDayAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[2])).padStart(2, '0') === dia && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.inv_num;
                 const key = `${dia}-${transaction}`;
-                if (!receivablesByDayAndAging[key] || d.open_balance < receivablesByDayAndAging[key]) {
-                  receivablesByDayAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!receivablesByDayAndAging[key] || currentDate > receivablesByDayAndAging[key].date) {
+                  receivablesByDayAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Receivables - ${aging}`,
             data: data,
@@ -394,31 +551,30 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
-      } else if (separateAging && selectedGroup !== 'receivables') {
-        // Separar payables por aging interval
+      } else if (separateAging && selectedGroup === 'payables') {
+        // Só aging de Payables
         const agingIntervals = [...new Set(filteredData.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24']; // Gradação de vermelho
-        
+        const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
         agingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(dia => {
-            // Para cada dia, pegar o menor open_balance de cada transação (bill_num) por aging
-            const payablesByDayAndAging: Record<string, number> = {};
+            const payablesByDayAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[2])).padStart(2, '0') === dia && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.bill_num;
                 const key = `${dia}-${transaction}`;
-                if (!payablesByDayAndAging[key] || d.open_balance < payablesByDayAndAging[key]) {
-                  payablesByDayAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!payablesByDayAndAging[key] || currentDate > payablesByDayAndAging[key].date) {
+                  payablesByDayAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Payables - ${aging}`,
             data: data,
@@ -431,35 +587,32 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
       } else if (separateAging && selectedGroup === 'all') {
-        // Separar ambos por aging interval quando "All" está selecionado
+        // Ambos
         const receivablesAgingIntervals = [...new Set(filteredData.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
         const payablesAgingIntervals = [...new Set(filteredData.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        
-        const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655']; // Gradação de verde
-        const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24']; // Gradação de vermelho
-        
-        // Adicionar receivables por aging
+        const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
+        const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
         receivablesAgingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(dia => {
-            // Para cada dia, pegar o menor open_balance de cada transação (inv_num) por aging
-            const receivablesByDayAndAging: Record<string, number> = {};
+            const receivablesByDayAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[2])).padStart(2, '0') === dia && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.inv_num;
                 const key = `${dia}-${transaction}`;
-                if (!receivablesByDayAndAging[key] || d.open_balance < receivablesByDayAndAging[key]) {
-                  receivablesByDayAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!receivablesByDayAndAging[key] || currentDate > receivablesByDayAndAging[key].date) {
+                  receivablesByDayAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Receivables - ${aging}`,
             data: data,
@@ -472,28 +625,26 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
-        
-        // Adicionar payables por aging
         payablesAgingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(dia => {
-            // Para cada dia, pegar o menor open_balance de cada transação (bill_num) por aging
-            const payablesByDayAndAging: Record<string, number> = {};
+            const payablesByDayAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[2])).padStart(2, '0') === dia && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.bill_num;
                 const key = `${dia}-${transaction}`;
-                if (!payablesByDayAndAging[key] || d.open_balance < payablesByDayAndAging[key]) {
-                  payablesByDayAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!payablesByDayAndAging[key] || currentDate > payablesByDayAndAging[key].date) {
+                  payablesByDayAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Payables - ${aging}`,
             data: data,
@@ -506,13 +657,15 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
       } else if (selectedGroup !== 'payables') {
         // Gráfico normal (receivables como linha única)
-        const receivablesData: number[] = [];
+        const receivablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
-          receivablesData.push(receivablesSumByDay[dia] || 0);
+          const value = receivablesSumByDay[dia] || 0;
+          receivablesData.push(value > 0 ? value : null); // null se não há dados
         });
         
         chartDatasets.push({
@@ -527,14 +680,16 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
+          spanGaps: false, // não conectar pontos quando há gaps
         });
       }
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
-        const payablesData: number[] = [];
+        const payablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
-          payablesData.push(payablesSumByDay[dia] || 0);
+          const value = payablesSumByDay[dia] || 0;
+          payablesData.push(value > 0 ? value : null); // null se não há dados
         });
         
         chartDatasets.push({
@@ -549,44 +704,49 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
+          spanGaps: false, // não conectar pontos quando há gaps
         });
       }
     } else if (selectedYear) {
       // Gráfico mês a mês do ano selecionado
-      const receivablesByMonth: Record<string, number> = {};
-      const payablesByMonth: Record<string, number> = {};
+      const receivablesByMonth: Record<string, { value: number; date: string }> = {};
+      const payablesByMonth: Record<string, { value: number; date: string }> = {};
       
-      // Receivables: para cada mês, somar o menor open_balance de cada transação (inv_num)
+      // Receivables: para cada mês, pegar o open_balance mais recente de cada transação (inv_num)
       filteredData.filter(row => row.type === 'receivables' && !!row.date_field && row.date_field.split('-').length >= 2 && row.open_balance > 0).forEach(row => {
         const mes = String(Number(row.date_field!.split('-')[1])).padStart(2, '0');
         const transaction = row.inv_num; // Código da transação
         const key = `${mes}-${transaction}`;
-        if (!receivablesByMonth[key] || row.open_balance < receivablesByMonth[key]) {
-          receivablesByMonth[key] = row.open_balance;
+        const currentDate = row.date_field!;
+        
+        if (!receivablesByMonth[key] || currentDate > receivablesByMonth[key].date) {
+          receivablesByMonth[key] = { value: row.open_balance, date: currentDate };
         }
       });
       
-      // Payables: para cada mês, somar o menor open_balance de cada transação (bill_num)
+      // Payables: para cada mês, pegar o open_balance mais recente de cada transação (bill_num)
       filteredData.filter(row => row.type === 'payables' && !!row.date_field && row.date_field.split('-').length >= 2 && row.open_balance > 0).forEach(row => {
         const mes = String(Number(row.date_field!.split('-')[1])).padStart(2, '0');
         const transaction = row.bill_num; // Código da transação
         const key = `${mes}-${transaction}`;
-        if (!payablesByMonth[key] || row.open_balance < payablesByMonth[key]) {
-          payablesByMonth[key] = row.open_balance;
+        const currentDate = row.date_field!;
+        
+        if (!payablesByMonth[key] || currentDate > payablesByMonth[key].date) {
+          payablesByMonth[key] = { value: row.open_balance, date: currentDate };
         }
       });
       
-      // Agrupar por mês - somar todas as transações distintas
+      // Agrupar por mês - somar todas as transações distintas (usando os valores mais recentes)
       const receivablesSumByMonth: Record<string, number> = {};
       Object.keys(receivablesByMonth).forEach(key => {
         const mes = key.split('-')[0];
-        receivablesSumByMonth[mes] = (receivablesSumByMonth[mes] || 0) + receivablesByMonth[key];
+        receivablesSumByMonth[mes] = (receivablesSumByMonth[mes] || 0) + receivablesByMonth[key].value;
       });
       
       const payablesSumByMonth: Record<string, number> = {};
       Object.keys(payablesByMonth).forEach(key => {
         const mes = key.split('-')[0];
-        payablesSumByMonth[mes] = (payablesSumByMonth[mes] || 0) + payablesByMonth[key];
+        payablesSumByMonth[mes] = (payablesSumByMonth[mes] || 0) + payablesByMonth[key].value;
       });
 
       // Coletar todos os meses válidos presentes nos dados (com open_balance > 0)
@@ -600,29 +760,27 @@ export function AccountingChart({
       const mesesComDados = Array.from(mesesValidosSet).sort((a, b) => Number(a) - Number(b));
       chartLabels.push(...mesesComDados);
 
-      if (separateAging && selectedGroup !== 'payables') {
-        // Separar receivables por aging interval
+      if (separateAging && selectedGroup === 'receivables') {
+        // Só aging de Receivables
         const agingIntervals = [...new Set(filteredData.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655']; // Gradação de verde
-        
+        const colors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
         agingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(mes => {
-            // Para cada mês, pegar o menor open_balance de cada transação (inv_num) por aging
-            const receivablesByMonthAndAging: Record<string, number> = {};
+            const receivablesByMonthAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[1])).padStart(2, '0') === mes && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.inv_num;
                 const key = `${mes}-${transaction}`;
-                if (!receivablesByMonthAndAging[key] || d.open_balance < receivablesByMonthAndAging[key]) {
-                  receivablesByMonthAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!receivablesByMonthAndAging[key] || currentDate > receivablesByMonthAndAging[key].date) {
+                  receivablesByMonthAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Receivables - ${aging}`,
             data: data,
@@ -635,31 +793,30 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
-      } else if (separateAging && selectedGroup !== 'receivables') {
-        // Separar payables por aging interval
+      } else if (separateAging && selectedGroup === 'payables') {
+        // Só aging de Payables
         const agingIntervals = [...new Set(filteredData.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24']; // Gradação de vermelho
-        
+        const colors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
         agingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(mes => {
-            // Para cada mês, pegar o menor open_balance de cada transação (bill_num) por aging
-            const payablesByMonthAndAging: Record<string, number> = {};
+            const payablesByMonthAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[1])).padStart(2, '0') === mes && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.bill_num;
                 const key = `${mes}-${transaction}`;
-                if (!payablesByMonthAndAging[key] || d.open_balance < payablesByMonthAndAging[key]) {
-                  payablesByMonthAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!payablesByMonthAndAging[key] || currentDate > payablesByMonthAndAging[key].date) {
+                  payablesByMonthAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Payables - ${aging}`,
             data: data,
@@ -672,35 +829,32 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
       } else if (separateAging && selectedGroup === 'all') {
-        // Separar ambos por aging interval quando "All" está selecionado
+        // Ambos
         const receivablesAgingIntervals = [...new Set(filteredData.filter(d => d.type === 'receivables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
         const payablesAgingIntervals = [...new Set(filteredData.filter(d => d.type === 'payables' && d.open_balance > 0).map(d => d.aging_intervals).filter(Boolean))];
-        
-        const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655']; // Gradação de verde
-        const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24']; // Gradação de vermelho
-        
-        // Adicionar receivables por aging
+        const receivablesColors = ['#1bbf5c', '#2ecc71', '#27ae60', '#16a085', '#0e6655'];
+        const payablesColors = ['#dc3545', '#c82333', '#bd2130', '#a71e2a', '#721c24'];
         receivablesAgingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(mes => {
-            // Para cada mês, pegar o menor open_balance de cada transação (inv_num) por aging
-            const receivablesByMonthAndAging: Record<string, number> = {};
+            const receivablesByMonthAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'receivables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[1])).padStart(2, '0') === mes && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.inv_num;
                 const key = `${mes}-${transaction}`;
-                if (!receivablesByMonthAndAging[key] || d.open_balance < receivablesByMonthAndAging[key]) {
-                  receivablesByMonthAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!receivablesByMonthAndAging[key] || currentDate > receivablesByMonthAndAging[key].date) {
+                  receivablesByMonthAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Receivables - ${aging}`,
             data: data,
@@ -713,28 +867,26 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
-        
-        // Adicionar payables por aging
         payablesAgingIntervals.forEach((aging, index) => {
-          const data: number[] = [];
+          const data: (number | null)[] = [];
           chartLabels.forEach(mes => {
-            // Para cada mês, pegar o menor open_balance de cada transação (bill_num) por aging
-            const payablesByMonthAndAging: Record<string, number> = {};
+            const payablesByMonthAndAging: Record<string, { value: number; date: string }> = {};
             filteredData
               .filter(d => d.type === 'payables' && d.aging_intervals === aging && d.date_field && String(Number(d.date_field.split('-')[1])).padStart(2, '0') === mes && d.open_balance > 0)
               .forEach(d => {
                 const transaction = d.bill_num;
                 const key = `${mes}-${transaction}`;
-                if (!payablesByMonthAndAging[key] || d.open_balance < payablesByMonthAndAging[key]) {
-                  payablesByMonthAndAging[key] = d.open_balance;
+                const currentDate = d.date_field!;
+                if (!payablesByMonthAndAging[key] || currentDate > payablesByMonthAndAging[key].date) {
+                  payablesByMonthAndAging[key] = { value: d.open_balance, date: currentDate };
                 }
               });
-            const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val, 0);
-            data.push(value);
+            const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
+            data.push(value > 0 ? value : null);
           });
-          
           chartDatasets.push({
             label: `Payables - ${aging}`,
             data: data,
@@ -747,13 +899,15 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
+            spanGaps: false,
           });
         });
       } else if (selectedGroup !== 'payables') {
         // Gráfico normal (receivables como linha única)
-        const receivablesData: number[] = [];
+        const receivablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
-          receivablesData.push(receivablesSumByMonth[mes] || 0);
+          const value = receivablesSumByMonth[mes] || 0;
+          receivablesData.push(value > 0 ? value : null); // null se não há dados
         });
         
         chartDatasets.push({
@@ -768,14 +922,16 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
+          spanGaps: false, // não conectar pontos quando há gaps
         });
       }
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
-        const payablesData: number[] = [];
+        const payablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
-          payablesData.push(payablesSumByMonth[mes] || 0);
+          const value = payablesSumByMonth[mes] || 0;
+          payablesData.push(value > 0 ? value : null); // null se não há dados
         });
         
         chartDatasets.push({
@@ -790,6 +946,7 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
+          spanGaps: false, // não conectar pontos quando há gaps
         });
       }
     }
