@@ -125,7 +125,7 @@ export default function PlanoAcaoPartition({
       <div className="custom-scrollbar d-flex flex-column gap-1" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         {planosComAcoes.length === 0 ? (
           <PartitionCard>
-            <EmptyMessage message="No action plan found." showEdit={isAdmin} onEdit={onEdit} icon="bi-map" />
+            <EmptyMessage message="No action plan found." showEdit={isAdmin} onEdit={onAdd} icon="bi-map" />
           </PartitionCard>
         ) : (
           <>
@@ -139,9 +139,10 @@ export default function PlanoAcaoPartition({
                   <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${openPlanoId === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                    <div
-                      className="btn btn-link p-0 ms-1"
-                      style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
+                    <button
+                      type="button"
+                      className="btn btn-tertiary-custom p-0 ms-1"
+                      style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
                       onClick={async (e) => {
                         e.stopPropagation();
                         if (onView) {
@@ -152,7 +153,6 @@ export default function PlanoAcaoPartition({
                               .from('acoes')
                               .select('*')
                               .eq('plano_id', plano.id);
-                            
                             // PASSO 2: Calcular a nova data_fim baseada nas ações
                             const calcularDataFim = (acoes: Acao[]) => {
                               const acoesComData = acoes.filter(acao => acao.data_limite && acao.titulo.trim() !== '');
@@ -160,60 +160,49 @@ export default function PlanoAcaoPartition({
                               // Pega a maior data como string (ordenação lexicográfica funciona para yyyy-mm-dd)
                               return acoesComData.map(acao => acao.data_limite).sort().reverse()[0];
                             };
-                            
                             const novaDataFim = calcularDataFim(todasAcoes || []);
-                            
                             // PASSO 3: Atualizar a data_fim no banco ANTES de buscar os dados
                             if (novaDataFim !== null && novaDataFim !== undefined && novaDataFim !== '') {
                               const { error: updateError } = await supabase
                                 .from('planos_de_acao')
                                 .update({ data_fim: novaDataFim })
                                 .eq('id', plano.id);
-                              
                               if (updateError) {
                                 console.error('Erro ao atualizar data_fim:', updateError);
                               }
                             }
-                            
                             // PASSO 4: Aguardar um pouco para garantir que a atualização foi processada
                             await new Promise(resolve => setTimeout(resolve, 100));
-                            
                             // PASSO 5: Buscar plano completo com data_fim atualizada
                             const { data: planoCompleto, error: planoError } = await supabase
                               .from('planos_de_acao')
                               .select('*')
                               .eq('id', plano.id)
                               .single();
-                            
                             if (planoError) {
                               console.error('Erro ao buscar plano completo:', planoError);
                               onView(plano);
                               return;
                             }
-                            
                             // PASSO 6: Buscar todas as ações do plano novamente (ordenadas)
                             const { data: acoesCompletas, error: acoesError } = await supabase
                               .from('acoes')
                               .select('*')
                               .eq('plano_id', plano.id)
                               .order('data_limite', { ascending: true });
-                            
                             if (acoesError) {
                               console.error('Erro ao buscar ações:', acoesError);
                             }
-                            
                             if (planoCompleto) {
                               const dadosCompletos = {
                                 ...planoCompleto,
                                 acoes: acoesCompletas || [],
                               };
-                              
                               // VERIFICAÇÃO FINAL: Garantir que a data_fim está correta
                               if (dadosCompletos.data_fim !== novaDataFim) {
                                 // Forçar a data_fim correta no objeto
                                 dadosCompletos.data_fim = novaDataFim || '';
                               }
-                              
                               onView(dadosCompletos);
                             } else {
                               onView(plano);
@@ -225,10 +214,11 @@ export default function PlanoAcaoPartition({
                           }
                         }
                       }}
+                      aria-label="Expandir em modal"
                       title="Expandir em modal"
                     >
                       <i className={`bi ${loadingView === plano.id ? 'bi-hourglass-split' : 'bi-box-arrow-up-left'}`} />
-                    </div>
+                    </button>
                     {isAdmin && (
                       <div
                         className="btn btn-link p-0 ms-2"

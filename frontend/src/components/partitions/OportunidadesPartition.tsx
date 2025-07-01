@@ -131,7 +131,8 @@ export default function OportunidadesPartition({
           
           setAllOportunidades(oportunidadesCompletas);
         }
-      } catch (error) {
+      } catch {
+        // erro ignorado intencionalmente
       } finally {
         setLoading(false);
       }
@@ -197,19 +198,19 @@ export default function OportunidadesPartition({
                   <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{formatMonthYear(key)}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                    <button
-                      type="button"
-                      className="btn btn-link p-0 ms-1"
-                      style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);
-                      }}
-                      aria-label="Expandir em modal"
-                      title="Expandir em modal"
-                    >
-                      <i className="bi bi-box-arrow-up-left" />
-                    </button>
+                                      <button
+                    type="button"
+                    className="btn btn-tertiary-custom p-0 ms-1"
+                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);
+                    }}
+                    aria-label="Expandir em modal"
+                    title="Expandir em modal"
+                  >
+                    <i className="bi bi-box-arrow-up-left" />
+                  </button>
                     {isAdmin && (
                       <button
                         type="button"
@@ -301,8 +302,8 @@ export default function OportunidadesPartition({
                   <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
                   <button
                     type="button"
-                    className="btn btn-link p-0 ms-1"
-                    style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                    className="btn btn-tertiary-custom p-0 ms-1"
+                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
                     onClick={e => {
                       e.stopPropagation();
                       if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);

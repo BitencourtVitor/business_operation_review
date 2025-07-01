@@ -116,14 +116,15 @@ input::placeholder, textarea::placeholder {
 .btn-tertiary-custom {
   background: transparent;
   border: 1px solid transparent;
-  color: var(--color-accent-primary);
+  color: var(--color-text-secondary) !important;
   border-radius: 8px;
   font-weight: 500;
   font-size: 16px;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.btn-tertiary-custom:hover, .btn-tertiary-custom:focus {
+.btn-tertiary-custom:hover {
   background: var(--color-background-secondary);
+  color: var(--color-accent-primary) !important;
   outline: none;
   transform: none;
 }
