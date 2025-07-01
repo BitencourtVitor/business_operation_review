@@ -686,9 +686,9 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
       {viewModalOpen && modalType === 'destaque' && (
         <DestaqueViewModal
-          show={viewModalOpen}
+          visible={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
         />
       )}
 
@@ -696,7 +696,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         <OportunidadeViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+          data={modalData as Oportunidade}
         />
       )}
 
@@ -704,7 +704,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         <PlanoAcaoViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'plano' ? modalData as PlanoAcao : null}
+          data={modalData as PlanoAcao}
         />
       )}
     </div>

@@ -594,9 +594,9 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
 
       {viewModalOpen && modalType === 'destaque' && (
         <DestaqueViewModal
-          show={viewModalOpen}
+          visible={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
         />
       )}
 
@@ -604,7 +604,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
         <OportunidadeViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+          data={modalData as Oportunidade}
         />
       )}
 
@@ -612,7 +612,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
         <PlanoAcaoViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'plano' ? modalData as PlanoAcao : null}
+          data={modalData as PlanoAcao}
         />
       )}
     </div>

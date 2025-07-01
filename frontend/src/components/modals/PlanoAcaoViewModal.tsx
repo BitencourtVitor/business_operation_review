@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import CloseButton from '../../utils/CloseButton';
 
 // Interface para Plano de Ação do timesheet
 interface Acao {
@@ -89,15 +90,15 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
 
   return createPortal(
     <>
-      <div className={`modal fade show custom-modal-anim${isClosing ? ' closing' : ''}`} tabIndex={-1} style={{ display: 'block', zIndex: 2400 }}>
+      <div className={`modal fade show custom-modal-anim${isClosing ? ' closing' : ''}`} tabIndex={-1} style={{ display: 'block', zIndex: 9999 }}>
         <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: 800 }}>
-          <div className="modal-content" style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: '1.5px solid var(--color-border-divider)', zIndex: 2400, position: 'relative' }}>
-            <div className="modal-header px-4 py-3 d-flex flex-row gap-2 align-items-center" style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+          <div className="modal-content" style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: '1.5px solid var(--color-border-divider)', zIndex: 10000, position: 'relative' }}>
+            <div className="modal-header px-4 py-3 d-flex flex-row justify-content-between align-items-center" style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
               <h5 className="modal-title d-flex flex-row gap-2" style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
                 <p style={{ color: 'var(--color-text-secondary)', marginBottom: 0 }}>Visualizar</p>
                 <p style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Plano de Ação</p>
               </h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={onClose} style={{ filter: 'invert(1)' }} />
+              <CloseButton onClick={onClose} />
             </div>
             {/* Sub-header */}
             <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-secondary)' }}>
@@ -200,7 +201,7 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
             </div>
           </div>
         </div>
-        <div className="modal-backdrop fade show" style={{ zIndex: 2300 }}></div>
+        <div className="modal-backdrop fade show" style={{ zIndex: 9999 }}></div>
       </div>
     </>,
     document.body

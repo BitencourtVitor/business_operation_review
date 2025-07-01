@@ -532,11 +532,12 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
       </div>
 
       {/* Modais */}
-      {modalOpen && modalType === 'destaque' && (
+      {modalOpen && modalType === 'destaque' && modalData && (
         <DestaqueModal
+          key={`destaque-modal-${modalData.id || 'new'}`}
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
           onSaved={handleSave}
         />
       )}
@@ -561,9 +562,9 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
 
       {viewModalOpen && modalType === 'destaque' && (
         <DestaqueViewModal
-          show={viewModalOpen}
+          visible={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
         />
       )}
 
@@ -571,7 +572,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
         <OportunidadeViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+          data={modalData as Oportunidade}
         />
       )}
 
@@ -579,7 +580,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
         <PlanoAcaoViewModal
           show={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
-          data={modalType === 'plano' ? modalData as PlanoAcao : null}
+          data={modalData as PlanoAcao}
         />
       )}
     </div>

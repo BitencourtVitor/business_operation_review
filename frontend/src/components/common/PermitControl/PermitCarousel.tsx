@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import type { PermitRow } from '../../../types/permit';
+import CloseButton from '../../../utils/CloseButton';
 
 interface PermitCarouselProps {
   filteredData: PermitRow[];
@@ -552,25 +553,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
                 <span style={{ color: 'var(--color-text-secondary)' }}>Visualizar</span>
                 <span>Permit</span>
               </h5>
-              <button
-                onClick={() => setSelected(null)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  fontSize: 22, 
-                  color: 'var(--color-text-secondary)', 
-                  cursor: 'pointer',
-                  padding: 0,
-                  width: 32,
-                  height: 32,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                title="Fechar"
-              >
-                ×
-              </button>
+              <CloseButton onClick={() => setSelected(null)} size="md" />
             </div>
             {/* Sub-header */}
             <div style={{ 

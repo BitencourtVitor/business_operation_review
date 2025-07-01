@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../../supabaseClient';
+import CloseButton from '../../utils/CloseButton';
 
 // Interface para Plano de Ação
 interface PlanoAcao {
@@ -481,19 +483,19 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
 
   if (!visible) return null;
 
-  return (
+  return createPortal(
     <>
-      <div className={`modal fade show custom-modal-anim${isClosing ? ' closing' : ''}`} tabIndex={-1} style={{ display: 'block', zIndex: 2200 }}>
+      <div className={`modal fade show custom-modal-anim${isClosing ? ' closing' : ''}`} tabIndex={-1} style={{ display: 'block', zIndex: 9999 }}>
         <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: 800 }}>
-          <div className="modal-content" style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: '1.5px solid var(--color-border-divider)', zIndex: 2200, position: 'relative' }}>
-            <div className="modal-header px-4 py-2 d-flex flex-row gap-2 align-items-center" style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+          <div className="modal-content" style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: '1.5px solid var(--color-border-divider)', zIndex: 10000, position: 'relative' }}>
+            <div className="modal-header px-4 py-2 d-flex flex-row justify-content-between align-items-center" style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
               <h5 className="modal-title d-flex flex-row gap-2" style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
                 <p style={{ color: 'var(--color-text-secondary)', marginBottom: 0 }}>Edit</p>
                 <p style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
                   {plano?.id ? 'Plano de Ação' : 'Novo Plano de Ação'}
                 </p>
               </h5>
-              <button type="button" className="btn-close" aria-label="Close" onClick={handleCancel} style={{ filter: 'invert(1)' }} />
+              <CloseButton onClick={handleCancel} />
             </div>
             <div className="modal-body custom-scrollbar" style={{ padding: 0, paddingBottom: 24, background: 'var(--color-background-primary)', maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
               <div style={{ padding: '0 24px' }}>
@@ -823,9 +825,10 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
             </div>
           </div>
         </div>
-        <div className="modal-backdrop fade show" style={{ zIndex: 2100 }}></div>
+        <div className="modal-backdrop fade show" style={{ zIndex: 9999 }}></div>
       </div>
-    </>
+    </>,
+    document.body
   );
 };
 

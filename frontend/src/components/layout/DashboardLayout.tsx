@@ -109,7 +109,7 @@ export default function DashboardLayout({
           position: 'fixed',
           top: 0,
           left: 0,
-          zIndex: 10,
+          zIndex: 1,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 215, minWidth: 215, height: '100%', justifyContent: 'center', borderRight: '1.5px solid var(--color-border-divider)'}}>
@@ -192,7 +192,7 @@ export default function DashboardLayout({
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          zIndex: 100,
+          zIndex: 1,
         }}
       >
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderBottom: '1px solid var(--color-border-divider)'}}>
@@ -227,7 +227,7 @@ export default function DashboardLayout({
           height: 'calc(100vh - 64px)',
           overflow: 'hidden',
           background: 'transparent',
-          zIndex: 10,
+          zIndex: 1,
         }}
       >
         {children}
