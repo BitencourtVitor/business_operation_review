@@ -19,6 +19,7 @@ import PlanoAcaoModal from '../components/modals/PlanoAcaoModal';
 import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
+import AccountingTableModal from '../components/modals/AccountingTableModal';
 
 // Hooks
 import { useAccountingDataCached } from '../hooks/useAccountingDataCached';
@@ -95,6 +96,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   const [modalType, setModalType] = useState<'destaque' | 'oportunidade' | 'plano'>('destaque');
   const [modalData, setModalData] = useState<Destaque | Oportunidade | PlanoAcao | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [accountingTableModalOpen, setAccountingTableModalOpen] = useState(false);
 
   // Hook para dados de accounting
   const { 
@@ -171,19 +173,19 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     if (agingIntervals.length > 0 && selectedAging.length === 0) {
       setSelectedAging(agingIntervals);
     }
-  }, [agingIntervals]);
+  }, [agingIntervals, selectedAging.length]);
 
   useEffect(() => {
     if (receivablesCategories.length > 0 && selectedReceivablesCategories.length === 0) {
       setSelectedReceivablesCategories(receivablesCategories);
     }
-  }, [receivablesCategories]);
+  }, [receivablesCategories, selectedReceivablesCategories.length]);
 
   useEffect(() => {
     if (payablesCategories.length > 0 && selectedPayablesCategories.length === 0) {
       setSelectedPayablesCategories(payablesCategories);
     }
-  }, [payablesCategories]);
+  }, [payablesCategories, selectedPayablesCategories.length]);
 
   // Atualizar meses disponíveis conforme ano selecionado (igual ao backup)
   useEffect(() => {
@@ -427,7 +429,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       {/* Conteúdo principal: gráfico/tabela à esquerda, partições à direita (igual ao backup e TimesheetAnalysis) */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
         {/* Lado esquerdo: gráfico, métricas, tabela */}
-        <div style={{ background:'var(--color-background-primary)', width: '65%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
+        <div style={{ background:'var(--color-background-primary)', width: '70%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
           <div>
             {/* Gráfico */}
             <AccountingChart
@@ -450,10 +452,14 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
             </div>
           </div>
           {/* Tabela de dados */}
-          <AccountingTable filteredData={filteredData} selectedGroup={selectedGroup} />
+          <AccountingTable 
+            filteredData={filteredData} 
+            selectedGroup={selectedGroup} 
+            onView={() => setAccountingTableModalOpen(true)}
+          />
         </div>
         {/* Lado direito: partições (igual ao TimesheetAnalysis) */}
-        <div id="individual_data" style={{ width: '35%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
           <DestaquesPartition
             usuarioResponsavelId={usuarioResponsavelId}
@@ -565,7 +571,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
               }
               setModalOpen(true);
             }}
-            onView={async (oportunidade, mes, ano) => { // eslint-disable-line @typescript-eslint/no-unused-vars
+            onView={async (oportunidade, mes, ano) => {
               setModalType('oportunidade');
               
               // Buscar todas as oportunidades do período para permitir navegação
@@ -707,6 +713,14 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           data={modalData as PlanoAcao}
         />
       )}
+
+      {/* Modal da Tabela de Accounting */}
+      <AccountingTableModal
+        show={accountingTableModalOpen}
+        onClose={() => setAccountingTableModalOpen(false)}
+        data={filteredData}
+        years={years}
+      />
     </div>
   );
 };

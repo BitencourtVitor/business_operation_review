@@ -5,6 +5,7 @@ import type { AccountingRow } from '../../../types/accounting';
 interface AccountingTableProps {
   filteredData: AccountingRow[];
   selectedGroup: 'all' | 'receivables' | 'payables';
+  onView?: () => void;
 }
 
 type GroupByType = 'invoices' | 'customers';
@@ -29,7 +30,7 @@ interface CustomerGroup {
   type: 'receivables' | 'payables';
 }
 
-export default function AccountingTable({ filteredData, selectedGroup }: AccountingTableProps) {
+export default function AccountingTable({ filteredData, selectedGroup, onView }: AccountingTableProps) {
   const [groupBy, setGroupBy] = useState<GroupByType>('invoices');
   const [sortBy, setSortBy] = useState<SortByType>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -46,7 +47,8 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
       
       const currentDate = row.date_field || row.date;
       
-      if (!groups.has(key) || dayjs(currentDate).isAfter(dayjs(groups.get(key)!.date))) {
+      const existingGroup = groups.get(key);
+      if (!existingGroup || dayjs(currentDate).isAfter(dayjs(existingGroup.date))) {
         groups.set(key, {
           date: currentDate,
           inv_num: row.inv_num,
@@ -72,7 +74,8 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
       const entityName = row.type === 'receivables' ? row.customer_full_name : row.vendor_display_name;
       if (!key || !entityName) return;
       const currentDate = row.date_field || row.date;
-      if (!invoiceGroups.has(key) || dayjs(currentDate).isAfter(dayjs(invoiceGroups.get(key)!.date))) {
+      const existingInvoiceGroup = invoiceGroups.get(key);
+      if (!existingInvoiceGroup || dayjs(currentDate).isAfter(dayjs(existingInvoiceGroup.date))) {
         invoiceGroups.set(key, {
           date: currentDate,
           balance: row.open_balance,
@@ -86,8 +89,9 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
     invoiceGroups.forEach(({ balance, entityName, category, type }) => {
       // Para selectedGroup==='all', separar clientes e fornecedores mesmo com nome igual
       const key = `${entityName}-${type}-${category}`;
-      if (groups.has(key)) {
-        groups.get(key)!.open_balance += balance;
+      const existingGroup = groups.get(key);
+      if (existingGroup) {
+        existingGroup.open_balance += balance;
       } else {
         groups.set(key, {
           customer_full_name: type === 'receivables' ? entityName : undefined,
@@ -99,7 +103,7 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
       }
     });
     return Array.from(groups.values());
-  }, [filteredData, selectedGroup]);
+  }, [filteredData]);
 
   // Função de ordenação
   const sortData = (data: InvoiceGroup[] | CustomerGroup[]) => {
@@ -275,9 +279,31 @@ export default function AccountingTable({ filteredData, selectedGroup }: Account
     <>
       {/* Header com título e controles */}
       <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
-        <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-          {getTitle()}
-        </h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+            {getTitle()}
+          </h4>
+          {onView && (
+            <button
+              type="button"
+              className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+              style={{ 
+              marginLeft: 5,
+              width: 28,
+              height: 28,
+              fontSize: 14,
+              padding: 0,
+              borderRadius: 14,
+              transition: 'all 0.2s ease',
+            }}
+              onClick={onView}
+              aria-label="Expandir em modal"
+              title="Expandir em modal"
+            >
+              <i className="bi bi-arrows-angle-expand" />
+            </button>
+          )}
+        </div>
         
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
           {/* Group By Control */}

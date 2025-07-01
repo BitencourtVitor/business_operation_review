@@ -346,7 +346,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
 
       {/* Conteúdo principal: gráfico/tabela à esquerda, partições à direita */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
-        <div style={{ background:'var(--color-background-primary)', width: '65%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
+        <div style={{ background:'var(--color-background-primary)', width: '70%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
           <div>
             {/* Gráfico */}
             <PermitChart
@@ -361,7 +361,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           {/* Carrossel de Cards */}
           <PermitCarousel filteredData={filteredData} selectedSituation={selectedSituation} />
         </div>
-        <div id="individual_data" style={{ width: '35%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
           <DestaquesPartition
             usuarioResponsavelId={usuarioResponsavelId}
