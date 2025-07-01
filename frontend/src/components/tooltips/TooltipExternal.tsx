@@ -5,10 +5,6 @@ export default function TooltipExternal({
   tooltip,
   chartLabels,
   chartDatasets,
-  year,
-  month,
-  canvas,
-  data,
 }: TooltipExternalProps) {
   if (!tooltip || !tooltip.opacity || (tooltip.opacity as number) === 0) {
     return null;

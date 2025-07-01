@@ -80,8 +80,7 @@ export default function Login() {
         
         // Chamar edge function para atualizar tabelas do banco
         try {
-          console.log('Chamando edge function para atualizar tabelas...');
-          const { data: edgeFunctionData, error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
+          const { error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
             body: { 
               userId: data.user.id,
               email: data.user.email 
@@ -90,13 +89,9 @@ export default function Login() {
           
           if (edgeFunctionError) {
             console.error('Erro na edge function:', edgeFunctionError);
-            // Não bloquear o login se a edge function falhar
-          } else {
-            console.log('Edge function executada com sucesso:', edgeFunctionData);
           }
         } catch (edgeFunctionError) {
           console.error('Erro ao chamar edge function:', edgeFunctionError);
-          // Não bloquear o login se a edge function falhar
         }
         
         if (remember) {

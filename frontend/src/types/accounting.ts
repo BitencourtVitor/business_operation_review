@@ -4,8 +4,25 @@ export interface AccountingRow {
   id: string;
   date: string;
   date_field?: string;
+  
+  // Campos específicos de receivables
+  inv_date?: string;
   inv_num?: string;
   customer_full_name?: string;
+  inv_amount?: number;
+  epo_number?: string;
+  aging_days?: number;
+  
+  // Campos específicos de payables
+  expense_date?: string;
+  bill_num?: string;
+  vendor_display_name?: string;
+  total_amount?: number;
+  past_due?: number;
+  
+  // Campos comuns
+  transaction_type?: string;
+  due_date?: string;
   open_balance: number;
   aging_intervals: string;
   category: string;
@@ -72,8 +89,4 @@ export interface TooltipExternalProps {
     backgroundColor: string;
     tension: number;
   }[];
-  year: number;
-  month: number;
-  canvas?: HTMLCanvasElement;
-  data: AccountingData[];
 } 

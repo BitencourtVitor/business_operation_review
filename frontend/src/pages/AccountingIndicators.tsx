@@ -86,7 +86,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'receivables' | 'payables'>('all');
   const [separateAging, setSeparateAging] = useState<boolean>(false);
   const [selectedAging, setSelectedAging] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+  const [selectedReceivablesCategories, setSelectedReceivablesCategories] = useState<string[]>([]);
+  const [selectedPayablesCategories, setSelectedPayablesCategories] = useState<string[]>([]);
 
   // Estados para modais (igual ao TimesheetAnalysis)
   const [modalOpen, setModalOpen] = useState(false);
@@ -102,7 +103,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     years, 
     months, 
     agingIntervals, 
-    categories 
+    receivablesCategories, 
+    payablesCategories 
   } = useAccountingData();
 
   // Atualizar telaId quando props mudarem
@@ -171,10 +173,16 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   }, [agingIntervals]);
 
   useEffect(() => {
-    if (categories.length > 0 && selectedCategory.length === 0) {
-      setSelectedCategory(categories);
+    if (receivablesCategories.length > 0 && selectedReceivablesCategories.length === 0) {
+      setSelectedReceivablesCategories(receivablesCategories);
     }
-  }, [categories]);
+  }, [receivablesCategories]);
+
+  useEffect(() => {
+    if (payablesCategories.length > 0 && selectedPayablesCategories.length === 0) {
+      setSelectedPayablesCategories(payablesCategories);
+    }
+  }, [payablesCategories]);
 
   // Atualizar meses disponíveis conforme ano selecionado (igual ao backup)
   useEffect(() => {
@@ -206,9 +214,25 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     if (selectedMonth) filtered = filtered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
     if (selectedGroup !== 'all') filtered = filtered.filter(d => d.type === selectedGroup);
     if (selectedAging.length > 0) filtered = filtered.filter(d => selectedAging.includes(d.aging_intervals));
-    if (selectedCategory.length > 0) filtered = filtered.filter(d => selectedCategory.includes(d.category));
+    
+    // Filtrar por categorias baseado no tipo
+    if (selectedGroup === 'receivables' || selectedGroup === 'all') {
+      if (selectedReceivablesCategories.length > 0) {
+        filtered = filtered.filter(d => 
+          d.type === 'receivables' ? selectedReceivablesCategories.includes(d.category) : true
+        );
+      }
+    }
+    if (selectedGroup === 'payables' || selectedGroup === 'all') {
+      if (selectedPayablesCategories.length > 0) {
+        filtered = filtered.filter(d => 
+          d.type === 'payables' ? selectedPayablesCategories.includes(d.category) : true
+        );
+      }
+    }
+    
     return filtered;
-  }, [accountingData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedCategory]);
+  }, [accountingData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedReceivablesCategories, selectedPayablesCategories]);
 
   // Calcular métricas
   const metrics = useMemo(() => {
@@ -307,12 +331,15 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           setSeparateAging={setSeparateAging}
           selectedAging={selectedAging}
           setSelectedAging={setSelectedAging}
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          selectedReceivablesCategories={selectedReceivablesCategories}
+          setSelectedReceivablesCategories={setSelectedReceivablesCategories}
+          selectedPayablesCategories={selectedPayablesCategories}
+          setSelectedPayablesCategories={setSelectedPayablesCategories}
           years={years}
           months={months}
           agingIntervals={agingIntervals}
-          categories={categories}
+          receivablesCategories={receivablesCategories}
+          payablesCategories={payablesCategories}
         />
       </div>
 
@@ -337,11 +364,12 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                 receivablesAgingDetails={metrics.receivablesAgingDetails}
                 payablesAgingDetails={metrics.payablesAgingDetails}
                 outstandingAgingDetails={metrics.outstandingAgingDetails}
+                selectedGroup={selectedGroup}
               />
             </div>
           </div>
           {/* Tabela de dados */}
-          <AccountingTable filteredData={filteredData} />
+          <AccountingTable filteredData={filteredData} selectedGroup={selectedGroup} />
         </div>
         {/* Lado direito: partições (igual ao TimesheetAnalysis) */}
         <div id="individual_data" style={{ width: '35%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

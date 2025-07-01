@@ -4,6 +4,7 @@ import type { AccountingRow } from '../../../types/accounting';
 
 interface AccountingTableProps {
   filteredData: AccountingRow[];
+  selectedGroup: 'all' | 'receivables' | 'payables';
 }
 
 type GroupByType = 'invoices' | 'customers';
@@ -12,18 +13,23 @@ type SortOrder = 'asc' | 'desc';
 
 interface InvoiceGroup {
   date: string;
-  inv_num: string;
-  customer_full_name: string;
+  inv_num?: string;
+  bill_num?: string;
+  customer_full_name?: string;
+  vendor_display_name?: string;
   open_balance: number;
+  type: 'receivables' | 'payables';
 }
 
 interface CustomerGroup {
-  customer_full_name: string;
+  customer_full_name?: string;
+  vendor_display_name?: string;
   category: string;
   open_balance: number;
+  type: 'receivables' | 'payables';
 }
 
-export default function AccountingTable({ filteredData }: AccountingTableProps) {
+export default function AccountingTable({ filteredData, selectedGroup }: AccountingTableProps) {
   const [groupBy, setGroupBy] = useState<GroupByType>('invoices');
   const [sortBy, setSortBy] = useState<SortByType>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
@@ -33,17 +39,22 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
     const groups = new Map<string, InvoiceGroup>();
     
     filteredData.forEach(row => {
-      if (!row.inv_num || !row.customer_full_name) return;
+      const key = row.type === 'receivables' ? row.inv_num : row.bill_num;
+      const entityName = row.type === 'receivables' ? row.customer_full_name : row.vendor_display_name;
       
-      const key = row.inv_num;
+      if (!key || !entityName) return;
+      
       const currentDate = row.date_field || row.date;
       
       if (!groups.has(key) || dayjs(currentDate).isAfter(dayjs(groups.get(key)!.date))) {
         groups.set(key, {
           date: currentDate,
           inv_num: row.inv_num,
+          bill_num: row.bill_num,
           customer_full_name: row.customer_full_name,
-          open_balance: row.open_balance
+          vendor_display_name: row.vendor_display_name,
+          open_balance: row.open_balance,
+          type: row.type
         });
       }
     });
@@ -56,34 +67,39 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
     const groups = new Map<string, CustomerGroup>();
     
     // Primeiro, agrupar por invoice para pegar o mais recente de cada
-    const invoiceGroups = new Map<string, { date: string; balance: number; customer: string; category: string }>();
+    const invoiceGroups = new Map<string, { date: string; balance: number; entityName: string; category: string; type: 'receivables' | 'payables' }>();
     
     filteredData.forEach(row => {
-      if (!row.inv_num || !row.customer_full_name) return;
+      const key = row.type === 'receivables' ? row.inv_num : row.bill_num;
+      const entityName = row.type === 'receivables' ? row.customer_full_name : row.vendor_display_name;
       
-      const key = row.inv_num;
+      if (!key || !entityName) return;
+      
       const currentDate = row.date_field || row.date;
       
       if (!invoiceGroups.has(key) || dayjs(currentDate).isAfter(dayjs(invoiceGroups.get(key)!.date))) {
         invoiceGroups.set(key, {
           date: currentDate,
           balance: row.open_balance,
-          customer: row.customer_full_name,
-          category: row.category
+          entityName: entityName,
+          category: row.category,
+          type: row.type
         });
       }
     });
     
     // Agora somar por customer e category
-    invoiceGroups.forEach(({ balance, customer, category }) => {
-      const key = `${customer}-${category}`;
+    invoiceGroups.forEach(({ balance, entityName, category, type }) => {
+      const key = `${entityName}-${category}-${type}`;
       if (groups.has(key)) {
         groups.get(key)!.open_balance += balance;
       } else {
         groups.set(key, {
-          customer_full_name: customer,
+          customer_full_name: type === 'receivables' ? entityName : undefined,
+          vendor_display_name: type === 'payables' ? entityName : undefined,
           category: category,
-          open_balance: balance
+          open_balance: balance,
+          type: type
         });
       }
     });
@@ -106,12 +122,12 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
             bValue = dayjs(invoiceB.date);
             break;
           case 'invoice':
-            aValue = invoiceA.inv_num;
-            bValue = invoiceB.inv_num;
+            aValue = invoiceA.inv_num || invoiceA.bill_num || '';
+            bValue = invoiceB.inv_num || invoiceB.bill_num || '';
             break;
           case 'customer':
-            aValue = invoiceA.customer_full_name;
-            bValue = invoiceB.customer_full_name;
+            aValue = invoiceA.customer_full_name || invoiceA.vendor_display_name || '';
+            bValue = invoiceB.customer_full_name || invoiceB.vendor_display_name || '';
             break;
           case 'balance':
             aValue = invoiceA.open_balance;
@@ -127,8 +143,8 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
         
         switch (sortBy) {
           case 'customer':
-            aValue = customerA.customer_full_name;
-            bValue = customerB.customer_full_name;
+            aValue = customerA.customer_full_name || customerA.vendor_display_name || '';
+            bValue = customerB.customer_full_name || customerB.vendor_display_name || '';
             break;
           case 'category':
             aValue = customerA.category;
@@ -139,8 +155,8 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
             bValue = customerB.open_balance;
             break;
           default:
-            aValue = customerA.customer_full_name;
-            bValue = customerB.customer_full_name;
+            aValue = customerA.customer_full_name || customerA.vendor_display_name || '';
+            bValue = customerB.customer_full_name || customerB.vendor_display_name || '';
         }
       }
       
@@ -166,12 +182,83 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
     }
   };
 
+  // Determinar o título baseado no tipo selecionado
+  const getTitle = () => {
+    if (groupBy === 'invoices') {
+      switch (selectedGroup) {
+        case 'receivables':
+          return 'Invoice Overview';
+        case 'payables':
+          return 'Bill Overview';
+        default:
+          return 'Transaction Overview';
+      }
+    } else {
+      switch (selectedGroup) {
+        case 'receivables':
+          return 'Customer Balance Summary';
+        case 'payables':
+          return 'Vendor Balance Summary';
+        default:
+          return 'Entity Balance Summary';
+      }
+    }
+  };
+
+  // Determinar o nome da coluna de entidade
+  const getEntityColumnName = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Customer Name';
+      case 'payables':
+        return 'Vendor Name';
+      default:
+        return 'Entity Name';
+    }
+  };
+
+  // Determinar o nome da coluna de número
+  const getNumberColumnName = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Invoice';
+      case 'payables':
+        return 'Bill';
+      default:
+        return 'Transaction';
+    }
+  };
+
+  // Determinar o nome do agrupamento
+  const getGroupByLabel = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Invoices';
+      case 'payables':
+        return 'Bills';
+      default:
+        return 'Transactions';
+    }
+  };
+
+  // Determinar o nome do sort by
+  const getSortByLabel = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Invoice';
+      case 'payables':
+        return 'Bill';
+      default:
+        return 'Transaction';
+    }
+  };
+
   return (
     <>
       {/* Header com título e controles */}
       <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
         <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-          {groupBy === 'invoices' ? 'Invoice Overview' : 'Customer Balance Summary'}
+          {getTitle()}
         </h4>
         
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
@@ -191,7 +278,7 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                 cursor: 'pointer' 
               }}
             >
-              Invoices
+              {getGroupByLabel()}
             </button>
             <button
               onClick={() => setGroupBy('customers')}
@@ -206,7 +293,7 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                 cursor: 'pointer' 
               }}
             >
-              Customers
+              {selectedGroup === 'payables' ? 'Vendors' : 'Customers'}
             </button>
           </div>
 
@@ -233,13 +320,13 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                 {groupBy === 'invoices' ? (
                   <>
                     <option value="date">Date</option>
-                    <option value="invoice">Invoice</option>
-                    <option value="customer">Customer</option>
+                    <option value="invoice">{getSortByLabel()}</option>
+                    <option value="customer">{getEntityColumnName()}</option>
                     <option value="balance">Balance</option>
                   </>
                 ) : (
                   <>
-                    <option value="customer">Customer</option>
+                    <option value="customer">{getEntityColumnName()}</option>
                     <option value="category">Category</option>
                     <option value="balance">Balance</option>
                   </>
@@ -302,12 +389,12 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                     <th 
                       style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
                     >
-                      Invoice Number
+                      {getNumberColumnName()}
                     </th>
                     <th 
                       style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
                     >
-                      Customer Name
+                      {getEntityColumnName()}
                     </th>
                     <th 
                       style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
@@ -320,7 +407,7 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                     <th 
                       style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
                     >
-                      Customer Name
+                      {getEntityColumnName()}
                     </th>
                     <th 
                       style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
@@ -339,15 +426,15 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
             <tbody>
               {groupBy === 'invoices' ? (
                 sortedInvoiceGroups.map((row, index) => (
-                  <tr key={`${row.inv_num}-${index}`}>
+                  <tr key={`${row.inv_num || row.bill_num}-${index}`}>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
                       {dayjs(row.date).format('DD/MM/YYYY')}
                     </td>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
-                      {row.inv_num}
+                      {row.inv_num || row.bill_num}
                     </td>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
-                      {row.customer_full_name}
+                      {row.customer_full_name || row.vendor_display_name}
                     </td>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-accent-primary)', textAlign: 'right' }}>
                       {row.open_balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
@@ -356,9 +443,9 @@ export default function AccountingTable({ filteredData }: AccountingTableProps) 
                 ))
               ) : (
                 sortedCustomerGroups.map((row, index) => (
-                  <tr key={`${row.customer_full_name}-${row.category}-${index}`}>
+                  <tr key={`${row.customer_full_name || row.vendor_display_name}-${row.category}-${index}`}>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
-                      {row.customer_full_name}
+                      {row.customer_full_name || row.vendor_display_name}
                     </td>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
                       {row.category}

@@ -66,38 +66,39 @@ export function useTimesheetChartData(data: TimesheetRow[], selectedYear: number
     }
 
     const filteredData = data.filter(item => {
-      return Number(item.ano) === selectedYear && Number(item.mes) === selectedMonth;
+      const itemDate = new Date(item.date);
+      return itemDate.getFullYear() === selectedYear && itemDate.getMonth() + 1 === selectedMonth;
     });
 
     const labels = filteredData.map(item => {
-      const date = new Date(item.data);
+      const date = new Date(item.date);
       return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}`;
     });
 
-    const horasTrabalhadasData = filteredData.map(item => item.horas_trabalhadas);
-    const horasExtraData = filteredData.map(item => item.horas_extra);
-    const horasAusenciaData = filteredData.map(item => item.horas_ausencia);
+    const addTimeData = filteredData.map(item => parseFloat(item.add_time_hour) || 0);
+    const removeTimeData = filteredData.map(item => parseFloat(item.remove_time_hour) || 0);
+    const totalData = filteredData.map(item => parseFloat(item.total) || 0);
 
     return {
       labels,
       datasets: [
         {
-          label: 'Horas Trabalhadas',
-          data: horasTrabalhadasData,
+          label: 'Add Time',
+          data: addTimeData,
           borderColor: '#28a745',
           backgroundColor: 'rgba(40, 167, 69, 0.1)',
           tension: 0.4
         },
         {
-          label: 'Horas Extra',
-          data: horasExtraData,
+          label: 'Remove Time',
+          data: removeTimeData,
           borderColor: '#ffc107',
           backgroundColor: 'rgba(255, 193, 7, 0.1)',
           tension: 0.4
         },
         {
-          label: 'Horas Ausência',
-          data: horasAusenciaData,
+          label: 'Total',
+          data: totalData,
           borderColor: '#dc3545',
           backgroundColor: 'rgba(220, 53, 69, 0.1)',
           tension: 0.4
