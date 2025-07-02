@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import dayjs from 'dayjs';
 import type { AccountingRow } from '../../types/accounting';
 import CloseButton from '../../utils/CloseButton';
+import { addCurrentMonthNameIfMissing } from '../../utils/dataUtils';
 
 interface AccountingTableModalProps {
   show: boolean;
@@ -258,7 +259,7 @@ const AccountingTableModal: React.FC<AccountingTableModalProps> = ({ show, onClo
                   </select>
                   <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: 'none', borderRadius: 0, height: 38, width: 75, fontSize: 14 }}>
                     <option value="">Todos</option>
-                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                    {addCurrentMonthNameIfMissing(availableMonths, selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
                   </select>
                 </div>
 

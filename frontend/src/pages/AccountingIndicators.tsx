@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
+import { addCurrentMonthIfMissing } from '../utils/dataUtils';
 
 // Componentes modulares
 import AccountingFilters from '../components/common/AccountingIndicators/AccountingFilters';
@@ -212,8 +213,11 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       ),
     ].sort((a, b) => Number(a) - Number(b));
     
+    // Adicionar mês atual se não estiver presente
+    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
+    
     // Se o mês selecionado não existir mais, resetar
-    if (selectedMonth && !meses.includes(selectedMonth)) {
+    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) {
       setSelectedMonth('');
     }
   }, [selectedYear, accountingData, selectedMonth]);

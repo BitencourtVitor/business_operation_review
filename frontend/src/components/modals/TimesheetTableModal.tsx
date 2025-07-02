@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import type { TimesheetRow } from '../../types/timesheet';
 import CloseButton from '../../utils/CloseButton';
+import { addCurrentMonthNameIfMissing } from '../../utils/dataUtils';
 
 interface TimesheetTableModalProps {
   show: boolean;
@@ -241,7 +242,7 @@ const TimesheetTableModal: React.FC<TimesheetTableModalProps> = ({ show, onClose
                   </select>
                   <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: 'none', borderRadius: 0, height: 38, width: 75, fontSize: 14 }}>
                     <option value="">Todos</option>
-                    {availableMonths.map(m => <option key={m} value={m}>{m}</option>)}
+                    {addCurrentMonthNameIfMissing(availableMonths, selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
                   </select>
                 </div>
 

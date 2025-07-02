@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { addCurrentMonthIfMissing } from '../../../utils/dataUtils';
 
 // No topo do arquivo, antes do componente:
 const AGING_BUTTON_WIDTH = 180; // largura do botão
@@ -398,7 +399,7 @@ export default function AccountingFilters({
         </select>
         <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
           <option value="">Todos</option>
-          {months.map(m => <option key={m} value={m}>{m}</option>)}
+          {addCurrentMonthIfMissing(months, selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
       {/* Grupo de botões - Padrão do projeto (igual ao backup) */}

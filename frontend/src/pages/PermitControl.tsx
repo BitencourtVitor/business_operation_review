@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
+import { addCurrentMonthIfMissing } from '../utils/dataUtils';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import DestaqueModal from '../components/modals/DestaqueModal';
@@ -245,9 +246,12 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       ),
     ].sort((a, b) => Number(a) - Number(b));
     
-    setMonths(meses);
+    // Adicionar mês atual se não estiver presente
+    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
+    setMonths(mesesComAtual);
+    
     // Se o mês selecionado não existir mais, resetar
-    if (selectedMonth && !meses.includes(selectedMonth)) setSelectedMonth('');
+    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
   }, [selectedYear, permitData]);
 
   // Filtrar dados

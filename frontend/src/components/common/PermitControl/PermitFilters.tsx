@@ -1,5 +1,6 @@
 import React from 'react';
 import MultiSelectDropdown from '../MultiSelectDropdown';
+import { addCurrentMonthIfMissing } from '../../../utils/dataUtils';
 
 interface PermitFiltersProps {
   selectedYear: string;
@@ -61,7 +62,7 @@ export default function PermitFilters({
         </select>
         <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
           <option value="">Todos</option>
-          {months.map(m => <option key={m} value={m}>{m}</option>)}
+          {addCurrentMonthIfMissing(months, selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
       {/* Situation - Controle similar ao Type do Accounting */}

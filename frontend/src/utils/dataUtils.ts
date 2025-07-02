@@ -84,4 +84,56 @@ export function normalizeUtf8String(str: string | null | undefined): string {
     console.warn('Erro ao normalizar string UTF-8:', error);
     return str;
   }
+}
+
+/**
+ * Adiciona o mês atual à lista de meses se não estiver presente
+ * @param months Lista de meses existentes (formato MM)
+ * @param selectedYear Ano selecionado
+ * @returns Lista de meses incluindo o mês atual se aplicável
+ */
+export function addCurrentMonthIfMissing(months: string[], selectedYear: string): string[] {
+  if (!selectedYear) return months;
+  
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+  
+  // Só adiciona o mês atual se for o ano selecionado e não estiver na lista
+  if (currentYear === selectedYear && !months.includes(currentMonth)) {
+    const updatedMonths = [...months, currentMonth];
+    return updatedMonths.sort((a, b) => Number(a) - Number(b));
+  }
+  
+  return months;
+}
+
+/**
+ * Adiciona o mês atual à lista de meses se não estiver presente (para nomes de meses em inglês)
+ * @param months Lista de meses existentes (formato: January, February, etc.)
+ * @param selectedYear Ano selecionado
+ * @returns Lista de meses incluindo o mês atual se aplicável
+ */
+export function addCurrentMonthNameIfMissing(months: string[], selectedYear: string): string[] {
+  if (!selectedYear) return months;
+  
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear().toString();
+  
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
+  const currentMonthName = monthNames[currentDate.getMonth()];
+  
+  // Só adiciona o mês atual se for o ano selecionado e não estiver na lista
+  if (currentYear === selectedYear && !months.includes(currentMonthName)) {
+    const updatedMonths = [...months, currentMonthName];
+    return updatedMonths.sort((a, b) => {
+      return monthNames.indexOf(a) - monthNames.indexOf(b);
+    });
+  }
+  
+  return months;
 } 
