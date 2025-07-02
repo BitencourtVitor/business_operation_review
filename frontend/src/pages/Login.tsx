@@ -16,6 +16,42 @@ export default function Login() {
   const [remember, setRemember] = useState(false);
   const [theme, setTheme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
 
+  // Adicionar verificação de sessão no início do componente
+  useEffect(() => {
+    const checkAndClearSession = async () => {
+      try {
+        // Verificar se há uma sessão ativa
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.log('Erro ao verificar sessão:', error);
+          // Limpar qualquer sessão corrompida
+          await supabase.auth.signOut();
+          return;
+        }
+        
+        if (session) {
+          // Verificar se o token ainda é válido
+          const now = Math.floor(Date.now() / 1000);
+          if (session.expires_at && session.expires_at < now) {
+            console.log('Sessão expirada, limpando...');
+            await supabase.auth.signOut();
+            sessionStorage.clear();
+            localStorage.removeItem('supabase.auth.token');
+          }
+        }
+      } catch (err) {
+        console.error('Erro ao verificar sessão:', err);
+        // Em caso de erro, limpar tudo
+        await supabase.auth.signOut();
+        sessionStorage.clear();
+        localStorage.removeItem('supabase.auth.token');
+      }
+    };
+    
+    checkAndClearSession();
+  }, []);
+
   // Preencher senha automaticamente se lembrar senha
   useEffect(() => {
     const remembered = Cookies.get('remember') === 'true';
@@ -80,6 +116,7 @@ export default function Login() {
         
         // Chamar edge function para atualizar tabelas do banco
         try {
+          console.log('Chamando edge function gsheet_data...');
           const { error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
             body: { 
               userId: data.user.id,
@@ -89,9 +126,15 @@ export default function Login() {
           
           if (edgeFunctionError) {
             console.error('Erro na edge function:', edgeFunctionError);
+            // Não bloquear o login se a edge function falhar
+            console.log('Continuando com o login mesmo com erro na edge function');
+          } else {
+            console.log('Edge function executada com sucesso');
           }
         } catch (edgeFunctionError) {
           console.error('Erro ao chamar edge function:', edgeFunctionError);
+          // Não bloquear o login se a edge function falhar
+          console.log('Continuando com o login mesmo com erro na edge function');
         }
         
         if (remember) {

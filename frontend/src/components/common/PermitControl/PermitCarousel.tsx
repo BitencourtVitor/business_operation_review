@@ -50,13 +50,23 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
   const [sortByProcessingTime, setSortByProcessingTime] = useState<'asc' | 'desc' | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ x: 0, scroll: 0, dragging: false });
+  const [searchText, setSearchText] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Verificar se apenas um status está selecionado (controles devem ser desabilitados)
   const isSingleStatusSelected = selectedSituation && selectedSituation.length === 1;
 
+  // Filtrar dados conforme texto digitado em lot_address
+  const filteredDataRaw = useMemo(() => {
+    if (!searchText.trim()) return filteredData;
+    const lower = searchText.toLowerCase();
+    return filteredData.filter(row => (row.lot_address || '').toLowerCase().includes(lower));
+  }, [filteredData, searchText]);
+
   // Filtrar e ordenar dados baseado nos controles
   const displayData = useMemo(() => {
-    const data = showIssued ? filteredData : filteredData.filter(permit => permit.situacao !== 'Issued');
+    const data = showIssued ? filteredDataRaw : filteredDataRaw.filter(permit => permit.situacao !== 'Issued');
     
     // Agrupar por situação conforme ordem definida
     const groupedData = situationOrder.map(situation => {
@@ -76,7 +86,7 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
 
     // Concatenar todos os grupos mantendo a ordem das situações
     return groupedData.flat();
-  }, [filteredData, showIssued, situationOrder, sortByProcessingTime]);
+  }, [filteredDataRaw, showIssued, situationOrder, sortByProcessingTime]);
 
   // Função para reordenar situações
   const handleSituationDragStart = (e: React.DragEvent, situation: string) => {
@@ -139,14 +149,86 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
     };
   }, []);
 
+  // Função para abrir o campo de busca e focar
+  const handleOpenSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  // Função para fechar o campo de busca
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchText('');
+  };
+
   if (displayData.length === 0) {
     return (
       <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
-          <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-            Permit Cards
-          </h4>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+              Permit Cards
+            </h4>
+          </div>
           <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
+            {/* Filtro de texto */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: searchOpen ? 'space-between' : 'center',
+                position: 'relative',
+                width: searchOpen ? 220 : 42,
+                height: 42,
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                background: searchOpen ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+                border: '1px solid var(--color-border-divider)',
+                borderRadius: searchOpen ? 25 : 21,
+                padding: searchOpen ? '2px 8px 2px 8px' : '4px',
+                boxSizing: 'border-box',
+              }}
+            >
+              <button
+                type="button"
+                className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+                style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, transition: 'all 0.2s', color: 'var(--color-accent-primary)', flexShrink: 0, background: 'transparent', border: 'none' }}
+                onClick={handleOpenSearch}
+                aria-label="Abrir busca"
+                title="Buscar"
+                tabIndex={searchOpen ? -1 : 0}
+                disabled={searchOpen}
+              >
+                <i className="bi bi-search" />
+              </button>
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchText}
+                onChange={e => setSearchText(e.target.value)}
+                placeholder={'Buscar endereço...'}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 15,
+                  height: 32,
+                  marginLeft: 4,
+                  display: searchOpen ? 'block' : 'none',
+                  padding: searchOpen ? '0 8px 0 4px' : '0',
+                  width: searchOpen ? '100%' : 0,
+                  minWidth: 0,
+                  opacity: searchOpen ? 1 : 0,
+                  pointerEvents: searchOpen ? 'auto' : 'none',
+                  transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                onBlur={() => { if (!searchText) handleCloseSearch(); }}
+                tabIndex={searchOpen ? 0 : -1}
+              />
+            </div>
             {/* Controles de ordenação */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
@@ -269,11 +351,69 @@ export default function PermitCarousel({ filteredData, selectedSituation }: Perm
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
-        <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-          Permit Cards
-        </h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <h4 className='d-flex justify-content-start mb-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+            Permit Cards
+          </h4>
+        </div>
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
-          {/* Controle de ordenação */}
+          {/* Filtro de texto */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: searchOpen ? 'space-between' : 'center',
+              position: 'relative',
+              width: searchOpen ? 220 : 42,
+              height: 42,
+              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+              background: searchOpen ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: searchOpen ? 25 : 21,
+              padding: searchOpen ? '2px 8px 2px 8px' : '4px',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              type="button"
+              className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+              style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, transition: 'all 0.2s', color: 'var(--color-accent-primary)', flexShrink: 0, background: 'transparent', border: 'none' }}
+              onClick={handleOpenSearch}
+              aria-label="Abrir busca"
+              title="Buscar"
+              tabIndex={searchOpen ? -1 : 0}
+              disabled={searchOpen}
+            >
+              <i className="bi bi-search" />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder={'Buscar endereço...'}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-primary)',
+                fontSize: 15,
+                height: 32,
+                marginLeft: 4,
+                display: searchOpen ? 'block' : 'none',
+                padding: searchOpen ? '0 8px 0 4px' : '0',
+                width: searchOpen ? '100%' : 0,
+                minWidth: 0,
+                opacity: searchOpen ? 1 : 0,
+                pointerEvents: searchOpen ? 'auto' : 'none',
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onBlur={() => { if (!searchText) handleCloseSearch(); }}
+              tabIndex={searchOpen ? 0 : -1}
+            />
+          </div>
+          {/* Controles de ordenação */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
             <div style={{ display: 'flex', gap: 4 }}>

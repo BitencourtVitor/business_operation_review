@@ -14,6 +14,13 @@ interface Oportunidade {
   criado_em: string;
   desafios: string[];
   melhorias: string[];
+  descricao?: string;
+  impacto?: string;
+  prioridade?: string;
+  status?: string;
+  valor_estimado?: number;
+  prazo?: string;
+  responsavel?: string;
 }
 
 interface OportunidadeModalProps {
@@ -387,6 +394,8 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
   function handleCancel() {
     onClose();
   }
+
+
 
   if (!visible) return null;
 

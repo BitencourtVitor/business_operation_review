@@ -98,6 +98,22 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [accountingTableModalOpen, setAccountingTableModalOpen] = useState(false);
 
+  // Adicionar estado para selectedDay
+  const [selectedDay, setSelectedDay] = useState('');
+  
+  // Estado para métricas de comparação
+  const [comparisonMetrics, setComparisonMetrics] = useState<{ filteredValue: number; totalValue: number; percentage: number } | null>(null);
+
+  // Estado para controlar se o separateAging está forçado pelo Pie Chart
+  const [forceSeparateAging, setForceSeparateAging] = useState(false);
+
+    // Efeito para ativar automaticamente o separateAging quando forçado pelo Pie Chart
+  useEffect(() => {
+    if (forceSeparateAging && !separateAging) {
+      setSeparateAging(true);
+    }
+  }, [forceSeparateAging, separateAging, setSeparateAging]);
+
   // Hook para dados de accounting
   const { 
     data: accountingData, 
@@ -168,24 +184,18 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     }
   }, [years, selectedYear]);
 
-  // Inicializar filtros quando as opções carregarem e o array de seleção estiver vazio
+  // Inicializar filtros apenas uma vez quando os dados carregarem pela primeira vez
   useEffect(() => {
     if (agingIntervals.length > 0 && selectedAging.length === 0) {
       setSelectedAging(agingIntervals);
     }
-  }, [agingIntervals, selectedAging.length]);
-
-  useEffect(() => {
     if (receivablesCategories.length > 0 && selectedReceivablesCategories.length === 0) {
       setSelectedReceivablesCategories(receivablesCategories);
     }
-  }, [receivablesCategories, selectedReceivablesCategories.length]);
-
-  useEffect(() => {
     if (payablesCategories.length > 0 && selectedPayablesCategories.length === 0) {
       setSelectedPayablesCategories(payablesCategories);
     }
-  }, [payablesCategories, selectedPayablesCategories.length]);
+  }, [agingIntervals, receivablesCategories, payablesCategories]); // Sem selectedAging.length, etc.
 
   // Atualizar meses disponíveis conforme ano selecionado (igual ao backup)
   useEffect(() => {
@@ -237,6 +247,20 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     return filtered;
   }, [accountingData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedReceivablesCategories, selectedPayablesCategories]);
 
+  // Dados não filtrados por categoria/aging para cálculo do total no gráfico
+  const unfilteredDataForChart = useMemo(() => {
+    if (!accountingData) return [];
+    
+    let unfiltered = accountingData;
+    if (selectedYear) unfiltered = unfiltered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
+    if (selectedMonth) unfiltered = unfiltered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
+    if (selectedGroup !== 'all') unfiltered = unfiltered.filter(d => d.type === selectedGroup);
+    
+    // NÃO filtrar por aging nem categorias aqui - isso será feito no gráfico
+    
+    return unfiltered;
+  }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
+
   // Calcular métricas
   const metrics = useMemo(() => {
     if (!filteredData.length) {
@@ -244,22 +268,40 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         lastReceivable: 0,
         lastPayable: 0,
         receivablesAgingDetails: [],
-        payablesAgingDetails: [],
-        outstandingAgingDetails: []
+        payablesAgingDetails: []
       };
     }
 
     // Função para pegar o valor do ponto mais tardio para cada grupo
-    function getLastValue(type: 'receivables' | 'payables') {
+    function getLastValue(type: 'receivables' | 'payables', selectedDay: string) {
       // Filtrar só o tipo
       const groupData = filteredData.filter(d => d.type === type && d.open_balance > 0 && d.date);
       if (!groupData.length) return 0;
+      // Se dia selecionado
+      if (selectedDay) {
+        const rows = groupData.filter(d => d.date && d.date.split('-')[2] === selectedDay);
+        const byTrans: Record<string, number> = {};
+        rows.forEach(row => {
+          const key = type === 'receivables' ? row.inv_num : row.bill_num;
+          if (!key) return;
+          if (!(key in byTrans)) byTrans[key] = row.open_balance;
+          else byTrans[key] = Math.min(byTrans[key], row.open_balance);
+        });
+        return Object.values(byTrans).reduce((sum, v) => sum + v, 0);
+      }
       // Se filtrando por ano e mês: pegar o último dia do mês
       if (selectedYear && selectedMonth) {
         // Pega o maior dia
         const lastDay = Math.max(...groupData.map(d => Number(d.date.split('-')[2])));
         const last = groupData.filter(d => Number(d.date.split('-')[2]) === lastDay);
-        return last.reduce((sum, d) => sum + d.open_balance, 0);
+        const byTrans: Record<string, number> = {};
+        last.forEach(row => {
+          const key = type === 'receivables' ? row.inv_num : row.bill_num;
+          if (!key) return;
+          if (!(key in byTrans)) byTrans[key] = row.open_balance;
+          else byTrans[key] = Math.min(byTrans[key], row.open_balance);
+        });
+        return Object.values(byTrans).reduce((sum, v) => sum + v, 0);
       }
       // Se filtrando só por ano: pegar o último mês do ano
       if (selectedYear && !selectedMonth) {
@@ -269,27 +311,90 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         // Dentro do mês, pega o maior dia
         const lastDay = Math.max(...lastMonthData.map(d => Number(d.date.split('-')[2])));
         const last = lastMonthData.filter(d => Number(d.date.split('-')[2]) === lastDay);
-        return last.reduce((sum, d) => sum + d.open_balance, 0);
+        const byTrans: Record<string, number> = {};
+        last.forEach(row => {
+          const key = type === 'receivables' ? row.inv_num : row.bill_num;
+          if (!key) return;
+          if (!(key in byTrans)) byTrans[key] = row.open_balance;
+          else byTrans[key] = Math.min(byTrans[key], row.open_balance);
+        });
+        return Object.values(byTrans).reduce((sum, v) => sum + v, 0);
       }
       // Se não filtrar nada: pega o último valor disponível
       // (maior ano, maior mês, maior dia)
       const lastDate = groupData.map(d => d.date).sort().pop();
       const last = groupData.filter(d => d.date === lastDate);
-      return last.reduce((sum, d) => sum + d.open_balance, 0);
+      const byTrans: Record<string, number> = {};
+      last.forEach(row => {
+        const key = type === 'receivables' ? row.inv_num : row.bill_num;
+        if (!key) return;
+        if (!(key in byTrans)) byTrans[key] = row.open_balance;
+        else byTrans[key] = Math.min(byTrans[key], row.open_balance);
+      });
+      return Object.values(byTrans).reduce((sum, v) => sum + v, 0);
     }
 
-    // Calcular aging details (mantém igual)
+    // Calcular aging details do último dia
     const calculateAgingDetails = (type: 'receivables' | 'payables' | 'all') => {
-      const relevantData = type === 'all' 
-        ? filteredData 
-        : filteredData.filter(d => d.type === type);
-      const agingMap = new Map<string, number>();
-      relevantData.forEach(row => {
+      // Função para pegar os dados do último dia
+      function getLastDayData(type: 'receivables' | 'payables') {
+        const groupData = filteredData.filter(d => d.type === type && d.open_balance > 0 && d.date);
+        if (!groupData.length) return [];
+        
+        // Se filtrando por ano e mês: pegar o último dia do mês
+        if (selectedYear && selectedMonth) {
+          const lastDay = Math.max(...groupData.map(d => Number(d.date.split('-')[2])));
+          return groupData.filter(d => Number(d.date.split('-')[2]) === lastDay);
+        }
+        // Se filtrando só por ano: pegar o último mês do ano
+        if (selectedYear && !selectedMonth) {
+          const lastMonth = Math.max(...groupData.map(d => Number(d.date.split('-')[1])));
+          const lastMonthData = groupData.filter(d => Number(d.date.split('-')[1]) === lastMonth);
+          const lastDay = Math.max(...lastMonthData.map(d => Number(d.date.split('-')[2])));
+          return lastMonthData.filter(d => Number(d.date.split('-')[2]) === lastDay);
+        }
+        // Se não filtrar nada: pega o último valor disponível
+        const lastDate = groupData.map(d => d.date).sort().pop();
+        return groupData.filter(d => d.date === lastDate);
+      }
+
+      // Pegar dados do último dia baseado no tipo
+      let lastDayData: typeof filteredData;
+      if (type === 'all') {
+        const receivablesData = getLastDayData('receivables');
+        const payablesData = getLastDayData('payables');
+        lastDayData = [...receivablesData, ...payablesData];
+      } else {
+        lastDayData = getLastDayData(type);
+      }
+
+      // Calcular aging details apenas do último dia - usar lógica de transação única
+      const agingByTransaction: Record<string, Record<string, number>> = {};
+      
+      lastDayData.forEach(row => {
         if (row.aging_intervals && row.open_balance > 0) {
-          const current = agingMap.get(row.aging_intervals) || 0;
-          agingMap.set(row.aging_intervals, current + row.open_balance);
+          const transactionKey = row.type === 'receivables' ? row.inv_num : row.bill_num;
+          if (!transactionKey) return;
+          
+          if (!agingByTransaction[row.aging_intervals]) {
+            agingByTransaction[row.aging_intervals] = {};
+          }
+          
+          // Para cada transação, pegar o menor open_balance
+          if (!agingByTransaction[row.aging_intervals][transactionKey] || 
+              row.open_balance < agingByTransaction[row.aging_intervals][transactionKey]) {
+            agingByTransaction[row.aging_intervals][transactionKey] = row.open_balance;
+          }
         }
       });
+      
+      // Calcular totais por aging
+      const agingMap = new Map<string, number>();
+      Object.keys(agingByTransaction).forEach(aging => {
+        const total = Object.values(agingByTransaction[aging]).reduce((sum, val) => sum + val, 0);
+        agingMap.set(aging, total);
+      });
+      
       const total = Array.from(agingMap.values()).reduce((sum, value) => sum + value, 0);
       return Array.from(agingMap.entries()).map(([interval, value]) => ({
         interval,
@@ -302,22 +407,23 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       });
     };
 
-    const lastReceivable = getLastValue('receivables');
-    const lastPayable = getLastValue('payables');
+    const lastReceivable = getLastValue('receivables', selectedDay);
+    const lastPayable = getLastValue('payables', selectedDay);
 
     return {
       lastReceivable,
       lastPayable,
       receivablesAgingDetails: calculateAgingDetails('receivables'),
-      payablesAgingDetails: calculateAgingDetails('payables'),
-      outstandingAgingDetails: calculateAgingDetails('all')
+      payablesAgingDetails: calculateAgingDetails('payables')
     };
-  }, [filteredData, selectedYear, selectedMonth]);
+  }, [filteredData, selectedYear, selectedMonth, selectedDay]);
 
   // Função para salvar dados (igual ao TimesheetAnalysis)
   const handleSave = async () => {
     setRefreshTrigger(prev => prev + 1);
   };
+
+
 
   if (!telaId || !usuarioResponsavelId) {
     return (
@@ -423,6 +529,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           agingIntervals={agingIntervals}
           receivablesCategories={receivablesCategories}
           payablesCategories={payablesCategories}
+          forceSeparateAging={forceSeparateAging}
         />
       </div>
 
@@ -432,12 +539,20 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         <div style={{ background:'var(--color-background-primary)', width: '70%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
           <div>
             {/* Gráfico */}
-            <AccountingChart
-              filteredData={filteredData}
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              selectedGroup={selectedGroup}
+            <AccountingChart 
+              filteredData={filteredData} 
+              selectedYear={selectedYear} 
+              selectedMonth={selectedMonth} 
+              selectedGroup={selectedGroup} 
               separateAging={separateAging}
+              selectedDay={selectedDay}
+              setSelectedDay={setSelectedDay}
+              onComparisonMetricsChange={setComparisonMetrics}
+              onForceSeparateAging={setForceSeparateAging}
+              selectedReceivablesCategories={selectedReceivablesCategories}
+              selectedPayablesCategories={selectedPayablesCategories}
+              selectedAging={selectedAging}
+              unfilteredDataForChart={unfilteredDataForChart}
             />
             {/* Métricas centralizadas abaixo do gráfico */}
             <div className="d-flex flex-row align-items-center justify-content-between" style={{ borderBottom: '1px solid var(--color-border-divider)', borderTop: '1px solid var(--color-border-divider)' }}>
@@ -446,8 +561,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                 lastPayable={metrics.lastPayable}
                 receivablesAgingDetails={metrics.receivablesAgingDetails}
                 payablesAgingDetails={metrics.payablesAgingDetails}
-                outstandingAgingDetails={metrics.outstandingAgingDetails}
                 selectedGroup={selectedGroup}
+                comparisonMetrics={comparisonMetrics}
               />
             </div>
           </div>
@@ -650,6 +765,20 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                   acoes: [],
                 });
               }
+              setModalOpen(true);
+            }}
+            onAdd={async () => {
+              setModalType('plano');
+              setModalData({
+                id: '',
+                usuario_id: usuarioResponsavelId,
+                titulo: '',
+                descricao: '',
+                criado_em: new Date().toISOString(),
+                data_inicio: '',
+                data_fim: '',
+                acoes: [],
+              });
               setModalOpen(true);
             }}
             onView={async (plano) => {

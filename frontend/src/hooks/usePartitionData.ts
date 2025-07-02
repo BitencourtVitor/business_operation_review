@@ -81,6 +81,8 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
     }
   }, [telaId, usuarioResponsavelId, usuariosParaBuscar]);
 
+
+
   return {
     destaques,
     oportunidades,

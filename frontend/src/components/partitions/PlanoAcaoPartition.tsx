@@ -92,6 +92,27 @@ export default function PlanoAcaoPartition({
     fetchPlanosEAcoes();
   }, [usuarioResponsavelId, usuariosParaBuscar, refreshTrigger]);
 
+  // Função para calcular o status geral do plano baseado nas ações
+  const calcularStatusGeral = (acoes: Acao[]) => {
+    if (!acoes || acoes.length === 0) return { icon: 'bi-arrow-repeat', color: '#e67e22' };
+    
+    const statusCounts = acoes.reduce((acc, acao) => {
+      acc[acao.status] = (acc[acao.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    // Prioridade: Overdue > Pending > Done
+    if (statusCounts['Overdue'] > 0) {
+      return { icon: 'bi-exclamation-octagon', color: '#dc3545' };
+    } else if (statusCounts['Pending'] > 0) {
+      return { icon: 'bi-arrow-repeat', color: '#e67e22' };
+    } else if (statusCounts['Done'] > 0 || statusCounts['concluída'] > 0) {
+      return { icon: 'bi-check-circle', color: '#1bbf5c' };
+    }
+    
+    return { icon: 'bi-arrow-repeat', color: '#e67e22' };
+  };
+
   // Filtrar planos do responsável e adicionar ações correspondentes
   const planosComAcoes = React.useMemo(() => {
     if (!allPlanos.length) return [];
@@ -136,13 +157,27 @@ export default function PlanoAcaoPartition({
                   style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
                   onClick={() => setOpenPlanoId(openPlanoId === plano.id ? '' : plano.id)}
                 >
-                  <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {(() => {
+                      const statusGeral = calcularStatusGeral(plano.acoes);
+                      return (
+                        <i 
+                          className={`bi ${statusGeral.icon}`} 
+                          style={{ 
+                            color: statusGeral.color, 
+                            fontSize: 16, 
+                            flexShrink: 0 
+                          }} 
+                        />
+                      );
+                    })()}
+                    <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${openPlanoId === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                    <button
-                      type="button"
+                    <div
                       className="btn btn-tertiary-custom p-0 ms-1"
-                      style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
+                      style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none', cursor: 'pointer', border: 'none', background: 'none' }}
                       onClick={async (e) => {
                         e.stopPropagation();
                         if (onView) {
@@ -218,7 +253,7 @@ export default function PlanoAcaoPartition({
                       title="Expandir em modal"
                     >
                       <i className={`bi ${loadingView === plano.id ? 'bi-hourglass-split' : 'bi-box-arrow-up-left'}`} />
-                    </button>
+                    </div>
                     {isAdmin && (
                       <div
                         className="btn btn-link p-0 ms-2"

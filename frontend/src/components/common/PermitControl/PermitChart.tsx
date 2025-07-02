@@ -521,6 +521,8 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
     return { chartData, chartOptions };
   }, [filteredData, selectedYear, selectedMonth, selectedSituation]);
 
+
+
   return (
     <>
       <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>

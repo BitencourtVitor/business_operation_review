@@ -1,11 +1,7 @@
-import React, { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
 import { fetchAllRows, normalizeUtf8String } from '../utils/dataUtils';
 import { DataCacheContext, type CacheData } from './DataCacheContextTypes';
-
-
-
-
 
 export function DataCacheProvider({ children }: { children: ReactNode }) {
   const [cache, setCache] = useState<CacheData>({

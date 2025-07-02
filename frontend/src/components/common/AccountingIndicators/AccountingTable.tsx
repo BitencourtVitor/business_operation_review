@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import dayjs from 'dayjs';
 import type { AccountingRow } from '../../../types/accounting';
 
@@ -30,10 +31,186 @@ interface CustomerGroup {
   type: 'receivables' | 'payables';
 }
 
+// Componente SortByDropdown baseado na estrutura dos filtros
+function SortByDropdown({ 
+  sortBy, 
+  onSortChange, 
+  groupBy, 
+  selectedGroup 
+}: {
+  sortBy: SortByType;
+  onSortChange: (newSortBy: SortByType) => void;
+  groupBy: GroupByType;
+  selectedGroup: 'all' | 'receivables' | 'payables';
+}) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});
+  const [hasPreRendered, setHasPreRendered] = useState(false);
+
+  React.useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  React.useEffect(() => {
+    if ((open || !hasPreRendered) && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+      if (!hasPreRendered) setHasPreRendered(true);
+    }
+  }, [open, hasPreRendered]);
+
+  const getSortByLabel = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Invoice';
+      case 'payables':
+        return 'Bill';
+      default:
+        return 'Transaction';
+    }
+  };
+
+  const getEntityColumnName = () => {
+    switch (selectedGroup) {
+      case 'receivables':
+        return 'Customer Name';
+      case 'payables':
+        return 'Vendor Name';
+      default:
+        return 'Entity Name';
+    }
+  };
+
+  const getSortByDisplayText = () => {
+    switch (sortBy) {
+      case 'date':
+        return 'Date';
+      case 'invoice':
+        return getSortByLabel();
+      case 'customer':
+        return getEntityColumnName();
+      case 'balance':
+        return 'Balance';
+      case 'category':
+        return 'Category';
+      default:
+        return 'Date';
+    }
+  };
+
+  const getSortByOptions = () => {
+    if (groupBy === 'invoices') {
+      return [
+        { value: 'date', label: 'Date' },
+        { value: 'invoice', label: getSortByLabel() },
+        { value: 'customer', label: getEntityColumnName() },
+        { value: 'balance', label: 'Balance' }
+      ];
+    } else {
+      return [
+        { value: 'customer', label: getEntityColumnName() },
+        { value: 'category', label: 'Category' },
+        { value: 'balance', label: 'Balance' }
+      ];
+    }
+  };
+
+  const dropdownJSX = (
+    <div
+      ref={dropdownRef}
+      style={{
+        position: 'absolute',
+        zIndex: 1000,
+        top: dropdownPos.top,
+        left: dropdownPos.left,
+        width: dropdownPos.width,
+        background: 'var(--color-background-primary)',
+        color: 'var(--color-text-primary)',
+        border: '1.5px solid var(--color-border-divider)',
+        borderRadius: 6,
+        minWidth: 0,
+        maxHeight: 220,
+        overflowY: 'auto',
+        padding: 0,
+        boxShadow: 'none',
+        fontSize: 14,
+        display: open ? 'block' : 'none',
+      }}
+      className="custom-scrollbar"
+    >
+      {getSortByOptions().map(option => (
+        <div
+          key={option.value}
+          style={{
+            padding: '6px 12px',
+            fontSize: 14,
+            color: 'var(--color-text-secondary)',
+            cursor: 'pointer',
+            background: sortBy === option.value ? 'var(--color-background-secondary)' : 'transparent',
+            borderBottom: '1px solid var(--color-border-divider)',
+          }}
+          onClick={() => {
+            onSortChange(option.value as SortByType);
+            setOpen(false);
+          }}
+          onMouseEnter={(e) => {
+            if (sortBy !== option.value) {
+              e.currentTarget.style.background = 'var(--color-background-secondary)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = sortBy === option.value ? 'var(--color-background-secondary)' : 'transparent';
+          }}
+        >
+          {option.label}
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div style={{ position: 'relative', minWidth: 0, width: '100%', height: 38, borderTopRightRadius: 8, borderBottomRightRadius: 8 }}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="form-control d-flex align-items-center justify-content-between"
+        style={{ cursor: 'pointer', width: '100%', height: 38, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: 'none', borderRadius: 0, fontSize: 14, boxShadow: 'none', padding: '0 12px', margin: 0 }}
+        onClick={() => setOpen(o => !o)}
+      >
+        <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
+          {getSortByDisplayText()}
+        </span>
+        <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
+      </button>
+      {hasPreRendered && createPortal(dropdownJSX, document.body)}
+    </div>
+  );
+}
+
 export default function AccountingTable({ filteredData, selectedGroup, onView }: AccountingTableProps) {
   const [groupBy, setGroupBy] = useState<GroupByType>('invoices');
   const [sortBy, setSortBy] = useState<SortByType>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [searchText, setSearchText] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Agrupamento 1: Por Invoice (mais recente por invoice)
   const invoiceGroups = useMemo(() => {
@@ -168,8 +345,47 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
     });
   };
 
+  // Função para abrir o campo de busca e focar
+  const handleOpenSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  // Função para fechar o campo de busca
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchText('');
+  };
+
+  // Função para filtrar os dados conforme o texto digitado
+  const filterRows = (data: InvoiceGroup[] | CustomerGroup[]) => {
+    if (!searchText.trim()) return data;
+    const lower = searchText.toLowerCase();
+    if (groupBy === 'invoices') {
+      return (data as InvoiceGroup[]).filter(row => {
+        let entity = '';
+        if (selectedGroup === 'receivables') entity = row.customer_full_name || '';
+        else if (selectedGroup === 'payables') entity = row.vendor_display_name || '';
+        else entity = row.customer_full_name || row.vendor_display_name || '';
+        return entity.toLowerCase().includes(lower);
+      });
+    } else {
+      return (data as CustomerGroup[]).filter(row => {
+        let entity = '';
+        if (selectedGroup === 'receivables') entity = row.customer_full_name || '';
+        else if (selectedGroup === 'payables') entity = row.vendor_display_name || '';
+        else entity = row.customer_full_name || row.vendor_display_name || '';
+        return entity.toLowerCase().includes(lower);
+      });
+    }
+  };
+
   const sortedInvoiceGroups = sortData(invoiceGroups) as InvoiceGroup[];
   const sortedCustomerGroups = sortData(customerGroups) as CustomerGroup[];
+  const filteredInvoiceGroups = filterRows(sortedInvoiceGroups);
+  const filteredCustomerGroups = filterRows(sortedCustomerGroups);
 
   const handleSort = (newSortBy: SortByType) => {
     if (sortBy === newSortBy) {
@@ -242,38 +458,9 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
     }
   };
 
-  // Determinar o nome do sort by
-  const getSortByLabel = () => {
-    switch (selectedGroup) {
-      case 'receivables':
-        return 'Invoice';
-      case 'payables':
-        return 'Bill';
-      default:
-        return 'Transaction';
-    }
-  };
 
-  const renderSortByOptions = () => {
-    if (groupBy === 'invoices') {
-      return (
-        <>
-          <option value="date">Date</option>
-          <option value="invoice">{getSortByLabel()}</option>
-          <option value="customer">{getEntityColumnName()}</option>
-          <option value="balance">Balance</option>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <option value="customer">{getEntityColumnName()}</option>
-          <option value="category">Category</option>
-          <option value="balance">Balance</option>
-        </>
-      );
-    }
-  };
+
+
 
   return (
     <>
@@ -304,10 +491,65 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
             </button>
           )}
         </div>
-        
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
+          {/* Filtro de texto */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: searchOpen ? 'space-between' : 'center',
+              position: 'relative',
+              width: searchOpen ? 220 : 42,
+              height: 42,
+              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+              background: searchOpen ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: searchOpen ? 25 : 21,
+              padding: searchOpen ? '2px 8px 2px 8px' : '4px',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              type="button"
+              className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+              style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, transition: 'all 0.2s', color: 'var(--color-accent-primary)', flexShrink: 0, background: 'transparent', border: 'none' }}
+              onClick={handleOpenSearch}
+              aria-label="Abrir busca"
+              title="Buscar"
+              tabIndex={searchOpen ? -1 : 0}
+              disabled={searchOpen}
+            >
+              <i className="bi bi-search" />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder={selectedGroup === 'receivables' ? 'Buscar cliente...' : selectedGroup === 'payables' ? 'Buscar fornecedor...' : 'Buscar entidade...'}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-primary)',
+                fontSize: 15,
+                height: 32,
+                marginLeft: 4,
+                display: searchOpen ? 'block' : 'none',
+                padding: searchOpen ? '0 8px 0 4px' : '0',
+                width: searchOpen ? '100%' : 0,
+                minWidth: 0,
+                opacity: searchOpen ? 1 : 0,
+                pointerEvents: searchOpen ? 'auto' : 'none',
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onBlur={() => { if (!searchText) handleCloseSearch(); }}
+              tabIndex={searchOpen ? 0 : -1}
+            />
+          </div>
           {/* Group By Control */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }} className='justify-content-between'>
+          <div style={{ height: 42, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }} className='justify-content-between'>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
             <button
               onClick={() => setGroupBy('invoices')}
@@ -340,41 +582,18 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
               {getGroupByLabel('customers')}
             </button>
           </div>
-
           {/* Sort By Control */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
-            <div style={{ position: 'relative', display: 'inline-block' }}>
-              <select
-                value={sortBy}
-                onChange={(e) => handleSort(e.target.value as SortByType)}
-                style={{
-                  background: 'var(--color-background-primary)',
-                  color: 'var(--color-text-primary)',
-                  border: '1.5px solid var(--color-border-divider)',
-                  borderRadius: 8,
-                  padding: '4px 32px 4px 8px',
-                  fontSize: 14,
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  MozAppearance: 'none',
-                  minWidth: 110,
-                }}
-              >
-                {renderSortByOptions()}
-              </select>
-              <i
-                className="bi bi-chevron-down"
-                style={{
-                  position: 'absolute',
-                  right: 10,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  pointerEvents: 'none',
-                  color: 'var(--color-accent-primary)',
-                  fontSize: 16,
-                }}
-              />
+            <div className="input-group" style={{ minWidth: 110, maxWidth: 110, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
+              <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderRadius: 8, height: 38 }}>
+                <SortByDropdown 
+                  sortBy={sortBy}
+                  onSortChange={handleSort}
+                  groupBy={groupBy}
+                  selectedGroup={selectedGroup}
+                />
+              </div>
             </div>
             <button
               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
@@ -428,7 +647,7 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
                       {getEntityColumnName()}
                     </th>
                     <th 
-                      style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
+                      style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2, whiteSpace: 'nowrap' }}
                     >
                       Open Balance
                     </th>
@@ -446,7 +665,7 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
                       Category
                     </th>
                     <th 
-                      style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}
+                      style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2, whiteSpace: 'nowrap' }}
                     >
                       Open Balance
                     </th>
@@ -456,7 +675,7 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
             </thead>
             <tbody>
               {groupBy === 'invoices' ? (
-                sortedInvoiceGroups.map((row, index) => (
+                (filteredInvoiceGroups as InvoiceGroup[]).map((row, index) => (
                   <tr key={`${row.inv_num || row.bill_num}-${index}`}>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
                       {dayjs(row.date).format('DD/MM/YYYY')}
@@ -473,7 +692,7 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
                   </tr>
                 ))
               ) : (
-                sortedCustomerGroups.map((row, index) => (
+                (filteredCustomerGroups as CustomerGroup[]).map((row, index) => (
                   <tr key={`${row.customer_full_name || row.vendor_display_name}-${row.category}-${index}`}>
                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>
                       {row.customer_full_name || row.vendor_display_name}

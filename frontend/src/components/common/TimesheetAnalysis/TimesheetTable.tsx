@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import type { TimesheetRow } from '../../../types/timesheet';
 import TimesheetTableModal from '../../modals/TimesheetTableModal';
 
@@ -13,6 +13,9 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
   const [sortBy, setSortBy] = React.useState<'total' | 'hours' | 'name' | 'removed'>('total');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const [showModal, setShowModal] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Dados agrupados para a tabela
   const groupedData = useMemo(() => {
@@ -55,6 +58,29 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
     return Object.fromEntries(entries);
   }, [filteredData, groupBy, sortBy, sortDir]);
 
+  // Função para abrir o campo de busca e focar
+  const handleOpenSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => {
+      searchInputRef.current?.focus();
+    }, 100);
+  };
+
+  // Função para fechar o campo de busca
+  const handleCloseSearch = () => {
+    setSearchOpen(false);
+    setSearchText('');
+  };
+
+  // Filtrar os dados agrupados conforme o texto
+  const filteredGroupedData = useMemo(() => {
+    if (!searchText.trim()) return groupedData;
+    const lower = searchText.toLowerCase();
+    return Object.fromEntries(
+      Object.entries(groupedData).filter(([key]) => key.toLowerCase().includes(lower))
+    );
+  }, [groupedData, searchText]);
+
   return (
     <>
       <div style={{ display: 'flex', alignItems: 'center' }} className='ms-4 me-3 my-2 justify-content-between'>
@@ -80,13 +106,69 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
           </button>
         </div>
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }} className='justify-content-between'>
+          {/* Filtro de texto */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: searchOpen ? 'space-between' : 'center',
+              position: 'relative',
+              width: searchOpen ? 220 : 42,
+              height: 42,
+              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+              background: searchOpen ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: searchOpen ? 25 : 21,
+              padding: searchOpen ? '2px 8px 2px 8px' : '4px',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              type="button"
+              className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+              style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, transition: 'all 0.2s', color: 'var(--color-accent-primary)', flexShrink: 0, background: 'transparent', border: 'none' }}
+              onClick={handleOpenSearch}
+              aria-label="Abrir busca"
+              title="Buscar"
+              tabIndex={searchOpen ? -1 : 0}
+              disabled={searchOpen}
+            >
+              <i className="bi bi-search" />
+            </button>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder={groupBy === 'team' ? 'Buscar time...' : 'Buscar erro...'}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-primary)',
+                fontSize: 15,
+                height: 32,
+                marginLeft: 4,
+                display: searchOpen ? 'block' : 'none',
+                padding: searchOpen ? '0 8px 0 4px' : '0',
+                width: searchOpen ? '100%' : 0,
+                minWidth: 0,
+                opacity: searchOpen ? 1 : 0,
+                pointerEvents: searchOpen ? 'auto' : 'none',
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onBlur={() => { if (!searchText) handleCloseSearch(); }}
+              tabIndex={searchOpen ? 0 : -1}
+            />
+          </div>
+          <div style={{ height: 42, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }} className='justify-content-between'>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
             <button onClick={() => setGroupBy('team')} style={{ background: groupBy === 'team' ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', color: groupBy === 'team' ? '#fff' : 'var(--color-accent-primary)', border: '1.5px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 16px', fontWeight: 500, fontSize: 14, cursor: 'pointer' }}>Teams</button>
             <button onClick={() => setGroupBy('error')} style={{ background: groupBy === 'error' ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', color: groupBy === 'error' ? '#fff' : 'var(--color-accent-primary)', border: '1.5px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 16px', fontWeight: 500, fontSize: 14, cursor: 'pointer' }}>Errors</button>
           </div>
           {/* Ordenação */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
+          <div style={{ height: 42, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <select value={sortBy} onChange={e => setSortBy(e.target.value as 'total' | 'hours' | 'name' | 'removed')}
@@ -142,7 +224,7 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
               </tr>
             </thead>
             <tbody>
-              {Object.entries(groupedData).map(([key, val]) => (
+              {Object.entries(filteredGroupedData).map(([key, val]) => (
                 <tr key={key}>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{key}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{val.count}</td>

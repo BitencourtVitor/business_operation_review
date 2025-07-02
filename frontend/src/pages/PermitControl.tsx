@@ -281,6 +281,8 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     setRefreshTrigger(prevTrigger => prevTrigger + 1);
   };
 
+
+
   if (!telaId || !usuarioResponsavelId) {
     return (
       <div style={{
@@ -552,6 +554,20 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
                   acoes: [],
                 });
               }
+              setModalOpen(true);
+            }}
+            onAdd={async () => {
+              setModalType('plano');
+              setModalData({
+                id: '',
+                usuario_id: usuarioResponsavelId,
+                titulo: '',
+                descricao: '',
+                criado_em: new Date().toISOString(),
+                data_inicio: '',
+                data_fim: '',
+                acoes: [],
+              });
               setModalOpen(true);
             }}
             onView={async (plano) => {

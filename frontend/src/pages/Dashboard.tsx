@@ -33,62 +33,93 @@ export default function Dashboard() {
   // Buscar dados do usuário e telas
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate('/login');
-        return;
-      }
-      setUser(user);
+      try {
+        // Verificar se há uma sessão válida
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error('Erro ao verificar sessão:', sessionError);
+          navigate('/login');
+          return;
+        }
+        
+        if (!session) {
+          console.log('Nenhuma sessão encontrada, redirecionando para login');
+          navigate('/login');
+          return;
+        }
+        
+        // Verificar se o token ainda é válido
+        const now = Math.floor(Date.now() / 1000);
+        if (session.expires_at && session.expires_at < now) {
+          console.log('Sessão expirada, redirecionando para login');
+          await supabase.auth.signOut();
+          navigate('/login');
+          return;
+        }
+        
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          console.log('Usuário não encontrado, redirecionando para login');
+          navigate('/login');
+          return;
+        }
+        
+        setUser(user);
 
-      // Buscar dados do usuário
-      const { data: usuario } = await supabase
-        .from('usuarios')
-        .select('id, nome_completo')
-        .eq('email', user.email)
-        .single();
-
-      if (usuario) {
-        setUsuarioId(usuario.id);
-        setNomeCompleto(usuario.nome_completo);
-
-        // Buscar perfil do usuário
-        const { data: perfil } = await supabase
-          .from('perfis')
-          .select('tipo')
-          .eq('usuario_id', usuario.id)
+        // Buscar dados do usuário
+        const { data: usuario } = await supabase
+          .from('usuarios')
+          .select('id, nome_completo')
+          .eq('email', user.email)
           .single();
 
-        if (perfil) {
-          setRole(perfil.tipo);
-        }
+        if (usuario) {
+          setUsuarioId(usuario.id);
+          setNomeCompleto(usuario.nome_completo);
 
-        // Buscar telas
-        const { data: telasData } = await supabase
-          .from('telas')
-          .select('id, descricao');
-        setTelas(telasData || []);
+          // Buscar perfil do usuário
+          const { data: perfil } = await supabase
+            .from('perfis')
+            .select('tipo')
+            .eq('usuario_id', usuario.id)
+            .single();
 
-        // Buscar permissões
-        const { data: usuariosTelas } = await supabase
-          .from('usuarios_telas')
-          .select('tela_id')
-          .eq('usuario_id', usuario.id);
-        
-        const permissoesObj: Permissao = {};
-        (usuariosTelas || []).forEach(rel => {
-          permissoesObj[rel.tela_id] = true;
-        });
-        setPermissoes(permissoesObj);
+          if (perfil) {
+            setRole(perfil.tipo);
+          }
 
-        // Definir tela inicial como Timesheet Analysis
-        if (telasData && telasData.length > 0) {
-          const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
-          if (timesheetTela) {
-            setTelaId(timesheetTela.id);
-          } else {
-            setTelaId(telasData[0].id);
+          // Buscar telas
+          const { data: telasData } = await supabase
+            .from('telas')
+            .select('id, descricao');
+          setTelas(telasData || []);
+
+          // Buscar permissões
+          const { data: usuariosTelas } = await supabase
+            .from('usuarios_telas')
+            .select('tela_id')
+            .eq('usuario_id', usuario.id);
+          
+          const permissoesObj: Permissao = {};
+          (usuariosTelas || []).forEach(rel => {
+            permissoesObj[rel.tela_id] = true;
+          });
+          setPermissoes(permissoesObj);
+
+          // Definir tela inicial como Timesheet Analysis
+          if (telasData && telasData.length > 0) {
+            const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
+            if (timesheetTela) {
+              setTelaId(timesheetTela.id);
+            } else {
+              setTelaId(telasData[0].id);
+            }
           }
         }
+      } catch (error) {
+        console.error('Erro ao buscar dados do usuário:', error);
+        navigate('/login');
       }
     };
 
@@ -284,9 +315,12 @@ export default function Dashboard() {
             }}
           />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
           <span className="fw-light" style={{ color: 'var(--color-accent-primary)', fontWeight: 400, fontSize: 22, letterSpacing: 0.5 }}>
             Business Operations Review
+          </span>
+          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 10 }}>
+            What matters isn't the company's mistakes, but how it responds to them.
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -351,8 +385,43 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderTop: '1px solid var(--color-border-divider)'}}>
-          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 10 }}>What matters isn't the company's mistakes, but how it responds to them.</span>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderTop: '1px solid var(--color-border-divider)' }}>
+          <div style={{ position: 'relative', width: '100%' }}>
+            <button
+              className="btn-sidebar d-flex align-items-center justify-content-start w-100"
+              style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+              onMouseEnter={(e) => {
+                const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                if (tooltip) tooltip.style.display = 'block';
+              }}
+              onMouseLeave={(e) => {
+                const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
+                if (tooltip) tooltip.style.display = 'none';
+              }}
+            >
+              <i className="bi bi-gear" style={{ fontSize: 14 }} />
+              Settings
+            </button>
+            <div style={{
+              position: 'absolute',
+              left: '100%',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              marginLeft: 8,
+              background: 'var(--color-background-primary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: 11,
+              color: 'var(--color-text-secondary)',
+              whiteSpace: 'nowrap',
+              zIndex: 1000,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              display: 'none'
+            }}>
+              Melhoria implementada em breve
+            </div>
+          </div>
         </div>
       </aside>
 

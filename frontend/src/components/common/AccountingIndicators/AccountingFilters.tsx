@@ -50,12 +50,14 @@ function MultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos
 
   const allSelected = selected.length === options.length;
   const toggleOption = (opt: string) => {
-    if (selected.includes(opt)) setSelected(selected.filter(o => o !== opt));
-    else setSelected([...selected, opt]);
+    const newSelection = selected.includes(opt)
+      ? selected.filter(o => o !== opt)
+      : [...selected, opt];
+    setSelected(newSelection);
   };
   const toggleAll = () => {
-    if (allSelected) setSelected([]);
-    else setSelected(options);
+    const newSelection = allSelected ? [] : [...options];
+    setSelected(newSelection);
   };
   const dropdownJSX = (
     <div
@@ -85,13 +87,13 @@ function MultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos
       )}
       <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
         <label className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-          <input type="checkbox" checked={allSelected} onChange={toggleAll} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
+          <input type="checkbox" checked={allSelected} onChange={(e) => { e.stopPropagation(); toggleAll(); }} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
           <span>{allLabel}</span>
         </label>
       </div>
       {options.map(opt => (
         <label key={opt} className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-          <input type="checkbox" checked={selected.includes(opt)} onChange={() => toggleOption(opt)} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
+          <input type="checkbox" checked={selected.includes(opt)} onChange={(e) => { e.stopPropagation(); toggleOption(opt); }} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
           <span>{opt}</span>
         </label>
       ))}
@@ -175,29 +177,27 @@ function DualCategoryDropdown({
   const allPayablesSelected = selectedPayablesCategories.length === payablesCategories.length;
   
   const toggleReceivablesOption = (opt: string) => {
-    if (selectedReceivablesCategories.includes(opt)) {
-      setSelectedReceivablesCategories(selectedReceivablesCategories.filter(o => o !== opt));
-    } else {
-      setSelectedReceivablesCategories([...selectedReceivablesCategories, opt]);
-    }
+    const newSelection = selectedReceivablesCategories.includes(opt)
+      ? selectedReceivablesCategories.filter(o => o !== opt)
+      : [...selectedReceivablesCategories, opt];
+    setSelectedReceivablesCategories(newSelection);
   };
   
   const togglePayablesOption = (opt: string) => {
-    if (selectedPayablesCategories.includes(opt)) {
-      setSelectedPayablesCategories(selectedPayablesCategories.filter(o => o !== opt));
-    } else {
-      setSelectedPayablesCategories([...selectedPayablesCategories, opt]);
-    }
+    const newSelection = selectedPayablesCategories.includes(opt)
+      ? selectedPayablesCategories.filter(o => o !== opt)
+      : [...selectedPayablesCategories, opt];
+    setSelectedPayablesCategories(newSelection);
   };
   
   const toggleAllReceivables = () => {
-    if (allReceivablesSelected) setSelectedReceivablesCategories([]);
-    else setSelectedReceivablesCategories(receivablesCategories);
+    const newSelection = allReceivablesSelected ? [] : [...receivablesCategories];
+    setSelectedReceivablesCategories(newSelection);
   };
   
   const toggleAllPayables = () => {
-    if (allPayablesSelected) setSelectedPayablesCategories([]);
-    else setSelectedPayablesCategories(payablesCategories);
+    const newSelection = allPayablesSelected ? [] : [...payablesCategories];
+    setSelectedPayablesCategories(newSelection);
   };
   
   const toggleAll = () => {
@@ -205,8 +205,8 @@ function DualCategoryDropdown({
       setSelectedReceivablesCategories([]);
       setSelectedPayablesCategories([]);
     } else {
-      setSelectedReceivablesCategories(receivablesCategories);
-      setSelectedPayablesCategories(payablesCategories);
+      setSelectedReceivablesCategories([...receivablesCategories]);
+      setSelectedPayablesCategories([...payablesCategories]);
     }
   };
 
@@ -242,7 +242,7 @@ function DualCategoryDropdown({
       {/* Botão Todos Universal */}
       <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
         <label className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-          <input type="checkbox" checked={allSelected} onChange={toggleAll} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
+          <input type="checkbox" checked={allSelected} onChange={(e) => { e.stopPropagation(); toggleAll(); }} style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} />
           <span>Todos</span>
         </label>
       </div>
@@ -256,13 +256,13 @@ function DualCategoryDropdown({
               <div style={{ fontWeight: 500, fontSize: 12, color: 'var(--positive-color)', background: 'var(--color-background-secondary)', padding: '4px 12px 2px 12px', borderBottom: '1px solid var(--color-border-divider)' }}>Receivables</div>
               <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
                 <label className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-                  <input type="checkbox" checked={allReceivablesSelected} onChange={toggleAllReceivables} style={{ accentColor: 'var(--positive-color)', margin: 0 }} />
+                  <input type="checkbox" checked={allReceivablesSelected} onChange={(e) => { e.stopPropagation(); toggleAllReceivables(); }} style={{ accentColor: 'var(--positive-color)', margin: 0 }} />
                   <span>Todas Receivables</span>
                 </label>
               </div>
               {receivablesCategories.map(opt => (
                 <label key={`rec-${opt}`} className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-                  <input type="checkbox" checked={selectedReceivablesCategories.includes(opt)} onChange={() => toggleReceivablesOption(opt)} style={{ accentColor: 'var(--positive-color)', margin: 0 }} />
+                  <input type="checkbox" checked={selectedReceivablesCategories.includes(opt)} onChange={(e) => { e.stopPropagation(); toggleReceivablesOption(opt); }} style={{ accentColor: 'var(--positive-color)', margin: 0 }} />
                   <span>{opt}</span>
                 </label>
               ))}
@@ -281,13 +281,13 @@ function DualCategoryDropdown({
               <div style={{ fontWeight: 500, fontSize: 12, color: 'var(--negative-color)', background: 'var(--color-background-secondary)', padding: '4px 12px 2px 12px', borderBottom: '1px solid var(--color-border-divider)' }}>Payables</div>
               <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
                 <label className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-                  <input type="checkbox" checked={allPayablesSelected} onChange={toggleAllPayables} style={{ accentColor: 'var(--negative-color)', margin: 0 }} />
+                  <input type="checkbox" checked={allPayablesSelected} onChange={(e) => { e.stopPropagation(); toggleAllPayables(); }} style={{ accentColor: 'var(--negative-color)', margin: 0 }} />
                   <span>Todas Payables</span>
                 </label>
               </div>
               {payablesCategories.map(opt => (
                 <label key={`pay-${opt}`} className="d-flex align-items-center" style={{ gap: 8, fontSize: 14, color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '6px 12px' }}>
-                  <input type="checkbox" checked={selectedPayablesCategories.includes(opt)} onChange={() => togglePayablesOption(opt)} style={{ accentColor: 'var(--negative-color)', margin: 0 }} />
+                  <input type="checkbox" checked={selectedPayablesCategories.includes(opt)} onChange={(e) => { e.stopPropagation(); togglePayablesOption(opt); }} style={{ accentColor: 'var(--negative-color)', margin: 0 }} />
                   <span>{opt}</span>
                 </label>
               ))}
@@ -345,6 +345,7 @@ interface AccountingFiltersProps {
   agingIntervals: string[];
   receivablesCategories: string[];
   payablesCategories: string[];
+  forceSeparateAging?: boolean;
 }
 
 export default function AccountingFilters({
@@ -366,7 +367,8 @@ export default function AccountingFilters({
   months,
   agingIntervals,
   receivablesCategories,
-  payablesCategories
+  payablesCategories,
+  forceSeparateAging
 }: AccountingFiltersProps) {
   // Estilo para selects customizados (igual ao backup)
   const selectStyle: React.CSSProperties = {
@@ -503,7 +505,8 @@ export default function AccountingFilters({
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
         <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Separate by Aging</span>
         <button 
-          onClick={() => setSeparateAging(!separateAging)} 
+          onClick={() => !forceSeparateAging && setSeparateAging(!separateAging)} 
+          disabled={forceSeparateAging}
           style={{ 
             background: separateAging ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)', 
             color: separateAging ? '#fff' : 'var(--color-accent-primary)', 
@@ -512,15 +515,17 @@ export default function AccountingFilters({
             padding: '4px 16px', 
             fontWeight: 500, 
             fontSize: 14, 
-            cursor: 'pointer',
+            cursor: forceSeparateAging ? 'not-allowed' : 'pointer',
             transition: 'all 0.2s ease',
             height: 26,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            opacity: forceSeparateAging ? 0.7 : 1
           }}
+          title={forceSeparateAging ? 'Obrigatório quando agrupado por Aging Interval no Pie Chart' : ''}
           onMouseEnter={(e) => {
-            if (!separateAging) {
+            if (!separateAging && !forceSeparateAging) {
               e.currentTarget.style.background = 'var(--color-background-primary)';
               e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
             }
