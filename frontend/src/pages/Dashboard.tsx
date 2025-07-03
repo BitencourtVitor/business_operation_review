@@ -155,6 +155,7 @@ export default function Dashboard() {
     'Timesheet Analysis': 'bi bi-watch',
     'Accounting Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
+    'Takeoff Works': 'bi bi-houses',
     'IT Projects': 'bi bi-braces-asterisk',
   };
 
@@ -226,6 +227,30 @@ export default function Dashboard() {
         return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Permit Control':
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'IT Projects':
+      case 'Takeoff Works':
+        return (
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-12">
+                <div className="card" style={{ 
+                  background: 'var(--color-background-primary)',
+                  border: '1.5px solid var(--color-border-divider)',
+                  borderRadius: 10
+                }}>
+                  <div className="card-body">
+                    <h5 className="card-title" style={{ color: 'var(--color-text-primary)' }}>
+                      {tela.descricao}
+                    </h5>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>
+                      Conteúdo da página {tela.descricao} será implementado em breve.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="container-fluid">
