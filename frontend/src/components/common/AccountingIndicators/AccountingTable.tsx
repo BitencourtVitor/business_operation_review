@@ -585,8 +585,8 @@ export default function AccountingTable({ filteredData, selectedGroup, onView }:
           {/* Sort By Control */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
-            <div className="input-group" style={{ minWidth: 110, maxWidth: 110, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
-              <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderRadius: 8, height: 38 }}>
+            <div className="input-group" style={{ minWidth: 110, maxWidth: 110, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 31, zIndex: 20, display: 'flex' }}>
+              <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderRadius: 8, height: 31, display: 'flex', alignItems: 'center' }}>
                 <SortByDropdown 
                   sortBy={sortBy}
                   onSortChange={handleSort}
