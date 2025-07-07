@@ -9,6 +9,7 @@ export interface PlanoAcao {
   data_inicio: string;
   data_fim: string;
   acoes: Acao[];
+  deletado?: boolean;
 }
 
 export interface Acao {

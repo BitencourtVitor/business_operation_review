@@ -21,6 +21,7 @@ interface PlanoAcao {
   data_inicio: string;
   data_fim: string;
   acoes: Acao[];
+  deletado?: boolean;
 }
 
 interface PlanoAcaoViewModalProps {

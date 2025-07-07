@@ -51,10 +51,11 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
       if (oportunidadesError) throw oportunidadesError;
       setOportunidades(oportunidadesData || []);
 
-      // Buscar planos de ação dos usuários relevantes
+      // Buscar planos de ação dos usuários relevantes (apenas não deletados)
       let planosQuery = supabase
         .from('planos_de_acao')
         .select('*')
+        .eq('deletado', false)
         .order('criado_em', { ascending: false });
 
       // Se temos usuários específicos para buscar, filtrar por eles

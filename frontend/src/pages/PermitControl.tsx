@@ -54,6 +54,7 @@ interface PlanoAcao {
   data_inicio: string;
   data_fim: string;
   acoes: Acao[];
+  deletado?: boolean;
 }
 
 interface Acao {
@@ -528,11 +529,12 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             isAdmin={podeEditar}
             onEdit={async () => {
               setModalType('plano');
-              // Buscar planos existentes do usuário
+              // Buscar planos existentes do usuário (apenas não deletados)
               const { data: planos } = await supabase
                 .from('planos_de_acao')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId);
+                .eq('usuario_id', usuarioResponsavelId)
+                .eq('deletado', false);
               
               if (planos && planos.length > 0) {
                 const plano = planos[0];

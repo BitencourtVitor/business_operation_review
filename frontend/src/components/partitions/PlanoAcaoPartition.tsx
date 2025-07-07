@@ -24,6 +24,7 @@ interface PlanoAcao {
   data_inicio: string;
   data_fim: string;
   acoes: Acao[];
+  deletado?: boolean;
 }
 
 interface PlanoAcaoPartitionProps {
@@ -60,10 +61,11 @@ export default function PlanoAcaoPartition({
       
       setLoading(true);
       try {
-        // Buscar planos de ação de todos os usuários relevantes
+        // Buscar planos de ação de todos os usuários relevantes (apenas não deletados)
         let planosQuery = supabase
           .from('planos_de_acao')
-          .select('*');
+          .select('*')
+          .eq('deletado', false);
         
         // Se temos usuários específicos para buscar, filtrar por eles
         if (usuariosParaBuscar.length > 0) {

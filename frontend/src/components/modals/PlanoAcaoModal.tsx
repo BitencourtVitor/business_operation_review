@@ -13,6 +13,7 @@ interface PlanoAcao {
   data_inicio: string;
   data_fim: string | null;
   acoes: Acao[];
+  deletado?: boolean;
 }
 
 interface Acao {
@@ -484,6 +485,48 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
     }
   }
 
+  // Handler para deletar plano
+  async function handleDeletePlano() {
+    if (!plano) return;
+    
+    // Confirmação antes de deletar
+    if (!window.confirm('Tem certeza que deseja deletar este plano de ação? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+
+    setLoading(true);
+    setFeedback(null);
+    
+    try {
+      if (plano.id) {
+        // Soft delete - marcar como deletado
+        const { error } = await supabase
+          .from('planos_de_acao')
+          .update({ deletado: true })
+          .eq('id', plano.id);
+        
+        if (error) throw error;
+        
+        setFeedback({ message: 'Plano de ação deletado com sucesso!', type: 'success' });
+        setTimeout(() => onClose(), 2000);
+      } else {
+        // Se é um plano novo (sem ID), apenas fechar o modal
+        setFeedback({ message: 'Plano removido!', type: 'success' });
+        setTimeout(() => onClose(), 2000);
+      }
+      
+      if (onSaved) onSaved();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setFeedback({ message: err.message || 'Erro ao deletar plano de ação.', type: 'error' });
+      } else {
+        setFeedback({ message: 'Erro ao deletar plano de ação.', type: 'error' });
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   if (!visible) return null;
 
   return createPortal(
@@ -502,7 +545,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
             </div>
             <div className="modal-body custom-scrollbar" style={{ padding: 0, paddingBottom: 24, background: 'var(--color-background-primary)', maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
               <div style={{ padding: '0 24px' }}>
-                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+                                <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
                   <div style={{ display: 'flex', gap: 16, marginBottom: 16, marginTop: 16 }}>
                     <div style={{ flex: 2 }}>
                       <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', textAlign: 'start' }}>
@@ -525,26 +568,44 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                         required
                       />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', textAlign: 'start' }}>
-                        Data de Início
-                      </label>
-                      <input
-                        type="date"
-                        value={plano?.data_inicio || ''}
-                        onChange={(e) => setPlano(plano ? { ...plano, data_inicio: e.target.value } : null)}
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid var(--color-border-divider)',
-                          borderRadius: 6,
-                          fontSize: 14,
-                          background: 'var(--color-background-primary)',
-                          color: 'var(--color-text-primary)',
-                        }}
-                        required
-                      />
-                    </div>
+                    {plano?.id && (
+                      <div style={{ flex: 0, display: 'flex', alignItems: 'end', paddingBottom: 4 }}>
+                        <button
+                          type="button"
+                          onClick={handleDeletePlano}
+                          disabled={loading}
+                          className="d-flex align-items-center justify-content-center flex-row gap-2"
+                          style={{
+                            width: 100,
+                            height: 32,
+                            fontSize: 14,
+                            marginBottom: 0,
+                            marginTop: 0,
+                            borderRadius: 6,
+                            fontWeight: 500,
+                            background: 'var(--color-background-secondary)',
+                            color: 'var(--negative-color)',
+                            border: '1.5px solid var(--color-border-divider)',
+                            transition: 'background 0.3s, color 0.3s, border 0.3s',
+                            cursor: 'pointer',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!loading) {
+                              e.currentTarget.style.background = 'var(--color-background-primary)';
+                              e.currentTarget.style.borderColor = 'var(--negative-color)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'var(--color-background-secondary)';
+                            e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                          }}
+                          title="Deletar Plano de Ação"
+                        >
+                          <i className="bi bi-trash" />
+                          <span style={{ fontSize: 14, fontWeight: 500 }}>Deletar</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
@@ -570,26 +631,48 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                         rows={4}
                       />
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', textAlign: 'start' }}>
-                        Data de Fim
-                      </label>
-                      <input
-                        type="date"
-                        value={plano?.data_fim || ''}
-                        disabled
-                        style={{
-                          width: '100%',
-                          padding: '8px 12px',
-                          border: '1px solid var(--color-border-divider)',
-                          borderRadius: 6,
-                          fontSize: 14,
-                          background: 'var(--color-background-secondary)',
-                          color: 'var(--color-text-secondary)',
-                          cursor: 'not-allowed',
-                        }}
-                        title="Data calculada automaticamente baseada nas ações"
-                      />
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', textAlign: 'start' }}>
+                          Data de Início
+                        </label>
+                        <input
+                          type="date"
+                          value={plano?.data_inicio || ''}
+                          onChange={(e) => setPlano(plano ? { ...plano, data_inicio: e.target.value } : null)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            border: '1px solid var(--color-border-divider)',
+                            borderRadius: 6,
+                            fontSize: 14,
+                            background: 'var(--color-background-primary)',
+                            color: 'var(--color-text-primary)',
+                          }}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: 'var(--color-text-primary)', textAlign: 'start' }}>
+                          Data de Fim
+                        </label>
+                        <input
+                          type="date"
+                          value={plano?.data_fim || ''}
+                          disabled
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            border: '1px solid var(--color-border-divider)',
+                            borderRadius: 6,
+                            fontSize: 14,
+                            background: 'var(--color-background-secondary)',
+                            color: 'var(--color-text-secondary)',
+                            cursor: 'not-allowed',
+                          }}
+                          title="Data calculada automaticamente baseada nas ações"
+                        />
+                      </div>
                     </div>
                   </div>
 
