@@ -67,6 +67,14 @@ const AccountingTableModal: React.FC<AccountingTableModalProps> = ({ show, onClo
       }
     });
 
+    // Adicionar mês atual se for o ano selecionado
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear().toString();
+    if (currentYear === selectedYear) {
+      const currentMonthName = monthNames[currentDate.getMonth()];
+      monthsInYear.add(currentMonthName);
+    }
+
     return Array.from(monthsInYear).sort((a, b) => {
       return monthNames.indexOf(a) - monthNames.indexOf(b);
     });

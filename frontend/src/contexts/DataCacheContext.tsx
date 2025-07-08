@@ -150,11 +150,15 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       const receivablesCats = [...new Set(receivables.map(d => d.category).filter(Boolean))];
       const payablesCats = [...new Set(payables.map(d => d.category).filter(Boolean))];
 
-      // Verificar se há apenas um mês e setar o filtro de mês
+      // Extrair todos os meses únicos que possuem dados
       const uniqueMonths = [...new Set(combinedData.map(d => {
         if (!d.date) return null;
         return String(Number(d.date.split('-')[1])).padStart(2, '0');
-      }).filter(Boolean))];
+      }).filter((v): v is string => v !== null))].sort((a, b) => Number(a) - Number(b));
+
+      // Sempre incluir o ano atual na lista de anos disponíveis
+      const currentYear = new Date().getFullYear().toString();
+      const yearsWithCurrent = uniqueYears.includes(currentYear) ? uniqueYears : [currentYear, ...uniqueYears];
 
       setCache(prev => ({
         ...prev,
@@ -163,8 +167,8 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           loading: false,
           error: null,
           lastFetch: Date.now(),
-          years: uniqueYears,
-          months: uniqueMonths.length === 1 && uniqueMonths[0] ? [uniqueMonths[0] as string] : [],
+          years: yearsWithCurrent,
+          months: uniqueMonths,
           agingIntervals: uniqueAging,
           receivablesCategories: receivablesCats,
           payablesCategories: payablesCats,
@@ -221,6 +225,10 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       const uniqueCorporations = [...new Set(timesheetData.map(d => d.corporation).filter(Boolean))];
       const uniqueErrors = [...new Set(timesheetData.map(d => d.error).filter(Boolean))];
 
+      // Sempre incluir o ano atual na lista de anos disponíveis
+      const currentYear = new Date().getFullYear().toString();
+      const yearsWithCurrent = uniqueYears.includes(currentYear) ? uniqueYears : [currentYear, ...uniqueYears];
+
       setCache(prev => ({
         ...prev,
         timesheet: {
@@ -228,7 +236,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           loading: false,
           error: null,
           lastFetch: Date.now(),
-          years: uniqueYears,
+          years: yearsWithCurrent,
           months: [],
           teams: uniqueTeams,
           corporations: uniqueCorporations,
@@ -288,6 +296,10 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       const uniqueSituations = [...new Set(permitData.map(d => d.situacao).filter(Boolean))];
       const uniqueJobsites = [...new Set(permitData.map(d => d.jobsite).filter(Boolean))];
 
+      // Sempre incluir o ano atual na lista de anos disponíveis
+      const currentYear = new Date().getFullYear().toString();
+      const yearsWithCurrent = uniqueYears.includes(currentYear) ? uniqueYears : [currentYear, ...uniqueYears];
+
       setCache(prev => ({
         ...prev,
         permit: {
@@ -295,7 +307,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           loading: false,
           error: null,
           lastFetch: Date.now(),
-          years: uniqueYears,
+          years: yearsWithCurrent,
           months: [],
           models: uniqueModels,
           situations: uniqueSituations,

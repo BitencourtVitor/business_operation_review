@@ -7,6 +7,7 @@ import logoBlack from '../assets/logo_black.png';
 import TimesheetAnalysis from './TimesheetAnalysis';
 import AccountingIndicators from './AccountingIndicators';
 import PermitControl from './PermitControl';
+import ApiTest from './ApiTest';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -215,10 +216,16 @@ export default function Dashboard() {
   // Renderizar conteúdo principal baseado na tela selecionada
   const renderMainContent = () => {
     const tela = telas.find(t => t.id === telaId);
-    if (!tela) return null;
-
+    
     // Verificar se o usuário é responsável pela tela selecionada
-    const isResponsavelPelaTela = permissoes[telaId] || role === 'dev';
+    const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev') : false;
+
+    // Caso especial para Quickbooks API Test
+    if (telaId === 'quickbooks-api-test') {
+      return <ApiTest />;
+    }
+
+    if (!tela) return null;
 
     switch (tela.descricao) {
       case 'Timesheet Analysis':
@@ -375,7 +382,6 @@ export default function Dashboard() {
       {/* Sidebar */}
       <aside
         id="sidebar"
-        className="justify-content-between"
         style={{
           position: 'fixed',
           top: 64,
@@ -388,27 +394,52 @@ export default function Dashboard() {
           borderRight: '1.5px solid var(--color-border-divider)',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
           zIndex: 100,
         }}
       >
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderBottom: '1px solid var(--color-border-divider)'}}>
-          <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
-            <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
-              Office Brazil
-            </span>
+        <div style={{ 
+          width: '100%', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          borderBottom: '1px solid var(--color-border-divider)',
+          flex: 1,
+          overflowY: 'auto'
+        }}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
+            <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
+              <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
+                Office Brazil
+              </span>
+            </div>
+            {telas.map(tela => (
+              <button
+                key={tela.id}
+                className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                onClick={() => handleSetMainContent(tela.id)}
+              >
+                <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
+                {tela.descricao}
+              </button>
+            ))}
           </div>
-          {telas.map(tela => (
+          <div style={{ width: '100%', height: 1, background: 'var(--color-border-divider)' }}></div>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
+            <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
+              <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
+                Quickbooks
+              </span>
+            </div>
             <button
-              key={tela.id}
-              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === 'quickbooks-api-test' ? ' btn-sidebar-ativo' : ''}`}
               style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onClick={() => handleSetMainContent(tela.id)}
+              onClick={() => handleSetMainContent('quickbooks-api-test')}
             >
-              <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-              {tela.descricao}
+              <i className="bi bi-gear-wide-connected" style={{ fontSize: 14 }} />
+              API Test
             </button>
-          ))}
+          </div>
         </div>
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderTop: '1px solid var(--color-border-divider)' }}>
           <div style={{ position: 'relative', width: '100%' }}>

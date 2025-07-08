@@ -122,11 +122,37 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     loading: dataLoading, 
     error: accountingError,
     years, 
-    months, 
     agingIntervals, 
     receivablesCategories, 
     payablesCategories 
   } = useAccountingDataCached();
+
+  // Estado local para os meses disponíveis
+  const [months, setMonths] = useState<string[]>([]);
+
+  // Atualizar meses disponíveis conforme ano selecionado
+  useEffect(() => {
+    if (!selectedYear || !accountingData) {
+      setMonths([]);
+      return;
+    }
+    // Pega todos os meses únicos do ano selecionado que possuem dados
+    const meses = [
+      ...new Set(
+        accountingData
+          .filter(d => d.date && d.date.startsWith(selectedYear + '-'))
+          .map(d => String(Number(d.date.split('-')[1])).padStart(2, '0'))
+          .filter(Boolean)
+      ),
+    ].sort((a, b) => Number(a) - Number(b));
+    // Adicionar mês atual se não estiver presente (sempre que for o ano selecionado)
+    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
+    setMonths(mesesComAtual);
+    // Se o mês selecionado não existir mais, resetar
+    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) {
+      setSelectedMonth('');
+    }
+  }, [selectedYear, accountingData, selectedMonth]);
 
   // Atualizar telaId quando props mudarem
   useEffect(() => {
@@ -176,7 +202,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   // Inicializar filtros quando os dados carregarem (igual ao backup)
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
-      // Selecionar ano atual se existir
+      // Sempre selecionar ano atual se existir
       const currentYear = new Date().getFullYear().toString();
       if (years.includes(currentYear)) {
         setSelectedYear(currentYear);
@@ -198,30 +224,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       setSelectedPayablesCategories(payablesCategories);
     }
   }, [agingIntervals, receivablesCategories, payablesCategories]); // Sem selectedAging.length, etc.
-
-  // Atualizar meses disponíveis conforme ano selecionado (igual ao backup)
-  useEffect(() => {
-    if (!selectedYear || !accountingData) {
-      return;
-    }
-    // Pega todos os meses únicos do ano selecionado
-    const meses = [
-      ...new Set(
-        accountingData
-          .filter(d => d.date && d.date.startsWith(selectedYear + '-'))
-          .map(d => String(Number(d.date.split('-')[1])).padStart(2, '0'))
-          .filter(Boolean)
-      ),
-    ].sort((a, b) => Number(a) - Number(b));
-    
-    // Adicionar mês atual se não estiver presente
-    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
-    
-    // Se o mês selecionado não existir mais, resetar
-    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) {
-      setSelectedMonth('');
-    }
-  }, [selectedYear, accountingData, selectedMonth]);
 
   // Calcular dados filtrados
   const filteredData = useMemo(() => {

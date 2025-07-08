@@ -99,7 +99,7 @@ export function addCurrentMonthIfMissing(months: string[], selectedYear: string)
   const currentYear = currentDate.getFullYear().toString();
   const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
   
-  // Só adiciona o mês atual se for o ano selecionado e não estiver na lista
+  // Sempre adiciona o mês atual se for o ano selecionado e não estiver na lista
   if (currentYear === selectedYear && !months.includes(currentMonth)) {
     const updatedMonths = [...months, currentMonth];
     return updatedMonths.sort((a, b) => Number(a) - Number(b));
