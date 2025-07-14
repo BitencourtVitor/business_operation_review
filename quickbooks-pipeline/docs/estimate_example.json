@@ -1,0 +1,178 @@
+{
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15837",
+    "SyncToken": "4",
+    "MetaData": {
+        "CreateTime": "2025-02-13T13:00:48-08:00",
+        "LastUpdatedTime": "2025-07-09T11:52:55-07:00"
+    },
+    "CustomField": [
+        {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+        }
+    ],
+    "DocNumber": "1737",
+    "TxnDate": "2025-02-13",
+    "CurrencyRef": {
+        "value": "USD",
+        "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+        {
+        "TxnId": "17295",
+        "TxnType": "Invoice"
+        },
+        {
+        "TxnId": "17871",
+        "TxnType": "Invoice"
+        },
+        {
+        "TxnId": "19636",
+        "TxnType": "Invoice"
+        }
+    ],
+    "Line": [
+        {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+            "ItemRef": {
+            "value": "1090",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Eastern"
+            },
+            "UnitPrice": 12800,
+            "Qty": 1,
+            "TaxCodeRef": {
+            "value": "NON"
+            }
+        },
+        "CustomExtensions": []
+        },
+        {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+            "ItemRef": {
+            "value": "1141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Eastern"
+            },
+            "UnitPrice": 4650,
+            "Qty": 1,
+            "TaxCodeRef": {
+            "value": "NON"
+            }
+        },
+        "CustomExtensions": []
+        },
+        {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+            "ItemRef": {
+            "value": "1159",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Eastern"
+            },
+            "UnitPrice": 3100,
+            "Qty": 1,
+            "TaxCodeRef": {
+            "value": "NON"
+            }
+        },
+        "CustomExtensions": []
+        },
+        {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final H.V.A.C.",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+            "ItemRef": {
+            "value": "1177",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Eastern"
+            },
+            "UnitPrice": 2000,
+            "Qty": 1,
+            "TaxCodeRef": {
+            "value": "NON"
+            }
+        },
+        "CustomExtensions": []
+        },
+        {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Walkout basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+            "ItemRef": {
+            "value": "1010000351",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:017 - Wellesley"
+            },
+            "UnitPrice": 0,
+            "Qty": 1,
+            "TaxCodeRef": {
+            "value": "NON"
+            }
+        },
+        "CustomExtensions": []
+        },
+        {
+        "Amount": 22550,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+        }
+    ],
+    "TxnTaxDetail": {
+        "TxnTaxCodeRef": {
+        "value": "3"
+        },
+        "TotalTax": 0,
+        "TaxLine": [
+        {
+            "Amount": 0,
+            "DetailType": "TaxLineDetail",
+            "TaxLineDetail": {
+            "TaxRateRef": {
+                "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+            }
+        }
+        ]
+    },
+    "CustomerRef": {
+        "value": "1276",
+        "name": "Lot 36 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+        "Id": "15747",
+        "Line1": "The Pinehills Owls Nest",
+        "Line2": "Westford Eastern Shore / 6C5 - 54",
+        "Line3": "72 Kestrel Heights"
+    },
+    "ShipAddr": {
+        "Id": "14263",
+        "Line1": "The Pinehills Owls Nest"
+    },
+    "TotalAmt": 22550,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+}

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
+import ProjectFinancialOverview from './pages/ProjectFinancialOverview'
 import { DataCacheProvider } from './contexts/DataCacheContext'
 import './App.css'
 
@@ -11,6 +12,7 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/project-overview" element={<ProjectFinancialOverview />} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>

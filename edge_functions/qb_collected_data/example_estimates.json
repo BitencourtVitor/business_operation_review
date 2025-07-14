@@ -1,0 +1,133 @@
+{
+    "QueryResponse": {
+      "startPosition": 1, 
+      "Estimate": [
+        {
+          "TxnDate": "2014-09-07", 
+          "domain": "QBO", 
+          "PrintStatus": "NeedToPrint", 
+          "TxnStatus": "Closed", 
+          "TotalAmt": 582.5, 
+          "Line": [
+            {
+              "Description": "Rock Fountain", 
+              "DetailType": "SalesItemLineDetail", 
+              "SalesItemLineDetail": {
+                "TaxCodeRef": {
+                  "value": "NON"
+                }, 
+                "Qty": 1, 
+                "UnitPrice": 275, 
+                "ItemRef": {
+                  "name": "Rock Fountain", 
+                  "value": "5"
+                }
+              }, 
+              "LineNum": 1, 
+              "Amount": 275.0, 
+              "Id": "1"
+            }, 
+            {
+              "Description": "Custom Design", 
+              "DetailType": "SalesItemLineDetail", 
+              "SalesItemLineDetail": {
+                "TaxCodeRef": {
+                  "value": "NON"
+                }, 
+                "Qty": 3.5, 
+                "UnitPrice": 75, 
+                "ItemRef": {
+                  "name": "Design", 
+                  "value": "4"
+                }
+              }, 
+              "LineNum": 2, 
+              "Amount": 262.5, 
+              "Id": "2"
+            }, 
+            {
+              "Description": "Fountain Pump", 
+              "DetailType": "SalesItemLineDetail", 
+              "SalesItemLineDetail": {
+                "TaxCodeRef": {
+                  "value": "NON"
+                }, 
+                "Qty": 2, 
+                "UnitPrice": 22.5, 
+                "ItemRef": {
+                  "name": "Pump", 
+                  "value": "11"
+                }
+              }, 
+              "LineNum": 3, 
+              "Amount": 45.0, 
+              "Id": "3"
+            }, 
+            {
+              "DetailType": "SubTotalLineDetail", 
+              "Amount": 582.5, 
+              "SubTotalLineDetail": {}
+            }
+          ], 
+          "ApplyTaxAfterDiscount": false, 
+          "DocNumber": "1001", 
+          "sparse": false, 
+          "CustomerMemo": {
+            "value": "Thank you for your business and have a great day!"
+          }, 
+          "ProjectRef": {
+            "value": "39298035"
+          }, 
+          "CustomerRef": {
+            "name": "Geeta Kalapatapu", 
+            "value": "10"
+          }, 
+          "TxnTaxDetail": {
+            "TotalTax": 0
+          }, 
+          "SyncToken": "0", 
+          "LinkedTxn": [
+            {
+              "TxnId": "103", 
+              "TxnType": "Invoice"
+            }
+          ], 
+          "CustomField": [
+            {
+              "DefinitionId": "1", 
+              "Type": "StringType", 
+              "Name": "Crew #"
+            }
+          ], 
+          "ShipAddr": {
+            "City": "Middlefield", 
+            "Line1": "1987 Main St.", 
+            "PostalCode": "94303", 
+            "Lat": "37.445013", 
+            "Long": "-122.1391443", 
+            "CountrySubDivisionCode": "CA", 
+            "Id": "10"
+          }, 
+          "EmailStatus": "NotSet", 
+          "BillAddr": {
+            "Line3": "Middlefield, CA  94303", 
+            "Line2": "1987 Main St.", 
+            "Long": "-122.1178261", 
+            "Line1": "Geeta Kalapatapu", 
+            "Lat": "37.4530553", 
+            "Id": "59"
+          }, 
+          "MetaData": {
+            "CreateTime": "2014-09-17T11:20:06-07:00", 
+            "LastUpdatedTime": "2014-09-18T13:41:59-07:00"
+          }, 
+          "BillEmail": {
+            "Address": "Geeta@Kalapatapu.com"
+          }, 
+          "Id": "41"
+        }
+      ], 
+      "maxResults": 1
+    }, 
+    "time": "2015-07-24T14:00:04.902-07:00"
+  }

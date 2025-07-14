@@ -7,7 +7,7 @@ import logoBlack from '../assets/logo_black.png';
 import TimesheetAnalysis from './TimesheetAnalysis';
 import AccountingIndicators from './AccountingIndicators';
 import PermitControl from './PermitControl';
-import ApiTest from './ApiTest';
+import Projects from './Projects';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -158,6 +158,7 @@ export default function Dashboard() {
     'Permit Control': 'bi bi-file-earmark-check',
     'Takeoff Works': 'bi bi-houses',
     'IT Projects': 'bi bi-braces-asterisk',
+    'Bill Payments': 'bi bi-credit-card',
   };
 
   // Descobrir todas as telas em que o usuário é admin_setor
@@ -220,9 +221,8 @@ export default function Dashboard() {
     // Verificar se o usuário é responsável pela tela selecionada
     const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev') : false;
 
-    // Caso especial para Quickbooks API Test
-    if (telaId === 'quickbooks-api-test') {
-      return <ApiTest />;
+    if (telaId === 'projects') {
+      return <Projects />;
     }
 
     if (!tela) return null;
@@ -432,12 +432,12 @@ export default function Dashboard() {
               </span>
             </div>
             <button
-              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === 'quickbooks-api-test' ? ' btn-sidebar-ativo' : ''}`}
+              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === 'projects' ? ' btn-sidebar-ativo' : ''}`}
               style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onClick={() => handleSetMainContent('quickbooks-api-test')}
+              onClick={() => handleSetMainContent('projects')}
             >
-              <i className="bi bi-gear-wide-connected" style={{ fontSize: 14 }} />
-              API Test
+              <i className="bi bi-diagram-3" style={{ fontSize: 14 }} />
+              Projects
             </button>
           </div>
         </div>
