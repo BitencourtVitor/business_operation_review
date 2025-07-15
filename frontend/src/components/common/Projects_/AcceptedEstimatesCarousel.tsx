@@ -2,7 +2,6 @@ import React, { useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import useQuickbooksData from '../../../hooks/useQuickbooksData';
 import CloseButton from '../../../utils/CloseButton';
-import ConnectedLine from './ConnectedLine';
 
 const STATUS = {
   'Accepted': { color: '#1bbf5c', icon: 'bi-check-circle-fill' },
@@ -27,12 +26,24 @@ function getProjectName(rawName?: string | null) {
   return parts[parts.length - 1].trim();
 }
 
+// Definir tipo InvoiceType no topo
+interface InvoiceType {
+  id: string;
+  doc_number?: string | null;
+  total_amount?: number | null;
+  txn_date?: string | null;
+  balance?: number | null;
+}
+
 export default function AcceptedEstimatesCarousel() {
+  // Estado do filtro de status
+  const [onlyAccepted, setOnlyAccepted] = useState(true);
+  const statusFilter = onlyAccepted ? ['Accepted'] : [];
   const {
     estimatesRel,
     loading,
     error,
-  } = useQuickbooksData();
+  } = useQuickbooksData(statusFilter);
 
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -41,7 +52,6 @@ export default function AcceptedEstimatesCarousel() {
   const [modalIdx, setModalIdx] = useState<number | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ x: 0, scroll: 0, dragging: false });
-  const colunasRef = React.useRef<HTMLDivElement>(null);
 
   // Busca e ordenação
   const filteredEstimates = useMemo(() => {
@@ -109,16 +119,8 @@ export default function AcceptedEstimatesCarousel() {
   }
 
   // Estado para hover de Bill/Invoice
-  const [hoveredBillId, setHoveredBillId] = useState<string | null>(null);
-  const [hoveredInvoiceId, setHoveredInvoiceId] = useState<string | null>(null);
-
-  // Estado para accordion de itens do modal
   const [itemsOpen, setItemsOpen] = useState(false);
-  // Refs para containers (sem | null no tipo)
-  const billsRef = React.useRef<HTMLDivElement>(null);
-  const billPaymentsRef = React.useRef<HTMLDivElement>(null);
-  const invoicesRef = React.useRef<HTMLDivElement>(null);
-  const paymentsRef = React.useRef<HTMLDivElement>(null);
+  // Remover refs não usadas
 
   // Modal estilizado padrão PermitCarousel
   const renderModal = (rel: typeof filteredEstimates[number], itemsOpen: boolean, setItemsOpen: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -134,7 +136,9 @@ export default function AcceptedEstimatesCarousel() {
     // Agrupar Payments únicos
     const allPayments = rel.payments;
     // Agrupar Invoices
-    const allInvoices = rel.links.filter(l => l.txn_type === 'Invoice');
+    // const allInvoices = rel.links.filter(l => l.txn_type === 'Invoice');
+    // NOVO: usar rel.invoices se existir, ou ajustar para buscar o array completo
+    const allInvoices = (rel as { invoices?: InvoiceType[] }).invoices || [];
     // Agrupar Bills
     const allBills = rel.bills;
     // Cores e ícones
@@ -202,202 +206,167 @@ export default function AcceptedEstimatesCarousel() {
           {/* Header */}
           <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h5 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Resumo do Projeto</span>
+              {getProjectName(rel.estimate.customer_name) || '-'}
             </h5>
-            <CloseButton onClick={handleCloseModal} size="md" />
+            <CloseButton onClick={handleCloseModal} size="md" style={{ transition: 'background 0.2s, box-shadow 0.2s', borderRadius: 6, border: 'none', cursor: 'pointer' }} />
           </div>
           {/* Corpo principal */}
           <div style={{ padding: 24, background: 'var(--color-background-primary)', flex: 1, overflowY: 'auto', position: 'relative' }}>
-            {/* Linhas conectando containers agora são desenhadas apenas entre os blocos, dentro dos divs invisíveis */}
-            {/* Bloco Estimate */}
-            <div style={{ background: COLORS.estimate + '11', border: `1.5px solid ${COLORS.estimate}33`, borderRadius: 10, padding: 18, marginBottom: 18, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <i className={`bi ${ICONS.estimate}`} style={{ color: COLORS.estimate, fontSize: 22 }} />
-                <span style={{ color: COLORS.estimate, fontWeight: 700, fontSize: 18 }}>Estimate</span>
+            {/* Bloco Estimate Moderno */}
+            <div style={{ background: 'var(--color-background-secondary)', borderRadius: 12, padding: '18px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 15, display: 'flex', alignItems: 'center', gap: 18 }}>
+                  <span><i className="bi bi-calendar-event" style={{ marginRight: 4 }} />{formatDateUS(rel.estimate.txn_date)}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+                  <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 15 }}>Nº {rel.estimate.doc_number || '-'}</span>
+                  <span style={{ color: 'var(--color-accent-primary)', fontWeight: 700, fontSize: 18 }}>{formatCurrency(rel.estimate.total_amount)}</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, fontSize: 15, color: 'var(--color-text-primary)' }}>
-                <span><b>Cliente:</b> {getProjectName(rel.estimate.customer_name) || '-'}</span>
-                <span><b>Número:</b> {rel.estimate.doc_number || '-'}</span>
-                <span><b>Valor:</b> {formatCurrency(rel.estimate.total_amount)}</span>
-                <span><b>Status:</b> {rel.estimate.txn_status || '-'}</span>
-                <span><b>Data:</b> {formatDateUS(rel.estimate.txn_date)}</span>
-              </div>
-              {/* Accordion Itens */}
-              <div style={{ width: '100%', marginTop: 8 }}>
-                <button onClick={() => setItemsOpen(o => !o)} style={{ background: 'none', border: 'none', color: 'var(--color-accent-primary)', fontWeight: 500, fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className={`bi ${itemsOpen ? 'bi-caret-down-fill' : 'bi-caret-right-fill'}`} /> Itens do Estimate
+              {/* Accordion de itens do estimate com animação de expansão */}
+              <div style={{ marginBottom: 0 }}>
+                <button
+                  onClick={() => setItemsOpen(o => !o)}
+                  style={{
+                    background: 'var(--color-background-secondary)',
+                    color: 'var(--color-accent-primary)',
+                    border: '1px solid var(--color-border-divider)',
+                    borderRadius: 6,
+                    width: 'auto',
+                    height: 34,
+                    minWidth: 34,
+                    minHeight: 34,
+                    fontWeight: 500,
+                    fontSize: 15,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    transition: 'background 0.2s, color 0.2s, border 0.2s',
+                    marginBottom: 10,
+                    padding: '0 12px',
+                  }}
+                  aria-label={itemsOpen ? 'Ocultar itens do estimate' : 'Exibir itens do estimate'}
+                  title={itemsOpen ? 'Ocultar itens do estimate' : 'Exibir itens do estimate'}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--color-background-primary)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--color-background-secondary)'; }}
+                >
+                  <i className={`bi ${itemsOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 14, color: 'var(--color-accent-primary)' }} />
+                  {itemsOpen ? 'Ocultar itens' : 'Exibir itens'}
                 </button>
-                {itemsOpen && (
-                  <div style={{ background: 'var(--color-background-secondary)', borderRadius: 8, padding: 12, marginTop: 6 }}>
-                    {rel.lines.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum item encontrado.</div> : (
-                      <ul style={{ margin: 0, paddingLeft: 18 }}>
-                        {rel.lines.map((l, i) => (
-                          <li key={l.id || i}>
-                            {l.description || '(Sem descrição)'} | Qtd: {l.quantity !== undefined && l.quantity !== null ? l.quantity : '-'} | Valor: {formatCurrency(l.amount)} | Item: {l.item_ref_name || '-'}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                )}
+                <div
+                  style={{
+                    maxHeight: itemsOpen ? 500 : 0,
+                    opacity: itemsOpen ? 1 : 0,
+                    overflow: 'hidden',
+                    transition: 'max-height 0.4s cubic-bezier(0.4, 0.2, 0.2, 1), opacity 0.3s, padding 0.3s',
+                    background: 'var(--color-background-primary)',
+                    borderRadius: 8,
+                    marginTop: 0,
+                    boxShadow: itemsOpen ? '0 2px 8px rgba(0,0,0,0.04)' : 'none',
+                    pointerEvents: itemsOpen ? 'auto' : 'none',
+                  }}
+                >
+                  {itemsOpen && rel.lines && rel.lines.length > 0 ? (
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', color: 'var(--color-text-primary)', fontSize: 15, fontWeight: 400 }}>
+                      {rel.lines.map((line, idx) => (
+                        <li key={line.id || idx} style={{ width: '100%', boxSizing: 'border-box', padding: '0 18px', height: 38, display: 'flex', alignItems: 'center', borderBottom: idx < rel.lines.length - 1 ? '1px solid var(--color-border-divider)' : 'none', background: 'transparent' }}>
+                          <span style={{ color: 'var(--color-text-primary)', fontWeight: 500, flex: 3, minWidth: 0, textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{line.description || '-'}</span>
+                          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 700, minWidth: 90, textAlign: 'right' }}>{line.amount ? line.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : itemsOpen ? <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', padding: 8 }}>Nenhum item cadastrado para este estimate.</div> : null}
+                </div>
               </div>
             </div>
-            {/* Colunas Receitas/Despesas */}
-            <div ref={colunasRef} style={{ display: 'flex', flexDirection: 'row', gap: 32, justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-              {/* Despesas (Bills/Bill Payments) */}
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {/* Bills */}
-                <div ref={billsRef} style={{
-                  background: COLORS.bill + '11',
-                  border: `2px solid ${COLORS.billStrong}`,
-                  borderRadius: 10,
-                  padding: 14,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  color: undefined,
-                  cursor: 'pointer',
-                }}
-                onClick={e => { e.stopPropagation(); }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.billStrong, fontWeight: 600, fontSize: 15 }}>
-                    <i className={`bi ${ICONS.bill}`} style={{ color: COLORS.billStrong, fontSize: 18 }} />
-                    <span>Bills</span>
+            {/* NOVO PADRÃO: Bills e Invoices lado a lado, cada um com seu bloco de pagamentos abaixo, conectados por linha vertical */}
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 32, justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
+              {/* Coluna Bills (a pagar) */}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
+                {/* Bloco Bills */}
+                <div style={{ background: 'rgba(242,139,130,0.18)', border: `2px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '18px 18px 0 18px' }}>
+                  <div style={{ color: COLORS.billStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Valores Faturados para Pagar
                   </div>
-                  {allBills.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum bill relacionado encontrado.</div> : (
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allBills.map((b, i) => {
-                        const isHovered = hoveredBillId === b.bill.id;
-                        return (
-                          <li key={b.bill.id || i}
-                            style={{ fontWeight: isHovered ? 700 : 400, cursor: 'pointer' }}
-                            onMouseEnter={() => { setHoveredBillId(b.bill.id); setHoveredInvoiceId(null); }}
-                            onMouseLeave={() => setHoveredBillId(null)}
-                          >
-                            Bill #{b.bill.doc_number || b.bill.external_id} | Valor: {formatCurrency(b.bill.total_amount)} | Data: {formatDateUS(b.bill.txn_date)}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
+                  {/* Header das colunas */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                    <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Data"><i className="bi bi-calendar-event" /></span>
+                    <span style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Número"><i className="bi bi-file-earmark-text" /></span>
+                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Total"><i className="bi bi-currency-dollar" /></span>
+                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Em aberto"><i className="bi bi-wallet2" /></span>
+                  </div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                    {allBills.map((b, idx) => (
+                      <li key={b.bill.id || idx} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 8px', height: 32, borderBottom: idx < allBills.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
+                        <span style={{ flex: 1 }}>{formatDateUS(b.bill.txn_date) || ''}</span>
+                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bill.doc_number || ''}</span>
+                        <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{b.bill.total_amount ? b.bill.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                        <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{typeof b.bill.balance === 'number' ? b.bill.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                {/* Linha entre Bills e Pagamentos de Bills */}
-                {(() => {
-                  const lineRef = React.createRef<HTMLDivElement>();
-                  return (
-                    <div ref={lineRef} style={{ height: 24, position: 'relative', width: '100%' }}>
-                      {allBills.length > 0 && allBillPayments.length > 0 && (
-                        <ConnectedLine fromRef={billsRef} toRef={billPaymentsRef} parentRef={lineRef} color={COLORS.billStrong} strokeWidth={2} zIndex={0} />
-                      )}
-                    </div>
-                  );
-                })()}
-                {/* Bill Payments */}
-                <div ref={billPaymentsRef} style={{
-                  background: COLORS.billpayment + '11',
-                  border: `2px solid ${COLORS.billStrong}`,
-                  borderRadius: 10,
-                  padding: 14,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  marginTop: 0,
-                  color: undefined,
-                }}>
+                {/* Linha vertical */}
+                <div style={{ width: 2, height: 32, background: COLORS.billStrong, margin: '0 auto' }} />
+                {/* Pagamentos de Bills */}
+                <div style={{ background: COLORS.billpayment + '11', border: `2px solid ${COLORS.billStrong}`, borderRadius: 10, padding: 14, marginTop: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.billStrong, fontWeight: 600, fontSize: 15 }}>
                     <i className={`bi ${ICONS.billpayment}`} style={{ color: COLORS.billStrong, fontSize: 18 }} />
                     <span>Pagamentos de Bills</span>
                   </div>
                   {allBillPayments.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum Bill Payment relacionado.</div> : (
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allBillPayments.map((bp, i) => {
-                        // Bill Payment está relacionado se algum bill em hover tiver esse payment
-                        const isRelated = hoveredBillId && allBills.some(b => b.bill.id === hoveredBillId && b.bill_payments && b.bill_payments.some(p => p.id === bp.id));
-                        return (
-                          <li key={bp.id || i} style={{ fontWeight: isRelated ? 700 : 400 }}>
-                            {bp.doc_number || bp.id} | Valor: {formatCurrency(bp.total_amount)} | Data: {formatDateUS(bp.txn_date)}
-                          </li>
-                        );
-                      })}
+                      {allBillPayments.map((bp, i) => (
+                        <li key={bp.id || i}>
+                          {bp.doc_number || bp.id} | Valor: {formatCurrency(bp.total_amount)} | Data: {formatDateUS(bp.txn_date)}
+                        </li>
+                      ))}
                     </ul>
                   )}
                 </div>
               </div>
-              {/* Receitas (Invoices/Payments) */}
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {/* Invoices */}
-                <div ref={invoicesRef} style={{
-                  background: COLORS.invoice + '11',
-                  border: `2px solid ${COLORS.invoiceStrong}`,
-                  borderRadius: 10,
-                  padding: 14,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  color: undefined,
-                  cursor: 'pointer',
-                }}
-                onClick={e => { e.stopPropagation(); }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15 }}>
-                    <i className={`bi ${ICONS.invoice}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} />
-                    <span>Invoices</span>
+              {/* Coluna Invoices (a receber) */}
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
+                {/* Bloco Invoices */}
+                <div style={{ background: 'rgba(167,233,175,0.18)', border: `2px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: '18px 18px 0 18px' }}>
+                  <div style={{ color: COLORS.invoiceStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <i className={`bi ${ICONS.invoice}`} style={{ fontSize: 18 }} /> Valores Faturados para Receber
                   </div>
-                  {allInvoices.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum invoice relacionado.</div> : (
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allInvoices.map((l, i) => {
-                        const isHovered = hoveredInvoiceId === l.id;
-                        return (
-                          <li key={l.id || i}
-                            style={{ fontWeight: isHovered ? 700 : 400, cursor: 'pointer' }}
-                            onMouseEnter={() => { setHoveredInvoiceId(l.id); setHoveredBillId(null); }}
-                            onMouseLeave={() => setHoveredInvoiceId(null)}
-                          >
-                            Invoice #{l.txn_id}
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
+                  {/* Header das colunas */}
+                  <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                    <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Data"><i className="bi bi-calendar-event" /></span>
+                    <span style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Número"><i className="bi bi-file-earmark-text" /></span>
+                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Total"><i className="bi bi-currency-dollar" /></span>
+                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Em aberto"><i className="bi bi-wallet2" /></span>
+                  </div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                    {allInvoices.map((inv: InvoiceType, idx: number) => (
+                      <li key={inv.id || idx} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 8px', height: 32, borderBottom: idx < allInvoices.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
+                        <span style={{ flex: 1 }}>{formatDateUS(inv.txn_date) || ''}</span>
+                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.doc_number || ''}</span>
+                        <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left' }}>{inv.total_amount ? inv.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                        <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{typeof inv['balance'] === 'number' ? inv['balance'].toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                {/* Linha entre Invoices e Pagamentos Recebidos */}
-                {(() => {
-                  const lineRef = React.createRef<HTMLDivElement>();
-                  return (
-                    <div ref={lineRef} style={{ height: 24, position: 'relative', width: '100%' }}>
-                      {allInvoices.length > 0 && allPayments.length > 0 && (
-                        <ConnectedLine fromRef={invoicesRef} toRef={paymentsRef} parentRef={lineRef} color={COLORS.invoiceStrong} strokeWidth={2} zIndex={0} />
-                      )}
-                    </div>
-                  );
-                })()}
-                {/* Payments */}
-                <div ref={paymentsRef} style={{
-                  background: COLORS.payment + '11',
-                  border: `2px solid ${COLORS.invoiceStrong}`,
-                  borderRadius: 10,
-                  padding: 14,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                  marginTop: 0,
-                  color: undefined,
-                }}>
+                {/* Linha vertical */}
+                <div style={{ width: 2, height: 32, background: COLORS.invoiceStrong, margin: '0 auto' }} />
+                {/* Pagamentos Recebidos */}
+                <div style={{ background: COLORS.payment + '11', border: `2px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: 14, marginTop: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15 }}>
                     <i className={`bi ${ICONS.payment}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} />
                     <span>Pagamentos Recebidos</span>
                   </div>
                   {allPayments.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum payment relacionado.</div> : (
                     <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allPayments.map((p, i) => {
-                        // Payment está relacionado se algum invoice em hover tiver esse payment
-                        const isRelated = hoveredInvoiceId && allInvoices.some(l => l.id === hoveredInvoiceId && rel.payments.some(pay => pay.id === p.id));
-                        return (
-                          <li key={p.id || i} style={{ fontWeight: isRelated ? 700 : 400 }}>
-                            Valor: {formatCurrency(p.total_amount)} | Data: {formatDateUS(p.txn_date)} | Ref: {p.payment_ref || '-'} | Nota: {p.private_note || '-'}
-                          </li>
-                        );
-                      })}
+                      {allPayments.map((p, i) => (
+                        <li key={p.id || i}>
+                          Valor: {formatCurrency(p.total_amount)} | Data: {formatDateUS(p.txn_date)} | Ref: {p.payment_ref || '-'} | Nota: {p.private_note || '-'}
+                        </li>
+                      ))}
                     </ul>
                   )}
                 </div>
@@ -431,6 +400,17 @@ export default function AcceptedEstimatesCarousel() {
 
   return (
     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', margin: '20px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+        <label style={{ fontSize: 15, color: 'var(--color-text-secondary)' }}>
+          <input
+            type="checkbox"
+            checked={onlyAccepted}
+            onChange={e => setOnlyAccepted(e.target.checked)}
+            style={{ marginRight: 6 }}
+          />
+          Exibir apenas projetos Accepted
+        </label>
+      </div>
       <div className="d-flex flex-row align-items-center justify-content-between mb-2" style={{ gap: 12 }}>
         <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Accepted Estimates</h4>
         <div className="d-flex flex-row align-items-center gap-2">

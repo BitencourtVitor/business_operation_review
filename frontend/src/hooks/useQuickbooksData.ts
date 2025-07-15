@@ -74,7 +74,7 @@ interface EstimateRelational {
   payments: PaymentType[];
 }
 
-const useQuickbooksData = () => {
+const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
   const [estimatesRel, setEstimatesRel] = useState<EstimateRelational[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,11 +83,14 @@ const useQuickbooksData = () => {
     setLoading(true);
     setError(null);
     try {
-      // Buscar estimates aceitos
-      const { data: estimates, error: errEst } = await supabase
+      // Buscar estimates com filtro dinâmico de status
+      let estQuery = supabase
         .from('hvac_estimates')
-        .select('*')
-        .eq('txn_status', 'Accepted');
+        .select('*');
+      if (statusFilter && statusFilter.length > 0) {
+        estQuery = estQuery.in('txn_status', statusFilter);
+      }
+      const { data: estimates, error: errEst } = await estQuery;
       if (errEst) throw new Error(errEst.message);
       if (!estimates) return setEstimatesRel([]);
       const estimateIds = estimates.map((e: EstimateType) => e.id);
@@ -176,7 +179,7 @@ const useQuickbooksData = () => {
             .from('hvac_bill_payment_links')
             .select('*')
             .in('txn_id', batch)
-            .eq('txn_type', 'Bill');
+            .in('txn_type', ['Bill', 'VendorCredit']);
           if (bplErr) throw new Error(bplErr.message);
           if (bpl) linksData = linksData.concat(bpl);
         }
@@ -219,20 +222,34 @@ const useQuickbooksData = () => {
         const bill_payments = billPaymentsByExternalId.get(bill.external_id || '') || [];
         return { bill, lines, bill_payments };
       });
+      // Buscar todos os invoices completos do banco usando os external_id dos links
+      let invoices: any[] = [];
+      if (invoiceIds.length > 0) {
+        const batches = chunkArray(invoiceIds, 50);
+        let invoicesData: any[] = [];
+        for (const batch of batches) {
+          const { data: invs, error: invsErr } = await supabase
+            .from('hvac_invoices')
+            .select('*')
+            .in('external_id', batch);
+          if (invsErr) throw new Error(invsErr.message);
+          if (invs) invoicesData = invoicesData.concat(invs);
+        }
+        invoices = invoicesData;
+      }
       // Montar estrutura relacional
       const rel: EstimateRelational[] = estimates.map((est: EstimateType) => {
-        const estCustomerId = est.customer_id;
-        const estCustomerName = est.customer_name;
-        // Bills deste estimate
-        let estBills: BillType[] = [];
-        if (estCustomerId && estCustomerName) {
-          estBills = billsRel.filter((brel) =>
-            brel.lines.some((l) => l.customer_id === estCustomerId && l.customer_name === estCustomerName)
-          );
-        }
-        // Invoices deste estimate
+        // Invoices deste estimate (usando os links)
         const estInvoiceLinks = links ? links.filter((l) => l.estimate_id === est.id && l.txn_type === 'Invoice') : [];
         const estInvoiceIds = estInvoiceLinks.map((l) => l.txn_id);
+        const estInvoices = invoices.filter((inv) => estInvoiceIds.includes(inv.external_id));
+        // Bills deste estimate
+        let estBills: BillType[] = [];
+        if (est.customer_id && est.customer_name) {
+          estBills = billsRel.filter((brel) =>
+            brel.lines.some((l) => l.customer_id === est.customer_id && l.customer_name === est.customer_name)
+          );
+        }
         // Payments dos invoices deste estimate
         let estPayments: PaymentType[] = [];
         if (estInvoiceIds.length > 0) {
@@ -244,7 +261,8 @@ const useQuickbooksData = () => {
           lines: lines ? lines.filter((l) => l.estimate_id === est.id) : [],
           links: links ? links.filter((l) => l.estimate_id === est.id) : [],
           bills: estBills,
-          payments: estPayments
+          payments: estPayments,
+          invoices: estInvoices // <-- Agora correto
         };
       });
       setEstimatesRel(rel);

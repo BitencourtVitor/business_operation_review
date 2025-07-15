@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 interface ConnectedLineProps {
-  fromRef: React.RefObject<HTMLDivElement>;
-  toRef: React.RefObject<HTMLDivElement>;
-  parentRef?: React.RefObject<HTMLDivElement>;
+  fromRef: React.RefObject<HTMLDivElement | null>;
+  toRef: React.RefObject<HTMLDivElement | null>;
+  parentRef?: React.RefObject<HTMLDivElement | null>;
   color?: string;
   strokeWidth?: number;
   zIndex?: number;
