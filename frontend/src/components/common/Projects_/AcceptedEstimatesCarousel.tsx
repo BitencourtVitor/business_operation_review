@@ -651,7 +651,7 @@ export default function AcceptedEstimatesCarousel() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 14px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)' }}>
             {/* Toggle booleano padrão contábil */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 15, padding: 0, height: 38 }}>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Apenas Accepted</span>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Just Accepted</span>
               <button
                 type="button"
                 onClick={() => setOnlyAccepted(v => !v)}
@@ -694,9 +694,9 @@ export default function AcceptedEstimatesCarousel() {
             {/* Filtro de datas moderno */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 38 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>De</span>
-              <input type="date" value={dateFrom} onChange={e => handleDateChange('from', e.target.value)} style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
+              <input type="date" value={dateFrom} onChange={e => handleDateChange('from', e.target.value)} lang="en-US" style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>até</span>
-              <input type="date" value={dateTo} onChange={e => handleDateChange('to', e.target.value)} style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
+              <input type="date" value={dateTo} onChange={e => handleDateChange('to', e.target.value)} lang="en-US" style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
               <button
                 onClick={() => {
                   setAppliedOnlyAccepted(onlyAccepted);
@@ -988,7 +988,10 @@ export default function AcceptedEstimatesCarousel() {
                   {/* Data do projeto */}
                   <div style={{ textAlign: 'center' }}>
                     <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                      {rel.estimate.txn_date ? new Date(rel.estimate.txn_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}
+                      {rel.estimate.txn_date ? (() => {
+                        const d = new Date(rel.estimate.txn_date);
+                        return d.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
+                      })() : '-'}
                     </span>
                   </div>
                   
