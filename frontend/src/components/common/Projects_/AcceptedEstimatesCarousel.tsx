@@ -1,7 +1,16 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import useQuickbooksData from '../../../hooks/useQuickbooksData';
 import CloseButton from '../../../utils/CloseButton';
+import dayjs from 'dayjs';
+
+// Estilos CSS para animações
+const spinnerStyles = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
 
 const STATUS = {
   'Accepted': { color: '#1bbf5c', icon: 'bi-check-circle-fill' },
@@ -9,15 +18,10 @@ const STATUS = {
   'Rejected': { color: '#dc3545', icon: 'bi-x-circle-fill' },
 };
 
-const formatDate = (date?: string | null) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
-};
-
+// 1. Trocar todas as exibições de valores para dólar (USD)
 const formatCurrency = (amount?: number | null) => {
-  if (typeof amount !== 'number' || isNaN(amount)) return 'R$ 0,00';
-  return amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  if (typeof amount !== 'number' || isNaN(amount)) return '$0.00';
+  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 };
 
 function getProjectName(rawName?: string | null) {
@@ -27,49 +31,136 @@ function getProjectName(rawName?: string | null) {
 }
 
 // Definir tipo InvoiceType no topo
+interface PaymentType {
+  id: string;
+  total_amount?: number | null;
+  txn_date?: string | null;
+  payment_ref?: string | null;
+  private_note?: string | null;
+}
 interface InvoiceType {
   id: string;
   doc_number?: string | null;
   total_amount?: number | null;
   txn_date?: string | null;
   balance?: number | null;
+  payments?: PaymentType[];
 }
 
+// Copiado de useQuickbooksData.ts
+interface EstimateRelational {
+  estimate: {
+    id: string;
+    doc_number: string | null;
+    txn_date: string | null;
+    txn_status: string | null;
+    customer_id: string | null;
+    customer_name: string | null;
+    total_amount: number | null;
+    external_id: string | null;
+  };
+  lines: { id: string; estimate_id: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[];
+  links: { id: string; estimate_id: string; txn_id: string; txn_type: string | null }[];
+  bills: { bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null }; lines: { id: string; estimate_id: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[]; bill_payments: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null }[] }[];
+  payments: { id: string; total_amount: number | null; txn_date: string | null; payment_ref: string | null; private_note: string | null }[];
+}
+
+// Tipo auxiliar para acessar invoices corretamente
+type AcceptedEstimateRelWithInvoices = EstimateRelational & { invoices?: InvoiceType[] };
+
 export default function AcceptedEstimatesCarousel() {
-  // Estado do filtro de status
+  // Definir datas padrão (ano atual)
+  const now = dayjs();
+  const defaultStartOfYear = now.startOf('year').format('YYYY-MM-DD');
+  const defaultToday = now.format('YYYY-MM-DD');
+  
+  // Filtros editáveis
   const [onlyAccepted, setOnlyAccepted] = useState(true);
-  const statusFilter = onlyAccepted ? ['Accepted'] : [];
+  const [dateFrom, setDateFrom] = useState(defaultStartOfYear);
+  const [dateTo, setDateTo] = useState(defaultToday);
+  
+  // Filtros aplicados (usados na consulta)
+  const [appliedOnlyAccepted, setAppliedOnlyAccepted] = useState(true);
+  const [appliedDateFrom, setAppliedDateFrom] = useState(defaultStartOfYear);
+  const [appliedDateTo, setAppliedDateTo] = useState(defaultToday);
+  
+  // Sempre que a página abrir, setar datas para 01/01/ano atual até hoje
+  useEffect(() => {
+    const startOfYear = now.startOf('year').format('YYYY-MM-DD');
+    const today = now.format('YYYY-MM-DD');
+    setDateFrom(startOfYear);
+    setDateTo(today);
+    setAppliedDateFrom(startOfYear);
+    setAppliedDateTo(today);
+    setAppliedOnlyAccepted(onlyAccepted);
+  }, []);
+
+  // Adicionar estilos CSS para animações
+  useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = spinnerStyles;
+    document.head.appendChild(styleElement);
+    
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
+  
+  const statusFilter = appliedOnlyAccepted ? ['Accepted'] : undefined;
   const {
     estimatesRel,
     loading,
     error,
-  } = useQuickbooksData(statusFilter);
+    reload
+  } = useQuickbooksData(statusFilter, appliedDateFrom, appliedDateTo);
 
-  const [searchText, setSearchText] = useState('');
-  const [searchOpen, setSearchOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'total' | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'total' | 'name' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [modalIdx, setModalIdx] = useState<number | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const carouselRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const drag = useRef({ x: 0, scroll: 0, dragging: false });
 
   // Busca e ordenação
   const filteredEstimates = useMemo(() => {
     let filtered = estimatesRel;
-    if (searchText.trim()) {
-      const lower = searchText.toLowerCase();
-      filtered = filtered.filter(e =>
-        getProjectName(e.estimate.customer_name).toLowerCase().includes(lower) ||
-        (e.estimate.doc_number || '').toLowerCase().includes(lower)
-      );
+    
+    // Filtro por texto
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase().trim();
+      filtered = filtered.filter(rel => {
+        const projectName = getProjectName(rel.estimate.customer_name).toLowerCase();
+        const customerName = (rel.estimate.customer_name || '').toLowerCase();
+        const docNumber = (rel.estimate.doc_number || '').toLowerCase();
+        return projectName.includes(term) || customerName.includes(term) || docNumber.includes(term);
+      });
     }
+    
+    // Ordenação
     if (sortBy === 'date') {
-      filtered = [...filtered].sort((a, b) => new Date(b.estimate.txn_date || '').getTime() - new Date(a.estimate.txn_date || '').getTime());
+      filtered = [...filtered].sort((a, b) => {
+        const dateA = new Date(a.estimate.txn_date || '').getTime();
+        const dateB = new Date(b.estimate.txn_date || '').getTime();
+        return sortDirection === 'desc' ? dateB - dateA : dateA - dateB;
+      });
     } else if (sortBy === 'total') {
-      filtered = [...filtered].sort((a, b) => (b.estimate.total_amount || 0) - (a.estimate.total_amount || 0));
+      filtered = [...filtered].sort((a, b) => {
+        const totalA = a.estimate.total_amount || 0;
+        const totalB = b.estimate.total_amount || 0;
+        return sortDirection === 'desc' ? totalB - totalA : totalA - totalB;
+      });
+    } else if (sortBy === 'name') {
+      filtered = [...filtered].sort((a, b) => {
+        const nameA = getProjectName(a.estimate.customer_name).toLowerCase();
+        const nameB = getProjectName(b.estimate.customer_name).toLowerCase();
+        return sortDirection === 'desc' ? nameB.localeCompare(nameA) : nameA.localeCompare(nameB);
+      });
     }
     return filtered;
-  }, [estimatesRel, searchText, sortBy]);
+  }, [estimatesRel, sortBy, sortDirection, searchTerm]);
 
   // Drag horizontal
   const onMouseDown = (e: React.MouseEvent) => {
@@ -99,15 +190,18 @@ export default function AcceptedEstimatesCarousel() {
   }, []);
 
   // Busca UX
+  // Função para abrir o campo de busca e focar
   const handleOpenSearch = () => {
     setSearchOpen(true);
     setTimeout(() => {
-      (document.getElementById('accepted-estimates-search') as HTMLInputElement)?.focus();
+      searchInputRef.current?.focus();
     }, 100);
   };
+
+  // Função para fechar o campo de busca
   const handleCloseSearch = () => {
     setSearchOpen(false);
-    setSearchText('');
+    setSearchTerm('');
   };
 
   // Modal
@@ -120,7 +214,20 @@ export default function AcceptedEstimatesCarousel() {
 
   // Estado para hover de Bill/Invoice
   const [itemsOpen, setItemsOpen] = useState(false);
+  // Adicionar estado para linha de bill/invoice em hover
+  const [hoveredBillIdx, setHoveredBillIdx] = useState<number | null>(null);
+  // Estado para hover e seleção de Invoice
+  const [hoveredInvoiceIdx, setHoveredInvoiceIdx] = useState<number | null>(null);
+  const [selectedInvoiceIdx, setSelectedInvoiceIdx] = useState<number | null>(null);
+  // Estado para seleção de Bill
+  const [selectedBillIdx, setSelectedBillIdx] = useState<number | null>(null);
   // Remover refs não usadas
+
+  // Handler para filtro de datas
+  const handleDateChange = (type: 'from' | 'to', value: string) => {
+    if (type === 'from') setDateFrom(value);
+    if (type === 'to') setDateTo(value);
+  };
 
   // Modal estilizado padrão PermitCarousel
   const renderModal = (rel: typeof filteredEstimates[number], itemsOpen: boolean, setItemsOpen: React.Dispatch<React.SetStateAction<boolean>>) => {
@@ -134,11 +241,20 @@ export default function AcceptedEstimatesCarousel() {
       }
     });
     // Agrupar Payments únicos
-    const allPayments = rel.payments;
+    // const allPayments = rel.payments; // não utilizado
     // Agrupar Invoices
     // const allInvoices = rel.links.filter(l => l.txn_type === 'Invoice');
     // NOVO: usar rel.invoices se existir, ou ajustar para buscar o array completo
-    const allInvoices = (rel as { invoices?: InvoiceType[] }).invoices || [];
+    const allInvoices = ((rel as { invoices?: InvoiceType[] }).invoices || []).map(inv => ({ ...inv } as InvoiceType));
+    // Agrupar todos os payments únicos de todos os invoices
+    const allInvoicePayments: PaymentType[] = [];
+    allInvoices.forEach(inv => {
+      if (Array.isArray(inv.payments)) {
+        inv.payments.forEach(p => {
+          if (!allInvoicePayments.find(x => x.id === p.id)) allInvoicePayments.push(p);
+        });
+      }
+    });
     // Agrupar Bills
     const allBills = rel.bills;
     // Cores e ícones
@@ -211,7 +327,7 @@ export default function AcceptedEstimatesCarousel() {
             <CloseButton onClick={handleCloseModal} size="md" style={{ transition: 'background 0.2s, box-shadow 0.2s', borderRadius: 6, border: 'none', cursor: 'pointer' }} />
           </div>
           {/* Corpo principal */}
-          <div style={{ padding: 24, background: 'var(--color-background-primary)', flex: 1, overflowY: 'auto', position: 'relative' }}>
+          <div style={{ padding: 24, background: 'var(--color-background-primary)', flex: 1, overflowY: 'auto', minHeight: 0, maxHeight: 'calc(90vh - 120px)', position: 'relative' }} className="custom-scrollbar">
             {/* Bloco Estimate Moderno */}
             <div style={{ background: 'var(--color-background-secondary)', borderRadius: 12, padding: '18px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', marginBottom: 18 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -273,7 +389,7 @@ export default function AcceptedEstimatesCarousel() {
                       {rel.lines.map((line, idx) => (
                         <li key={line.id || idx} style={{ width: '100%', boxSizing: 'border-box', padding: '0 18px', height: 38, display: 'flex', alignItems: 'center', borderBottom: idx < rel.lines.length - 1 ? '1px solid var(--color-border-divider)' : 'none', background: 'transparent' }}>
                           <span style={{ color: 'var(--color-text-primary)', fontWeight: 500, flex: 3, minWidth: 0, textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{line.description || '-'}</span>
-                          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 700, minWidth: 90, textAlign: 'right' }}>{line.amount ? line.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-'}</span>
+                          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 700, minWidth: 90, textAlign: 'right' }}>{formatCurrency(line.amount)}</span>
                         </li>
                       ))}
                     </ul>
@@ -284,92 +400,218 @@ export default function AcceptedEstimatesCarousel() {
             {/* NOVO PADRÃO: Bills e Invoices lado a lado, cada um com seu bloco de pagamentos abaixo, conectados por linha vertical */}
             <div style={{ display: 'flex', flexDirection: 'row', gap: 32, justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
               {/* Coluna Bills (a pagar) */}
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
-                {/* Bloco Bills */}
-                <div style={{ background: 'rgba(242,139,130,0.18)', border: `2px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '18px 18px 0 18px' }}>
+              <div style={{ flex: 1.3, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
+                {/* Bloco Bills (superior) */}
+                <div style={{ background: COLORS.billpayment + '11', border: `1px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '18px 18px 0 18px', minWidth: 420 }}>
                   <div style={{ color: COLORS.billStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Valores Faturados para Pagar
+                    <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Bills
                   </div>
                   {/* Header das colunas */}
                   <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                     <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Data"><i className="bi bi-calendar-event" /></span>
                     <span style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Número"><i className="bi bi-file-earmark-text" /></span>
                     <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Total"><i className="bi bi-currency-dollar" /></span>
-                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Em aberto"><i className="bi bi-wallet2" /></span>
                   </div>
-                  <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 12 }}>
                     {allBills.map((b, idx) => (
-                      <li key={b.bill.id || idx} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 8px', height: 32, borderBottom: idx < allBills.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
-                        <span style={{ flex: 1 }}>{formatDateUS(b.bill.txn_date) || ''}</span>
-                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bill.doc_number || ''}</span>
-                        <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{b.bill.total_amount ? b.bill.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                        <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{typeof b.bill.balance === 'number' ? b.bill.balance.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                      </li>
+                      <React.Fragment key={b.bill.id || idx}>
+                        <li
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: 13,
+                            padding: '0 8px',
+                            height: 32,
+                            borderBottom: '1px solid var(--color-border-divider)',
+                            width: '100%',
+                            position: 'relative',
+                            background: hoveredBillIdx === idx ? 'rgba(242,139,130,0.10)' : selectedBillIdx === idx ? 'rgba(242,139,130,0.18)' : 'transparent',
+                            borderRadius: 0,
+                            transition: 'background 0.2s',
+                          }}
+                          onMouseEnter={() => setHoveredBillIdx(idx)}
+                          onMouseLeave={() => setHoveredBillIdx(null)}
+                        >
+                          <span style={{ flex: 1 }}>{formatDateUS(b.bill.txn_date) || ''}</span>
+                          <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bill.doc_number || ''}</span>
+                          <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{b.bill.total_amount ? b.bill.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                          {/* Botão de olho só aparece em hover ou selecionado */}
+                          {(hoveredBillIdx === idx || selectedBillIdx === idx) && (
+                            <button
+                              type="button"
+                              aria-label="Ver pagamentos"
+                              title="Ver pagamentos"
+                              style={{
+                                position: 'absolute',
+                                right: 8,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: selectedBillIdx === idx ? COLORS.billStrong : COLORS.bill,
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: 16,
+                                padding: 0,
+                                outline: 'none',
+                                transition: 'color 0.2s',
+                              }}
+                              onClick={e => {
+                                e.stopPropagation();
+                                setSelectedBillIdx(selectedBillIdx === idx ? null : idx);
+                              }}
+                            >
+                              <i className="bi bi-eye" style={{ fontSize: 16, verticalAlign: 'middle' }} />
+                            </button>
+                          )}
+                        </li>
+                        {/* Bloco animado de pagamentos do bill selecionado */}
+                        {selectedBillIdx === idx && Array.isArray(b.bill_payments) && b.bill_payments.length > 0 && (
+                          <li
+                            style={{
+                              background: COLORS.billpayment + '22',
+                              borderRadius: 8,
+                              margin: '8px 0', // espaçamento abaixo do bloco de pagamentos
+                              padding: '12px 18px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                              animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
+                              transition: 'all 0.3s',
+                              display: 'block',
+                            }}
+                          >
+                            <div style={{ color: COLORS.billStrong, fontWeight: 600, fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <i className={`bi ${ICONS.billpayment}`} style={{ color: COLORS.billStrong, fontSize: 16 }} /> Pagamentos Efetuados
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 6px 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                              <span style={{ flex: 1.5 }}>Data</span>
+                              <span style={{ flex: 2 }}>Nota</span>
+                              <span style={{ flex: 2 }}>Ref</span>
+                              <span style={{ flex: 1.5 }}>Valor</span>
+                            </div>
+                            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                              {b.bill_payments.map((bp, i) => (
+                                <li key={bp.id || i} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 0 0 0', height: 32, borderBottom: i < b.bill_payments.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
+                                  <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{formatDateUS(bp.txn_date)}</span>
+                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={bp.doc_number || ''}>{bp.doc_number || '-'}</span>
+                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={bp.id || ''}>{bp.id || '-'}</span>
+                                  <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{bp.total_amount ? bp.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        )}
+                      </React.Fragment>
                     ))}
                   </ul>
                 </div>
-                {/* Linha vertical */}
-                <div style={{ width: 2, height: 32, background: COLORS.billStrong, margin: '0 auto' }} />
-                {/* Pagamentos de Bills */}
-                <div style={{ background: COLORS.billpayment + '11', border: `2px solid ${COLORS.billStrong}`, borderRadius: 10, padding: 14, marginTop: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.billStrong, fontWeight: 600, fontSize: 15 }}>
-                    <i className={`bi ${ICONS.billpayment}`} style={{ color: COLORS.billStrong, fontSize: 18 }} />
-                    <span>Pagamentos de Bills</span>
-                  </div>
-                  {allBillPayments.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum Bill Payment relacionado.</div> : (
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allBillPayments.map((bp, i) => (
-                        <li key={bp.id || i}>
-                          {bp.doc_number || bp.id} | Valor: {formatCurrency(bp.total_amount)} | Data: {formatDateUS(bp.txn_date)}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                {/* Pagamentos de Bills (inferior) */}
+                {/* Removido completamente o bloco de Bill Payments */}
               </div>
               {/* Coluna Invoices (a receber) */}
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
-                {/* Bloco Invoices */}
-                <div style={{ background: 'rgba(167,233,175,0.18)', border: `2px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: '18px 18px 0 18px' }}>
+              <div style={{ flex: 1.3, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
+                {/* Bloco Invoices (superior) */}
+                <div style={{ background: COLORS.payment + '11', border: `1px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: '18px 18px 0 18px', minWidth: 420 }}>
                   <div style={{ color: COLORS.invoiceStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${ICONS.invoice}`} style={{ fontSize: 18 }} /> Valores Faturados para Receber
+                    <i className={`bi ${ICONS.invoice}`} style={{ fontSize: 18, color: COLORS.invoiceStrong, marginRight: 8, verticalAlign: 'middle' }} /> Invoices
                   </div>
                   {/* Header das colunas */}
                   <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                     <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Data"><i className="bi bi-calendar-event" /></span>
                     <span style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Número"><i className="bi bi-file-earmark-text" /></span>
                     <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Total"><i className="bi bi-currency-dollar" /></span>
-                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Em aberto"><i className="bi bi-wallet2" /></span>
                   </div>
-                  <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                    {allInvoices.map((inv: InvoiceType, idx: number) => (
-                      <li key={inv.id || idx} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 8px', height: 32, borderBottom: idx < allInvoices.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
-                        <span style={{ flex: 1 }}>{formatDateUS(inv.txn_date) || ''}</span>
-                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.doc_number || ''}</span>
-                        <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left' }}>{inv.total_amount ? inv.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                        <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{typeof inv['balance'] === 'number' ? inv['balance'].toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                      </li>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 12 }}>
+                    {allInvoices.map((inv, idx) => (
+                      <React.Fragment key={inv.id || idx}>
+                        <li
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: 13,
+                            padding: '0 8px',
+                            height: 32,
+                            borderBottom: idx < allInvoices.length - 1 ? '1px solid var(--color-border-divider)' : 'none',
+                            width: '100%',
+                            position: 'relative',
+                            background: hoveredInvoiceIdx === idx ? 'rgba(167,233,175,0.10)' : selectedInvoiceIdx === idx ? 'rgba(167,233,175,0.18)' : 'transparent',
+                            borderRadius: 0,
+                            transition: 'background 0.2s, margin-bottom 0.2s',
+                          }}
+                          onMouseEnter={() => setHoveredInvoiceIdx(idx)}
+                          onMouseLeave={() => setHoveredInvoiceIdx(null)}
+                        >
+                          <span style={{ flex: 1 }}>{formatDateUS(inv.txn_date) || ''}</span>
+                          <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{inv.doc_number || ''}</span>
+                          <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left' }}>{inv.total_amount ? inv.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                          {/* Botão de olho só aparece em hover ou selecionado */}
+                          {(hoveredInvoiceIdx === idx || selectedInvoiceIdx === idx) && (
+                            <button
+                              type="button"
+                              aria-label="Ver payments"
+                              title="Ver payments"
+                              style={{
+                                position: 'absolute',
+                                right: 8,
+                                top: '50%',
+                                transform: 'translateY(-50%)',
+                                color: selectedInvoiceIdx === idx ? COLORS.invoiceStrong : COLORS.invoice,
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontSize: 18,
+                                padding: 0,
+                                outline: 'none',
+                                transition: 'color 0.2s',
+                              }}
+                              onClick={e => {
+                                e.stopPropagation();
+                                setSelectedInvoiceIdx(selectedInvoiceIdx === idx ? null : idx);
+                              }}
+                            >
+                              <i className="bi bi-eye" style={{ fontSize: 16, verticalAlign: 'middle' }} />
+                            </button>
+                          )}
+                        </li>
+                        {/* Bloco animado de payments do invoice selecionado */}
+                        {selectedInvoiceIdx === idx && Array.isArray(inv.payments) && inv.payments.length > 0 && (
+                          <li
+                            style={{
+                              background: COLORS.payment + '22',
+                              borderRadius: 8,
+                              margin: '8px 0', // espaçamento abaixo do bloco de pagamentos
+                              padding: '12px 18px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                              animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
+                              transition: 'all 0.3s',
+                              display: 'block',
+                            }}
+                          >
+                            <div style={{ color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <i className={`bi ${ICONS.payment}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} /> Payments Recebidos
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 6px 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
+                              <span style={{ flex: 1.5 }}>Data</span>
+                              <span style={{ flex: 2 }}>Nota</span>
+                              <span style={{ flex: 2 }}>Ref</span>
+                              <span style={{ flex: 1.5 }}>Valor</span>
+                            </div>
+                            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                              {(Array.isArray(inv.payments) ? inv.payments : []).map((p, i) => (
+                                <li key={p.id || i} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 0 0 0', height: 32, borderBottom: i < (inv.payments ? inv.payments.length - 1 : 0) ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
+                                  <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{formatDateUS(p.txn_date)}</span>
+                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.private_note || ''}>{p.private_note || '-'}</span>
+                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={p.payment_ref || ''}>{p.payment_ref || '-'}</span>
+                                  <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left' }}>{p.total_amount ? p.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </li>
+                        )}
+                      </React.Fragment>
                     ))}
                   </ul>
                 </div>
-                {/* Linha vertical */}
-                <div style={{ width: 2, height: 32, background: COLORS.invoiceStrong, margin: '0 auto' }} />
-                {/* Pagamentos Recebidos */}
-                <div style={{ background: COLORS.payment + '11', border: `2px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: 14, marginTop: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15 }}>
-                    <i className={`bi ${ICONS.payment}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} />
-                    <span>Pagamentos Recebidos</span>
-                  </div>
-                  {allPayments.length === 0 ? <div style={{ color: 'var(--color-text-secondary)' }}>Nenhum payment relacionado.</div> : (
-                    <ul style={{ margin: 0, paddingLeft: 18 }}>
-                      {allPayments.map((p, i) => (
-                        <li key={p.id || i}>
-                          Valor: {formatCurrency(p.total_amount)} | Data: {formatDateUS(p.txn_date)} | Ref: {p.payment_ref || '-'} | Nota: {p.private_note || '-'}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
+                {/* Pagamentos Recebidos (inferior) */}
+                {/* Removido completamente o bloco de Payments Recebidos */}
               </div>
             </div>
           </div>
@@ -399,65 +641,398 @@ export default function AcceptedEstimatesCarousel() {
   };
 
   return (
-    <div style={{ width: '100%', display: 'flex', flexDirection: 'column', margin: '20px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-        <label style={{ fontSize: 15, color: 'var(--color-text-secondary)' }}>
-          <input
-            type="checkbox"
-            checked={onlyAccepted}
-            onChange={e => setOnlyAccepted(e.target.checked)}
-            style={{ marginRight: 6 }}
-          />
-          Exibir apenas projetos Accepted
-        </label>
-      </div>
-      <div className="d-flex flex-row align-items-center justify-content-between mb-2" style={{ gap: 12 }}>
-        <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Accepted Estimates</h4>
-        <div className="d-flex flex-row align-items-center gap-2">
+    <div style={{ width: '100%', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
+      {/* Título fixo */}
+      <div style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+        <div className='d-flex justify-content-between align-items-center' style={{ padding: '12px 32px', background: 'var(--color-background-primary)' }}>
+        <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Projetos</h4>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, height: 38 }}>
+          {/* Filtros agrupados visualmente */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 14px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)' }}>
+            {/* Toggle booleano padrão contábil */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 15, padding: 0, height: 38 }}>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Apenas Accepted</span>
+              <button
+                type="button"
+                onClick={() => setOnlyAccepted(v => !v)}
+                style={{
+                  background: onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)',
+                  color: onlyAccepted ? '#fff' : 'var(--color-accent-primary)',
+                  border: onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
+                  borderRadius: 15,
+                  padding: '4px 18px',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  height: 26,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 60,
+                  outline: 'none',
+                  boxShadow: onlyAccepted ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                  opacity: 1
+                }}
+                title="Alternar apenas Accepted"
+                onMouseEnter={e => {
+                  if (!onlyAccepted) {
+                    e.currentTarget.style.background = 'var(--color-background-primary)';
+                    e.currentTarget.style.color = 'var(--color-accent-primary)';
+                    e.currentTarget.style.border = '1px solid var(--color-accent-primary)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)';
+                  e.currentTarget.style.color = onlyAccepted ? '#fff' : 'var(--color-accent-primary)';
+                  e.currentTarget.style.border = onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)';
+                }}
+              >
+                {onlyAccepted ? 'ON' : 'OFF'}
+              </button>
+            </div>
+            {/* Filtro de datas moderno */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 38 }}>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>De</span>
+              <input type="date" value={dateFrom} onChange={e => handleDateChange('from', e.target.value)} style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>até</span>
+              <input type="date" value={dateTo} onChange={e => handleDateChange('to', e.target.value)} style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
+              <button
+                onClick={() => {
+                  setAppliedOnlyAccepted(onlyAccepted);
+                  setAppliedDateFrom(dateFrom);
+                  setAppliedDateTo(dateTo);
+                  reload({
+                    statusFilter: onlyAccepted ? ['Accepted'] : undefined,
+                    dateFrom,
+                    dateTo
+                  });
+                }}
+                style={{
+                  marginLeft: 10,
+                  background: 'var(--color-background-primary)',
+                  color: 'var(--color-accent-primary)',
+                  border: '1.5px solid var(--color-accent-primary)',
+                  borderRadius: 15,
+                  padding: '4px 18px',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  height: 26,
+                  minWidth: 90,
+                  boxShadow: 'none',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  outline: 'none',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'var(--color-accent-primary)';
+                  e.currentTarget.style.color = '#fff';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'var(--color-background-primary)';
+                  e.currentTarget.style.color = 'var(--color-accent-primary)';
+                }}
+              >
+                Filtrar
+              </button>
+            </div>
+          </div>
           {/* Busca */}
-          <div style={{ display: 'flex', alignItems: 'center', position: 'relative', width: searchOpen ? 220 : 42, height: 42, transition: 'width 0.5s', background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)', borderRadius: searchOpen ? 25 : 21, padding: searchOpen ? '2px 8px' : '4px', boxSizing: 'border-box' }}>
-            <button type="button" className="btn-tertiary-custom d-flex align-items-center justify-content-center" style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, color: 'var(--color-accent-primary)', background: 'transparent', border: 'none' }} onClick={handleOpenSearch} aria-label="Abrir busca" title="Buscar" tabIndex={searchOpen ? -1 : 0} disabled={searchOpen}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: searchOpen ? 'space-between' : 'center',
+              position: 'relative',
+              width: searchOpen ? 220 : 42,
+              height: 42,
+              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+              background: searchOpen ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: searchOpen ? 25 : 21,
+              padding: searchOpen ? '2px 8px 2px 8px' : '4px',
+              boxSizing: 'border-box',
+            }}
+          >
+            <button
+              type="button"
+              className="btn-tertiary-custom d-flex align-items-center justify-content-center"
+              style={{ width: 28, height: 28, fontSize: 16, borderRadius: 14, transition: 'all 0.2s', color: 'var(--color-accent-primary)', flexShrink: 0, background: 'transparent', border: 'none' }}
+              onClick={handleOpenSearch}
+              aria-label="Abrir busca"
+              title="Buscar"
+              tabIndex={searchOpen ? -1 : 0}
+              disabled={searchOpen}
+            >
               <i className="bi bi-search" />
             </button>
-            <input id="accepted-estimates-search" type="text" value={searchText} onChange={e => setSearchText(e.target.value)} placeholder={'Buscar cliente, doc...'} style={{ background: 'transparent', border: 'none', color: 'var(--color-text-primary)', fontSize: 15, height: 32, marginLeft: 4, display: searchOpen ? 'block' : 'none', padding: searchOpen ? '0 8px 0 4px' : '0', width: searchOpen ? '100%' : 0, minWidth: 0, opacity: searchOpen ? 1 : 0, pointerEvents: searchOpen ? 'auto' : 'none', transition: 'width 0.5s, opacity 0.3s', outline: 'none', boxSizing: 'border-box' }} onBlur={() => { if (!searchText) handleCloseSearch(); }} tabIndex={searchOpen ? 0 : -1} />
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+              placeholder="Buscar projetos..."
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-primary)',
+                fontSize: 15,
+                height: 32,
+                marginLeft: 4,
+                display: searchOpen ? 'block' : 'none',
+                padding: searchOpen ? '0 8px 0 4px' : '0',
+                width: searchOpen ? '100%' : 0,
+                minWidth: 0,
+                opacity: searchOpen ? 1 : 0,
+                pointerEvents: searchOpen ? 'auto' : 'none',
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s',
+                outline: 'none',
+                boxSizing: 'border-box',
+              }}
+              onBlur={() => { if (!searchTerm) handleCloseSearch(); }}
+              tabIndex={searchOpen ? 0 : -1}
+            />
           </div>
+          
           {/* Ordenação */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Ordenar</span>
-            <button onClick={() => setSortBy(sortBy === 'date' ? 'total' : sortBy === 'total' ? null : 'date')} style={{ background: sortBy ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', color: sortBy ? '#fff' : 'var(--color-text-secondary)', border: '1px solid var(--color-border-divider)', borderRadius: 15, padding: '4px 10px', fontSize: 15, cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s' }}>{sortBy === 'date' ? 'Data' : sortBy === 'total' ? 'Valor' : 'OFF'}</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <button 
+                onClick={() => {
+                  if (sortBy === 'date') {
+                    setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
+                  } else {
+                    setSortBy('date');
+                    setSortDirection('desc');
+                  }
+                }} 
+                style={{ 
+                  background: sortBy === 'date' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                  color: sortBy === 'date' ? '#fff' : 'var(--color-text-secondary)', 
+                  border: sortBy === 'date' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
+                  borderRadius: 15, 
+                  padding: '4px 12px', 
+                  fontSize: 13, 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 4,
+                  transition: 'all 0.2s', 
+                  height: 26, 
+                  minWidth: 50, 
+                  fontWeight: 600 
+                }}
+              >
+                Data
+                {sortBy === 'date' && (
+                  <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
+                )}
+              </button>
+              
+              <button 
+                onClick={() => {
+                  if (sortBy === 'total') {
+                    setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
+                  } else {
+                    setSortBy('total');
+                    setSortDirection('desc');
+                  }
+                }} 
+                style={{ 
+                  background: sortBy === 'total' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                  color: sortBy === 'total' ? '#fff' : 'var(--color-text-secondary)', 
+                  border: sortBy === 'total' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
+                  borderRadius: 15, 
+                  padding: '4px 12px', 
+                  fontSize: 13, 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 4,
+                  transition: 'all 0.2s', 
+                  height: 26, 
+                  minWidth: 50, 
+                  fontWeight: 600 
+                }}
+              >
+                Valor
+                {sortBy === 'total' && (
+                  <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
+                )}
+              </button>
+              
+              <button 
+                onClick={() => {
+                  if (sortBy === 'name') {
+                    setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
+                  } else {
+                    setSortBy('name');
+                    setSortDirection('asc');
+                  }
+                }} 
+                style={{ 
+                  background: sortBy === 'name' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                  color: sortBy === 'name' ? '#fff' : 'var(--color-text-secondary)', 
+                  border: sortBy === 'name' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
+                  borderRadius: 15, 
+                  padding: '4px 12px', 
+                  fontSize: 13, 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 4,
+                  transition: 'all 0.2s', 
+                  height: 26, 
+                  minWidth: 50, 
+                  fontWeight: 600 
+                }}
+              >
+                Nome
+                {sortBy === 'name' && (
+                  <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <div style={{ background: 'var(--color-background-primary)', overflow: 'hidden', width: '100%', flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: '40vh', padding: '0 10px 10px 10px' }}>
-        {loading && <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Carregando estimates...</div>}
-        {error && <div style={{ color: 'var(--challenges-color)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Erro: {error}</div>}
-        <div ref={carouselRef} className="custom-scrollbar" style={{ display: 'flex', flexDirection: 'row', gap: 16, overflowX: 'auto', padding: '8px 0 8px 8px', cursor: drag.current.dragging ? 'grabbing' : 'grab', userSelect: 'none', WebkitOverflowScrolling: 'touch', flex: '1 1 0%', minHeight: 0, maxHeight: '100%' }} onMouseDown={onMouseDown}>
-          {!loading && !error && filteredEstimates.length === 0 && (
-            <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Nenhum estimate aceito encontrado</div>
-          )}
-          {filteredEstimates.map((rel, idx) => (
-            <div key={rel.estimate.id} style={{ minWidth: 320, maxWidth: 350, background: 'var(--color-background-primary)', border: '1px solid var(--color-border-divider)', borderRadius: 10, boxShadow: hovered === rel.estimate.id ? '0 4px 16px rgba(0,0,0,0.10)' : '0 2px 8px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column', cursor: 'pointer', position: 'relative', transition: 'box-shadow 0.2s, border 0.2s', maxHeight: 'calc(100vh - 200px)', overflow: 'auto' }} onMouseEnter={() => setHovered(rel.estimate.id)} onMouseLeave={() => setHovered(null)} onClick={() => handleOpenModal(idx)} title={hovered === rel.estimate.id ? getProjectName(rel.estimate.customer_name) : ''}>
-              {/* Cabeçalho */}
-              <div style={{ padding: '12px 16px 8px 16px', borderBottom: '1px solid var(--color-border-divider)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 11, color: STATUS['Accepted'].color }}>
-                    <i className={STATUS['Accepted'].icon} />
-                  </span>
-                  <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 15 }}>Projeto</span>
-                </div>
-                <span style={{ color: 'var(--color-accent-primary)', fontSize: 18, fontWeight: 500 }}>{rel.estimate.doc_number}</span>
-              </div>
-              {/* Corpo */}
-              <div style={{ padding: '8px 16px 12px 16px', display: 'flex', flexDirection: 'column', gap: 6, flex: 1, justifyContent: 'center' }}>
-                <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: 16, textAlign: 'center' }}>{getProjectName(rel.estimate.customer_name)}</div>
-                <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'center' }}>Valor: {formatCurrency(rel.estimate.total_amount)}</div>
-                <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)', justifyContent: 'center' }}>
-                  <span title="Data">{formatDate(rel.estimate.txn_date)}</span>
-                  <span title="Status">{rel.estimate.txn_status}</span>
-                </div>
-              </div>
+      </div>
+      {/* Conteúdo principal centralizado e responsivo */}
+      <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--color-background-primary)', overflow: 'hidden', boxSizing: 'border-box', height: 'calc(100vh - 140px)' }}>
+        {loading && (
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            height: '100%', 
+            color: 'var(--color-text-secondary)' 
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              gap: 12 
+            }}>
+              <div style={{
+                width: 32,
+                height: 32,
+                border: '3px solid var(--color-border-divider)',
+                borderTop: '3px solid var(--color-accent-primary)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite'
+              }} />
+              <span style={{ fontSize: 14, fontWeight: 500 }}>Carregando projetos...</span>
             </div>
-          ))}
+          </div>
+        )}
+        {error && <div style={{ color: 'var(--challenges-color)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Erro: {error}</div>}
+        <div ref={carouselRef} className="custom-scrollbar px-3" style={{ display: 'flex', flexDirection: 'row', gap: 12, overflowX: 'auto', overflowY: 'hidden', cursor: drag.current.dragging ? 'grabbing' : 'grab', userSelect: 'none', WebkitOverflowScrolling: 'touch', flex: 1, minHeight: 0, height: '100%', boxSizing: 'border-box', alignItems: 'center' }} onMouseDown={onMouseDown}>
+          {!loading && !error && filteredEstimates.length === 0 && (
+            <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Nenhum projeto encontrado</div>
+          )}
+          {filteredEstimates.map((rel, idx) => {
+            // Dados agregados
+            const projectName = getProjectName(rel.estimate.customer_name);
+            const valorTotal = formatCurrency(rel.estimate.total_amount);
+            const status = rel.estimate.txn_status || 'Accepted';
+            const relWithInv = rel as AcceptedEstimateRelWithInvoices;
+            const invoices: InvoiceType[] = Array.isArray(relWithInv.invoices) ? relWithInv.invoices : [];
+            const invoiceCount = invoices.length;
+            
+            // Bills
+            const bills = Array.isArray(rel.bills) ? rel.bills : [];
+            const billCount = bills.length;
+            
+            // Pagamentos únicos recebidos (por invoice)
+            const uniquePaymentsReceived = new Set();
+            invoices.forEach(inv => {
+              if (Array.isArray(inv.payments)) {
+                inv.payments.forEach(payment => {
+                  uniquePaymentsReceived.add(payment.id);
+                });
+              }
+            });
+            const paymentsReceivedCount = uniquePaymentsReceived.size;
+            
+            // Pagamentos únicos feitos (por bill)
+            const uniquePaymentsMade = new Set();
+            bills.forEach(bill => {
+              if (Array.isArray(bill.bill_payments)) {
+                bill.bill_payments.forEach(payment => {
+                  uniquePaymentsMade.add(payment.id);
+                });
+              }
+            });
+            const paymentsMadeCount = uniquePaymentsMade.size;
+            
+            return (
+              <div key={rel.estimate.id} style={{ minWidth: 230, maxWidth: 320, background: 'var(--color-background-primary)', border: '1px solid var(--color-border-divider)', borderRadius: 8, boxShadow: hovered === rel.estimate.id ? '0 8px 24px rgba(0,0,0,0.15)' : '0 2px 12px rgba(0,0,0,0.08)', display: 'flex', flexDirection: 'column', cursor: 'pointer', position: 'relative', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', height: '320px', overflow: 'hidden', boxSizing: 'border-box', marginTop: 0, marginBottom: 0, transform: hovered === rel.estimate.id ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)' }} onMouseEnter={() => setHovered(rel.estimate.id)} onMouseLeave={() => setHovered(null)} onClick={() => handleOpenModal(idx)} title={hovered === rel.estimate.id ? projectName : ''}>
+                {/* Cabeçalho */}
+                <div className="px-3" style={{ borderBottom: '1px solid var(--color-border-divider)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, minHeight: 48, background: 'var(--color-background-secondary)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 10, color: STATUS[status as keyof typeof STATUS]?.color || 'var(--color-text-secondary)' }}>
+                      <i className={STATUS[status as keyof typeof STATUS]?.icon || 'bi-circle'} />
+                    </span>
+                    <span style={{ color: STATUS[status as keyof typeof STATUS]?.color || 'var(--color-text-secondary)', fontWeight: 700, fontSize: 12, letterSpacing: 0.2 }}>{status}</span>
+                  </div>
+                  <span style={{ color: 'var(--color-accent-primary)', fontSize: 14, fontWeight: 500, letterSpacing: 0.1 }}>{valorTotal}</span>
+                </div>
+                
+                {/* Corpo */}
+                <div style={{ padding: '16px 20px 16px 20px', display: 'flex', flexDirection: 'column', gap: 16, flex: 1, height: '100%', boxSizing: 'border-box' }}>
+
+                  {/* Data do projeto */}
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                      {rel.estimate.txn_date ? new Date(rel.estimate.txn_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '-'}
+                    </span>
+                  </div>
+                  
+                  {/* Título do projeto */}
+                  <div style={{ textAlign: 'center' }}>
+                    <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--color-text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3, letterSpacing: 0.1 }}>{projectName}</h3>
+                  </div>
+                  
+                  {/* Métricas responsivas */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0 }}>
+                    {/* Primeira linha - Bills (esquerda) e Invoices (direita) */}
+                    <div style={{ display: 'flex', gap: 10, width: '100%', flex: 1 }}>
+                      {/* Bills */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(242,139,130,0.06)', borderRadius: 6, border: '1px solid rgba(242,139,130,0.15)', justifyContent: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Bills</div>
+                        <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{billCount}</div>
+                      </div>
+                      
+                      {/* Invoices */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(167,233,175,0.06)', borderRadius: 6, border: '1px solid rgba(167,233,175,0.15)', justifyContent: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Invoices</div>
+                        <div style={{ fontSize: 16, color: 'var(--color-accent-primary)', fontWeight: 700, textAlign: 'center' }}>{invoiceCount}</div>
+                      </div>
+                    </div>
+                    
+                    {/* Segunda linha - Pagamentos Feitos (esquerda) e Recebidos (direita) */}
+                    <div style={{ display: 'flex', gap: 10, width: '100%', flex: 1 }}>
+                      {/* Pagamentos Feitos */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(242,139,130,0.06)', borderRadius: 6, border: '1px solid rgba(242,139,130,0.15)', justifyContent: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Pag. Feitos</div>
+                        <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{paymentsMadeCount}</div>
+                      </div>
+                      
+                      {/* Pagamentos Recebidos */}
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(167,233,175,0.06)', borderRadius: 6, border: '1px solid rgba(167,233,175,0.15)', justifyContent: 'center' }}>
+                        <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Pag. Recebidos</div>
+                        <div style={{ fontSize: 16, color: 'var(--color-accent-primary)', fontWeight: 700, textAlign: 'center' }}>{paymentsReceivedCount}</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       {/* Modal Detalhado */}

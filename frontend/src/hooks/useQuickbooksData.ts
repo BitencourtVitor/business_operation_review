@@ -74,12 +74,29 @@ interface EstimateRelational {
   payments: PaymentType[];
 }
 
-const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
+interface InvoiceType {
+  id: string;
+  external_id: string;
+  doc_number?: string | null;
+  txn_date?: string | null;
+  due_date?: string | null;
+  customer_id?: string | null;
+  customer_name?: string | null;
+  total_amount?: number | null;
+  balance?: number | null;
+  last_updated_at?: string | null;
+  created_at?: string | null;
+  // outros campos se necessário
+}
+
+const useQuickbooksData = (statusFilter: string[] = ['Accepted'], dateFrom?: string, dateTo?: string) => {
   const [estimatesRel, setEstimatesRel] = useState<EstimateRelational[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadEstimatesRel = async () => {
+  const loadEstimatesRel = async (filters?: { statusFilter?: string[], dateFrom?: string, dateTo?: string }) => {
+    const activeFilters = filters || { statusFilter, dateFrom, dateTo };
+    
     setLoading(true);
     setError(null);
     try {
@@ -87,8 +104,14 @@ const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
       let estQuery = supabase
         .from('hvac_estimates')
         .select('*');
-      if (statusFilter && statusFilter.length > 0) {
-        estQuery = estQuery.in('txn_status', statusFilter);
+      if (activeFilters.statusFilter && activeFilters.statusFilter.length > 0) {
+        estQuery = estQuery.in('txn_status', activeFilters.statusFilter);
+      }
+      if (activeFilters.dateFrom) {
+        estQuery = estQuery.gte('txn_date', activeFilters.dateFrom);
+      }
+      if (activeFilters.dateTo) {
+        estQuery = estQuery.lte('txn_date', activeFilters.dateTo);
       }
       const { data: estimates, error: errEst } = await estQuery;
       if (errEst) throw new Error(errEst.message);
@@ -137,13 +160,20 @@ const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
       const customerNames = Array.from(new Set(estimates.map((e: EstimateType) => e.customer_name).filter(Boolean)));
       let billLines: LineType[] = [];
       if (customerIds.length > 0 && customerNames.length > 0) {
-        const { data: billLinesData, error: billLinesErr } = await supabase
-          .from('hvac_bill_lines')
-          .select('*')
-          .in('customer_id', customerIds)
-          .in('customer_name', customerNames);
-        if (billLinesErr) throw new Error(billLinesErr.message);
-        billLines = billLinesData || [];
+        try {
+          const { data: billLinesData, error: billLinesErr } = await supabase
+            .from('hvac_bill_lines')
+            .select('*')
+            .in('customer_id', customerIds)
+            .in('customer_name', customerNames);
+          if (billLinesErr) {
+            console.warn('Erro ao buscar bill lines:', billLinesErr.message);
+          } else {
+            billLines = billLinesData || [];
+          }
+        } catch (err) {
+          console.warn('Erro ao processar bill lines:', err);
+        }
       }
       const billIds = Array.from(new Set(billLines.map((l) => l.bill_id)));
       type BillMain = {
@@ -223,26 +253,48 @@ const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
         return { bill, lines, bill_payments };
       });
       // Buscar todos os invoices completos do banco usando os external_id dos links
-      let invoices: any[] = [];
+      let invoices: InvoiceType[] = [];
       if (invoiceIds.length > 0) {
-        const batches = chunkArray(invoiceIds, 50);
-        let invoicesData: any[] = [];
+        const batches = chunkArray(invoiceIds, 25); // Reduzido para 25 para evitar erro de URL muito longa
+        let invoicesData: InvoiceType[] = [];
         for (const batch of batches) {
-          const { data: invs, error: invsErr } = await supabase
-            .from('hvac_invoices')
-            .select('*')
-            .in('external_id', batch);
-          if (invsErr) throw new Error(invsErr.message);
-          if (invs) invoicesData = invoicesData.concat(invs);
+          try {
+            const { data: invs, error: invsErr } = await supabase
+              .from('hvac_invoices')
+              .select('*')
+              .in('external_id', batch);
+            if (invsErr) {
+              console.warn('Erro ao buscar invoices:', invsErr.message);
+              continue; // Continua com o próximo batch em vez de falhar completamente
+            }
+            if (invs) invoicesData = invoicesData.concat(invs as InvoiceType[]);
+          } catch (err) {
+            console.warn('Erro ao processar batch de invoices:', err);
+            continue;
+          }
         }
         invoices = invoicesData;
+      }
+      // Payments dos invoices (por external_id)
+      // Mapear payments por invoice.external_id
+      const paymentsByInvoiceExternalId = new Map<string, PaymentType[]>();
+      if (invoices.length > 0 && payLinks.length > 0 && payments.length > 0) {
+        for (const inv of invoices) {
+          const linksForInvoice = payLinks.filter(l => l.txn_id === inv.external_id && l.txn_type === 'Invoice');
+          const paymentIds = linksForInvoice.map(l => l.payment_id);
+          const relatedPayments = payments.filter(p => paymentIds.includes(p.id));
+          paymentsByInvoiceExternalId.set(inv.external_id, relatedPayments);
+        }
       }
       // Montar estrutura relacional
       const rel: EstimateRelational[] = estimates.map((est: EstimateType) => {
         // Invoices deste estimate (usando os links)
         const estInvoiceLinks = links ? links.filter((l) => l.estimate_id === est.id && l.txn_type === 'Invoice') : [];
         const estInvoiceIds = estInvoiceLinks.map((l) => l.txn_id);
-        const estInvoices = invoices.filter((inv) => estInvoiceIds.includes(inv.external_id));
+        const estInvoices = invoices.filter((inv) => estInvoiceIds.includes(inv.external_id)).map(inv => ({
+          ...inv,
+          payments: paymentsByInvoiceExternalId.get(inv.external_id) || []
+        }));
         // Bills deste estimate
         let estBills: BillType[] = [];
         if (est.customer_id && est.customer_name) {
@@ -273,7 +325,7 @@ const useQuickbooksData = (statusFilter: string[] = ['Accepted']) => {
   };
 
   useEffect(() => {
-    loadEstimatesRel();
+    loadEstimatesRel({ statusFilter, dateFrom, dateTo });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
