@@ -1,342 +1,21 @@
 [
   {
     "VendorRef": {
-      "value": "69",
-      "name": "S.G. Torrice Company / Ferguson"
-    },
-    "PayType": "CreditCard",
-    "CreditCardPayment": {
-      "CCAccountRef": {
-        "value": "157",
-        "name": "Amex Platinum"
-      }
-    },
-    "TotalAmt": 29518.61,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19773",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-07-16T07:34:48-07:00",
-      "LastUpdatedTime": "2025-07-16T07:54:31-07:00"
-    },
-    "DocNumber": "Paid online",
-    "TxnDate": "2025-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid online",
-    "Line": [
-      {
-        "Amount": 6.08,
-        "LinkedTxn": [
-          {
-            "TxnId": "17824",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 11961.88,
-        "LinkedTxn": [
-          {
-            "TxnId": "18242",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 333.29,
-        "LinkedTxn": [
-          {
-            "TxnId": "17429",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 888.25,
-        "LinkedTxn": [
-          {
-            "TxnId": "18262",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 410.45,
-        "LinkedTxn": [
-          {
-            "TxnId": "18263",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 636.22,
-        "LinkedTxn": [
-          {
-            "TxnId": "17629",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 15418.88,
-        "LinkedTxn": [
-          {
-            "TxnId": "18238",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 136.44,
-        "LinkedTxn": [
-          {
-            "TxnId": "18059",
-            "TxnType": "VendorCredit"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
-      "value": "15",
-      "name": "Buckley Associates, Inc."
-    },
-    "PayType": "CreditCard",
-    "CreditCardPayment": {
-      "CCAccountRef": {
-        "value": "157",
-        "name": "Amex Platinum"
-      }
-    },
-    "TotalAmt": 3868.51,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19752",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-15T08:32:13-07:00",
-      "LastUpdatedTime": "2025-07-15T08:32:13-07:00"
-    },
-    "DocNumber": "Paid online",
-    "TxnDate": "2025-07-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid online",
-    "Line": [
-      {
-        "Amount": 3868.51,
-        "LinkedTxn": [
-          {
-            "TxnId": "18405",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "PayType": "CreditCard",
-    "CreditCardPayment": {
-      "CCAccountRef": {
-        "value": "157",
-        "name": "Amex Platinum"
-      }
-    },
-    "TotalAmt": 30000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19706",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-14T11:32:04-07:00",
-      "LastUpdatedTime": "2025-07-14T11:32:04-07:00"
-    },
-    "DocNumber": "Paid online",
-    "TxnDate": "2025-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 715.05,
-        "LinkedTxn": [
-          {
-            "TxnId": "18016",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 68.12,
-        "LinkedTxn": [
-          {
-            "TxnId": "18017",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 28.23,
-        "LinkedTxn": [
-          {
-            "TxnId": "18019",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 324.37,
-        "LinkedTxn": [
-          {
-            "TxnId": "18224",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 91.65,
-        "LinkedTxn": [
-          {
-            "TxnId": "18225",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 125.63,
-        "LinkedTxn": [
-          {
-            "TxnId": "19633",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 37.36,
-        "LinkedTxn": [
-          {
-            "TxnId": "17558",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 6598,
-        "LinkedTxn": [
-          {
-            "TxnId": "17559",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 10186.23,
-        "LinkedTxn": [
-          {
-            "TxnId": "18008",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 350.1,
-        "LinkedTxn": [
-          {
-            "TxnId": "18009",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 755.96,
-        "LinkedTxn": [
-          {
-            "TxnId": "18011",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 687.66,
-        "LinkedTxn": [
-          {
-            "TxnId": "18012",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 2265.22,
-        "LinkedTxn": [
-          {
-            "TxnId": "17821",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 966.18,
-        "LinkedTxn": [
-          {
-            "TxnId": "18013",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 6795.64,
-        "LinkedTxn": [
-          {
-            "TxnId": "18014",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 4.6,
-        "LinkedTxn": [
-          {
-            "TxnId": "18015",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
       "value": "34",
       "name": "Delta T"
     },
     "PayType": "Check",
     "CheckPayment": {
-      "BankAccountRef": {
-        "value": "17",
-        "name": "Cash"
-      },
       "PrintStatus": "NotSet"
     },
-    "TotalAmt": 10946.21,
+    "TotalAmt": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "19397",
-    "SyncToken": "3",
+    "SyncToken": "2",
     "MetaData": {
       "CreateTime": "2025-06-30T06:18:08-07:00",
-      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+      "LastUpdatedTime": "2025-07-14T11:20:32-07:00"
     },
     "DocNumber": "Paid Online",
     "TxnDate": "2025-06-24",
@@ -347,11 +26,56 @@
     "PrivateNote": "Paid Online",
     "Line": [
       {
-        "Amount": 10946.21,
+        "Amount": 1989.7,
         "LinkedTxn": [
           {
             "TxnId": "17558",
             "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 24.41,
+        "LinkedTxn": [
+          {
+            "TxnId": "18912",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      },
+      {
+        "Amount": 1336.51,
+        "LinkedTxn": [
+          {
+            "TxnId": "19200",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      },
+      {
+        "Amount": 177.64,
+        "LinkedTxn": [
+          {
+            "TxnId": "19060",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      },
+      {
+        "Amount": 149.33,
+        "LinkedTxn": [
+          {
+            "TxnId": "19197",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      },
+      {
+        "Amount": 301.81,
+        "LinkedTxn": [
+          {
+            "TxnId": "19199",
+            "TxnType": "VendorCredit"
           }
         ]
       }

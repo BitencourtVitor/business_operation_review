@@ -3,6 +3,16 @@ import { createPortal } from 'react-dom';
 import useQuickbooksData from '../../../hooks/useQuickbooksData';
 import CloseButton from '../../../utils/CloseButton';
 import dayjs from 'dayjs';
+import type {
+  HvacEstimate,
+  HvacBill,
+  HvacBillPayment,
+  HvacBillPaymentLink,
+  HvacBillLink,
+  HvacInvoice,
+  HvacPayment,
+  HvacPaymentLink
+} from '../../../hooks/useQuickbooksData';
 
 // Estilos CSS para animações
 const spinnerStyles = `
@@ -61,7 +71,7 @@ interface EstimateRelational {
   };
   lines: { id: string; estimate_id: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[];
   links: { id: string; estimate_id: string; txn_id: string; txn_type: string | null }[];
-  bills: { bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null }; lines: { id: string; estimate_id: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[]; bill_payments: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null }[] }[];
+  bills: { bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null }; lines: { id: string; estimate_id?: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[]; bill_payments: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null }[] }[];
   payments: { id: string; total_amount: number | null; txn_date: string | null; payment_ref: string | null; private_note: string | null }[];
 }
 
@@ -79,20 +89,12 @@ export default function AcceptedEstimatesCarousel() {
   const [dateFrom, setDateFrom] = useState(defaultStartOfYear);
   const [dateTo, setDateTo] = useState(defaultToday);
   
-  // Filtros aplicados (usados na consulta)
-  const [appliedOnlyAccepted, setAppliedOnlyAccepted] = useState(true);
-  const [appliedDateFrom, setAppliedDateFrom] = useState(defaultStartOfYear);
-  const [appliedDateTo, setAppliedDateTo] = useState(defaultToday);
-  
   // Sempre que a página abrir, setar datas para 01/01/ano atual até hoje
   useEffect(() => {
     const startOfYear = now.startOf('year').format('YYYY-MM-DD');
     const today = now.format('YYYY-MM-DD');
     setDateFrom(startOfYear);
     setDateTo(today);
-    setAppliedDateFrom(startOfYear);
-    setAppliedDateTo(today);
-    setAppliedOnlyAccepted(onlyAccepted);
   }, []);
 
   // Adicionar estilos CSS para animações
@@ -106,13 +108,278 @@ export default function AcceptedEstimatesCarousel() {
     };
   }, []);
   
-  const statusFilter = appliedOnlyAccepted ? ['Accepted'] : undefined;
   const {
-    estimatesRel,
+    data,
     loading,
     error,
     reload
-  } = useQuickbooksData(statusFilter, appliedDateFrom, appliedDateTo);
+  } = useQuickbooksData();
+
+  type BillRelType = {
+    bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null };
+    lines: { id: string; estimate_id?: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string; account_ref_name?: string | null }[];
+    bill_payments: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }[];
+  };
+  interface EstimateRelType {
+    estimate: {
+      id: string;
+      doc_number: string | null;
+      txn_date: string | null;
+      txn_status: string | null;
+      customer_id: string | null;
+      customer_name: string | null;
+      total_amount: number | null;
+      external_id: string | null;
+    };
+    lines: { id: string; estimate_id: string; description: string | null; amount: number | null }[];
+    links: [];
+    bills: BillRelType[];
+    payments: HvacPayment[];
+    invoices: InvoiceType[];
+  }
+  const estimatesRel: EstimateRelType[] = useMemo(() => {
+    if (!data) return [];
+
+
+    // Não usar normalização nem map. Filtrar diretamente as bill lines pelo customer do estimate.
+    // Map de bills por id
+    const billsById = new Map<string, HvacBill>();
+    data.hvac_bills.forEach((bill: HvacBill) => {
+      billsById.set(bill.id, bill);
+    });
+    // Agrupar invoices por customer_id + customer_name
+    const invoicesByCustomer = new Map<string, HvacInvoice[]>();
+    data.hvac_invoices.forEach((inv: HvacInvoice) => {
+      if (!inv.customer_id || !inv.customer_name) return;
+      const key = inv.customer_id + '|' + inv.customer_name;
+      if (!invoicesByCustomer.has(key)) invoicesByCustomer.set(key, []);
+      invoicesByCustomer.get(key)!.push(inv);
+    });
+    // Agrupar payment_links por txn_id e txn_type
+    const paymentLinksByTxnIdType = new Map<string, HvacPaymentLink[]>();
+    data.hvac_payment_links.forEach((link: HvacPaymentLink) => {
+      if (!link.txn_id || !link.txn_type) return;
+      const key = link.txn_id + '|' + link.txn_type;
+      if (!paymentLinksByTxnIdType.has(key)) paymentLinksByTxnIdType.set(key, []);
+      paymentLinksByTxnIdType.get(key)!.push(link);
+    });
+    // Map de payments por id
+    const paymentsById = new Map<string, HvacPayment>();
+    data.hvac_payments.forEach((p: HvacPayment) => {
+      paymentsById.set(p.id, p);
+    });
+    // Map de bill_payments por id
+    const billPaymentsById = new Map<string, HvacBillPayment>();
+    data.hvac_bill_payments.forEach((bp: HvacBillPayment) => {
+      billPaymentsById.set(bp.id, bp);
+    });
+    // Agrupar bill_payment_links por txn_id
+    const billPaymentLinksByTxnId = new Map<string, HvacBillPaymentLink[]>();
+    data.hvac_bill_payment_links.forEach((link: HvacBillPaymentLink) => {
+      if (!link.txn_id) return;
+      if (!billPaymentLinksByTxnId.has(link.txn_id)) billPaymentLinksByTxnId.set(link.txn_id, []);
+      billPaymentLinksByTxnId.get(link.txn_id)!.push(link);
+    });
+    // Agrupar bill_links por txn_id (para conectar bills com estimates)
+    const billLinksByTxnId = new Map<string, HvacBillLink[]>();
+    data.hvac_bill_links.forEach((link: HvacBillLink) => {
+      if (!link.txn_id) return;
+      if (!billLinksByTxnId.has(link.txn_id)) billLinksByTxnId.set(link.txn_id, []);
+      billLinksByTxnId.get(link.txn_id)!.push(link);
+    });
+    // Montar estrutura relacional
+    return data.hvac_estimates.map((est: HvacEstimate) => {
+      // Linhas do estimate
+      const lines = data.hvac_estimate_lines.filter(l => l.estimate_id === est.id);
+      // Bills: buscar bill_lines com mesmo customer_id OU customer_name, sendo mais flexível
+      let billLines = data.hvac_bill_lines.filter(line => {
+        // Primeiro, verificar se a bill line está dentro do período de data
+        const bill = billsById.get(line.bill_id);
+        if (bill && bill.txn_date) {
+          const billDate = new Date(bill.txn_date);
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          if (billDate < fromDate || billDate > toDate) {
+            return false; // Bill line fora do período
+          }
+        }
+
+        // Se ambos os campos estão preenchidos, usar a lógica original
+        if (est.customer_id && est.customer_name && line.customer_id && line.customer_name) {
+          return line.customer_id === est.customer_id && line.customer_name === est.customer_name;
+        }
+        // Se apenas customer_id está preenchido
+        if (est.customer_id && line.customer_id) {
+          return line.customer_id === est.customer_id;
+        }
+        // Se apenas customer_name está preenchido
+        if (est.customer_name && line.customer_name) {
+          return line.customer_name === est.customer_name;
+        }
+        // Se nenhum está preenchido, não incluir
+        return false;
+      });
+
+
+
+      // Adicionar bill lines encontradas através dos bill_links (conexão direta com estimate)
+      const billLinksForEstimate = billLinksByTxnId.get(est.external_id) || [];
+      const billIdsFromLinks = new Set(billLinksForEstimate.map(link => link.bill_id));
+      
+      const additionalBillLines = data.hvac_bill_lines.filter(line => {
+        // Verificar se está dentro do período de data
+        const bill = billsById.get(line.bill_id);
+        if (bill && bill.txn_date) {
+          const billDate = new Date(bill.txn_date);
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          if (billDate < fromDate || billDate > toDate) {
+            return false; // Bill line fora do período
+          }
+        }
+        return billIdsFromLinks.has(line.bill_id);
+      });
+
+
+
+      // Terceira estratégia: buscar bill lines que podem estar relacionadas por account_ref_name
+      // (algumas bill lines podem ter o nome do projeto no account_ref_name)
+      const projectNameFromEstimate = getProjectName(est.customer_name);
+      const additionalBillLinesByAccount = data.hvac_bill_lines.filter(line => {
+        // Verificar se está dentro do período de data
+        const bill = billsById.get(line.bill_id);
+        if (bill && bill.txn_date) {
+          const billDate = new Date(bill.txn_date);
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          if (billDate < fromDate || billDate > toDate) {
+            return false; // Bill line fora do período
+          }
+        }
+        
+        if (!line.account_ref_name || !projectNameFromEstimate) return false;
+        return line.account_ref_name.toLowerCase().includes(projectNameFromEstimate.toLowerCase()) ||
+               projectNameFromEstimate.toLowerCase().includes(line.account_ref_name.toLowerCase());
+      });
+
+      // Quarta estratégia: buscar bill lines de projetos similares (mesmo customer_id mas customer_name diferente)
+      const additionalBillLinesBySimilarCustomer = data.hvac_bill_lines.filter(line => {
+        // Verificar se está dentro do período de data
+        const bill = billsById.get(line.bill_id);
+        if (bill && bill.txn_date) {
+          const billDate = new Date(bill.txn_date);
+          const fromDate = new Date(dateFrom);
+          const toDate = new Date(dateTo);
+          if (billDate < fromDate || billDate > toDate) {
+            return false; // Bill line fora do período
+          }
+        }
+        
+        if (!est.customer_id || !line.customer_id) return false;
+        return line.customer_id === est.customer_id && line.customer_name !== est.customer_name;
+      });
+
+      // Combinar todas as estratégias e remover duplicatas
+      const allBillLines = [...billLines, ...additionalBillLines, ...additionalBillLinesByAccount, ...additionalBillLinesBySimilarCustomer];
+      const uniqueBillLines = allBillLines.filter((line, index, self) => 
+        index === self.findIndex(l => l.id === line.id)
+      );
+      
+      billLines = uniqueBillLines;
+
+
+            
+      // Agrupar bill lines por bill_id para mostrar todas as linhas de cada bill
+      const billLinesByBillId = new Map<string, typeof billLines>();
+      billLines.forEach(line => {
+        if (!billLinesByBillId.has(line.bill_id)) {
+          billLinesByBillId.set(line.bill_id, []);
+        }
+        billLinesByBillId.get(line.bill_id)!.push(line);
+      });
+
+
+
+      // Para cada bill, pegar todas as suas bill_lines
+      const bills = Array.from(billLinesByBillId.entries()).map(([billId, lines]) => {
+        const bill = billsById.get(billId);
+        if (!bill) return null; // Se não encontrar a bill, pular
+
+
+        
+        // Buscar bill payments para esta bill através dos bill_payment_links
+        const billPaymentLinks = billPaymentLinksByTxnId.get(bill.external_id) || [];
+        const billPayments = billPaymentLinks.map(link => {
+          const billPayment = billPaymentsById.get(link.bill_payment_id);
+          return billPayment ? {
+            id: billPayment.id,
+            doc_number: billPayment.doc_number,
+            total_amount: billPayment.total_amount,
+            txn_date: billPayment.txn_date,
+            private_note: billPayment.private_note
+          } : null;
+        }).filter((bp): bp is NonNullable<typeof bp> => bp !== null);
+        
+        return {
+          bill: {
+            id: bill.id,
+            doc_number: bill.doc_number || '',
+            external_id: bill.external_id,
+            total_amount: bill.total_amount || 0,
+            txn_date: bill.txn_date
+          },
+          lines: lines.map(line => ({
+            id: line.id,
+            estimate_id: undefined,
+            description: line.description,
+            amount: line.amount,
+            account_ref_name: line.account_ref_name
+          })),
+          bill_payments: billPayments
+        };
+      }).filter((b): b is NonNullable<typeof b> => b !== null);
+
+
+      // Invoices: buscar invoices com mesmo customer_id/nome
+      const invoices = (invoicesByCustomer.get(est.customer_id + '|' + est.customer_name) || []).map(inv => {
+        // Payments: buscar payment_links onde txn_id = inv.external_id e txn_type = 'Invoice'
+        const paymentLinks = paymentLinksByTxnIdType.get(inv.external_id + '|Invoice') || [];
+        const payments = paymentLinks.map(pl => pl.payment_id ? paymentsById.get(pl.payment_id) : undefined).filter((p): p is HvacPayment => !!p);
+        return { ...inv, payments };
+      });
+      // Payments dos invoices deste estimate
+      const payments: HvacPayment[] = [];
+      invoices.forEach((inv) => {
+        if (Array.isArray(inv.payments)) {
+          inv.payments.forEach((p: HvacPayment) => {
+            if (!payments.find(x => x.id === p.id)) payments.push(p);
+          });
+        }
+      });
+      return {
+        estimate: {
+          id: est.id,
+          doc_number: est.doc_number,
+          txn_date: est.txn_date,
+          txn_status: est.txn_status,
+          customer_id: est.customer_id,
+          customer_name: est.customer_name,
+          total_amount: est.total_amount,
+          external_id: est.external_id
+        },
+        lines: lines.map(l => ({
+          id: l.id,
+          estimate_id: l.estimate_id,
+          description: l.description,
+          amount: l.amount
+        })),
+        links: [], // não usado
+        bills,
+        payments,
+        invoices
+      };
+    });
+  }, [data, dateFrom, dateTo]);
 
   const [hovered, setHovered] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'total' | 'name' | null>(null);
@@ -214,13 +481,27 @@ export default function AcceptedEstimatesCarousel() {
 
   // Estado para hover de Bill/Invoice
   const [itemsOpen, setItemsOpen] = useState(false);
-  // Adicionar estado para linha de bill/invoice em hover
-  const [hoveredBillIdx, setHoveredBillIdx] = useState<number | null>(null);
   // Estado para hover e seleção de Invoice
   const [hoveredInvoiceIdx, setHoveredInvoiceIdx] = useState<number | null>(null);
   const [selectedInvoiceIdx, setSelectedInvoiceIdx] = useState<number | null>(null);
-  // Estado para seleção de Bill
-  const [selectedBillIdx, setSelectedBillIdx] = useState<number | null>(null);
+  // Estado para expansão dos grupos de bill lines por account_ref_name
+  const [expandedBillGroups, setExpandedBillGroups] = useState<Set<string>>(new Set());
+  // Estado para hover das linhas individuais dentro dos grupos expandidos
+  const [hoveredBillLineIdx, setHoveredBillLineIdx] = useState<string | null>(null);
+  // Estado para tooltip de bill payments
+  const [billPaymentTooltip, setBillPaymentTooltip] = useState<{
+    show: boolean;
+    x: number;
+    y: number;
+    payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
+    accountName: string;
+  }>({
+    show: false,
+    x: 0,
+    y: 0,
+    payments: [],
+    accountName: ''
+  });
   // Remover refs não usadas
 
   // Handler para filtro de datas
@@ -282,25 +563,28 @@ export default function AcceptedEstimatesCarousel() {
     };
     // Linhas conectando containers agora são desenhadas apenas entre os blocos, dentro dos divs invisíveis
     return createPortal(
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          background: 'rgba(0,0,0,0.25)',
-          backdropFilter: 'blur(2px)',
-          zIndex: 2147483647,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          pointerEvents: 'auto',
-          transform: 'translateZ(0)',
-          willChange: 'z-index',
-        }}
-        onClick={handleCloseModal}
-      >
+              <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.25)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 2147483647,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'auto',
+            transform: 'translateZ(0)',
+            willChange: 'z-index',
+          }}
+          onClick={() => {
+            handleCloseModal();
+            setBillPaymentTooltip(prev => ({ ...prev, show: false }));
+          }}
+        >
         <div
           style={{
             background: 'var(--color-background-primary)',
@@ -335,7 +619,7 @@ export default function AcceptedEstimatesCarousel() {
                   <span><i className="bi bi-calendar-event" style={{ marginRight: 4 }} />{formatDateUS(rel.estimate.txn_date)}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-                  <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 15 }}>Nº {rel.estimate.doc_number || '-'}</span>
+                  <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 15 }}>ID {rel.estimate.customer_id || '-'}</span>
                   <span style={{ color: 'var(--color-accent-primary)', fontWeight: 700, fontSize: 18 }}>{formatCurrency(rel.estimate.total_amount)}</span>
                 </div>
               </div>
@@ -402,105 +686,222 @@ export default function AcceptedEstimatesCarousel() {
               {/* Coluna Bills (a pagar) */}
               <div style={{ flex: 1.3, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
                 {/* Bloco Bills (superior) */}
-                <div style={{ background: COLORS.billpayment + '11', border: `1px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '18px 18px 0 18px', minWidth: 420 }}>
-                  <div style={{ color: COLORS.billStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Bills
+                <div style={{ background: COLORS.billpayment + '11', border: `1px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '10px 18px 0 18px', minWidth: 420 }}>
+                                     <div style={{ color: COLORS.billStrong, fontWeight: 700, fontSize: 16, paddingBottom: 10, marginBottom: 10, marginLeft: -18, marginRight: -18, paddingLeft: 18, paddingRight: 18, borderBottom: `1px solid ${COLORS.billStrong}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Bills
+                    </div>
+                    <span style={{ color: COLORS.billStrong, fontWeight: 600, fontSize: 14 }}>
+                      {(() => {
+                        const totalBills = allBills.reduce((total, b) => {
+                          return total + b.lines.reduce((lineTotal, line) => lineTotal + (line.amount || 0), 0);
+                        }, 0);
+                        return totalBills.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                      })()}
+                    </span>
                   </div>
                   {/* Header das colunas */}
                   <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
                     <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Data"><i className="bi bi-calendar-event" /></span>
-                    <span style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Número"><i className="bi bi-file-earmark-text" /></span>
-                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Total"><i className="bi bi-currency-dollar" /></span>
+                    <span style={{ flex: 3, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Descrição"><i className="bi bi-file-earmark-text" /></span>
+                    <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }} title="Valor"><i className="bi bi-currency-dollar" /></span>
                   </div>
                   <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 12 }}>
-                    {allBills.map((b, idx) => (
-                      <React.Fragment key={b.bill.id || idx}>
-                        <li
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            fontSize: 13,
-                            padding: '0 8px',
-                            height: 32,
-                            borderBottom: '1px solid var(--color-border-divider)',
-                            width: '100%',
-                            position: 'relative',
-                            background: hoveredBillIdx === idx ? 'rgba(242,139,130,0.10)' : selectedBillIdx === idx ? 'rgba(242,139,130,0.18)' : 'transparent',
-                            borderRadius: 0,
-                            transition: 'background 0.2s',
-                          }}
-                          onMouseEnter={() => setHoveredBillIdx(idx)}
-                          onMouseLeave={() => setHoveredBillIdx(null)}
-                        >
-                          <span style={{ flex: 1 }}>{formatDateUS(b.bill.txn_date) || ''}</span>
-                          <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bill.doc_number || ''}</span>
-                          <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{b.bill.total_amount ? b.bill.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                          {/* Botão de olho só aparece em hover ou selecionado */}
-                          {(hoveredBillIdx === idx || selectedBillIdx === idx) && (
-                            <button
-                              type="button"
-                              aria-label="Ver pagamentos"
-                              title="Ver pagamentos"
-                              style={{
-                                position: 'absolute',
-                                right: 8,
-                                top: '50%',
-                                transform: 'translateY(-50%)',
-                                color: selectedBillIdx === idx ? COLORS.billStrong : COLORS.bill,
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontSize: 16,
-                                padding: 0,
-                                outline: 'none',
-                                transition: 'color 0.2s',
-                              }}
-                              onClick={e => {
-                                e.stopPropagation();
-                                setSelectedBillIdx(selectedBillIdx === idx ? null : idx);
-                              }}
-                            >
-                              <i className="bi bi-eye" style={{ fontSize: 16, verticalAlign: 'middle' }} />
-                            </button>
-                          )}
-                        </li>
-                        {/* Bloco animado de pagamentos do bill selecionado */}
-                        {selectedBillIdx === idx && Array.isArray(b.bill_payments) && b.bill_payments.length > 0 && (
-                          <li
-                            style={{
-                              background: COLORS.billpayment + '22',
-                              borderRadius: 8,
-                              margin: '8px 0', // espaçamento abaixo do bloco de pagamentos
-                              padding: '12px 18px',
-                              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                              animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
-                              transition: 'all 0.3s',
-                              display: 'block',
-                            }}
-                          >
-                            <div style={{ color: COLORS.billStrong, fontWeight: 600, fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <i className={`bi ${ICONS.billpayment}`} style={{ color: COLORS.billStrong, fontSize: 16 }} /> Pagamentos Efetuados
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 6px 0', fontSize: 13, color: 'var(--color-text-secondary)' }}>
-                              <span style={{ flex: 1.5 }}>Data</span>
-                              <span style={{ flex: 2 }}>Nota</span>
-                              <span style={{ flex: 2 }}>Ref</span>
-                              <span style={{ flex: 1.5 }}>Valor</span>
-                            </div>
-                            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                              {b.bill_payments.map((bp, i) => (
-                                <li key={bp.id || i} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 0 0 0', height: 32, borderBottom: i < b.bill_payments.length - 1 ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
-                                  <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left' }}>{formatDateUS(bp.txn_date)}</span>
-                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={bp.doc_number || ''}>{bp.doc_number || '-'}</span>
-                                  <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={bp.id || ''}>{bp.id || '-'}</span>
-                                  <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left' }}>{bp.total_amount ? bp.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </li>
-                        )}
-                      </React.Fragment>
-                    ))}
+                    {(() => {
+                      // Agrupar todas as bill lines por account_ref_name
+                      const groupedBillLines = new Map<string, {
+                        accountRefName: string;
+                        totalAmount: number;
+                                                 lines: Array<{
+                           id: string;
+                           bill: { id: string; txn_date?: string | null; external_id?: string | null };
+                           line: { id: string; account_ref_name?: string | null; amount: number | null; description?: string | null };
+                           bill_payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
+                         }>;
+                      }>();
+
+                      // Processar todas as bills e suas linhas
+                      allBills.forEach((b) => {
+                        b.lines.forEach((line) => {
+                          const accountRefName = line.account_ref_name || 'Sem categoria';
+                          if (!groupedBillLines.has(accountRefName)) {
+                            groupedBillLines.set(accountRefName, {
+                              accountRefName,
+                              totalAmount: 0,
+                              lines: []
+                            });
+                          }
+                          
+                          const group = groupedBillLines.get(accountRefName)!;
+                          group.totalAmount += line.amount || 0;
+                          group.lines.push({
+                            id: line.id,
+                            bill: b.bill,
+                            line,
+                            bill_payments: b.bill_payments
+                          });
+                        });
+                      });
+
+                      // Renderizar grupos
+                      return Array.from(groupedBillLines.values()).map((group, groupIdx) => {
+                        const groupKey = `group-${groupIdx}`;
+                        const isExpanded = expandedBillGroups.has(groupKey);
+                        
+                        return (
+                          <React.Fragment key={groupKey}>
+                                                         {/* Linha do grupo */}
+                             <li
+                               style={{
+                                 display: 'flex',
+                                 alignItems: 'center',
+                                 fontSize: 13,
+                                 padding: '0 8px',
+                                 height: 32,
+                                 borderBottom: '1px solid var(--color-border-divider)',
+                                 width: '100%',
+                                 position: 'relative',
+                                 background: 'transparent',
+                                 borderRadius: 0,
+                                 transition: 'background 0.2s',
+                                 fontWeight: 500,
+                               }}
+                             >
+                              <span style={{ flex: 1 }}>-</span>
+                              <span style={{ flex: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 600 }}>
+                                {group.accountRefName}
+                              </span>
+                              <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left', fontWeight: 600 }}>
+                                {group.totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                              </span>
+                              {/* Botão de seta para expandir/colapsar */}
+                              <button
+                                type="button"
+                                aria-label={isExpanded ? 'Colapsar detalhes' : 'Expandir detalhes'}
+                                title={isExpanded ? 'Colapsar detalhes' : 'Expandir detalhes'}
+                                style={{
+                                  position: 'absolute',
+                                  right: 8,
+                                  top: '50%',
+                                  transform: 'translateY(-50%)',
+                                  color: COLORS.billStrong,
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  fontSize: 16,
+                                  padding: 0,
+                                  outline: 'none',
+                                  transition: 'transform 0.2s, color 0.2s',
+                                }}
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  const newExpanded = new Set(expandedBillGroups);
+                                  if (isExpanded) {
+                                    newExpanded.delete(groupKey);
+                                  } else {
+                                    newExpanded.add(groupKey);
+                                  }
+                                  setExpandedBillGroups(newExpanded);
+                                }}
+                              >
+                                <i 
+                                  className={`bi ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`} 
+                                  style={{ 
+                                    fontSize: 14, 
+                                    verticalAlign: 'middle',
+                                    transform: isExpanded ? 'rotate(0deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.2s'
+                                  }} 
+                                />
+                              </button>
+                            </li>
+                            
+                            {/* Linhas expandidas do grupo */}
+                            {isExpanded && (
+                              <li
+                                style={{
+                                  background: 'rgba(242,139,130,0.08)',
+                                  borderRadius: 0,
+                                  margin: 0,
+                                  padding: '0 8px',
+                                  boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+                                  transition: 'all 0.3s',
+                                  display: 'block',
+                                }}
+                              >
+                                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                                  {group.lines.map((item, lineIdx) => (
+                                    <li
+                                      key={item.id}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        fontSize: 12,
+                                        padding: '0 0 0 16px',
+                                        height: 28,
+                                        borderBottom: lineIdx < group.lines.length - 1 ? '1px solid var(--color-border-divider)' : 'none',
+                                        width: '100%',
+                                        position: 'relative',
+                                        background: hoveredBillLineIdx === item.id ? 'rgba(242,139,130,0.12)' : 'transparent',
+                                        borderRadius: 0,
+                                        transition: 'background 0.2s',
+                                      }}
+                                      onMouseEnter={() => setHoveredBillLineIdx(item.id)}
+                                      onMouseLeave={() => setHoveredBillLineIdx(null)}
+                                    >
+                                      <span style={{ flex: 1, fontSize: 11, color: 'var(--color-text-secondary)' }}>
+                                        {formatDateUS(item.bill.txn_date) || ''}
+                                      </span>
+                                      <span style={{ flex: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 11 }}>
+                                        {item.line.description || item.line.account_ref_name || ''}
+                                      </span>
+                                      <span style={{ flex: 1.5, color: COLORS.billStrong, textAlign: 'left', fontSize: 11 }}>
+                                        {(item.line.amount || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                                      </span>
+                                      {/* Botão de olho para ver bill payments */}
+                                      {hoveredBillLineIdx === item.id && item.bill_payments.length > 0 && (
+                                        <button
+                                          type="button"
+                                          aria-label="Ver bill payments"
+                                          title="Ver bill payments"
+                                          style={{
+                                            position: 'absolute',
+                                            right: 8,
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            color: COLORS.billStrong,
+                                            background: 'none',
+                                            border: 'none',
+                                            cursor: 'pointer',
+                                            fontSize: 14,
+                                            padding: 0,
+                                            outline: 'none',
+                                            transition: 'color 0.2s',
+                                          }}
+                                                                                     onClick={e => {
+                                             e.stopPropagation();
+                                             const rect = e.currentTarget.getBoundingClientRect();
+                                             setBillPaymentTooltip({
+                                               show: true,
+                                               x: rect.left + rect.width / 2,
+                                               y: rect.bottom + 10,
+                                               payments: item.bill_payments,
+                                               accountName: item.line.account_ref_name || 'Sem categoria'
+                                             });
+                                           }}
+                                        >
+                                          <i className="bi bi-eye" style={{ fontSize: 12, verticalAlign: 'middle' }} />
+                                        </button>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </li>
+                            )}
+                          </React.Fragment>
+                        );
+                      });
+                    })()}
                   </ul>
                 </div>
                 {/* Pagamentos de Bills (inferior) */}
@@ -509,9 +910,19 @@ export default function AcceptedEstimatesCarousel() {
               {/* Coluna Invoices (a receber) */}
               <div style={{ flex: 1.3, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0, position: 'relative' }}>
                 {/* Bloco Invoices (superior) */}
-                <div style={{ background: COLORS.payment + '11', border: `1px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: '18px 18px 0 18px', minWidth: 420 }}>
-                  <div style={{ color: COLORS.invoiceStrong, fontWeight: 700, fontSize: 16, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${ICONS.invoice}`} style={{ fontSize: 18, color: COLORS.invoiceStrong, marginRight: 8, verticalAlign: 'middle' }} /> Invoices
+                <div style={{ background: COLORS.payment + '11', border: `1px solid ${COLORS.invoiceStrong}`, borderRadius: 10, padding: '10px 18px 0 18px', minWidth: 420 }}>
+                                     <div style={{ color: COLORS.invoiceStrong, fontWeight: 700, fontSize: 16, paddingBottom: 10, marginBottom: 10, marginLeft: -18, marginRight: -18, paddingLeft: 18, paddingRight: 18, borderBottom: `1px solid ${COLORS.invoiceStrong}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <i className={`bi ${ICONS.invoice}`} style={{ fontSize: 18, color: COLORS.invoiceStrong, marginRight: 8, verticalAlign: 'middle' }} /> Invoices
+                    </div>
+                    <span style={{ color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 14 }}>
+                      {(() => {
+                        const totalInvoices = allInvoices.reduce((total, inv) => {
+                          return total + (inv.total_amount || 0);
+                        }, 0);
+                        return totalInvoices.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                      })()}
+                    </span>
                   </div>
                   {/* Header das colunas */}
                   <div style={{ display: 'flex', alignItems: 'center', padding: '0 8px 6px 8px', fontSize: 13, color: 'var(--color-text-secondary)' }}>
@@ -635,6 +1046,133 @@ export default function AcceptedEstimatesCarousel() {
             </button>
           </div>
         </div>
+        
+        {/* Tooltip personalizada para Bill Payments */}
+        {billPaymentTooltip.show && (
+          <div
+            style={{
+              position: 'fixed',
+              top: billPaymentTooltip.y,
+              left: billPaymentTooltip.x - 200,
+              width: 400,
+              background: 'var(--color-background-secondary)',
+              border: `1px solid ${COLORS.billStrong}`,
+              borderRadius: 8,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
+              zIndex: 2147483648,
+              padding: '16px',
+              color: 'var(--color-text-primary)',
+              fontSize: 13,
+              maxHeight: 300,
+              overflowY: 'auto',
+              animation: 'fadeSlideIn 0.3s cubic-bezier(0.4, 0.2, 0.2, 1)',
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header da tooltip */}
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: 12,
+              paddingBottom: 8,
+              borderBottom: '1px solid var(--color-border-divider)'
+            }}>
+              <div style={{ 
+                color: COLORS.billStrong, 
+                fontWeight: 600, 
+                fontSize: 14,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6
+              }}>
+                <i className="bi bi-cash-stack" style={{ fontSize: 16 }} />
+                Bill Payments - {billPaymentTooltip.accountName}
+              </div>
+              <button
+                onClick={() => setBillPaymentTooltip(prev => ({ ...prev, show: false }))}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--color-text-secondary)',
+                  cursor: 'pointer',
+                  fontSize: 16,
+                  padding: 0,
+                  width: 20,
+                  height: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 4,
+                  transition: 'background 0.2s'
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--color-background-secondary)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <i className="bi bi-x" />
+              </button>
+            </div>
+            
+            {/* Conteúdo da tooltip */}
+            {billPaymentTooltip.payments.length > 0 ? (
+              <div>
+                {/* Header das colunas */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  padding: '0 0 8px 0', 
+                  fontSize: 12, 
+                  color: 'var(--color-text-secondary)',
+                  fontWeight: 500
+                }}>
+                  <span style={{ flex: 1.5 }}>Data</span>
+                  <span style={{ flex: 2 }}>Número</span>
+                  <span style={{ flex: 2 }}>Nota</span>
+                  <span style={{ flex: 1.5 }}>Valor</span>
+                </div>
+                
+                {/* Lista de pagamentos */}
+                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                  {billPaymentTooltip.payments.map((bp, i) => (
+                    <li 
+                      key={bp.id || i} 
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        fontSize: 12, 
+                        padding: '6px 0', 
+                        borderBottom: i < billPaymentTooltip.payments.length - 1 ? '1px solid var(--color-border-divider)' : 'none', 
+                        width: '100%' 
+                      }}
+                    >
+                      <span style={{ flex: 1.5, color: 'var(--color-text-secondary)' }}>
+                        {formatDateUS(bp.txn_date)}
+                      </span>
+                      <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {bp.doc_number || '-'}
+                      </span>
+                      <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {bp.private_note || '-'}
+                      </span>
+                      <span style={{ flex: 1.5, color: COLORS.billStrong, fontWeight: 600 }}>
+                        {(bp.total_amount || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <div style={{ 
+                color: 'var(--color-text-secondary)', 
+                fontStyle: 'italic', 
+                textAlign: 'center',
+                padding: '20px 0'
+              }}>
+                Nenhum pagamento encontrado para esta linha.
+              </div>
+            )}
+          </div>
+        )}
       </div>,
       document.body
     );
@@ -699,14 +1237,10 @@ export default function AcceptedEstimatesCarousel() {
               <input type="date" value={dateTo} onChange={e => handleDateChange('to', e.target.value)} lang="en-US" style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
               <button
                 onClick={() => {
-                  setAppliedOnlyAccepted(onlyAccepted);
-                  setAppliedDateFrom(dateFrom);
-                  setAppliedDateTo(dateTo);
-                  reload({
-                    statusFilter: onlyAccepted ? ['Accepted'] : undefined,
-                    dateFrom,
-                    dateTo
-                  });
+                  setOnlyAccepted(onlyAccepted);
+                  setDateFrom(dateFrom);
+                  setDateTo(dateTo);
+                  reload();
                 }}
                 style={{
                   marginLeft: 10,
@@ -937,14 +1471,17 @@ export default function AcceptedEstimatesCarousel() {
           {filteredEstimates.map((rel, idx) => {
             // Dados agregados
             const projectName = getProjectName(rel.estimate.customer_name);
-            const valorTotal = formatCurrency(rel.estimate.total_amount);
             const status = rel.estimate.txn_status || 'Accepted';
             const relWithInv = rel as AcceptedEstimateRelWithInvoices;
             const invoices: InvoiceType[] = Array.isArray(relWithInv.invoices) ? relWithInv.invoices : [];
             const invoiceCount = invoices.length;
             
-            // Bills
-            const bills = Array.isArray(rel.bills) ? rel.bills : [];
+            // Bills (garantir tipo correto)
+            const bills = (Array.isArray(rel.bills) && rel.bills.length > 0 ? rel.bills : []) as {
+              bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null };
+              lines: { id: string; estimate_id?: string; description: string | null; amount: number | null; quantity?: number | null; item_ref_name?: string | null; customer_id?: string | null; customer_name?: string | null; bill_id?: string }[];
+              bill_payments: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null }[];
+            }[];
             const billCount = bills.length;
             
             // Pagamentos únicos recebidos (por invoice)
@@ -979,7 +1516,7 @@ export default function AcceptedEstimatesCarousel() {
                     </span>
                     <span style={{ color: STATUS[status as keyof typeof STATUS]?.color || 'var(--color-text-secondary)', fontWeight: 700, fontSize: 12, letterSpacing: 0.2 }}>{status}</span>
                   </div>
-                  <span style={{ color: 'var(--color-accent-primary)', fontSize: 14, fontWeight: 500, letterSpacing: 0.1 }}>{valorTotal}</span>
+                  <span style={{ color: 'var(--color-accent-primary)', fontSize: 14, fontWeight: 500, letterSpacing: 0.1 }}>{rel.estimate.customer_id || '-'}</span>
                 </div>
                 
                 {/* Corpo */}
