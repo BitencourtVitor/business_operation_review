@@ -394,7 +394,21 @@ export default function AcceptedEstimatesCarousel() {
   // Busca e ordenação
   const filteredEstimates = useMemo(() => {
     let filtered = estimatesRel;
-    
+
+    // Filtro Just Accepted
+    if (onlyAccepted) {
+      filtered = filtered.filter(rel => rel.estimate.txn_status === 'Accepted');
+    }
+    // Filtro de data sobre o estimate (txn_date)
+    filtered = filtered.filter(rel => {
+      const date = rel.estimate.txn_date;
+      if (!date) return false;
+      const d = new Date(date);
+      const from = new Date(dateFrom);
+      const to = new Date(dateTo);
+      return d >= from && d <= to;
+    });
+
     // Filtro por texto
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase().trim();
@@ -427,7 +441,7 @@ export default function AcceptedEstimatesCarousel() {
       });
     }
     return filtered;
-  }, [estimatesRel, sortBy, sortDirection, searchTerm]);
+  }, [estimatesRel, onlyAccepted, dateFrom, dateTo, sortBy, sortDirection, searchTerm]);
 
   // Drag horizontal
   const onMouseDown = (e: React.MouseEvent) => {
@@ -1183,10 +1197,10 @@ export default function AcceptedEstimatesCarousel() {
       {/* Título fixo */}
       <div style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
         <div className='d-flex justify-content-between align-items-center' style={{ padding: '12px 32px', background: 'var(--color-background-primary)' }}>
-        <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Projetos</h4>
+        <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Project Information</h4>
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, height: 38 }}>
           {/* Filtros agrupados visualmente */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 14px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 6px 0 12px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)', justifyContent: 'space-between' }}>
             {/* Toggle booleano padrão contábil */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 15, padding: 0, height: 38 }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Just Accepted</span>

@@ -13,16 +13,37 @@ export function useTimesheetData() {
       setLoading(true);
       setError(null);
 
-      // Buscar dados de timesheet da tabela timesheet_analysis
-      const { data: timesheetData, error: timesheetError } = await supabase
-        .from('timesheet_analysis')
-        .select('*')
-        .order('date', { ascending: true });
+      // Função auxiliar para buscar todos os dados com paginação
+      const fetchAllData = async (tableName: string) => {
+        let allData: unknown[] = [];
+        let from = 0;
+        const pageSize = 1000;
+        
+        while (true) {
+          const { data, error } = await supabase
+            .from(tableName)
+            .select('*')
+            .order('date', { ascending: true })
+            .range(from, from + pageSize - 1);
+          
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          
+          allData = [...allData, ...data];
+          from += pageSize;
+          
+          // Se não há mais dados (menos que pageSize registros retornados)
+          if (data.length < pageSize) break;
+        }
+        
+        return allData;
+      };
 
-      if (timesheetError) throw timesheetError;
+      // Buscar dados de timesheet da tabela timesheet_analysis com paginação
+      const timesheetData = await fetchAllData('timesheet_analysis');
       
       // Transformar os dados para o formato esperado
-      const transformedData: TimesheetRow[] = (timesheetData || []).map(row => ({
+      const transformedData: TimesheetRow[] = (timesheetData || []).map((row: Record<string, unknown>) => ({
         id: row.id.toString(),
         date: row.date,
         nome: normalizeUtf8String(row.nome),
