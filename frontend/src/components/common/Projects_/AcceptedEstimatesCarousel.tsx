@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import useQuickbooksData from '../../../hooks/useQuickbooksData';
 import CloseButton from '../../../utils/CloseButton';
@@ -13,6 +13,7 @@ import type {
   HvacPayment,
   HvacPaymentLink
 } from '../../../hooks/useQuickbooksData';
+import { DataCacheContext } from '../../../contexts/DataCacheContextTypes';
 
 // Estilos CSS para animações
 const spinnerStyles = `
@@ -108,12 +109,13 @@ export default function AcceptedEstimatesCarousel() {
     };
   }, []);
   
-  const {
-    data,
-    loading,
-    error,
-    reload
-  } = useQuickbooksData();
+  // Hook de cache para dados do Quickbooks
+  const { cache, fetchQuickbooksData } = useContext(DataCacheContext);
+  const data = cache.quickbooks?.data;
+  const loading = cache.quickbooks?.loading;
+  const error = cache.quickbooks?.error;
+  const reload = fetchQuickbooksData;
+  useEffect(() => { if (!data) fetchQuickbooksData(); }, [data, fetchQuickbooksData]);
 
   type BillRelType = {
     bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null };

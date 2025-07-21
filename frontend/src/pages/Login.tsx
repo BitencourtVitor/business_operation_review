@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import type { Theme } from '../types/common';
+import { DataCacheContext } from '../contexts/DataCacheContextTypes';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export default function Login() {
   const [localError, setLocalError] = useState('');
   const [remember, setRemember] = useState(false);
   const [theme, setTheme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
+  const dataCache = useContext(DataCacheContext);
+  const [loadingData, setLoadingData] = useState(false);
 
   // Adicionar verificação de sessão no início do componente
   useEffect(() => {
@@ -98,6 +101,7 @@ export default function Login() {
     }
 
     setLoading(true);
+    setLoadingData(false);
     console.log('Tentando fazer login com:', email);
     
     try {
@@ -149,7 +153,23 @@ export default function Login() {
         
         // Limpa o sessionStorage para garantir dados atualizados após login
         sessionStorage.clear();
-        
+
+        // Carregar todos os dados no cache antes de navegar
+        if (dataCache) {
+          setLoadingData(true);
+          try {
+            await Promise.all([
+              dataCache.fetchAccountingData(),
+              dataCache.fetchQuickbooksData(),
+              dataCache.fetchTimesheetData(),
+              dataCache.fetchPermitData(),
+            ]);
+          } catch (err) {
+            // Não bloquear o login se algum fetch falhar
+            console.error('Erro ao carregar dados do cache:', err);
+          }
+          setLoadingData(false);
+        }
         navigate('/dashboard');
       }
     } catch {
@@ -320,14 +340,14 @@ export default function Login() {
             type="submit"
             className="btn-primary-custom"
             style={{ height: 42, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
-            disabled={loading}
+            disabled={loading || loadingData}
           >
-            {loading ? (
+            {(loading || loadingData) ? (
               <>
                 <span className="spinner-border" role="status" style={{ width: 20, height: 20, color: '#fff', borderWidth: 2, marginRight: 10 }}>
                   <span className="visually-hidden">Carregando...</span>
                 </span>
-                <span>Entrando...</span>
+                <span>{loadingData ? 'Carregando dados...' : 'Entrando...'}</span>
               </>
             ) : (
               'Entrar'

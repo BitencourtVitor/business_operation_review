@@ -38,6 +38,12 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       situations: [],
       jobsites: [],
     },
+    quickbooks: {
+      data: null,
+      loading: false,
+      error: null,
+      lastFetch: null,
+    },
   });
 
   const isDataStale = (dataType: keyof CacheData, maxAgeMinutes = 5) => {
@@ -327,6 +333,80 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchQuickbooksData = async () => {
+    if (cache.quickbooks.loading) return;
+    if (!isDataStale('quickbooks') && cache.quickbooks.data) return;
+    setCache(prev => ({ ...prev, quickbooks: { ...prev.quickbooks, loading: true, error: null } }));
+    try {
+      // Função auxiliar para buscar todos os dados com paginação
+      const fetchAllData = async (tableName: string) => {
+        let allData: unknown[] = [];
+        let from = 0;
+        const pageSize = 1000;
+        while (true) {
+          const { data, error } = await supabase
+            .from(tableName)
+            .select('*')
+            .range(from, from + pageSize - 1);
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          allData = [...allData, ...data];
+          from += pageSize;
+          if (data.length < pageSize) break;
+        }
+        return allData;
+      };
+      const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+        fetchAllData('hvac_bill_lines'),
+        fetchAllData('hvac_bill_links'),
+        fetchAllData('hvac_bill_payment_links'),
+        fetchAllData('hvac_bill_payments'),
+        fetchAllData('hvac_bills'),
+        fetchAllData('hvac_estimate_lines'),
+        fetchAllData('hvac_estimate_links'),
+        fetchAllData('hvac_estimates'),
+        fetchAllData('hvac_invoice_lines'),
+        fetchAllData('hvac_invoice_links'),
+        fetchAllData('hvac_invoices'),
+        fetchAllData('hvac_payment_links'),
+        fetchAllData('hvac_payments'),
+      ]);
+      const dataToSet = {
+        hvac_bill_lines: billLines,
+        hvac_bill_links: billLinks,
+        hvac_bill_payment_links: billPaymentLinks,
+        hvac_bill_payments: billPayments,
+        hvac_bills: bills,
+        hvac_estimate_lines: estimateLines,
+        hvac_estimate_links: estimateLinks,
+        hvac_estimates: estimates,
+        hvac_invoice_lines: invoiceLines,
+        hvac_invoice_links: invoiceLinks,
+        hvac_invoices: invoices,
+        hvac_payment_links: paymentLinks,
+        hvac_payments: payments,
+      };
+      setCache(prev => ({
+        ...prev,
+        quickbooks: {
+          data: dataToSet,
+          loading: false,
+          error: null,
+          lastFetch: Date.now(),
+        }
+      }));
+    } catch (err) {
+      setCache(prev => ({
+        ...prev,
+        quickbooks: {
+          ...prev.quickbooks,
+          loading: false,
+          error: err instanceof Error ? err.message : 'Erro ao carregar dados do Quickbooks',
+        }
+      }));
+    }
+  };
+
   const clearCache = () => {
     setCache({
       accounting: {
@@ -362,6 +442,12 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
         situations: [],
         jobsites: [],
       },
+      quickbooks: {
+        data: null,
+        loading: false,
+        error: null,
+        lastFetch: null,
+      },
     });
   };
 
@@ -371,6 +457,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       fetchAccountingData,
       fetchTimesheetData,
       fetchPermitData,
+      fetchQuickbooksData,
       clearCache,
       isDataStale,
     }}>

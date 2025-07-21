@@ -33,13 +33,19 @@ const ProjectChartTooltipExternal: React.FC<ProjectChartTooltipExternalProps> = 
   const datasetIndex = tooltip.dataPoints[0].datasetIndex;
   const label = chartLabels[dataIndex];
 
-  // Montar lista de valores do ponto (Recebível e Pagável)
+  // Montar lista de valores do ponto (Receivable e Payable)
   const values = chartDatasets.map((ds, idx) => ({
     label: ds.label,
     value: ds.data[dataIndex],
     color: ds.borderColor,
     focused: idx === datasetIndex
   }));
+
+  // Separar em Receivable e Payable
+  const receivableLabels = ['Receivable', 'Outstanding Receivable'];
+  const payableLabels = ['Payable', 'Outstanding Payable'];
+  const receivables = values.filter(v => receivableLabels.includes(v.label));
+  const payables = values.filter(v => payableLabels.includes(v.label));
 
   // Posição absoluta igual ao AccountingTooltipExternal
   const offsetX = 16;
@@ -109,32 +115,28 @@ const ProjectChartTooltipExternal: React.FC<ProjectChartTooltipExternalProps> = 
     >
       <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', marginBottom: 8, fontSize: 15 }}>{label}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {values.length > 1 ? (
-          <>
-            {values.map((item, idx) => (
-              <React.Fragment key={item.label}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
-                    <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 400 }}>{item.label}</span>
-                  </div>
-                  <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 500 }}>{typeof item.value === 'number' ? item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                </div>
-                {idx === 0 && values.length > 1 && <hr style={{ border: 0, borderTop: '1px solid var(--color-border-divider)', margin: '8px 0' }} />}
-              </React.Fragment>
-            ))}
-          </>
-        ) : (
-          values.map(item => (
-            <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
-                <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 400 }}>{item.label}</span>
-              </div>
-              <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 500 }}>{typeof item.value === 'number' ? item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+        {/* Receivables section */}
+        {receivables.map(item => (
+          <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
+              <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 400 }}>{item.label}</span>
             </div>
-          ))
-        )}
+            <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 500 }}>{typeof item.value === 'number' ? item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+          </div>
+        ))}
+        {/* Divider if both sections exist */}
+        {receivables.length > 0 && payables.length > 0 && <hr style={{ border: 0, borderTop: '1px solid var(--color-border-divider)', margin: '8px 0' }} />}
+        {/* Payables section */}
+        {payables.map(item => (
+          <div key={item.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: item.color, flexShrink: 0 }} />
+              <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 400 }}>{item.label}</span>
+            </div>
+            <span style={{ color: item.focused ? item.color : 'var(--color-text-secondary)', fontWeight: item.focused ? 700 : 500 }}>{typeof item.value === 'number' ? item.value.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

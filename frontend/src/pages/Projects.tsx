@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProjectFilters from '../components/common/Projects_/ProjectFilters';
 import ProjectChart from '../components/common/Projects_/ProjectChart';
 import AcceptedEstimatesCarousel from '../components/common/Projects_/AcceptedEstimatesCarousel';
@@ -9,6 +9,12 @@ const Projects: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'receivable' | 'payable'>('all');
+
+  useEffect(() => {
+    const anoAtual = new Date().getFullYear().toString();
+    setSelectedYear(anoAtual);
+    setSelectedMonth('todos');
+  }, []);
 
   // Mock de estimates aceitos
   const acceptedEstimates: AcceptedEstimate[] = [

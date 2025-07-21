@@ -38,6 +38,12 @@ export interface CacheData {
     situations: string[];
     jobsites: string[];
   };
+  quickbooks: {
+    data: any;
+    loading: boolean;
+    error: string | null;
+    lastFetch: number | null;
+  };
 }
 
 export interface DataCacheContextType {
@@ -45,6 +51,7 @@ export interface DataCacheContextType {
   fetchAccountingData: () => Promise<void>;
   fetchTimesheetData: () => Promise<void>;
   fetchPermitData: () => Promise<void>;
+  fetchQuickbooksData: () => Promise<void>;
   clearCache: () => void;
   isDataStale: (dataType: keyof CacheData, maxAgeMinutes?: number) => boolean;
 }
