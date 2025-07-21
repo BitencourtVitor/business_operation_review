@@ -1,6 +1,5 @@
 import React, { useRef, useState, useMemo, useEffect, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import useQuickbooksData from '../../../hooks/useQuickbooksData';
 import CloseButton from '../../../utils/CloseButton';
 import dayjs from 'dayjs';
 import type {
@@ -92,6 +91,7 @@ export default function AcceptedEstimatesCarousel() {
   
   // Sempre que a página abrir, setar datas para 01/01/ano atual até hoje
   useEffect(() => {
+    const now = dayjs();
     const startOfYear = now.startOf('year').format('YYYY-MM-DD');
     const today = now.format('YYYY-MM-DD');
     setDateFrom(startOfYear);
@@ -110,12 +110,14 @@ export default function AcceptedEstimatesCarousel() {
   }, []);
   
   // Hook de cache para dados do Quickbooks
-  const { cache, fetchQuickbooksData } = useContext(DataCacheContext);
-  const data = cache.quickbooks?.data;
-  const loading = cache.quickbooks?.loading;
-  const error = cache.quickbooks?.error;
-  const reload = fetchQuickbooksData;
-  useEffect(() => { if (!data) fetchQuickbooksData(); }, [data, fetchQuickbooksData]);
+  const dataCache = useContext(DataCacheContext);
+  const cache = dataCache?.cache;
+  const fetchQuickbooksData = dataCache?.fetchQuickbooksData;
+  const data = cache?.quickbooks?.data;
+  const loading = cache?.quickbooks?.loading;
+  const error = cache?.quickbooks?.error;
+  const reload = fetchQuickbooksData || (() => {});
+  useEffect(() => { if (!data && fetchQuickbooksData) fetchQuickbooksData(); }, [data, fetchQuickbooksData]);
 
   type BillRelType = {
     bill: { id: string; doc_number?: string | null; external_id?: string | null; total_amount?: number | null; txn_date?: string | null };
@@ -192,9 +194,9 @@ export default function AcceptedEstimatesCarousel() {
     // Montar estrutura relacional
     return data.hvac_estimates.map((est: HvacEstimate) => {
       // Linhas do estimate
-      const lines = data.hvac_estimate_lines.filter(l => l.estimate_id === est.id);
+      const lines = data.hvac_estimate_lines.filter((l: import('../../../hooks/useQuickbooksData').HvacEstimateLine) => l.estimate_id === est.id);
       // Bills: buscar bill_lines com mesmo customer_id OU customer_name, sendo mais flexível
-      let billLines = data.hvac_bill_lines.filter(line => {
+      let billLines = data.hvac_bill_lines.filter((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => {
         // Primeiro, verificar se a bill line está dentro do período de data
         const bill = billsById.get(line.bill_id);
         if (bill && bill.txn_date) {
@@ -205,7 +207,6 @@ export default function AcceptedEstimatesCarousel() {
             return false; // Bill line fora do período
           }
         }
-
         // Se ambos os campos estão preenchidos, usar a lógica original
         if (est.customer_id && est.customer_name && line.customer_id && line.customer_name) {
           return line.customer_id === est.customer_id && line.customer_name === est.customer_name;
@@ -226,9 +227,9 @@ export default function AcceptedEstimatesCarousel() {
 
       // Adicionar bill lines encontradas através dos bill_links (conexão direta com estimate)
       const billLinksForEstimate = billLinksByTxnId.get(est.external_id) || [];
-      const billIdsFromLinks = new Set(billLinksForEstimate.map(link => link.bill_id));
+      const billIdsFromLinks = new Set(billLinksForEstimate.map((link: import('../../../hooks/useQuickbooksData').HvacBillLink) => link.bill_id));
       
-      const additionalBillLines = data.hvac_bill_lines.filter(line => {
+      const additionalBillLines = data.hvac_bill_lines.filter((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => {
         // Verificar se está dentro do período de data
         const bill = billsById.get(line.bill_id);
         if (bill && bill.txn_date) {
@@ -247,7 +248,7 @@ export default function AcceptedEstimatesCarousel() {
       // Terceira estratégia: buscar bill lines que podem estar relacionadas por account_ref_name
       // (algumas bill lines podem ter o nome do projeto no account_ref_name)
       const projectNameFromEstimate = getProjectName(est.customer_name);
-      const additionalBillLinesByAccount = data.hvac_bill_lines.filter(line => {
+      const additionalBillLinesByAccount = data.hvac_bill_lines.filter((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => {
         // Verificar se está dentro do período de data
         const bill = billsById.get(line.bill_id);
         if (bill && bill.txn_date) {
@@ -265,7 +266,7 @@ export default function AcceptedEstimatesCarousel() {
       });
 
       // Quarta estratégia: buscar bill lines de projetos similares (mesmo customer_id mas customer_name diferente)
-      const additionalBillLinesBySimilarCustomer = data.hvac_bill_lines.filter(line => {
+      const additionalBillLinesBySimilarCustomer = data.hvac_bill_lines.filter((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => {
         // Verificar se está dentro do período de data
         const bill = billsById.get(line.bill_id);
         if (bill && bill.txn_date) {
@@ -293,7 +294,7 @@ export default function AcceptedEstimatesCarousel() {
             
       // Agrupar bill lines por bill_id para mostrar todas as linhas de cada bill
       const billLinesByBillId = new Map<string, typeof billLines>();
-      billLines.forEach(line => {
+      billLines.forEach((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => {
         if (!billLinesByBillId.has(line.bill_id)) {
           billLinesByBillId.set(line.bill_id, []);
         }
@@ -311,7 +312,7 @@ export default function AcceptedEstimatesCarousel() {
         
         // Buscar bill payments para esta bill através dos bill_payment_links
         const billPaymentLinks = billPaymentLinksByTxnId.get(bill.external_id) || [];
-        const billPayments = billPaymentLinks.map(link => {
+        const billPayments = billPaymentLinks.map((link: import('../../../hooks/useQuickbooksData').HvacBillPaymentLink) => {
           const billPayment = billPaymentsById.get(link.bill_payment_id);
           return billPayment ? {
             id: billPayment.id,
@@ -330,7 +331,7 @@ export default function AcceptedEstimatesCarousel() {
             total_amount: bill.total_amount || 0,
             txn_date: bill.txn_date
           },
-          lines: lines.map(line => ({
+          lines: lines.map((line: import('../../../hooks/useQuickbooksData').HvacBillLine) => ({
             id: line.id,
             estimate_id: undefined,
             description: line.description,
@@ -343,10 +344,10 @@ export default function AcceptedEstimatesCarousel() {
 
 
       // Invoices: buscar invoices com mesmo customer_id/nome
-      const invoices = (invoicesByCustomer.get(est.customer_id + '|' + est.customer_name) || []).map(inv => {
+      const invoices = (invoicesByCustomer.get(est.customer_id + '|' + est.customer_name) || []).map((inv: import('../../../hooks/useQuickbooksData').HvacInvoice) => {
         // Payments: buscar payment_links onde txn_id = inv.external_id e txn_type = 'Invoice'
         const paymentLinks = paymentLinksByTxnIdType.get(inv.external_id + '|Invoice') || [];
-        const payments = paymentLinks.map(pl => pl.payment_id ? paymentsById.get(pl.payment_id) : undefined).filter((p): p is HvacPayment => !!p);
+        const payments = paymentLinks.map((pl: import('../../../hooks/useQuickbooksData').HvacPaymentLink) => pl.payment_id ? paymentsById.get(pl.payment_id) : undefined).filter((p): p is HvacPayment => !!p);
         return { ...inv, payments };
       });
       // Payments dos invoices deste estimate
@@ -369,7 +370,7 @@ export default function AcceptedEstimatesCarousel() {
           total_amount: est.total_amount,
           external_id: est.external_id
         },
-        lines: lines.map(l => ({
+        lines: lines.map((l: import('../../../hooks/useQuickbooksData').HvacEstimateLine) => ({
           id: l.id,
           estimate_id: l.estimate_id,
           description: l.description,
@@ -728,12 +729,12 @@ export default function AcceptedEstimatesCarousel() {
                       const groupedBillLines = new Map<string, {
                         accountRefName: string;
                         totalAmount: number;
-                                                 lines: Array<{
-                           id: string;
-                           bill: { id: string; txn_date?: string | null; external_id?: string | null };
-                           line: { id: string; account_ref_name?: string | null; amount: number | null; description?: string | null };
-                           bill_payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
-                         }>;
+                        lines: Array<{
+                          id: string;
+                          bill: { id: string; txn_date?: string | null; external_id?: string | null };
+                          line: { id: string; account_ref_name?: string | null; amount: number | null; description?: string | null };
+                          bill_payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
+                        }>;
                       }>();
 
                       // Processar todas as bills e suas linhas
