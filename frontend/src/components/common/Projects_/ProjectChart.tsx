@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -10,10 +10,9 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { createClient } from '@supabase/supabase-js';
 import type { TooltipModel, Chart as ChartJSInstance } from 'chart.js';
 import { RECEIVABLES_COLOR, PAYABLES_COLOR } from '../../../utils/accountingColors';
-import { useAccountingDataCached } from '../../../hooks/useAccountingDataCached';
+import { useProjectChartData } from '../../../hooks/useProjectChartData';
 import ProjectChartTooltipExternal from '../../tooltips/ProjectChartTooltipExternal';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -24,135 +23,67 @@ interface ProjectChartProps {
   selectedGroup: 'all' | 'receivable' | 'payable';
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup }) => {
-  const [receivableData, setReceivableData] = useState<Array<{ txn_date: string; total_amount: number }>>([]);
-  const [payableData, setPayableData] = useState<Array<{ txn_date: string; total_amount: number }>>([]);
-  const [loading, setLoading] = useState(true);
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
-  const { data: accountingData, loading: accountingLoading } = useAccountingDataCached();
-
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const [{ data: payments }, { data: billPayments }] = await Promise.all([
-        supabase.from('hvac_payments').select('txn_date, total_amount'),
-        supabase.from('hvac_bill_payments').select('txn_date, total_amount'),
-      ]);
-      setReceivableData(payments || []);
-      setPayableData(billPayments || []);
-      setLoading(false);
-    }
-    fetchData();
-  }, []);
+  
+  // Usar o hook otimizado que chama a função SQL
+  const { data: chartDataFromSQL, loading } = useProjectChartData({
+    selectedYear,
+    selectedMonth,
+    selectedGroup
+  });
 
   const { chartData, chartOptions, hasData } = useMemo(() => {
-    if (loading || accountingLoading) return { chartData: null, chartOptions: null, hasData: false };
-    function groupByPeriod(data: Array<{ txn_date: string; total_amount: number }>, period: 'year' | 'month' | 'day') {
-      const map = new Map<string, number>();
-      data.forEach(row => {
-        if (!row.txn_date || typeof row.total_amount !== 'number') return;
-        const [year, month, day] = row.txn_date.split('-');
-        let key = '';
-        if (period === 'year') key = `${year}`;
-        else if (period === 'month') key = `${month}/${year}`;
-        else if (period === 'day') key = `${day}/${month}/${year}`;
-        map.set(key, (map.get(key) || 0) + row.total_amount);
-      });
-      return map;
+    if (loading) return { chartData: null, chartOptions: null, hasData: false };
+    
+    if (!chartDataFromSQL || chartDataFromSQL.length === 0) {
+      return { chartData: null, chartOptions: null, hasData: false };
     }
+
+    // Extrair labels e valores dos dados SQL
+    const labels = chartDataFromSQL.map(row => row.period_label);
+    const receivableValues = chartDataFromSQL.map(row => row.receivable_amount);
+    const payableValues = chartDataFromSQL.map(row => row.payable_amount);
+    const pendingReceivableValues = chartDataFromSQL.map(row => row.pending_receivable_amount);
+    const pendingPayableValues = chartDataFromSQL.map(row => row.pending_payable_amount);
+
+    // Filtrar períodos onde todos os valores são zero
+    const filtered = labels.map((label, idx) => {
+      return {
+        label,
+        receivable: receivableValues[idx],
+        payable: payableValues[idx],
+        pendingReceivable: pendingReceivableValues[idx],
+        pendingPayable: pendingPayableValues[idx],
+      };
+    }).filter(row => {
+      if (selectedGroup === 'all') {
+        return row.receivable > 0 || row.payable > 0 || row.pendingReceivable > 0 || row.pendingPayable > 0;
+      } else if (selectedGroup === 'receivable') {
+        return row.receivable > 0 || row.pendingReceivable > 0;
+      } else {
+        return row.payable > 0 || row.pendingPayable > 0;
+      }
+    });
+
+    const filteredLabels = filtered.map(row => row.label);
+    const filteredReceivableValues = filtered.map(row => row.receivable);
+    const filteredPayableValues = filtered.map(row => row.payable);
+    const filteredPendingReceivableValues = filtered.map(row => row.pendingReceivable);
+    const filteredPendingPayableValues = filtered.map(row => row.pendingPayable);
+
+    // Determinar período para título do gráfico
     let period: 'year' | 'month' | 'day' = 'month';
     if (selectedYear && selectedMonth) period = 'day';
     else if (selectedYear) period = 'month';
     else period = 'month';
-    const filterFn = (row: { txn_date: string }) => {
-      if (!row.txn_date) return false;
-      const [year, month] = row.txn_date.split('-');
-      if (selectedYear && year !== selectedYear) return false;
-      if (selectedMonth && month !== selectedMonth) return false;
-      return true;
-    };
-    const filteredReceivable = receivableData.filter(filterFn);
-    const filteredPayable = payableData.filter(filterFn);
-    const receivableMap = groupByPeriod(filteredReceivable, period);
-    const payableMap = groupByPeriod(filteredPayable, period);
-    let labels: string[] = [];
-    if (period === 'month') {
-      labels = Array.from(new Set([
-        ...Array.from(receivableMap.keys()),
-        ...Array.from(payableMap.keys()),
-      ])).sort((a, b) => {
-        const [ma, ya] = a.split('/');
-        const [mb, yb] = b.split('/');
-        const da = new Date(Number(ya), Number(ma) - 1);
-        const db = new Date(Number(yb), Number(mb) - 1);
-        return da.getTime() - db.getTime();
-      });
-    } else {
-      labels = Array.from(new Set([
-        ...Array.from(receivableMap.keys()),
-        ...Array.from(payableMap.keys()),
-      ])).sort((a, b) => {
-        const [da, ma, ya] = a.split('/');
-        const [db, mb, yb] = b.split('/');
-        const dA = new Date(Number(ya), Number(ma) - 1, Number(da));
-        const dB = new Date(Number(yb), Number(mb) - 1, Number(db));
-        return dA.getTime() - dB.getTime();
-      });
-    }
-    const receivableValues = labels.map(l => receivableMap.get(l) || 0);
-    const payableValues = labels.map(l => payableMap.get(l) || 0);
-    // --- NOVO: calcular pendências (a receber e a pagar) seguindo a lógica do gráfico de contabilidade ---
-    function sumByMinTransactionPerPeriod(type: 'receivables' | 'payables', period: 'year' | 'month' | 'day', label: string) {
-      // Usar date_field (igual contabilidade)
-      let periodRows = accountingData.filter(row => row.type === type && row.open_balance > 0 && row.date_field);
-      if (period === 'year') {
-        const [year] = label.split('/');
-        periodRows = periodRows.filter(row => row.date_field && row.date_field.split('-')[0] === year);
-        // Pega só o último mês/último dia do ano
-        if (periodRows.length > 0) {
-          const meses = periodRows.map(row => row.date_field ? Number(row.date_field.split('-')[1]) : 0);
-          const lastMonth = Math.max(...meses);
-          const rowsLastMonth = periodRows.filter(row => row.date_field && Number(row.date_field.split('-')[1]) === lastMonth);
-          const dias = rowsLastMonth.map(row => row.date_field ? Number(row.date_field.split('-')[2]) : 0);
-          const lastDay = Math.max(...dias);
-          periodRows = rowsLastMonth.filter(row => row.date_field && Number(row.date_field.split('-')[2]) === lastDay);
-        }
-      } else if (period === 'month') {
-        const [month, year] = label.split('/');
-        periodRows = periodRows.filter(row => row.date_field && row.date_field.split('-')[0] === year && row.date_field.split('-')[1] === month);
-        // Pega só o último dia do mês
-        if (periodRows.length > 0) {
-          const dias = periodRows.map(row => row.date_field ? Number(row.date_field.split('-')[2]) : 0);
-          const lastDay = Math.max(...dias);
-          periodRows = periodRows.filter(row => row.date_field && Number(row.date_field.split('-')[2]) === lastDay);
-        }
-      } else if (period === 'day') {
-        const [day, month, year] = label.split('/');
-        periodRows = periodRows.filter(row => row.date_field && row.date_field.split('-')[0] === year && row.date_field.split('-')[1] === month && row.date_field.split('-')[2] === day);
-      }
-      // Mapear menor open_balance por transação
-      const map = new Map<string, number>();
-      periodRows.forEach(row => {
-        const key = type === 'receivables' ? row.inv_num : row.bill_num;
-        if (!key) return;
-        if (!map.has(key)) map.set(key, row.open_balance);
-        else map.set(key, Math.min(map.get(key)!, row.open_balance));
-      });
-      return Array.from(map.values()).reduce((sum, v) => sum + v, 0);
-    }
-    const pendingReceivableValues = labels.map(l => sumByMinTransactionPerPeriod('receivables', period, l));
-    const pendingPayableValues = labels.map(l => sumByMinTransactionPerPeriod('payables', period, l));
-    // --- FIM NOVO ---
+
     const datasets = [];
     if (selectedGroup === 'all') {
       datasets.push({
         label: 'Receivable',
-        data: receivableValues,
+        data: filteredReceivableValues,
         borderColor: RECEIVABLES_COLOR as string,
         backgroundColor: RECEIVABLES_COLOR as string,
         pointBackgroundColor: RECEIVABLES_COLOR as string,
@@ -165,7 +96,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
       datasets.push({
         label: 'Payable',
-        data: payableValues,
+        data: filteredPayableValues,
         borderColor: PAYABLES_COLOR as string,
         backgroundColor: PAYABLES_COLOR as string,
         pointBackgroundColor: PAYABLES_COLOR as string,
@@ -176,11 +107,10 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         fill: false,
         tension: 0.25,
       });
-      // --- NOVO: linhas secundárias ---
       datasets.push({
         label: 'Outstanding Receivable',
-        data: pendingReceivableValues,
-        borderColor: 'rgba(76, 175, 80, 0.7)', // Verde mais opaco (mais visível)
+        data: filteredPendingReceivableValues,
+        borderColor: 'rgba(76, 175, 80, 0.7)',
         backgroundColor: 'rgba(76, 175, 80, 0.18)',
         borderDash: [8, 6],
         pointRadius: 4,
@@ -193,8 +123,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
       datasets.push({
         label: 'Outstanding Payable',
-        data: pendingPayableValues,
-        borderColor: 'rgba(211, 47, 47, 0.7)', // Vermelho mais opaco (mais visível)
+        data: filteredPendingPayableValues,
+        borderColor: 'rgba(211, 47, 47, 0.7)',
         backgroundColor: 'rgba(211, 47, 47, 0.18)',
         borderDash: [8, 6],
         pointRadius: 4,
@@ -205,11 +135,10 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         fill: false,
         tension: 0.25,
       });
-      // --- FIM NOVO ---
     } else if (selectedGroup === 'receivable') {
       datasets.push({
         label: 'Receivable',
-        data: receivableValues,
+        data: filteredReceivableValues,
         borderColor: RECEIVABLES_COLOR as string,
         backgroundColor: RECEIVABLES_COLOR as string,
         pointBackgroundColor: RECEIVABLES_COLOR as string,
@@ -222,7 +151,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
       datasets.push({
         label: 'Outstanding Receivable',
-        data: pendingReceivableValues,
+        data: filteredPendingReceivableValues,
         borderColor: 'rgba(76, 175, 80, 0.18)',
         backgroundColor: 'rgba(76, 175, 80, 0.06)',
         borderDash: [8, 6],
@@ -237,7 +166,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     } else {
       datasets.push({
         label: 'Payable',
-        data: payableValues,
+        data: filteredPayableValues,
         borderColor: PAYABLES_COLOR as string,
         backgroundColor: PAYABLES_COLOR as string,
         pointBackgroundColor: PAYABLES_COLOR as string,
@@ -250,7 +179,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
       datasets.push({
         label: 'Outstanding Payable',
-        data: pendingPayableValues,
+        data: filteredPendingPayableValues,
         borderColor: 'rgba(211, 47, 47, 0.18)',
         backgroundColor: 'rgba(211, 47, 47, 0.06)',
         borderDash: [8, 6],
@@ -263,13 +192,16 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
       });
     }
+
     const chartData = {
-      labels,
+      labels: filteredLabels,
       datasets,
     };
+
     const isDark = document.documentElement.classList.contains('dark');
     const textSecondary = isDark ? '#adb5bd' : '#6c757d';
     const borderDivider = getComputedStyle(document.documentElement).getPropertyValue('--color-border-divider').trim() || '#e0e0e0';
+    
     const chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -338,9 +270,10 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         }
       }
     };
-    const hasData = labels.length > 0 && datasets[0].data.some((v: number) => v > 0);
+
+    const hasData = filteredLabels.length > 0 && datasets[0].data.some((v: number) => v > 0);
     return { chartData, chartOptions, hasData };
-  }, [receivableData, payableData, selectedYear, selectedMonth, loading, selectedGroup, accountingData, accountingLoading]);
+  }, [chartDataFromSQL, selectedYear, selectedMonth, selectedGroup, loading]);
 
   return (
     <div style={{ width: '100%', background: 'var(--color-background-primary)', borderRadius: 0, margin: 0, borderBottom: '1.5px solid var(--color-border-divider)', padding: 0 }}>
@@ -348,7 +281,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30, margin: 0 }}>Project Value Over Time</h4>
       </div>
       <div style={{ width: '100%', height: 340, minHeight: 220, maxHeight: 400, padding: '0 32px 24px 32px' }}>
-        {(loading || accountingLoading) ? (
+        {loading ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{
               display: 'flex',

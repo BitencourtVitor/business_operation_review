@@ -331,7 +331,7 @@ export default function Dashboard() {
           position: 'fixed',
           top: 0,
           left: 0,
-          zIndex: 10,
+          zIndex: 1,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 215, minWidth: 215, height: '100%', justifyContent: 'center', borderRight: '1.5px solid var(--color-border-divider)'}}>
@@ -394,7 +394,7 @@ export default function Dashboard() {
           borderRight: '1.5px solid var(--color-border-divider)',
           display: 'flex',
           flexDirection: 'column',
-          zIndex: 100,
+          zIndex: 1,
         }}
       >
         <div style={{ 
@@ -404,7 +404,7 @@ export default function Dashboard() {
           alignItems: 'center', 
           borderBottom: '1px solid var(--color-border-divider)',
           flex: 1,
-          overflowY: 'auto'
+          overflowY: 'hidden'
         }}>
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
             <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>

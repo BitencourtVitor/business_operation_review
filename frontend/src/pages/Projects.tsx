@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import ProjectFilters from '../components/common/Projects_/ProjectFilters';
 import ProjectChart from '../components/common/Projects_/ProjectChart';
 import AcceptedEstimatesCarousel from '../components/common/Projects_/AcceptedEstimatesCarousel';
-import type { AcceptedEstimate } from '../components/common/Projects_/AcceptedEstimatesCarousel';
 
-const Projects: React.FC = () => {
+export default function Projects() {
+  // Estados para filtros
   const [selectedCompany, setSelectedCompany] = useState<string[]>(['Premium HVAC']);
   const [selectedYear, setSelectedYear] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -13,39 +13,8 @@ const Projects: React.FC = () => {
   useEffect(() => {
     const anoAtual = new Date().getFullYear().toString();
     setSelectedYear(anoAtual);
-    setSelectedMonth('todos');
+    setSelectedMonth('');
   }, []);
-
-  // Mock de estimates aceitos
-  const acceptedEstimates: AcceptedEstimate[] = [
-    {
-      id: '1',
-      customer: 'Cliente A',
-      docNumber: 'EST-001',
-      total: 15000,
-      date: '2024-07-01',
-      status: 'Accepted',
-      description: 'Instalação de sistema HVAC',
-    },
-    {
-      id: '2',
-      customer: 'Cliente B',
-      docNumber: 'EST-002',
-      total: 8000,
-      date: '2024-06-15',
-      status: 'Accepted',
-      description: 'Manutenção preventiva',
-    },
-    {
-      id: '3',
-      customer: 'Cliente C',
-      docNumber: 'EST-003',
-      total: 12000,
-      date: '2024-05-20',
-      status: 'Accepted',
-      description: 'Upgrade de equipamentos',
-    },
-  ];
 
   return (
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -65,14 +34,12 @@ const Projects: React.FC = () => {
       </div>
       {/* Gráfico principal */}
       <ProjectChart selectedYear={selectedYear} selectedMonth={selectedMonth} selectedGroup={selectedGroup} />
-      {/* Carrossel de Estimates Aceitos */}
-      <AcceptedEstimatesCarousel estimates={acceptedEstimates} />
+      {/* Carrossel de Accepted Estimates */}
+      <AcceptedEstimatesCarousel />
       {/* Conteúdo principal futuro */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
         {/* Conteúdo futuro aqui */}
       </div>
     </div>
   );
-};
-
-export default Projects; 
+} 
