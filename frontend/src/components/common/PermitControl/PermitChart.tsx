@@ -250,7 +250,7 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
 
     // Lógica dinâmica para labels
     let chartLabels: string[] = [];
-    let datasets: Array<{ label: string; data: number[]; borderColor: string; backgroundColor: string }> = [];
+    let datasets: Array<{ label: string; data: (number | null)[]; borderColor: string; backgroundColor: string }> = [];
 
     if (selectedYear && selectedMonth) {
       // Gráfico dia a dia do mês selecionado
@@ -287,17 +287,17 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
         : selectedSituation;
       
       datasets = situationsToShow.map(situation => {
-        let data: number[];
+        let data: (number | null)[];
         let color: string;
         
         if (situation === 'Not Applied') {
-          data = chartLabels.map(dia => permitCountByDay[dia].notApplied);
+          data = chartLabels.map(dia => permitCountByDay[dia].notApplied > 0 ? permitCountByDay[dia].notApplied : null);
           color = '#dc3545';
         } else if (situation === 'Applied') {
-          data = chartLabels.map(dia => permitCountByDay[dia].applied);
+          data = chartLabels.map(dia => permitCountByDay[dia].applied > 0 ? permitCountByDay[dia].applied : null);
           color = '#ffc107';
         } else { // Issued
-          data = chartLabels.map(dia => permitCountByDay[dia].issued);
+          data = chartLabels.map(dia => permitCountByDay[dia].issued > 0 ? permitCountByDay[dia].issued : null);
           color = '#1bbf5c';
         }
         
@@ -342,17 +342,17 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
         : selectedSituation;
       
       datasets = situationsToShow.map(situation => {
-        let data: number[];
+        let data: (number | null)[];
         let color: string;
         
         if (situation === 'Not Applied') {
-          data = chartLabels.map(mes => permitCountByMonth[mes].notApplied);
+          data = chartLabels.map(mes => permitCountByMonth[mes].notApplied > 0 ? permitCountByMonth[mes].notApplied : null);
           color = '#dc3545';
         } else if (situation === 'Applied') {
-          data = chartLabels.map(mes => permitCountByMonth[mes].applied);
+          data = chartLabels.map(mes => permitCountByMonth[mes].applied > 0 ? permitCountByMonth[mes].applied : null);
           color = '#ffc107';
         } else { // Issued
-          data = chartLabels.map(mes => permitCountByMonth[mes].issued);
+          data = chartLabels.map(mes => permitCountByMonth[mes].issued > 0 ? permitCountByMonth[mes].issued : null);
           color = '#1bbf5c';
         }
         
@@ -401,17 +401,17 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
         : selectedSituation;
       
       datasets = situationsToShow.map(situation => {
-        let data: number[];
+        let data: (number | null)[];
         let color: string;
         
         if (situation === 'Not Applied') {
-          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].notApplied);
+          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].notApplied > 0 ? permitCountByMonthYear[monthYear].notApplied : null);
           color = '#dc3545';
         } else if (situation === 'Applied') {
-          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].applied);
+          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].applied > 0 ? permitCountByMonthYear[monthYear].applied : null);
           color = '#ffc107';
         } else { // Issued
-          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].issued);
+          data = chartLabels.map(monthYear => permitCountByMonthYear[monthYear].issued > 0 ? permitCountByMonthYear[monthYear].issued : null);
           color = '#1bbf5c';
         }
         
