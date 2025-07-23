@@ -619,7 +619,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
               borderRadius: 16,
               boxShadow: '0 8px 32px rgba(0,0,0,0.18)',
               minWidth: 320,
-              maxWidth: 600,
+              width: '50vw',
               color: 'var(--color-text-primary)',
               position: 'relative',
               border: '1px solid var(--color-border-divider)',
