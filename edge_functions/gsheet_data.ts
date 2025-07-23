@@ -12,7 +12,9 @@ const urls = {
   timesheet: "https://docs.google.com/spreadsheets/d/1_BZtDLtDggKQ_2D-5O_JP53z8eKdWSZxbjD8DnJBDlM/export?format=csv&gid=814204999",
   permit: "https://docs.google.com/spreadsheets/d/1Em_Wyj8EiBeo56zGrShKEP9yFCMDVmkR-_EoiNXI3YA/export?format=csv&gid=1016235500",
   receivables: "https://docs.google.com/spreadsheets/d/1lk5ENgYagn9cBhvOtLVSJ6lVZdblrt3KteSMbqE_GSQ/export?format=csv&gid=0",
-  payables: "https://docs.google.com/spreadsheets/d/1wsF5Ze940saB4pP-v1WVMXTFWFqUkKQog3P3Ylp_GO8/export?format=csv&gid=0"
+  payables: "https://docs.google.com/spreadsheets/d/1wsF5Ze940saB4pP-v1WVMXTFWFqUkKQog3P3Ylp_GO8/export?format=csv&gid=0",
+  takeoff_works: "https://docs.google.com/spreadsheets/d/1ktRGvvjn-c_YGhXMUAfcTtdTFOtTwoP-1gZTCeheAgU/export?format=csv&gid=0",
+  takeoff_works_responsibles: "https://docs.google.com/spreadsheets/d/1ktRGvvjn-c_YGhXMUAfcTtdTFOtTwoP-1gZTCeheAgU/export?format=csv&gid=883077868"
 };
 
 /**
@@ -75,7 +77,6 @@ function normalizeUtf8String(str: string | null | undefined): string {
 // Função otimizada para buscar CSV com encoding UTF-8
 async function fetchCsvToJson(url: string, name: string) {
   try {
-    console.log(`Buscando dados de ${name}...`);
     const res = await fetch(url);
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status} for ${name}`);
@@ -103,11 +104,9 @@ async function fetchCsvToJson(url: string, name: string) {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          console.log(`${name}: ${results.data.length} registros carregados`);
           resolve(results.data);
         },
         error: (err) => {
-          console.error(`Erro no parse de ${name}:`, err);
           reject(err);
         }
       });
@@ -183,10 +182,11 @@ async function deleteAllTables() {
       supabase.from('timesheet_analysis').delete().not('id', 'is', null),
       supabase.from('permit_control').delete().not('id', 'is', null),
       supabase.from('receivables_accounting').delete().not('id', 'is', null),
-      supabase.from('payables_accounting').delete().not('id', 'is', null)
+      supabase.from('payables_accounting').delete().not('id', 'is', null),
+      supabase.from('takeoff_works').delete().not('id', 'is', null),
+      supabase.from('takeoff_works_responsibles').delete().not('id', 'is', null)
     ];
     const results = await Promise.all(deletePromises);
-    // Verificar erros
     for (let i = 0; i < results.length; i++) {
       if (results[i].error) {
         throw results[i].error;
@@ -203,7 +203,6 @@ async function deleteAllTables() {
 // Inserir dados em lotes para melhor performance
 async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
   try {
-    console.log(`Inserindo dados em ${name} em lotes de ${batchSize}...`);
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
       batches.push(data.slice(i, i + batchSize));
@@ -217,9 +216,7 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
         console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
         throw error;
       }
-      console.log(`${name}: lote ${i + 1}/${batches.length} inserido`);
     }
-    console.log(`${name} inserido com sucesso (${data.length} registros)`);
   } catch (error) {
     console.error(`Erro ao acessar tabela ${name}:`, error);
     throw error;
@@ -259,26 +256,17 @@ serve(async (req) => {
     
     // 2. Buscar novos dados em paralelo
     console.log('Buscando dados em paralelo...');
-    const [timesheetData, permitData, receivablesData, payablesData] = await Promise.all([
+    const [timesheetData, permitData, receivablesData, payablesData, takeoffWorksData, takeoffWorksResponsiblesData] = await Promise.all([
       fetchCsvToJson(urls.timesheet, 'Timesheet'),
       fetchCsvToJson(urls.permit, 'Permit'),
       fetchCsvToJson(urls.receivables, 'Receivables'),
-      fetchCsvToJson(urls.payables, 'Payables')
+      fetchCsvToJson(urls.payables, 'Payables'),
+      fetchCsvToJson(urls.takeoff_works, 'Takeoff_Works'),
+      fetchCsvToJson(urls.takeoff_works_responsibles, 'Takeoff_Works_Responsibles')
     ]);
     
-    // Log para debug dos headers
-    if (receivablesData && receivablesData.length > 0) {
-      console.log("Receivables headers:", Object.keys(receivablesData[0]));
-      console.log("Primeiro registro receivables:", receivablesData[0]);
-    }
-    if (payablesData && payablesData.length > 0) {
-      console.log("Payables headers:", Object.keys(payablesData[0]));
-      console.log("Primeiro registro payables:", payablesData[0]);
-    }
-    
     // 3. Mapear dados em paralelo com normalização UTF-8
-    console.log('Mapeando dados em paralelo com normalização UTF-8...');
-    const [mappedTimesheet, mappedPermit, mappedReceivables, mappedPayables] = await Promise.all([
+    const [mappedTimesheet, mappedPermit, mappedReceivables, mappedPayables, mappedTakeoffWorks, mappedTakeoffWorksResponsibles] = await Promise.all([
       Promise.resolve(timesheetData.map((row) => ({
         date: getField(row, "Date") ? new Date(getField(row, "Date")) : null,
         nome: getField(row, "Nome"),
@@ -310,9 +298,6 @@ serve(async (req) => {
         const invAmountRaw = getField(row, "INV Amount");
         const openBalanceRaw = getField(row, "Open balance");
         const epoNumberRaw = getField(row, "EPO Number");
-        console.log(`Receivables debug - INV Amount: "${invAmountRaw}" (${typeof invAmountRaw})`);
-        console.log(`Receivables debug - Open balance: "${openBalanceRaw}" (${typeof openBalanceRaw})`);
-        console.log(`Receivables debug - EPO Number: "${epoNumberRaw}" (${typeof epoNumberRaw})`);
         
         return {
           id: crypto.randomUUID(),
@@ -336,8 +321,6 @@ serve(async (req) => {
         // Debug dos valores problemáticos
         const totalAmountRaw = getField(row, "Total Amount");
         const openBalanceRaw = getField(row, "Open balance");
-        console.log(`Payables debug - Total Amount: "${totalAmountRaw}" (${typeof totalAmountRaw})`);
-        console.log(`Payables debug - Open balance: "${openBalanceRaw}" (${typeof openBalanceRaw})`);
         
         return {
           expense_date: getField(row, "Expense Date") ? parseDateUS(getField(row, "Expense Date")) : null,
@@ -353,19 +336,58 @@ serve(async (req) => {
           date_field: getField(row, "Date") ? parseDateUS(getField(row, "Date")) : null,
           created_at: new Date()
         };
-      }))
+      })),
+      // Mapeamento para takeoff_works (NÃO enviar id nem created_at)
+      Promise.resolve(takeoffWorksData.map((row) => {
+        const obj = {
+          project: getField(row, "Project"),
+          data_solicitacao: getField(row, "Data_Solicitacao") ? new Date(getField(row, "Data_Solicitacao")) : null,
+          data_estimada_entrega: getField(row, "Data_Estimada_Entrega") ? new Date(getField(row, "Data_Estimada_Entrega")) : null,
+          entrega_real: getField(row, "Entrega Real") ? new Date(getField(row, "Entrega Real")) : null,
+          description: getField(row, "Description"),
+          modelo_da_casa: getField(row, "Modelo da Casa"),
+          opcionais_da_casa: getField(row, "Opcionais da Casa"),
+          arquivo_dwg: getField(row, "Arquivo DWG"),
+          plano_estrutural: getField(row, "Plano Estrutural"),
+          adequacao_dwg: getField(row, "Adequacao do DWG"),
+          importacao_dwg_mitek: getField(row, "Importacao DWG para Mitek"),
+          execucao_3d_mitek: getField(row, "Execucao do 3D no Mitek"),
+          lista_materiais_excel: getField(row, "Lista de Materiais em Excel"),
+          dividir_3d_paineis: getField(row, "Dividir projeto 3D em Paineis"),
+          validacao_projeto_takeoff: getField(row, "Validacao do Projeto 3D e Take Off")
+        };
+        Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
+        return obj;
+      })),
+      // Mapeamento para takeoff_works_responsibles (NÃO enviar id nem created_at)
+      Promise.resolve(
+        takeoffWorksResponsiblesData
+          .map((row) => {
+            const obj = {
+              step: getField(row, "Item"),
+              responsible: getField(row, "Responsavel")
+            };
+            Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
+            return obj;
+          })
+          .filter(obj => obj.step && String(obj.step).trim() !== "")
+      )
     ]);
     
     console.log('Dados mapeados com sucesso e normalizados UTF-8');
     
     // 4. Inserir novos dados em paralelo
     console.log('Inserindo dados em paralelo...');
-    await Promise.all([
-      upsertTableBatch("timesheet_analysis", mappedTimesheet, "Timesheet"),
-      upsertTableBatch("permit_control", mappedPermit, "Permit"),
-      upsertTableBatch("receivables_accounting", mappedReceivables, "Receivables"),
-      upsertTableBatch("payables_accounting", mappedPayables, "Payables")
-    ]);
+    const upserts = [];
+    if (Array.isArray(mappedTimesheet) && mappedTimesheet.length > 0) upserts.push(upsertTableBatch("timesheet_analysis", mappedTimesheet, "Timesheet"));
+    if (Array.isArray(mappedPermit) && mappedPermit.length > 0) upserts.push(upsertTableBatch("permit_control", mappedPermit, "Permit"));
+    if (Array.isArray(mappedReceivables) && mappedReceivables.length > 0) upserts.push(upsertTableBatch("receivables_accounting", mappedReceivables, "Receivables"));
+    if (Array.isArray(mappedPayables) && mappedPayables.length > 0) upserts.push(upsertTableBatch("payables_accounting", mappedPayables, "Payables"));
+    if (Array.isArray(mappedTakeoffWorks) && mappedTakeoffWorks.length > 0) upserts.push(upsertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
+    if (Array.isArray(mappedTakeoffWorksResponsibles) && mappedTakeoffWorksResponsibles.length > 0) upserts.push(upsertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
+    if (upserts.length > 0) {
+      await Promise.all(upserts);
+    }
     
     console.log('=== SINCRONIZAÇÃO OTIMIZADA COM UTF-8 CONCLUÍDA COM SUCESSO ===');
     
@@ -374,10 +396,12 @@ serve(async (req) => {
       message: "Sincronização otimizada com UTF-8 concluída com sucesso!",
       deleteResult: deleteResult,
       inserted: {
-        timesheet: mappedTimesheet.length,
-        permit: mappedPermit.length,
-        receivables: mappedReceivables.length,
-        payables: mappedPayables.length
+        timesheet: Array.isArray(mappedTimesheet) ? mappedTimesheet.length : 0,
+        permit: Array.isArray(mappedPermit) ? mappedPermit.length : 0,
+        receivables: Array.isArray(mappedReceivables) ? mappedReceivables.length : 0,
+        payables: Array.isArray(mappedPayables) ? mappedPayables.length : 0,
+        takeoff_works: Array.isArray(mappedTakeoffWorks) ? mappedTakeoffWorks.length : 0,
+        takeoff_works_responsibles: Array.isArray(mappedTakeoffWorksResponsibles) ? mappedTakeoffWorksResponsibles.length : 0
       }
     }), {
       status: 200,

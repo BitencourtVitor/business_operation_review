@@ -9,19 +9,19 @@ import PlanoAcaoModal from '../components/modals/PlanoAcaoModal';
 import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
-import type { PermitRow } from '../types/permit';
-import { usePermitData } from '../hooks/usePermitData';
-import PermitFilters from '../components/common/PermitControl/PermitFilters';
-import PermitMetrics from '../components/common/PermitControl/PermitMetrics';
-import PermitCarousel from '../components/common/PermitControl/PermitCarousel';
-import { PermitChart } from '../components/common/PermitControl/PermitChart';
+import type { TakeoffRow } from '../types/takeoff';
+import { useTakeoffData } from '../hooks/useTakeoffData';
+import TakeoffFilters from '../components/common/TakeoffWorks/TakeoffFilters';
+import TakeoffMetrics from '../components/common/TakeoffWorks/TakeoffMetrics';
+import TakeoffCarousel from '../components/common/TakeoffWorks/TakeoffCarousel';
+import { PermitChart } from '../components/common/TakeoffWorks/TakeoffChart';
 import DestaquesPartition from '../components/partitions/DestaquesPartition';
 import OportunidadesPartition from '../components/partitions/OportunidadesPartition';
 import PlanoAcaoPartition from '../components/partitions/PlanoAcaoPartition';
 
 dayjs.extend(isBetween);
 
-// Interfaces para os dados das partições
+// Interfaces para os dados das partições (iguais ao PermitControl)
 interface Destaque {
   id: string;
   usuario_id: string;
@@ -66,14 +66,14 @@ interface Acao {
   data_limite: string;
 }
 
-interface PermitControlProps {
+interface TakeoffWorksProps {
   telaId: string;
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
 }
 
-export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: PermitControlProps) {
+export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: TakeoffWorksProps) {
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
@@ -92,7 +92,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
   const [jobsites, setJobsites] = useState<string[]>([]);
 
   // Estados para dados
-  const [permitData, setPermitData] = useState<PermitRow[]>([]);
+  const [takeoffData, setTakeoffData] = useState<TakeoffRow[]>([]);
 
   // Estados para modais
   const [modalOpen, setModalOpen] = useState(false);
@@ -113,18 +113,13 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
   useEffect(() => {
     const fetchResponsavelData = async () => {
       if (!telaId) return;
-
-      // Buscar usuário responsável pela tela
       const { data: usuariosTelas } = await supabase
         .from('usuarios_telas')
         .select('usuario_id')
         .eq('tela_id', telaId);
-
       if (usuariosTelas && usuariosTelas.length > 0) {
         const responsavelId = usuariosTelas[0].usuario_id;
         setUsuarioResponsavelId(responsavelId);
-
-        // Definir permissões de edição
         if (role === 'dev') {
           setPodeEditar(true);
         } else if (isResponsavelPelaTela) {
@@ -132,8 +127,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
         } else {
           setPodeEditar(false);
         }
-
-        // Definir quais usuários buscar dados (responsável + dev se aplicável)
         const usuariosParaBuscarArray = [responsavelId];
         if (role === 'dev' && !usuariosParaBuscarArray.includes(usuarioId)) {
           usuariosParaBuscarArray.push(usuarioId);
@@ -145,36 +138,28 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
         setUsuariosParaBuscar([]);
       }
     };
-
     fetchResponsavelData();
   }, [telaId, usuarioId, role, isResponsavelPelaTela]);
 
-  // Buscar dados de permit control
-  const { data: permitDataFromHook, error: permitError } = usePermitData();
-
+  // Buscar dados de takeoff works
+  const { data: takeoffDataFromHook, error: takeoffError } = useTakeoffData();
   useEffect(() => {
-    if (permitDataFromHook) {
-      setPermitData(permitDataFromHook);
+    if (takeoffDataFromHook) {
+      setTakeoffData(takeoffDataFromHook);
     }
-  }, [permitDataFromHook]);
+  }, [takeoffDataFromHook]);
 
   // Função para obter a data relevante baseada na situação
-  const getRelevantDate = (row: PermitRow): string | null => {
-    if (row.situacao === 'Not Applied') {
-      return row.solicitacao;
-    } else if (row.situacao === 'Applied') {
-      return row.aplicacao;
-    } else if (row.situacao === 'Issued') {
-      return row.emissao;
-    }
-    return null;
+  // Para Takeoff, a data relevante é a data de solicitação
+  const getRelevantDate = (row: TakeoffRow): string => {
+    return row.data_solicitacao;
   };
 
   // Carregar todos os dados para filtros e cachear
   useEffect(() => {
     const fetchAll = async () => {
-      let all: PermitRow[] = [];
-      const cache = sessionStorage.getItem('permit_control');
+      let all: TakeoffRow[] = [];
+      const cache = sessionStorage.getItem('takeoff_works');
       if (cache) {
         try {
           all = JSON.parse(cache);
@@ -182,42 +167,32 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           all = [];
         }
       } else {
-        const { data: dbData, error: err } = await supabase.from('permit_control').select('*');
+        const { data: dbData, error: err } = await supabase.from('takeoff_works').select('*');
         if (!err && dbData) {
-          all = dbData as PermitRow[];
-          sessionStorage.setItem('permit_control', JSON.stringify(all));
+          all = dbData as TakeoffRow[];
+          sessionStorage.setItem('takeoff_works', JSON.stringify(all));
         }
       }
-      setPermitData(all);
-      
-      // Filtros globais
-      const modelsList = [...new Set(all.map((d: PermitRow) => typeof d.model === 'string' ? d.model : undefined).filter((v): v is string => !!v))];
-      const jobsitesList = [...new Set(all.map((d: PermitRow) => typeof d.jobsite === 'string' ? d.jobsite : undefined).filter((v): v is string => !!v))];
-      
+      setTakeoffData(all);
+      const modelsList = [...new Set(all.map((d: TakeoffRow) => d.modelo_da_casa).filter((v): v is string => !!v))];
       setModels(modelsList);
-      setJobsites(jobsitesList);
-      
-      // Selecionar todas as opções automaticamente
       setSelectedModel(modelsList);
-      setSelectedJobsite(jobsitesList);
-      
-      // Anos presentes nos dados (usando data relevante)
+      // Takeoff não tem jobsite, então jobsites fica vazio
+      setJobsites([]);
+      setSelectedJobsite([]);
       const anos = [...new Set(
         all
-          .map((d: PermitRow) => {
+          .map((d: TakeoffRow) => {
             const relevantDate = getRelevantDate(d);
             return relevantDate && typeof relevantDate === 'string' ? relevantDate.split('-')[0] : undefined;
           })
           .filter((v): v is string => !!v)
       )].sort((a, b) => Number(b) - Number(a));
       setYears(anos);
-      
-      // Selecionar ano atual se existir, senão o mais recente
       const anoAtual = dayjs().format('YYYY');
       if (anos.includes(anoAtual)) setSelectedYear(anoAtual);
       else if (anos.length > 0 && typeof anos[0] === 'string') setSelectedYear(anos[0]);
     };
-
     fetchAll();
   }, []);
 
@@ -228,11 +203,9 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       if (selectedMonth) setSelectedMonth('');
       return;
     }
-    
-    // Pega todos os meses únicos do ano selecionado usando data relevante
     const meses = [
       ...new Set(
-        permitData
+        takeoffData
           .filter(d => {
             const relevantDate = getRelevantDate(d);
             return relevantDate && 
@@ -246,47 +219,35 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           .filter((v): v is string => !!v)
       ),
     ].sort((a, b) => Number(a) - Number(b));
-    
-    // Adicionar mês atual se não estiver presente
     const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
     setMonths(mesesComAtual);
-    
-    // Se o mês selecionado não existir mais, resetar
     if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
-  }, [selectedYear, permitData]);
+  }, [selectedYear, takeoffData]);
 
   // Filtrar dados
   const filteredData = useMemo(() => {
-    let filtered = permitData;
-    
+    let filtered = takeoffData;
     if (selectedYear) {
       filtered = filtered.filter(d => {
         const relevantDate = getRelevantDate(d);
         return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[0] === selectedYear;
       });
     }
-    
     if (selectedMonth) {
       filtered = filtered.filter(d => {
         const relevantDate = getRelevantDate(d);
         return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[1] === selectedMonth;
       });
     }
-    
-    if (selectedModel.length > 0) filtered = filtered.filter(d => selectedModel.includes(d.model));
-    if (selectedSituation.length > 0) filtered = filtered.filter(d => selectedSituation.includes(d.situacao));
-    if (selectedJobsite.length > 0) filtered = filtered.filter(d => selectedJobsite.includes(d.jobsite));
-    
+    if (selectedModel.length > 0) filtered = filtered.filter(d => selectedModel.includes(d.modelo_da_casa));
+    // Situação e jobsite não existem em Takeoff, então não filtra
     return filtered;
-  }, [permitData, selectedYear, selectedMonth, selectedModel, selectedSituation, selectedJobsite]);
+  }, [takeoffData, selectedYear, selectedMonth, selectedModel, selectedSituation, selectedJobsite]);
 
   // Funções para modais
   const handleSave = async () => {
-    // Recarregar dados das partições após salvar
     setRefreshTrigger(prevTrigger => prevTrigger + 1);
   };
-
-
 
   if (!telaId || !usuarioResponsavelId) {
     return (
@@ -320,20 +281,19 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     );
   }
 
-  if (permitError) {
+  if (takeoffError) {
     return (
       <div className="alert alert-danger" role="alert">
-        Erro ao carregar dados: {permitError}
+        Erro ao carregar dados: {takeoffError}
       </div>
     );
   }
 
   return (
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Permit Control</h1>
-        <PermitFilters
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Takeoff Works</h1>
+        <TakeoffFilters
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
@@ -350,26 +310,19 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           jobsites={jobsites}
         />
       </div>
-
-      {/* Conteúdo principal: gráfico/tabela à esquerda, partições à direita */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
         <div style={{ background:'var(--color-background-primary)', width: '70%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
           <div>
-            {/* Gráfico */}
             <PermitChart
               filteredData={filteredData}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
-              selectedSituation={selectedSituation}
             />
-            {/* Métricas */}
-            <PermitMetrics allData={permitData} />
+            <TakeoffMetrics allData={takeoffData} />
           </div>
-          {/* Carrossel de Cards */}
-          <PermitCarousel filteredData={filteredData} selectedSituation={selectedSituation} />
+          <TakeoffCarousel filteredData={filteredData} />
         </div>
         <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          {/* Partições */}
           <DestaquesPartition
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
@@ -379,7 +332,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             isAdmin={podeEditar}
             onEdit={async (mes, ano) => {
               setModalType('destaque');
-              // Se mes/ano não vierem do card, usa o filtro
               const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
               const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
               if (!mesRef || !anoRef) {
@@ -387,16 +339,15 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
                 setModalOpen(true);
                 return;
               }
-              // Buscar dados existentes para o período
               const { data: destaques } = await supabase
                 .from('destaques')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef));
+              console.log('Destaques Takeoff:', destaques, usuarioResponsavelId, mesRef, anoRef);
               if (destaques && destaques.length > 0) {
                 const destaque = destaques[0];
-                // Buscar positivos e negativos
                 const { data: positivos } = await supabase.from('destaques_positivos').select('*').eq('destaque_id', destaque.id);
                 const { data: negativos } = await supabase.from('destaques_negativos').select('*').eq('destaque_id', destaque.id);
                 setModalData({
@@ -436,7 +387,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             isAdmin={podeEditar}
             onEdit={async (mes, ano) => {
               setModalType('oportunidade');
-              // Se mes/ano não vierem do card, usa o filtro
               const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
               const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
               if (!mesRef || !anoRef) {
@@ -444,16 +394,15 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
                 setModalOpen(true);
                 return;
               }
-              // Buscar dados existentes para o período
               const { data: oportunidades } = await supabase
                 .from('oportunidades')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef));
+              console.log('Oportunidades Takeoff:', oportunidades, usuarioResponsavelId, mesRef, anoRef);
               if (oportunidades && oportunidades.length > 0) {
                 const oportunidade = oportunidades[0];
-                // Buscar desafios e melhorias
                 const { data: desafios } = await supabase.from('desafios').select('*').eq('oportunidade_id', oportunidade.id);
                 const { data: melhorias } = await supabase.from('melhorias').select('*').eq('oportunidade_id', oportunidade.id);
                 setModalData({
@@ -480,20 +429,16 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             }}
             onView={async (oportunidade) => {
               setModalType('oportunidade');
-              
-              // Buscar todas as oportunidades do período para permitir navegação
               const { data: todasOportunidades } = await supabase
                 .from('oportunidades')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
                 .eq('mes', Number(oportunidade.mes))
                 .eq('ano', Number(oportunidade.ano));
-              
+              console.log('Todas Oportunidades Takeoff:', todasOportunidades, usuarioResponsavelId, oportunidade.mes, oportunidade.ano);
               if (todasOportunidades && todasOportunidades.length > 0) {
-                // Buscar desafios e melhorias para todas as oportunidades
                 const { data: todosDesafios } = await supabase.from('desafios').select('*');
                 const { data: todasMelhorias } = await supabase.from('melhorias').select('*');
-                
                 const oportunidadesCompletas = todasOportunidades.map(op => ({
                   ...op,
                   mes: op.mes.toString(),
@@ -501,21 +446,15 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
                   desafios: (todosDesafios || []).filter((d: { oportunidade_id: string; texto: string }) => d.oportunidade_id === op.id).map((d: { texto: string }) => d.texto),
                   melhorias: (todasMelhorias || []).filter((m: { oportunidade_id: string; texto: string }) => m.oportunidade_id === op.id).map((m: { texto: string }) => m.texto),
                 }));
-                
-                // Encontrar o índice da oportunidade atual na lista
                 const currentIndex = oportunidadesCompletas.findIndex(op => op.id === oportunidade.id);
-                
-                // Passar a lista completa e o índice atual para o modal
                 setModalData({
                   ...oportunidade,
                   oportunidadesList: oportunidadesCompletas,
                   initialIndex: currentIndex >= 0 ? currentIndex : 0
                 } as Oportunidade & { oportunidadesList?: Oportunidade[]; initialIndex?: number });
               } else {
-                // Fallback: passar apenas a oportunidade individual
                 setModalData(oportunidade);
               }
-              
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}
@@ -526,21 +465,17 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             isAdmin={podeEditar}
             onEdit={async () => {
               setModalType('plano');
-              // Buscar planos existentes do usuário (apenas não deletados)
               const { data: planos } = await supabase
                 .from('planos_de_acao')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
                 .eq('deletado', false);
-              
               if (planos && planos.length > 0) {
                 const plano = planos[0];
-                // Buscar ações do plano
                 const { data: acoes } = await supabase
                   .from('acoes')
                   .select('*')
                   .eq('plano_id', plano.id);
-                
                 setModalData({
                   ...plano,
                   acoes: acoes || [],
@@ -582,8 +517,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           />
         </div>
       </div>
-
-      {/* Modais */}
       {modalOpen && modalType === 'destaque' && (
         <DestaqueModal
           show={modalOpen}
@@ -592,7 +525,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           onSaved={handleSave}
         />
       )}
-
       {modalOpen && modalType === 'oportunidade' && (
         <OportunidadeModal
           show={modalOpen}
@@ -601,7 +533,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           onSaved={handleSave}
         />
       )}
-
       {modalOpen && modalType === 'plano' && (
         <PlanoAcaoModal
           show={modalOpen}
@@ -610,7 +541,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           onSaved={handleSave}
         />
       )}
-
       {viewModalOpen && modalType === 'destaque' && (
         <DestaqueViewModal
           visible={viewModalOpen}
@@ -618,7 +548,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           data={modalData as Destaque}
         />
       )}
-
       {viewModalOpen && modalType === 'oportunidade' && (
         <OportunidadeViewModal
           show={viewModalOpen}
@@ -626,7 +555,6 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
           data={modalData as Oportunidade}
         />
       )}
-
       {viewModalOpen && modalType === 'plano' && (
         <PlanoAcaoViewModal
           show={viewModalOpen}
@@ -636,4 +564,4 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       )}
     </div>
   );
-} 
+}

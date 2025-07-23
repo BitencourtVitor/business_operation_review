@@ -8,6 +8,7 @@ import TimesheetAnalysis from './TimesheetAnalysis';
 import AccountingIndicators from './AccountingIndicators';
 import PermitControl from './PermitControl';
 import Projects from './Projects';
+import TakeoffWorks from './TakeoffWorks';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -234,8 +235,9 @@ export default function Dashboard() {
         return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Permit Control':
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
-      case 'IT Projects':
       case 'Takeoff Works':
+        return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'IT Projects':
         return (
           <div className="container-fluid">
             <div className="row">

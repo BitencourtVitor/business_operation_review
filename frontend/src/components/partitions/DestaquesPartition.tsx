@@ -102,8 +102,7 @@ export default function DestaquesPartition({
         // Buscar destaques de todos os usuários relevantes
         let destaquesQuery = supabase
           .from('destaques')
-          .select('*')
-          .eq('tela_id', telaId);
+          .select('*');
         
         // Se temos usuários específicos para buscar, filtrar por eles
         if (usuariosParaBuscar.length > 0) {
@@ -140,8 +139,9 @@ export default function DestaquesPartition({
     fetchDestaques();
   }, [usuarioResponsavelId, usuariosParaBuscar, telaId, refreshTrigger]);
 
-  // Agrupar dados por mês/ano
-  const destaquesByMonth = groupByMonthYear(allDestaques);
+  // Agrupar dados por mês/ano, ignorando destaques inválidos
+  const destaquesValidos = allDestaques.filter(d => d.mes && d.ano && Number(d.mes) > 0 && Number(d.ano) > 0);
+  const destaquesByMonth = groupByMonthYear(destaquesValidos);
 
   // Função para formatar título do card
   function formatMonthYear(key: string) {

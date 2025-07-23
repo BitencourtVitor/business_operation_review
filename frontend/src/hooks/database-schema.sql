@@ -220,8 +220,8 @@ CREATE TABLE public.oportunidades (
   titulo text NOT NULL,
   criado_em timestamp without time zone DEFAULT now(),
   CONSTRAINT oportunidades_pkey PRIMARY KEY (id),
-  CONSTRAINT oportunidades_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
-  CONSTRAINT oportunidades_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id)
+  CONSTRAINT oportunidades_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id),
+  CONSTRAINT oportunidades_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
 );
 CREATE TABLE public.payables_accounting (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -244,8 +244,8 @@ CREATE TABLE public.perfis (
   tipo text NOT NULL CHECK (tipo = ANY (ARRAY['usuario'::text, 'admin_setor'::text, 'gestor'::text, 'dev'::text])),
   tela_id uuid,
   CONSTRAINT perfis_pkey PRIMARY KEY (usuario_id),
-  CONSTRAINT perfis_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
-  CONSTRAINT perfis_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id)
+  CONSTRAINT perfis_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id),
+  CONSTRAINT perfis_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
 );
 CREATE TABLE public.permit_control (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -298,6 +298,33 @@ CREATE TABLE public.receivables_accounting (
   date_field date,
   created_at timestamp with time zone DEFAULT now(),
   CONSTRAINT receivables_accounting_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.takeoff_works (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  project text,
+  data_solicitacao date,
+  data_estimada_entrega date,
+  entrega_real date,
+  description text,
+  modelo_da_casa text,
+  opcionais_da_casa text,
+  arquivo_dwg text,
+  plano_estrutural text,
+  adequacao_dwg text,
+  importacao_dwg_mitek text,
+  execucao_3d_mitek text,
+  lista_materiais_excel text,
+  dividir_3d_paineis text,
+  validacao_projeto_takeoff text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT takeoff_works_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.takeoff_works_responsibles (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  step text NOT NULL,
+  responsible text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT takeoff_works_responsibles_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.telas (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
