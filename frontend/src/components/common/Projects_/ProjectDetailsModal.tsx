@@ -4,27 +4,32 @@ import BillPaymentsTooltip from './BillPaymentsTooltip';
 import CloseButton from '../../../utils/CloseButton';
 
 // Tipos simplificados para exemplo
-interface Bill {
+interface Expense {
   id: string;
   doc_number?: string | null;
   external_id?: string | null;
   total_amount?: number | null;
   txn_date?: string | null;
+  expense_type: 'bill' | 'purchase' | 'vendor_credit';
   lines: Array<{ id: string; description: string | null; amount: number | null; account_ref_name?: string | null }>;
   bill_payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
 }
+
 interface Invoice {
   id: string;
   doc_number?: string | null;
   total_amount?: number | null;
   txn_date?: string | null;
+  is_deposit?: boolean;
   payments?: Array<{ id: string; total_amount?: number | null; txn_date?: string | null; payment_ref?: string | null; private_note?: string | null }>;
 }
+
 interface EstimateLine {
   id: string;
   description: string | null;
   amount: number | null;
 }
+
 interface ProjectDetailsModalProps {
   open: boolean;
   onClose: () => void;
@@ -32,9 +37,9 @@ interface ProjectDetailsModalProps {
   customerId: string;
   estimateDate: string;
   estimateTotal: number;
-  estimateLines: Record<string, unknown>[];
-  bills: Record<string, unknown>[];
-  invoices: Record<string, unknown>[];
+  estimateLines: Array<{ id: string; description: string | null; amount: number | null }>;
+  expenses: Record<string, unknown>[];
+  invoices: Invoice[];
   loading?: boolean;
 }
 
@@ -46,12 +51,12 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
   estimateDate,
   estimateTotal,
   estimateLines,
-  bills,
+  expenses,
   invoices,
   loading
 }) => {
-  const [expandedBillGroups, setExpandedBillGroups] = React.useState<Set<string>>(new Set());
-  const [hoveredBillLineIdx, setHoveredBillLineIdx] = React.useState<string | null>(null);
+  const [expandedExpenseGroups, setExpandedExpenseGroups] = React.useState<Set<string>>(new Set());
+  const [hoveredExpenseLineIdx, setHoveredExpenseLineIdx] = React.useState<string | null>(null);
   const [billPaymentTooltip, setBillPaymentTooltip] = React.useState<{
     show: boolean;
     x: number;
@@ -67,43 +72,57 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
     estimate: '#6c757d',
     bill: '#f28b82',
     billStrong: '#d32f2f',
+    purchase: '#ff9800',
+    purchaseStrong: '#f57c00',
+    vendorCredit: '#4caf50',
+    vendorCreditStrong: '#388e3c',
     billpayment: '#f28b82',
     invoice: '#a7e9af',
     invoiceStrong: '#388e3c',
     payment: '#a7e9af',
+    deposit: '#ff5722',
+    depositStrong: '#d84315',
   };
   const ICONS = {
     estimate: 'bi-clipboard-data',
     invoice: 'bi-receipt',
     payment: 'bi-credit-card',
     bill: 'bi-file-earmark-text',
+    purchase: 'bi-cart',
+    vendorCredit: 'bi-arrow-return-left',
     billpayment: 'bi-cash-stack',
+    deposit: 'bi-arrow-return-right',
   };
   // Estado para hover e seleção de Invoice
   const [hoveredInvoiceIdx, setHoveredInvoiceIdx] = React.useState<number | null>(null);
   const [selectedInvoiceIdx, setSelectedInvoiceIdx] = React.useState<number | null>(null);
 
-  // Agrupar todas as bill lines por account_ref_name (sempre chamado)
-  const groupedBillLines = React.useMemo(() => {
+  // Agrupar todas as expense lines por account_ref_name (sempre chamado)
+  const groupedExpenseLines = React.useMemo(() => {
     const map = new Map<string, { accountRefName: string; totalAmount: number; lines: Array<{
       id: string;
-      bill: Bill;
+      expense: Expense;
       line: { id: string; description: string | null; amount: number | null; account_ref_name?: string | null };
-      bill_payments: Bill['bill_payments'];
+      bill_payments: Expense['bill_payments'];
     }> }>();
-    bills.forEach(bill => {
-      (bill.lines as Record<string, unknown>[]).forEach(line => {
+    expenses.forEach(expense => {
+      (expense.lines as Record<string, unknown>[]).forEach(line => {
         const accountRefName = (line as { account_ref_name?: string | null }).account_ref_name || 'Sem categoria';
         if (!map.has(accountRefName)) {
           map.set(accountRefName, { accountRefName, totalAmount: 0, lines: [] });
         }
         const group = map.get(accountRefName)!;
         group.totalAmount += Number((line as { amount?: unknown }).amount) || 0;
-        group.lines.push({ id: (line as { id: string }).id, bill, line, bill_payments: (bill as Bill).bill_payments });
+        group.lines.push({ 
+          id: (line as { id: string }).id, 
+          expense: expense as unknown as Expense, 
+          line: line as unknown as { id: string; description: string | null; amount: number | null; account_ref_name?: string | null }, 
+          bill_payments: (expense as unknown as Expense).bill_payments 
+        });
       });
     });
     return Array.from(map.values());
-  }, [bills]);
+  }, [expenses]);
 
   React.useEffect(() => {
     // Garante que o spinner CSS está presente
@@ -271,14 +290,19 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                   <div style={{ background: COLORS.billpayment + '11', border: `1px solid ${COLORS.billStrong}`, borderRadius: 10, padding: '1vh 1.8vw 0 1.8vw', width: '100%', height: '100%', boxSizing: 'border-box', display: 'flex', flexDirection: 'column' }}>
                     <div style={{ color: COLORS.billStrong, fontWeight: 700, fontSize: '1rem', paddingBottom: 10, marginBottom: 10, marginLeft: '-1.8vw', marginRight: '-1.8vw', paddingLeft: '1.8vw', paddingRight: '1.8vw', borderBottom: `1px solid ${COLORS.billStrong}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Bills
+                        <i className={`bi ${ICONS.bill}`} style={{ fontSize: 18 }} /> Expenses
                       </div>
                       <span style={{ color: COLORS.billStrong, fontWeight: 600, fontSize: '0.875rem' }}>
                         {(() => {
-                          const totalBills = bills.reduce((total: number, b: Record<string, unknown>) => {
-                            return total + Number((b as Record<string, unknown>).lines.reduce((lineTotal: number, line: Record<string, unknown>) => lineTotal + Number((line as { amount?: unknown }).amount) || 0, 0));
+                          const totalExpenses = expenses.reduce((total: number, e: Record<string, unknown>) => {
+                            const expense = e as unknown as Expense;
+                            // Somar apenas os valores das linhas relacionadas ao projeto
+                            const linesTotal = expense.lines.reduce((lineTotal, line) => {
+                              return lineTotal + Number(line.amount || 0);
+                            }, 0);
+                            return total + linesTotal;
                           }, 0);
-                          return totalBills.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+                          return totalExpenses.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
                         })()}
                       </span>
                     </div>
@@ -289,9 +313,9 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                       <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', color: 'var(--color-text-secondary)' }} title="Valor"><i className="bi bi-currency-dollar" /></span>
                     </div>
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 12, flex: 1, overflowY: 'auto', fontSize: '0.8125rem' }}>
-                      {groupedBillLines.map((group, groupIdx) => {
+                      {groupedExpenseLines.map((group, groupIdx) => {
                         const groupKey = `group-${groupIdx}`;
-                        const isExpanded = expandedBillGroups.has(groupKey);
+                        const isExpanded = expandedExpenseGroups.has(groupKey);
                         return (
                           <React.Fragment key={groupKey}>
                             {/* Linha do grupo */}
@@ -339,13 +363,13 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                                 }}
                                 onClick={e => {
                                   e.stopPropagation();
-                                  const newExpanded = new Set(expandedBillGroups);
+                                  const newExpanded = new Set(expandedExpenseGroups);
                                   if (isExpanded) {
                                     newExpanded.delete(groupKey);
                                   } else {
                                     newExpanded.add(groupKey);
                                   }
-                                  setExpandedBillGroups(newExpanded);
+                                  setExpandedExpenseGroups(newExpanded);
                                 }}
                               >
                                 <i 
@@ -385,15 +409,15 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                                         borderBottom: lineIdx < (group.lines as Record<string, unknown>[]).length - 1 ? '1px solid var(--color-border-divider)' : 'none',
                                         width: '100%',
                                         position: 'relative',
-                                        background: hoveredBillLineIdx === item.id ? 'rgba(242,139,130,0.12)' : 'transparent',
+                                        background: hoveredExpenseLineIdx === item.id ? 'rgba(242,139,130,0.12)' : 'transparent',
                                         borderRadius: 0,
                                         transition: 'background 0.2s',
                                       }}
-                                      onMouseEnter={() => setHoveredBillLineIdx(item.id)}
-                                      onMouseLeave={() => setHoveredBillLineIdx(null)}
+                                      onMouseEnter={() => setHoveredExpenseLineIdx(String(item.id))}
+                                      onMouseLeave={() => setHoveredExpenseLineIdx(null)}
                                     >
                                       <span style={{ flex: 1, fontSize: 11, color: 'var(--color-text-secondary)' }}>
-                                        {formatDateUS((item as { bill: Bill }).bill.txn_date) || ''}
+                                        {formatDateUS((item as { expense: Expense }).expense.txn_date) || ''}
                                       </span>
                                       <span style={{ flex: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--color-text-secondary)', fontSize: 11 }}>
                                         {(item as { line: { description: string | null; account_ref_name?: string | null } }).line.description || (item as { line: { account_ref_name?: string | null } }).line.account_ref_name || ''}
@@ -402,7 +426,7 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                                         {formatCurrency(Number((item as { line: { amount: unknown } }).line.amount))}
                                       </span>
                                       {/* Botão de olho para ver bill payments */}
-                                      {hoveredBillLineIdx === item.id && (item as { bill_payments: Bill['bill_payments'] }).bill_payments.length > 0 && (
+                                      {hoveredExpenseLineIdx === item.id && (item as { bill_payments: Expense['bill_payments'] }).bill_payments.length > 0 && (
                                         <button
                                           type="button"
                                           aria-label="Ver bill payments"
@@ -428,7 +452,7 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                                               show: true,
                                               x: rect.left + rect.width / 2,
                                               y: rect.bottom + 10,
-                                              payments: (item as { bill_payments: Bill['bill_payments'] }).bill_payments,
+                                              payments: (item as { bill_payments: Expense['bill_payments'] }).bill_payments,
                                               accountName: (item as { line: { account_ref_name?: string | null } }).line.account_ref_name || 'Sem categoria'
                                             });
                                           }}
@@ -457,8 +481,8 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                       </div>
                       <span style={{ color: COLORS.invoiceStrong, fontWeight: 600, fontSize: '0.875rem' }}>
                         {(() => {
-                          const totalInvoices = invoices.reduce((total: number, inv: Record<string, unknown>) => {
-                            return total + Number((inv as Record<string, unknown>).total_amount || 0);
+                          const totalInvoices = invoices.reduce((total: number, inv: Invoice) => {
+                            return total + Number(inv.total_amount || 0);
                           }, 0);
                           return totalInvoices.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
                         })()}
@@ -471,97 +495,112 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                       <span style={{ flex: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', color: 'var(--color-text-secondary)' }} title="Total"><i className="bi bi-currency-dollar" /></span>
                     </div>
                     <ul style={{ margin: 0, padding: 0, listStyle: 'none', marginBottom: 12, flex: 1, overflowY: 'auto', fontSize: '0.8125rem' }}>
-                      {invoices.map((inv, idx) => (
-                        <React.Fragment key={String(inv.id) || String(idx)}>
-                          <li
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              fontSize: 13,
-                              padding: '0 8px',
-                              height: 32,
-                              borderBottom: idx < invoices.length - 1 ? '1px solid var(--color-border-divider)' : 'none',
-                              width: '100%',
-                              position: 'relative',
-                              background: hoveredInvoiceIdx === idx ? 'rgba(167,233,175,0.10)' : selectedInvoiceIdx === idx ? 'rgba(167,233,175,0.18)' : 'transparent',
-                              borderRadius: 0,
-                              transition: 'background 0.2s, margin-bottom 0.2s',
-                            }}
-                            onMouseEnter={() => setHoveredInvoiceIdx(idx !== undefined ? idx : null)}
-                            onMouseLeave={() => setHoveredInvoiceIdx(null)}
-                          >
-                            <span style={{ flex: 1, color: 'var(--color-text-secondary)' }}>{formatDateUS((inv as Record<string, unknown>).txn_date) || ''}</span>
-                            <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--color-text-secondary)' }}>{(inv as Record<string, unknown>).doc_number || ''}</span>
-                            <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left' }}>{(inv as Record<string, unknown>).total_amount ? ((inv as Record<string, unknown>).total_amount as number).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                            {/* Botão de olho só aparece em hover ou selecionado */}
-                            {(hoveredInvoiceIdx === idx || selectedInvoiceIdx === idx) && (
-                              <button
-                                type="button"
-                                aria-label="Ver payments"
-                                title="Ver payments"
-                                style={{
-                                  position: 'absolute',
-                                  right: 8,
-                                  top: '50%',
-                                  transform: 'translateY(-50%)',
-                                  color: selectedInvoiceIdx === idx ? COLORS.invoiceStrong : COLORS.invoice,
-                                  background: 'none',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  fontSize: 18,
-                                  padding: 0,
-                                  outline: 'none',
-                                  transition: 'color 0.2s',
-                                }}
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setSelectedInvoiceIdx(selectedInvoiceIdx === idx ? null : idx);
-                                }}
-                              >
-                                <i className="bi bi-eye" style={{ fontSize: 16, verticalAlign: 'middle' }} />
-                              </button>
-                            )}
-                          </li>
-                          {/* Bloco animado de payments do invoice selecionado */}
-                          {selectedInvoiceIdx === idx && Array.isArray((inv as Record<string, unknown>).payments) && (inv as Record<string, unknown>).payments.length > 0 && (
+                      {invoices.map((inv, idx) => {
+                        const isDeposit = inv.is_deposit === true;
+                        const totalAmount = Number(inv.total_amount) || 0;
+                        const isNegative = totalAmount < 0;
+                        
+                        return (
+                          <React.Fragment key={String(inv.id) || String(idx)}>
                             <li
                               style={{
-                                background: COLORS.payment + '22',
-                                borderRadius: 8,
-                                margin: '8px 0',
-                                padding: '12px 18px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                                animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
-                                transition: 'all 0.3s',
-                                display: 'block',
+                                display: 'flex',
+                                alignItems: 'center',
+                                fontSize: 13,
+                                padding: '0 8px',
+                                height: 32,
+                                borderBottom: idx < invoices.length - 1 ? '1px solid var(--color-border-divider)' : 'none',
+                                width: '100%',
+                                position: 'relative',
+                                background: hoveredInvoiceIdx === idx ? (isDeposit ? 'rgba(255,87,34,0.10)' : 'rgba(167,233,175,0.10)') : selectedInvoiceIdx === idx ? (isDeposit ? 'rgba(255,87,34,0.18)' : 'rgba(167,233,175,0.18)') : 'transparent',
+                                borderRadius: 0,
+                                transition: 'background 0.2s, margin-bottom 0.2s',
                               }}
+                              onMouseEnter={() => setHoveredInvoiceIdx(idx !== undefined ? idx : null)}
+                              onMouseLeave={() => setHoveredInvoiceIdx(null)}
                             >
-                              <div style={{ color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <i className={`bi ${ICONS.payment}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} /> Payments Recebidos
-                              </div>
-                              <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 6px 0', fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
-                                <span style={{ flex: 1.5, color: 'var(--color-text-secondary)' }}>Data</span>
-                                <span style={{ flex: 2, color: 'var(--color-text-secondary)' }}>Nota</span>
-                                <span style={{ flex: 2, color: 'var(--color-text-secondary)' }}>Ref</span>
-                                <span style={{ flex: 1.5, color: 'var(--color-text-secondary)' }}>Valor</span>
-                              </div>
-                              <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-                                {(Array.isArray((inv as Record<string, unknown>).payments) ? (inv as Record<string, unknown>).payments : []).map((p, i) => {
-                                  const payment = p as { txn_date?: string | null; private_note?: string | null; payment_ref?: string | null; total_amount?: number | null; id?: string };
-                                  return (
-                                    <li key={String(payment.id) || String(i)} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 0 0 0', height: 32, borderBottom: i < ((inv as Record<string, unknown>).payments ? (inv as Record<string, unknown>).payments.length - 1 : 0) ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
-                                      <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left', fontSize: '0.6875rem' }}>{formatDateUS(payment.txn_date)}</span>
-                                      <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.6875rem', color: 'var(--color-text-primary)' }} title={payment.private_note || ''}>{payment.private_note || '-'}</span>
-                                      <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.6875rem', color: 'var(--color-text-primary)' }} title={payment.payment_ref || ''}>{payment.payment_ref || '-'}</span>
-                                      <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left', fontSize: '0.6875rem' }}>{payment.total_amount ? payment.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
-                                    </li>
-                                  );
-                                })}
-                              </ul>
+                              <span style={{ flex: 1, color: 'var(--color-text-secondary)' }}>{formatDateUS(inv.txn_date) || ''}</span>
+                              <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--color-text-secondary)' }}>
+                                {inv.doc_number || ''}
+                                {isDeposit && <i className={`bi ${ICONS.deposit}`} style={{ marginLeft: 4, fontSize: 10, color: COLORS.depositStrong }} />}
+                              </span>
+                              <span style={{ 
+                                flex: 1.5, 
+                                color: isDeposit ? COLORS.depositStrong : COLORS.invoiceStrong, 
+                                textAlign: 'left',
+                                fontWeight: isDeposit ? 600 : 400
+                              }}>
+                                {totalAmount ? totalAmount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}
+                              </span>
+                              {/* Botão de olho só aparece em hover ou selecionado */}
+                              {(hoveredInvoiceIdx === idx || selectedInvoiceIdx === idx) && (
+                                <button
+                                  type="button"
+                                  aria-label="Ver payments"
+                                  title="Ver payments"
+                                  style={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: selectedInvoiceIdx === idx ? COLORS.invoiceStrong : COLORS.invoice,
+                                    background: 'none',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: 18,
+                                    padding: 0,
+                                    outline: 'none',
+                                    transition: 'color 0.2s',
+                                  }}
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    setSelectedInvoiceIdx(selectedInvoiceIdx === idx ? null : idx);
+                                  }}
+                                >
+                                  <i className="bi bi-eye" style={{ fontSize: 16, verticalAlign: 'middle' }} />
+                                </button>
+                              )}
                             </li>
-                          )}
-                        </React.Fragment>
-                      ))}
+                            {/* Bloco animado de payments do invoice selecionado */}
+                            {selectedInvoiceIdx === idx && Array.isArray(inv.payments) && inv.payments.length > 0 && (
+                              <li
+                                style={{
+                                  background: COLORS.payment + '22',
+                                  borderRadius: 8,
+                                  margin: '8px 0',
+                                  padding: '12px 18px',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                  animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
+                                  transition: 'all 0.3s',
+                                  display: 'block',
+                                }}
+                              >
+                                <div style={{ color: COLORS.invoiceStrong, fontWeight: 600, fontSize: 15, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <i className={`bi ${ICONS.payment}`} style={{ color: COLORS.invoiceStrong, fontSize: 18 }} /> Payments Recebidos
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', padding: '0 0 6px 0', fontSize: '0.8125rem', color: 'var(--color-text-secondary)' }}>
+                                  <span style={{ flex: 1.5, color: 'var(--color-text-secondary)' }}>Data</span>
+                                  <span style={{ flex: 2, color: 'var(--color-text-secondary)' }}>Nota</span>
+                                  <span style={{ flex: 2, color: 'var(--color-text-secondary)' }}>Ref</span>
+                                  <span style={{ flex: 1.5, color: 'var(--color-text-secondary)' }}>Valor</span>
+                                </div>
+                                <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                                  {(inv.payments || []).map((payment, i) => {
+                                    return (
+                                      <li key={String(payment.id) || String(i)} style={{ display: 'flex', alignItems: 'center', fontSize: 13, padding: '0 0 0 0', height: 32, borderBottom: i < (inv.payments ? inv.payments.length - 1 : 0) ? '1px solid var(--color-border-divider)' : 'none', width: '100%' }}>
+                                        <span style={{ flex: 1.5, color: 'var(--color-text-secondary)', textAlign: 'left', fontSize: '0.6875rem' }}>{formatDateUS(payment.txn_date)}</span>
+                                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.6875rem', color: 'var(--color-text-primary)' }} title={payment.private_note || ''}>{payment.private_note || '-'}</span>
+                                        <span style={{ flex: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '0.6875rem', color: 'var(--color-text-primary)' }} title={payment.payment_ref || ''}>{payment.payment_ref || '-'}</span>
+                                        <span style={{ flex: 1.5, color: COLORS.invoiceStrong, textAlign: 'left', fontSize: '0.6875rem' }}>{payment.total_amount ? payment.total_amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : ''}</span>
+                                      </li>
+                                    );
+                                  })}
+                                </ul>
+                              </li>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
                     </ul>
                   </div>
                 </div>

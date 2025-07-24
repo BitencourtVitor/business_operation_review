@@ -8,7 +8,7 @@ interface ProjectCardProps {
   status: string;
   date: string | null;
   totalAmount: number | null;
-  billCount: number;
+  expenseCount: number;
   invoiceCount: number;
   paymentsMadeCount: number;
   paymentsReceivedCount: number;
@@ -30,7 +30,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   status,
   date,
   totalAmount,
-  billCount,
+  expenseCount,
   invoiceCount,
   paymentsMadeCount,
   paymentsReceivedCount,
@@ -92,12 +92,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         {/* Métricas responsivas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0 }}>
-          {/* Primeira linha - Bills (esquerda) e Invoices (direita) */}
+          {/* Primeira linha - Expenses (esquerda) e Invoices (direita) */}
           <div style={{ display: 'flex', gap: 10, width: '100%', flex: 1 }}>
-            {/* Bills */}
+            {/* Expenses */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(242,139,130,0.06)', borderRadius: 6, border: '1px solid rgba(242,139,130,0.15)', justifyContent: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Bills</div>
-              <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{billCount}</div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Expenses</div>
+              <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{expenseCount}</div>
             </div>
             {/* Invoices */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(167,233,175,0.06)', borderRadius: 6, border: '1px solid rgba(167,233,175,0.15)', justifyContent: 'center' }}>

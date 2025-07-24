@@ -162,9 +162,6 @@ async function main() {
   const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
   console.log('--- Sincronização finalizada ---');
   console.log(`⏱️  Tempo total: ${elapsed}s`);
-  console.log('\nSe ocorrer erro de constraint, rode no Supabase:\n');
-  console.log(`ALTER TABLE public.hvac_payments ADD CONSTRAINT hvac_payments_pkey PRIMARY KEY (id);`);
-  console.log(`ALTER TABLE public.hvac_payment_links ADD CONSTRAINT hvac_payment_links_payment_id_txn_id_unique UNIQUE (payment_id, txn_id);`);
 }
 
 main(); 

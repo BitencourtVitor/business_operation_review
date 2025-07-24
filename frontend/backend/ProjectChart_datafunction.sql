@@ -1,5 +1,9 @@
--- Função SQL para processar dados do ProjectChart replicando exatamente a lógica do JavaScript
+-- Função SQL para processar dados do ProjectChart com Expenses unificadas
+-- Inclui Bills, Purchases e Vendor Credits como uma entidade "Expenses"
 -- Inclui agrupamento por período (year/month/day), filtros e cálculo de pendências
+
+-- Remover função existente primeiro
+DROP FUNCTION IF EXISTS get_project_chart_data(TEXT, TEXT, TEXT);
 
 CREATE OR REPLACE FUNCTION get_project_chart_data(
   p_selected_year TEXT DEFAULT NULL,
@@ -53,7 +57,7 @@ BEGIN
     
     UNION ALL
     
-    -- Dados de payables (hvac_bill_payments)
+    -- Dados de payables unificados (Bills + Purchases + Vendor Credits)
     SELECT 
       'payable' AS data_type,
       bp.txn_date,
@@ -68,6 +72,42 @@ BEGIN
       AND bp.total_amount > 0
       AND (v_year IS NULL OR EXTRACT(YEAR FROM bp.txn_date::DATE)::TEXT = v_year)
       AND (v_month IS NULL OR EXTRACT(MONTH FROM bp.txn_date::DATE) = v_month::INTEGER)
+    
+    UNION ALL
+    
+    -- Dados de purchases (despesas diretas)
+    SELECT 
+      'payable' AS data_type,
+      p.txn_date,
+      p.total_amount,
+      CASE 
+        WHEN v_period = 'year' THEN EXTRACT(YEAR FROM p.txn_date::DATE)::TEXT
+        WHEN v_period = 'month' THEN EXTRACT(MONTH FROM p.txn_date::DATE)::TEXT || '/' || EXTRACT(YEAR FROM p.txn_date::DATE)::TEXT
+        WHEN v_period = 'day' THEN EXTRACT(DAY FROM p.txn_date::DATE)::TEXT || '/' || EXTRACT(MONTH FROM p.txn_date::DATE)::TEXT || '/' || EXTRACT(YEAR FROM p.txn_date::DATE)::TEXT
+      END AS period_key
+    FROM hvac_purchases p
+    WHERE p.txn_date IS NOT NULL 
+      AND p.total_amount > 0
+      AND (v_year IS NULL OR EXTRACT(YEAR FROM p.txn_date::DATE)::TEXT = v_year)
+      AND (v_month IS NULL OR EXTRACT(MONTH FROM p.txn_date::DATE) = v_month::INTEGER)
+    
+    UNION ALL
+    
+    -- Dados de vendor credits (créditos de fornecedores - valores negativos)
+    SELECT 
+      'payable' AS data_type,
+      vc.txn_date,
+      -vc.total_amount, -- Negativo porque são créditos (reduzem despesas)
+      CASE 
+        WHEN v_period = 'year' THEN EXTRACT(YEAR FROM vc.txn_date::DATE)::TEXT
+        WHEN v_period = 'month' THEN EXTRACT(MONTH FROM vc.txn_date::DATE)::TEXT || '/' || EXTRACT(YEAR FROM vc.txn_date::DATE)::TEXT
+        WHEN v_period = 'day' THEN EXTRACT(DAY FROM vc.txn_date::DATE)::TEXT || '/' || EXTRACT(MONTH FROM vc.txn_date::DATE)::TEXT || '/' || EXTRACT(YEAR FROM vc.txn_date::DATE)::TEXT
+      END AS period_key
+    FROM hvac_vendor_credits vc
+    WHERE vc.txn_date IS NOT NULL 
+      AND vc.total_amount > 0
+      AND (v_year IS NULL OR EXTRACT(YEAR FROM vc.txn_date::DATE)::TEXT = v_year)
+      AND (v_month IS NULL OR EXTRACT(MONTH FROM vc.txn_date::DATE) = v_month::INTEGER)
   ),
   
   -- Agrupar dados por período (igual ao JavaScript)
@@ -102,7 +142,7 @@ BEGIN
     
     UNION ALL
     
-    -- Pendências payables
+    -- Pendências payables (incluindo bills e purchases)
     SELECT 
       CASE 
         WHEN v_period = 'year' THEN EXTRACT(YEAR FROM pa.date_field::DATE)::TEXT

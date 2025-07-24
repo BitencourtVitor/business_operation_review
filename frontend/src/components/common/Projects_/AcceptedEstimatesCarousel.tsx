@@ -27,10 +27,10 @@ function getProjectName(rawName?: string | null) {
 
 function useProjectDetails(estimateId: string | null) {
   const [loading, setLoading] = useState(false);
-  const [details, setDetails] = useState<{ estimateLines: Record<string, unknown>[]; bills: Record<string, unknown>[]; invoices: Record<string, unknown>[] }>({ estimateLines: [], bills: [], invoices: [] });
+  const [details, setDetails] = useState<{ estimateLines: Record<string, unknown>[]; expenses: Record<string, unknown>[]; invoices: Record<string, unknown>[] }>({ estimateLines: [], expenses: [], invoices: [] });
 
   useEffect(() => {
-    setDetails({ estimateLines: [], bills: [], invoices: [] });
+    setDetails({ estimateLines: [], expenses: [], invoices: [] });
     if (!estimateId) {
       setLoading(false);
       return;
@@ -44,14 +44,16 @@ function useProjectDetails(estimateId: string | null) {
         .eq('estimate_id', estimateId);
       const estimateLines = estimateLinesRaw || [];
 
-      // Buscar bills relacionadas ao estimate (por customer_id)
+      // Buscar dados do estimate
       const { data: estimateData } = await supabase
         .from('hvac_estimates')
         .select('customer_id, customer_name, external_id')
         .eq('id', estimateId)
         .single();
-      let bills: Record<string, unknown>[] = [];
+
+      let expenses: Record<string, unknown>[] = [];
       if (estimateData) {
+        // 1. Buscar bills relacionadas ao estimate
         const { data: billLinesRaw } = await supabase
           .from('hvac_bill_lines')
           .select('*')
@@ -63,6 +65,8 @@ function useProjectDetails(estimateId: string | null) {
           .select('*')
           .in('id', billIds) : { data: [] };
         const billsData = billsDataRaw || [];
+        
+        // Buscar bill payments para bills
         const { data: billPaymentLinksRaw } = (billsData && billsData.length > 0) ? await supabase
           .from('hvac_bill_payment_links')
           .select('*')
@@ -74,13 +78,58 @@ function useProjectDetails(estimateId: string | null) {
           .select('*')
           .in('id', billPaymentIds) : { data: [] };
         const billPayments = billPaymentsRaw || [];
-        bills = (billsData || []).map((bill: Record<string, unknown>) => ({
+
+        // 2. Buscar purchases relacionadas ao estimate
+        const { data: purchaseLinesRaw } = await supabase
+          .from('hvac_purchase_lines')
+          .select('*')
+          .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+        const purchaseLines = purchaseLinesRaw || [];
+        const purchaseIds = [...new Set((purchaseLines || []).map((l: Record<string, unknown>) => l.purchase_id))];
+        const { data: purchasesDataRaw } = purchaseIds.length > 0 ? await supabase
+          .from('hvac_purchases')
+          .select('*')
+          .in('id', purchaseIds) : { data: [] };
+        const purchasesData = purchasesDataRaw || [];
+
+        // 3. Buscar vendor credits relacionados ao estimate
+        const { data: vendorCreditLinesRaw } = await supabase
+          .from('hvac_vendor_credit_lines')
+          .select('*')
+          .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+        const vendorCreditLines = vendorCreditLinesRaw || [];
+        const vendorCreditIds = [...new Set((vendorCreditLines || []).map((l: Record<string, unknown>) => l.vendor_credit_id))];
+        const { data: vendorCreditsDataRaw } = vendorCreditIds.length > 0 ? await supabase
+          .from('hvac_vendor_credits')
+          .select('*')
+          .in('id', vendorCreditIds) : { data: [] };
+        const vendorCreditsData = vendorCreditsDataRaw || [];
+
+        // Combinar todas as expenses
+        const bills = (billsData || []).map((bill: Record<string, unknown>) => ({
           ...bill,
+          expense_type: 'bill',
           lines: (billLines || []).filter((l: Record<string, unknown>) => l.bill_id === bill.id),
           bill_payments: (billPaymentLinks || [])
             .filter((link: Record<string, unknown>) => link.txn_id === bill.external_id)
             .map((link: Record<string, unknown>) => (billPayments || []).find((bp: Record<string, unknown>) => bp.id === link.bill_payment_id)).filter(Boolean)
         }));
+
+        const purchases = (purchasesData || []).map((purchase: Record<string, unknown>) => ({
+          ...purchase,
+          expense_type: 'purchase',
+          lines: (purchaseLines || []).filter((l: Record<string, unknown>) => l.purchase_id === purchase.id),
+          bill_payments: [] // Purchases não têm bill_payments
+        }));
+
+        const vendorCredits = (vendorCreditsData || []).map((vendorCredit: Record<string, unknown>) => ({
+          ...vendorCredit,
+          expense_type: 'vendor_credit',
+          lines: (vendorCreditLines || []).filter((l: Record<string, unknown>) => l.vendor_credit_id === vendorCredit.id),
+          bill_payments: [] // Vendor credits não têm bill_payments
+        }));
+
+        expenses = [...bills, ...purchases, ...vendorCredits];
       }
 
       // Buscar invoices relacionadas ao estimate (por customer_id)
@@ -109,9 +158,31 @@ function useProjectDetails(estimateId: string | null) {
             .filter((link: Record<string, unknown>) => link.txn_id === inv.external_id)
             .map((link: Record<string, unknown>) => (payments || []).find((p: Record<string, unknown>) => p.id === link.payment_id)).filter(Boolean)
         }));
+
+        // Buscar deposits (ressarcimentos) relacionados ao estimate (por customer_id)
+        const { data: depositsDataRaw } = await supabase
+          .from('hvac_deposits')
+          .select('*')
+          .eq('customer_id', estimateData.customer_id);
+        const depositsData = depositsDataRaw || [];
+        
+        // Adicionar deposits como "invoices negativas" (ressarcimentos)
+        const depositsAsInvoices = (depositsData || []).map((deposit: Record<string, unknown>) => ({
+          ...deposit,
+          id: `deposit_${deposit.id}`, // Prefixo para identificar como deposit
+          doc_number: `DEP-${deposit.doc_number || deposit.external_id}`, // Prefixo DEP para identificar
+          total_amount: -(Number(deposit.total_amount) || 0), // Valor negativo (ressarcimento)
+          txn_date: deposit.txn_date,
+          private_note: deposit.private_note,
+          payments: [], // Deposits não têm payments
+          is_deposit: true // Flag para identificar como deposit
+        }));
+
+        // Combinar invoices e deposits
+        invoices = [...invoices, ...depositsAsInvoices];
       }
 
-      setDetails({ estimateLines, bills, invoices });
+      setDetails({ estimateLines, expenses, invoices });
       setLoading(false);
     })();
   }, [estimateId]);
@@ -266,7 +337,7 @@ export default function AcceptedEstimatesCarousel() {
 
   // Modal Detalhado
   const estimateId = modalIdx !== null && filteredEstimates[modalIdx] ? filteredEstimates[modalIdx].estimate_id : null;
-  const { estimateLines, bills, invoices, loading: modalLoading } = useProjectDetails(estimateId);
+  const { estimateLines, expenses, invoices, loading: modalLoading } = useProjectDetails(estimateId);
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
@@ -530,7 +601,7 @@ export default function AcceptedEstimatesCarousel() {
               status={estimate.status}
               date={estimate.estimate_date}
               totalAmount={estimate.estimate_total}
-              billCount={estimate.bill_count}
+              expenseCount={estimate.expense_count}
               invoiceCount={estimate.invoice_count}
               paymentsMadeCount={estimate.payments_made_count}
               paymentsReceivedCount={estimate.payments_received_count}
@@ -551,7 +622,7 @@ export default function AcceptedEstimatesCarousel() {
           estimateDate={filteredEstimates[modalIdx].estimate_date}
           estimateTotal={filteredEstimates[modalIdx].estimate_total}
           estimateLines={estimateLines as Record<string, unknown>[]}
-          bills={bills as Record<string, unknown>[]}
+          expenses={expenses as Record<string, unknown>[]}
           invoices={invoices as Record<string, unknown>[]}
           loading={modalLoading}
         />

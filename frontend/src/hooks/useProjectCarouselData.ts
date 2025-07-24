@@ -8,8 +8,8 @@ export interface ProjectCarouselData {
   status: string;
   estimate_date: string;
   estimate_total: number;
-  bill_count: number;
-  bill_total: number;
+  expense_count: number;
+  expense_total: number;
   invoice_count: number;
   invoice_total: number;
   payments_made_count: number;

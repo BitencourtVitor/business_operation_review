@@ -154,6 +154,78 @@ class SupabaseClient {
     if (error) throw error;
   }
 
+  // Upsert purchases principais e retorna mapping external_id -> id
+  async upsertPurchases(mainRows) {
+    if (!mainRows || mainRows.length === 0) return {};
+    const { data, error } = await this.supabase
+      .from('hvac_purchases')
+      .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
+      .select('id, external_id');
+    if (error) throw error;
+    const idMap = {};
+    for (const row of data) {
+      idMap[row.external_id] = row.id;
+    }
+    return idMap;
+  }
+
+  // Upsert linhas de purchase
+  async upsertPurchaseLines(linesRows) {
+    if (!linesRows || linesRows.length === 0) return;
+    const { error } = await this.supabase
+      .from('hvac_purchase_lines')
+      .insert(linesRows);
+    if (error) throw error;
+  }
+
+  // Upsert vendor credits principais e retorna mapping external_id -> id
+  async upsertVendorCredits(mainRows) {
+    if (!mainRows || mainRows.length === 0) return {};
+    const { data, error } = await this.supabase
+      .from('hvac_vendor_credits')
+      .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
+      .select('id, external_id');
+    if (error) throw error;
+    const idMap = {};
+    for (const row of data) {
+      idMap[row.external_id] = row.id;
+    }
+    return idMap;
+  }
+
+  // Upsert linhas de vendor credit
+  async upsertVendorCreditLines(linesRows) {
+    if (!linesRows || linesRows.length === 0) return;
+    const { error } = await this.supabase
+      .from('hvac_vendor_credit_lines')
+      .insert(linesRows);
+    if (error) throw error;
+  }
+
+  // Upsert deposits principais e retorna mapping external_id -> id
+  async upsertDeposits(mainRows) {
+    if (!mainRows || mainRows.length === 0) return {};
+    const { data, error } = await this.supabase
+      .from('hvac_deposits')
+      .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
+      .select('id, external_id');
+    if (error) throw error;
+    const idMap = {};
+    for (const row of data) {
+      idMap[row.external_id] = row.id;
+    }
+    return idMap;
+  }
+
+  // Upsert linhas de deposit
+  async upsertDepositLines(linesRows) {
+    if (!linesRows || linesRows.length === 0) return;
+    const { error } = await this.supabase
+      .from('hvac_deposit_lines')
+      .insert(linesRows);
+    if (error) throw error;
+  }
+
   // Deleta todas as linhas de um bill
   async deleteBillLines(bill_id) {
     if (!bill_id) return;

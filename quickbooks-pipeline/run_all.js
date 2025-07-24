@@ -10,6 +10,9 @@ const scripts = [
   'estimates.js',
   'invoices.js',
   'payments.js',
+  'purchase.js',
+  'vendor_credit.js',
+  'deposit.js',
 ];
 
 for (const script of scripts) {
