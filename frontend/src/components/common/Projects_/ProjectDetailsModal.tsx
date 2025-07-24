@@ -15,19 +15,16 @@ interface Expense {
   bill_payments: Array<{ id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null }>;
 }
 
-interface Invoice {
+export interface Invoice {
   id: string;
   doc_number?: string | null;
   total_amount?: number | null;
   txn_date?: string | null;
   is_deposit?: boolean;
   payments?: Array<{ id: string; total_amount?: number | null; txn_date?: string | null; payment_ref?: string | null; private_note?: string | null }>;
-}
-
-interface EstimateLine {
-  id: string;
-  description: string | null;
-  amount: number | null;
+  is_backcharge?: boolean;
+  description?: string | null;
+  private_note?: string | null;
 }
 
 interface ProjectDetailsModalProps {
@@ -141,11 +138,6 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
 
   if (!open) return null;
 
-  // Adicione as constantes de tamanho
-  const MODAL_WIDTH_LOADING = 420;
-  const MODAL_WIDTH_CONTENT = 800;
-  const MODAL_HEIGHT_LOADING = 320;
-  const MODAL_MIN_HEIGHT_CONTENT = 540;
   // Defina o tamanho do modal em percentual da tela
   const MODAL_SIZE_PERCENT = 60; // Altere este valor para testar o tamanho do modal em relação à tela
   const MODAL_MAX_HEIGHT_PERCENT = 75; // Altura máxima do modal em relação à tela
@@ -498,7 +490,6 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                       {invoices.map((inv, idx) => {
                         const isDeposit = inv.is_deposit === true;
                         const totalAmount = Number(inv.total_amount) || 0;
-                        const isNegative = totalAmount < 0;
                         
                         return (
                           <React.Fragment key={String(inv.id) || String(idx)}>
@@ -596,6 +587,29 @@ const ProjectDetailsModal: React.FC<ProjectDetailsModalProps> = ({
                                     );
                                   })}
                                 </ul>
+                              </li>
+                            )}
+                            {selectedInvoiceIdx === idx && inv.is_backcharge && (
+                              <li
+                                style={{
+                                  background: COLORS.deposit + '22',
+                                  borderRadius: 8,
+                                  margin: '8px 0',
+                                  padding: '12px 18px',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                                  animation: 'fadeSlideIn 0.4s cubic-bezier(0.4, 0.2, 0.2, 1)',
+                                  transition: 'all 0.3s',
+                                  display: 'block',
+                                }}
+                              >
+                                {/* Removido o bloco da data */}
+                                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', fontWeight: 400, marginBottom: 0, whiteSpace: 'pre-line' }}>
+                                  {inv.description || ''}
+                                </div>
+                                <hr style={{ border: 0, borderTop: '1px solid var(--color-border-divider)', margin: '6px 0' }} />
+                                <div style={{ fontSize: '0.8125rem', color: 'var(--color-text-secondary)', fontWeight: 400, marginBottom: 0, whiteSpace: 'pre-line' }}>
+                                  {inv.private_note || ''}
+                                </div>
                               </li>
                             )}
                           </React.Fragment>

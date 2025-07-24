@@ -1,5 +1,5 @@
 import React from 'react';
-import { getProjectName, formatCurrency } from './utils/projectUtils';
+import { getProjectName } from './utils/projectUtils';
 
 interface ProjectCardProps {
   id: string;
@@ -7,7 +7,6 @@ interface ProjectCardProps {
   customerId: string | null;
   status: string;
   date: string | null;
-  totalAmount: number | null;
   expenseCount: number;
   invoiceCount: number;
   paymentsMadeCount: number;
@@ -15,6 +14,9 @@ interface ProjectCardProps {
   hovered: boolean;
   onHover: (id: string | null) => void;
   onClick: () => void;
+  estimateTotal: number; // valor total do estimate
+  invoicesTotal: number; // soma dos invoices
+  expensesTotal: number; // soma dos expenses
 }
 
 const STATUS = {
@@ -29,14 +31,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   customerId,
   status,
   date,
-  totalAmount,
-  expenseCount,
-  invoiceCount,
-  paymentsMadeCount,
-  paymentsReceivedCount,
   hovered,
   onHover,
-  onClick
+  onClick,
+  estimateTotal,
+  invoicesTotal,
+  expensesTotal
 }) => {
   const projectName = getProjectName(customerName);
   return (
@@ -76,46 +76,98 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         <span style={{ color: 'var(--color-accent-primary)', fontSize: 14, fontWeight: 500, letterSpacing: 0.1 }}>{customerId || '-'}</span>
       </div>
       {/* Corpo */}
-      <div style={{ padding: '16px 20px 16px 20px', display: 'flex', flexDirection: 'column', gap: 16, flex: 1, height: '100%', boxSizing: 'border-box' }}>
-        {/* Data do projeto */}
-        <div style={{ textAlign: 'center' }}>
-          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+      <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1, height: '100%', boxSizing: 'border-box' }}>
+        {/* Bloco data + título */}
+        <div style={{ width: '100%', textAlign: 'center', marginBottom: 0, display: 'flex', flexDirection: 'column', justifyContent: 'between', alignItems: 'center' }}>
+          <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 500, display: 'block', margin: '4px 0' }}>
             {date ? (() => {
               const d = new Date(date);
               return d.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
             })() : '-'}
           </span>
+          <h3 style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3, letterSpacing: 0.1 }}>{projectName}</h3>
         </div>
-        {/* Título do projeto */}
-        <div style={{ textAlign: 'center' }}>
-          <h3 style={{ fontWeight: 600, fontSize: 15, color: 'var(--color-text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3, letterSpacing: 0.1 }}>{projectName}</h3>
-        </div>
-        {/* Métricas responsivas */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1, minHeight: 0 }}>
-          {/* Primeira linha - Expenses (esquerda) e Invoices (direita) */}
-          <div style={{ display: 'flex', gap: 10, width: '100%', flex: 1 }}>
-            {/* Expenses */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(242,139,130,0.06)', borderRadius: 6, border: '1px solid rgba(242,139,130,0.15)', justifyContent: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Expenses</div>
-              <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{expenseCount}</div>
-            </div>
-            {/* Invoices */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(167,233,175,0.06)', borderRadius: 6, border: '1px solid rgba(167,233,175,0.15)', justifyContent: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Invoices</div>
-              <div style={{ fontSize: 16, color: 'var(--color-accent-primary)', fontWeight: 700, textAlign: 'center' }}>{invoiceCount}</div>
-            </div>
+        {/* Barra de Progresso Financeira */}
+        <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'relative', width: '100%', height: 20, background: 'var(--color-background-secondary)', borderRadius: 6, border: '1px solid var(--color-border-divider)', overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            {/* Barra verde: invoices */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: estimateTotal > 0 ? `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%` : '0%',
+              background: '#1bbf5c', // cor sólida
+              borderRadius: 6, // igual ao da barra de fundo
+              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+              zIndex: 1
+            }} />
+            {/* Linha vermelha sólida: expenses */}
+            {estimateTotal > 0 && expensesTotal > 0 && expensesTotal <= estimateTotal && (
+              <div style={{
+                position: 'absolute',
+                left: `${(expensesTotal / estimateTotal) * 100}%`,
+                top: '-6px', // passa pra cima
+                height: '32px', // maior que a barra (barra = 20px)
+                width: 0,
+                borderLeft: '2px solid #dc3545',
+                zIndex: 2
+              }} />
+            )}
+            {/* Borda para garantir visual */}
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '100%',
+              height: '100%',
+              borderRadius: 8,
+              pointerEvents: 'none',
+              zIndex: 3
+            }} />
           </div>
-          {/* Segunda linha - Pagamentos Feitos (esquerda) e Recebidos (direita) */}
-          <div style={{ display: 'flex', gap: 10, width: '100%', flex: 1 }}>
-            {/* Pagamentos Feitos */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(242,139,130,0.06)', borderRadius: 6, border: '1px solid rgba(242,139,130,0.15)', justifyContent: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Pag. Feitos</div>
-              <div style={{ fontSize: 16, color: 'var(--challenges-color)', fontWeight: 700, textAlign: 'center' }}>{paymentsMadeCount}</div>
+        </div>
+        {/* Bloco de métricas */}
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div style={{
+            width: '100%',
+            background: 'transparent',
+            borderRadius: 6,
+            marginTop: 0,
+            marginBottom: 8,
+            boxSizing: 'border-box',
+            padding: 0,
+            fontSize: 13,
+            color: 'var(--color-text-primary)',
+            fontWeight: 400,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0
+          }}>
+            {/* Estimate */}
+            <div style={{ padding: '4px 0', fontWeight: 500, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>Estimate</span>
+              <span style={{ fontWeight: 500 }}>{estimateTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
             </div>
-            {/* Pagamentos Recebidos */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3, padding: '10px 6px', background: 'rgba(167,233,175,0.06)', borderRadius: 6, border: '1px solid rgba(167,233,175,0.15)', justifyContent: 'center' }}>
-              <div style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500, textAlign: 'center' }}>Pag. Recebidos</div>
-              <div style={{ fontSize: 16, color: 'var(--color-accent-primary)', fontWeight: 700, textAlign: 'center' }}>{paymentsReceivedCount}</div>
+            <div style={{ borderBottom: '1px solid var(--color-border-divider)', width: '100%' }} />
+            {/* Invoice */}
+            <div style={{ padding: '4px 0', fontWeight: 500, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>Invoice</span>
+              <span style={{ fontWeight: 500 }}>{invoicesTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+            </div>
+            <div style={{ borderBottom: '1px solid var(--color-border-divider)', width: '100%' }} />
+            {/* Expense */}
+            <div style={{ padding: '4px 0', fontWeight: 500, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>Expense</span>
+              <span style={{ fontWeight: 500 }}>{expensesTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+            </div>
+            <div style={{ borderBottom: '1px solid var(--color-border-divider)', width: '100%' }} />
+            {/* Profit */}
+            <div style={{ padding: '4px 0', fontWeight: 500, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>Profit</span>
+              <span style={{ fontWeight: 500, color: (invoicesTotal - expensesTotal) < 0 ? '#dc3545' : 'var(--color-accent-primary)' }}>
+                {(invoicesTotal - expensesTotal).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+              </span>
             </div>
           </div>
         </div>

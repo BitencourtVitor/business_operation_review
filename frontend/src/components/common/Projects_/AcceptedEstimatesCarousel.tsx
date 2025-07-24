@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import ProjectCard from './ProjectCard';
 import { useProjectCarouselData } from '../../../hooks/useProjectCarouselData';
 import ProjectDetailsModal from './ProjectDetailsModal';
+import type { Invoice } from './ProjectDetailsModal';
 import { supabase } from '../../../supabaseClient';
 
 // Estilos CSS para animações
@@ -27,7 +28,7 @@ function getProjectName(rawName?: string | null) {
 
 function useProjectDetails(estimateId: string | null) {
   const [loading, setLoading] = useState(false);
-  const [details, setDetails] = useState<{ estimateLines: Record<string, unknown>[]; expenses: Record<string, unknown>[]; invoices: Record<string, unknown>[] }>({ estimateLines: [], expenses: [], invoices: [] });
+  const [details, setDetails] = useState<{ estimateLines: { id: string; description: string | null; amount: number | null; }[]; expenses: Record<string, unknown>[]; invoices: Invoice[] }>({ estimateLines: [], expenses: [], invoices: [] });
 
   useEffect(() => {
     setDetails({ estimateLines: [], expenses: [], invoices: [] });
@@ -133,7 +134,8 @@ function useProjectDetails(estimateId: string | null) {
       }
 
       // Buscar invoices relacionadas ao estimate (por customer_id)
-      let invoices: Record<string, unknown>[] = [];
+      let invoices: Invoice[] = [];
+      let backCharges: Invoice[] = [];
       if (estimateData) {
         const { data: invoicesDataRaw } = await supabase
           .from('hvac_invoices')
@@ -165,29 +167,125 @@ function useProjectDetails(estimateId: string | null) {
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const depositsData = depositsDataRaw || [];
-        
         // Adicionar deposits como "invoices negativas" (ressarcimentos)
-        const depositsAsInvoices = (depositsData || []).map((deposit: Record<string, unknown>) => ({
+        const depositsAsInvoices: Invoice[] = (depositsData || []).map((deposit: Record<string, unknown>) => ({
           ...deposit,
-          id: `deposit_${deposit.id}`, // Prefixo para identificar como deposit
-          doc_number: `DEP-${deposit.doc_number || deposit.external_id}`, // Prefixo DEP para identificar
-          total_amount: -(Number(deposit.total_amount) || 0), // Valor negativo (ressarcimento)
-          txn_date: deposit.txn_date,
-          private_note: deposit.private_note,
-          payments: [], // Deposits não têm payments
-          is_deposit: true // Flag para identificar como deposit
+          id: `deposit_${deposit.id}`,
+          doc_number: `DEP-${deposit.doc_number || deposit.external_id}`,
+          total_amount: -(Number(deposit.total_amount) || 0),
+          txn_date: typeof deposit.txn_date === 'string' ? deposit.txn_date : deposit.txn_date === null ? null : '',
+          private_note: typeof deposit.private_note === 'string' ? deposit.private_note : deposit.private_note === null ? null : '',
+          payments: [],
+          is_deposit: true
         }));
 
-        // Combinar invoices e deposits
-        invoices = [...invoices, ...depositsAsInvoices];
+        // Buscar BackCharges (hvac_deposit_lines negativos para o projeto)
+        const { data: depositLinesRaw } = await supabase
+          .from('hvac_deposit_lines')
+          .select('*')
+          .eq('customer_id', estimateData.customer_id)
+          .eq('customer_name', estimateData.customer_name)
+          .lt('amount', 0);
+        const depositLines = depositLinesRaw || [];
+        // Buscar todos os deposits relacionados aos deposit_lines encontrados
+        const depositIds = depositLines.map((line: Record<string, unknown>) => String(line.deposit_id)).filter(Boolean);
+        const depositsMap: Record<string, { txn_date?: string | null; private_note?: string | null }> = {};
+        if (depositIds.length > 0) {
+          const { data: depositsForLinesRaw } = await supabase
+            .from('hvac_deposits')
+            .select('id, txn_date, private_note')
+            .in('id', depositIds);
+          (depositsForLinesRaw || []).forEach((dep: { id: string; txn_date?: string | null; private_note?: string | null }) => {
+            depositsMap[String(dep.id)] = dep;
+          });
+        }
+        backCharges = depositLines.map((line: Record<string, unknown>) => {
+          const dep = depositsMap[String(line.deposit_id)] || {};
+          return {
+            id: `backcharge_${line.id}`,
+            doc_number: `Back Charge - ${line.line_num || line.external_line_id || line.id}`,
+            total_amount: Number(line.amount) || 0,
+            txn_date: typeof dep.txn_date === 'string' ? dep.txn_date : dep.txn_date === null ? null : '',
+            is_backcharge: true,
+            description: String(line.description || ''),
+            private_note: typeof dep.private_note === 'string' ? dep.private_note : dep.private_note === null ? null : '',
+            payments: [],
+          } as Invoice;
+        });
+
+        // Combinar invoices, deposits e backcharges
+        invoices = ([] as Invoice[]).concat(invoices, depositsAsInvoices, backCharges);
       }
 
-      setDetails({ estimateLines, expenses, invoices });
+      setDetails({ estimateLines: estimateLines as { id: string; description: string | null; amount: number | null; }[], expenses, invoices });
       setLoading(false);
     })();
   }, [estimateId]);
 
   return { ...details, loading };
+}
+
+// Função utilitária para buscar e somar expenses detalhadas de um projeto
+async function fetchExpensesTotal(estimateId: string): Promise<number> {
+  // Buscar dados detalhados igual ao modal
+  const { data: estimateData } = await supabase
+    .from('hvac_estimates')
+    .select('customer_id, customer_name, external_id')
+    .eq('id', estimateId)
+    .single();
+  if (!estimateData) return 0;
+  // Bills
+  const { data: billLinesRaw } = await supabase
+    .from('hvac_bill_lines')
+    .select('*')
+    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+  const billLines = billLinesRaw || [];
+  // Purchases
+  const { data: purchaseLinesRaw } = await supabase
+    .from('hvac_purchase_lines')
+    .select('*')
+    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+  const purchaseLines = purchaseLinesRaw || [];
+  // Vendor credits
+  const { data: vendorCreditLinesRaw } = await supabase
+    .from('hvac_vendor_credit_lines')
+    .select('*')
+    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+  const vendorCreditLines = vendorCreditLinesRaw || [];
+  // Soma todos os amounts
+  const total = [...billLines, ...purchaseLines, ...vendorCreditLines].reduce((sum, l) => sum + Number(l.amount || 0), 0);
+  return total;
+}
+
+// Função utilitária para buscar e somar invoices e backcharges detalhados de um projeto
+async function fetchInvoicesTotal(estimateId: string): Promise<number> {
+  // Buscar dados detalhados igual ao modal
+  const { data: estimateData } = await supabase
+    .from('hvac_estimates')
+    .select('customer_id, customer_name, external_id')
+    .eq('id', estimateId)
+    .single();
+  if (!estimateData) return 0;
+  // Invoices
+  const { data: invoicesDataRaw } = await supabase
+    .from('hvac_invoices')
+    .select('*')
+    .eq('customer_id', estimateData.customer_id);
+  const invoicesData = invoicesDataRaw || [];
+  // Deposits (BackCharges)
+  const { data: depositLinesRaw } = await supabase
+    .from('hvac_deposit_lines')
+    .select('*')
+    .eq('customer_id', estimateData.customer_id)
+    .eq('customer_name', estimateData.customer_name)
+    .lt('amount', 0);
+  const depositLines = depositLinesRaw || [];
+  // Soma invoices
+  const invoicesTotal = invoicesData.reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0);
+  // Soma backcharges (amount já é negativo)
+  const backChargesTotal = depositLines.reduce((sum, line) => sum + Number(line.amount || 0), 0);
+  // Total recebido = invoices + backcharges (backcharges são negativos)
+  return invoicesTotal + backChargesTotal;
 }
 
 export default function AcceptedEstimatesCarousel() {
@@ -227,6 +325,40 @@ export default function AcceptedEstimatesCarousel() {
     dateTo,
     onlyAccepted
   });
+
+  // Novo estado para armazenar os totais detalhados de expenses
+  const [expensesTotals, setExpensesTotals] = useState<{ [estimateId: string]: number }>({});
+  // Buscar os totais detalhados assim que os estimates mudarem
+  useEffect(() => {
+    if (!carouselData || carouselData.length === 0) return;
+    let cancelled = false;
+    async function fetchAll() {
+      const totals: { [estimateId: string]: number } = {};
+      await Promise.all(carouselData.map(async (estimate) => {
+        totals[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id);
+      }));
+      if (!cancelled) setExpensesTotals(totals);
+    }
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [carouselData]);
+
+  // Novo estado para armazenar os totais detalhados de invoices
+  const [invoicesTotals, setInvoicesTotals] = useState<{ [estimateId: string]: number }>({});
+  // Buscar os totais detalhados assim que os estimates mudarem
+  useEffect(() => {
+    if (!carouselData || carouselData.length === 0) return;
+    let cancelled = false;
+    async function fetchAll() {
+      const totals: { [estimateId: string]: number } = {};
+      await Promise.all(carouselData.map(async (estimate) => {
+        totals[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id);
+      }));
+      if (!cancelled) setInvoicesTotals(totals);
+    }
+    fetchAll();
+    return () => { cancelled = true; };
+  }, [carouselData]);
 
   const [hovered, setHovered] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'total' | 'name' | null>(null);
@@ -347,7 +479,7 @@ export default function AcceptedEstimatesCarousel() {
           <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Project Information</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, height: 38 }}>
             {/* Filtros agrupados visualmente */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 6px 0 12px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 16px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)', justifyContent: 'space-between' }}>
               {/* Toggle booleano padrão contábil */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 15, padding: 0, height: 38 }}>
                 <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Just Accepted</span>
@@ -600,11 +732,13 @@ export default function AcceptedEstimatesCarousel() {
               customerId={estimate.customer_id}
               status={estimate.status}
               date={estimate.estimate_date}
-              totalAmount={estimate.estimate_total}
-              expenseCount={estimate.expense_count}
-              invoiceCount={estimate.invoice_count}
-              paymentsMadeCount={estimate.payments_made_count}
-              paymentsReceivedCount={estimate.payments_received_count}
+              estimateTotal={estimate.estimate_total || 0}
+              invoicesTotal={invoicesTotals[estimate.estimate_id] ?? 0}
+              expensesTotal={expensesTotals[estimate.estimate_id] ?? 0}
+              expenseCount={estimate.expense_count || 0}
+              invoiceCount={estimate.invoice_count || 0}
+              paymentsMadeCount={estimate.payments_made_count || 0}
+              paymentsReceivedCount={estimate.payments_received_count || 0}
               hovered={hovered === estimate.estimate_id}
               onHover={setHovered}
               onClick={() => handleOpenModal(idx)}
@@ -621,9 +755,9 @@ export default function AcceptedEstimatesCarousel() {
           customerId={filteredEstimates[modalIdx].customer_id}
           estimateDate={filteredEstimates[modalIdx].estimate_date}
           estimateTotal={filteredEstimates[modalIdx].estimate_total}
-          estimateLines={estimateLines as Record<string, unknown>[]}
-          expenses={expenses as Record<string, unknown>[]}
-          invoices={invoices as Record<string, unknown>[]}
+          estimateLines={estimateLines as { id: string; description: string | null; amount: number | null; }[]}
+          expenses={expenses}
+          invoices={invoices}
           loading={modalLoading}
         />
       )}
