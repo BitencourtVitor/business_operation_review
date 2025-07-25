@@ -24,6 +24,7 @@ export interface Acao {
 export interface Tela {
   id: string;
   descricao: string;
+  tipo?: 'brazil' | 'eua';
 }
 
 export interface Permissao {

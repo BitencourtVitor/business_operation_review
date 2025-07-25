@@ -41,6 +41,10 @@ export default function DashboardLayout({
     'IT Projects': 'bi bi-braces-asterisk',
   };
 
+  // Separar telas por tipo
+  const telasBrasil = telas.filter(t => t.tipo === 'brazil' || !t.tipo);
+  const telasEUA = telas.filter(t => t.tipo === 'eua');
+
   // Descobrir todas as telas em que o usuário é admin_setor
   const adminTelasDescricoes = telas
     .filter(t => permissoes[t.id])
@@ -195,24 +199,49 @@ export default function DashboardLayout({
           zIndex: 1,
         }}
       >
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderBottom: '1px solid var(--color-border-divider)'}}>
-          <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
-            <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
-              Office Brazil
-            </span>
+        {/* Office Brasil */}
+        {telasBrasil.length > 0 && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderBottom: '1px solid var(--color-border-divider)'}}>
+            <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
+              <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
+                Office Brasil
+              </span>
+            </div>
+            {telasBrasil.map(tela => (
+              <button
+                key={tela.id}
+                className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                onClick={() => onSetMainContent(tela.id)}
+              >
+                <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
+                {tela.descricao}
+              </button>
+            ))}
           </div>
-          {telas.map(tela => (
-            <button
-              key={tela.id}
-              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
-              style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onClick={() => onSetMainContent(tela.id)}
-            >
-              <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-              {tela.descricao}
-            </button>
-          ))}
-        </div>
+        )}
+        
+        {/* Office EUA */}
+        {telasEUA.length > 0 && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderBottom: '1px solid var(--color-border-divider)'}}>
+            <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
+              <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
+                Office EUA
+              </span>
+            </div>
+            {telasEUA.map(tela => (
+              <button
+                key={tela.id}
+                className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                onClick={() => onSetMainContent(tela.id)}
+              >
+                <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
+                {tela.descricao}
+              </button>
+            ))}
+          </div>
+        )}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderTop: '1px solid var(--color-border-divider)'}}>
           <span style={{ color: 'var(--color-text-secondary)', fontWeight: 500, fontSize: 10 }}>What matters isn't the company's mistakes, but how it responds to them.</span>
         </div>
