@@ -406,6 +406,16 @@ export default function AcceptedEstimatesCarousel() {
         return sortDirection === 'desc' ? profitB - profitA : profitA - profitB;
       });
     }
+
+    // Filtrar para customerIds únicos
+    const seen = new Set();
+    filtered = filtered.filter(item => {
+      if (!item.customer_id) return false;
+      if (seen.has(item.customer_id)) return false;
+      seen.add(item.customer_id);
+      return true;
+    });
+
     return filtered;
   }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals]);
 
