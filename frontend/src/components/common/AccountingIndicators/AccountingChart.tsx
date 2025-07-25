@@ -1599,10 +1599,10 @@ export function AccountingChart({
       <div className='px-4 py-2 d-flex justify-content-between align-items-center' style={{ borderBottom: '1px solid var(--color-border-divider)'  }}>
         <h4 className='m-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
           {chartType === 'line' 
-            ? (separateAging ? 'Outstanding Balances by Aging Interval Over Time' : 
-              selectedGroup === 'all' ? 'Outstanding Balances Over Time' : 
-              selectedGroup === 'receivables' ? 'Receivables Outstanding Trend' : 
-              'Payables Outstanding Trend')
+            ? (separateAging ? 'Balances by Aging Interval Over Time' : 
+              selectedGroup === 'all' ? 'Balances Over Time' : 
+              selectedGroup === 'receivables' ? 'Receivables Trend' : 
+              'Payables Trend')
             : 'Category Distribution Analysis'
           }
         </h4>

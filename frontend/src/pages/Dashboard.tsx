@@ -155,7 +155,7 @@ export default function Dashboard() {
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
-    'Accounting Indicators': 'bi bi-cash',
+    'Outstanding Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
     'Takeoff Works': 'bi bi-houses',
     'IT Projects': 'bi bi-braces-asterisk',
@@ -231,7 +231,7 @@ export default function Dashboard() {
     switch (tela.descricao) {
       case 'Timesheet Analysis':
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
-      case 'Accounting Indicators':
+      case 'Outstanding Indicators':
         return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Permit Control':
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
@@ -438,8 +438,8 @@ export default function Dashboard() {
               style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
               onClick={() => handleSetMainContent('projects')}
             >
-              <i className="bi bi-diagram-3" style={{ fontSize: 14 }} />
-              Projects
+              <i className="bi bi-graph-up-arrow" style={{ fontSize: 14 }} />
+              Accounting Indicators
             </button>
           </div>
         </div>

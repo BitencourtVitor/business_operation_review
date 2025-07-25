@@ -90,28 +90,32 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         {/* Barra de Progresso Financeira */}
         <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ position: 'relative', width: '100%', height: 20, background: 'var(--color-background-secondary)', borderRadius: 6, border: '1px solid var(--color-border-divider)', overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            {/* Barra verde: invoices */}
-            <div style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: '100%',
-              width: estimateTotal > 0 ? `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%` : '0%',
-              background: '#1bbf5c', // cor sólida
-              borderRadius: 6, // igual ao da barra de fundo
-              transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-              zIndex: 1
-            }} />
-            {/* Linha vermelha sólida: expenses */}
-            {estimateTotal > 0 && expensesTotal > 0 && expensesTotal <= estimateTotal && (
+            {/* Barra de invoices: verde, zIndex 2 */}
+            {estimateTotal > 0 && invoicesTotal > 0 && (
               <div style={{
                 position: 'absolute',
-                left: `${(expensesTotal / estimateTotal) * 100}%`,
-                top: '-6px', // passa pra cima
-                height: '32px', // maior que a barra (barra = 20px)
-                width: 0,
-                borderLeft: '2px solid #dc3545',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
+                background: '#1bbf5c', // verde
+                borderRadius: 6,
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
                 zIndex: 2
+              }} />
+            )}
+            {/* Barra de expenses: vermelho, zIndex 3 */}
+            {estimateTotal > 0 && expensesTotal > 0 && (
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: `${Math.min(100, (expensesTotal / estimateTotal) * 100)}%`,
+                background: '#dc3545', // vermelho
+                borderRadius: 6,
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                zIndex: 3
               }} />
             )}
             {/* Borda para garantir visual */}
@@ -123,7 +127,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               height: '100%',
               borderRadius: 8,
               pointerEvents: 'none',
-              zIndex: 3
+              zIndex: 4
             }} />
           </div>
         </div>

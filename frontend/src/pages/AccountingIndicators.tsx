@@ -515,7 +515,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Barra superior com título e filtros (igual ao backup e TimesheetAnalysis) */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Accounting Indicators</h1>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Outstanding Indicators</h1>
         <AccountingFilters
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
