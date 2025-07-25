@@ -85,7 +85,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               return d.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
             })() : '-'}
           </span>
-          <h3 style={{ fontWeight: 600, fontSize: 14, color: 'var(--color-text-primary)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.3, letterSpacing: 0.1 }}>{projectName}</h3>
+          <h3
+            style={{
+              fontWeight: 600,
+              fontSize: 14,
+              color: 'var(--color-text-primary)',
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'normal',
+              lineHeight: 1.3,
+              letterSpacing: 0.1,
+              maxWidth: 220,
+              wordBreak: 'break-word',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical'
+            }}
+          >
+            {projectName}
+          </h3>
         </div>
         {/* Barra de Progresso Financeira */}
         <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

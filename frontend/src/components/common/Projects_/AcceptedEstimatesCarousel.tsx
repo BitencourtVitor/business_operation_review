@@ -361,7 +361,7 @@ export default function AcceptedEstimatesCarousel() {
   }, [carouselData]);
 
   const [hovered, setHovered] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'total' | 'name' | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'total' | 'profit' | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [modalIdx, setModalIdx] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -399,15 +399,15 @@ export default function AcceptedEstimatesCarousel() {
         const totalB = b.estimate_total || 0;
         return sortDirection === 'desc' ? totalB - totalA : totalA - totalB;
       });
-    } else if (sortBy === 'name') {
+    } else if (sortBy === 'profit') {
       filtered = [...filtered].sort((a, b) => {
-        const nameA = getProjectName(a.project_name).toLowerCase();
-        const nameB = getProjectName(b.project_name).toLowerCase();
-        return sortDirection === 'desc' ? nameB.localeCompare(nameA) : nameA.localeCompare(nameB);
+        const profitA = (invoicesTotals[a.estimate_id] ?? 0) - (expensesTotals[a.estimate_id] ?? 0);
+        const profitB = (invoicesTotals[b.estimate_id] ?? 0) - (expensesTotals[b.estimate_id] ?? 0);
+        return sortDirection === 'desc' ? profitB - profitA : profitA - profitB;
       });
     }
     return filtered;
-  }, [carouselData, sortBy, sortDirection, searchTerm]);
+  }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals]);
 
   // Drag horizontal
   const onMouseDown = (e: React.MouseEvent) => {
@@ -589,7 +589,7 @@ export default function AcceptedEstimatesCarousel() {
 
             {/* Ordenação */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Ordenar</span>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Order by</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <button 
                   onClick={() => {
@@ -655,19 +655,19 @@ export default function AcceptedEstimatesCarousel() {
                   )}
                 </button>
                 
-                <button 
+                <button
                   onClick={() => {
-                    if (sortBy === 'name') {
+                    if (sortBy === 'profit') {
                       setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
                     } else {
-                      setSortBy('name');
-                      setSortDirection('asc');
+                      setSortBy('profit');
+                      setSortDirection('desc');
                     }
                   }} 
                   style={{ 
-                    background: sortBy === 'name' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
-                    color: sortBy === 'name' ? '#fff' : 'var(--color-text-secondary)', 
-                    border: sortBy === 'name' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
+                    background: sortBy === 'profit' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                    color: sortBy === 'profit' ? '#fff' : 'var(--color-text-secondary)', 
+                    border: sortBy === 'profit' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
                     borderRadius: 15, 
                     padding: '4px 12px', 
                     fontSize: 13, 
@@ -681,8 +681,8 @@ export default function AcceptedEstimatesCarousel() {
                     fontWeight: 600 
                   }}
                 >
-                  Nome
-                  {sortBy === 'name' && (
+                  Profit
+                  {sortBy === 'profit' && (
                     <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
                   )}
                 </button>
