@@ -197,10 +197,9 @@ export default function DestaquesPartition({
                   <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                    <button
-                      type="button"
+                    <div
                       className="btn btn-link p-0 ms-1"
-                      style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                      style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                       onClick={e => {
                         e.stopPropagation();
                         if (onView && destaques[0]) onView(destaques[0]);
@@ -209,12 +208,11 @@ export default function DestaquesPartition({
                       title="Expandir em modal"
                     >
                       <i className="bi bi-box-arrow-up-left" />
-                    </button>
+                    </div>
                     {isAdmin && (
-                      <button
-                        type="button"
+                      <div
                         className="btn btn-link p-0 ms-2"
-                        style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                        style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                         onClick={e => {
                           e.stopPropagation();
                           if (onEdit) onEdit(destaques[0].mes, destaques[0].ano);
@@ -222,7 +220,7 @@ export default function DestaquesPartition({
                         aria-label="Editar"
                       >
                         <i className="bi bi-pencil" />
-                      </button>
+                      </div>
                     )}
                   </div>
                 </button>
@@ -284,8 +282,7 @@ export default function DestaquesPartition({
                 <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                  <button
-                    type="button"
+                  <div
                     className="btn btn-tertiary-custom p-0 ms-1"
                     style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
                     onClick={e => {
@@ -296,12 +293,11 @@ export default function DestaquesPartition({
                     title="Expandir em modal"
                   >
                     <i className="bi bi-box-arrow-up-left" />
-                  </button>
+                  </div>
                   {isAdmin && (
-                    <button
-                      type="button"
+                    <div
                       className="btn btn-link p-0 ms-2"
-                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                       onClick={e => {
                         e.stopPropagation();
                         if (onEdit) onEdit(destaques[0].mes, destaques[0].ano);
@@ -309,7 +305,7 @@ export default function DestaquesPartition({
                       aria-label="Editar"
                     >
                       <i className="bi bi-pencil" />
-                    </button>
+                    </div>
                   )}
                 </div>
               </button>

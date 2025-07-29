@@ -197,24 +197,22 @@ export default function OportunidadesPartition({
                   <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{formatMonthYear(key)}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                                      <button
-                    type="button"
-                    className="btn btn-tertiary-custom p-0 ms-1"
-                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);
-                    }}
-                    aria-label="Expandir em modal"
-                    title="Expandir em modal"
-                  >
-                    <i className="bi bi-box-arrow-up-left" />
-                  </button>
+                    <div
+                      className="btn btn-tertiary-custom p-0 ms-1"
+                      style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none', cursor: 'pointer' }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);
+                      }}
+                      aria-label="Expandir em modal"
+                      title="Expandir em modal"
+                    >
+                      <i className="bi bi-box-arrow-up-left" />
+                    </div>
                     {isAdmin && (
-                      <button
-                        type="button"
+                      <div
                         className="btn btn-link p-0 ms-2"
-                        style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                        style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                         onClick={e => {
                           e.stopPropagation();
                           if (onEdit) onEdit(oportunidades[0].mes, oportunidades[0].ano);
@@ -222,7 +220,7 @@ export default function OportunidadesPartition({
                         aria-label="Editar"
                       >
                         <i className="bi bi-pencil" />
-                      </button>
+                      </div>
                     )}
                   </div>
                 </button>
@@ -299,10 +297,9 @@ export default function OportunidadesPartition({
                 <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{formatMonthYear(key)}</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <i className={`bi ${openOportunidades === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                  <button
-                    type="button"
+                  <div
                     className="btn btn-tertiary-custom p-0 ms-1"
-                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
+                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none', cursor: 'pointer' }}
                     onClick={e => {
                       e.stopPropagation();
                       if (onView && oportunidades[0]) onView(oportunidades[0], oportunidades[0].mes, oportunidades[0].ano);
@@ -311,12 +308,11 @@ export default function OportunidadesPartition({
                     title="Expandir em modal"
                   >
                     <i className="bi bi-box-arrow-up-left" />
-                  </button>
+                  </div>
                   {isAdmin && (
-                    <button
-                      type="button"
+                    <div
                       className="btn btn-link p-0 ms-2"
-                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none' }}
+                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
                       onClick={e => {
                         e.stopPropagation();
                         if (onEdit) onEdit(oportunidades[0].mes, oportunidades[0].ano);
@@ -324,7 +320,7 @@ export default function OportunidadesPartition({
                       aria-label="Editar"
                     >
                       <i className="bi bi-pencil" />
-                    </button>
+                    </div>
                   )}
                 </div>
               </button>
