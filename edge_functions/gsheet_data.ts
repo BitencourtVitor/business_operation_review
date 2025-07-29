@@ -409,21 +409,21 @@ serve(async (req) => {
        ),
        // Mapeamento para service_requests
        Promise.resolve(serviceRequestsData.map((row) => ({
-         contractor: capitalizeEachWord(getField(row, "CONTRACTOR")) || 'N/A',
-         job_site: getField(row, "JOB SITE") || 'N/A',
-         city: getField(row, "CITY") || 'N/A',
-         lot: getField(row, "LOT") || 'N/A',
-         address: getField(row, "ADDRESS") || 'N/A',
+         contractor: capitalizeEachWord(getField(row, "CONTRACTOR")),
+         job_site: getField(row, "JOB SITE"),
+         city: getField(row, "CITY"),
+         lot: getField(row, "LOT"),
+         address: getField(row, "ADDRESS"),
          close_date: parseDateUS(getField(row, "CLOSE DATE")),
          date_received: parseDateUS(getField(row, "DATE RECEIVED")),
          material_available_date: parseDateUS(getField(row, "DISPONIBILIDADE DO MATERIAL")),
          resident_available_date: parseDateUS(getField(row, "DISPONIBILIDADE DO MORADOR")),
          date_completed: parseDateUS(getField(row, "DATE COMPLETED")),
          additional_visits: getField(row, "ADDITIONAL VISITS") ? getField(row, "ADDITIONAL VISITS").split(',').map(date => parseDateUS(date.trim())).filter(date => date) : null,
-         issue: getField(row, "ISSUE") || 'N/A',
+         issue: getField(row, "ISSUE"),
          warranty: parseBooleanValue(getField(row, "WARRANTY")),
          cost: parseNumericValue(getField(row, "COST"), 0),
-         tech: getField(row, "TECH") || 'N/A'
+         tech: getField(row, "TECH")
        })))
      ]);
     
