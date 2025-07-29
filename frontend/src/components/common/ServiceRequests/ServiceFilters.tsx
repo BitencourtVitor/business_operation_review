@@ -15,15 +15,14 @@ interface ServiceFiltersProps {
   setSelectedCity: (cities: string[]) => void;
   selectedIssue: string[];
   setSelectedIssue: (issues: string[]) => void;
-  selectedTech: string[];
-  setSelectedTech: (techs: string[]) => void;
+  selectedWarranty: 'all' | 'warranty' | 'non-warranty';
+  setSelectedWarranty: (warranty: 'all' | 'warranty' | 'non-warranty') => void;
   years: string[];
   months: string[];
   contractors: string[];
   jobsites: string[];
   cities: string[];
   issues: string[];
-  techs: string[];
 }
 
 export default function ServiceFilters({
@@ -39,15 +38,14 @@ export default function ServiceFilters({
   setSelectedCity,
   selectedIssue,
   setSelectedIssue,
-  selectedTech,
-  setSelectedTech,
+  selectedWarranty,
+  setSelectedWarranty,
   years,
   months,
   contractors,
   jobsites,
   cities,
   issues,
-  techs,
 }: ServiceFiltersProps) {
   // Estilo para selects customizados
   const selectStyle: React.CSSProperties = {
@@ -145,21 +143,105 @@ export default function ServiceFilters({
           />
         </div>
       </div>
-      {/* Tech */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 16, display: 'flex' }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
-          <i className="bi bi-tools" style={{ fontSize: 17 }} />
-        </span>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 17, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
-          <MultiSelectDropdown 
-            options={techs.map(tech => ({ value: tech, label: tech }))}
-            selectedValues={selectedTech}
-            onChange={setSelectedTech}
-            placeholder="Tech"
-            allLabel="Todos"
-            dropdownTitle="Tech"
-          />
-        </div>
+      {/* Warranty */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+        <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Warranty</span>
+        <button 
+          onClick={() => setSelectedWarranty('all')} 
+          style={{ 
+            background: selectedWarranty === 'all' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: selectedWarranty === 'all' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)', 
+            border: selectedWarranty === 'all' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)', 
+            borderRadius: 15, 
+            padding: '4px 16px', 
+            fontWeight: 500, 
+            fontSize: 14, 
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            height: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            if (selectedWarranty !== 'all') {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+              e.currentTarget.style.color = 'var(--color-accent-primary)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = selectedWarranty === 'all' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+            e.currentTarget.style.borderColor = selectedWarranty === 'all' ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
+            e.currentTarget.style.color = selectedWarranty === 'all' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)';
+          }}
+        >
+          All
+        </button>
+        <button 
+          onClick={() => setSelectedWarranty('warranty')} 
+          style={{ 
+            background: selectedWarranty === 'warranty' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: selectedWarranty === 'warranty' ? '#fd7e14' : 'var(--color-text-primary)', 
+            border: selectedWarranty === 'warranty' ? '1.5px solid #fd7e14' : '1.5px solid var(--color-border-divider)', 
+            borderRadius: 15, 
+            padding: '4px 16px', 
+            fontWeight: 500, 
+            fontSize: 14, 
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            height: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            if (selectedWarranty !== 'warranty') {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = '#fd7e14';
+              e.currentTarget.style.color = '#fd7e14';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = selectedWarranty === 'warranty' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+            e.currentTarget.style.borderColor = selectedWarranty === 'warranty' ? '#fd7e14' : 'var(--color-border-divider)';
+            e.currentTarget.style.color = selectedWarranty === 'warranty' ? '#fd7e14' : 'var(--color-text-primary)';
+          }}
+        >
+          Yes
+        </button>
+        <button 
+          onClick={() => setSelectedWarranty('non-warranty')} 
+          style={{ 
+            background: selectedWarranty === 'non-warranty' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: selectedWarranty === 'non-warranty' ? '#28a745' : 'var(--color-text-primary)', 
+            border: selectedWarranty === 'non-warranty' ? '1.5px solid #28a745' : '1.5px solid var(--color-border-divider)', 
+            borderRadius: 15, 
+            padding: '4px 16px', 
+            fontWeight: 500, 
+            fontSize: 14, 
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            height: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            if (selectedWarranty !== 'non-warranty') {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = '#28a745';
+              e.currentTarget.style.color = '#28a745';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = selectedWarranty === 'non-warranty' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+            e.currentTarget.style.borderColor = selectedWarranty === 'non-warranty' ? '#28a745' : 'var(--color-border-divider)';
+            e.currentTarget.style.color = selectedWarranty === 'non-warranty' ? '#28a745' : 'var(--color-text-primary)';
+          }}
+        >
+          No
+        </button>
       </div>
     </div>
   );

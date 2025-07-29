@@ -84,7 +84,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const [selectedJobsite, setSelectedJobsite] = useState<string[]>([]);
   const [selectedCity, setSelectedCity] = useState<string[]>([]);
   const [selectedIssue, setSelectedIssue] = useState<string[]>([]);
-  const [selectedTech, setSelectedTech] = useState<string[]>([]);
+  const [selectedWarranty, setSelectedWarranty] = useState<'all' | 'warranty' | 'non-warranty'>('all');
 
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
@@ -93,7 +93,6 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const [jobsites, setJobsites] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [issues, setIssues] = useState<string[]>([]);
-  const [techs, setTechs] = useState<string[]>([]);
 
   // Hook para buscar dados de service requests
   const { data: serviceData, loading: serviceLoading, error: serviceError, refetch: refetchServiceData } = useServiceRequestData();
@@ -158,10 +157,6 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
       // Extrair issues únicas
       const uniqueIssues = [...new Set(serviceData.map(item => item.issue).filter(issue => issue))];
       setIssues(uniqueIssues.sort());
-
-      // Extrair techs únicos
-      const uniqueTechs = [...new Set(serviceData.map(item => item.tech).filter(tech => tech))];
-      setTechs(uniqueTechs.sort());
     }
   }, [serviceData]);
 
@@ -229,14 +224,15 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
         if (!selectedIssue.includes(item.issue)) return false;
       }
 
-      // Filtro por tech
-      if (selectedTech.length > 0 && selectedTech.length < techs.length) {
-        if (!selectedTech.includes(item.tech)) return false;
+      // Filtro por warranty
+      if (selectedWarranty !== 'all') {
+        if (selectedWarranty === 'warranty' && !item.warranty) return false;
+        if (selectedWarranty === 'non-warranty' && item.warranty) return false;
       }
 
       return true;
     });
-  }, [serviceData, selectedYear, selectedMonth, selectedContractor, selectedJobsite, selectedCity, selectedIssue, selectedTech, contractors, jobsites, cities, issues, techs]);
+  }, [serviceData, selectedYear, selectedMonth, selectedContractor, selectedJobsite, selectedCity, selectedIssue, selectedWarranty, contractors, jobsites, cities, issues]);
 
   // Função para resetar filtros para "Todos"
   const resetFiltersToAll = useCallback(() => {
@@ -245,8 +241,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
     setSelectedJobsite(jobsites);
     setSelectedCity(cities);
     setSelectedIssue(issues);
-    setSelectedTech(techs);
-  }, [contractors, jobsites, cities, issues, techs]);
+  }, [contractors, jobsites, cities, issues]);
 
   // Resetar filtros quando os dados mudarem
   useEffect(() => {
@@ -331,15 +326,14 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
           setSelectedCity={setSelectedCity}
           selectedIssue={selectedIssue}
           setSelectedIssue={setSelectedIssue}
-          selectedTech={selectedTech}
-          setSelectedTech={setSelectedTech}
+          selectedWarranty={selectedWarranty}
+          setSelectedWarranty={setSelectedWarranty}
           years={years}
           months={months}
           contractors={contractors}
           jobsites={jobsites}
           cities={cities}
           issues={issues}
-          techs={techs}
         />
       </div>
 
