@@ -165,10 +165,6 @@ export default function Dashboard() {
     'Service Requests': 'bi bi-telephone-inbound',
   };
 
-  // Separar telas por tipo
-  const telasBrasil = telas.filter(t => t.type === 'brazil' || !t.type);
-  const telasEUA = telas.filter(t => t.type === 'eua');
-
   // Descobrir todas as telas em que o usuário é admin_setor
   const adminTelasDescricoes = telas
     .filter(t => permissoes[t.id])
@@ -417,52 +413,20 @@ export default function Dashboard() {
           flex: 1,
           overflowY: 'hidden'
         }}>
-          {/* Office Brasil */}
-          {telasBrasil.length > 0 && (
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
-              <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
-                <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
-                  Office Brasil
-                </span>
-              </div>
-              {telasBrasil.map(tela => (
-                <button
-                  key={tela.id}
-                  className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                  style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-                  onClick={() => handleSetMainContent(tela.id)}
-                >
-                  <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-                  {tela.descricao}
-                </button>
-              ))}
-            </div>
-          )}
-          
-          {/* Office EUA */}
-          {telasEUA.length > 0 && (
-            <>
-              {telasBrasil.length > 0 && <div style={{ width: '100%', height: 1, background: 'var(--color-border-divider)' }}></div>}
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
-                <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
-                  <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
-                    Office EUA
-                  </span>
-                </div>
-                {telasEUA.map(tela => (
-                  <button
-                    key={tela.id}
-                    className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                    style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-                    onClick={() => handleSetMainContent(tela.id)}
-                  >
-                    <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-                    {tela.descricao}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
+          {/* All screens in a single list */}
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px 2px 10px'}}>
+            {telas.map(tela => (
+              <button
+                key={tela.id}
+                className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                onClick={() => handleSetMainContent(tela.id)}
+              >
+                <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
+                {tela.descricao}
+              </button>
+            ))}
+          </div>
           
           <div style={{ width: '100%', height: 1, background: 'var(--color-border-divider)' }}></div>
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
