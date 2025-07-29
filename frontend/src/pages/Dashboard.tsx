@@ -9,6 +9,7 @@ import AccountingIndicators from './AccountingIndicators';
 import PermitControl from './PermitControl';
 import Projects from './Projects';
 import TakeoffWorks from './TakeoffWorks';
+import ServiceRequests from './ServiceRequests';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -243,6 +244,8 @@ export default function Dashboard() {
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Takeoff Works':
         return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'Service Requests':
+        return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'IT Projects':
         return (
           <div className="container-fluid">

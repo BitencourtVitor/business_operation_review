@@ -9,6 +9,7 @@ interface MultiSelectDropdownProps {
   allLabel?: string;
   dropdownTitle?: string;
   disablePortal?: boolean;
+  dropdownWidth?: number;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -18,7 +19,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   placeholder = 'Selecionar',
   allLabel = 'Todos',
   dropdownTitle,
-  disablePortal = false
+  disablePortal = false,
+  dropdownWidth
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -46,14 +48,37 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   useEffect(() => {
     if ((open || !hasPreRendered) && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
+      const customWidth = dropdownWidth || rect.width;
+      
+      // Calcular posição considerando limites da tela
+      let left = rect.left + window.scrollX;
+      const viewportWidth = window.innerWidth;
+      
+      // Se a largura customizada for maior que a largura do botão
+      if (customWidth > rect.width) {
+        // Alinhar com a borda direita do botão e crescer para a esquerda
+        const buttonRight = rect.right + window.scrollX;
+        left = buttonRight - customWidth;
+        
+        // Garantir que não saia pela esquerda
+        if (left < 0) {
+          left = 0;
+        }
+      }
+      
+      // Garantir que não saia pela esquerda
+      if (left < 0) {
+        left = 0;
+      }
+      
       setDropdownPos({
         top: rect.bottom + window.scrollY,
-        left: rect.left + window.scrollX,
-        width: rect.width,
+        left: left,
+        width: customWidth,
       });
       if (!hasPreRendered) setHasPreRendered(true);
     }
-  }, [open, hasPreRendered]);
+  }, [open, hasPreRendered, dropdownWidth]);
 
   const allSelected = selectedValues.length === options.length;
   const toggleOption = (opt: string) => {

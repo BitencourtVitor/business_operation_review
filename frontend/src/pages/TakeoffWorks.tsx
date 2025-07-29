@@ -463,35 +463,18 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             isAdmin={podeEditar}
-            onEdit={async () => {
+            onEdit={async (plano) => {
               setModalType('plano');
-              const { data: planos } = await supabase
-                .from('planos_de_acao')
+              // Buscar ações do plano específico
+              const { data: acoes } = await supabase
+                .from('acoes')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId)
-                .eq('deletado', false);
-              if (planos && planos.length > 0) {
-                const plano = planos[0];
-                const { data: acoes } = await supabase
-                  .from('acoes')
-                  .select('*')
-                  .eq('plano_id', plano.id);
-                setModalData({
-                  ...plano,
-                  acoes: acoes || [],
-                });
-              } else {
-                setModalData({
-                  id: '',
-                  usuario_id: usuarioResponsavelId,
-                  titulo: '',
-                  descricao: '',
-                  criado_em: new Date().toISOString(),
-                  data_inicio: '',
-                  data_fim: '',
-                  acoes: [],
-                });
-              }
+                .eq('plano_id', plano.id);
+              
+              setModalData({
+                ...plano,
+                acoes: acoes || [],
+              });
               setModalOpen(true);
             }}
             onAdd={async () => {

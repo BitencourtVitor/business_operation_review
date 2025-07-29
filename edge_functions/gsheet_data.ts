@@ -14,7 +14,8 @@ const urls = {
   receivables: "https://docs.google.com/spreadsheets/d/1lk5ENgYagn9cBhvOtLVSJ6lVZdblrt3KteSMbqE_GSQ/export?format=csv&gid=0",
   payables: "https://docs.google.com/spreadsheets/d/1wsF5Ze940saB4pP-v1WVMXTFWFqUkKQog3P3Ylp_GO8/export?format=csv&gid=0",
   takeoff_works: "https://docs.google.com/spreadsheets/d/1ktRGvvjn-c_YGhXMUAfcTtdTFOtTwoP-1gZTCeheAgU/export?format=csv&gid=0",
-  takeoff_works_responsibles: "https://docs.google.com/spreadsheets/d/1ktRGvvjn-c_YGhXMUAfcTtdTFOtTwoP-1gZTCeheAgU/export?format=csv&gid=883077868"
+  takeoff_works_responsibles: "https://docs.google.com/spreadsheets/d/1ktRGvvjn-c_YGhXMUAfcTtdTFOtTwoP-1gZTCeheAgU/export?format=csv&gid=883077868",
+  service_requests: "https://docs.google.com/spreadsheets/d/142NUG_ffJwVotYwShXLywKcNzK8EQoNny_4Ow50qTu8/export?format=csv&gid=0"
 };
 
 /**
@@ -122,7 +123,9 @@ function parseDateUS(str: string) {
   if (!str) return null;
   try {
     const [month, day, year] = str.split('/');
-    return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+    // Criar data no fuso horário local para evitar problemas de timezone
+    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    return date;
   } catch (error) {
     console.error(`Erro ao fazer parse da data: ${str}`, error);
     return null;
@@ -174,6 +177,36 @@ function getField(row: any, key: string) {
   return value;
 }
 
+// Função para capitalizar cada palavra
+function capitalizeEachWord(str: string | null | undefined): string {
+  if (!str) return '';
+  const normalized = normalizeUtf8String(str);
+  return normalized
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+// Função para tratar valores booleanos
+function parseBooleanValue(value: any): boolean {
+  if (!value) return false;
+  
+  const stringValue = String(value).trim().toLowerCase();
+  
+  // Valores que devem retornar true
+  if (['true', 'yes', '1', 'sim', 's', 'y'].includes(stringValue)) {
+    return true;
+  }
+  
+  // Valores que devem retornar false
+  if (['false', 'no', '0', 'não', 'nao', 'n'].includes(stringValue)) {
+    return false;
+  }
+  
+  // Se não reconhecer, retorna false por padrão
+  return false;
+}
+
 // Deletar tabelas em paralelo
 async function deleteAllTables() {
   try {
@@ -184,7 +217,8 @@ async function deleteAllTables() {
       supabase.from('receivables_accounting').delete().not('id', 'is', null),
       supabase.from('payables_accounting').delete().not('id', 'is', null),
       supabase.from('takeoff_works').delete().not('id', 'is', null),
-      supabase.from('takeoff_works_responsibles').delete().not('id', 'is', null)
+      supabase.from('takeoff_works_responsibles').delete().not('id', 'is', null),
+      supabase.from('service_requests').delete().not('id', 'is', null)
     ];
     const results = await Promise.all(deletePromises);
     for (let i = 0; i < results.length; i++) {
@@ -256,17 +290,18 @@ serve(async (req) => {
     
     // 2. Buscar novos dados em paralelo
     console.log('Buscando dados em paralelo...');
-    const [timesheetData, permitData, receivablesData, payablesData, takeoffWorksData, takeoffWorksResponsiblesData] = await Promise.all([
+    const [timesheetData, permitData, receivablesData, payablesData, takeoffWorksData, takeoffWorksResponsiblesData, serviceRequestsData] = await Promise.all([
       fetchCsvToJson(urls.timesheet, 'Timesheet'),
       fetchCsvToJson(urls.permit, 'Permit'),
       fetchCsvToJson(urls.receivables, 'Receivables'),
       fetchCsvToJson(urls.payables, 'Payables'),
       fetchCsvToJson(urls.takeoff_works, 'Takeoff_Works'),
-      fetchCsvToJson(urls.takeoff_works_responsibles, 'Takeoff_Works_Responsibles')
+      fetchCsvToJson(urls.takeoff_works_responsibles, 'Takeoff_Works_Responsibles'),
+      fetchCsvToJson(urls.service_requests, 'Service_Requests')
     ]);
     
     // 3. Mapear dados em paralelo com normalização UTF-8
-    const [mappedTimesheet, mappedPermit, mappedReceivables, mappedPayables, mappedTakeoffWorks, mappedTakeoffWorksResponsibles] = await Promise.all([
+    const [mappedTimesheet, mappedPermit, mappedReceivables, mappedPayables, mappedTakeoffWorks, mappedTakeoffWorksResponsibles, mappedServiceRequests] = await Promise.all([
       Promise.resolve(timesheetData.map((row) => ({
         date: getField(row, "Date") ? new Date(getField(row, "Date")) : null,
         nome: getField(row, "Nome"),
@@ -359,20 +394,38 @@ serve(async (req) => {
         Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
         return obj;
       })),
-      // Mapeamento para takeoff_works_responsibles (NÃO enviar id nem created_at)
-      Promise.resolve(
-        takeoffWorksResponsiblesData
-          .map((row) => {
-            const obj = {
-              step: getField(row, "Item"),
-              responsible: getField(row, "Responsavel")
-            };
-            Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
-            return obj;
-          })
-          .filter(obj => obj.step && String(obj.step).trim() !== "")
-      )
-    ]);
+             // Mapeamento para takeoff_works_responsibles (NÃO enviar id nem created_at)
+       Promise.resolve(
+         takeoffWorksResponsiblesData
+           .map((row) => {
+             const obj = {
+               step: getField(row, "Item"),
+               responsible: getField(row, "Responsavel")
+             };
+             Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
+             return obj;
+           })
+           .filter(obj => obj.step && String(obj.step).trim() !== "")
+       ),
+       // Mapeamento para service_requests
+       Promise.resolve(serviceRequestsData.map((row) => ({
+                   contractor: capitalizeEachWord(getField(row, "CONTRACTOR")),
+         job_site: getField(row, "JOB SITE"),
+         city: getField(row, "CITY"),
+         lot: getField(row, "LOT"),
+         address: getField(row, "ADDRESS"),
+         close_date: parseDateUS(getField(row, "CLOSE DATE")),
+         date_received: parseDateUS(getField(row, "DATE RECEIVED")),
+         material_available_date: parseDateUS(getField(row, "DISPONIBILIDADE DO MATERIAL")),
+         resident_available_date: parseDateUS(getField(row, "DISPONIBILIDADE DO MORADOR")),
+         date_completed: parseDateUS(getField(row, "DATE COMPLETED")),
+         additional_visits: getField(row, "ADDITIONAL VISITS") ? getField(row, "ADDITIONAL VISITS").split(',').map(date => parseDateUS(date.trim())).filter(date => date) : null,
+         issue: getField(row, "ISSUE"),
+         warranty: parseBooleanValue(getField(row, "WARRANTY")),
+         cost: parseNumericValue(getField(row, "COST"), 0),
+         tech: getField(row, "TECH")
+       })))
+     ]);
     
     console.log('Dados mapeados com sucesso e normalizados UTF-8');
     
@@ -385,6 +438,7 @@ serve(async (req) => {
     if (Array.isArray(mappedPayables) && mappedPayables.length > 0) upserts.push(upsertTableBatch("payables_accounting", mappedPayables, "Payables"));
     if (Array.isArray(mappedTakeoffWorks) && mappedTakeoffWorks.length > 0) upserts.push(upsertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
     if (Array.isArray(mappedTakeoffWorksResponsibles) && mappedTakeoffWorksResponsibles.length > 0) upserts.push(upsertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
+    if (Array.isArray(mappedServiceRequests) && mappedServiceRequests.length > 0) upserts.push(upsertTableBatch("service_requests", mappedServiceRequests, "Service_Requests"));
     if (upserts.length > 0) {
       await Promise.all(upserts);
     }
@@ -401,7 +455,8 @@ serve(async (req) => {
         receivables: Array.isArray(mappedReceivables) ? mappedReceivables.length : 0,
         payables: Array.isArray(mappedPayables) ? mappedPayables.length : 0,
         takeoff_works: Array.isArray(mappedTakeoffWorks) ? mappedTakeoffWorks.length : 0,
-        takeoff_works_responsibles: Array.isArray(mappedTakeoffWorksResponsibles) ? mappedTakeoffWorksResponsibles.length : 0
+        takeoff_works_responsibles: Array.isArray(mappedTakeoffWorksResponsibles) ? mappedTakeoffWorksResponsibles.length : 0,
+        service_requests: Array.isArray(mappedServiceRequests) ? mappedServiceRequests.length : 0
       }
     }), {
       status: 200,
