@@ -5,18 +5,17 @@ import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import TimesheetAnalysis from './TimesheetAnalysis';
-import AccountingIndicators from './AccountingIndicators';
 import PermitControl from './PermitControl';
 import Projects from './Projects';
 import TakeoffWorks from './TakeoffWorks';
 import ServiceRequests from './ServiceRequests';
+import AccountingIndicators from './AccountingIndicators';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
 interface Tela {
   id: string;
   descricao: string;
-  type?: 'brazil' | 'eua';
 }
 
 interface Permissao {
@@ -33,6 +32,7 @@ export default function Dashboard() {
   const [telas, setTelas] = useState<Tela[]>([]);
   const [permissoes, setPermissoes] = useState<Permissao>({});
   const [usuarioId, setUsuarioId] = useState<string>('');
+  const [showAccountingContent, setShowAccountingContent] = useState(false);
 
   // Buscar dados do usuário e telas
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function Dashboard() {
           // Buscar telas
           const { data: telasData } = await supabase
             .from('telas')
-            .select('id, descricao, type');
+            .select('id, descricao');
           setTelas(telasData || []);
 
           // Buscar permissões
@@ -152,12 +152,21 @@ export default function Dashboard() {
 
   const handleSetMainContent = (telaId: string) => {
     setTelaId(telaId);
+    setShowAccountingContent(false); // Reset accounting content when changing telaId
+  };
+
+  const handleShowAccountingContent = () => {
+    setShowAccountingContent(true);
+  };
+
+  const handleBackToProjects = () => {
+    setShowAccountingContent(false);
   };
 
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
-    'Outstanding Indicators': 'bi bi-cash',
+    'Accounting Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
     'Takeoff Works': 'bi bi-houses',
     'IT Projects': 'bi bi-braces-asterisk',
@@ -225,8 +234,15 @@ export default function Dashboard() {
     // Verificar se o usuário é responsável pela tela selecionada
     const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev') : false;
 
-    if (telaId === 'projects') {
-      return <Projects />;
+    // Se showAccountingContent for true, mostrar AccountingIndicators independente da tela
+    if (showAccountingContent) {
+      return <AccountingIndicators 
+        telaId={telaId}
+        usuarioId={usuarioId}
+        role={role}
+        isResponsavelPelaTela={isResponsavelPelaTela}
+        onBackToProjects={handleBackToProjects}
+      />;
     }
 
     if (!tela) return null;
@@ -234,8 +250,8 @@ export default function Dashboard() {
     switch (tela.descricao) {
       case 'Timesheet Analysis':
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
-      case 'Outstanding Indicators':
-        return <AccountingIndicators telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'Accounting Indicators':
+        return <Projects onNavigateToTela={handleSetMainContent} telas={telas} onShowAccountingContent={handleShowAccountingContent} />;
       case 'Permit Control':
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Takeoff Works':
@@ -426,61 +442,6 @@ export default function Dashboard() {
                 {tela.descricao}
               </button>
             ))}
-          </div>
-          
-          <div style={{ width: '100%', height: 1, background: 'var(--color-border-divider)' }}></div>
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px'}}>
-            <div style={{ width: '100%', textAlign: 'center', marginBottom: 5}}>
-              <span className="fw-light" style={{ color: 'var(--color-text-secondary)', fontSize: 14, letterSpacing: 0.5 }}>
-                Quickbooks
-              </span>
-            </div>
-            <button
-              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === 'projects' ? ' btn-sidebar-ativo' : ''}`}
-              style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onClick={() => handleSetMainContent('projects')}
-            >
-              <i className="bi bi-graph-up-arrow" style={{ fontSize: 14 }} />
-              Accounting Indicators
-            </button>
-          </div>
-        </div>
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px', borderTop: '1px solid var(--color-border-divider)' }}>
-          <div style={{ position: 'relative', width: '100%' }}>
-            <button
-              className="btn-sidebar d-flex align-items-center justify-content-start w-100"
-              style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-              onMouseEnter={(e) => {
-                const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
-                if (tooltip) tooltip.style.display = 'block';
-              }}
-              onMouseLeave={(e) => {
-                const tooltip = e.currentTarget.nextElementSibling as HTMLElement;
-                if (tooltip) tooltip.style.display = 'none';
-              }}
-            >
-              <i className="bi bi-gear" style={{ fontSize: 14 }} />
-              Settings
-            </button>
-            <div style={{
-              position: 'absolute',
-              left: '100%',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              marginLeft: 8,
-              background: 'var(--color-background-primary)',
-              border: '1px solid var(--color-border-divider)',
-              borderRadius: 6,
-              padding: '6px 10px',
-              fontSize: 11,
-              color: 'var(--color-text-secondary)',
-              whiteSpace: 'nowrap',
-              zIndex: 1000,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-              display: 'none'
-            }}>
-              Melhoria implementada em breve
-            </div>
           </div>
         </div>
       </aside>

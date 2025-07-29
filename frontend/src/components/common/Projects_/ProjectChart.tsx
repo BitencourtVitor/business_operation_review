@@ -21,9 +21,10 @@ interface ProjectChartProps {
   selectedYear: string;
   selectedMonth: string;
   selectedGroup: 'all' | 'receivable' | 'payable';
+  onNavigateToAccounting?: () => void;
 }
 
-const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup }) => {
+const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup, onNavigateToAccounting }) => {
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   
@@ -58,14 +59,32 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         pendingPayable: pendingPayableValues[idx],
       };
     }).filter(row => {
+      // Sempre incluir períodos que têm dados de Outstanding, independente do grupo selecionado
+      const hasOutstandingData = row.pendingReceivable > 0 || row.pendingPayable > 0;
+      
       if (selectedGroup === 'all') {
-        return row.receivable > 0 || row.payable > 0 || row.pendingReceivable > 0 || row.pendingPayable > 0;
+        return row.receivable > 0 || row.payable > 0 || hasOutstandingData;
       } else if (selectedGroup === 'receivable') {
         return row.receivable > 0 || row.pendingReceivable > 0;
       } else {
         return row.payable > 0 || row.pendingPayable > 0;
       }
     });
+
+    // Se não há dados filtrados mas há dados de Outstanding, incluir pelo menos um período
+    if (filtered.length === 0 && (pendingReceivableValues.some(v => v > 0) || pendingPayableValues.some(v => v > 0))) {
+      const outstandingPeriods = labels.map((label, idx) => ({
+        label,
+        receivable: receivableValues[idx],
+        payable: payableValues[idx],
+        pendingReceivable: pendingReceivableValues[idx],
+        pendingPayable: pendingPayableValues[idx],
+      })).filter(row => row.pendingReceivable > 0 || row.pendingPayable > 0);
+      
+      if (outstandingPeriods.length > 0) {
+        filtered.push(...outstandingPeriods);
+      }
+    }
 
     const filteredLabels = filtered.map(row => row.label);
     const filteredReceivableValues = filtered.map(row => row.receivable);
@@ -279,6 +298,34 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     <div style={{ width: '100%', background: 'var(--color-background-primary)', borderRadius: 0, margin: 0, borderBottom: '1.5px solid var(--color-border-divider)', padding: 0 }}>
       <div className='d-flex justify-content-between align-items-center' style={{ padding: '16px 32px 0 32px', background: 'var(--color-background-primary)' }}>
         <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30, margin: 0 }}>Project Value Over Time</h4>
+        {onNavigateToAccounting && (
+          <button
+            onClick={onNavigateToAccounting}
+            className="btn-secondary-custom d-flex align-items-center justify-content-center"
+            style={{ 
+              padding: '8px 16px', 
+              fontSize: 14, 
+              fontWeight: 500,
+              borderRadius: 6,
+              gap: 8,
+              border: '1px solid var(--color-border-divider)',
+              background: 'var(--color-background-primary)',
+              color: 'var(--color-text-secondary)',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--color-background-secondary)';
+              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+            }}
+          >
+            <i className="bi bi-cash" style={{ fontSize: 14 }} />
+            Outstanding Details
+          </button>
+        )}
       </div>
       <div style={{ width: '100%', height: 340, minHeight: 220, maxHeight: 400, padding: '0 32px 24px 32px' }}>
         {loading ? (

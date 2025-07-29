@@ -3,7 +3,13 @@ import ProjectFilters from '../components/common/Projects_/ProjectFilters';
 import ProjectChart from '../components/common/Projects_/ProjectChart';
 import AcceptedEstimatesCarousel from '../components/common/Projects_/AcceptedEstimatesCarousel';
 
-export default function Projects() {
+interface ProjectsProps {
+  onNavigateToTela?: (telaId: string) => void;
+  telas?: Array<{ id: string; descricao: string }>;
+  onShowAccountingContent?: () => void;
+}
+
+export default function Projects({ onNavigateToTela, telas, onShowAccountingContent }: ProjectsProps) {
   // Estados para filtros
   const [selectedCompany, setSelectedCompany] = useState<string[]>(['Premium HVAC']);
   const [selectedYear, setSelectedYear] = useState('');
@@ -15,6 +21,13 @@ export default function Projects() {
     setSelectedYear(anoAtual);
     setSelectedMonth('');
   }, []);
+
+  const handleNavigateToAccounting = () => {
+    if (onShowAccountingContent) {
+      // Mostrar o conteúdo de AccountingIndicators sem alterar o telaId
+      onShowAccountingContent();
+    }
+  };
 
   return (
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
@@ -33,7 +46,12 @@ export default function Projects() {
         />
       </div>
       {/* Gráfico principal */}
-      <ProjectChart selectedYear={selectedYear} selectedMonth={selectedMonth} selectedGroup={selectedGroup} />
+      <ProjectChart 
+        selectedYear={selectedYear} 
+        selectedMonth={selectedMonth} 
+        selectedGroup={selectedGroup} 
+        onNavigateToAccounting={handleNavigateToAccounting}
+      />
       {/* Carrossel de Accepted Estimates */}
       <AcceptedEstimatesCarousel />
       {/* Conteúdo principal futuro */}

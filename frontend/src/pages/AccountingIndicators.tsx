@@ -75,9 +75,10 @@ interface AccountingIndicatorsProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
+  onBackToProjects?: () => void;
 }
 
-const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }) => {
+const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, onBackToProjects }) => {
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [podeEditar, setPodeEditar] = useState(false);
@@ -560,6 +561,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
               selectedPayablesCategories={selectedPayablesCategories}
               selectedAging={selectedAging}
               unfilteredDataForChart={unfilteredDataForChart}
+              onBackToProjects={onBackToProjects}
             />
             {/* Métricas centralizadas abaixo do gráfico */}
             <div className="d-flex flex-row align-items-center justify-content-between" style={{ borderBottom: '1px solid var(--color-border-divider)', borderTop: '1px solid var(--color-border-divider)' }}>

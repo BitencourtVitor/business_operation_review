@@ -58,7 +58,7 @@ function useProjectDetails(estimateId: string | null) {
         const { data: billLinesRaw } = await supabase
           .from('hvac_bill_lines')
           .select('*')
-          .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+          .eq('customer_id', estimateData.customer_id);
         const billLines = billLinesRaw || [];
         const billIds = [...new Set((billLines || []).map((l: Record<string, unknown>) => l.bill_id))];
         const { data: billsDataRaw } = billIds.length > 0 ? await supabase
@@ -84,7 +84,7 @@ function useProjectDetails(estimateId: string | null) {
         const { data: purchaseLinesRaw } = await supabase
           .from('hvac_purchase_lines')
           .select('*')
-          .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+          .eq('customer_id', estimateData.customer_id);
         const purchaseLines = purchaseLinesRaw || [];
         const purchaseIds = [...new Set((purchaseLines || []).map((l: Record<string, unknown>) => l.purchase_id))];
         const { data: purchasesDataRaw } = purchaseIds.length > 0 ? await supabase
@@ -97,7 +97,7 @@ function useProjectDetails(estimateId: string | null) {
         const { data: vendorCreditLinesRaw } = await supabase
           .from('hvac_vendor_credit_lines')
           .select('*')
-          .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+          .eq('customer_id', estimateData.customer_id);
         const vendorCreditLines = vendorCreditLinesRaw || [];
         const vendorCreditIds = [...new Set((vendorCreditLines || []).map((l: Record<string, unknown>) => l.vendor_credit_id))];
         const { data: vendorCreditsDataRaw } = vendorCreditIds.length > 0 ? await supabase
@@ -238,19 +238,19 @@ async function fetchExpensesTotal(estimateId: string): Promise<number> {
   const { data: billLinesRaw } = await supabase
     .from('hvac_bill_lines')
     .select('*')
-    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+    .eq('customer_id', estimateData.customer_id);
   const billLines = billLinesRaw || [];
   // Purchases
   const { data: purchaseLinesRaw } = await supabase
     .from('hvac_purchase_lines')
     .select('*')
-    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+    .eq('customer_id', estimateData.customer_id);
   const purchaseLines = purchaseLinesRaw || [];
   // Vendor credits
   const { data: vendorCreditLinesRaw } = await supabase
     .from('hvac_vendor_credit_lines')
     .select('*')
-    .or(`customer_id.eq.${estimateData.customer_id},customer_name.eq.${estimateData.customer_name}`);
+    .eq('customer_id', estimateData.customer_id);
   const vendorCreditLines = vendorCreditLinesRaw || [];
   // Soma todos os amounts
   const total = [...billLines, ...purchaseLines, ...vendorCreditLines].reduce((sum, l) => sum + Number(l.amount || 0), 0);

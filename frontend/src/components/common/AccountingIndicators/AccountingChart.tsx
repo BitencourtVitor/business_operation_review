@@ -215,6 +215,7 @@ interface AccountingChartProps {
   selectedPayablesCategories: string[];
   selectedAging: string[];
   unfilteredDataForChart: AccountingRow[];
+  onBackToProjects?: () => void;
 }
 
 export function AccountingChart({ 
@@ -230,7 +231,8 @@ export function AccountingChart({
   selectedReceivablesCategories,
   selectedPayablesCategories,
   selectedAging,
-  unfilteredDataForChart
+  unfilteredDataForChart,
+  onBackToProjects
 }: AccountingChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<AccountingTooltipExternalProps>>(null);
@@ -1607,8 +1609,39 @@ export function AccountingChart({
           }
         </h4>
 
-        {/* Select para seleção do tipo de gráfico */}
-        <div className='d-flex justify-content-end'>
+        {/* Controles do lado direito */}
+        <div className='d-flex align-items-center gap-3'>
+          {/* Botão Back to Projects */}
+          {onBackToProjects && (
+            <button
+              onClick={onBackToProjects}
+              className="btn-secondary-custom d-flex align-items-center justify-content-center"
+              style={{ 
+                padding: '8px 16px', 
+                fontSize: 14, 
+                fontWeight: 500,
+                borderRadius: 6,
+                gap: 8,
+                border: '1px solid var(--color-border-divider)',
+                background: 'var(--color-background-primary)',
+                color: 'var(--color-text-secondary)',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-background-secondary)';
+                e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--color-background-primary)';
+                e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+              }}
+            >
+              <i className="bi bi-arrow-left" style={{ fontSize: 14 }} />
+              Back to Projects
+            </button>
+          )}
+
+          {/* Select para seleção do tipo de gráfico */}
           <div className="input-group" style={{ minWidth: 200, maxWidth: 200, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
             <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
               <i className={`bi ${chartType === 'line' ? 'bi-graph-up' : 'bi-pie-chart'}`} style={{ fontSize: 17 }} />
@@ -1621,7 +1654,6 @@ export function AccountingChart({
             </div>
           </div>
         </div>
-
       </div>
       
       {chartType === 'line' ? (
