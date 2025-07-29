@@ -21,6 +21,13 @@ const formatDate = (date?: string | null) => {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 };
 
+// Função para formatar datas no formato americano (MM/DD/YYYY)
+const formatDateUS = (date?: string | null) => {
+  if (!date) return '-';
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+};
+
 // Função para calcular tempo de resolução considerando todas as condições
 const calculateResolutionTimeAdvanced = (service: ServiceRequestRow): { days: number; isOnTime: boolean; startDate: string; endDate: string; reason: string } => {
   if (!service.date_received) return { days: 0, isOnTime: false, startDate: '', endDate: '', reason: 'No start date' };
@@ -67,8 +74,8 @@ const calculateResolutionTimeAdvanced = (service: ServiceRequestRow): { days: nu
   return {
     days,
     isOnTime,
-    startDate: startDate.toLocaleDateString('pt-BR'),
-    endDate: endDate.toLocaleDateString('pt-BR'),
+    startDate: startDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+    endDate: endDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
     reason
   };
 };
@@ -1089,7 +1096,7 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                               Request Received
                             </div>
                             <div style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-                              {formatDate(selected.date_received)}
+                              {formatDateUS(selected.date_received)}
                             </div>
                           </div>
                         </div>
@@ -1135,7 +1142,7 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                                   Material Available
                                 </div>
                                 <div style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-                                  {formatDate(selected.material_available_date)}
+                                  {formatDateUS(selected.material_available_date)}
                                 </div>
                               </div>
                             </div>
@@ -1181,7 +1188,7 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                                   Resident Available
                                 </div>
                                 <div style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-                                  {formatDate(selected.resident_available_date)}
+                                  {formatDateUS(selected.resident_available_date)}
                                 </div>
                               </div>
                             </div>
@@ -1232,7 +1239,7 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                                   Service Completed
                                 </div>
                                 <div style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-                                  {formatDate(selected.date_completed)}
+                                  {formatDateUS(selected.date_completed)}
                                 </div>
                               </div>
                             </div>
@@ -1289,7 +1296,7 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                                             Additional Visit {index + 1}
                                           </div>
                                           <div style={{ color: 'var(--color-text-secondary)', fontSize: 13 }}>
-                                            {visitDateObj.toLocaleDateString('pt-BR')}
+                                            {visitDateObj.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                                           </div>
                                         </div>
                                       </div>
