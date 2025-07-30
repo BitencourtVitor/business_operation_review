@@ -1,393 +1,5 @@
 [
   {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19789",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-07-17T11:43:42-07:00",
-      "LastUpdatedTime": "2025-07-30T10:32:12-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1861",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "API TEST",
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough",
-        "Amount": 18500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000432",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 7135,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000412",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
-          },
-          "UnitPrice": 7135,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000436",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000483",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 5,
-        "Description": "Rough Ductwork - Job Supplies Cost",
-        "Amount": -10000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": -10000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "Air Handler - Job Supplies Cost",
-        "Amount": -5000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": -5000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "Compressor - Job Supplies Cost",
-        "Amount": -3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": -3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 8,
-        "Description": "Final Hvac - Job Supplies Cost",
-        "Amount": -1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": -1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 16135,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1501",
-      "name": "Test Project"
-    },
-    "BillAddr": {
-      "Id": "18957",
-      "Line1": "Premium HVAC, Inc"
-    },
-    "TotalAmt": 16135,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17926",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-04-25T05:31:54-07:00",
-      "LastUpdatedTime": "2025-07-30T06:39:30-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1784",
-    "TxnDate": "2025-04-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "20075",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 13800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000541",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Rough Ductwork - Sutton"
-          },
-          "UnitPrice": 13800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler - Sutton - Willis Brook",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000545",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Air Handler - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor - Sutton - Willis Brook",
-        "Amount": 3800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000524",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC - Sutton - Willis Brook",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000581",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "263018 - Finished Basement - Rough Ductwork - Sutton",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000502",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Rough -Finished Basement - Sutton"
-          },
-          "UnitPrice": 4000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 28100,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1342",
-      "name": "Lot 01 - Willis Brook at Lynnfield"
-    },
-    "BillAddr": {
-      "Id": "16609",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "4 Eagleview Drive ",
-      "Line3": "Sutton Modern Craftsman"
-    },
-    "ShipAddr": {
-      "Id": "16610",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "4 Eagleview Drive ",
-      "Line3": "Sutton Modern Craftsman"
-    },
-    "TotalAmt": 28100,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
     "AcceptedDate": "2025-07-29",
     "domain": "QBO",
     "sparse": false,
@@ -12739,6 +12351,145 @@
       "Line2": "3 Town Line Road"
     },
     "TotalAmt": 33500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19789",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-17T11:43:42-07:00",
+      "LastUpdatedTime": "2025-07-17T11:44:02-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1861",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 18500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000432",
+            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
+          },
+          "UnitPrice": 18500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 7135,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000412",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
+          },
+          "UnitPrice": 7135,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000436",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000483",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 35135,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1501",
+      "name": "Test Project"
+    },
+    "BillAddr": {
+      "Id": "18957",
+      "Line1": "Premium HVAC, Inc"
+    },
+    "TotalAmt": 35135,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -47079,6 +46830,172 @@
       "Line3": "Topsfiel Nantucket"
     },
     "TotalAmt": 25725,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17926",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-04-25T05:31:54-07:00",
+      "LastUpdatedTime": "2025-04-25T05:38:40-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1784",
+    "TxnDate": "2025-04-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 13800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000541",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Rough Ductwork - Sutton"
+          },
+          "UnitPrice": 13800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler - Sutton - Willis Brook",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000545",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Air Handler - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor - Sutton - Willis Brook",
+        "Amount": 3800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000524",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC - Sutton - Willis Brook",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000581",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "263018 - Finished Basement - Rough Ductwork - Sutton",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000502",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Rough -Finished Basement - Sutton"
+          },
+          "UnitPrice": 4000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 28100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1342",
+      "name": "Lot 01 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "16609",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "4 Eagleview Drive ",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "16610",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "4 Eagleview Drive ",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "TotalAmt": 28100,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
