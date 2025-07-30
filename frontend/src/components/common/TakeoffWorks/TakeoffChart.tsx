@@ -8,38 +8,35 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import dayjs from 'dayjs';
 import { createPortal } from 'react-dom';
 import type { TakeoffRow } from '../../../types/takeoff';
+import { generateTakeoffColors, generateTakeoffBorderColors } from '../../../utils/takeoffColors';
+import { TakeoffPieChart } from './TakeoffPieChart';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
 // Tooltip customizado para o gráfico Takeoff
 interface TakeoffTooltipExternalProps {
   tooltip: unknown;
-  chartLabels: string[];
-  year: string;
-  month: string;
   canvas?: HTMLCanvasElement | null;
   data: TakeoffRow[];
 }
 
-const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tooltip, chartLabels, year, month, canvas, data }: TakeoffTooltipExternalProps) {
+const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tooltip, canvas, data }: TakeoffTooltipExternalProps) {
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const [realWidth, setRealWidth] = React.useState<number>(320);
 
-  let dataIndex: number = 0;
-  let periodo: string = '';
   let caretX: number = 0;
   let caretY: number = 0;
-  let entregues = 0;
-  let pendentes = 0;
+  let status = '';
+  let count = 0;
+  let percentage = 0;
 
   const safeTooltip = tooltip as {
     opacity?: number;
-    dataPoints?: Array<{ dataIndex: number; datasetIndex: number }>;
+    dataPoints?: Array<{ dataIndex: number; datasetIndex: number; label: string; value: number }>;
     caretX?: number;
     caretY?: number;
   };
@@ -52,113 +49,15 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
     if (tooltipRef.current) {
       setRealWidth(tooltipRef.current.offsetWidth);
     }
-  }, [periodo, entregues, pendentes]);
+  }, [status, count, percentage]);
 
   if (!opacity || !dataPoints || dataPoints.length === 0) return null;
-  dataIndex = dataPoints[0].dataIndex;
-  const label = chartLabels[dataIndex];
-
-  // Determinar o período exibido
-  if (year && month) {
-    const dia = label.padStart(2, '0');
-    periodo = dayjs(`${year}-${month}-${dia}`).format('MM/DD/YYYY');
-    // Filtrar projetos daquele dia
-    const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${year}-${month}-${dia}`));
-    const completed = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && hasInicio && hasEntrega;
-    }).length;
-    const inProgress = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && hasInicio && !hasEntrega;
-    }).length;
-    const notStarted = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && !hasInicio && !hasEntrega;
-    }).length;
-    entregues = completed;
-    pendentes = inProgress + notStarted;
-  } else if (year) {
-    const mes = label.padStart(2, '0');
-    periodo = dayjs(`${year}-${mes}-01`).format('MM/YYYY');
-    const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${year}-${mes}`));
-    const completed = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && hasInicio && hasEntrega;
-    }).length;
-    const inProgress = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && hasInicio && !hasEntrega;
-    }).length;
-    const notStarted = rows.filter(row => {
-      const hasSolicitacao = !!row.data_solicitacao;
-      const hasInicio = !!row.data_inicio;
-      const hasEntrega = !!row.entrega_real;
-      return hasSolicitacao && !hasInicio && !hasEntrega;
-    }).length;
-    entregues = completed;
-    pendentes = inProgress + notStarted;
-  } else {
-    // label no formato MM/YYYY
-    if (label.includes('/')) {
-      const [mes, ano] = label.split('/');
-      periodo = dayjs(`${ano}-${mes}-01`).format('MM/YYYY');
-      const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${ano}-${mes}`));
-      const completed = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && hasInicio && hasEntrega;
-      }).length;
-      const inProgress = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && hasInicio && !hasEntrega;
-      }).length;
-      const notStarted = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && !hasInicio && !hasEntrega;
-      }).length;
-      entregues = completed;
-      pendentes = inProgress + notStarted;
-    } else {
-      periodo = label;
-      const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(label));
-      const completed = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && hasInicio && hasEntrega;
-      }).length;
-      const inProgress = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && hasInicio && !hasEntrega;
-      }).length;
-      const notStarted = rows.filter(row => {
-        const hasSolicitacao = !!row.data_solicitacao;
-        const hasInicio = !!row.data_inicio;
-        const hasEntrega = !!row.entrega_real;
-        return hasSolicitacao && !hasInicio && !hasEntrega;
-      }).length;
-      entregues = completed;
-      pendentes = inProgress + notStarted;
-    }
-  }
+  status = dataPoints[0].label;
+  count = dataPoints[0].value;
+  
+  // Calcular porcentagem
+  const total = data.length;
+  percentage = total > 0 ? (count / total) * 100 : 0;
 
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
   caretY = typeof caretYVal === 'number' ? caretYVal : 0;
@@ -167,7 +66,7 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
   let absTop = caretY;
   let side: 'left' | 'right' = 'right';
   const offsetX = 16;
-  const tooltipHeight = 120;
+  const tooltipHeight = 100;
   const padding = 12;
   if (canvas) {
     const rect = canvas.getBoundingClientRect();
@@ -184,8 +83,6 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
     if (absTop + tooltipHeight > rect.bottom - padding) absTop = rect.bottom - tooltipHeight - padding;
   }
 
-  const total = entregues + pendentes;
-
   return createPortal(
     <div
       ref={tooltipRef}
@@ -200,8 +97,8 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
         borderRadius: 10,
         boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
         padding: 16,
-        minWidth: 220,
-        maxWidth: 320,
+        minWidth: 200,
+        maxWidth: 280,
         zIndex: 9999,
         opacity: 0.9,
         pointerEvents: 'none',
@@ -210,19 +107,23 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
         userSelect: 'none',
       }}
     >
-      {periodo && <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', marginBottom: 8, fontSize: 15 }}>{`Período: ${periodo}`}</div>}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Total de Projetos</span>
-          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{total}</span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', fontSize: 16, textAlign: 'center' }}>
+          {status}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Completed</span>
-          <span style={{ color: '#1bbf5c', fontWeight: 500 }}>{entregues}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>In Progress + Not Started</span>
-          <span style={{ color: '#dc3545', fontWeight: 500 }}>{pendentes}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Quantidade</span>
+            <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{count}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Porcentagem</span>
+            <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{percentage.toFixed(1)}%</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Total</span>
+            <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{total}</span>
+          </div>
         </div>
       </div>
     </div>,
@@ -236,15 +137,7 @@ interface TakeoffChartProps {
   selectedMonth: string;
 }
 
-// Definir tipo local para datasets que aceitam null
-type DatasetWithNulls = {
-  label: string;
-  data: (number | null)[];
-  borderColor: string;
-  backgroundColor: string;
-};
-
-export function PermitChart({ filteredData, selectedYear, selectedMonth }: TakeoffChartProps) {
+export function TakeoffChart({ filteredData, selectedYear, selectedMonth }: TakeoffChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<TakeoffTooltipExternalProps>>(null);
 
@@ -261,159 +154,121 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
     } else if (hasSolicitacao && !hasInicio && !hasEntrega) {
       return 'Not Started';
     } else {
-      return 'Pending';
+      return 'Not Started'; // Se não tem data de solicitação, considera como Not Started
     }
   };
 
-  // Preparar dados do gráfico
-  const { chartData, chartOptions } = useMemo(() => {
+  // Preparar dados do gráfico de pizza
+  const { chartData, chartOptions, hasData, statusAverages } = useMemo(() => {
     if (filteredData.length === 0) {
-      return { chartData: null, chartOptions: null };
+      return { chartData: null, chartOptions: null, hasData: false, statusAverages: {} };
     }
 
-    // Cores do tema (igual contabilidade)
-    const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
-    const textSecondary = isDark ? '#adb5bd' : '#6c757d';
+    // Calcular contagem por status
+    const statusCounts = {
+      'Not Started': 0,
+      'In Progress': 0,
+      'Completed': 0
+    };
 
-    // Lógica dinâmica para labels
-    let chartLabels: string[] = [];
-    let datasets: DatasetWithNulls[] = [];
+    // Calcular dias de processamento por status
+    const statusDays = {
+      'Not Started': [] as number[],
+      'In Progress': [] as number[],
+      'Completed': [] as number[]
+    };
 
-    if (selectedYear && selectedMonth) {
-      // Gráfico dia a dia do mês selecionado
-      const countByDay: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
-      const daysInMonth = dayjs(`${selectedYear}-${selectedMonth}`).daysInMonth();
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dayStr = day.toString().padStart(2, '0');
-        countByDay[dayStr] = { completed: 0, inProgress: 0, notStarted: 0 };
-      }
-      filteredData.forEach(row => {
-        if (row.data_solicitacao && row.data_solicitacao.split('-')[1] === selectedMonth && row.data_solicitacao.split('-')[0] === selectedYear) {
-          const dia = row.data_solicitacao.split('-')[2];
-          const status = getProjectStatus(row);
-          if (status === 'Completed') countByDay[dia].completed++;
-          else if (status === 'In Progress') countByDay[dia].inProgress++;
-          else if (status === 'Not Started') countByDay[dia].notStarted++;
+    const currentDate = new Date();
+
+    filteredData.forEach(row => {
+      const status = getProjectStatus(row);
+      statusCounts[status as keyof typeof statusCounts]++;
+      
+      // Calcular dias de processamento baseado no status
+      let days = 0;
+      
+      if (status === 'Completed') {
+        // Completed: data_entrega - data_inicio
+        if (row.entrega_real && row.data_inicio) {
+          const entregaDate = new Date(row.entrega_real);
+          const inicioDate = new Date(row.data_inicio);
+          days = Math.ceil((entregaDate.getTime() - inicioDate.getTime()) / (1000 * 60 * 60 * 24));
         }
-      });
-      // Sempre mostrar todos os dias do mês
-      chartLabels = Object.keys(countByDay).sort((a, b) => Number(a) - Number(b));
-      const completedData: (number | null)[] = chartLabels.map(dia => countByDay[dia].completed > 0 ? countByDay[dia].completed : null);
-      const inProgressData: (number | null)[] = chartLabels.map(dia => countByDay[dia].inProgress > 0 ? countByDay[dia].inProgress : null);
-      const notStartedData: (number | null)[] = chartLabels.map(dia => countByDay[dia].notStarted > 0 ? countByDay[dia].notStarted : null);
-      datasets = [];
-      if (completedData.length > 0 && completedData.some(v => v !== null)) {
-        datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
-      }
-      if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
-        datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
-      }
-      if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
-        datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
-      }
-    } else if (selectedYear) {
-      // Gráfico mês a mês do ano selecionado
-      const countByMonth: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
-      for (let month = 1; month <= 12; month++) {
-        const monthStr = month.toString().padStart(2, '0');
-        countByMonth[monthStr] = { completed: 0, inProgress: 0, notStarted: 0 };
-      }
-      filteredData.forEach(row => {
-        if (row.data_solicitacao && row.data_solicitacao.split('-')[0] === selectedYear) {
-          const mes = row.data_solicitacao.split('-')[1];
-          const status = getProjectStatus(row);
-          if (status === 'Completed') countByMonth[mes].completed++;
-          else if (status === 'In Progress') countByMonth[mes].inProgress++;
-          else if (status === 'Not Started') countByMonth[mes].notStarted++;
+      } else if (status === 'In Progress') {
+        // In Progress: data_atual - data_inicio
+        if (row.data_inicio) {
+          const inicioDate = new Date(row.data_inicio);
+          days = Math.ceil((currentDate.getTime() - inicioDate.getTime()) / (1000 * 60 * 60 * 24));
         }
-      });
-      // Sempre mostrar todos os meses do ano
-      chartLabels = Object.keys(countByMonth).sort((a, b) => Number(a) - Number(b));
-      const completedData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].completed > 0 ? countByMonth[mes].completed : null);
-      const inProgressData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].inProgress > 0 ? countByMonth[mes].inProgress : null);
-      const notStartedData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].notStarted > 0 ? countByMonth[mes].notStarted : null);
-      datasets = [];
-      if (completedData.length > 0 && completedData.some(v => v !== null)) {
-        datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
-      }
-      if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
-        datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
-      }
-      if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
-        datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
-      }
-    } else {
-      // Gráfico mês/ano quando não há filtro de ano
-      const countByMonthYear: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
-      // Descobrir o range de meses/anos presentes nos dados filtrados
-      let minYear = 9999, maxYear = 0, minMonth = 1, maxMonth = 12;
-      filteredData.forEach(row => {
-        if (row.data_solicitacao) {
-          const [ano, mes] = [row.data_solicitacao.split('-')[0], row.data_solicitacao.split('-')[1]];
-          const yearNum = Number(ano);
-          const monthNum = Number(mes);
-          if (yearNum < minYear) minYear = yearNum;
-          if (yearNum > maxYear) maxYear = yearNum;
-          if (monthNum < minMonth) minMonth = monthNum;
-          if (monthNum > maxMonth) maxMonth = monthNum;
-        }
-      });
-      // Se não houver dados, não renderiza nada
-      if (minYear === 9999) {
-        chartLabels = [];
-        datasets = [];
       } else {
-        // Montar todos os meses/anos do range
-        const allMonthYears: string[] = [];
-        for (let ano = minYear; ano <= maxYear; ano++) {
-          for (let mes = 1; mes <= 12; mes++) {
-            allMonthYears.push(`${mes.toString().padStart(2, '0')}/${ano}`);
-          }
-        }
-        allMonthYears.forEach(key => {
-          if (!countByMonthYear[key]) countByMonthYear[key] = { completed: 0, inProgress: 0, notStarted: 0 };
-        });
-        filteredData.forEach(row => {
-          if (row.data_solicitacao) {
-            const ano = row.data_solicitacao.split('-')[0];
-            const mes = row.data_solicitacao.split('-')[1];
-            const key = `${mes}/${ano}`;
-            if (!countByMonthYear[key]) countByMonthYear[key] = { completed: 0, inProgress: 0, notStarted: 0 };
-            const status = getProjectStatus(row);
-            if (status === 'Completed') countByMonthYear[key].completed++;
-            else if (status === 'In Progress') countByMonthYear[key].inProgress++;
-            else if (status === 'Not Started') countByMonthYear[key].notStarted++;
-          }
-        });
-        chartLabels = allMonthYears;
-        const completedData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].completed > 0 ? countByMonthYear[key].completed : null);
-        const inProgressData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].inProgress > 0 ? countByMonthYear[key].inProgress : null);
-        const notStartedData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].notStarted > 0 ? countByMonthYear[key].notStarted : null);
-        datasets = [];
-        if (completedData.length > 0 && completedData.some(v => v !== null)) {
-          datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
-        }
-        if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
-          datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
-        }
-        if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
-          datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
+        // Not Started: data_atual - data_solicitacao
+        if (row.data_solicitacao) {
+          const solicitacaoDate = new Date(row.data_solicitacao);
+          days = Math.ceil((currentDate.getTime() - solicitacaoDate.getTime()) / (1000 * 60 * 60 * 24));
         }
       }
+      
+      if (days > 0) {
+        statusDays[status as keyof typeof statusDays].push(days);
+      }
+    });
+
+    // Calcular médias de dias por status
+    const statusAverages: Record<string, number> = {};
+    Object.keys(statusDays).forEach(status => {
+      const days = statusDays[status as keyof typeof statusDays];
+      if (days.length > 0) {
+        statusAverages[status] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
+      } else {
+        statusAverages[status] = 0;
+      }
+    });
+
+    // Filtrar apenas status com dados
+    const labels: string[] = [];
+    const data: number[] = [];
+
+    if (statusCounts['Not Started'] > 0) {
+      labels.push('Not Started');
+      data.push(statusCounts['Not Started']);
     }
 
-    const borderDivider = getComputedStyle(document.documentElement).getPropertyValue('--color-border-divider').trim() || '#e0e0e0';
+    if (statusCounts['In Progress'] > 0) {
+      labels.push('In Progress');
+      data.push(statusCounts['In Progress']);
+    }
+
+    if (statusCounts['Completed'] > 0) {
+      labels.push('Completed');
+      data.push(statusCounts['Completed']);
+    }
+
+    // Gerar cores usando as funções do takeoffColors
+    const backgroundColor = generateTakeoffColors(labels);
+    const borderColor = generateTakeoffBorderColors(labels);
+    
+    // Fallback para cores hardcoded se as funções não funcionarem
+    const fallbackColors = labels.map(label => {
+      switch (label) {
+        case 'Not Started': return '#dc3545';
+        case 'In Progress': return '#ffb300'; // Amarelo mais escuro - mais legível
+        case 'Completed': return '#1bbf5c';
+        default: return '#6c757d';
+      }
+    });
+    
+    const finalBackgroundColors = backgroundColor.length > 0 ? backgroundColor : fallbackColors;
+    const finalBorderColors = borderColor.length > 0 ? borderColor : fallbackColors.map(color => color + '80');
 
     const chartData = {
-      labels: chartLabels,
-      datasets: (datasets as DatasetWithNulls[]).map(dataset => ({
-        ...dataset,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 3,
-        fill: false,
-        tension: 0.25,
-      })),
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: finalBackgroundColors,
+        borderColor: finalBorderColors,
+        borderWidth: 2,
+        hoverBorderWidth: 3,
+      }]
     };
 
     const chartOptions = {
@@ -421,15 +276,7 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: true,
-          position: 'top' as const,
-          labels: {
-            color: textSecondary,
-            usePointStyle: true,
-            boxWidth: 10,
-            boxHeight: 10,
-            font: { size: 12, weight: 500 }
-          }
+          display: false, // Desabilitar legenda padrão para usar customizada
         },
         tooltip: {
           enabled: false,
@@ -441,49 +288,11 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
             if (chartData) {
               setExternalTooltip({
                 tooltip: context.tooltip,
-                chartLabels,
-                year: selectedYear,
-                month: selectedMonth,
                 canvas: (context.chart && (context.chart as { canvas?: HTMLCanvasElement }).canvas) ? (context.chart as { canvas: HTMLCanvasElement }).canvas : undefined,
                 data: filteredData as TakeoffRow[],
               });
             }
           }
-        },
-      },
-      scales: {
-        x: {
-          grid: { color: borderDivider },
-          ticks: { color: textSecondary },
-          title: {
-            display: true,
-            text: selectedYear && selectedMonth ? 'Days of Month' : selectedYear ? 'Months' : 'Months/Years',
-            color: textSecondary,
-            font: { weight: 600, size: 12 },
-            padding: { top: 10, bottom: 10 }
-          },
-        },
-        y: {
-          grid: { color: borderDivider },
-          ticks: {
-            color: textSecondary,
-            stepSize: 1,
-            callback: function(value: string | number) {
-              // Só mostra inteiros
-              if (Number.isInteger(value)) return value;
-              return '';
-            },
-            font: { size: 11 },
-            padding: 8
-          },
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Projetos',
-            color: textSecondary,
-            font: { weight: 600, size: 12 },
-            padding: { top: 10, bottom: 10 }
-          },
         },
       },
       layout: {
@@ -496,27 +305,286 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
       }
     };
 
-    return { chartData, chartOptions };
+    const hasData = data.length > 0 && data.some(value => value > 0);
+
+    return { chartData, chartOptions, hasData, statusAverages };
   }, [filteredData, selectedYear, selectedMonth]);
-
-
 
   return (
     <>
-      <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-        Status dos Projetos ao Longo do Tempo
-      </h4>
+      {/* Header com título */}
+      <div className='px-4 py-2 d-flex justify-content-between align-items-center' style={{ borderBottom: '1px solid var(--color-border-divider)', height: 56 }}>
+        <h4 className='m-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+          Distribuição de Status dos Projetos
+        </h4>
+      </div>
+      
+      {/* Layout principal em duas colunas */}
       <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: '0 0 auto', minHeight: 0, minWidth: 0 }}>
-        <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500 }}>
-          {chartData && chartOptions ? (
-            <Line data={chartData} options={chartOptions} />
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>
-                {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
-              </span>
+        <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 0 }}>
+          {/* Filtros - Lado esquerdo */}
+          <div style={{ width: 340, minWidth: 260, maxWidth: 400, display: 'flex', flexDirection: 'column', justifyContent: 'start', height: '100%', padding: 10, borderRight: '1px solid var(--color-border-divider)' }}>
+            {/* Título dos projetos */}
+            <div style={{ marginBottom: 20 }}>
+              <h5 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
+                Projects
+              </h5>
             </div>
-          )}
+
+            {/* Listagem dos projetos */}
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto',
+              borderRadius: 8,
+              padding: '8px 12px'
+            }} className="custom-scrollbar">
+              {filteredData.length > 0 ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {filteredData.map((project, index) => {
+                    const status = getProjectStatus(project);
+                    const statusColor = (() => {
+                      switch (status) {
+                        case 'Not Started': return '#dc3545';
+                        case 'In Progress': return '#ffb300';
+                        case 'Completed': return '#1bbf5c';
+                        default: return '#6c757d';
+                      }
+                    })();
+                    
+                    return (
+                      <div 
+                        key={index}
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: 8,
+                          padding: '4px 0',
+                          borderBottom: index < filteredData.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                        }}
+                      >
+                        <span style={{ 
+                          display: 'inline-block', 
+                          width: 10, 
+                          height: 10, 
+                          borderRadius: 5, 
+                          background: statusColor,
+                          flexShrink: 0
+                        }} />
+                        <span style={{ 
+                          color: 'var(--color-text-primary)', 
+                          fontSize: 13,
+                          lineHeight: 1.3,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {project.project || `Project ${index + 1}`}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div style={{ 
+                  color: 'var(--color-text-secondary)', 
+                  fontSize: 12, 
+                  fontStyle: 'italic',
+                  textAlign: 'center',
+                  padding: '12px 0'
+                }}>
+                  No projects found for selected filters
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Gráfico centralizado e legenda à direita */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', minWidth: 0 }}>
+            {hasData ? (
+              <>
+                <div style={{ width: '100%', maxWidth: 500, minWidth: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {chartData && chartOptions && (
+                    <TakeoffPieChart
+                      chartData={chartData}
+                      chartOptions={chartOptions}
+                    />
+                  )}
+                </div>
+                <div style={{ width: 400, maxHeight: 350, display: 'flex', flexDirection: 'column' }}>
+                  {/* Título fixo da legenda */}
+                  <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--color-text-primary)', marginBottom: 10, flex: '0 0 auto' }}>
+                    Distribution
+                  </div>
+                  {/* Cabeçalho da tabela */}
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '10px 1fr 40px 55px',
+                    gap: 8,
+                    marginBottom: 6,
+                    padding: '0 10px',
+                    fontSize: 12,
+                    color: 'var(--color-text-secondary)',
+                    fontWeight: 500
+                  }}>
+                    <span></span> {/* Coluna da cor */}
+                    <span>Status</span>
+                    <span style={{ textAlign: 'right' }}>Count</span>
+                    <span 
+                      style={{ 
+                        textAlign: 'right',
+                        cursor: 'help',
+                        position: 'relative'
+                      }}
+                      onMouseEnter={(e) => {
+                        const tooltip = document.createElement('div');
+                        tooltip.id = 'custom-tooltip';
+                        tooltip.style.cssText = `
+                          position: fixed;
+                          left: ${e.clientX + 10}px;
+                          top: ${e.clientY - 10}px;
+                          background: var(--color-background-secondary);
+                          color: var(--color-text-primary);
+                          border: 1.5px solid var(--color-border-divider);
+                          border-radius: 8px;
+                          padding: 12px;
+                          font-size: 12px;
+                          max-width: 250px;
+                          z-index: 10000;
+                          box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                          pointer-events: none;
+                        `;
+                        tooltip.innerHTML = `
+                          <div style="font-weight: 600; margin-bottom: 6px;">Average Processing Time</div>
+                          <div style="line-height: 1.4;">
+                            Shows the average number of days projects spend in each status.
+                          </div>
+                        `;
+                        document.body.appendChild(tooltip);
+                      }}
+                      onMouseLeave={() => {
+                        const tooltip = document.getElementById('custom-tooltip');
+                        if (tooltip) {
+                          tooltip.remove();
+                        }
+                      }}
+                    >
+                      Avg Days
+                    </span>
+                  </div>
+                  {/* Legenda customizada com overflowY */}
+                  <div style={{ flex: 1, overflowY: 'auto' }} className="custom-scrollbar">
+                    {chartData?.labels && chartData.labels.length > 0 && (() => {
+                      // Ordenar os status pelo valor (decrescente)
+                      const legendItems = chartData.labels.map((label, idx) => ({
+                        label: label,
+                        value: chartData.datasets[0].data && chartData.datasets[0].data[idx] ? Number(chartData.datasets[0].data[idx]) : 0,
+                        color: chartData.datasets[0].backgroundColor ? (Array.isArray(chartData.datasets[0].backgroundColor) ? chartData.datasets[0].backgroundColor[idx] : chartData.datasets[0].backgroundColor) : '#ccc',
+                        averageDays: statusAverages[label] || 0,
+                      }));
+                      legendItems.sort((a, b) => b.value - a.value);
+
+                      return (
+                        <div style={{ padding: '0 10px' }}>
+                          {legendItems.map((item) => (
+                            <div 
+                              key={item.label as string} 
+                              style={{ 
+                                display: 'grid',
+                                gridTemplateColumns: '10px 1fr 40px 55px',
+                                gap: 8,
+                                alignItems: 'center',
+                                padding: '4px 0',
+                                borderBottom: '1px solid var(--color-border-divider)'
+                              }}
+                            >
+                              <span style={{ 
+                                display: 'inline-block', 
+                                width: 14, 
+                                height: 14, 
+                                borderRadius: 7, 
+                                background: item.color 
+                              }} />
+                              <span style={{ 
+                                color: 'var(--color-text-secondary)', 
+                                fontSize: 14 
+                              }}>
+                                {item.label}
+                              </span>
+                              <span style={{ 
+                                color: 'var(--color-text-primary)', 
+                                fontSize: 13, 
+                                textAlign: 'right' 
+                              }}>
+                                {item.value ? item.value.toLocaleString() : ''}
+                              </span>
+                              <span 
+                                style={{ 
+                                  color: 'var(--color-accent-primary)', 
+                                  fontSize: 12, 
+                                  fontWeight: 500, 
+                                  textAlign: 'right',
+                                  cursor: 'help'
+                                }}
+                                onMouseEnter={(e) => {
+                                  const tooltip = document.createElement('div');
+                                  tooltip.id = 'custom-tooltip';
+                                  tooltip.style.cssText = `
+                                    position: fixed;
+                                    left: ${e.clientX + 10}px;
+                                    top: ${e.clientY - 10}px;
+                                    background: var(--color-background-secondary);
+                                    color: var(--color-text-primary);
+                                    border: 1.5px solid var(--color-border-divider);
+                                    border-radius: 8px;
+                                    padding: 12px;
+                                    font-size: 12px;
+                                    max-width: 250px;
+                                    z-index: 10000;
+                                    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                                    pointer-events: none;
+                                  `;
+                                  const explanation = item.label === 'Completed' 
+                                    ? 'Time from start to delivery.' 
+                                    : item.label === 'In Progress' 
+                                    ? 'Time from start to current date.' 
+                                    : 'Time from request to current date.';
+                                  tooltip.innerHTML = `
+                                    <div style="font-weight: 600; margin-bottom: 6px;">Average Processing Time: ${item.averageDays} days</div>
+                                    <div style="line-height: 1.4;">${explanation}</div>
+                                  `;
+                                  document.body.appendChild(tooltip);
+                                }}
+                                onMouseLeave={() => {
+                                  const tooltip = document.getElementById('custom-tooltip');
+                                  if (tooltip) {
+                                    tooltip.remove();
+                                  }
+                                }}
+                              >
+                                {item.averageDays > 0 ? `${item.averageDays}d` : '-'}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                color: 'var(--color-text-secondary)',
+                fontSize: 16,
+                fontStyle: 'italic'
+              }}>
+                {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -525,9 +593,6 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
         <TakeoffTooltipExternal
           {...externalTooltip}
           tooltip={externalTooltip.tooltip ? externalTooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
-          chartLabels={externalTooltip.chartLabels || []}
-          year={externalTooltip.year || ''}
-          month={externalTooltip.month || ''}
           canvas={externalTooltip.canvas}
           data={externalTooltip.data || []}
         />

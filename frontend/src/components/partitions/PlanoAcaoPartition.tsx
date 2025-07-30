@@ -130,14 +130,14 @@ export default function PlanoAcaoPartition({
     
     // Prioridade: Overdue > Pending > Done
     if (statusCounts['Overdue'] > 0) {
-      return { icon: 'bi-exclamation-octagon', color: '#dc3545' };
+      return { icon: 'bi-exclamation-triangle', color: '#dc3545' };
     } else if (statusCounts['Pending'] > 0) {
-      return { icon: 'bi-arrow-repeat', color: '#e67e22' };
+      return { icon: 'bi-clock', color: '#ffc107' };
     } else if (statusCounts['Done'] > 0 || statusCounts['concluída'] > 0) {
-      return { icon: 'bi-check-circle', color: '#1bbf5c' };
+      return { icon: 'bi-check-circle', color: '#28a745' };
     }
     
-    return { icon: 'bi-arrow-repeat', color: '#e67e22' };
+    return { icon: 'bi-clock', color: '#ffc107' };
   };
 
   // Filtrar planos do responsável e adicionar ações correspondentes
@@ -311,13 +311,13 @@ export default function PlanoAcaoPartition({
                             })
                             .map((acao: Acao) => {
                               const realStatus = getActionStatus(acao);
-                              let statusIcon = 'bi-arrow-repeat';
-                              let statusColor = '#e67e22';
+                              let statusIcon = 'bi-clock';
+                              let statusColor = '#ffc107';
                               if (realStatus === 'Done' || realStatus === 'concluída') {
                                 statusIcon = 'bi-check-circle';
-                                statusColor = '#1bbf5c';
+                                statusColor = '#28a745';
                               } else if (realStatus === 'Overdue') {
-                                statusIcon = 'bi-exclamation-octagon';
+                                statusIcon = 'bi-exclamation-triangle';
                                 statusColor = '#dc3545';
                               }
                               return (

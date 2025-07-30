@@ -14,7 +14,7 @@ import { useTakeoffData } from '../hooks/useTakeoffData';
 import TakeoffFilters from '../components/common/TakeoffWorks/TakeoffFilters';
 import TakeoffMetrics from '../components/common/TakeoffWorks/TakeoffMetrics';
 import TakeoffCarousel from '../components/common/TakeoffWorks/TakeoffCarousel';
-import { PermitChart } from '../components/common/TakeoffWorks/TakeoffChart';
+import { TakeoffChart } from '../components/common/TakeoffWorks/TakeoffChart';
 import DestaquesPartition from '../components/partitions/DestaquesPartition';
 import OportunidadesPartition from '../components/partitions/OportunidadesPartition';
 import PlanoAcaoPartition from '../components/partitions/PlanoAcaoPartition';
@@ -81,15 +81,9 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedModel, setSelectedModel] = useState<string[]>([]);
   const [selectedSituation, setSelectedSituation] = useState<string[]>([]);
-  const [selectedJobsite, setSelectedJobsite] = useState<string[]>([]);
-
-  // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
   const [months, setMonths] = useState<string[]>([]);
-  const [models, setModels] = useState<string[]>([]);
-  const [jobsites, setJobsites] = useState<string[]>([]);
 
   // Estados para dados
   const [takeoffData, setTakeoffData] = useState<TakeoffRow[]>([]);
@@ -174,12 +168,6 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
         }
       }
       setTakeoffData(all);
-      const modelsList = [...new Set(all.map((d: TakeoffRow) => d.modelo_da_casa).filter((v): v is string => !!v))];
-      setModels(modelsList);
-      setSelectedModel(modelsList);
-      // Takeoff não tem jobsite, então jobsites fica vazio
-      setJobsites([]);
-      setSelectedJobsite([]);
       const anos = [...new Set(
         all
           .map((d: TakeoffRow) => {
@@ -224,25 +212,53 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
     if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
   }, [selectedYear, takeoffData]);
 
+  // Função para determinar o status baseado nas datas
+  const getProjectStatus = (row: TakeoffRow): string => {
+    const hasSolicitacao = !!row.data_solicitacao;
+    const hasInicio = !!row.data_inicio;
+    const hasEntrega = !!row.entrega_real;
+
+    if (hasSolicitacao && hasInicio && hasEntrega) {
+      return 'Completed';
+    } else if (hasSolicitacao && hasInicio && !hasEntrega) {
+      return 'In Progress';
+    } else if (hasSolicitacao && !hasInicio && !hasEntrega) {
+      return 'Not Started';
+    } else {
+      return 'Pending';
+    }
+  };
+
   // Filtrar dados
   const filteredData = useMemo(() => {
     let filtered = takeoffData;
+    
+    // Filtro por ano
     if (selectedYear) {
       filtered = filtered.filter(d => {
         const relevantDate = getRelevantDate(d);
         return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[0] === selectedYear;
       });
     }
+    
+    // Filtro por mês
     if (selectedMonth) {
       filtered = filtered.filter(d => {
         const relevantDate = getRelevantDate(d);
         return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[1] === selectedMonth;
       });
     }
-    if (selectedModel.length > 0) filtered = filtered.filter(d => selectedModel.includes(d.modelo_da_casa));
-    // Situação e jobsite não existem em Takeoff, então não filtra
+    
+    // Filtro por situação/status
+    if (selectedSituation.length > 0) {
+      filtered = filtered.filter(d => {
+        const status = getProjectStatus(d);
+        return selectedSituation.includes(status);
+      });
+    }
+    
     return filtered;
-  }, [takeoffData, selectedYear, selectedMonth, selectedModel, selectedSituation, selectedJobsite]);
+  }, [takeoffData, selectedYear, selectedMonth, selectedSituation]);
 
   // Funções para modais
   const handleSave = async () => {
@@ -298,27 +314,21 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
           setSelectedMonth={setSelectedMonth}
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
           selectedSituation={selectedSituation}
           setSelectedSituation={setSelectedSituation}
-          selectedJobsite={selectedJobsite}
-          setSelectedJobsite={setSelectedJobsite}
           years={years}
           months={months}
-          models={models}
-          jobsites={jobsites}
         />
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
         <div style={{ background:'var(--color-background-primary)', width: '70%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--color-border-divider)' }}>
           <div>
-            <PermitChart
+            <TakeoffChart
               filteredData={filteredData}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
             />
-            <TakeoffMetrics allData={takeoffData} />
+            <TakeoffMetrics allData={filteredData} />
           </div>
           <TakeoffCarousel filteredData={filteredData} />
         </div>

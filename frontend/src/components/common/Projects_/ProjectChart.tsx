@@ -594,7 +594,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
               }} />
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Carregando projetos...</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-secondary)' }}>Carregando projetos...</span>
             </div>
           </div>
         ) : hasData && chartData && chartOptions ? (

@@ -106,24 +106,10 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             {projectName}
           </h3>
         </div>
-        {/* Barra de Progresso Financeira */}
-        <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ position: 'relative', width: '100%', height: 20, background: 'var(--color-background-secondary)', borderRadius: 6, border: '1px solid var(--color-border-divider)', overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            {/* Barra de invoices: verde, zIndex 2 */}
-            {estimateTotal > 0 && invoicesTotal > 0 && (
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
-                background: '#1bbf5c', // verde
-                borderRadius: 6,
-                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                zIndex: 2
-              }} />
-            )}
-            {/* Barra de expenses: vermelho, zIndex 3 */}
+        {/* Barras de Progresso Financeira */}
+        <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 42, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          {/* Barra de Expenses (superior) - sem background, apenas cresce */}
+          <div style={{ position: 'relative', width: '100%', height: 15, borderRadius: 4, overflow: 'visible' }}>
             {estimateTotal > 0 && expensesTotal > 0 && (
               <div style={{
                 position: 'absolute',
@@ -132,22 +118,29 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                 height: '100%',
                 width: `${Math.min(100, (expensesTotal / estimateTotal) * 100)}%`,
                 background: '#dc3545', // vermelho
-                borderRadius: 6,
+                borderRadius: 4,
                 transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                zIndex: 3
+                zIndex: 2,
+                border: '1px solid var(--color-border-divider)'
               }} />
             )}
-            {/* Borda para garantir visual */}
-            <div style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              width: '100%',
-              height: '100%',
-              borderRadius: 8,
-              pointerEvents: 'none',
-              zIndex: 4
-            }} />
+          </div>
+          
+          {/* Barra de Invoices (inferior) - com background */}
+          <div style={{ position: 'relative', width: '100%', height: 15, background: 'var(--color-background-secondary)', borderRadius: 4, border: '1px solid var(--color-border-divider)', overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            {estimateTotal > 0 && invoicesTotal > 0 && (
+              <div style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                height: '100%',
+                width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
+                background: '#1bbf5c', // verde
+                borderRadius: 4,
+                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                zIndex: 2
+              }} />
+            )}
           </div>
         </div>
         {/* Bloco de métricas */}
@@ -189,7 +182,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             <div style={{ padding: '4px 0', fontWeight: 500, fontSize: 13, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontWeight: 400, color: 'var(--color-text-secondary)' }}>Profit</span>
               <span style={{ fontWeight: 500, color: (invoicesTotal - expensesTotal) < 0 ? '#dc3545' : 'var(--color-accent-primary)' }}>
-                {(invoicesTotal - expensesTotal).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                {(invoicesTotal - expensesTotal).toLocaleString('en-US', { style: 'currency', currency: 'USD' })} • {invoicesTotal > 0 ? Math.round(((invoicesTotal - expensesTotal) / invoicesTotal) * 100) : 0}%
               </span>
             </div>
           </div>

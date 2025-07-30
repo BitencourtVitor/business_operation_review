@@ -105,10 +105,9 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       if (dataLimite > hoje) {
         return 'Ações concluídas devem ter data limite igual ou anterior a hoje';
       }
-      if (dataLimiteDate < dataInicioDate) {
-        return 'A data limite não pode ser anterior à data de início do projeto';
-      }
+      // Removida a validação de data limite anterior à data de início para status Done
     }
+    // Para status Overdue, não há validação - permite salvar mesmo com data passada
     
     return null;
   };
@@ -125,12 +124,26 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       return 'Data limite é obrigatória quando há status';
     }
     
+    // Se a ação está atrasada (Overdue), não validar incompatibilidade
+    const realStatus = getActionStatus(acao);
+    if (realStatus === 'Overdue') {
+      return null;
+    }
+    
     return validarDataLimite(acao.status, acao.data_limite, dataInicio);
   };
 
   // Validar apenas incompatibilidade entre status e data limite
   const validarIncompatibilidadeStatusData = (acao: Acao, dataInicio: string) => {
     if (!acao.status || !acao.data_limite) return null;
+    
+    // Se a ação está atrasada (Overdue), não validar incompatibilidade
+    const realStatus = getActionStatus(acao);
+    if (realStatus === 'Overdue') {
+      return null;
+    }
+    
+    // Usar o status atual da ação (que pode ter sido alterado pelo usuário)
     return validarDataLimite(acao.status, acao.data_limite, dataInicio);
   };
 
@@ -294,6 +307,28 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       setHasUnsavedChanges(temMudancas);
     }
   }, [plano, lastSavedState]);
+
+  // Fechar dropdowns quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      // Verificar se o clique foi fora de qualquer dropdown e não foi no botão do dropdown
+      const isDropdownClick = target.closest('[id^="status-dropdown-"]');
+      const isDropdownButton = target.closest('[data-dropdown-trigger]');
+      
+      if (!isDropdownClick && !isDropdownButton) {
+        const dropdowns = document.querySelectorAll('[id^="status-dropdown-"]');
+        dropdowns.forEach(dropdown => {
+          (dropdown as HTMLElement).style.display = 'none';
+        });
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   function addAcao() {
     if (!plano) return;
@@ -738,12 +773,14 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                       </button>
                     </div>
                     
-                    {plano?.acoes.map((acao, index) => {
-                      const erroAcao = validarIncompatibilidadeStatusData(acao, plano?.data_inicio || '');
-                      const realStatus = getActionStatus(acao);
-                      const isOverdue = realStatus === 'Overdue';
-                      
-                      return (
+                                         {plano?.acoes.map((acao, index) => {
+                       const erroAcao = validarIncompatibilidadeStatusData(acao, plano?.data_inicio || '');
+                       const realStatus = getActionStatus(acao);
+                       const isOverdue = realStatus === 'Overdue';
+                       const isDone = realStatus === 'Done';
+                       const shouldDisableRemove = isOverdue || isDone;
+                       
+                       return (
                         <div key={acao.id} style={{ 
                           border: '1px solid var(--color-border-divider)', 
                           borderRadius: 6, 
@@ -775,39 +812,40 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   {erroAcao}
                                 </div>
                               )}
-                              <button
-                                type="button"
-                                onClick={() => removeAcao(index)}
-                                disabled={isOverdue}
-                                className="d-flex align-items-center justify-content-center flex-row gap-2"
-                                style={{
-                                  width: 100,
-                                  height: 32,
-                                  fontSize: 14,
-                                  marginBottom: 0,
-                                  marginTop: 0,
-                                  borderRadius: 6,
-                                  fontWeight: 500,
-                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
-                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--negative-color)',
-                                  border: '1.5px solid var(--color-border-divider)',
-                                  transition: 'background 0.3s, color 0.3s, border 0.3s',
-                                  cursor: isOverdue ? 'not-allowed' : 'pointer',
-                                  opacity: isOverdue ? 0.5 : 1,
-                                }}
-                                onMouseEnter={(e) => {
-                                  if (!isOverdue) {
-                                    e.currentTarget.style.background = 'var(--color-background-primary)';
-                                    e.currentTarget.style.borderColor = 'var(--negative-color)';
-                                  }
-                                }}
-                                onMouseLeave={(e) => {
-                                  if (!isOverdue) {
-                                    e.currentTarget.style.background = 'var(--color-background-secondary)';
-                                    e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-                                  }
-                                }}
-                              >
+                                                             <button
+                                 type="button"
+                                 onClick={() => removeAcao(index)}
+                                 disabled={shouldDisableRemove}
+                                 className="d-flex align-items-center justify-content-center flex-row gap-2"
+                                 style={{
+                                   width: 100,
+                                   height: 32,
+                                   fontSize: 14,
+                                   marginBottom: 0,
+                                   marginTop: 0,
+                                   borderRadius: 6,
+                                   fontWeight: 500,
+                                   background: shouldDisableRemove ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+                                   color: shouldDisableRemove ? 'var(--color-text-secondary)' : 'var(--negative-color)',
+                                   border: '1.5px solid var(--color-border-divider)',
+                                   transition: 'background 0.3s, color 0.3s, border 0.3s',
+                                   cursor: shouldDisableRemove ? 'not-allowed' : 'pointer',
+                                   opacity: shouldDisableRemove ? 0.5 : 1,
+                                 }}
+                                 onMouseEnter={(e) => {
+                                   if (!shouldDisableRemove) {
+                                     e.currentTarget.style.background = 'var(--color-background-primary)';
+                                     e.currentTarget.style.borderColor = 'var(--negative-color)';
+                                   }
+                                 }}
+                                 onMouseLeave={(e) => {
+                                   if (!shouldDisableRemove) {
+                                     e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                     e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                                   }
+                                 }}
+                                 title={shouldDisableRemove ? 'Não é possível remover ações atrasadas ou concluídas' : ''}
+                               >
                                 <i className="bi bi-trash" />
                                 <span>Remover</span>
                               </button>
@@ -823,16 +861,15 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 type="text"
                                 value={acao.titulo}
                                 onChange={(e) => updateAcao(index, { titulo: e.target.value })}
-                                disabled={isOverdue}
                                 style={{
                                   width: '100%',
                                   padding: '6px 12px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
-                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                  cursor: isOverdue ? 'not-allowed' : 'auto',
+                                  background: 'var(--color-background-primary)',
+                                  color: 'var(--color-text-primary)',
+                                  cursor: 'auto',
                                   height: '32px',
                                   boxSizing: 'border-box',
                                 }}
@@ -846,7 +883,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <div style={{
                                 border: '1px solid var(--color-border-divider)',
                                 borderRadius: 4,
-                                background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                background: 'var(--color-background-primary)',
                                 padding: '6px 12px',
                                 height: '32px',
                                 display: 'flex',
@@ -855,14 +892,13 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 <select
                                   value={acao.responsavel}
                                   onChange={(e) => updateAcao(index, { responsavel: e.target.value })}
-                                  disabled={isOverdue}
                                   style={{
                                     width: '100%',
                                     border: 'none',
                                     fontSize: 12,
                                     background: 'transparent',
-                                    color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                    cursor: isOverdue ? 'not-allowed' : 'auto',
+                                    color: 'var(--color-text-primary)',
+                                    cursor: 'auto',
                                     outline: 'none',
                                   }}
                                   onFocus={(e) => {
@@ -895,71 +931,160 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                           </div>
                           
                           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
-                              <label style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--color-text-secondary)', textAlign: 'start' }}>
-                                Status
-                              </label>
-                              <div style={{
-                                border: '1px solid var(--color-border-divider)',
-                                borderRadius: 4,
-                                background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
-                                padding: '6px 12px',
-                                width: '150px',
-                                height: '32px',
-                                display: 'flex',
-                                alignItems: 'center',
-                              }}>
-                                <select
-                                  value={realStatus}
-                                  onChange={(e) => updateAcao(index, { status: e.target.value })}
-                                  disabled={isOverdue}
+                                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
+                               <label style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--color-text-secondary)', textAlign: 'start' }}>
+                                 Status
+                               </label>
+                                                               <div 
+                                  data-dropdown-trigger
                                   style={{
-                                    width: '100%',
-                                    border: 'none',
-                                    fontSize: 12,
-                                    background: 'transparent',
-                                    color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                    cursor: isOverdue ? 'not-allowed' : 'auto',
-                                    outline: 'none',
+                                    border: '1px solid var(--color-border-divider)',
+                                    borderRadius: 4,
+                                    background: 'var(--color-background-primary)',
+                                    padding: '6px 12px',
+                                    width: '150px',
+                                    height: '32px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    position: 'relative',
+                                    cursor: 'pointer',
                                   }}
-                                  onFocus={(e) => {
-                                    e.target.style.backgroundColor = 'var(--color-background-primary)';
-                                  }}
-                                  onBlur={(e) => {
-                                    e.target.style.backgroundColor = 'transparent';
-                                  }}
-                                  title={isOverdue ? 'Status alterado automaticamente pelo sistema' : ''}
-                                >
-                                  <option value="">Selecione</option>
-                                  <option value="Pending">Pending</option>
-                                  <option value="Done">Done</option>
-                                  {isOverdue && <option value="Overdue" disabled>Overdue</option>}
-                                </select>
-                              </div>
-                            </div>
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const dropdown = document.getElementById(`status-dropdown-${index}`);
+                                  console.log('Dropdown clicked:', dropdown);
+                                  if (dropdown) {
+                                    const currentDisplay = dropdown.style.display;
+                                    const newDisplay = currentDisplay === 'block' ? 'none' : 'block';
+                                    dropdown.style.display = newDisplay;
+                                    console.log('Dropdown display changed to:', newDisplay);
+                                  }
+                                }}
+                               >
+                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
+                                   {realStatus === 'Pending' && <i className="bi bi-clock" style={{ color: '#ffc107' }} />}
+                                   {realStatus === 'Done' && <i className="bi bi-check-circle" style={{ color: '#28a745' }} />}
+                                   {realStatus === 'Overdue' && <i className="bi bi-exclamation-triangle" style={{ color: '#dc3545' }} />}
+                                   <span style={{ fontSize: 12, color: 'var(--color-text-primary)' }}>
+                                     {realStatus}
+                                   </span>
+                                 </div>
+                                 <i className="bi bi-chevron-down" style={{ fontSize: 10, color: 'var(--color-text-secondary)', marginLeft: 'auto' }} />
+                                 
+                                 <div
+                                   id={`status-dropdown-${index}`}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '100%',
+                                      left: 0,
+                                      right: 0,
+                                      background: 'var(--color-background-primary)',
+                                      border: '1px solid var(--color-border-divider)',
+                                      borderRadius: 4,
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                      zIndex: 1000,
+                                      display: 'none',
+                                      marginTop: 2,
+                                    }}
+                                    ref={(el) => {
+                                      if (el) {
+                                        el.style.display = 'none';
+                                      }
+                                    }}
+                                  >
+                                   {!isOverdue && (
+                                     <div
+                                       style={{
+                                         padding: '8px 12px',
+                                         cursor: 'pointer',
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         gap: 6,
+                                         fontSize: 12,
+                                         color: 'var(--color-text-primary)',
+                                       }}
+                                       onClick={() => {
+                                         updateAcao(index, { status: 'Pending' });
+                                         document.getElementById(`status-dropdown-${index}`)!.style.display = 'none';
+                                       }}
+                                       onMouseEnter={(e) => {
+                                         e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                       }}
+                                       onMouseLeave={(e) => {
+                                         e.currentTarget.style.background = 'var(--color-background-primary)';
+                                       }}
+                                     >
+                                       <i className="bi bi-clock" style={{ color: '#ffc107' }} />
+                                       Pending
+                                     </div>
+                                   )}
+                                   <div
+                                     style={{
+                                       padding: '8px 12px',
+                                       cursor: 'pointer',
+                                       display: 'flex',
+                                       alignItems: 'center',
+                                       gap: 6,
+                                       fontSize: 12,
+                                       color: 'var(--color-text-primary)',
+                                     }}
+                                     onClick={() => {
+                                       updateAcao(index, { status: 'Done' });
+                                       document.getElementById(`status-dropdown-${index}`)!.style.display = 'none';
+                                     }}
+                                     onMouseEnter={(e) => {
+                                       e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                     }}
+                                     onMouseLeave={(e) => {
+                                       e.currentTarget.style.background = 'var(--color-background-primary)';
+                                     }}
+                                   >
+                                     <i className="bi bi-check-circle" style={{ color: '#28a745' }} />
+                                     Done
+                                   </div>
+                                   {isOverdue && (
+                                     <div
+                                       style={{
+                                         padding: '8px 12px',
+                                         display: 'flex',
+                                         alignItems: 'center',
+                                         gap: 6,
+                                         fontSize: 12,
+                                         color: 'var(--color-text-secondary)',
+                                         opacity: 0.6,
+                                         cursor: 'not-allowed',
+                                       }}
+                                     >
+                                       <i className="bi bi-exclamation-triangle" style={{ color: '#dc3545' }} />
+                                       Overdue
+                                     </div>
+                                   )}
+                                 </div>
+                               </div>
+                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end' }}>
                               <label style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--color-text-secondary)', textAlign: 'start', marginRight: '89.87px' }}>
                                 Data Limite
                               </label>
-                              <input
-                                type="date"
-                                value={acao.data_limite}
-                                onChange={(e) => updateAcao(index, { data_limite: e.target.value })}
-                                disabled={isOverdue}
-                                style={{
-                                  width: '150px',
-                                  padding: '6px 12px',
-                                  border: '1px solid var(--color-border-divider)',
-                                  borderRadius: 4,
-                                  fontSize: 12,
-                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
-                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                  cursor: isOverdue ? 'not-allowed' : 'auto',
-                                  height: '32px',
-                                  boxSizing: 'border-box',
-                                }}
-                                title={isOverdue ? 'Data limite não pode ser alterada para ações atrasadas' : ''}
-                              />
+                                                             <input
+                                 type="date"
+                                 value={acao.data_limite}
+                                 onChange={(e) => updateAcao(index, { data_limite: e.target.value })}
+                                 disabled={shouldDisableRemove}
+                                 style={{
+                                   width: '150px',
+                                   padding: '6px 12px',
+                                   border: '1px solid var(--color-border-divider)',
+                                   borderRadius: 4,
+                                   fontSize: 12,
+                                   background: shouldDisableRemove ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                   color: shouldDisableRemove ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                   cursor: shouldDisableRemove ? 'not-allowed' : 'auto',
+                                   height: '32px',
+                                   boxSizing: 'border-box',
+                                 }}
+                                 title={shouldDisableRemove ? 'Data limite não pode ser alterada para ações atrasadas ou concluídas' : ''}
+                               />
                             </div>
                           </div>
                         </div>

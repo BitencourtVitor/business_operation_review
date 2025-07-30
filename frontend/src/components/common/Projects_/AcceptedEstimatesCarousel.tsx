@@ -320,7 +320,7 @@ export default function AcceptedEstimatesCarousel() {
   }, []);
   
   // Usar o hook otimizado que chama a função SQL
-  const { data: carouselData, loading, error } = useProjectCarouselData({
+  const { data: carouselData, loading: carouselLoading, error } = useProjectCarouselData({
     dateFrom,
     dateTo,
     onlyAccepted
@@ -328,16 +328,21 @@ export default function AcceptedEstimatesCarousel() {
 
   // Novo estado para armazenar os totais detalhados de expenses
   const [expensesTotals, setExpensesTotals] = useState<{ [estimateId: string]: number }>({});
+  const [expensesLoading, setExpensesLoading] = useState(false);
   // Buscar os totais detalhados assim que os estimates mudarem
   useEffect(() => {
     if (!carouselData || carouselData.length === 0) return;
     let cancelled = false;
     async function fetchAll() {
+      setExpensesLoading(true);
       const totals: { [estimateId: string]: number } = {};
       await Promise.all(carouselData.map(async (estimate) => {
         totals[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id);
       }));
-      if (!cancelled) setExpensesTotals(totals);
+      if (!cancelled) {
+        setExpensesTotals(totals);
+        setExpensesLoading(false);
+      }
     }
     fetchAll();
     return () => { cancelled = true; };
@@ -345,23 +350,31 @@ export default function AcceptedEstimatesCarousel() {
 
   // Novo estado para armazenar os totais detalhados de invoices
   const [invoicesTotals, setInvoicesTotals] = useState<{ [estimateId: string]: number }>({});
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
   // Buscar os totais detalhados assim que os estimates mudarem
   useEffect(() => {
     if (!carouselData || carouselData.length === 0) return;
     let cancelled = false;
     async function fetchAll() {
+      setInvoicesLoading(true);
       const totals: { [estimateId: string]: number } = {};
       await Promise.all(carouselData.map(async (estimate) => {
         totals[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id);
       }));
-      if (!cancelled) setInvoicesTotals(totals);
+      if (!cancelled) {
+        setInvoicesTotals(totals);
+        setInvoicesLoading(false);
+      }
     }
     fetchAll();
     return () => { cancelled = true; };
   }, [carouselData]);
 
+  // Loading geral - só mostrar conteúdo quando tudo estiver carregado
+  const isLoading = carouselLoading || expensesLoading || invoicesLoading;
+
   const [hovered, setHovered] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'total' | 'profit' | null>(null);
+  const [sortBy, setSortBy] = useState<'date' | 'total' | 'profit' | 'markup' | null>('profit');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [modalIdx, setModalIdx] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -404,6 +417,20 @@ export default function AcceptedEstimatesCarousel() {
         const profitA = (invoicesTotals[a.estimate_id] ?? 0) - (expensesTotals[a.estimate_id] ?? 0);
         const profitB = (invoicesTotals[b.estimate_id] ?? 0) - (expensesTotals[b.estimate_id] ?? 0);
         return sortDirection === 'desc' ? profitB - profitA : profitA - profitB;
+      });
+    } else if (sortBy === 'markup') {
+      filtered = [...filtered].sort((a, b) => {
+        const invoicesA = invoicesTotals[a.estimate_id] ?? 0;
+        const expensesA = expensesTotals[a.estimate_id] ?? 0;
+        const profitA = invoicesA - expensesA;
+        const markupA = invoicesA > 0 ? (profitA / invoicesA) * 100 : 0;
+        
+        const invoicesB = invoicesTotals[b.estimate_id] ?? 0;
+        const expensesB = expensesTotals[b.estimate_id] ?? 0;
+        const profitB = invoicesB - expensesB;
+        const markupB = invoicesB > 0 ? (profitB / invoicesB) * 100 : 0;
+        
+        return sortDirection === 'desc' ? markupB - markupA : markupA - markupB;
       });
     }
 
@@ -696,6 +723,38 @@ export default function AcceptedEstimatesCarousel() {
                     <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
                   )}
                 </button>
+                
+                <button
+                  onClick={() => {
+                    if (sortBy === 'markup') {
+                      setSortDirection(sortDirection === 'desc' ? 'asc' : 'desc');
+                    } else {
+                      setSortBy('markup');
+                      setSortDirection('desc');
+                    }
+                  }} 
+                  style={{ 
+                    background: sortBy === 'markup' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                    color: sortBy === 'markup' ? '#fff' : 'var(--color-text-secondary)', 
+                    border: sortBy === 'markup' ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)', 
+                    borderRadius: 15, 
+                    padding: '4px 12px', 
+                    fontSize: 13, 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 4,
+                    transition: 'all 0.2s', 
+                    height: 26, 
+                    minWidth: 50, 
+                    fontWeight: 600 
+                  }}
+                >
+                  Markup
+                  {sortBy === 'markup' && (
+                    <i className={`bi bi-arrow-${sortDirection === 'desc' ? 'down' : 'up'}`} style={{ fontSize: 10 }} />
+                  )}
+                </button>
               </div>
             </div>
           </div>
@@ -703,7 +762,7 @@ export default function AcceptedEstimatesCarousel() {
       </div>
       {/* Conteúdo principal centralizado e responsivo */}
       <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--color-background-primary)', overflow: 'hidden', boxSizing: 'border-box', height: 'calc(100vh - 140px)' }}>
-        {loading && (
+        {isLoading && (
           <div style={{ 
             display: 'flex', 
             alignItems: 'center', 
@@ -725,13 +784,13 @@ export default function AcceptedEstimatesCarousel() {
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite'
               }} />
-              <span style={{ fontSize: 14, fontWeight: 500 }}>Carregando projetos...</span>
+              <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--color-text-secondary)' }}>Carregando projetos...</span>
             </div>
           </div>
         )}
         {error && <div style={{ color: 'var(--challenges-color)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Erro: {error}</div>}
         <div ref={carouselRef} className="custom-scrollbar px-3" style={{ display: 'flex', flexDirection: 'row', gap: 12, overflowX: 'auto', overflowY: 'hidden', cursor: drag.current.dragging ? 'grabbing' : 'grab', userSelect: 'none', WebkitOverflowScrolling: 'touch', flex: 1, minHeight: 0, height: '100%', boxSizing: 'border-box', alignItems: 'center' }} onMouseDown={onMouseDown}>
-          {!loading && !error && filteredEstimates.length === 0 && (
+          {!isLoading && !error && filteredEstimates.length === 0 && (
             <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Nenhum projeto encontrado</div>
           )}
           {filteredEstimates.map((estimate, idx) => (

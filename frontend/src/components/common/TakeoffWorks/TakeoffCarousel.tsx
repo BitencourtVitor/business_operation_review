@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import CloseButton from '../../../utils/CloseButton';
+import { getTakeoffStatusColor } from '../../../utils/takeoffColors';
 
 interface TakeoffRow {
   id: string;
@@ -110,13 +111,13 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
     const hasEntrega = !!row.entrega_real;
 
     if (hasSolicitacao && hasInicio && hasEntrega) {
-      return { status: 'Completed', color: '#1bbf5c', label: 'Completed' };
+      return { status: 'Completed', color: getTakeoffStatusColor('Completed'), label: 'Completed' };
     } else if (hasSolicitacao && hasInicio && !hasEntrega) {
-      return { status: 'In Progress', color: '#ffc107', label: 'In Progress' };
+      return { status: 'In Progress', color: getTakeoffStatusColor('In Progress'), label: 'In Progress' };
     } else if (hasSolicitacao && !hasInicio && !hasEntrega) {
-      return { status: 'Not Started', color: '#dc3545', label: 'Not Started' };
+      return { status: 'Not Started', color: getTakeoffStatusColor('Not Started'), label: 'Not Started' };
     } else {
-      return { status: 'Pending', color: '#dc3545', label: 'Pending' };
+      return { status: 'Pending', color: getTakeoffStatusColor('Pending'), label: 'Pending' };
     }
   };
 
@@ -449,7 +450,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                       pointerEvents: isDisabled ? 'none' : undefined,
                     }}
                   >
-                    <span style={{ fontSize: 7, color: status === 'Completed' ? '#1bbf5c' : status === 'In Progress' ? '#ffc107' : '#dc3545' }}>
+                    <span style={{ fontSize: 7, color: getTakeoffStatusColor(status as 'Not Started' | 'In Progress' | 'Completed' | 'Pending') }}>
                       <i className="bi bi-circle-fill" />
                     </span>
                     {status}
@@ -756,7 +757,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                       alignItems: 'center',
                       gap: 8
                     }}>
-                      <i className="bi bi-check-circle" style={{ color: '#1bbf5c' }} /> Etapas Concluídas
+                      <i className="bi bi-check-circle" style={{ color: getTakeoffStatusColor('Completed') }} /> Etapas Concluídas
                     </h6>
                     <div style={{
                       background: 'var(--color-background-secondary)',
@@ -794,7 +795,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                       alignItems: 'center',
                       gap: 8
                     }}>
-                      <i className="bi bi-hourglass-split" style={{ color: '#dc3545' }} /> Etapas Pendentes
+                      <i className="bi bi-hourglass-split" style={{ color: getTakeoffStatusColor('Not Started') }} /> Etapas Pendentes
                     </h6>
                     <div style={{
                       background: 'var(--color-background-secondary)',

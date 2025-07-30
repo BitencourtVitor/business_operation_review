@@ -1,6 +1,7 @@
 import MetricTooltip from '../../tooltips/MetricTooltip';
 import dayjs from 'dayjs';
 import type { TakeoffRow } from '../../../types/takeoff';
+import { getTakeoffStatusColor } from '../../../utils/takeoffColors';
 
 export default function TakeoffMetrics({ allData }: { allData: TakeoffRow[] }) {
   const total = allData.length;
@@ -28,13 +29,13 @@ export default function TakeoffMetrics({ allData }: { allData: TakeoffRow[] }) {
         <MetricTooltip title="Projetos Entregues" content="Projetos com entrega real registrada.">
           <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 120, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Entregues</span>
-            <span style={{ color: '#1bbf5c', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{entregues}</span>
+            <span style={{ color: getTakeoffStatusColor('Completed'), fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{entregues}</span>
           </div>
         </MetricTooltip>
         <MetricTooltip title="Em Andamento" content="Projetos ainda não entregues.">
           <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 120, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Em andamento</span>
-            <span style={{ color: '#e67e22', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{emAndamento}</span>
+            <span style={{ color: getTakeoffStatusColor('In Progress'), fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{emAndamento}</span>
           </div>
         </MetricTooltip>
         <MetricTooltip title="Tempo Médio de Entrega" content="Tempo médio em dias entre início e entrega real dos projetos.">

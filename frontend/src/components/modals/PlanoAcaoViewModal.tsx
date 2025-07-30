@@ -185,19 +185,19 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {data.acoes.map((acao, index) => {
                         const realStatus = getActionStatus(acao);
-                        let statusIcon = 'bi-arrow-repeat';
-                        let statusColor = '#e67e22';
+                        let statusIcon = 'bi-clock';
+                        let statusColor = '#ffc107';
                         if (realStatus === 'Done' || realStatus === 'concluída') {
                           statusIcon = 'bi-check-circle';
-                          statusColor = '#1bbf5c';
+                          statusColor = '#28a745';
                         } else if (realStatus === 'Overdue') {
-                          statusIcon = 'bi-exclamation-octagon';
+                          statusIcon = 'bi-exclamation-triangle';
                           statusColor = '#dc3545';
                         }
                         return (
                           <div key={index} style={{ background: 'var(--color-background-secondary)', borderRadius: 8, padding: '10px 16px', border: '1px solid var(--color-border-divider)' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                              <i className={`bi ${statusIcon}`} style={{ color: statusColor, fontSize: 18, marginTop: 2, flexShrink: 0 }} />
+                              <i className={`bi ${statusIcon}`} style={{ color: statusColor, fontSize: 14, marginTop: 2, flexShrink: 0 }} />
                               <div style={{ flex: 1 }}>
                                 <div style={{ color: 'var(--color-text-primary)', fontSize: 16, fontWeight: 500, marginBottom: 8, textAlign: 'start' }}>{acao.titulo}</div>
                                 <div style={{ display: 'flex', justifyContent: 'space-evenly', gap: 24, fontSize: 14, color: 'var(--color-text-secondary)' }}>
