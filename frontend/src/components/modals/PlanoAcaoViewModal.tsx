@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import dayjs from 'dayjs';
 import CloseButton from '../../utils/CloseButton';
 
 // Interface para Plano de Ação do timesheet
@@ -47,6 +48,30 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
       }, 250);
     }
   }, [show, visible]);
+
+  // Função para verificar se uma ação está atrasada
+  const isActionOverdue = (acao: Acao): boolean => {
+    if (!acao.data_limite) return false;
+    const hoje = dayjs().startOf('day');
+    const dataLimite = dayjs(acao.data_limite).startOf('day');
+    return dataLimite.isBefore(hoje);
+  };
+
+  // Função para obter o status real de uma ação (considerando overdue)
+  const getActionStatus = (acao: Acao): string => {
+    // Se a ação já está concluída (Done), mantém o status como Done
+    if (acao.status === 'Done' || acao.status === 'concluída') {
+      return acao.status;
+    }
+    
+    // Se a ação está pendente e a data limite passou, marca como Overdue
+    if ((acao.status === 'Pending' || acao.status === 'Pendente') && isActionOverdue(acao)) {
+      return 'Overdue';
+    }
+    
+    // Caso contrário, mantém o status original
+    return acao.status;
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -159,12 +184,13 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
                   {data.acoes && data.acoes.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       {data.acoes.map((acao, index) => {
+                        const realStatus = getActionStatus(acao);
                         let statusIcon = 'bi-arrow-repeat';
                         let statusColor = '#e67e22';
-                        if (acao.status === 'Done' || acao.status === 'concluída') {
+                        if (realStatus === 'Done' || realStatus === 'concluída') {
                           statusIcon = 'bi-check-circle';
                           statusColor = '#1bbf5c';
-                        } else if (acao.status === 'Overdue') {
+                        } else if (realStatus === 'Overdue') {
                           statusIcon = 'bi-exclamation-octagon';
                           statusColor = '#dc3545';
                         }
@@ -181,7 +207,7 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
                                   </div>
                                   <div style={{ textAlign: 'center' }}>
                                     <div style={{ fontSize: 12, marginBottom: 2 }}>Status</div>
-                                    <div style={{ color: statusColor, fontWeight: 500 }}>{acao.status}</div>
+                                    <div style={{ color: statusColor, fontWeight: 500 }}>{realStatus}</div>
                                   </div>
                                   <div style={{ textAlign: 'center' }}>
                                     <div style={{ fontSize: 12, marginBottom: 2 }}>Prazo Limite</div>

@@ -2,9 +2,11 @@ export interface TakeoffRow {
   id: string;
   project: string;
   data_solicitacao: string;
+  data_inicio: string;
   data_estimada_entrega: string;
   entrega_real: string;
   description: string;
+  doc_links: string;
   modelo_da_casa: string;
   opcionais_da_casa: string;
   arquivo_dwg: string;

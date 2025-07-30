@@ -6,10 +6,10 @@ export default function TakeoffMetrics({ allData }: { allData: TakeoffRow[] }) {
   const total = allData.length;
   const entregues = allData.filter((row) => row.entrega_real && row.entrega_real !== '').length;
   const emAndamento = allData.filter((row) => !row.entrega_real || row.entrega_real === '').length;
-  const entreguesComDatas = allData.filter((row) => row.entrega_real && row.data_solicitacao);
+  const entreguesComDatas = allData.filter((row) => row.entrega_real && row.data_inicio);
   const tempoMedio = entreguesComDatas.length > 0
     ? Math.round(entreguesComDatas.reduce((acc, row) => {
-        const inicio = dayjs(row.data_solicitacao);
+        const inicio = dayjs(row.data_inicio);
         const fim = dayjs(row.entrega_real);
         return acc + fim.diff(inicio, 'day');
       }, 0) / entreguesComDatas.length)
@@ -37,7 +37,7 @@ export default function TakeoffMetrics({ allData }: { allData: TakeoffRow[] }) {
             <span style={{ color: '#e67e22', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{emAndamento}</span>
           </div>
         </MetricTooltip>
-        <MetricTooltip title="Tempo Médio de Entrega" content="Tempo médio em dias entre solicitação e entrega real dos projetos.">
+        <MetricTooltip title="Tempo Médio de Entrega" content="Tempo médio em dias entre início e entrega real dos projetos.">
           <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 140, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Tempo Médio</span>
             <span style={{ color: 'var(--color-accent-primary)', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>{tempoMedio}d</span>

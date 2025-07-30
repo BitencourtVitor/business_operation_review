@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '../../supabaseClient';
+import dayjs from 'dayjs';
 import CloseButton from '../../utils/CloseButton';
 
 // Interface para Plano de Ação
@@ -131,6 +132,30 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
   const validarIncompatibilidadeStatusData = (acao: Acao, dataInicio: string) => {
     if (!acao.status || !acao.data_limite) return null;
     return validarDataLimite(acao.status, acao.data_limite, dataInicio);
+  };
+
+  // Função para verificar se uma ação está atrasada
+  const isActionOverdue = (acao: Acao): boolean => {
+    if (!acao.data_limite) return false;
+    const hoje = dayjs().startOf('day');
+    const dataLimite = dayjs(acao.data_limite).startOf('day');
+    return dataLimite.isBefore(hoje);
+  };
+
+  // Função para obter o status real de uma ação (considerando overdue)
+  const getActionStatus = (acao: Acao): string => {
+    // Se a ação já está concluída (Done), mantém o status como Done
+    if (acao.status === 'Done' || acao.status === 'concluída') {
+      return acao.status;
+    }
+    
+    // Se a ação está pendente e a data limite passou, marca como Overdue
+    if ((acao.status === 'Pending' || acao.status === 'Pendente') && isActionOverdue(acao)) {
+      return 'Overdue';
+    }
+    
+    // Caso contrário, mantém o status original
+    return acao.status;
   };
 
   // Função para comparar dois planos e retornar apenas as diferenças
@@ -715,6 +740,8 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                     
                     {plano?.acoes.map((acao, index) => {
                       const erroAcao = validarIncompatibilidadeStatusData(acao, plano?.data_inicio || '');
+                      const realStatus = getActionStatus(acao);
+                      const isOverdue = realStatus === 'Overdue';
                       
                       return (
                         <div key={acao.id} style={{ 
@@ -751,7 +778,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <button
                                 type="button"
                                 onClick={() => removeAcao(index)}
-                                disabled={acao.status === 'Overdue'}
+                                disabled={isOverdue}
                                 className="d-flex align-items-center justify-content-center flex-row gap-2"
                                 style={{
                                   width: 100,
@@ -761,21 +788,21 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   marginTop: 0,
                                   borderRadius: 6,
                                   fontWeight: 500,
-                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
-                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--negative-color)',
+                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-secondary)',
+                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--negative-color)',
                                   border: '1.5px solid var(--color-border-divider)',
                                   transition: 'background 0.3s, color 0.3s, border 0.3s',
-                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'pointer',
-                                  opacity: acao.status === 'Overdue' ? 0.5 : 1,
+                                  cursor: isOverdue ? 'not-allowed' : 'pointer',
+                                  opacity: isOverdue ? 0.5 : 1,
                                 }}
                                 onMouseEnter={(e) => {
-                                  if (acao.status !== 'Overdue') {
+                                  if (!isOverdue) {
                                     e.currentTarget.style.background = 'var(--color-background-primary)';
                                     e.currentTarget.style.borderColor = 'var(--negative-color)';
                                   }
                                 }}
                                 onMouseLeave={(e) => {
-                                  if (acao.status !== 'Overdue') {
+                                  if (!isOverdue) {
                                     e.currentTarget.style.background = 'var(--color-background-secondary)';
                                     e.currentTarget.style.borderColor = 'var(--color-border-divider)';
                                   }
@@ -796,16 +823,16 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 type="text"
                                 value={acao.titulo}
                                 onChange={(e) => updateAcao(index, { titulo: e.target.value })}
-                                disabled={acao.status === 'Overdue'}
+                                disabled={isOverdue}
                                 style={{
                                   width: '100%',
                                   padding: '6px 12px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
-                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
+                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: isOverdue ? 'not-allowed' : 'auto',
                                   height: '32px',
                                   boxSizing: 'border-box',
                                 }}
@@ -819,7 +846,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <div style={{
                                 border: '1px solid var(--color-border-divider)',
                                 borderRadius: 4,
-                                background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
                                 padding: '6px 12px',
                                 height: '32px',
                                 display: 'flex',
@@ -828,14 +855,14 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 <select
                                   value={acao.responsavel}
                                   onChange={(e) => updateAcao(index, { responsavel: e.target.value })}
-                                  disabled={acao.status === 'Overdue'}
+                                  disabled={isOverdue}
                                   style={{
                                     width: '100%',
                                     border: 'none',
                                     fontSize: 12,
                                     background: 'transparent',
-                                    color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                    cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
+                                    color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                    cursor: isOverdue ? 'not-allowed' : 'auto',
                                     outline: 'none',
                                   }}
                                   onFocus={(e) => {
@@ -875,7 +902,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <div style={{
                                 border: '1px solid var(--color-border-divider)',
                                 borderRadius: 4,
-                                background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
                                 padding: '6px 12px',
                                 width: '150px',
                                 height: '32px',
@@ -883,16 +910,16 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 alignItems: 'center',
                               }}>
                                 <select
-                                  value={acao.status}
+                                  value={realStatus}
                                   onChange={(e) => updateAcao(index, { status: e.target.value })}
-                                  disabled={acao.status === 'Overdue'}
+                                  disabled={isOverdue}
                                   style={{
                                     width: '100%',
                                     border: 'none',
                                     fontSize: 12,
                                     background: 'transparent',
-                                    color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                    cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
+                                    color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                    cursor: isOverdue ? 'not-allowed' : 'auto',
                                     outline: 'none',
                                   }}
                                   onFocus={(e) => {
@@ -901,12 +928,12 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   onBlur={(e) => {
                                     e.target.style.backgroundColor = 'transparent';
                                   }}
-                                  title={acao.status === 'Overdue' ? 'Status alterado automaticamente pelo sistema' : ''}
+                                  title={isOverdue ? 'Status alterado automaticamente pelo sistema' : ''}
                                 >
                                   <option value="">Selecione</option>
                                   <option value="Pending">Pending</option>
                                   <option value="Done">Done</option>
-                                  {acao.status === 'Overdue' && <option value="Overdue" disabled>Overdue</option>}
+                                  {isOverdue && <option value="Overdue" disabled>Overdue</option>}
                                 </select>
                               </div>
                             </div>
@@ -918,20 +945,20 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                 type="date"
                                 value={acao.data_limite}
                                 onChange={(e) => updateAcao(index, { data_limite: e.target.value })}
-                                disabled={acao.status === 'Overdue'}
+                                disabled={isOverdue}
                                 style={{
                                   width: '150px',
                                   padding: '6px 12px',
                                   border: '1px solid var(--color-border-divider)',
                                   borderRadius: 4,
                                   fontSize: 12,
-                                  background: acao.status === 'Overdue' ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
-                                  color: acao.status === 'Overdue' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-                                  cursor: acao.status === 'Overdue' ? 'not-allowed' : 'auto',
+                                  background: isOverdue ? 'var(--color-background-secondary)' : 'var(--color-background-primary)',
+                                  color: isOverdue ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                                  cursor: isOverdue ? 'not-allowed' : 'auto',
                                   height: '32px',
                                   boxSizing: 'border-box',
                                 }}
-                                title={acao.status === 'Overdue' ? 'Data limite não pode ser alterada para ações atrasadas' : ''}
+                                title={isOverdue ? 'Data limite não pode ser alterada para ações atrasadas' : ''}
                               />
                             </div>
                           </div>

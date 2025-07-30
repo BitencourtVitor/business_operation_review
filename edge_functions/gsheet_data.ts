@@ -377,9 +377,11 @@ serve(async (req) => {
         const obj = {
           project: getField(row, "Project"),
           data_solicitacao: getField(row, "Data_Solicitacao") ? new Date(getField(row, "Data_Solicitacao")) : null,
+          data_inicio: getField(row, "Data_Inicio") ? new Date(getField(row, "Data_Inicio")) : null,
           data_estimada_entrega: getField(row, "Data_Estimada_Entrega") ? new Date(getField(row, "Data_Estimada_Entrega")) : null,
           entrega_real: getField(row, "Entrega Real") ? new Date(getField(row, "Entrega Real")) : null,
           description: getField(row, "Description"),
+          doc_links: getField(row, "Doc_Links"),
           modelo_da_casa: getField(row, "Modelo da Casa"),
           opcionais_da_casa: getField(row, "Opcionais da Casa"),
           arquivo_dwg: getField(row, "Arquivo DWG"),

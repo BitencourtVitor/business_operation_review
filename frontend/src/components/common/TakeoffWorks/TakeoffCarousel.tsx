@@ -6,9 +6,11 @@ interface TakeoffRow {
   id: string;
   project: string;
   data_solicitacao: string;
+  data_inicio: string;
   data_estimada_entrega: string;
   entrega_real: string;
   description: string;
+  doc_links: string;
   modelo_da_casa: string;
   opcionais_da_casa: string;
   arquivo_dwg: string;
@@ -50,7 +52,7 @@ function getEtapaMaisAvancada(row: TakeoffRow): string | null {
 const formatDate = (date?: string | null) => {
   if (!date) return '-';
   const d = new Date(date);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
 };
 
 // Mock de responsáveis por etapa (em produção, buscar do banco)
@@ -78,7 +80,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
 
   // Adicionar estados para os controles
   const [showEntregues, setShowEntregues] = useState(true);
-  const [statusOrder, setStatusOrder] = useState<string[]>(['Pendente', 'Entregue']);
+  const [statusOrder, setStatusOrder] = useState<string[]>(['Not Started', 'In Progress', 'Completed']);
   const [sortByProcessingTime, setSortByProcessingTime] = useState<'asc' | 'desc' | null>(null);
 
   // Estados para drag & drop e busca
@@ -87,18 +89,35 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
   const [searchDebounced, setSearchDebounced] = useState('');
   const searchDebounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  // Função para calcular tempo de processamento (igual ao Permit)
+  // Função para calcular tempo de processamento (atualizada para usar data_inicio)
   const calculateProcessingTime = (row: TakeoffRow): number => {
-    if (!row.data_solicitacao) return 0;
-    const requestDate = new Date(row.data_solicitacao);
+    if (!row.data_inicio) return 0;
+    const startDate = new Date(row.data_inicio);
     let endDate: Date;
     if (row.entrega_real) {
       endDate = new Date(row.entrega_real);
     } else {
       endDate = new Date();
     }
-    const diffTime = endDate.getTime() - requestDate.getTime();
+    const diffTime = endDate.getTime() - startDate.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Função para determinar o status baseado nas datas
+  const getProjectStatus = (row: TakeoffRow): { status: string; color: string; label: string } => {
+    const hasSolicitacao = !!row.data_solicitacao;
+    const hasInicio = !!row.data_inicio;
+    const hasEntrega = !!row.entrega_real;
+
+    if (hasSolicitacao && hasInicio && hasEntrega) {
+      return { status: 'Completed', color: '#1bbf5c', label: 'Completed' };
+    } else if (hasSolicitacao && hasInicio && !hasEntrega) {
+      return { status: 'In Progress', color: '#ffc107', label: 'In Progress' };
+    } else if (hasSolicitacao && !hasInicio && !hasEntrega) {
+      return { status: 'Not Started', color: '#dc3545', label: 'Not Started' };
+    } else {
+      return { status: 'Pending', color: '#dc3545', label: 'Pending' };
+    }
   };
 
   // Debounce para busca
@@ -152,10 +171,16 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
 
   // Filtrar e ordenar dados baseado nos controles
   const displayData = useMemo(() => {
-    const data = showEntregues ? filteredDataRaw : filteredDataRaw.filter(row => !row.entrega_real);
+    const data = showEntregues ? filteredDataRaw : filteredDataRaw.filter(row => {
+      const status = getProjectStatus(row);
+      return status.status !== 'Completed';
+    });
     // Agrupar por status conforme ordem definida
     const groupedData = statusOrder.map(status => {
-      const group = data.filter(row => (row.entrega_real ? 'Entregue' : 'Pendente') === status);
+      const group = data.filter(row => {
+        const projectStatus = getProjectStatus(row);
+        return projectStatus.status === status;
+      });
       if (sortByProcessingTime) {
         return group.sort((a, b) => {
           const timeA = calculateProcessingTime(a);
@@ -380,13 +405,12 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
               tabIndex={searchOpen ? 0 : -1}
             />
           </div>
-          {/* Sort by: Pendente/Entregue */}
+          {/* Sort by: Not Started/In Progress/Completed */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', opacity: isSingleStatusSelected ? 0.5 : 1, height: 42 }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
             <div style={{ display: 'flex', gap: 4 }}>
               {statusOrder.map((status) => {
-                const isEntregue = status === 'Entregue';
-                const isDisabled = (isEntregue && !showEntregues) || isSingleStatusSelected;
+                const isDisabled = isSingleStatusSelected;
                 return (
                   <div
                     key={status}
@@ -425,7 +449,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                       pointerEvents: isDisabled ? 'none' : undefined,
                     }}
                   >
-                    <span style={{ color: status === 'Entregue' ? '#1bbf5c' : '#dc3545', fontSize: 7 }}>
+                    <span style={{ fontSize: 7, color: status === 'Completed' ? '#1bbf5c' : status === 'In Progress' ? '#ffc107' : '#dc3545' }}>
                       <i className="bi bi-circle-fill" />
                     </span>
                     {status}
@@ -530,25 +554,19 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                   alignItems: 'center'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {row.entrega_real ? (
-                      <>
-                        <span style={{ fontSize: 11, color: '#1bbf5c' }}>
-                          <i className="bi bi-circle-fill" />
-                        </span>
-                        <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 15 }}>
-                          Entregue
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ fontSize: 11, color: '#dc3545' }}>
-                          <i className="bi bi-circle-fill" />
-                        </span>
-                        <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 15 }}>
-                          Pendente
-                        </span>
-                      </>
-                    )}
+                    {(() => {
+                      const statusInfo = getProjectStatus(row);
+                      return (
+                        <>
+                          <span style={{ fontSize: 11, color: statusInfo.color }}>
+                            <i className="bi bi-circle-fill" />
+                          </span>
+                          <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 15 }}>
+                            {statusInfo.label}
+                          </span>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
                 {/* Body do Card */}
@@ -567,11 +585,12 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                   })()}
                   <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)', justifyContent: 'center' }}>
                     <span title="Solicitação">Solic: {formatDate(row.data_solicitacao)}</span>
+                    <span title="Início">Início: {formatDate(row.data_inicio)}</span>
                     <span title="Estimada">Estimada: {formatDate(row.data_estimada_entrega)}</span>
                     <span title="Entrega">Entrega: {formatDate(row.entrega_real)}</span>
                   </div>
                   {/* Tempo de Processamento */}
-                  {row.data_solicitacao && (
+                  {row.data_inicio && (
                     <div style={{ 
                       display: 'flex', 
                       justifyContent: 'center', 
@@ -583,7 +602,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                     }}>
                       <i className="bi bi-clock" style={{ fontSize: 10 }} />
                       <span>
-                        {row.entrega_real ? 'Processado em' : 'Em processamento há'} {calculateProcessingTime(row)}d
+                        {row.entrega_real ? 'Processed in' : 'Processing for'} {calculateProcessingTime(row)}d
                       </span>
                     </div>
                   )}
@@ -649,8 +668,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                 alignItems: 'center',
                 gap: 8
               }}>
-                <span style={{ color: 'var(--color-text-secondary)' }}>Visualizar</span>
-                <span>Takeoff Work</span>
+                {selected.project || 'Takeoff Work'}
               </h5>
               <CloseButton onClick={() => setSelected(null)} size="md" />
             </div>
@@ -686,6 +704,9 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                   }}>
                     <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, flex: 1, textAlign: 'center' }}>
                       <strong>Solicitação:</strong> {formatDate(selected.data_solicitacao)}
+                    </div>
+                    <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, flex: 1, textAlign: 'center' }}>
+                      <strong>Início:</strong> {formatDate(selected.data_inicio)}
                     </div>
                     <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, flex: 1, textAlign: 'center' }}>
                       <strong>Estimada:</strong> {formatDate(selected.data_estimada_entrega)}
@@ -843,11 +864,42 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
               borderTop: '1px solid var(--color-border-divider)', 
               background: 'var(--color-background-primary)', 
               display: 'flex', 
-              justifyContent: 'flex-end', 
+              justifyContent: 'space-between', 
               alignItems: 'center', 
               gap: 10,
               padding: '16px 24px'
             }}>
+              {/* Doc_Links Button */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    if (selected.doc_links) {
+                      window.open(selected.doc_links, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  disabled={!selected.doc_links}
+                  style={{ 
+                    borderRadius: 6, 
+                    fontWeight: 500, 
+                    minWidth: 120,
+                    padding: '8px 16px',
+                    background: 'var(--color-background-secondary)',
+                    color: 'var(--color-text-primary)',
+                    border: '1px solid var(--color-border-divider)',
+                    cursor: selected.doc_links ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    transition: 'all 0.2s',
+                    opacity: selected.doc_links ? 1 : 0.6
+                  }}
+                  title={selected.doc_links ? 'Open project documents' : 'No documents available'}
+                >
+                  <i className={`bi ${selected.doc_links ? 'bi-folder2-open' : 'bi-folder2'}`} />
+                  {selected.doc_links ? 'Documents' : 'No Documents'}
+                </button>
+              </div>
               <button 
                 type="button" 
                 onClick={() => setSelected(null)}
@@ -862,7 +914,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                   cursor: 'pointer'
                 }}
               >
-                Fechar
+                Close
               </button>
             </div>
           </div>

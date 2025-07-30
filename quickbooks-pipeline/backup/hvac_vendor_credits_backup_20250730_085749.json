@@ -2,742 +2,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "18403",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-16T10:36:16-07:00",
-      "LastUpdatedTime": "2025-07-28T13:07:19-07:00"
-    },
-    "DocNumber": "CM923973",
-    "TxnDate": "2025-05-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "CM923973 65 Mill Street",
-        "Amount": 3196.91,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "573",
-            "name": "Premium Framing"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "HasBeenBilled",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "69",
-      "name": "S.G. Torrice Company / Ferguson"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3196.91
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19318",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-06-24T07:43:03-07:00",
-      "LastUpdatedTime": "2025-07-24T14:03:43-07:00"
-    },
-    "DocNumber": "S3365158.001",
-    "TxnDate": "2025-06-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Returns from Hopkinton Newbury Glen",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3365158.001",
-        "Amount": 1518.54,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "789",
-            "name": "Toll Brothers:Newbury Glen Hopkinton:Newbury Glen Hopkinton"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1518.54
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19313",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-06-24T07:05:22-07:00",
-      "LastUpdatedTime": "2025-07-24T14:03:17-07:00"
-    },
-    "DocNumber": "S3364684.001",
-    "TxnDate": "2025-06-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3364684.001",
-        "Amount": 157.88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "333",
-            "name": "Toll Brothers:The Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 157.88
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19060",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-06-16T09:55:53-07:00",
-      "LastUpdatedTime": "2025-07-24T14:00:55-07:00"
-    },
-    "DocNumber": "S3361452.001",
-    "TxnDate": "2025-06-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3361452.001",
-        "Amount": 177.64,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "786",
-            "name": "Toll Brothers:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 177.64
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19303",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-24T06:39:41-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3364562.002",
-    "TxnDate": "2025-06-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3364562.002",
-        "Amount": 57.58,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "333",
-            "name": "Toll Brothers:The Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 57.58
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19301",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-24T06:35:54-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3364562.003",
-    "TxnDate": "2025-06-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3364562.003",
-        "Amount": 78.66,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "333",
-            "name": "Toll Brothers:The Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 78.66
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19286",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-23T14:02:06-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3364562.001",
-    "TxnDate": "2025-06-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3364562.001",
-        "Amount": 674.83,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "333",
-            "name": "Toll Brothers:The Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 674.83
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19280",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-23T13:49:22-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3363967.001",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3363967.001",
-        "Amount": 2349.79,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "286",
-            "name": "Toll Brothers:The Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2349.79
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19267",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-23T13:23:45-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3363556.001",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3363556.001",
-        "Amount": 1079.05,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "786",
-            "name": "Toll Brothers:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1079.05
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19263",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-06-23T13:15:46-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3363584.001",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3363584.001",
-        "Amount": 2601.67,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "786",
-            "name": "Toll Brothers:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2601.67
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19262",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-23T13:13:58-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3362959.002",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3362959.002",
-        "Amount": 268.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1289",
-            "name": "Toll Brothers:Lakemont at Hudson:Lot 06 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 268.97
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19200",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-06-19T13:39:13-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3361982.001",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3361982.001",
-        "Amount": 1506.05,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1275",
-            "name": "Adam Stack:116 Chestnut Hill Rd"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1506.05
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19199",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-19T13:37:44-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3361982.003",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3361982.003",
-        "Amount": 301.81,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1275",
-            "name": "Adam Stack:116 Chestnut Hill Rd"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 301.81
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19197",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-19T13:36:29-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3361982.002",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3361982.002",
-        "Amount": 149.33,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1275",
-            "name": "Adam Stack:116 Chestnut Hill Rd"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 149.33
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18912",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-10T12:55:02-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3355620.003",
-    "TxnDate": "2025-06-04",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3355620.003",
-        "Amount": 24.41,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1422",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 76 - The Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 24.41
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "19877",
     "SyncToken": "1",
     "MetaData": {
@@ -915,6 +179,681 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 136.44
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19200",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-19T13:39:13-07:00",
+      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+    },
+    "DocNumber": "S3361982.001",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3361982.001",
+        "Amount": 1506.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1275",
+            "name": "Adam Stack:116 Chestnut Hill Rd"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1506.05
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19199",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-19T13:37:44-07:00",
+      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+    },
+    "DocNumber": "S3361982.003",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3361982.003",
+        "Amount": 301.81,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1275",
+            "name": "Adam Stack:116 Chestnut Hill Rd"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 301.81
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19197",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-19T13:36:29-07:00",
+      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+    },
+    "DocNumber": "S3361982.002",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3361982.002",
+        "Amount": 149.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1275",
+            "name": "Adam Stack:116 Chestnut Hill Rd"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 149.33
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19060",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-16T09:55:53-07:00",
+      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+    },
+    "DocNumber": "S3361452.001",
+    "TxnDate": "2025-06-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3361452.001",
+        "Amount": 177.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 177.64
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18912",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-10T12:55:02-07:00",
+      "LastUpdatedTime": "2025-07-14T11:24:54-07:00"
+    },
+    "DocNumber": "S3355620.003",
+    "TxnDate": "2025-06-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3355620.003",
+        "Amount": 24.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1422",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 76 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 24.41
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19318",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-24T07:43:03-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3365158.001",
+    "TxnDate": "2025-06-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returns from Hopkinton Newbury Glen",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3365158.001",
+        "Amount": 1518.54,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1518.54
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19313",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-24T07:05:22-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3364684.001",
+    "TxnDate": "2025-06-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3364684.001",
+        "Amount": 157.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 157.88
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19303",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-24T06:39:41-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3364562.002",
+    "TxnDate": "2025-06-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3364562.002",
+        "Amount": 57.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "333",
+            "name": "Toll Brothers:The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 57.58
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19301",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-24T06:35:54-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3364562.003",
+    "TxnDate": "2025-06-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3364562.003",
+        "Amount": 78.66,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "333",
+            "name": "Toll Brothers:The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 78.66
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19286",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-23T14:02:06-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3364562.001",
+    "TxnDate": "2025-06-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3364562.001",
+        "Amount": 674.83,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "333",
+            "name": "Toll Brothers:The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 674.83
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19280",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-23T13:49:22-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3363967.001",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3363967.001",
+        "Amount": 2349.79,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "286",
+            "name": "Toll Brothers:The Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2349.79
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19267",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-23T13:23:45-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3363556.001",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3363556.001",
+        "Amount": 1079.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "786",
+            "name": "Toll Brothers:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1079.05
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19263",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-06-23T13:15:46-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3363584.001",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3363584.001",
+        "Amount": 2601.67,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "786",
+            "name": "Toll Brothers:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2601.67
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19262",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-23T13:13:58-07:00",
+      "LastUpdatedTime": "2025-07-14T11:18:11-07:00"
+    },
+    "DocNumber": "S3362959.002",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3362959.002",
+        "Amount": 268.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1289",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 06 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 268.97
   },
   {
     "domain": "QBO",
@@ -1246,6 +1185,55 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1395.06
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18403",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-16T10:36:16-07:00",
+      "LastUpdatedTime": "2025-06-05T14:07:24-07:00"
+    },
+    "DocNumber": "CM923973",
+    "TxnDate": "2025-05-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "CM923973 65 Mill Street",
+        "Amount": 3196.61,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "573",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "69",
+      "name": "S.G. Torrice Company / Ferguson"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3196.61
   },
   {
     "domain": "QBO",

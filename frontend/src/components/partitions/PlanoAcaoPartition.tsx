@@ -52,6 +52,30 @@ export default function PlanoAcaoPartition({
   const [openPlanoId, setOpenPlanoId] = useState<string>('');
   const [loadingView, setLoadingView] = useState<string>('');
 
+  // Função para verificar se uma ação está atrasada
+  const isActionOverdue = (acao: Acao): boolean => {
+    if (!acao.data_limite) return false;
+    const hoje = dayjs().startOf('day');
+    const dataLimite = dayjs(acao.data_limite).startOf('day');
+    return dataLimite.isBefore(hoje);
+  };
+
+  // Função para obter o status real de uma ação (considerando overdue)
+  const getActionStatus = (acao: Acao): string => {
+    // Se a ação já está concluída (Done), mantém o status como Done
+    if (acao.status === 'Done' || acao.status === 'concluída') {
+      return acao.status;
+    }
+    
+    // Se a ação está pendente e a data limite passou, marca como Overdue
+    if ((acao.status === 'Pending' || acao.status === 'Pendente') && isActionOverdue(acao)) {
+      return 'Overdue';
+    }
+    
+    // Caso contrário, mantém o status original
+    return acao.status;
+  };
+
   // Buscar planos de ação e ações do usuário responsável pela tela
   useEffect(() => {
     const fetchPlanosEAcoes = async () => {
@@ -99,7 +123,8 @@ export default function PlanoAcaoPartition({
     if (!acoes || acoes.length === 0) return { icon: 'bi-arrow-repeat', color: '#e67e22' };
     
     const statusCounts = acoes.reduce((acc, acao) => {
-      acc[acao.status] = (acc[acao.status] || 0) + 1;
+      const realStatus = getActionStatus(acao);
+      acc[realStatus] = (acc[realStatus] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
@@ -285,12 +310,13 @@ export default function PlanoAcaoPartition({
                               return 0;
                             })
                             .map((acao: Acao) => {
+                              const realStatus = getActionStatus(acao);
                               let statusIcon = 'bi-arrow-repeat';
                               let statusColor = '#e67e22';
-                              if (acao.status === 'Done' || acao.status === 'concluída') {
+                              if (realStatus === 'Done' || realStatus === 'concluída') {
                                 statusIcon = 'bi-check-circle';
                                 statusColor = '#1bbf5c';
-                              } else if (acao.status === 'Overdue') {
+                              } else if (realStatus === 'Overdue') {
                                 statusIcon = 'bi-exclamation-octagon';
                                 statusColor = '#dc3545';
                               }
@@ -301,7 +327,7 @@ export default function PlanoAcaoPartition({
                                     <div style={{ color: 'var(--color-text-primary)', fontSize: 13, fontWeight: 500, marginBottom: 2, wordBreak: 'break-word', textAlign: 'left' }}>{acao.titulo}</div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 12, color: '#888' }}>
                                       <span style={{ color: '#888' }}>{acao.responsavel}</span>
-                                      <span style={{ color: statusColor }}>{acao.status}</span>
+                                      <span style={{ color: statusColor }}>{realStatus}</span>
                                       <span style={{ color: '#888' }}>{acao.data_limite}</span>
                                     </div>
                                   </div>

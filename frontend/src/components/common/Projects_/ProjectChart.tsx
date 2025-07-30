@@ -12,8 +12,9 @@ import {
 } from 'chart.js';
 import type { TooltipModel, Chart as ChartJSInstance } from 'chart.js';
 import { RECEIVABLES_COLOR, PAYABLES_COLOR } from '../../../utils/accountingColors';
-import { useProjectChartData } from '../../../hooks/useProjectChartData';
 import ProjectChartTooltipExternal from '../../tooltips/ProjectChartTooltipExternal';
+import { useAccountingDataCached } from '../../../hooks/useAccountingDataCached';
+import { useProjectChartData } from '../../../hooks/useProjectChartData';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -28,26 +29,267 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   
-  // Usar o hook otimizado que chama a função SQL
-  const { data: chartDataFromSQL, loading } = useProjectChartData({
+  // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
+  const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
     selectedYear,
     selectedMonth,
     selectedGroup
   });
 
-  const { chartData, chartOptions, hasData } = useMemo(() => {
-    if (loading) return { chartData: null, chartOptions: null, hasData: false };
+  // CONSULTA 2: JavaScript para "Outstanding Receivable" e "Outstanding Payable" - ATIVADO
+  const { data: accountingData, loading: accountingLoading } = useAccountingDataCached();
+
+  // Loading geral
+  const isLoading = accountingLoading || sqlLoading;
+
+  // Calcular dados filtrados (EXATAMENTE como no AccountingIndicators)
+  const filteredData = useMemo(() => {
+    if (!accountingData) return [];
     
-    if (!chartDataFromSQL || chartDataFromSQL.length === 0) {
+    let filtered = accountingData;
+    
+    if (selectedYear) {
+      filtered = filtered.filter(d => {
+        const hasDate = d.date && d.date.startsWith(selectedYear + '-');
+        const hasDateField = d.date_field && d.date_field.startsWith(selectedYear + '-');
+        return hasDate || hasDateField;
+      });
+    }
+    
+    if (selectedMonth) {
+      filtered = filtered.filter(d => {
+        const dateToUse = d.date || d.date_field;
+        return dateToUse && String(Number(dateToUse.split('-')[1])).padStart(2, '0') === selectedMonth;
+      });
+    }
+    
+    if (selectedGroup !== 'all') {
+      const groupFilter = selectedGroup === 'receivable' ? 'receivables' : 'payables';
+      filtered = filtered.filter(d => d.type === groupFilter);
+    }
+    
+    return filtered;
+  }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
+
+  const { chartData, chartOptions, hasData } = useMemo(() => {
+    if (isLoading) return { chartData: null, chartOptions: null, hasData: false };
+    
+    if (!filteredData || filteredData.length === 0) {
       return { chartData: null, chartOptions: null, hasData: false };
     }
 
-    // Extrair labels e valores dos dados SQL
-    const labels = chartDataFromSQL.map(row => row.period_label);
-    const receivableValues = chartDataFromSQL.map(row => row.receivable_amount);
-    const payableValues = chartDataFromSQL.map(row => row.payable_amount);
-    const pendingReceivableValues = chartDataFromSQL.map(row => row.pending_receivable_amount);
-    const pendingPayableValues = chartDataFromSQL.map(row => row.pending_payable_amount);
+    // Determinar período para agrupamento (igual ao AccountingChart)
+    let period: 'year' | 'month' | 'day' = 'month';
+    if (selectedYear && selectedMonth) period = 'day';
+    else if (selectedYear) period = 'month';
+    else period = 'month';
+
+    // APLICAR EXATAMENTE A MESMA LÓGICA DO ACCOUNTINGCHART
+    let chartLabels: string[] = [];
+    let outstandingData = { pendingReceivableValues: [] as (number | null)[], pendingPayableValues: [] as (number | null)[] };
+
+    if (selectedYear && selectedMonth) {
+      // Gráfico dia a dia do mês selecionado (igual ao AccountingChart)
+      const receivablesByDay: Record<string, { value: number; date: string }> = {};
+      const payablesByDay: Record<string, { value: number; date: string }> = {};
+      
+      // Receivables: para cada dia, pegar o open_balance mais recente de cada transação (inv_num)
+      filteredData.filter(row => row.type === 'receivables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0).forEach(row => {
+        const dia = String(Number(row.date_field!.split('-')[2])).padStart(2, '0');
+        const transaction = row.inv_num; // Código da transação
+        const key = `${dia}-${transaction}`;
+        const currentDate = row.date_field!;
+        if (!receivablesByDay[key] || currentDate > receivablesByDay[key].date) {
+          receivablesByDay[key] = { value: row.open_balance, date: currentDate };
+        }
+      });
+      
+      // Payables: para cada dia, pegar o open_balance mais recente de cada transação (bill_num)
+      filteredData.filter(row => row.type === 'payables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0).forEach(row => {
+        const dia = String(Number(row.date_field!.split('-')[2])).padStart(2, '0');
+        const transaction = row.bill_num; // Código da transação
+        const key = `${dia}-${transaction}`;
+        const currentDate = row.date_field!;
+        if (!payablesByDay[key] || currentDate > payablesByDay[key].date) {
+          payablesByDay[key] = { value: row.open_balance, date: currentDate };
+        }
+      });
+      
+      // Agrupar por dia - somar todas as transações distintas (usando os valores mais recentes)
+      const receivablesSumByDay: Record<string, number> = {};
+      Object.keys(receivablesByDay).forEach(key => {
+        const dia = key.split('-')[0];
+        receivablesSumByDay[dia] = (receivablesSumByDay[dia] || 0) + receivablesByDay[key].value;
+      });
+      
+      const payablesSumByDay: Record<string, number> = {};
+      Object.keys(payablesByDay).forEach(key => {
+        const dia = key.split('-')[0];
+        payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key].value;
+      });
+      
+      // Coletar todos os dias válidos presentes nos dados (com open_balance > 0)
+      const diasValidosSet = new Set<string>();
+      filteredData.forEach(row => {
+        if (!!row.date_field && 
+            row.date_field.split('-').length === 3 && 
+            row.open_balance > 0 && 
+            row.date_field.startsWith(`${selectedYear}-${selectedMonth}`)) {
+          const dia = String(Number(row.date_field.split('-')[2])).padStart(2, '0');
+          diasValidosSet.add(dia);
+        }
+      });
+      chartLabels = Array.from(diasValidosSet).sort((a, b) => Number(a) - Number(b));
+
+      // Preparar dados para o gráfico
+      const pendingReceivableValues: (number | null)[] = [];
+      const pendingPayableValues: (number | null)[] = [];
+      
+      chartLabels.forEach(dia => {
+        const receivablesValue = receivablesSumByDay[dia] || 0;
+        const payablesValue = payablesSumByDay[dia] || 0;
+        pendingReceivableValues.push(receivablesValue > 0 ? receivablesValue : null);
+        pendingPayableValues.push(payablesValue > 0 ? payablesValue : null);
+      });
+
+      outstandingData = { pendingReceivableValues, pendingPayableValues };
+
+    } else if (selectedYear) {
+      // Gráfico mês a mês do ano selecionado (igual ao AccountingChart)
+      const receivablesByMonth: Record<string, { value: number; date: string }> = {};
+      const payablesByMonth: Record<string, { value: number; date: string }> = {};
+      
+      // Para cada mês, encontrar o último dia com dados e pegar os valores desse dia
+      const mesesComDados = new Set<string>();
+      filteredData.forEach(row => {
+        if (!!row.date_field && row.date_field.split('-').length >= 2 && row.open_balance > 0) {
+          const mes = String(Number(row.date_field.split('-')[1])).padStart(2, '0');
+          mesesComDados.add(mes);
+        }
+      });
+      
+      const mesesOrdenados = Array.from(mesesComDados).sort((a, b) => Number(a) - Number(b));
+      
+      // Para cada mês, encontrar o último dia com dados
+      mesesOrdenados.forEach(mes => {
+        const dadosDoMes = filteredData.filter(row => 
+          row.date_field && 
+          String(Number(row.date_field.split('-')[1])).padStart(2, '0') === mes &&
+          row.open_balance > 0
+        );
+        
+        if (dadosDoMes.length > 0) {
+          // Encontrar o último dia do mês com dados
+          const ultimoDia = Math.max(...dadosDoMes.map(row => Number(row.date_field!.split('-')[2])));
+          
+          // Pegar apenas os dados do último dia
+          const dadosUltimoDia = dadosDoMes.filter(row => 
+            Number(row.date_field!.split('-')[2]) === ultimoDia
+          );
+          
+          // Para cada transação no último dia, pegar o valor mais recente
+          const receivablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'receivables');
+          const payablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'payables');
+          
+          // Processar receivables do último dia
+          receivablesUltimoDia.forEach(row => {
+            const transaction = row.inv_num;
+            if (transaction) {
+              const key = `${mes}-${transaction}`;
+              const currentDate = row.date_field!;
+              if (!receivablesByMonth[key] || currentDate > receivablesByMonth[key].date) {
+                receivablesByMonth[key] = { value: row.open_balance, date: currentDate };
+              }
+            }
+          });
+          
+          // Processar payables do último dia
+          payablesUltimoDia.forEach(row => {
+            const transaction = row.bill_num;
+            if (transaction) {
+              const key = `${mes}-${transaction}`;
+              const currentDate = row.date_field!;
+              if (!payablesByMonth[key] || currentDate > payablesByMonth[key].date) {
+                payablesByMonth[key] = { value: row.open_balance, date: currentDate };
+              }
+            }
+          });
+        }
+      });
+      
+      // Agrupar por mês - somar todas as transações distintas (usando os valores mais recentes)
+      const receivablesSumByMonth: Record<string, number> = {};
+      Object.keys(receivablesByMonth).forEach(key => {
+        const mes = key.split('-')[0];
+        receivablesSumByMonth[mes] = (receivablesSumByMonth[mes] || 0) + receivablesByMonth[key].value;
+      });
+      
+      const payablesSumByMonth: Record<string, number> = {};
+      Object.keys(payablesByMonth).forEach(key => {
+        const mes = key.split('-')[0];
+        payablesSumByMonth[mes] = (payablesSumByMonth[mes] || 0) + payablesByMonth[key].value;
+      });
+
+      chartLabels = mesesOrdenados;
+
+      // Preparar dados para o gráfico
+      const pendingReceivableValues: (number | null)[] = [];
+      const pendingPayableValues: (number | null)[] = [];
+      
+      chartLabels.forEach(mes => {
+        const receivablesValue = receivablesSumByMonth[mes] || 0;
+        const payablesValue = payablesSumByMonth[mes] || 0;
+        pendingReceivableValues.push(receivablesValue > 0 ? receivablesValue : null);
+        pendingPayableValues.push(payablesValue > 0 ? payablesValue : null);
+      });
+
+      outstandingData = { pendingReceivableValues, pendingPayableValues };
+
+    } else {
+      // Gráfico geral (sem filtros de ano/mês) - usar total geral
+      const receivablesWithOpenBalance = filteredData.filter(row => 
+        row.type === 'receivables' && 
+        row.open_balance > 0
+      );
+      
+      const payablesWithOpenBalance = filteredData.filter(row => 
+        row.type === 'payables' && 
+        row.open_balance > 0
+      );
+
+      const totalReceivablesOutstanding = receivablesWithOpenBalance.reduce((sum, row) => sum + row.open_balance, 0);
+      const totalPayablesOutstanding = payablesWithOpenBalance.reduce((sum, row) => sum + row.open_balance, 0);
+
+      chartLabels = ['Current Period'];
+      outstandingData = { 
+        pendingReceivableValues: [totalReceivablesOutstanding > 0 ? totalReceivablesOutstanding : null], 
+        pendingPayableValues: [totalPayablesOutstanding > 0 ? totalPayablesOutstanding : null] 
+      };
+    }
+
+    const { pendingReceivableValues, pendingPayableValues } = outstandingData;
+
+    // Usar dados SQL para "What I Received" e "What I Paid"
+    const labels = chartLabels;
+    
+    // Mapear dados SQL para os mesmos labels do JavaScript
+    const receivableValues: number[] = [];
+    const payableValues: number[] = [];
+    
+    labels.forEach((label, index) => {
+      // Encontrar o item correspondente nos dados SQL
+      const sqlItem = chartDataFromSQL?.find(item => {
+        // Tentar diferentes formatos de label
+        return item.period_label === label || 
+               item.period_label === label.toString() ||
+               item.period_label === String(Number(label)).padStart(2, '0');
+      });
+      
+      // Se não encontrar correspondência exata, usar o item do mesmo índice
+      const itemToUse = sqlItem || chartDataFromSQL?.[index];
+      receivableValues.push(itemToUse?.receivable_amount || 0);
+      payableValues.push(itemToUse?.payable_amount || 0);
+    });
 
     // Filtrar períodos onde todos os valores são zero
     const filtered = labels.map((label, idx) => {
@@ -60,26 +302,26 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       };
     }).filter(row => {
       // Sempre incluir períodos que têm dados de Outstanding, independente do grupo selecionado
-      const hasOutstandingData = row.pendingReceivable > 0 || row.pendingPayable > 0;
+      const hasOutstandingData = row.pendingReceivable !== null && row.pendingPayable !== null;
       
       if (selectedGroup === 'all') {
         return row.receivable > 0 || row.payable > 0 || hasOutstandingData;
       } else if (selectedGroup === 'receivable') {
-        return row.receivable > 0 || row.pendingReceivable > 0;
+        return row.receivable > 0 || row.pendingReceivable !== null;
       } else {
-        return row.payable > 0 || row.pendingPayable > 0;
+        return row.payable > 0 || row.pendingPayable !== null;
       }
     });
 
     // Se não há dados filtrados mas há dados de Outstanding, incluir pelo menos um período
-    if (filtered.length === 0 && (pendingReceivableValues.some(v => v > 0) || pendingPayableValues.some(v => v > 0))) {
+    if (filtered.length === 0 && (pendingReceivableValues.some(v => v !== null) || pendingPayableValues.some(v => v !== null))) {
       const outstandingPeriods = labels.map((label, idx) => ({
         label,
         receivable: receivableValues[idx],
         payable: payableValues[idx],
         pendingReceivable: pendingReceivableValues[idx],
         pendingPayable: pendingPayableValues[idx],
-      })).filter(row => row.pendingReceivable > 0 || row.pendingPayable > 0);
+      })).filter(row => row.pendingReceivable !== null || row.pendingPayable !== null);
       
       if (outstandingPeriods.length > 0) {
         filtered.push(...outstandingPeriods);
@@ -89,14 +331,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const filteredLabels = filtered.map(row => row.label);
     const filteredReceivableValues = filtered.map(row => row.receivable);
     const filteredPayableValues = filtered.map(row => row.payable);
-    const filteredPendingReceivableValues = filtered.map(row => row.pendingReceivable);
-    const filteredPendingPayableValues = filtered.map(row => row.pendingPayable);
-
-    // Determinar período para título do gráfico
-    let period: 'year' | 'month' | 'day' = 'month';
-    if (selectedYear && selectedMonth) period = 'day';
-    else if (selectedYear) period = 'month';
-    else period = 'month';
+    const filteredPendingReceivableValues = filtered.map(row => row.pendingReceivable || 0);
+    const filteredPendingPayableValues = filtered.map(row => row.pendingPayable || 0);
 
     const datasets = [];
     if (selectedGroup === 'all') {
@@ -112,6 +348,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 3,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
       datasets.push({
         label: 'Payable',
@@ -125,6 +362,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 3,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
       datasets.push({
         label: 'Outstanding Receivable',
@@ -139,6 +377,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 2,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
       datasets.push({
         label: 'Outstanding Payable',
@@ -153,6 +392,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 2,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
     } else if (selectedGroup === 'receivable') {
       datasets.push({
@@ -167,6 +407,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 3,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
       datasets.push({
         label: 'Outstanding Receivable',
@@ -181,6 +422,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 2,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
     } else {
       datasets.push({
@@ -195,6 +437,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 3,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
       datasets.push({
         label: 'Outstanding Payable',
@@ -209,6 +452,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         borderWidth: 2,
         fill: false,
         tension: 0.25,
+        spanGaps: false,
       });
     }
 
@@ -290,9 +534,15 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       }
     };
 
-    const hasData = filteredLabels.length > 0 && datasets[0].data.some((v: number) => v > 0);
+    const hasData = filteredLabels.length > 0 && (
+      filteredReceivableValues.some((v: number) => v > 0) || 
+      filteredPayableValues.some((v: number) => v > 0) ||
+      filteredPendingReceivableValues.some((v: number | null) => v !== null) ||
+      filteredPendingPayableValues.some((v: number | null) => v !== null)
+    );
+    
     return { chartData, chartOptions, hasData };
-  }, [chartDataFromSQL, selectedYear, selectedMonth, selectedGroup, loading]);
+  }, [filteredData, selectedYear, selectedMonth, selectedGroup, isLoading, chartDataFromSQL]);
 
   return (
     <div style={{ width: '100%', background: 'var(--color-background-primary)', borderRadius: 0, margin: 0, borderBottom: '1.5px solid var(--color-border-divider)', padding: 0 }}>
@@ -328,7 +578,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         )}
       </div>
       <div style={{ width: '100%', height: 340, minHeight: 220, maxHeight: 400, padding: '0 32px 24px 32px' }}>
-        {loading ? (
+        {isLoading ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{
               display: 'flex',

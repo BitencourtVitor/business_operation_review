@@ -1,763 +1,6 @@
 [
   {
     "CustomerRef": {
-      "value": "1157",
-      "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "6"
-    },
-    "PaymentRefNum": "1680-PMX-2107",
-    "TotalAmt": 8477.99,
-    "UnappliedAmt": 0,
-    "ProcessPayment": false,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20041",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-29T06:29:04-07:00",
-      "LastUpdatedTime": "2025-07-29T06:29:04-07:00"
-    },
-    "TxnDate": "2025-07-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "ERV first floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "20042",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 8477.99,
-        "LinkedTxn": [
-          {
-            "TxnId": "16348",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "16348"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "12198.67"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3252"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "ProjectRef": {
-      "value": "463923787"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "672",
-      "name": "Building 6 - Chauncy Lake - Pulte Homes - 6546"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "6"
-    },
-    "PaymentRefNum": "1680-PMX-2107",
-    "TotalAmt": 230,
-    "UnappliedAmt": 0,
-    "ProcessPayment": false,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20040",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-29T06:16:59-07:00",
-      "LastUpdatedTime": "2025-07-29T06:17:07-07:00"
-    },
-    "TxnDate": "2025-07-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "20042",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 230,
-        "LinkedTxn": [
-          {
-            "TxnId": "18441",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "18441"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "230.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3481"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "ProjectRef": {
-      "value": "275297718"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "847",
-      "name": "Building 4 - Chauncy Lake - Pulte Homes - 6546"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "6"
-    },
-    "PaymentRefNum": "1680-PMX-2107",
-    "TotalAmt": 1497,
-    "UnappliedAmt": 0,
-    "ProcessPayment": false,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20039",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-29T05:57:44-07:00",
-      "LastUpdatedTime": "2025-07-29T05:57:44-07:00"
-    },
-    "TxnDate": "2025-07-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "20042",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 499,
-        "LinkedTxn": [
-          {
-            "TxnId": "18131",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "18131"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "499.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3436"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      },
-      {
-        "Amount": 499,
-        "LinkedTxn": [
-          {
-            "TxnId": "18132",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "18132"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "499.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3437"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      },
-      {
-        "Amount": 499,
-        "LinkedTxn": [
-          {
-            "TxnId": "18133",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "18133"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "499.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3438"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "ProjectRef": {
-      "value": "349425592"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "1502",
-      "name": "672 Waverly St, Framingham (Church)"
-    },
-    "DepositToAccountRef": {
-      "value": "231"
-    },
-    "TotalAmt": 13500,
-    "UnappliedAmt": 0,
-    "ProcessPayment": false,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20016",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-28T10:56:56-07:00",
-      "LastUpdatedTime": "2025-07-28T10:56:56-07:00"
-    },
-    "TxnDate": "2025-07-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 13500,
-        "LinkedTxn": [
-          {
-            "TxnId": "20015",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "20015"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "13500.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3735"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "ProjectRef": {
-      "value": "619356727"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "1497",
-      "name": "20 Gullane, Mashpee, MA - Service"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "4"
-    },
-    "CreditCardPayment": {
-      "CreditChargeInfo": {
-        "NameOnAcct": "Lisa Becker",
-        "Amount": 170,
-        "ProcessPayment": true
-      },
-      "CreditChargeResponse": {
-        "CCTransId": "1a3jpgix",
-        "Status": "Completed",
-        "CardSecurityCodeMatch": "NotAvailable",
-        "AvsStreet": "Fail",
-        "AvsZip": "Fail"
-      }
-    },
-    "TotalAmt": 170,
-    "UnappliedAmt": 0,
-    "ProcessPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20006",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-28T08:48:03-07:00",
-      "LastUpdatedTime": "2025-07-28T08:48:03-07:00"
-    },
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid via QuickBooks Payments: Payment ID 045-507",
-    "LinkedTxn": [
-      {
-        "TxnId": "20037",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 170,
-        "LinkedTxn": [
-          {
-            "TxnId": "19960",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "19960"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "170.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3717"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "TxnSource": "EInvoice",
-    "ProjectRef": {
-      "value": "614319670"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "1495",
-      "name": "17 diane terrace - Scituate"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "5"
-    },
-    "CreditCardPayment": {
-      "CreditChargeInfo": {
-        "NameOnAcct": "Timothy Mullen",
-        "Amount": 573,
-        "ProcessPayment": true
-      },
-      "CreditChargeResponse": {
-        "CCTransId": "MU0255967843",
-        "Status": "Completed",
-        "CardSecurityCodeMatch": "NotAvailable",
-        "AvsStreet": "Fail",
-        "AvsZip": "Fail"
-      }
-    },
-    "TotalAmt": 573,
-    "UnappliedAmt": 0,
-    "ProcessPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19975",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-24T02:11:22-07:00",
-      "LastUpdatedTime": "2025-07-24T02:11:22-07:00"
-    },
-    "TxnDate": "2025-07-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid via QuickBooks Payments: Payment ID 00648Z",
-    "LinkedTxn": [
-      {
-        "TxnId": "19990",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 573,
-        "LinkedTxn": [
-          {
-            "TxnId": "19959",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "19959"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "573.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3716"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "TxnSource": "EInvoice",
-    "ProjectRef": {
-      "value": "613964200"
-    }
-  },
-  {
-    "CustomerRef": {
-      "value": "1243",
-      "name": "Real Check Milford (Service)"
-    },
-    "DepositToAccountRef": {
-      "value": "56"
-    },
-    "PaymentMethodRef": {
-      "value": "5"
-    },
-    "CreditCardPayment": {
-      "CreditChargeInfo": {
-        "NameOnAcct": "Marcizio Araujo",
-        "Amount": 4300,
-        "ProcessPayment": true
-      },
-      "CreditChargeResponse": {
-        "CCTransId": "MS0283068694",
-        "Status": "Completed",
-        "CardSecurityCodeMatch": "NotAvailable",
-        "AvsStreet": "Fail",
-        "AvsZip": "Fail"
-      }
-    },
-    "TotalAmt": 4300,
-    "UnappliedAmt": 0,
-    "ProcessPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19971",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-23T13:12:14-07:00",
-      "LastUpdatedTime": "2025-07-23T13:12:14-07:00"
-    },
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid via QuickBooks Payments: Payment ID 03412G",
-    "LinkedTxn": [
-      {
-        "TxnId": "19973",
-        "TxnType": "Deposit"
-      }
-    ],
-    "Line": [
-      {
-        "Amount": 4300,
-        "LinkedTxn": [
-          {
-            "TxnId": "19970",
-            "TxnType": "Invoice"
-          }
-        ],
-        "LineEx": {
-          "any": [
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnId",
-                "Value": "19970"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnOpenBalance",
-                "Value": "4300.00"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            },
-            {
-              "name": "{http://schema.intuit.com/finance/v3}NameValue",
-              "declaredType": "com.intuit.schema.finance.v3.NameValue",
-              "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-              "value": {
-                "Name": "txnReferenceNumber",
-                "Value": "3724"
-              },
-              "nil": false,
-              "globalScope": true,
-              "typeSubstituted": false
-            }
-          ]
-        }
-      }
-    ],
-    "TxnSource": "EInvoice",
-    "ProjectRef": {
-      "value": "505788535"
-    }
-  },
-  {
-    "CustomerRef": {
       "value": "1117",
       "name": "12 Wilson Circle, Ashland, MA"
     },
@@ -798,12 +41,6 @@
       "name": "United States Dollar"
     },
     "PrivateNote": "Paid via QuickBooks Payments: Payment ID 202878",
-    "LinkedTxn": [
-      {
-        "TxnId": "19973",
-        "TxnType": "Deposit"
-      }
-    ],
     "Line": [
       {
         "Amount": 225,
@@ -94879,8 +94116,8 @@
                 "Value": "11928"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -94891,8 +94128,8 @@
                 "Value": "2000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -94903,8 +94140,8 @@
                 "Value": "2586"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -94969,8 +94206,8 @@
                 "Value": "11911"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -94981,8 +94218,8 @@
                 "Value": "16337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -94993,8 +94230,8 @@
                 "Value": "2581"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95059,8 +94296,8 @@
                 "Value": "11910"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95071,8 +94308,8 @@
                 "Value": "17737.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95083,8 +94320,8 @@
                 "Value": "2580"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95149,8 +94386,8 @@
                 "Value": "12147"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95161,8 +94398,8 @@
                 "Value": "17737.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95173,8 +94410,8 @@
                 "Value": "2594"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95239,8 +94476,8 @@
                 "Value": "11502"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95251,8 +94488,8 @@
                 "Value": "17737.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95263,8 +94500,8 @@
                 "Value": "2534"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95329,8 +94566,8 @@
                 "Value": "11926"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95341,8 +94578,8 @@
                 "Value": "2000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95353,8 +94590,8 @@
                 "Value": "2585"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95419,8 +94656,8 @@
                 "Value": "11608"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95431,8 +94668,8 @@
                 "Value": "14000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95443,8 +94680,8 @@
                 "Value": "2552"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95509,8 +94746,8 @@
                 "Value": "11595"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95521,8 +94758,8 @@
                 "Value": "2250.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95533,8 +94770,8 @@
                 "Value": "2549"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95599,8 +94836,8 @@
                 "Value": "12141"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95611,8 +94848,8 @@
                 "Value": "3125.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95623,8 +94860,8 @@
                 "Value": "2593"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95689,8 +94926,8 @@
                 "Value": "12139"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95701,8 +94938,8 @@
                 "Value": "275.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95713,8 +94950,8 @@
                 "Value": "2592"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95779,8 +95016,8 @@
                 "Value": "11768"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95791,8 +95028,8 @@
                 "Value": "5200.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95803,8 +95040,8 @@
                 "Value": "2571"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95869,8 +95106,8 @@
                 "Value": "11785"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95881,8 +95118,8 @@
                 "Value": "14750.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95893,8 +95130,8 @@
                 "Value": "2576"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -95972,8 +95209,8 @@
                 "Value": "11974"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95984,8 +95221,8 @@
                 "Value": "299.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -95996,8 +95233,8 @@
                 "Value": "2588"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96071,8 +95308,8 @@
                 "Value": "11994"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96083,8 +95320,8 @@
                 "Value": "360.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96095,8 +95332,8 @@
                 "Value": "2590"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96175,8 +95412,8 @@
                 "Value": "11527"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96187,8 +95424,8 @@
                 "Value": "31.93"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96199,8 +95436,8 @@
                 "Value": "2545"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96259,8 +95496,8 @@
                 "Value": "11687"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96271,8 +95508,8 @@
                 "Value": "9500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96283,8 +95520,8 @@
                 "Value": "2569"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96338,8 +95575,8 @@
                 "Value": "3378"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96350,8 +95587,8 @@
                 "Value": "12000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96362,8 +95599,8 @@
                 "Value": "1507"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96441,8 +95678,8 @@
                 "Value": "2949"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96453,8 +95690,8 @@
                 "Value": "5000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96465,8 +95702,8 @@
                 "Value": "1463"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96532,8 +95769,8 @@
                 "Value": "11658"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96544,8 +95781,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96556,8 +95793,8 @@
                 "Value": "2566"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96622,8 +95859,8 @@
                 "Value": "11508"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96634,8 +95871,8 @@
                 "Value": "3051.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96646,8 +95883,8 @@
                 "Value": "2540"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96671,8 +95908,8 @@
                 "Value": "11653"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96683,8 +95920,8 @@
                 "Value": "2650.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96695,8 +95932,8 @@
                 "Value": "2565"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96761,8 +95998,8 @@
                 "Value": "11650"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96773,8 +96010,8 @@
                 "Value": "3051.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96785,8 +96022,8 @@
                 "Value": "2564"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96851,8 +96088,8 @@
                 "Value": "11648"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96863,8 +96100,8 @@
                 "Value": "2650.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96875,8 +96112,8 @@
                 "Value": "2563"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96900,8 +96137,8 @@
                 "Value": "11509"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96912,8 +96149,8 @@
                 "Value": "3051.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -96924,8 +96161,8 @@
                 "Value": "2541"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -96990,8 +96227,8 @@
                 "Value": "11646"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97002,8 +96239,8 @@
                 "Value": "650.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97014,8 +96251,8 @@
                 "Value": "2562"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97080,8 +96317,8 @@
                 "Value": "11153"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97092,8 +96329,8 @@
                 "Value": "2000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97104,8 +96341,8 @@
                 "Value": "2497"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97170,8 +96407,8 @@
                 "Value": "11639"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97182,8 +96419,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97194,8 +96431,8 @@
                 "Value": "2560"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97260,8 +96497,8 @@
                 "Value": "11151"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97272,8 +96509,8 @@
                 "Value": "5050.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97284,8 +96521,8 @@
                 "Value": "2495"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97350,8 +96587,8 @@
                 "Value": "11145"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97362,8 +96599,8 @@
                 "Value": "3100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97374,8 +96611,8 @@
                 "Value": "2489"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97440,8 +96677,8 @@
                 "Value": "11633"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97452,8 +96689,8 @@
                 "Value": "5475.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97464,8 +96701,8 @@
                 "Value": "2558"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97530,8 +96767,8 @@
                 "Value": "11630"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97542,8 +96779,8 @@
                 "Value": "3500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97554,8 +96791,8 @@
                 "Value": "2557"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97620,8 +96857,8 @@
                 "Value": "11504"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97632,8 +96869,8 @@
                 "Value": "18600.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97644,8 +96881,8 @@
                 "Value": "2536"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97710,8 +96947,8 @@
                 "Value": "11147"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97722,8 +96959,8 @@
                 "Value": "4437.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97734,8 +96971,8 @@
                 "Value": "2491"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97800,8 +97037,8 @@
                 "Value": "11624"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97812,8 +97049,8 @@
                 "Value": "3051.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97824,8 +97061,8 @@
                 "Value": "2556"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97890,8 +97127,8 @@
                 "Value": "11620"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97902,8 +97139,8 @@
                 "Value": "17987.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97914,8 +97151,8 @@
                 "Value": "2555"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -97980,8 +97217,8 @@
                 "Value": "11615"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -97992,8 +97229,8 @@
                 "Value": "16337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98004,8 +97241,8 @@
                 "Value": "2554"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98070,8 +97307,8 @@
                 "Value": "11613"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98082,8 +97319,8 @@
                 "Value": "3125.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98094,8 +97331,8 @@
                 "Value": "2553"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98160,8 +97397,8 @@
                 "Value": "11396"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98172,8 +97409,8 @@
                 "Value": "2350.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98184,8 +97421,8 @@
                 "Value": "2523"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98250,8 +97487,8 @@
                 "Value": "11503"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98262,8 +97499,8 @@
                 "Value": "18100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98274,8 +97511,8 @@
                 "Value": "2535"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98340,8 +97577,8 @@
                 "Value": "11608"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98352,8 +97589,8 @@
                 "Value": "5100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98364,8 +97601,8 @@
                 "Value": "2552"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98430,8 +97667,8 @@
                 "Value": "11605"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98442,8 +97679,8 @@
                 "Value": "4500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98454,8 +97691,8 @@
                 "Value": "2551"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98520,8 +97757,8 @@
                 "Value": "11305"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98532,8 +97769,8 @@
                 "Value": "17450.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98544,8 +97781,8 @@
                 "Value": "2516"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98610,8 +97847,8 @@
                 "Value": "11306"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98622,8 +97859,8 @@
                 "Value": "5050.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98634,8 +97871,8 @@
                 "Value": "2517"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98700,8 +97937,8 @@
                 "Value": "11601"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98712,8 +97949,8 @@
                 "Value": "4500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98724,8 +97961,8 @@
                 "Value": "2550"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98790,8 +98027,8 @@
                 "Value": "11149"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98802,8 +98039,8 @@
                 "Value": "13250.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98814,8 +98051,8 @@
                 "Value": "2493"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98880,8 +98117,8 @@
                 "Value": "11307"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98892,8 +98129,8 @@
                 "Value": "4650.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98904,8 +98141,8 @@
                 "Value": "2518"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -98970,8 +98207,8 @@
                 "Value": "11304"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98982,8 +98219,8 @@
                 "Value": "5100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -98994,8 +98231,8 @@
                 "Value": "2515"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99060,8 +98297,8 @@
                 "Value": "11593"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99072,8 +98309,8 @@
                 "Value": "4000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99084,8 +98321,8 @@
                 "Value": "2548"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99150,8 +98387,8 @@
                 "Value": "11391"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99162,8 +98399,8 @@
                 "Value": "700.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99174,8 +98411,8 @@
                 "Value": "2522"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99240,8 +98477,8 @@
                 "Value": "11157"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99252,8 +98489,8 @@
                 "Value": "1000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99264,8 +98501,8 @@
                 "Value": "2500"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99330,8 +98567,8 @@
                 "Value": "11425"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99342,8 +98579,8 @@
                 "Value": "400.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99354,8 +98591,8 @@
                 "Value": "2524"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99419,8 +98656,8 @@
                 "Value": "11552"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99431,8 +98668,8 @@
                 "Value": "28523.42"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99443,8 +98680,8 @@
                 "Value": "2546"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99503,8 +98740,8 @@
                 "Value": "11280"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99515,8 +98752,8 @@
                 "Value": "368.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99527,8 +98764,8 @@
                 "Value": "2513"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99587,8 +98824,8 @@
                 "Value": "11450"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99599,8 +98836,8 @@
                 "Value": "9500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99611,8 +98848,8 @@
                 "Value": "2526"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99677,8 +98914,8 @@
                 "Value": "11493"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99689,8 +98926,8 @@
                 "Value": "71705.10"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99701,8 +98938,8 @@
                 "Value": "2533"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99767,8 +99004,8 @@
                 "Value": "11483"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99779,8 +99016,8 @@
                 "Value": "197579.53"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99791,8 +99028,8 @@
                 "Value": "2529"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99857,8 +99094,8 @@
                 "Value": "9441"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99869,8 +99106,8 @@
                 "Value": "12829.02"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99881,8 +99118,8 @@
                 "Value": "2306"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -99947,8 +99184,8 @@
                 "Value": "11486"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99959,8 +99196,8 @@
                 "Value": "6396.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -99971,8 +99208,8 @@
                 "Value": "2530"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100037,8 +99274,8 @@
                 "Value": "8050"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100049,8 +99286,8 @@
                 "Value": "22800.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100061,8 +99298,8 @@
                 "Value": "2127"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100127,8 +99364,8 @@
                 "Value": "7101"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100139,8 +99376,8 @@
                 "Value": "2200.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100151,8 +99388,8 @@
                 "Value": "1922"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100211,8 +99448,8 @@
                 "Value": "11160"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100223,8 +99460,8 @@
                 "Value": "2312.50"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100235,8 +99472,8 @@
                 "Value": "2502"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100292,8 +99529,8 @@
                 "Value": "11296"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100304,8 +99541,8 @@
                 "Value": "24000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100316,8 +99553,8 @@
                 "Value": "2514"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100341,8 +99578,8 @@
                 "Value": "11378"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100353,8 +99590,8 @@
                 "Value": "26000.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100365,8 +99602,8 @@
                 "Value": "2521"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100431,8 +99668,8 @@
                 "Value": "11352"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100443,8 +99680,8 @@
                 "Value": "850.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100455,8 +99692,8 @@
                 "Value": "2519"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100521,8 +99758,8 @@
                 "Value": "11152"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100533,8 +99770,8 @@
                 "Value": "3051.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100545,8 +99782,8 @@
                 "Value": "2496"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100600,8 +99837,8 @@
                 "Value": "11158"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100612,8 +99849,8 @@
                 "Value": "368.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100624,8 +99861,8 @@
                 "Value": "2501"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100703,8 +99940,8 @@
                 "Value": "11156"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100715,8 +99952,8 @@
                 "Value": "2898.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100727,8 +99964,8 @@
                 "Value": "2499"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100794,8 +100031,8 @@
                 "Value": "11143"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100806,8 +100043,8 @@
                 "Value": "14750.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100818,8 +100055,8 @@
                 "Value": "2487"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100884,8 +100121,8 @@
                 "Value": "11148"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100896,8 +100133,8 @@
                 "Value": "4437.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100908,8 +100145,8 @@
                 "Value": "2492"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -100974,8 +100211,8 @@
                 "Value": "11153"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100986,8 +100223,8 @@
                 "Value": "3051.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -100998,8 +100235,8 @@
                 "Value": "2497"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101064,8 +100301,8 @@
                 "Value": "11236"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101076,8 +100313,8 @@
                 "Value": "2250.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101088,8 +100325,8 @@
                 "Value": "2511"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101154,8 +100391,8 @@
                 "Value": "11233"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101166,8 +100403,8 @@
                 "Value": "3350.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101178,8 +100415,8 @@
                 "Value": "2510"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101244,8 +100481,8 @@
                 "Value": "11144"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101256,8 +100493,8 @@
                 "Value": "17737.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101268,8 +100505,8 @@
                 "Value": "2488"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101334,8 +100571,8 @@
                 "Value": "11228"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101346,8 +100583,8 @@
                 "Value": "16087.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101358,8 +100595,8 @@
                 "Value": "2509"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101424,8 +100661,8 @@
                 "Value": "11147"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101436,8 +100673,8 @@
                 "Value": "14900.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101448,8 +100685,8 @@
                 "Value": "2491"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101514,8 +100751,8 @@
                 "Value": "11146"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101526,8 +100763,8 @@
                 "Value": "17737.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101538,8 +100775,8 @@
                 "Value": "2490"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101604,8 +100841,8 @@
                 "Value": "11214"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101616,8 +100853,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101628,8 +100865,8 @@
                 "Value": "2503"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101694,8 +100931,8 @@
                 "Value": "11223"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101706,8 +100943,8 @@
                 "Value": "6551.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101718,8 +100955,8 @@
                 "Value": "2508"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101784,8 +101021,8 @@
                 "Value": "11221"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101796,8 +101033,8 @@
                 "Value": "3350.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101808,8 +101045,8 @@
                 "Value": "2507"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101874,8 +101111,8 @@
                 "Value": "11219"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101886,8 +101123,8 @@
                 "Value": "6551.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101898,8 +101135,8 @@
                 "Value": "2506"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -101964,8 +101201,8 @@
                 "Value": "11217"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101976,8 +101213,8 @@
                 "Value": "5051.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -101988,8 +101225,8 @@
                 "Value": "2505"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102054,8 +101291,8 @@
                 "Value": "11150"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102066,8 +101303,8 @@
                 "Value": "12800.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102078,8 +101315,8 @@
                 "Value": "2494"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102157,8 +101394,8 @@
                 "Value": "11130"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102169,8 +101406,8 @@
                 "Value": "31.93"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102181,8 +101418,8 @@
                 "Value": "2483"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102248,8 +101485,8 @@
                 "Value": "10953"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102260,8 +101497,8 @@
                 "Value": "360.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102272,8 +101509,8 @@
                 "Value": "2469"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102338,8 +101575,8 @@
                 "Value": "11132"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102350,8 +101587,8 @@
                 "Value": "209.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102362,8 +101599,8 @@
                 "Value": "2484"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102428,8 +101665,8 @@
                 "Value": "11120"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102440,8 +101677,8 @@
                 "Value": "5701.40"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102452,8 +101689,8 @@
                 "Value": "2482"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102518,8 +101755,8 @@
                 "Value": "11118"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102530,8 +101767,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102542,8 +101779,8 @@
                 "Value": "2481"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102608,8 +101845,8 @@
                 "Value": "11115"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102620,8 +101857,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102632,8 +101869,8 @@
                 "Value": "2480"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102698,8 +101935,8 @@
                 "Value": "11112"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102710,8 +101947,8 @@
                 "Value": "13250.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102722,8 +101959,8 @@
                 "Value": "2479"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102788,8 +102025,8 @@
                 "Value": "11110"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102800,8 +102037,8 @@
                 "Value": "2375.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102812,8 +102049,8 @@
                 "Value": "2478"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102878,8 +102115,8 @@
                 "Value": "11106"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102890,8 +102127,8 @@
                 "Value": "5050.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102902,8 +102139,8 @@
                 "Value": "2477"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -102968,8 +102205,8 @@
                 "Value": "10607"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102980,8 +102217,8 @@
                 "Value": "18100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -102992,8 +102229,8 @@
                 "Value": "2448"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103058,8 +102295,8 @@
                 "Value": "11101"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103070,8 +102307,8 @@
                 "Value": "5475.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103082,8 +102319,8 @@
                 "Value": "2476"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103148,8 +102385,8 @@
                 "Value": "11099"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103160,8 +102397,8 @@
                 "Value": "14750.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103172,8 +102409,8 @@
                 "Value": "2475"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103238,8 +102475,8 @@
                 "Value": "11097"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103250,8 +102487,8 @@
                 "Value": "2250.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103262,8 +102499,8 @@
                 "Value": "2474"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103328,8 +102565,8 @@
                 "Value": "11095"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103340,8 +102577,8 @@
                 "Value": "13500.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103352,8 +102589,8 @@
                 "Value": "2473"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103418,8 +102655,8 @@
                 "Value": "10173"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103430,8 +102667,8 @@
                 "Value": "18100.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103442,8 +102679,8 @@
                 "Value": "2406"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103508,8 +102745,8 @@
                 "Value": "10606"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103520,8 +102757,8 @@
                 "Value": "3350.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103532,8 +102769,8 @@
                 "Value": "2447"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103598,8 +102835,8 @@
                 "Value": "11084"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103610,8 +102847,8 @@
                 "Value": "5475.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103622,8 +102859,8 @@
                 "Value": "2472"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103688,8 +102925,8 @@
                 "Value": "10769"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103700,8 +102937,8 @@
                 "Value": "450.00"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103712,8 +102949,8 @@
                 "Value": "2468"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103776,8 +103013,8 @@
                 "Value": "10452"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103788,8 +103025,8 @@
                 "Value": "31.93"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103800,8 +103037,8 @@
                 "Value": "2437"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103866,8 +103103,8 @@
                 "Value": "11032"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103878,8 +103115,8 @@
                 "Value": "4312.50"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103890,8 +103127,8 @@
                 "Value": "2471"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }
@@ -103952,8 +103189,8 @@
                 "Value": "10966"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103964,8 +103201,8 @@
                 "Value": "19337.80"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             },
             {
               "name": "{http://schema.intuit.com/finance/v3}NameValue",
@@ -103976,8 +103213,8 @@
                 "Value": "2470"
               },
               "nil": false,
-              "typeSubstituted": false,
-              "globalScope": true
+              "globalScope": true,
+              "typeSubstituted": false
             }
           ]
         }

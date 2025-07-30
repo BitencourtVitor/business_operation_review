@@ -33,10 +33,16 @@ export function useProjectChartData({
         p_selected_group: selectedGroup
       });
       
-      if (sqlError) throw sqlError;
+      if (sqlError) {
+        console.error('❌ ProjectChart - Erro SQL:', sqlError);
+        throw sqlError;
+      }
+      
       setData(result || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar dados do gráfico');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados do gráfico';
+      console.error('❌ ProjectChart - Erro:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

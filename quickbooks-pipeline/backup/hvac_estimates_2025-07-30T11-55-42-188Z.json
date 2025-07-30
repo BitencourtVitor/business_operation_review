@@ -1,13 +1,12 @@
 [
   {
-    "AcceptedDate": "2025-07-29",
     "domain": "QBO",
     "sparse": false,
-    "Id": "20007",
-    "SyncToken": "6",
+    "Id": "2923",
+    "SyncToken": "7",
     "MetaData": {
-      "CreateTime": "2025-07-28T09:53:27-07:00",
-      "LastUpdatedTime": "2025-07-29T09:24:58-07:00"
+      "CreateTime": "2023-01-13T07:47:30-08:00",
+      "LastUpdatedTime": "2025-07-23T10:21:31-07:00"
     },
     "CustomField": [
       {
@@ -16,169 +15,24 @@
         "Type": "StringType"
       }
     ],
-    "DocNumber": "1876",
-    "TxnDate": "2025-07-28",
+    "DocNumber": "1139",
+    "TxnDate": "2023-01-13",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "59 Taft Ave, Mendon - MA",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-28",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "To add LG R410A 9K BTU WALL \nMOUNTED UNIT ART MIRROR FINISH to the basement living room area",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-28",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Line Sets",
-        "Amount": 350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-28",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 350,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "HVAC Technician\n",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-28",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 2750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1525",
-      "name": "59 taft Ave, Mendon/MA (Service)"
-    },
-    "BillAddr": {
-      "Id": "19243",
-      "Line1": "John Lozon",
-      "Line2": "59 taft Ave",
-      "Line3": "Mendon, MA 01756"
-    },
-    "TotalAmt": 2750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "jfl0212@hotmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-28T09:54:59-07:00"
-    }
-  },
-  {
-    "AcceptedDate": "2025-07-18",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19790",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-07-17T13:12:21-07:00",
-      "LastUpdatedTime": "2025-07-28T10:52:11-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1862",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
+    "TxnStatus": "Converted",
     "LinkedTxn": [
       {
-        "TxnId": "20015",
+        "TxnId": "2925",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "2926",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "2927",
         "TxnType": "Invoice"
       }
     ],
@@ -186,136 +40,16 @@
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "672 Waverly Street, Framingham ",
-        "Amount": 0,
+        "Description": "Rough Duct System \nSet Furnace \nA/C Condenser \nHVAC- Finishes",
+        "Amount": 30000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
-        "Amount": 4710.31,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 4710.314,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
-        "Amount": 4928.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1642.9,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
-        "Amount": 693.88,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 231.294,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
-        "Amount": 1727.25,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 575.75,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets, Stands, Drains, ",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Labor ",
-        "Amount": 9000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
+          "ServiceDate": "2023-01-13",
           "ItemRef": {
             "value": "5",
             "name": "Labor"
           },
-          "UnitPrice": 9000,
+          "UnitPrice": 30000,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -324,26 +58,7 @@
         "CustomExtensions": []
       },
       {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Electrical, labor and material",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 3500,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 27560.14,
+        "Amount": 30000,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -369,38 +84,32 @@
       ]
     },
     "CustomerRef": {
-      "value": "1502",
-      "name": "672 Waverly St, Framingham (Church)"
-    },
-    "CustomerMemo": {
-      "value": "Payment agreement\n50% start\n50% Upon finish installation"
+      "value": "139",
+      "name": "20 Gullane"
     },
     "BillAddr": {
-      "Id": "18960",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "672 Waverly St",
-      "Line3": "Framingham, MA 01747"
+      "Id": "6511"
     },
-    "TotalAmt": 27560.14,
+    "ShipAddr": {
+      "Id": "6787",
+      "Line1": "Premium Contractors Group, Inc"
+    },
+    "TotalAmt": 30000,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
+    "EmailStatus": "NotSet",
     "BillEmail": {
-      "Address": "philipottaviani@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-17T13:13:32-07:00"
+      "Address": "accounting@premiumcontractors.group"
     }
   },
   {
     "domain": "QBO",
     "sparse": false,
     "Id": "16207",
-    "SyncToken": "8",
+    "SyncToken": "6",
     "MetaData": {
       "CreateTime": "2025-02-26T09:12:43-08:00",
-      "LastUpdatedTime": "2025-07-28T06:47:22-07:00"
+      "LastUpdatedTime": "2025-07-23T08:58:11-07:00"
     },
     "CustomField": [
       {
@@ -415,7 +124,7 @@
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Converted",
+    "TxnStatus": "Accepted",
     "LinkedTxn": [
       {
         "TxnId": "16717",
@@ -431,10 +140,6 @@
       },
       {
         "TxnId": "19966",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20005",
         "TxnType": "Invoice"
       }
     ],
@@ -579,2892 +284,6 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16206",
-    "SyncToken": "9",
-    "MetaData": {
-      "CreateTime": "2025-02-26T09:09:57-08:00",
-      "LastUpdatedTime": "2025-07-28T06:44:20-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1750",
-    "TxnDate": "2025-02-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "17296",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "17673",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19668",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20004",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 12800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1091",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Cohasset"
-          },
-          "UnitPrice": 12800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnace",
-        "Amount": 4650,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1142",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Cohasset"
-          },
-          "UnitPrice": 4650,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Condenser",
-        "Amount": 3100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1160",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Cohasset"
-          },
-          "UnitPrice": 3100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final H.V.A.C.",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1178",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Cohasset"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "JennAir 36\" Low Profile",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1260",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:112537 - All Plans"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "36\" Gas Cooktop\nCombo Oven, Hood, DW",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 23100,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1290",
-      "name": "Lot 27 - Pinehills Owls Nest"
-    },
-    "BillAddr": {
-      "Id": "15753",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "Westford Cohasset",
-      "Line3": "54 Kestrel Heights"
-    },
-    "ShipAddr": {
-      "Id": "15754",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "54 Kestrel Heights"
-    },
-    "TotalAmt": 23100,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16526",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-03-07T06:54:16-08:00",
-      "LastUpdatedTime": "2025-07-28T06:41:59-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1757",
-    "TxnDate": "2025-03-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "17294",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "17873",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19656",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20003",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 12800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1091",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Cohasset"
-          },
-          "UnitPrice": 12800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnace",
-        "Amount": 4650,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1142",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Cohasset"
-          },
-          "UnitPrice": 4650,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Condenser",
-        "Amount": 3100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1160",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Cohasset"
-          },
-          "UnitPrice": 3100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final H.V.A.C.",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1178",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Cohasset"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 22550,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1297",
-      "name": "Lot 37 - Pinehills Owls Nest"
-    },
-    "BillAddr": {
-      "Id": "15743",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "74 Kestrel Height",
-      "Line3": "Westford Cohasset"
-    },
-    "ShipAddr": {
-      "Id": "15744",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "74 Kestrel Height"
-    },
-    "TotalAmt": 22550,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17886",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-04-22T10:46:19-07:00",
-      "LastUpdatedTime": "2025-07-28T06:39:42-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1771",
-    "TxnDate": "2025-04-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "17887",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19964",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20002",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough",
-        "Amount": 14025,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000111",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
-          },
-          "UnitPrice": 14025,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnace/Air Handler",
-        "Amount": 3100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000141",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
-          },
-          "UnitPrice": 3100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Condenser/Compressor",
-        "Amount": 3300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000132",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
-          },
-          "UnitPrice": 3300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000171",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "APKK2019: \t36\" Gas Rangetop\nDescription 2: \tD Oven, Hood, MW, DW\n",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 23700,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1333",
-      "name": "Lot 136 - Pinehills Owls Nest"
-    },
-    "BillAddr": {
-      "Id": "16506",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "15 Loons Call",
-      "Line3": "Plan/Elev: Chatham"
-    },
-    "ShipAddr": {
-      "Id": "16503",
-      "Line1": "The Pinehills Owls Nest"
-    },
-    "TotalAmt": 23700,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18977",
-    "SyncToken": "8",
-    "MetaData": {
-      "CreateTime": "2025-06-12T11:52:10-07:00",
-      "LastUpdatedTime": "2025-07-28T06:35:18-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1827",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "19410",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19539",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19607",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19609",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20001",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough",
-        "Amount": 18500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000432",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 7135,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000412",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
-          },
-          "UnitPrice": 7135,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000436",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000483",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 5,
-        "Description": "Rough Ductowork",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000434",
-            "name": "Toll Brothers - Newbury Glen:263432 - Finished Walkout Basement - Copley"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Additional Bath - Finished Basement",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "583",
-            "name": "Toll Brothers - Canton Reserve:383 - Copley"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "KitchenAid 36\" DF Range (Hood, SGL Oven, Micro, DW) (SS)",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1040",
-            "name": "Toll Brothers - Canton Reserve:112775 - Copley Modern"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 40410,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1324",
-      "name": "lot 13 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "18038",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "Lot 13",
-      "Line3": "2 Fitch Avenue",
-      "Line4": "Copley Modern Farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "18018",
-      "Line1": "Newbury Glen Hopkinton"
-    },
-    "TotalAmt": 40410,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17944",
-    "SyncToken": "12",
-    "MetaData": {
-      "CreateTime": "2025-04-28T06:10:52-07:00",
-      "LastUpdatedTime": "2025-07-28T06:33:18-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1792",
-    "TxnDate": "2025-04-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "18484",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "18560",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20000",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductowork",
-        "Amount": 19000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000442",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 6951,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000441",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
-          },
-          "UnitPrice": 6951,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "PC383 Full Bath - Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000591",
-            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "Rough Ductwork",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000435",
-            "name": "Toll Brothers - Newbury Glen:263432 - Finished Walkout Basement - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "36\" Gas Range\nDescription 1: \t36\" Gas Range\nDescription 2: \tS Oven, Hood, MW, DW\n",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 40726,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1326",
-      "name": "Lot 15 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "19213",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "Williamstown"
-    },
-    "ShipAddr": {
-      "Id": "16684",
-      "Line1": "Newbury Glen Hopkinton"
-    },
-    "TotalAmt": 40726,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19139",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-18T07:37:21-07:00",
-      "LastUpdatedTime": "2025-07-28T06:31:25-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1839",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "19999",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductowork",
-        "Amount": 19000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000442",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Finished Basement",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000481",
-            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Air Handler",
-        "Amount": 6951,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000441",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
-          },
-          "UnitPrice": 6951,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "PC383 Full Bath - Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000591",
-            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 40451,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1327",
-      "name": "Lot 17 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "19225",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "19226",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "TotalAmt": 40451,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19062",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-16T10:50:06-07:00",
-      "LastUpdatedTime": "2025-07-28T06:27:50-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1829",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "19063",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19116",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19240",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19998",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough",
-        "Amount": 18500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000432",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 7135,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000412",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
-          },
-          "UnitPrice": 7135,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000436",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000483",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Rough Ductwork",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000461",
-            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Copley"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "JennAir 36\" Low Profile",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1260",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:112537 - All Plans"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 39910,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1328",
-      "name": "Lot 12 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "18070",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "04 Fitch Avenue ",
-      "Line3": "Copley South Shore"
-    },
-    "ShipAddr": {
-      "Id": "18071",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "04 Fitch Avenue ",
-      "Line3": "Copley South Shore"
-    },
-    "TotalAmt": 39910,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17923",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2025-04-24T13:19:37-07:00",
-      "LastUpdatedTime": "2025-07-28T06:24:33-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1782",
-    "TxnDate": "2025-04-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "19934",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19997",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 18500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000211",
-            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 5500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000193",
-            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Copley"
-          },
-          "UnitPrice": 5500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000235",
-            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000237",
-            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 33500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1373",
-      "name": "Lot 16 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "16599",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "1 Shoreline Drive ",
-      "Line3": "Copley Modern farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "16600",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "1 Shoreline Drive ",
-      "Line3": "Copley Modern farmhouse"
-    },
-    "TotalAmt": 33500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19996",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-28T06:21:09-07:00",
-      "LastUpdatedTime": "2025-07-28T06:21:09-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1875",
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 13250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1087",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Winchester Manor"
-          },
-          "UnitPrice": 13250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Finished Walkout Basement",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1114",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263432 - Rough - Winchester"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnace",
-        "Amount": 5050,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1138",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Winchester Manor"
-          },
-          "UnitPrice": 5050,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Condenser",
-        "Amount": 3225,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1156",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Winchester Manor"
-          },
-          "UnitPrice": 3225,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Final H.V.A.C.",
-        "Amount": 2250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1174",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Winchester Manor"
-          },
-          "UnitPrice": 2250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Full Bath - Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1221",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 28775,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1523",
-      "name": "Lot 71 - Pinehills Owls Nest"
-    },
-    "BillAddr": {
-      "Id": "19219",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "37 Kestrel Hts",
-      "Line3": "Plymouth, MA 02360"
-    },
-    "TotalAmt": 28775,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19982",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-24T06:42:05-07:00",
-      "LastUpdatedTime": "2025-07-24T06:42:05-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1874",
-    "TxnDate": "2025-07-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductowork",
-        "Amount": 19000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000442",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 6951,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000441",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
-          },
-          "UnitPrice": 6951,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 35451,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1520",
-      "name": "Lot 08 - Newbury Glenn"
-    },
-    "BillAddr": {
-      "Id": "19197",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "12 Fitch Avenue ",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Craftsman"
-    },
-    "TotalAmt": 35451,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19981",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-24T06:32:30-07:00",
-      "LastUpdatedTime": "2025-07-24T06:32:30-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1873",
-    "TxnDate": "2025-07-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough",
-        "Amount": 18500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000432",
-            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 7135,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000412",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
-          },
-          "UnitPrice": 7135,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000436",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000483",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 35135,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1519",
-      "name": "Lot 01 - Newbury Glenn"
-    },
-    "BillAddr": {
-      "Id": "19196",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "3 Myrtle Avenue ",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Copley Modern Craftsman"
-    },
-    "TotalAmt": 35135,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13452",
-    "SyncToken": "9",
-    "MetaData": {
-      "CreateTime": "2024-09-16T09:31:12-07:00",
-      "LastUpdatedTime": "2025-07-23T13:30:49-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1639",
-    "TxnDate": "2024-09-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "18088",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "18317",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19972",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 13300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "605",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Rough - Hopkinton Manor"
-          },
-          "UnitPrice": 13300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Set Furnace",
-        "Amount": 4437.8,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "611",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Set Furnace - Hopkinton Manor"
-          },
-          "UnitPrice": 4437.8,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "HVAC Condenser",
-        "Amount": 3051,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "615",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Hopkinton Manor"
-          },
-          "UnitPrice": 3051,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "HVAC Finishes",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "618",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 5,
-        "Description": "Casual Dining Addition\n263275",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "36\" Induction Range\nS Oven, Hood, MW, DW\n",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 23313.8,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1086",
-      "name": "Lot 58 - Willows at Boxford"
-    },
-    "BillAddr": {
-      "Id": "16905",
-      "Line1": "The Willows at Boxford"
-    },
-    "ShipAddr": {
-      "Id": "16906",
-      "Line1": "The Willows at Boxford",
-      "Line2": "71 Ingalls Village Way",
-      "Line3": "Hopkinton Manor"
-    },
-    "TotalAmt": 23313.8,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "AcceptedDate": "2025-07-09",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19637",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-07-09T13:10:27-07:00",
-      "LastUpdatedTime": "2025-07-23T13:05:19-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1857",
-    "TxnDate": "2025-07-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "19970",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "123 Main street, Milford \nReal Check ",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-09",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2 Technicians to perform the job.",
-        "Amount": 2800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-09",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 2800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Materials to be used in the local.",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-09",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 4300,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1243",
-      "name": "Real Check Milford (Service)"
-    },
-    "BillAddr": {
-      "Id": "19181",
-      "Line1": "Marcizio Araujo",
-      "Line2": "Real Check Milford",
-      "Line3": "123 East Main St.",
-      "Line4": "Milford, Massachusetts",
-      "Line5": "United States"
-    },
-    "TotalAmt": 4300,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "Yuritransportation@hotmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-09T13:10:38-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17849",
-    "SyncToken": "17",
-    "MetaData": {
-      "CreateTime": "2025-04-22T08:17:07-07:00",
-      "LastUpdatedTime": "2025-07-23T12:48:53-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "Sam's Sushi"
-      }
-    ],
-    "DocNumber": "1770",
-    "TxnDate": "2025-04-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "18306",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "19969",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "2",
-        "LineNum": 1,
-        "Description": "Lineset Pricing ",
-        "Amount": 1323,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": 441,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 2,
-        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
-        "Amount": 1025.62,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 341.873,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 3,
-        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
-        "Amount": 1774.37,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1774.367,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 4,
-        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 1500,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 8622.99,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1358",
-      "name": "Sam's Sushi"
-    },
-    "CustomerMemo": {
-      "value": "*Customer Requested no Permit*\n*Electrical Connections Completed by others*\nPrice Breakdown \n50% To Start \n50% After Completion"
-    },
-    "BillAddr": {
-      "Id": "16445",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "ShipAddr": {
-      "Id": "16446",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "TotalAmt": 8622.99,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "samuel@samsushiartmusic.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-04-22T09:34:10-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19791",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-07-17T14:12:40-07:00",
-      "LastUpdatedTime": "2025-07-23T11:26:13-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1863",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "266 broadway\nSaugus, MA 01747\nSteak House \nP.O: Charkos Steak House",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "**NOTE** Demolition and removal old equipaments by others \nRoof works by others\nElectrical by others",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "10T 10T STD EFF CONV PKG G/E 230/3 R454B and Curb",
-        "Amount": 39717.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 19858.748,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "FANTECH MUAS 1200-1200 CFM\nMAKE-UP AIR SYSTEM 10 DUCT\nSIZE K46014 (CLASS 3)\n",
-        "Amount": 8000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 8000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "FANTECH MUAH 10/10 10KW\nMODULATING INLINE HEATER 10\"\nROUND K46017 FUSE REQUIRED\n",
-        "Amount": 1560.69,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1560.692,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "ARTIS PSDWV10 WH 10\" GALV\n3071.791\nNET AMOUNT\n3071.79\n1114.776 1114.78\n89.498 89.50\nWHITE WALL CAP WITH SCREEN &\nDAMPER",
-        "Amount": 12530,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 12530,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Ductwork 1st Floor - Dinning room ",
-        "Amount": 43000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 43000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Standard diffuses and Grilles",
-        "Amount": 6000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 6000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Labor ",
-        "Amount": 27000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 27000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Permit Fee ",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1314",
-            "name": "Contracted Customers:Licensing/ Permitting"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "TAX"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 139808.19,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 125,
-      "TaxLine": [
-        {
-          "Amount": 125,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 2000
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1504",
-      "name": "266 broadway Saugus ma"
-    },
-    "CustomerMemo": {
-      "value": "Payment Plan\n40% Down Payment\n40% upon Rough installation\n20% upon finishes"
-    },
-    "BillAddr": {
-      "Id": "18964",
-      "Line1": "Jairo",
-      "Line2": "266 broadway",
-      "Line3": "Saugus, MA 01747"
-    },
-    "TotalAmt": 139933.19,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "jairoehonorato@hotmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-23T11:26:08-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "2923",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2023-01-13T07:47:30-08:00",
-      "LastUpdatedTime": "2025-07-23T10:21:31-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1139",
-    "TxnDate": "2023-01-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "2925",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "2926",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "2927",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Duct System \nSet Furnace \nA/C Condenser \nHVAC- Finishes",
-        "Amount": 30000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-01-13",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 30000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 30000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "139",
-      "name": "20 Gullane"
-    },
-    "BillAddr": {
-      "Id": "6511"
-    },
-    "ShipAddr": {
-      "Id": "6787",
-      "Line1": "Premium Contractors Group, Inc"
-    },
-    "TotalAmt": 30000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "accounting@premiumcontractors.group"
-    }
   },
   {
     "domain": "QBO",
@@ -3642,6 +461,180 @@
       "Line3": "Lexington Cottage"
     },
     "TotalAmt": 22550,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17886",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-04-22T10:46:19-07:00",
+      "LastUpdatedTime": "2025-07-23T08:50:34-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1771",
+    "TxnDate": "2025-04-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17887",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19964",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14025,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14025,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser/Compressor",
+        "Amount": 3300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "APKK2019: \t36\" Gas Rangetop\nDescription 2: \tD Oven, Hood, MW, DW\n",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23700,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1333",
+      "name": "Lot 136 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "16506",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "15 Loons Call",
+      "Line3": "Plan/Elev: Chatham"
+    },
+    "ShipAddr": {
+      "Id": "16503",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "TotalAmt": 23700,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -5286,6 +2279,159 @@
       "Line1": "The Pinehills Owls Nest"
     },
     "TotalAmt": 22650,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17923",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-04-24T13:19:37-07:00",
+      "LastUpdatedTime": "2025-07-22T14:27:16-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1782",
+    "TxnDate": "2025-04-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "19934",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 18500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000211",
+            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Copley"
+          },
+          "UnitPrice": 18500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 5500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000193",
+            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Copley"
+          },
+          "UnitPrice": 5500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000235",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000237",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 33500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1373",
+      "name": "Lot 16 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16599",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "1 Shoreline Drive ",
+      "Line3": "Copley Modern farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "16600",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "1 Shoreline Drive ",
+      "Line3": "Copley Modern farmhouse"
+    },
+    "TotalAmt": 33500,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -12356,6 +9502,516 @@
     "EmailStatus": "NotSet"
   },
   {
+    "AcceptedDate": "2025-07-18",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19790",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-17T13:12:21-07:00",
+      "LastUpdatedTime": "2025-07-18T05:42:00-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1862",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "672 Waverly Street, Framingham ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
+        "Amount": 4710.31,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 4710.314,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
+        "Amount": 4928.7,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1642.9,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
+        "Amount": 693.88,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 231.294,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
+        "Amount": 1727.25,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 575.75,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Linesets, Stands, Drains, ",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Labor ",
+        "Amount": 9000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 9000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Electrical, labor and material",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3500,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 27560.14,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1502",
+      "name": "672 Waverly St, Framingham (Church)"
+    },
+    "CustomerMemo": {
+      "value": "Payment agreement\n50% start\n50% Upon finish installation"
+    },
+    "BillAddr": {
+      "Id": "18960",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "672 Waverly St",
+      "Line3": "Framingham, MA 01747"
+    },
+    "TotalAmt": 27560.14,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "philipottaviani@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-17T13:13:32-07:00"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19791",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-17T14:12:40-07:00",
+      "LastUpdatedTime": "2025-07-17T15:23:27-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1863",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "266 broadway\nSaugus, MA 01747\nSteak House \nP.O: Charkos Steak House",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "**NOTE** Demolition and removal old equipaments by others \nRoof works by others\nElectrical by others",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "5T STD EFF PKG G/E ECON 230/3 R454B and Curb",
+        "Amount": 31393.04,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 31393.04,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "FANTECH MUAS 1200-1200 CFM\nMAKE-UP AIR SYSTEM 10 DUCT\nSIZE K46014 (CLASS 3)\n",
+        "Amount": 4300.51,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 4300.506,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "FANTECH MUAH 10/10 10KW\nMODULATING INLINE HEATER 10\"\nROUND K46017 FUSE REQUIRED\n",
+        "Amount": 1560.69,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1560.692,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "ARTIS PSDWV10 WH 10\" GALV\n3071.791\nNET AMOUNT\n3071.79\n1114.776 1114.78\n89.498 89.50\nWHITE WALL CAP WITH SCREEN &\nDAMPER",
+        "Amount": 12530,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 12530,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Ductwork 1st Floor - Dinning room ",
+        "Amount": 33000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 33000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Standard diffuses and Grilles",
+        "Amount": 6000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 6000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Labor ",
+        "Amount": 27000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 27000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Permit Fee ",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1314",
+            "name": "Contracted Customers:Licensing/ Permitting"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "TAX"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 117784.24,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 125,
+      "TaxLine": [
+        {
+          "Amount": 125,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 2000
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1504",
+      "name": "266 broadway Saugus ma"
+    },
+    "CustomerMemo": {
+      "value": "Payment Plan\n40% Down Payment\n40% upon Rough installation\n20% upon finishes"
+    },
+    "BillAddr": {
+      "Id": "18964",
+      "Line1": "Jairo",
+      "Line2": "266 broadway",
+      "Line3": "Saugus, MA 01747"
+    },
+    "TotalAmt": 117909.24,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "jairoehonorato@hotmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-17T14:13:36-07:00"
+    }
+  },
+  {
     "domain": "QBO",
     "sparse": false,
     "Id": "19789",
@@ -17023,6 +14679,364 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "16206",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-02-26T09:09:57-08:00",
+      "LastUpdatedTime": "2025-07-14T06:14:06-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1750",
+    "TxnDate": "2025-02-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17296",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17673",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19668",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1091",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Cohasset"
+          },
+          "UnitPrice": 12800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1142",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Cohasset"
+          },
+          "UnitPrice": 4650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1160",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Cohasset"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final H.V.A.C.",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1178",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Cohasset"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "JennAir 36\" Low Profile",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1260",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:112537 - All Plans"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "36\" Gas Cooktop\nCombo Oven, Hood, DW",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1290",
+      "name": "Lot 27 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "15753",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "Westford Cohasset",
+      "Line3": "54 Kestrel Heights"
+    },
+    "ShipAddr": {
+      "Id": "15754",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "54 Kestrel Heights"
+    },
+    "TotalAmt": 23100,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16526",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-03-07T06:54:16-08:00",
+      "LastUpdatedTime": "2025-07-11T08:45:43-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1757",
+    "TxnDate": "2025-03-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17294",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17873",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19656",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1091",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Cohasset"
+          },
+          "UnitPrice": 12800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1142",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Cohasset"
+          },
+          "UnitPrice": 4650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1160",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Cohasset"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final H.V.A.C.",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1178",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Cohasset"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 22550,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1297",
+      "name": "Lot 37 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "15743",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "74 Kestrel Height",
+      "Line3": "Westford Cohasset"
+    },
+    "ShipAddr": {
+      "Id": "15744",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "74 Kestrel Height"
+    },
+    "TotalAmt": 22550,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "19151",
     "SyncToken": "2",
     "MetaData": {
@@ -17345,6 +15359,148 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
+  },
+  {
+    "AcceptedDate": "2025-07-09",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19637",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-09T13:10:27-07:00",
+      "LastUpdatedTime": "2025-07-09T14:01:35-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1857",
+    "TxnDate": "2025-07-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "123 Main street, Milford \nReal Check ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-09",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2 Technicians to perform the job.",
+        "Amount": 2800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-09",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 2800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Materials to be used in the local.",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-09",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 4300,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1242",
+      "name": "Marcizio Araujo"
+    },
+    "BillAddr": {
+      "Id": "18781",
+      "Line1": "Marcizio Araujo",
+      "Line2": "Real Check Milford",
+      "Line3": "123 East Main St.",
+      "Line4": "Milford, Massachusetts",
+      "Line5": "United States"
+    },
+    "ShipAddr": {
+      "Id": "13790",
+      "Line1": "123 East Main St.",
+      "City": "Milford",
+      "Country": "United States",
+      "CountrySubDivisionCode": "Massachusetts"
+    },
+    "TotalAmt": 4300,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "Yuritransportation@hotmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-09T13:10:38-07:00"
+    }
   },
   {
     "domain": "QBO",
@@ -17974,6 +16130,227 @@
       "Line3": "Hopkinton Manor"
     },
     "TotalAmt": 23788.8,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18977",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2025-06-12T11:52:10-07:00",
+      "LastUpdatedTime": "2025-07-08T13:33:11-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1827",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "19410",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19539",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19607",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19609",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 18500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000432",
+            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
+          },
+          "UnitPrice": 18500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 7135,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000412",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
+          },
+          "UnitPrice": 7135,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000436",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000483",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 5,
+        "Description": "Rough Ductowork",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000434",
+            "name": "Toll Brothers - Newbury Glen:263432 - Finished Walkout Basement - Copley"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Additional Bath - Finished Basement",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "583",
+            "name": "Toll Brothers - Canton Reserve:383 - Copley"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "KitchenAid 36\" DF Range (Hood, SGL Oven, Micro, DW) (SS)",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1040",
+            "name": "Toll Brothers - Canton Reserve:112775 - Copley Modern"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 40410,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1324",
+      "name": "lot 13 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "18038",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "Lot 13",
+      "Line3": "2 Fitch Avenue",
+      "Line4": "Copley Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "18018",
+      "Line1": "Newbury Glen Hopkinton"
+    },
+    "TotalAmt": 40410,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -25382,6 +23759,205 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "19062",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-16T10:50:06-07:00",
+      "LastUpdatedTime": "2025-06-23T07:04:24-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1829",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "19063",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19116",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "19240",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 18500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000432",
+            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Copley"
+          },
+          "UnitPrice": 18500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 7135,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000412",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Copley"
+          },
+          "UnitPrice": 7135,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000436",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000483",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Rough Ductwork",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000461",
+            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Copley"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "JennAir 36\" Low Profile",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1260",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:112537 - All Plans"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 39910,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1328",
+      "name": "Lot 12 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "18070",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "04 Fitch Avenue ",
+      "Line3": "Copley South Shore"
+    },
+    "ShipAddr": {
+      "Id": "18071",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "04 Fitch Avenue ",
+      "Line3": "Copley South Shore"
+    },
+    "TotalAmt": 39910,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "5857",
     "SyncToken": "11",
     "MetaData": {
@@ -27115,6 +25691,193 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "19139",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-06-18T07:37:21-07:00",
+      "LastUpdatedTime": "2025-06-18T07:37:21-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1839",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductowork",
+        "Amount": 19000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000442",
+            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Williamstown"
+          },
+          "UnitPrice": 19000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finished Basement",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000481",
+            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Williamstown"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Air Handler",
+        "Amount": 6951,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000441",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
+          },
+          "UnitPrice": 6951,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000454",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "PC383 Full Bath - Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000591",
+            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 40451,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1327",
+      "name": "Lot 17 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "18202",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "18203",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "TotalAmt": 40451,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "19137",
     "SyncToken": "0",
     "MetaData": {
@@ -28260,6 +27023,217 @@
       "Line4": "Williamstown Modern Craftsman"
     },
     "TotalAmt": 40451,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17944",
+    "SyncToken": "9",
+    "MetaData": {
+      "CreateTime": "2025-04-28T06:10:52-07:00",
+      "LastUpdatedTime": "2025-06-17T10:26:41-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1792",
+    "TxnDate": "2025-04-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "18484",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18560",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductowork",
+        "Amount": 19000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000442",
+            "name": "Toll Brothers - Newbury Glen:Rough Ductwork - Williamstown"
+          },
+          "UnitPrice": 19000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 6951,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000441",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
+          },
+          "UnitPrice": 6951,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000454",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "PC383 Full Bath - Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000591",
+            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "Rough Ductwork",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000435",
+            "name": "Toll Brothers - Newbury Glen:263432 - Finished Walkout Basement - Williamstown"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "36\" Gas Range\nDescription 1: \t36\" Gas Range\nDescription 2: \tS Oven, Hood, MW, DW\n",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 40726,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1326",
+      "name": "Lot 15 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "18151",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "Williamstown"
+    },
+    "ShipAddr": {
+      "Id": "16684",
+      "Line1": "Newbury Glen Hopkinton"
+    },
+    "TotalAmt": 40726,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -44413,6 +43387,365 @@
     "EmailStatus": "NotSet",
     "BillEmail": {
       "Address": "sjacobson@autonodyne.us"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13452",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2024-09-16T09:31:12-07:00",
+      "LastUpdatedTime": "2025-05-15T05:46:11-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1639",
+    "TxnDate": "2024-09-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "18088",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18317",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 13300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "605",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Rough - Hopkinton Manor"
+          },
+          "UnitPrice": 13300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Set Furnace",
+        "Amount": 4437.8,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "611",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Set Furnace - Hopkinton Manor"
+          },
+          "UnitPrice": 4437.8,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "HVAC Condenser",
+        "Amount": 3051,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "615",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Hopkinton Manor"
+          },
+          "UnitPrice": 3051,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "HVAC Finishes",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "618",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 5,
+        "Description": "Casual Dining Addition\n263275",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "36\" Induction Range\nS Oven, Hood, MW, DW\n",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23313.8,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1086",
+      "name": "Lot 58 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "16905",
+      "Line1": "The Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "16906",
+      "Line1": "The Willows at Boxford",
+      "Line2": "71 Ingalls Village Way",
+      "Line3": "Hopkinton Manor"
+    },
+    "TotalAmt": 23313.8,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17849",
+    "SyncToken": "15",
+    "MetaData": {
+      "CreateTime": "2025-04-22T08:17:07-07:00",
+      "LastUpdatedTime": "2025-05-14T07:20:48-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "Sam's Sushi"
+      }
+    ],
+    "DocNumber": "1770",
+    "TxnDate": "2025-04-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "18306",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "Lineset Pricing ",
+        "Amount": 1323,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "3",
+            "name": "Job Supplies"
+          },
+          "UnitPrice": 441,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 2,
+        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
+        "Amount": 1025.62,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 341.873,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 3,
+        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
+        "Amount": 1774.37,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1774.367,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 4,
+        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 1500,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 8622.99,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1358",
+      "name": "Sam's Sushi"
+    },
+    "CustomerMemo": {
+      "value": "*Customer Requested no Permit*\n*Electrical Connections Completed by others*\nPrice Breakdown \n50% To Start \n50% After Completion"
+    },
+    "BillAddr": {
+      "Id": "16445",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "ShipAddr": {
+      "Id": "16446",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "TotalAmt": 8622.99,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "samuel@samsushiartmusic.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-04-22T09:34:10-07:00"
     }
   },
   {

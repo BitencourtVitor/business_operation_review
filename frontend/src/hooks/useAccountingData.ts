@@ -69,7 +69,7 @@ export function useAccountingData() {
         const r = row as Record<string, unknown>;
         return {
           id: String(r.id ?? ''),
-          date: String(r.date_field ?? ''),
+          date: String(r.date_field ?? ''), // Voltar para date_field como estava
           date_field: String(r.date_field ?? ''),
           inv_date: String(r.inv_date ?? ''),
           transaction_type: String(r.transaction_type ?? ''),
@@ -88,7 +88,7 @@ export function useAccountingData() {
         const p = row as Record<string, unknown>;
         return {
           id: String(p.id ?? ''),
-          date: String(p.date_field ?? ''),
+          date: String(p.date_field ?? ''), // Voltar para date_field como estava
           date_field: String(p.date_field ?? ''),
           expense_date: String(p.expense_date ?? ''),
           transaction_type: String(p.transaction_type ?? ''),

@@ -61,30 +61,102 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
   // Determinar o período exibido
   if (year && month) {
     const dia = label.padStart(2, '0');
-    periodo = dayjs(`${year}-${month}-${dia}`).format('DD/MM/YYYY');
+    periodo = dayjs(`${year}-${month}-${dia}`).format('MM/DD/YYYY');
     // Filtrar projetos daquele dia
     const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${year}-${month}-${dia}`));
-    entregues = rows.filter(row => row.data_solicitacao && row.entrega_real).length;
-    pendentes = rows.filter(row => row.data_solicitacao && !row.entrega_real).length;
+    const completed = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && hasInicio && hasEntrega;
+    }).length;
+    const inProgress = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && hasInicio && !hasEntrega;
+    }).length;
+    const notStarted = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && !hasInicio && !hasEntrega;
+    }).length;
+    entregues = completed;
+    pendentes = inProgress + notStarted;
   } else if (year) {
     const mes = label.padStart(2, '0');
     periodo = dayjs(`${year}-${mes}-01`).format('MM/YYYY');
     const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${year}-${mes}`));
-    entregues = rows.filter(row => row.data_solicitacao && row.entrega_real).length;
-    pendentes = rows.filter(row => row.data_solicitacao && !row.entrega_real).length;
+    const completed = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && hasInicio && hasEntrega;
+    }).length;
+    const inProgress = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && hasInicio && !hasEntrega;
+    }).length;
+    const notStarted = rows.filter(row => {
+      const hasSolicitacao = !!row.data_solicitacao;
+      const hasInicio = !!row.data_inicio;
+      const hasEntrega = !!row.entrega_real;
+      return hasSolicitacao && !hasInicio && !hasEntrega;
+    }).length;
+    entregues = completed;
+    pendentes = inProgress + notStarted;
   } else {
     // label no formato MM/YYYY
     if (label.includes('/')) {
       const [mes, ano] = label.split('/');
       periodo = dayjs(`${ano}-${mes}-01`).format('MM/YYYY');
       const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(`${ano}-${mes}`));
-      entregues = rows.filter(row => row.data_solicitacao && row.entrega_real).length;
-      pendentes = rows.filter(row => row.data_solicitacao && !row.entrega_real).length;
+      const completed = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && hasInicio && hasEntrega;
+      }).length;
+      const inProgress = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && hasInicio && !hasEntrega;
+      }).length;
+      const notStarted = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && !hasInicio && !hasEntrega;
+      }).length;
+      entregues = completed;
+      pendentes = inProgress + notStarted;
     } else {
       periodo = label;
       const rows = data.filter(row => row.data_solicitacao && row.data_solicitacao.startsWith(label));
-      entregues = rows.filter(row => row.data_solicitacao && row.entrega_real).length;
-      pendentes = rows.filter(row => row.data_solicitacao && !row.entrega_real).length;
+      const completed = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && hasInicio && hasEntrega;
+      }).length;
+      const inProgress = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && hasInicio && !hasEntrega;
+      }).length;
+      const notStarted = rows.filter(row => {
+        const hasSolicitacao = !!row.data_solicitacao;
+        const hasInicio = !!row.data_inicio;
+        const hasEntrega = !!row.entrega_real;
+        return hasSolicitacao && !hasInicio && !hasEntrega;
+      }).length;
+      entregues = completed;
+      pendentes = inProgress + notStarted;
     }
   }
 
@@ -145,11 +217,11 @@ const TakeoffTooltipExternal = React.memo(function TakeoffTooltipExternal({ tool
           <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{total}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Entregues</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Completed</span>
           <span style={{ color: '#1bbf5c', fontWeight: 500 }}>{entregues}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Pendentes</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>In Progress + Not Started</span>
           <span style={{ color: '#dc3545', fontWeight: 500 }}>{pendentes}</span>
         </div>
       </div>
@@ -176,9 +248,22 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<TakeoffTooltipExternalProps>>(null);
 
-  // Para Takeoff: entregue = data_solicitacao && entrega_real; pendente = data_solicitacao && !entrega_real
-  const isEntregue = (row: TakeoffRow) => row.data_solicitacao && row.entrega_real;
-  const isPendente = (row: TakeoffRow) => row.data_solicitacao && !row.entrega_real;
+  // Função para determinar o status baseado nas datas
+  const getProjectStatus = (row: TakeoffRow): string => {
+    const hasSolicitacao = !!row.data_solicitacao;
+    const hasInicio = !!row.data_inicio;
+    const hasEntrega = !!row.entrega_real;
+
+    if (hasSolicitacao && hasInicio && hasEntrega) {
+      return 'Completed';
+    } else if (hasSolicitacao && hasInicio && !hasEntrega) {
+      return 'In Progress';
+    } else if (hasSolicitacao && !hasInicio && !hasEntrega) {
+      return 'Not Started';
+    } else {
+      return 'Pending';
+    }
+  };
 
   // Preparar dados do gráfico
   const { chartData, chartOptions } = useMemo(() => {
@@ -196,58 +281,70 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
 
     if (selectedYear && selectedMonth) {
       // Gráfico dia a dia do mês selecionado
-      const countByDay: Record<string, { entregues: number; pendentes: number }> = {};
+      const countByDay: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
       const daysInMonth = dayjs(`${selectedYear}-${selectedMonth}`).daysInMonth();
       for (let day = 1; day <= daysInMonth; day++) {
         const dayStr = day.toString().padStart(2, '0');
-        countByDay[dayStr] = { entregues: 0, pendentes: 0 };
+        countByDay[dayStr] = { completed: 0, inProgress: 0, notStarted: 0 };
       }
       filteredData.forEach(row => {
         if (row.data_solicitacao && row.data_solicitacao.split('-')[1] === selectedMonth && row.data_solicitacao.split('-')[0] === selectedYear) {
           const dia = row.data_solicitacao.split('-')[2];
-          if (isEntregue(row)) countByDay[dia].entregues++;
-          else if (isPendente(row)) countByDay[dia].pendentes++;
+          const status = getProjectStatus(row);
+          if (status === 'Completed') countByDay[dia].completed++;
+          else if (status === 'In Progress') countByDay[dia].inProgress++;
+          else if (status === 'Not Started') countByDay[dia].notStarted++;
         }
       });
       // Sempre mostrar todos os dias do mês
       chartLabels = Object.keys(countByDay).sort((a, b) => Number(a) - Number(b));
-      const entreguesData: (number | null)[] = chartLabels.map(dia => countByDay[dia].entregues > 0 ? countByDay[dia].entregues : null);
-      const pendentesData: (number | null)[] = chartLabels.map(dia => countByDay[dia].pendentes > 0 ? countByDay[dia].pendentes : null);
+      const completedData: (number | null)[] = chartLabels.map(dia => countByDay[dia].completed > 0 ? countByDay[dia].completed : null);
+      const inProgressData: (number | null)[] = chartLabels.map(dia => countByDay[dia].inProgress > 0 ? countByDay[dia].inProgress : null);
+      const notStartedData: (number | null)[] = chartLabels.map(dia => countByDay[dia].notStarted > 0 ? countByDay[dia].notStarted : null);
       datasets = [];
-      if (entreguesData.length > 0 && entreguesData.some(v => v !== null)) {
-        datasets.push({ label: 'Entregues', data: entreguesData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
+      if (completedData.length > 0 && completedData.some(v => v !== null)) {
+        datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
       }
-      if (pendentesData.length > 0 && pendentesData.some(v => v !== null)) {
-        datasets.push({ label: 'Pendentes', data: pendentesData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
+      if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
+        datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
+      }
+      if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
+        datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
       }
     } else if (selectedYear) {
       // Gráfico mês a mês do ano selecionado
-      const countByMonth: Record<string, { entregues: number; pendentes: number }> = {};
+      const countByMonth: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
       for (let month = 1; month <= 12; month++) {
         const monthStr = month.toString().padStart(2, '0');
-        countByMonth[monthStr] = { entregues: 0, pendentes: 0 };
+        countByMonth[monthStr] = { completed: 0, inProgress: 0, notStarted: 0 };
       }
       filteredData.forEach(row => {
         if (row.data_solicitacao && row.data_solicitacao.split('-')[0] === selectedYear) {
           const mes = row.data_solicitacao.split('-')[1];
-          if (isEntregue(row)) countByMonth[mes].entregues++;
-          else if (isPendente(row)) countByMonth[mes].pendentes++;
+          const status = getProjectStatus(row);
+          if (status === 'Completed') countByMonth[mes].completed++;
+          else if (status === 'In Progress') countByMonth[mes].inProgress++;
+          else if (status === 'Not Started') countByMonth[mes].notStarted++;
         }
       });
       // Sempre mostrar todos os meses do ano
       chartLabels = Object.keys(countByMonth).sort((a, b) => Number(a) - Number(b));
-      const entreguesData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].entregues > 0 ? countByMonth[mes].entregues : null);
-      const pendentesData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].pendentes > 0 ? countByMonth[mes].pendentes : null);
+      const completedData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].completed > 0 ? countByMonth[mes].completed : null);
+      const inProgressData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].inProgress > 0 ? countByMonth[mes].inProgress : null);
+      const notStartedData: (number | null)[] = chartLabels.map(mes => countByMonth[mes].notStarted > 0 ? countByMonth[mes].notStarted : null);
       datasets = [];
-      if (entreguesData.length > 0 && entreguesData.some(v => v !== null)) {
-        datasets.push({ label: 'Entregues', data: entreguesData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
+      if (completedData.length > 0 && completedData.some(v => v !== null)) {
+        datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
       }
-      if (pendentesData.length > 0 && pendentesData.some(v => v !== null)) {
-        datasets.push({ label: 'Pendentes', data: pendentesData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
+      if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
+        datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
+      }
+      if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
+        datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
       }
     } else {
       // Gráfico mês/ano quando não há filtro de ano
-      const countByMonthYear: Record<string, { entregues: number; pendentes: number }> = {};
+      const countByMonthYear: Record<string, { completed: number; inProgress: number; notStarted: number }> = {};
       // Descobrir o range de meses/anos presentes nos dados filtrados
       let minYear = 9999, maxYear = 0, minMonth = 1, maxMonth = 12;
       filteredData.forEach(row => {
@@ -274,27 +371,33 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth }: Takeo
           }
         }
         allMonthYears.forEach(key => {
-          if (!countByMonthYear[key]) countByMonthYear[key] = { entregues: 0, pendentes: 0 };
+          if (!countByMonthYear[key]) countByMonthYear[key] = { completed: 0, inProgress: 0, notStarted: 0 };
         });
         filteredData.forEach(row => {
           if (row.data_solicitacao) {
             const ano = row.data_solicitacao.split('-')[0];
             const mes = row.data_solicitacao.split('-')[1];
             const key = `${mes}/${ano}`;
-            if (!countByMonthYear[key]) countByMonthYear[key] = { entregues: 0, pendentes: 0 };
-            if (isEntregue(row)) countByMonthYear[key].entregues++;
-            else if (isPendente(row)) countByMonthYear[key].pendentes++;
+            if (!countByMonthYear[key]) countByMonthYear[key] = { completed: 0, inProgress: 0, notStarted: 0 };
+            const status = getProjectStatus(row);
+            if (status === 'Completed') countByMonthYear[key].completed++;
+            else if (status === 'In Progress') countByMonthYear[key].inProgress++;
+            else if (status === 'Not Started') countByMonthYear[key].notStarted++;
           }
         });
         chartLabels = allMonthYears;
-        const entreguesData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].entregues > 0 ? countByMonthYear[key].entregues : null);
-        const pendentesData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].pendentes > 0 ? countByMonthYear[key].pendentes : null);
+        const completedData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].completed > 0 ? countByMonthYear[key].completed : null);
+        const inProgressData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].inProgress > 0 ? countByMonthYear[key].inProgress : null);
+        const notStartedData: (number | null)[] = chartLabels.map(key => countByMonthYear[key].notStarted > 0 ? countByMonthYear[key].notStarted : null);
         datasets = [];
-        if (entreguesData.length > 0 && entreguesData.some(v => v !== null)) {
-          datasets.push({ label: 'Entregues', data: entreguesData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
+        if (completedData.length > 0 && completedData.some(v => v !== null)) {
+          datasets.push({ label: 'Completed', data: completedData, borderColor: '#1bbf5c', backgroundColor: '#1bbf5c' });
         }
-        if (pendentesData.length > 0 && pendentesData.some(v => v !== null)) {
-          datasets.push({ label: 'Pendentes', data: pendentesData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
+        if (inProgressData.length > 0 && inProgressData.some(v => v !== null)) {
+          datasets.push({ label: 'In Progress', data: inProgressData, borderColor: '#ffc107', backgroundColor: '#ffc107' });
+        }
+        if (notStartedData.length > 0 && notStartedData.some(v => v !== null)) {
+          datasets.push({ label: 'Not Started', data: notStartedData, borderColor: '#dc3545', backgroundColor: '#dc3545' });
         }
       }
     }

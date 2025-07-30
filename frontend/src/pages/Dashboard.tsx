@@ -111,11 +111,11 @@ export default function Dashboard() {
           });
           setPermissoes(permissoesObj);
 
-          // Definir tela inicial como Timesheet Analysis
+          // Definir tela inicial como Accounting Indicators
           if (telasData && telasData.length > 0) {
-            const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
-            if (timesheetTela) {
-              setTelaId(timesheetTela.id);
+            const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
+            if (accountingTela) {
+              setTelaId(accountingTela.id);
             } else {
               setTelaId(telasData[0].id);
             }
@@ -172,6 +172,35 @@ export default function Dashboard() {
     'IT Projects': 'bi bi-braces-asterisk',
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
+  };
+
+  // Função para ordenar telas de acordo com a ordem específica
+  const ordenarTelas = (telas: Tela[]): Tela[] => {
+    const ordemEspecifica = [
+      'Accounting Indicators',
+      'Timesheet Analysis', 
+      'Permit Control',
+      'Takeoff Works',
+      'Service Requests',
+      'IT Projects'
+    ];
+
+    return telas.sort((a, b) => {
+      const indexA = ordemEspecifica.indexOf(a.descricao);
+      const indexB = ordemEspecifica.indexOf(b.descricao);
+      
+      // Se ambas as telas estão na ordem específica, ordenar por índice
+      if (indexA !== -1 && indexB !== -1) {
+        return indexA - indexB;
+      }
+      
+      // Se apenas uma está na ordem específica, ela vem primeiro
+      if (indexA !== -1) return -1;
+      if (indexB !== -1) return 1;
+      
+      // Se nenhuma está na ordem específica, manter ordem alfabética
+      return a.descricao.localeCompare(b.descricao);
+    });
   };
 
   // Descobrir todas as telas em que o usuário é admin_setor
@@ -431,7 +460,7 @@ export default function Dashboard() {
         }}>
           {/* All screens in a single list */}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px 2px 10px'}}>
-            {telas.map(tela => (
+            {ordenarTelas(telas).map(tela => (
               <button
                 key={tela.id}
                 className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
