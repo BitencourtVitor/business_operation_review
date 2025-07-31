@@ -19,25 +19,50 @@ function getTimestamp() {
 async function backupAndDeleteOldJson() {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
-    await fs.access(DATA_FILE);
-    const backupPath = path.join(BACKUP_DIR, `hvac_purchases_backup_${getTimestamp()}.json`);
-    await fs.copyFile(DATA_FILE, backupPath);
-    console.log(`🗄️  Backup criado: ${backupPath}`);
-    await fs.unlink(DATA_FILE);
-    console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
-  } catch {}
+    
+    // Verificar se o arquivo existe antes de tentar fazer backup
+    const fileExists = await fs.access(DATA_FILE).then(() => true).catch(() => false);
+    
+    if (fileExists) {
+      const backupPath = path.join(BACKUP_DIR, `hvac_purchases_backup_${getTimestamp()}.json`);
+      await fs.copyFile(DATA_FILE, backupPath);
+      console.log(`🗄️  Backup criado: ${backupPath}`);
+      await fs.unlink(DATA_FILE);
+      console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
+    } else {
+      console.log(`ℹ️  Arquivo ${DATA_FILE} não existe, pulando backup`);
+    }
+  } catch (error) {
+    console.log(`⚠️  Erro no backup: ${error.message}`);
+  }
 }
 
 async function prepareDataFile() {
-  await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+  try {
+    // Garantir que o diretório existe
+    const dir = path.dirname(DATA_FILE);
+    await fs.mkdir(dir, { recursive: true });
+    
+    // Criar o arquivo com array vazio
+    await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+    console.log(`📄 Arquivo de dados preparado: ${DATA_FILE}`);
+  } catch (error) {
+    console.error(`❌ Erro ao preparar arquivo de dados: ${error.message}`);
+    throw error;
+  }
 }
 
 async function savePurchasesBatch(batch, append = false) {
-  if (append && await fileExists(DATA_FILE)) {
-    const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
-    await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
-  } else {
-    await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+  try {
+    if (append && await fileExists(DATA_FILE)) {
+      const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
+      await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+    } else {
+      await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+    }
+  } catch (error) {
+    console.error(`❌ Erro ao salvar batch: ${error.message}`);
+    throw error;
   }
 }
 
@@ -105,18 +130,28 @@ async function main() {
   let allPurchases = [];
   let startPosition = 1;
   const maxResults = 100;
-  while (true) {
-    let query = `SELECT * FROM Purchase ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
-    console.log(`📥 Buscando Purchase registros da posição ${startPosition}...`);
-    const response = await qb.makeRequest('query', { query });
-    const batch = response.QueryResponse && response.QueryResponse.Purchase ? response.QueryResponse.Purchase : [];
-    if (batch.length === 0) break;
-    allPurchases.push(...batch);
-    await savePurchasesBatch(batch, startPosition > 1);
-    if (batch.length < maxResults) break;
-    startPosition += maxResults;
+  
+  try {
+    while (true) {
+      let query = `SELECT * FROM Purchase ORDER BY MetaData.LastUpdatedTime DESC STARTPOSITION ${startPosition} MAXRESULTS ${maxResults}`;
+      console.log(`📥 Buscando Purchase registros da posição ${startPosition}...`);
+      
+      const response = await qb.makeRequest('query', { query });
+      const batch = response.QueryResponse && response.QueryResponse.Purchase ? response.QueryResponse.Purchase : [];
+      
+      if (batch.length === 0) break;
+      
+      allPurchases.push(...batch);
+      await savePurchasesBatch(batch, startPosition > 1);
+      
+      if (batch.length < maxResults) break;
+      startPosition += maxResults;
+    }
+    console.log(`✅ Purchases coletados: ${allPurchases.length}`);
+  } catch (error) {
+    console.error(`❌ Erro na coleta de dados: ${error.message}`);
+    throw error;
   }
-  console.log(`✅ Purchases coletados: ${allPurchases.length}`);
 
   // 2. Transformação
   let purchases, purchase_lines;

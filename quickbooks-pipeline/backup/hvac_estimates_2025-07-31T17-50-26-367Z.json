@@ -2,448 +2,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "19149",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-06-18T11:58:22-07:00",
-      "LastUpdatedTime": "2025-07-31T12:15:20-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1848",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "20126",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20127",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 19000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000197",
-            "name": "Toll Brothers - Wendell Place:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Finished Walkout Basement",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000207",
-            "name": "Toll Brothers - Wendell Place:263432 - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Air Handler",
-        "Amount": 5500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000227",
-            "name": "Toll Brothers - Wendell Place:Air Handler - Copley"
-          },
-          "UnitPrice": 5500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000292",
-            "name": "Toll Brothers - Wendell Place:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Final HVAC",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000275",
-            "name": "Toll Brothers - Wendell Place:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000209",
-            "name": "Toll Brothers - Wendell Place:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 39000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1451",
-      "name": "Lot 14 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "19335",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "ShipAddr": {
-      "Id": "19336",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "TotalAmt": 39000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "AcceptedDate": "2025-07-18",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19790",
-    "SyncToken": "8",
-    "MetaData": {
-      "CreateTime": "2025-07-17T13:12:21-07:00",
-      "LastUpdatedTime": "2025-07-31T06:43:24-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1862",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "20015",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20114",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "672 Waverly Street, Framingham ",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
-        "Amount": 4710.31,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 4710.314,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
-        "Amount": 4928.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1642.9,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
-        "Amount": 693.88,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 231.294,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
-        "Amount": 1727.25,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 575.75,
-          "Qty": 3,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets, Stands, Drains, ",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Labor ",
-        "Amount": 9000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 9000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Electrical, labor and material",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 3500,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 27560.14,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1502",
-      "name": "672 Waverly St, Framingham (Church)"
-    },
-    "CustomerMemo": {
-      "value": "Payment agreement\n50% start\n50% Upon finish installation"
-    },
-    "BillAddr": {
-      "Id": "18960",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "672 Waverly St",
-      "Line3": "Framingham, MA 01747"
-    },
-    "TotalAmt": 27560.14,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "philipottaviani@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-17T13:13:32-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "19789",
     "SyncToken": "4",
     "MetaData": {
@@ -980,6 +538,247 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-07-28T09:54:59-07:00"
+    }
+  },
+  {
+    "AcceptedDate": "2025-07-18",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19790",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-07-17T13:12:21-07:00",
+      "LastUpdatedTime": "2025-07-28T10:52:11-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1862",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "20015",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "672 Waverly Street, Framingham ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
+        "Amount": 4710.31,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 4710.314,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
+        "Amount": 4928.7,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1642.9,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
+        "Amount": 693.88,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 231.294,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
+        "Amount": 1727.25,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 575.75,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Linesets, Stands, Drains, ",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Labor ",
+        "Amount": 9000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 9000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Electrical, labor and material",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3500,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 27560.14,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1502",
+      "name": "672 Waverly St, Framingham (Church)"
+    },
+    "CustomerMemo": {
+      "value": "Payment agreement\n50% start\n50% Upon finish installation"
+    },
+    "BillAddr": {
+      "Id": "18960",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "672 Waverly St",
+      "Line3": "Framingham, MA 01747"
+    },
+    "TotalAmt": 27560.14,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "philipottaviani@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-17T13:13:32-07:00"
     }
   },
   {
@@ -26122,6 +25921,193 @@
       "Line4": "Dickinson Manchester"
     },
     "TotalAmt": 33000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19149",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-06-18T11:58:22-07:00",
+      "LastUpdatedTime": "2025-06-18T11:58:22-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1848",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 19000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000197",
+            "name": "Toll Brothers - Wendell Place:Rough Ductwork - Williamstown"
+          },
+          "UnitPrice": 19000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000207",
+            "name": "Toll Brothers - Wendell Place:263432 - Williamstown"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Air Handler",
+        "Amount": 5500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000227",
+            "name": "Toll Brothers - Wendell Place:Air Handler - Copley"
+          },
+          "UnitPrice": 5500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000292",
+            "name": "Toll Brothers - Wendell Place:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000275",
+            "name": "Toll Brothers - Wendell Place:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000209",
+            "name": "Toll Brothers - Wendell Place:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 39000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1451",
+      "name": "Lot 14 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "18224",
+      "Line1": "Wendell Place",
+      "Line2": "9 Lady Constance Way",
+      "Line3": "Westford, MA  01886",
+      "Line4": "Williamstown Manchester"
+    },
+    "ShipAddr": {
+      "Id": "18225",
+      "Line1": "Wendell Place",
+      "Line2": "9 Lady Constance Way",
+      "Line3": "Westford, MA  01886",
+      "Line4": "Williamstown Manchester"
+    },
+    "TotalAmt": 39000,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"

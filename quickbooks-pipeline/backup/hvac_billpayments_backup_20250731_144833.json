@@ -1,352 +1,6 @@
 [
   {
     "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "PayType": "CreditCard",
-    "CreditCardPayment": {
-      "CCAccountRef": {
-        "value": "157",
-        "name": "Amex Platinum"
-      }
-    },
-    "TotalAmt": 30623.31,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20090",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:26:41-07:00",
-      "LastUpdatedTime": "2025-07-30T07:26:41-07:00"
-    },
-    "DocNumber": "Paid online",
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid online",
-    "Line": [
-      {
-        "Amount": 69.84,
-        "LinkedTxn": [
-          {
-            "TxnId": "18048",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 56.37,
-        "LinkedTxn": [
-          {
-            "TxnId": "18241",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 526.22,
-        "LinkedTxn": [
-          {
-            "TxnId": "18049",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 7425.46,
-        "LinkedTxn": [
-          {
-            "TxnId": "18050",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 96.21,
-        "LinkedTxn": [
-          {
-            "TxnId": "18246",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 428.59,
-        "LinkedTxn": [
-          {
-            "TxnId": "18056",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 1646.06,
-        "LinkedTxn": [
-          {
-            "TxnId": "18057",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 1808.74,
-        "LinkedTxn": [
-          {
-            "TxnId": "18058",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 944.54,
-        "LinkedTxn": [
-          {
-            "TxnId": "18061",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 942.96,
-        "LinkedTxn": [
-          {
-            "TxnId": "18062",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 373.9,
-        "LinkedTxn": [
-          {
-            "TxnId": "18254",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 314.32,
-        "LinkedTxn": [
-          {
-            "TxnId": "18063",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 34.53,
-        "LinkedTxn": [
-          {
-            "TxnId": "18064",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 1555.73,
-        "LinkedTxn": [
-          {
-            "TxnId": "18065",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 1209.02,
-        "LinkedTxn": [
-          {
-            "TxnId": "18066",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 247.64,
-        "LinkedTxn": [
-          {
-            "TxnId": "18067",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 2148.92,
-        "LinkedTxn": [
-          {
-            "TxnId": "18068",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 271.18,
-        "LinkedTxn": [
-          {
-            "TxnId": "18070",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 212.29,
-        "LinkedTxn": [
-          {
-            "TxnId": "18071",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 919.7,
-        "LinkedTxn": [
-          {
-            "TxnId": "18072",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 202.68,
-        "LinkedTxn": [
-          {
-            "TxnId": "18073",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 61.1,
-        "LinkedTxn": [
-          {
-            "TxnId": "18074",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 93.43,
-        "LinkedTxn": [
-          {
-            "TxnId": "18024",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 233.52,
-        "LinkedTxn": [
-          {
-            "TxnId": "18025",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 76.57,
-        "LinkedTxn": [
-          {
-            "TxnId": "18027",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 186.62,
-        "LinkedTxn": [
-          {
-            "TxnId": "18028",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 406.22,
-        "LinkedTxn": [
-          {
-            "TxnId": "18029",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 711.83,
-        "LinkedTxn": [
-          {
-            "TxnId": "18034",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 908.23,
-        "LinkedTxn": [
-          {
-            "TxnId": "18035",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 4483.01,
-        "LinkedTxn": [
-          {
-            "TxnId": "18036",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 941.46,
-        "LinkedTxn": [
-          {
-            "TxnId": "18037",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 64.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "18038",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 9.2,
-        "LinkedTxn": [
-          {
-            "TxnId": "18039",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 224.54,
-        "LinkedTxn": [
-          {
-            "TxnId": "18040",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 787.82,
-        "LinkedTxn": [
-          {
-            "TxnId": "18047",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
       "value": "1415",
       "name": "Karen Roberts Attorney"
     },
@@ -566,7 +220,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {
@@ -2693,7 +2347,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {
@@ -2815,7 +2469,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {
@@ -5342,7 +4996,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {
@@ -5437,7 +5091,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {
@@ -11679,7 +11333,7 @@
   {
     "VendorRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC"
+      "name": "WANDERSONDO CONSTRUCTION INC"
     },
     "PayType": "Check",
     "CheckPayment": {

@@ -5,940 +5,9 @@
       "name": "Mutual One Checking (8980)"
     },
     "PaymentType": "Cash",
-    "TotalAmt": 103.98,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20119",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T07:03:58-07:00",
-      "LastUpdatedTime": "2025-07-31T07:03:58-07:00"
-    },
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-        "Amount": 103.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1518",
-            "name": "Lot 72 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "158",
-            "name": "Permit Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "TotalAmt": 103.98,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20118",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T07:03:28-07:00",
-      "LastUpdatedTime": "2025-07-31T07:03:28-07:00"
-    },
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-        "Amount": 103.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1523",
-            "name": "Lot 71 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "158",
-            "name": "Permit Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "TotalAmt": 25,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20091",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:28:33-07:00",
-      "LastUpdatedTime": "2025-07-30T07:28:33-07:00"
-    },
-    "TxnDate": "2025-07-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "TRANSFER - ***9525-141, AMOUNT:-25.00, LOAN PAYMENT TRANSFER MONTHLY BUSINESS VISA PAYMENT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "TRANSFER - ***9525-141, AMOUNT:-25.00, LOAN PAYMENT TRANSFER MONTHLY BUSINESS VISA PAYMENT",
-        "Amount": 25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "193",
-            "name": "DCU Visa Credit Card"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "74",
-      "name": "Associated Bank Auto Finance",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1034.68,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20089",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:25:26-07:00",
-      "LastUpdatedTime": "2025-07-30T07:25:26-07:00"
-    },
-    "TxnDate": "2025-06-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
-        "Amount": 1034.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "7",
-            "name": "Accounts Payable (A/P)"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "924",
-      "name": "National General Insurance",
-      "type": "Vendor"
-    },
-    "TotalAmt": 725.94,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20085",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:19:46-07:00",
-      "LastUpdatedTime": "2025-07-30T07:19:46-07:00"
-    },
-    "TxnDate": "2025-04-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "ELECTRONIC WITHDRAWAL NATIONAL CONT   INS PREM  250421",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "ELECTRONIC WITHDRAWAL NATIONAL CONT   INS PREM  250421",
-        "Amount": 725.94,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "32",
-            "name": "Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "141",
-      "name": "Amazon",
-      "type": "Vendor"
-    },
-    "TotalAmt": 14.99,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20084",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:16:46-07:00",
-      "LastUpdatedTime": "2025-07-30T07:16:46-07:00"
-    },
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "DB DEBIT - 7-23-2025, AMAZON PRIME*IS67D6OM3   AMZN.COM/BILLWA,AUTH# 985836 DEBIT CARD DEBIT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "DB DEBIT - 7-23-2025, AMAZON PRIME*IS67D6OM3   AMZN.COM/BILLWA,AUTH# 985836 DEBIT CARD DEBIT",
-        "Amount": 14.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "51",
-            "name": "Office Supplies & Software"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "141",
-      "name": "Amazon",
-      "type": "Vendor"
-    },
-    "TotalAmt": 14.99,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20083",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:16:32-07:00",
-      "LastUpdatedTime": "2025-07-30T07:16:32-07:00"
-    },
-    "TxnDate": "2025-06-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "DB DEBIT - 6-23-2025, AMAZON PRIME*NO51X77A1   AMZN.COM/BILLWA,AUTH# 663368 DEBIT CARD DEBIT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "DB DEBIT - 6-23-2025, AMAZON PRIME*NO51X77A1   AMZN.COM/BILLWA,AUTH# 663368 DEBIT CARD DEBIT",
-        "Amount": 14.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "51",
-            "name": "Office Supplies & Software"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "141",
-      "name": "Amazon",
-      "type": "Vendor"
-    },
-    "TotalAmt": 14.99,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20082",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:16:20-07:00",
-      "LastUpdatedTime": "2025-07-30T07:16:20-07:00"
-    },
-    "TxnDate": "2025-05-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "DB DEBIT - 5-23-2025, AMAZON PRIME*NZ2U83VB0   AMZN.COM/BILLWA,AUTH# 615740 DEBIT CARD DEBIT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "DB DEBIT - 5-23-2025, AMAZON PRIME*NZ2U83VB0   AMZN.COM/BILLWA,AUTH# 615740 DEBIT CARD DEBIT",
-        "Amount": 14.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "51",
-            "name": "Office Supplies & Software"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "17",
-      "name": "QuickBooks Payments",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20081",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:14:03-07:00",
-      "LastUpdatedTime": "2025-07-30T07:14:03-07:00"
-    },
-    "TxnDate": "2025-03-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "ELECTRONIC WITHDRAWAL INTUIT 35001103 TRAN FEE  250312",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "ELECTRONIC WITHDRAWAL INTUIT 35001103 TRAN FEE  250312",
-        "Amount": 1,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "94",
-            "name": "Bank Charges & Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "17",
-      "name": "QuickBooks Payments",
-      "type": "Vendor"
-    },
-    "TotalAmt": 20,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20080",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:13:27-07:00",
-      "LastUpdatedTime": "2025-07-30T07:13:27-07:00"
-    },
-    "TxnDate": "2025-03-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "ELECTRONIC WITHDRAWAL INTUIT 21761293 TRAN FEE  250307",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "ELECTRONIC WITHDRAWAL INTUIT 21761293 TRAN FEE  250307",
-        "Amount": 20,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "94",
-            "name": "Bank Charges & Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 33200,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20079",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:12:49-07:00",
-      "LastUpdatedTime": "2025-07-30T07:12:49-07:00"
-    },
-    "TxnDate": "2023-12-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "CHECK #330: SH DRAFT SHARE CHECK",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "CHECK #330: SH DRAFT SHARE CHECK",
-        "Amount": 33200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 11000,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20078",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:12:36-07:00",
-      "LastUpdatedTime": "2025-07-30T07:12:36-07:00"
-    },
-    "TxnDate": "2023-12-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "CHECK #329: SH DRAFT SHARE CHECK",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "CHECK #329: SH DRAFT SHARE CHECK",
-        "Amount": 11000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 6254.97,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20077",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:12:30-07:00",
-      "LastUpdatedTime": "2025-07-30T07:12:30-07:00"
-    },
-    "TxnDate": "2023-12-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "CHECK #328: SH DRAFT SHARE CHECK",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "CHECK #328: SH DRAFT SHARE CHECK",
-        "Amount": 6254.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 89000,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20076",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:12:20-07:00",
-      "LastUpdatedTime": "2025-07-30T07:12:20-07:00"
-    },
-    "TxnDate": "2023-12-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "CHECK #327: SH DRAFT SHARE CHECK",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "CHECK #327: SH DRAFT SHARE CHECK",
-        "Amount": 89000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 10274,
@@ -1006,7 +75,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 6640,
@@ -1074,7 +143,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 7020,
@@ -1137,7 +206,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 6670,
@@ -1217,7 +286,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 11900,
@@ -1868,7 +937,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 17000,
@@ -2738,7 +1807,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "TotalAmt": 11920,
@@ -5461,7 +4530,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -16773,7 +15842,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -18382,7 +17451,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -20775,7 +19844,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -32521,7 +31590,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -43532,7 +42601,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
+      "name": "WANDERSONDO CONSTRUCTION INC",
       "type": "Vendor"
     },
     "RemitToAddr": {

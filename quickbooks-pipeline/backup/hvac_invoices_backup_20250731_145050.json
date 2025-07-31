@@ -4,1506 +4,14 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20127",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T12:16:46-07:00",
-      "LastUpdatedTime": "2025-07-31T12:16:46-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3743",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S2",
-    "LinkedTxn": [
-      {
-        "TxnId": "19149",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Finished Walkout Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000207",
-            "name": "Toll Brothers - Wendell Place:263432 - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 5500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000227",
-            "name": "Toll Brothers - Wendell Place:Air Handler - Copley"
-          },
-          "UnitPrice": 5500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000292",
-            "name": "Toll Brothers - Wendell Place:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000275",
-            "name": "Toll Brothers - Wendell Place:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000209",
-            "name": "Toll Brothers - Wendell Place:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 5500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1451",
-      "name": "Lot 14 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "19339",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "ShipAddr": {
-      "Id": "19340",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 5500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 5500
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20126",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T12:15:03-07:00",
-      "LastUpdatedTime": "2025-07-31T12:15:03-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3742",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S1",
-    "LinkedTxn": [
-      {
-        "TxnId": "19149",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 19000,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000197",
-            "name": "Toll Brothers - Wendell Place:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Finished Walkout Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000207",
-            "name": "Toll Brothers - Wendell Place:263432 - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Air Handler",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000227",
-            "name": "Toll Brothers - Wendell Place:Air Handler - Copley"
-          },
-          "UnitPrice": 5500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000292",
-            "name": "Toll Brothers - Wendell Place:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000275",
-            "name": "Toll Brothers - Wendell Place:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19149",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000209",
-            "name": "Toll Brothers - Wendell Place:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 19000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1451",
-      "name": "Lot 14 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "19337",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "ShipAddr": {
-      "Id": "19338",
-      "Line1": "Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Westford, MA  01886",
-      "Line4": "Williamstown Manchester"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 19000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 19000
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20123",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T09:29:36-07:00",
-      "LastUpdatedTime": "2025-07-31T10:29:39-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3739",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "19 Plimpton Farm\nMillis, MA  02054 USA\nInspection Report – Second Floor Air Conditioning System",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Service Fee per visit\n\nAn inspection was carried out on the  air conditioning system following a complaint that the system was not functioning.",
-        "Amount": 200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 200,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1527",
-      "name": "Susan Allan"
-    },
-    "BillAddr": {
-      "Id": "19329",
-      "Line1": "Susan Allan",
-      "Line2": "19 Plimpton Farm",
-      "Line3": "Millis, MA  02054 USA"
-    },
-    "ShipAddr": {
-      "Id": "19328",
-      "Line1": "19 Plimpton Farm",
-      "City": "Millis",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "02054"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 200,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "soozir62@aol.com"
-    },
-    "Balance": 200,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T09:30:10-07:00",
-      "DeliveryErrorType": "Bounced Email"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20125",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-31T10:05:23-07:00",
-      "LastUpdatedTime": "2025-07-31T10:06:17-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3741",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Henryki Drummond\n19 E Bluff Rd\nAshland, MA  01721 USA\nService call no A/C",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-23",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic fee \n",
-        "Amount": 200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-23",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 200,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1529",
-      "name": "Henryki Drummond"
-    },
-    "BillAddr": {
-      "Id": "19334",
-      "Line1": "Henryki Drummond",
-      "Line2": "19 E Bluff Rd",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "ShipAddr": {
-      "Id": "19332",
-      "Line1": "19 E Bluff Rd",
-      "City": "Ashland",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01721"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 200,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "Rick@drumondautobody.com"
-    },
-    "Balance": 200,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T10:06:13-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20124",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T09:52:34-07:00",
-      "LastUpdatedTime": "2025-07-31T09:52:50-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3740",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Alisson Mills\n12 Wentworth Farm Rd\nMilton, MA  02186 USA\n\nEmergency call- drain pain full of water",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-19",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic Fee",
-        "Amount": 200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-19",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Labor $120.00\n1 Hour Technician ",
-        "Amount": 120,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-19",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 120,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Service Performed:\n• A blockage was identified in the drainage pipe of the unit, which was causing water to accumulate in the drain pan. The drain was properly unclogged, restoring normal water flow.\n• The filters of the fresh air system were also cleaned, as they had excessive dirt buildup, compromising air quality and system performance.",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Conclusion:\nService successfully completed. System operating normally after cleaning and unclogging procedures.",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 320,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1528",
-      "name": "Alisson Mills"
-    },
-    "BillAddr": {
-      "Id": "19331",
-      "Line1": "Alisson Mills",
-      "Line2": "12 Wentworth Farm Rd",
-      "Line3": "Milton, MA  02186 USA"
-    },
-    "ShipAddr": {
-      "Id": "19330",
-      "Line1": "12 Wentworth Farm Rd",
-      "City": "Milton",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "02186"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 320,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "alison.s.mills@gmail.com"
-    },
-    "Balance": 320,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T09:52:45-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Paid",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20121",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-31T09:14:49-07:00",
-      "LastUpdatedTime": "2025-07-31T09:27:16-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3738",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "20122",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "29 Lois Ann Ct,\nScituate, MA  02066 USA",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic fee",
-        "Amount": 200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 200,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1526",
-      "name": "Alice Gottlie"
-    },
-    "BillAddr": {
-      "Id": "19326",
-      "Line1": "Alice Gottlie",
-      "Line2": "29 Lois Ann Ct,",
-      "Line3": "Scituate, MA  02066 USA"
-    },
-    "ShipAddr": {
-      "Id": "19325",
-      "Line1": "29 Lois Ann Ct,",
-      "City": "Scituate",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "02066"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 200,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "agottlie19@gmail.com"
-    },
-    "Balance": 0,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T09:15:06-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19969",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T12:48:53-07:00",
-      "LastUpdatedTime": "2025-07-31T08:01:26-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "Sam's Sushi"
-      }
-    ],
-    "DocNumber": "3723",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "50% finish",
-    "LinkedTxn": [
-      {
-        "TxnId": "17849",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lineset Pricing ",
-        "Amount": 661.5,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": 441,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
-        "Amount": 512.81,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 341.873,
-          "Qty": 1.5000015,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
-        "Amount": 887.18,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1774.367,
-          "Qty": 0.499998,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
-        "Amount": 2250,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 4311.49,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1358",
-      "name": "Sam's Sushi"
-    },
-    "BillAddr": {
-      "Id": "19178",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "ShipAddr": {
-      "Id": "19179",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-23",
-    "TotalAmt": 4311.49,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "samuel@samsushiartmusic.com"
-    },
-    "Balance": 4311.49,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T08:01:21-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19393",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-27T13:48:11-07:00",
-      "LastUpdatedTime": "2025-07-31T07:48:03-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3622",
-    "TxnDate": "2025-06-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "13 Bodio Circle, Milford",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Service Fee\nThe unit was low on Freon. Gas was added, and temperatures were checked.\nEverything was functioning properly after the service.",
-        "Amount": 120,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 120,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "2lb refrigerant 410A",
-        "Amount": 140,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 70,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 260,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "663",
-      "name": "13 Bodio Circle, Milford"
-    },
-    "BillAddr": {
-      "Id": "19323",
-      "Line1": "Superior Carpentry, Inc.",
-      "Line2": "13 Bodio Circle, ",
-      "Line3": "Milford, USA 01757"
-    },
-    "ShipAddr": {
-      "Id": "19324",
-      "Line1": "Superior Carpentry, Inc.",
-      "Line2": "13 Bodio Circle, ",
-      "Line3": "Milford, USA 01757."
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-06-27",
-    "TotalAmt": 260,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "fernandobarroso_1912@live.com"
-    },
-    "Balance": 260,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T07:42:36-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19392",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-27T13:35:08-07:00",
-      "LastUpdatedTime": "2025-07-31T07:41:22-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3621",
-    "TxnDate": "2025-06-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Relatório Técnico – Clóvis Potulski\nData: 23/06/2025\nEndereço: 9 Lindem St, Framingham, MA\nUnidade: Condensadora Carrier modelo 24SCA424N0030100\nNúmero de série: 1123X59516\nRefrigerante: R-410A – Carga de fábrica: 4.00 lbs\n\nDescrição do atendimento:\nA unidade condensadora não está funcionando devido à falta de alimentação elétrica. Foi verificado que a energia chega normalmente até o quadro principal da residência, porém não está sendo conduzida até a condensadora. Suspeita-se de falha no disjuntor que alimenta o sistema.\n\nAções realizadas:\n• Verificação da ausência de alimentação elétrica no ponto da condensadora.\n• Confirmação de que a energia está presente no quadro principal.\n• Orientação ao morador para chamar um eletricista a fim de inspecionar o disjuntor e a continuidade da fiação.\n\nObservações:\n• Caso, após a restauração da energia, a unidade condensadora ainda não funcione, o morador deverá entrar em contato com o escritório para agendar uma nova visita.",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": " 9 Linden Street, Framingham\nCliente reported AC was not working on second Floor",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2025-06-23"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic Fee",
-        "Amount": 120,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-23",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 120,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 120,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "433",
-      "name": "9 Linden Street Framingham MA"
-    },
-    "BillAddr": {
-      "Id": "5638"
-    },
-    "ShipAddr": {
-      "Id": "18485",
-      "Line1": "Rafael Franco"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-06-27",
-    "TotalAmt": 120,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "dan_r1@hotmail.com"
-    },
-    "Balance": 120,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T07:41:17-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Paid",
     "domain": "QBO",
     "sparse": false,
     "Id": "19372",
-    "SyncToken": "3",
+    "SyncToken": "2",
     "MetaData": {
       "CreateTime": "2025-06-25T09:11:39-07:00",
-      "LastUpdatedTime": "2025-07-31T07:39:45-07:00"
+      "LastUpdatedTime": "2025-07-29T10:59:00-07:00"
     },
     "CustomField": [
       {
@@ -1522,10 +30,6 @@
       {
         "TxnId": "18877",
         "TxnType": "Estimate"
-      },
-      {
-        "TxnId": "20120",
-        "TxnType": "Payment"
       }
     ],
     "Line": [
@@ -1661,678 +165,11 @@
     "BillEmail": {
       "Address": "dhruv.patel1684@gmail.com"
     },
-    "Balance": 0,
+    "Balance": 715,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T07:30:48-07:00"
+      "DeliveryTime": "2025-07-29T10:58:56-07:00"
     }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20114",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-31T06:43:24-07:00",
-      "LastUpdatedTime": "2025-07-31T06:47:01-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3737",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final invoice",
-    "LinkedTxn": [
-      {
-        "TxnId": "19790",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "672 Waverly Street, Framingham ",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
-        "Amount": 2355.15,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 4710.314,
-          "Qty": 0.4999985,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
-        "Amount": 2464.35,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1642.9,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
-        "Amount": 346.94,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 231.294,
-          "Qty": 1.4999957,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
-        "Amount": 863.62,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 575.75,
-          "Qty": 1.4999913,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets, Stands, Drains, ",
-        "Amount": 1500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Labor ",
-        "Amount": 4500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 9000,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Electrical, labor and material",
-        "Amount": 2030.08,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 3500,
-          "Qty": 0.5800229,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 14060.14,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1502",
-      "name": "672 Waverly St, Framingham (Church)"
-    },
-    "CustomerMemo": {
-      "value": "Final invoice"
-    },
-    "BillAddr": {
-      "Id": "19317",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "672 Waverly St",
-      "Line3": "Framingham, MA 01747"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 14060.14,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "philipottaviani@gmail.com"
-    },
-    "Balance": 14060.14,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T06:43:44-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Paid",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "11521",
-    "SyncToken": "14",
-    "MetaData": {
-      "CreateTime": "2024-06-28T11:53:25-07:00",
-      "LastUpdatedTime": "2025-07-31T05:04:14-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "135 Grill"
-      }
-    ],
-    "DocNumber": "2544",
-    "TxnDate": "2024-06-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final invoice",
-    "LinkedTxn": [
-      {
-        "TxnId": "11291",
-        "TxnType": "Estimate"
-      },
-      {
-        "TxnId": "20104",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "17512",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "15795",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "14185",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "3",
-        "LineNum": 1,
-        "Description": "8 System Install\nAOU30RLXEH FUJITSU 18.7 SEER SINGLE\nZONE W/EXTENDED LINE SET OPTION\nSerial#: BWP007648\nSerial#: BWP007649\nSerial#: BWP007650\nSerial#: BWP007460\nSerial#: BWP007461\nSerial #: BWP006815\nSerial #: BWP007468\nSerial #: BWP006980\n.\nASU30RLE FUJITSU INDOOR SINGLE ZONE\nSerial#: BWB007525\nSerial#: BWB007574\nSerial#: BWB007636\nSerial#: BWB007612\nSerial#: BWB007566\nSerial #: BWB007366\nSerial #: BWB007253\nSerial #: BWB007364",
-        "Amount": 58000,
-        "LinkedTxn": [
-          {
-            "TxnId": "11291",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2024-06-07",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 13499.9997,
-          "Qty": 4.2962964,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 58000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "962",
-      "name": "135 Grill"
-    },
-    "CustomerMemo": {
-      "value": "PREMIUM HVAC INC \n1B Landing Lane Hopedale, MA 01747\nCompany Contact: Eleana De Oliveira Rodrigues \nPhone: (508) 282- 9160\nEmail: info@premiumhvacinc.com\nMass Save Company ID: HP241919\n\nEquipment INFO\nAHRI Certified Reference Number: \n8912454"
-    },
-    "BillAddr": {
-      "Id": "16947",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "Realty Executives Boston West",
-      "Line3": "1253 Worcester RD, Ste. 104"
-    },
-    "ShipAddr": {
-      "Id": "11750",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "Realty Executives Boston West",
-      "Line3": "1253 Worcester RD, Ste. 104"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-06-28",
-    "TotalAmt": 58000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "philipottaviani@gmail.com, pottaviani@verizon.net"
-    },
-    "Balance": 13000,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-09T08:31:45-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20075",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T06:39:57-07:00",
-      "LastUpdatedTime": "2025-07-30T06:39:57-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3736",
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S1",
-    "LinkedTxn": [
-      {
-        "TxnId": "17926",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 13800,
-        "LinkedTxn": [
-          {
-            "TxnId": "17926",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000541",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Rough Ductwork - Sutton"
-          },
-          "UnitPrice": 13800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler - Sutton - Willis Brook",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17926",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000545",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Air Handler - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor - Sutton - Willis Brook",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17926",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000524",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3800,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC - Sutton - Willis Brook",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17926",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000581",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Sutton - Willis Brook"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "263018 - Finished Basement - Rough Ductwork - Sutton",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17926",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000502",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Rough -Finished Basement - Sutton"
-          },
-          "UnitPrice": 4000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 13800,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1342",
-      "name": "Lot 01 - Willis Brook at Lynnfield"
-    },
-    "BillAddr": {
-      "Id": "19297",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "4 Eagleview Drive ",
-      "Line3": "Sutton Modern Craftsman"
-    },
-    "ShipAddr": {
-      "Id": "19298",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "4 Eagleview Drive ",
-      "Line3": "Sutton Modern Craftsman"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-30",
-    "TotalAmt": 13800,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 13800
   },
   {
     "AllowIPNPayment": false,
@@ -8352,6 +6189,208 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19969",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-23T12:48:53-07:00",
+      "LastUpdatedTime": "2025-07-23T13:14:23-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "Sam's Sushi"
+      }
+    ],
+    "DocNumber": "3723",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "50% finish",
+    "LinkedTxn": [
+      {
+        "TxnId": "17849",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lineset Pricing ",
+        "Amount": 661.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "3",
+            "name": "Job Supplies"
+          },
+          "UnitPrice": 441,
+          "Qty": 1.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
+        "Amount": 512.81,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 341.873,
+          "Qty": 1.5000015,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
+        "Amount": 887.18,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1774.367,
+          "Qty": 0.499998,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
+        "Amount": 2250,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 4311.49,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1358",
+      "name": "Sam's Sushi"
+    },
+    "BillAddr": {
+      "Id": "19178",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "ShipAddr": {
+      "Id": "19179",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-23",
+    "TotalAmt": 4311.49,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "samuel@samsushiartmusic.com"
+    },
+    "Balance": 4311.49,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-23T12:49:05-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Paid",
     "domain": "QBO",
     "sparse": false,
@@ -14272,6 +12311,121 @@
       "Address": "gjoiner@tollbrothers.com, kdavis@tollbrothers.com"
     },
     "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19392",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-06-27T13:35:08-07:00",
+      "LastUpdatedTime": "2025-07-22T13:45:34-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3621",
+    "TxnDate": "2025-06-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Relatório Técnico – Clóvis Potulski\nData: 23/06/2025\nEndereço: 9 Lindem St, Framingham, MA\nUnidade: Condensadora Carrier modelo 24SCA424N0030100\nNúmero de série: 1123X59516\nRefrigerante: R-410A – Carga de fábrica: 4.00 lbs\n\nDescrição do atendimento:\nA unidade condensadora não está funcionando devido à falta de alimentação elétrica. Foi verificado que a energia chega normalmente até o quadro principal da residência, porém não está sendo conduzida até a condensadora. Suspeita-se de falha no disjuntor que alimenta o sistema.\n\nAções realizadas:\n• Verificação da ausência de alimentação elétrica no ponto da condensadora.\n• Confirmação de que a energia está presente no quadro principal.\n• Orientação ao morador para chamar um eletricista a fim de inspecionar o disjuntor e a continuidade da fiação.\n\nObservações:\n• Caso, após a restauração da energia, a unidade condensadora ainda não funcione, o morador deverá entrar em contato com o escritório para agendar uma nova visita.",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": " 9 Linden Street, Framingham\nCliente reported AC was not working on second Floor",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-06-23"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Diagnostic Fee",
+        "Amount": 120,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-23",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 120,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 120,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "433",
+      "name": "9 Linden Street Framingham MA"
+    },
+    "BillAddr": {
+      "Id": "5638"
+    },
+    "ShipAddr": {
+      "Id": "18485",
+      "Line1": "Rafael Franco"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-06-27",
+    "TotalAmt": 120,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "dan_r1@hotmail.com"
+    },
+    "Balance": 120,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-22T13:45:28-07:00"
+    }
   },
   {
     "AllowIPNPayment": false,
@@ -34435,6 +32589,147 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-07-16T08:42:12-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19393",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-06-27T13:48:11-07:00",
+      "LastUpdatedTime": "2025-07-16T08:45:54-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3622",
+    "TxnDate": "2025-06-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13 Bodio Circle, Milford",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Service Fee\nThe unit was low on Freon. Gas was added, and temperatures were checked.\nEverything was functioning properly after the service.",
+        "Amount": 120,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 120,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "2lb refrigerant 410A",
+        "Amount": 140,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 70,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 260,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "663",
+      "name": "13 Bodio Circle, Milford"
+    },
+    "BillAddr": {
+      "Id": "8806"
+    },
+    "ShipAddr": {
+      "Id": "18486",
+      "Line1": "Superior Carpentry, Inc."
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-06-27",
+    "TotalAmt": 260,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "fernandobarroso_1912@live.com"
+    },
+    "Balance": 260,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-16T08:45:47-07:00"
     }
   },
   {
@@ -66251,6 +64546,144 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-06-09T04:41:57-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "11521",
+    "SyncToken": "13",
+    "MetaData": {
+      "CreateTime": "2024-06-28T11:53:25-07:00",
+      "LastUpdatedTime": "2025-06-09T08:31:50-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "135 Grill"
+      }
+    ],
+    "DocNumber": "2544",
+    "TxnDate": "2024-06-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "11291",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "17512",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "15795",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "14185",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "3",
+        "LineNum": 1,
+        "Description": "8 System Install\nAOU30RLXEH FUJITSU 18.7 SEER SINGLE\nZONE W/EXTENDED LINE SET OPTION\nSerial#: BWP007648\nSerial#: BWP007649\nSerial#: BWP007650\nSerial#: BWP007460\nSerial#: BWP007461\nSerial #: BWP006815\nSerial #: BWP007468\nSerial #: BWP006980\n.\nASU30RLE FUJITSU INDOOR SINGLE ZONE\nSerial#: BWB007525\nSerial#: BWB007574\nSerial#: BWB007636\nSerial#: BWB007612\nSerial#: BWB007566\nSerial #: BWB007366\nSerial #: BWB007253\nSerial #: BWB007364",
+        "Amount": 58000,
+        "LinkedTxn": [
+          {
+            "TxnId": "11291",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-06-07",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 13499.9997,
+          "Qty": 4.2962964,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 58000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "962",
+      "name": "135 Grill"
+    },
+    "CustomerMemo": {
+      "value": "PREMIUM HVAC INC \n1B Landing Lane Hopedale, MA 01747\nCompany Contact: Eleana De Oliveira Rodrigues \nPhone: (508) 282- 9160\nEmail: info@premiumhvacinc.com\nMass Save Company ID: HP241919\n\nEquipment INFO\nAHRI Certified Reference Number: \n8912454"
+    },
+    "BillAddr": {
+      "Id": "16947",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "Realty Executives Boston West",
+      "Line3": "1253 Worcester RD, Ste. 104"
+    },
+    "ShipAddr": {
+      "Id": "11750",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "Realty Executives Boston West",
+      "Line3": "1253 Worcester RD, Ste. 104"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-06-28",
+    "TotalAmt": 58000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "philipottaviani@gmail.com, pottaviani@verizon.net"
+    },
+    "Balance": 18000,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-06-09T08:31:45-07:00"
     }
   },
   {

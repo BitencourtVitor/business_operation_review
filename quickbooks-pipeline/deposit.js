@@ -19,25 +19,50 @@ function getTimestamp() {
 async function backupAndDeleteOldJson() {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
-    await fs.access(DATA_FILE);
-    const backupPath = path.join(BACKUP_DIR, `hvac_deposits_backup_${getTimestamp()}.json`);
-    await fs.copyFile(DATA_FILE, backupPath);
-    console.log(`🗄️  Backup criado: ${backupPath}`);
-    await fs.unlink(DATA_FILE);
-    console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
-  } catch {}
+    
+    // Verificar se o arquivo existe antes de tentar fazer backup
+    const fileExists = await fs.access(DATA_FILE).then(() => true).catch(() => false);
+    
+    if (fileExists) {
+      const backupPath = path.join(BACKUP_DIR, `hvac_deposits_backup_${getTimestamp()}.json`);
+      await fs.copyFile(DATA_FILE, backupPath);
+      console.log(`🗄️  Backup criado: ${backupPath}`);
+      await fs.unlink(DATA_FILE);
+      console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
+    } else {
+      console.log(`ℹ️  Arquivo ${DATA_FILE} não existe, pulando backup`);
+    }
+  } catch (error) {
+    console.log(`⚠️  Erro no backup: ${error.message}`);
+  }
 }
 
 async function prepareDataFile() {
-  await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+  try {
+    // Garantir que o diretório existe
+    const dir = path.dirname(DATA_FILE);
+    await fs.mkdir(dir, { recursive: true });
+    
+    // Criar o arquivo com array vazio
+    await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+    console.log(`📄 Arquivo de dados preparado: ${DATA_FILE}`);
+  } catch (error) {
+    console.error(`❌ Erro ao preparar arquivo de dados: ${error.message}`);
+    throw error;
+  }
 }
 
 async function saveDepositsBatch(batch, append = false) {
-  if (append && await fileExists(DATA_FILE)) {
-    const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
-    await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
-  } else {
-    await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+  try {
+    if (append && await fileExists(DATA_FILE)) {
+      const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
+      await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+    } else {
+      await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+    }
+  } catch (error) {
+    console.error(`❌ Erro ao salvar batch: ${error.message}`);
+    throw error;
   }
 }
 

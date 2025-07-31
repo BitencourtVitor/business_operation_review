@@ -19,25 +19,67 @@ function getTimestamp() {
 async function backupAndDeleteOldJson() {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
-    await fs.access(DATA_FILE);
-    const backupPath = path.join(BACKUP_DIR, `hvac_payments_backup_${getTimestamp()}.json`);
-    await fs.copyFile(DATA_FILE, backupPath);
-    console.log(`🗄️  Backup criado: ${backupPath}`);
-    await fs.unlink(DATA_FILE);
-    console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
-  } catch {}
+    
+    // Verificar se o arquivo existe antes de tentar acessá-lo
+    if (await fileExists(DATA_FILE)) {
+      const backupPath = path.join(BACKUP_DIR, `hvac_payments_backup_${getTimestamp()}.json`);
+      await fs.copyFile(DATA_FILE, backupPath);
+      console.log(`🗄️  Backup criado: ${backupPath}`);
+      
+      // Aguardar um pouco antes de tentar deletar o arquivo
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await fs.unlink(DATA_FILE);
+      console.log(`🗑️  Arquivo antigo removido: ${DATA_FILE}`);
+    } else {
+      console.log(`ℹ️  Arquivo ${DATA_FILE} não existe, pulando backup`);
+    }
+  } catch (error) {
+    console.error(`⚠️  Erro durante backup: ${error.message}`);
+    // Não falhar se o backup der erro
+  }
 }
 
 async function prepareDataFile() {
-  await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+  try {
+    // Garantir que o diretório existe
+    const dir = path.dirname(DATA_FILE);
+    await fs.mkdir(dir, { recursive: true });
+    
+    // Tentar criar o arquivo com tratamento de erro mais robusto
+    await fs.writeFile(DATA_FILE, '[]', 'utf-8');
+    console.log(`✅ Arquivo de dados preparado: ${DATA_FILE}`);
+  } catch (error) {
+    console.error(`❌ Erro ao preparar arquivo de dados: ${error.message}`);
+    throw error;
+  }
 }
 
 async function savePaymentsBatch(batch, append = false) {
-  if (append && await fileExists(DATA_FILE)) {
-    const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
-    await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
-  } else {
-    await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+  try {
+    // Aguardar um pouco antes de tentar escrever
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    if (append && await fileExists(DATA_FILE)) {
+      const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
+      await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+    } else {
+      await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+    }
+  } catch (error) {
+    console.error(`❌ Erro ao salvar lote de payments: ${error.message}`);
+    // Tentar novamente após um delay
+    await new Promise(resolve => setTimeout(resolve, 100));
+    try {
+      if (append && await fileExists(DATA_FILE)) {
+        const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
+        await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+      } else {
+        await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+      }
+    } catch (retryError) {
+      console.error(`❌ Erro na segunda tentativa: ${retryError.message}`);
+      throw retryError;
+    }
   }
 }
 
@@ -113,7 +155,7 @@ async function main() {
   const qb = new QuickBooksClient();
   const sb = new SupabaseClient();
 
-  // 1. Coleta paginada e salvamento incremental do JSON bruto
+  // 1. Coleta paginada sem salvamento de JSON
   let allPayments = [];
   let startPosition = 1;
   const maxResults = 100;
@@ -124,7 +166,7 @@ async function main() {
     const batch = response.QueryResponse && response.QueryResponse.Payment ? response.QueryResponse.Payment : [];
     if (batch.length === 0) break;
     allPayments.push(...batch);
-    await savePaymentsBatch(batch, startPosition > 1);
+    // Removido o salvamento de JSON para evitar problemas de arquivo
     if (batch.length < maxResults) break;
     startPosition += maxResults;
   }

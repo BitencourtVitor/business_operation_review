@@ -1,56 +1,6 @@
 [
   {
     "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-31",
-    "Balance": 990,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20128",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T12:20:37-07:00",
-      "LastUpdatedTime": "2025-07-31T12:20:37-07:00"
-    },
-    "DocNumber": "102",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Invoice # 102",
-        "Amount": 990,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "192",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "447",
-      "name": "Farhat Law Office, LLC"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 990
-  },
-  {
-    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2025-08-31",

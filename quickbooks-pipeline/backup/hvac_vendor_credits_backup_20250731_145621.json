@@ -2,55 +2,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "20100",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-30T10:25:05-07:00",
-      "LastUpdatedTime": "2025-07-30T10:25:05-07:00"
-    },
-    "DocNumber": "GT77408",
-    "TxnDate": "2025-07-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "GT77408",
-        "Amount": 48.73,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "986",
-            "name": "Pulte Homes:Pulte Homes - Winslow Point - 8177:Building 1 - Winslow Point - Pulte Homes - 8177 / 8178"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1230",
-      "name": "Daikin Comfort Technologies"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 48.73
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "18403",
     "SyncToken": "2",
     "MetaData": {

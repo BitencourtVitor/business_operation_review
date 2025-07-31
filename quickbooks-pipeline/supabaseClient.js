@@ -172,10 +172,74 @@ class SupabaseClient {
   // Upsert linhas de purchase
   async upsertPurchaseLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
-    const { error } = await this.supabase
-      .from('hvac_purchase_lines')
-      .insert(linesRows);
-    if (error) throw error;
+    
+    try {
+      // Filtrar linhas que têm external_line_id (não null)
+      const linesWithExternalId = linesRows.filter(line => line.external_line_id != null);
+      const linesWithoutExternalId = linesRows.filter(line => line.external_line_id == null);
+      
+      console.log(`📊 Processando ${linesWithExternalId.length} linhas com external_line_id e ${linesWithoutExternalId.length} sem external_line_id`);
+      
+      // Processar linhas com external_line_id usando upsert
+      if (linesWithExternalId.length > 0) {
+        try {
+          const { error } = await this.supabase
+            .from('hvac_purchase_lines')
+            .upsert(linesWithExternalId, { onConflict: 'purchase_id,external_line_id', ignoreDuplicates: false });
+          
+          if (error) {
+            console.log('⚠️ Constraint purchase_id,external_line_id não encontrada. Usando método alternativo...');
+            await this.processLinesWithDeleteInsert(linesWithExternalId);
+          } else {
+            console.log(`✅ ${linesWithExternalId.length} linhas upserted com sucesso`);
+          }
+        } catch (error) {
+          console.log('⚠️ Erro no upsert, usando método alternativo...');
+          await this.processLinesWithDeleteInsert(linesWithExternalId);
+        }
+      }
+      
+      // Processar linhas sem external_line_id usando insert simples
+      if (linesWithoutExternalId.length > 0) {
+        console.log('📝 Inserindo linhas sem external_line_id...');
+        const { error: insertError } = await this.supabase
+          .from('hvac_purchase_lines')
+          .insert(linesWithoutExternalId);
+        
+        if (insertError) {
+          console.error('❌ Erro ao inserir linhas sem external_line_id:', insertError);
+          throw insertError;
+        }
+        console.log(`✅ ${linesWithoutExternalId.length} linhas sem external_line_id inseridas`);
+      }
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  // Método auxiliar para deletar e inserir linhas
+  async processLinesWithDeleteInsert(linesRows) {
+    console.log('🔄 Usando método delete + insert...');
+    for (const line of linesRows) {
+      // Deletar registros existentes com mesmo purchase_id e external_line_id
+      await this.supabase
+        .from('hvac_purchase_lines')
+        .delete()
+        .eq('purchase_id', line.purchase_id)
+        .eq('external_line_id', line.external_line_id);
+      
+      // Inserir novo registro
+      const { error: insertError } = await this.supabase
+        .from('hvac_purchase_lines')
+        .insert(line);
+      
+      if (insertError) {
+        console.error('❌ Erro ao inserir linha:', insertError);
+        throw insertError;
+      }
+    }
+    console.log('✅ Linhas processadas usando delete + insert');
   }
 
   // Upsert vendor credits principais e retorna mapping external_id -> id
@@ -196,10 +260,74 @@ class SupabaseClient {
   // Upsert linhas de vendor credit
   async upsertVendorCreditLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
-    const { error } = await this.supabase
-      .from('hvac_vendor_credit_lines')
-      .insert(linesRows);
-    if (error) throw error;
+    
+    try {
+      // Filtrar linhas que têm external_line_id (não null)
+      const linesWithExternalId = linesRows.filter(line => line.external_line_id != null);
+      const linesWithoutExternalId = linesRows.filter(line => line.external_line_id == null);
+      
+      console.log(`📊 Processando ${linesWithExternalId.length} linhas com external_line_id e ${linesWithoutExternalId.length} sem external_line_id`);
+      
+      // Processar linhas com external_line_id usando upsert
+      if (linesWithExternalId.length > 0) {
+        try {
+          const { error } = await this.supabase
+            .from('hvac_vendor_credit_lines')
+            .upsert(linesWithExternalId, { onConflict: 'vendor_credit_id,external_line_id', ignoreDuplicates: false });
+          
+          if (error) {
+            console.log('⚠️ Constraint vendor_credit_id,external_line_id não encontrada. Usando método alternativo...');
+            await this.processVendorCreditLinesWithDeleteInsert(linesWithExternalId);
+          } else {
+            console.log(`✅ ${linesWithExternalId.length} linhas upserted com sucesso`);
+          }
+        } catch (error) {
+          console.log('⚠️ Erro no upsert, usando método alternativo...');
+          await this.processVendorCreditLinesWithDeleteInsert(linesWithExternalId);
+        }
+      }
+      
+      // Processar linhas sem external_line_id usando insert simples
+      if (linesWithoutExternalId.length > 0) {
+        console.log('📝 Inserindo linhas sem external_line_id...');
+        const { error: insertError } = await this.supabase
+          .from('hvac_vendor_credit_lines')
+          .insert(linesWithoutExternalId);
+        
+        if (insertError) {
+          console.error('❌ Erro ao inserir linhas sem external_line_id:', insertError);
+          throw insertError;
+        }
+        console.log(`✅ ${linesWithoutExternalId.length} linhas sem external_line_id inseridas`);
+      }
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  // Método auxiliar para deletar e inserir linhas de vendor credit
+  async processVendorCreditLinesWithDeleteInsert(linesRows) {
+    console.log('🔄 Usando método delete + insert...');
+    for (const line of linesRows) {
+      // Deletar registros existentes com mesmo vendor_credit_id e external_line_id
+      await this.supabase
+        .from('hvac_vendor_credit_lines')
+        .delete()
+        .eq('vendor_credit_id', line.vendor_credit_id)
+        .eq('external_line_id', line.external_line_id);
+      
+      // Inserir novo registro
+      const { error: insertError } = await this.supabase
+        .from('hvac_vendor_credit_lines')
+        .insert(line);
+      
+      if (insertError) {
+        console.error('❌ Erro ao inserir linha:', insertError);
+        throw insertError;
+      }
+    }
+    console.log('✅ Linhas processadas usando delete + insert');
   }
 
   // Upsert deposits principais e retorna mapping external_id -> id
@@ -220,10 +348,74 @@ class SupabaseClient {
   // Upsert linhas de deposit
   async upsertDepositLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
-    const { error } = await this.supabase
-      .from('hvac_deposit_lines')
-      .insert(linesRows);
-    if (error) throw error;
+    
+    try {
+      // Filtrar linhas que têm external_line_id (não null)
+      const linesWithExternalId = linesRows.filter(line => line.external_line_id != null);
+      const linesWithoutExternalId = linesRows.filter(line => line.external_line_id == null);
+      
+      console.log(`📊 Processando ${linesWithExternalId.length} linhas com external_line_id e ${linesWithoutExternalId.length} sem external_line_id`);
+      
+      // Processar linhas com external_line_id usando upsert
+      if (linesWithExternalId.length > 0) {
+        try {
+          const { error } = await this.supabase
+            .from('hvac_deposit_lines')
+            .upsert(linesWithExternalId, { onConflict: 'deposit_id,external_line_id', ignoreDuplicates: false });
+          
+          if (error) {
+            console.log('⚠️ Constraint deposit_id,external_line_id não encontrada. Usando método alternativo...');
+            await this.processDepositLinesWithDeleteInsert(linesWithExternalId);
+          } else {
+            console.log(`✅ ${linesWithExternalId.length} linhas upserted com sucesso`);
+          }
+        } catch (error) {
+          console.log('⚠️ Erro no upsert, usando método alternativo...');
+          await this.processDepositLinesWithDeleteInsert(linesWithExternalId);
+        }
+      }
+      
+      // Processar linhas sem external_line_id usando insert simples
+      if (linesWithoutExternalId.length > 0) {
+        console.log('📝 Inserindo linhas sem external_line_id...');
+        const { error: insertError } = await this.supabase
+          .from('hvac_deposit_lines')
+          .insert(linesWithoutExternalId);
+        
+        if (insertError) {
+          console.error('❌ Erro ao inserir linhas sem external_line_id:', insertError);
+          throw insertError;
+        }
+        console.log(`✅ ${linesWithoutExternalId.length} linhas sem external_line_id inseridas`);
+      }
+      
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  // Método auxiliar para deletar e inserir linhas de deposit
+  async processDepositLinesWithDeleteInsert(linesRows) {
+    console.log('🔄 Usando método delete + insert...');
+    for (const line of linesRows) {
+      // Deletar registros existentes com mesmo deposit_id e external_line_id
+      await this.supabase
+        .from('hvac_deposit_lines')
+        .delete()
+        .eq('deposit_id', line.deposit_id)
+        .eq('external_line_id', line.external_line_id);
+      
+      // Inserir novo registro
+      const { error: insertError } = await this.supabase
+        .from('hvac_deposit_lines')
+        .insert(line);
+      
+      if (insertError) {
+        console.error('❌ Erro ao inserir linha:', insertError);
+        throw insertError;
+      }
+    }
+    console.log('✅ Linhas processadas usando delete + insert');
   }
 
   // Deleta todas as linhas de um bill
