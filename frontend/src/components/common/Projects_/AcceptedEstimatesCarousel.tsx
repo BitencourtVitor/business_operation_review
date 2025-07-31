@@ -1,5 +1,4 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import dayjs from 'dayjs';
 import ProjectCard from './ProjectCard';
 import { useProjectCarouselData } from '../../../hooks/useProjectCarouselData';
 import ProjectDetailsModal from './ProjectDetailsModal';
@@ -298,31 +297,12 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
   // Filtros editáveis
   const [onlyAccepted, setOnlyAccepted] = useState(true);
   
-  // Calcular datas baseadas nos filtros de ano/mês
-  const dateRange = useMemo((): { dateFrom: string; dateTo: string } => {
-    let fromDate: string;
-    let toDate: string;
-    
-    if (selectedYear && selectedMonth) {
-      // Ano e mês específicos
-      fromDate = `${selectedYear}-${selectedMonth}-01`;
-      const lastDay = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate();
-      toDate = `${selectedYear}-${selectedMonth}-${lastDay}`;
-    } else if (selectedYear) {
-      // Apenas ano selecionado
-      fromDate = `${selectedYear}-01-01`;
-      toDate = `${selectedYear}-12-31`;
-    } else {
-      // Nenhum filtro - usar ano atual
-      const now = dayjs();
-      fromDate = now.startOf('year').format('YYYY-MM-DD');
-      toDate = now.format('YYYY-MM-DD');
-    }
-    
-    return { dateFrom: fromDate, dateTo: toDate };
-  }, [selectedYear, selectedMonth]);
-
-  const { dateFrom, dateTo } = dateRange;
+  // SEMPRE buscar TODOS os dados do SQL, sem filtros de data
+  const { data: carouselData, loading: carouselLoading, error } = useProjectCarouselData({
+    dateFrom: '', // String vazia para buscar todos os dados
+    dateTo: '',   // String vazia para buscar todos os dados
+    onlyAccepted
+  });
 
   // Adicionar estilos CSS para animações
   useEffect(() => {
@@ -334,13 +314,6 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
       document.head.removeChild(styleElement);
     };
   }, []);
-  
-  // Usar o hook otimizado que chama a função SQL
-  const { data: carouselData, loading: carouselLoading, error } = useProjectCarouselData({
-    dateFrom,
-    dateTo,
-    onlyAccepted
-  });
 
   // Novo estado para armazenar os totais detalhados de expenses
   const [expensesTotals, setExpensesTotals] = useState<{ [estimateId: string]: number }>({});
@@ -414,6 +387,28 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
         return projectName.includes(term) || customerName.includes(term) || customerId.includes(term);
       });
     }
+
+    // Filtro por data no frontend usando as datas calculadas
+    if (selectedYear || selectedMonth) {
+      filtered = filtered.filter(estimate => {
+        if (!estimate.estimate_date) return false;
+        
+        const estimateDate = new Date(estimate.estimate_date);
+        const estimateYear = estimateDate.getFullYear().toString();
+        const estimateMonth = (estimateDate.getMonth() + 1).toString().padStart(2, '0');
+        
+        // Se ano e mês estão selecionados
+        if (selectedYear && selectedMonth) {
+          return estimateYear === selectedYear && estimateMonth === selectedMonth;
+        }
+        // Se apenas ano está selecionado
+        else if (selectedYear) {
+          return estimateYear === selectedYear;
+        }
+        
+        return true;
+      });
+    }
     
     // Ordenação
     if (sortBy === 'date') {
@@ -460,7 +455,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
     });
 
     return filtered;
-  }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals]);
+  }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals, selectedYear, selectedMonth]);
 
   // Drag horizontal
   const onMouseDown = (e: React.MouseEvent) => {

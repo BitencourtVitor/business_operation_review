@@ -8,13 +8,15 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
-import { Line } from 'react-chartjs-2';
+import { Line, Pie } from 'react-chartjs-2';
 import dayjs from 'dayjs';
 import { createPortal } from 'react-dom';
 import type { PermitRow } from '../../../types/permit';
+import { ChartTypeDropdown } from '../ChartTypeDropdown';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
 // Tooltip customizado para o gráfico
 interface PermitTooltipExternalProps {
@@ -30,11 +32,8 @@ const PermitTooltipExternal = React.memo(function PermitTooltipExternal({ toolti
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const [realWidth, setRealWidth] = React.useState<number>(320);
 
-  let dataIndex: number = 0;
-  let periodo: string = '';
   let caretX: number = 0;
   let caretY: number = 0;
-  let situationCounts: Array<{ situation: string; count: number; color: string }> = [];
 
   const safeTooltip = tooltip as {
     opacity?: number;
@@ -47,17 +46,6 @@ const PermitTooltipExternal = React.memo(function PermitTooltipExternal({ toolti
   const caretXVal = safeTooltip.caretX;
   const caretYVal = safeTooltip.caretY;
   
-  // Medir largura real do tooltip após renderizar
-  React.useLayoutEffect(() => {
-    if (tooltipRef.current) {
-      setRealWidth(tooltipRef.current.offsetWidth);
-    }
-  }, [periodo, situationCounts]);
-  
-  if (!opacity || !dataPoints || dataPoints.length === 0) return null;
-  dataIndex = dataPoints[0].dataIndex;
-  const label = chartLabels[dataIndex];
-
   // Função para obter a data apropriada baseada na situação
   const getRelevantDate = (row: PermitRow): string | null => {
     if (row.situacao === 'Not Applied') {
@@ -70,82 +58,102 @@ const PermitTooltipExternal = React.memo(function PermitTooltipExternal({ toolti
     return null;
   };
 
-  // Calcular contagens por situação
-  if (year && month) {
-    const dia = label.padStart(2, '0');
-    const rows = data.filter(row => {
-      const relevantDate = getRelevantDate(row);
-      return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[2] === dia;
-    });
-    
-    const situations = ['Not Applied', 'Applied', 'Issued'];
-    const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
-    
-    situationCounts = situations.map((situation, index) => ({
-      situation,
-      count: rows.filter(d => d.situacao === situation).length,
-      color: colors[index]
-    }));
-    
-    periodo = dayjs(`${year}-${month}-${dia}`).format('DD/MM/YYYY');
-  } else if (year) {
-    const mes = label.padStart(2, '0');
-    const rows = data.filter(row => {
-      const relevantDate = getRelevantDate(row);
-      return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[1] === mes;
-    });
-    
-    const situations = ['Not Applied', 'Applied', 'Issued'];
-    const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
-    
-    situationCounts = situations.map((situation, index) => ({
-      situation,
-      count: rows.filter(d => d.situacao === situation).length,
-      color: colors[index]
-    }));
-    
-    periodo = dayjs(`${year}-${mes}-01`).format('MM/YYYY');
-  } else {
-    // Quando não há filtro de ano, o label vem no formato "MM/YYYY"
-    if (label.includes('/')) {
-      const [mes, ano] = label.split('/');
-      const rows = data.filter(row => {
-        const relevantDate = getRelevantDate(row);
-        return relevantDate && typeof relevantDate === 'string' && 
-               relevantDate.split('-')[0] === ano && 
-               relevantDate.split('-')[1] === mes;
-      });
-      
-      const situations = ['Not Applied', 'Applied', 'Issued'];
-      const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
-      
-      situationCounts = situations.map((situation, index) => ({
-        situation,
-        count: rows.filter(d => d.situacao === situation).length,
-        color: colors[index]
-      }));
-      
-      periodo = dayjs(`${ano}-${mes}-01`).format('MM/YYYY');
-    } else {
-      // Fallback para formato antigo (apenas ano)
-      const ano = label;
-      const rows = data.filter(row => {
-        const relevantDate = getRelevantDate(row);
-        return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[0] === ano;
-      });
-      
-      const situations = ['Not Applied', 'Applied', 'Issued'];
-      const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
-      
-      situationCounts = situations.map((situation, index) => ({
-        situation,
-        count: rows.filter(d => d.situacao === situation).length,
-        color: colors[index]
-      }));
-      
-      periodo = ano;
+    // Calcular contagens por situação e período
+  const { situationCounts, periodo } = useMemo(() => {
+    if (!opacity || !dataPoints || dataPoints.length === 0) {
+      return { situationCounts: [], periodo: '' };
     }
-  }
+    
+    const currentDataIndex = dataPoints[0].dataIndex;
+    const currentLabel = chartLabels[currentDataIndex];
+    
+    if (year && month) {
+      const dia = currentLabel.padStart(2, '0');
+      const rows = data.filter(row => {
+        const relevantDate = getRelevantDate(row);
+        return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[2] === dia;
+      });
+      
+      const situations = ['Not Applied', 'Applied', 'Issued'];
+      const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
+      
+      return {
+        situationCounts: situations.map((situation, index) => ({
+          situation,
+          count: rows.filter(d => d.situacao === situation).length,
+          color: colors[index]
+        })),
+        periodo: dayjs(`${year}-${month}-${dia}`).format('DD/MM/YYYY')
+      };
+    } else if (year) {
+      const mes = currentLabel.padStart(2, '0');
+      const rows = data.filter(row => {
+        const relevantDate = getRelevantDate(row);
+        return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[1] === mes;
+      });
+      
+      const situations = ['Not Applied', 'Applied', 'Issued'];
+      const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
+      
+      return {
+        situationCounts: situations.map((situation, index) => ({
+          situation,
+          count: rows.filter(d => d.situacao === situation).length,
+          color: colors[index]
+        })),
+        periodo: dayjs(`${year}-${mes}-01`).format('MM/YYYY')
+      };
+    } else {
+      // Quando não há filtro de ano, o label vem no formato "MM/YYYY"
+      if (currentLabel.includes('/')) {
+        const [mes, ano] = currentLabel.split('/');
+        const rows = data.filter(row => {
+          const relevantDate = getRelevantDate(row);
+          return relevantDate && typeof relevantDate === 'string' && 
+                 relevantDate.split('-')[0] === ano && 
+                 relevantDate.split('-')[1] === mes;
+        });
+        
+        const situations = ['Not Applied', 'Applied', 'Issued'];
+        const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
+        
+        return {
+          situationCounts: situations.map((situation, index) => ({
+            situation,
+            count: rows.filter(d => d.situacao === situation).length,
+            color: colors[index]
+          })),
+          periodo: dayjs(`${ano}-${mes}-01`).format('MM/YYYY')
+        };
+      } else {
+        // Fallback para formato antigo (apenas ano)
+        const ano = currentLabel;
+        const rows = data.filter(row => {
+          const relevantDate = getRelevantDate(row);
+          return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[0] === ano;
+        });
+        
+        const situations = ['Not Applied', 'Applied', 'Issued'];
+        const colors = ['var(--negative-color)', 'var(--challenges-color)', 'var(--positive-color)'];
+        
+        return {
+          situationCounts: situations.map((situation, index) => ({
+            situation,
+            count: rows.filter(d => d.situacao === situation).length,
+            color: colors[index]
+          })),
+          periodo: ano
+        };
+      }
+    }
+  }, [year, month, data, getRelevantDate, opacity, dataPoints, chartLabels]);
+
+  // Medir largura real do tooltip após renderizar
+  React.useLayoutEffect(() => {
+    if (tooltipRef.current) {
+      setRealWidth(tooltipRef.current.offsetWidth);
+    }
+  }, [periodo, situationCounts]);
 
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
   caretY = typeof caretYVal === 'number' ? caretYVal : 0;
@@ -225,6 +233,8 @@ interface PermitChartProps {
 export function PermitChart({ filteredData, selectedYear, selectedMonth, selectedSituation }: PermitChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<PermitTooltipExternalProps>>(null);
+  // Estado para tipo de gráfico
+  const [chartType, setChartType] = useState<'line' | 'pie'>('line');
 
   // Função para obter a data apropriada baseada na situação
   const getRelevantDate = (row: PermitRow): string | null => {
@@ -521,26 +531,440 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
     return { chartData, chartOptions };
   }, [filteredData, selectedYear, selectedMonth, selectedSituation]);
 
+  // Preparar dados do gráfico de pizza
+  const { pieChartData, pieChartOptions, statusAverages } = useMemo(() => {
+    if (filteredData.length === 0) {
+      return { pieChartData: null, pieChartOptions: null, statusAverages: {} };
+    }
+
+    // Calcular contagens por situação
+    const situationCounts = {
+      'Not Applied': 0,
+      'Applied': 0,
+      'Issued': 0
+    };
+
+    // Calcular dias de processamento por situação
+    const situationDays = {
+      'Not Applied': [] as number[],
+      'Applied': [] as number[],
+      'Issued': [] as number[]
+    };
+
+    const currentDate = new Date();
+
+    filteredData.forEach(row => {
+      if (row.situacao in situationCounts) {
+        situationCounts[row.situacao as keyof typeof situationCounts]++;
+      }
+      
+      // Calcular dias de processamento baseado na situação
+      let days = 0;
+      
+      if (row.situacao === 'Issued') {
+        // Issued: data_emissao - data_aplicacao
+        if (row.emissao && row.aplicacao) {
+          const emissaoDate = new Date(row.emissao);
+          const aplicacaoDate = new Date(row.aplicacao);
+          days = Math.ceil((emissaoDate.getTime() - aplicacaoDate.getTime()) / (1000 * 60 * 60 * 24));
+        }
+      } else if (row.situacao === 'Applied') {
+        // Applied: data_atual - data_aplicacao
+        if (row.aplicacao) {
+          const aplicacaoDate = new Date(row.aplicacao);
+          days = Math.ceil((currentDate.getTime() - aplicacaoDate.getTime()) / (1000 * 60 * 60 * 24));
+        }
+      } else {
+        // Not Applied: data_atual - data_solicitacao
+        if (row.solicitacao) {
+          const solicitacaoDate = new Date(row.solicitacao);
+          days = Math.ceil((currentDate.getTime() - solicitacaoDate.getTime()) / (1000 * 60 * 60 * 24));
+        }
+      }
+      
+      if (days > 0) {
+        situationDays[row.situacao as keyof typeof situationDays].push(days);
+      }
+    });
+
+    // Calcular médias de dias por situação
+    const statusAverages: Record<string, number> = {};
+    Object.keys(situationDays).forEach(situation => {
+      const days = situationDays[situation as keyof typeof situationDays];
+      if (days.length > 0) {
+        statusAverages[situation] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
+      } else {
+        statusAverages[situation] = 0;
+      }
+    });
+
+    // Filtrar apenas situações com dados e baseado no filtro
+    const situationsToShow = selectedSituation.length === 0 
+      ? ['Not Applied', 'Applied', 'Issued'] 
+      : selectedSituation;
+
+    const labels = situationsToShow.filter(situation => situationCounts[situation as keyof typeof situationCounts] > 0);
+    const data = labels.map(situation => situationCounts[situation as keyof typeof situationCounts]);
+    const colors = labels.map(situation => {
+      switch (situation) {
+        case 'Not Applied': return '#dc3545';
+        case 'Applied': return '#ffc107';
+        case 'Issued': return '#1bbf5c';
+        default: return '#6c757d';
+      }
+    });
+
+    const pieChartData = {
+      labels,
+      datasets: [{
+        data,
+        backgroundColor: colors,
+        borderColor: colors,
+        borderWidth: 2,
+      }]
+    };
+
+    const pieChartOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false // Desabilitar legenda padrão para usar a customizada
+        },
+        tooltip: {
+          enabled: false
+        }
+      }
+    };
+
+    return { pieChartData, pieChartOptions, statusAverages };
+  }, [filteredData, selectedSituation]);
+
 
 
   return (
     <>
-      <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-        Permit Status Over Time
-      </h4>
-      <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: '0 0 auto', minHeight: 0, minWidth: 0 }}>
-        <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500 }}>
-          {chartData && chartOptions ? (
-            <Line data={chartData} options={chartOptions} />
-          ) : (
-            <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>
-                {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
-              </span>
-            </div>
-          )}
+      {/* Header com título */}
+      <div className='px-4 py-2 d-flex justify-content-between align-items-center' style={{ borderBottom: '1px solid var(--color-border-divider)', height: 56 }}>
+        <h4 className='m-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+          Permit Status Over Time
+        </h4>
+        
+        {/* Select para seleção do tipo de gráfico */}
+        <div className="input-group" style={{ minWidth: 200, maxWidth: 200, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
+          <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+            <i className={`bi ${chartType === 'line' ? 'bi-graph-up' : 'bi-pie-chart'}`} style={{ fontSize: 17 }} />
+          </span>
+          <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
+            <ChartTypeDropdown 
+              chartType={chartType}
+              onChartTypeChange={setChartType}
+            />
+          </div>
         </div>
       </div>
+      
+      {chartType === 'line' ? (
+        <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: '0 0 auto', minHeight: 0, minWidth: 0 }}>
+          <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500 }}>
+            {chartData && chartOptions ? (
+              <Line data={chartData} options={chartOptions} />
+            ) : (
+              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: 'var(--color-text-secondary)' }}>
+                  {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: '0 0 auto', minHeight: 0, minWidth: 0 }}>
+          <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 0 }}>
+            {/* Filtros - Lado esquerdo */}
+            <div style={{ width: 340, minWidth: 260, maxWidth: 400, display: 'flex', flexDirection: 'column', justifyContent: 'start', height: '100%', padding: 10, borderRight: '1px solid var(--color-border-divider)' }}>
+              {/* Título dos projetos */}
+              <div style={{ marginBottom: 20 }}>
+                <h5 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
+                  Permits
+                </h5>
+              </div>
+
+              {/* Listagem dos projetos */}
+              <div style={{ 
+                flex: 1, 
+                overflowY: 'auto',
+                borderRadius: 8,
+                padding: '8px 12px'
+              }} className="custom-scrollbar">
+                {filteredData.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {filteredData.map((permit, index) => {
+                      const statusColor = (() => {
+                        switch (permit.situacao) {
+                          case 'Not Applied': return '#dc3545';
+                          case 'Applied': return '#ffc107';
+                          case 'Issued': return '#1bbf5c';
+                          default: return '#6c757d';
+                        }
+                      })();
+                      
+                      return (
+                        <div 
+                          key={index}
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 8,
+                            padding: '4px 0',
+                            borderBottom: index < filteredData.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                          }}
+                        >
+                          <span style={{ 
+                            display: 'inline-block', 
+                            width: 10, 
+                            height: 10, 
+                            borderRadius: 5, 
+                            background: statusColor,
+                            flexShrink: 0
+                          }} />
+                          <span style={{ 
+                            color: 'var(--color-text-primary)', 
+                            fontSize: 13,
+                            lineHeight: 1.3,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {permit.jobsite && permit.lot_address 
+                              ? `${permit.jobsite} - ${permit.lot_address}`
+                              : permit.jobsite || permit.lot_address || `Permit ${index + 1}`
+                            }
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{ 
+                    color: 'var(--color-text-secondary)', 
+                    fontSize: 12, 
+                    fontStyle: 'italic',
+                    textAlign: 'center',
+                    padding: '12px 0'
+                  }}>
+                    No permits found for selected filters
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Gráfico centralizado e legenda à direita */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'center', minWidth: 0 }}>
+              {pieChartData && pieChartOptions ? (
+                <>
+                  <div style={{ width: '100%', maxWidth: 500, minWidth: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ height: 350, width: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ height: '75%', width: 'auto', aspectRatio: '1 / 1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Pie 
+                          data={pieChartData} 
+                          options={{ 
+                            ...pieChartOptions, 
+                            maintainAspectRatio: false,
+                            plugins: {
+                              ...pieChartOptions.plugins,
+                              tooltip: {
+                                enabled: false
+                              }
+                            }
+                          }} 
+                          height={0} 
+                          width={0} 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ width: 400, maxHeight: 350, display: 'flex', flexDirection: 'column' }}>
+                    {/* Título fixo da legenda */}
+                    <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--color-text-primary)', marginBottom: 10, flex: '0 0 auto' }}>
+                      Distribution
+                    </div>
+                    {/* Cabeçalho da tabela */}
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: '10px 1fr 40px 70px',
+                      gap: 8,
+                      marginBottom: 6,
+                      padding: '0 10px',
+                      fontSize: 12,
+                      color: 'var(--color-text-secondary)',
+                      fontWeight: 500
+                    }}>
+                      <span></span> {/* Coluna da cor */}
+                      <span>Status</span>
+                      <span style={{ textAlign: 'right' }}>Count</span>
+                      <span 
+                        style={{ 
+                          textAlign: 'right',
+                          cursor: 'help',
+                          position: 'relative'
+                        }}
+                        onMouseEnter={(e) => {
+                          const tooltip = document.createElement('div');
+                          tooltip.id = 'custom-tooltip';
+                          tooltip.style.cssText = `
+                            position: fixed;
+                            left: ${e.clientX + 10}px;
+                            top: ${e.clientY - 10}px;
+                            background: var(--color-background-secondary);
+                            color: var(--color-text-primary);
+                            border: 1.5px solid var(--color-border-divider);
+                            border-radius: 8px;
+                            padding: 12px;
+                            font-size: 12px;
+                            max-width: 250px;
+                            z-index: 10000;
+                            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                            pointer-events: none;
+                          `;
+                          tooltip.innerHTML = `
+                            <div style="font-weight: 600; margin-bottom: 6px;">Average Processing Time</div>
+                            <div style="line-height: 1.4;">
+                              Shows the average number of days permits spend in each status.
+                            </div>
+                          `;
+                          document.body.appendChild(tooltip);
+                        }}
+                        onMouseLeave={() => {
+                          const tooltip = document.getElementById('custom-tooltip');
+                          if (tooltip) {
+                            tooltip.remove();
+                          }
+                        }}
+                      >
+                        Avg Days
+                      </span>
+                    </div>
+                    {/* Legenda customizada com overflowY */}
+                    <div style={{ flex: 1, overflowY: 'auto' }} className="custom-scrollbar">
+                      {pieChartData?.labels && pieChartData.labels.length > 0 && (() => {
+                        // Ordenar os status pelo valor (decrescente)
+                        const legendItems = pieChartData.labels.map((label, idx) => ({
+                          label: label,
+                          value: pieChartData.datasets[0].data && pieChartData.datasets[0].data[idx] ? Number(pieChartData.datasets[0].data[idx]) : 0,
+                          color: pieChartData.datasets[0].backgroundColor ? (Array.isArray(pieChartData.datasets[0].backgroundColor) ? pieChartData.datasets[0].backgroundColor[idx] : pieChartData.datasets[0].backgroundColor) : '#ccc',
+                          averageDays: statusAverages[label] || 0,
+                        }));
+                        legendItems.sort((a, b) => b.value - a.value);
+
+                        return (
+                          <div style={{ padding: '0 10px' }}>
+                            {legendItems.map((item) => (
+                              <div 
+                                key={item.label as string} 
+                                style={{ 
+                                  display: 'grid',
+                                  gridTemplateColumns: '10px 1fr 40px 70px',
+                                  gap: 8,
+                                  alignItems: 'center',
+                                  padding: '4px 0',
+                                  borderBottom: '1px solid var(--color-border-divider)'
+                                }}
+                              >
+                                <span style={{ 
+                                  display: 'inline-block', 
+                                  width: 10, 
+                                  height: 10, 
+                                  borderRadius: 5, 
+                                  background: item.color,
+                                  flexShrink: 0
+                                }} />
+                                <span style={{ 
+                                  color: 'var(--color-text-secondary)', 
+                                  fontSize: 13 
+                                }}>
+                                  {item.label}
+                                </span>
+                                <span style={{ 
+                                  color: 'var(--color-text-primary)', 
+                                  fontSize: 13, 
+                                  textAlign: 'right' 
+                                }}>
+                                  {item.value ? item.value.toLocaleString() : ''}
+                                </span>
+                                <span 
+                                  style={{ 
+                                    color: 'var(--color-accent-primary)', 
+                                    fontSize: 12, 
+                                    fontWeight: 500, 
+                                    textAlign: 'right',
+                                    cursor: 'help'
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    const tooltip = document.createElement('div');
+                                    tooltip.id = 'custom-tooltip';
+                                    tooltip.style.cssText = `
+                                      position: fixed;
+                                      left: ${e.clientX + 10}px;
+                                      top: ${e.clientY - 10}px;
+                                      background: var(--color-background-secondary);
+                                      color: var(--color-text-primary);
+                                      border: 1.5px solid var(--color-border-divider);
+                                      border-radius: 8px;
+                                      padding: 12px;
+                                      font-size: 12px;
+                                      max-width: 250px;
+                                      z-index: 10000;
+                                      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+                                      pointer-events: none;
+                                    `;
+                                    const explanation = item.label === 'Issued' 
+                                      ? 'Time from application to issuance.' 
+                                      : item.label === 'Applied' 
+                                      ? 'Time from application to current date.' 
+                                      : 'Time from request to current date.';
+                                    tooltip.innerHTML = `
+                                      <div style="font-weight: 600; margin-bottom: 6px;">${item.label} - ${item.averageDays} days</div>
+                                      <div style="line-height: 1.4;">
+                                        ${explanation}
+                                      </div>
+                                    `;
+                                    document.body.appendChild(tooltip);
+                                  }}
+                                  onMouseLeave={() => {
+                                    const tooltip = document.getElementById('custom-tooltip');
+                                    if (tooltip) {
+                                      tooltip.remove();
+                                    }
+                                  }}
+                                >
+                                  {item.averageDays > 0 ? item.averageDays : '-'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div style={{ 
+                  flex: 1, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 16,
+                  fontStyle: 'italic'
+                }}>
+                  {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Tooltip externo */}
       {externalTooltip && (

@@ -20,18 +20,25 @@ async function executeSQLFunction() {
       'utf8'
     );
     
-    console.log('📄 Função ProjectChart SQL carregada');
+    // Ler o arquivo SQL da função do ProjectCarousel
+    const projectCarouselSQL = fs.readFileSync(
+      path.join(process.cwd(), '..', 'frontend', 'backend', 'ProjectCarousel_data_function.sql'),
+      'utf8'
+    );
     
-    // Executar a função SQL
-    const { data, error } = await supabase.rpc('get_project_chart_data', {
+    console.log('📄 Função ProjectChart SQL carregada');
+    console.log('📄 Função ProjectCarousel SQL carregada');
+    
+    // Executar a função SQL do ProjectChart
+    const { data: chartData, error: chartError } = await supabase.rpc('get_project_chart_data', {
       p_selected_year: '2024',
       p_selected_month: null,
       p_selected_group: 'all'
     });
     
-    if (error) {
-      console.error('❌ Erro ao executar função SQL:', error);
-      console.log('💡 Tentando criar a função primeiro...');
+    if (chartError) {
+      console.error('❌ Erro ao executar função ProjectChart SQL:', chartError);
+      console.log('💡 Tentando criar a função ProjectChart primeiro...');
       
       // Tentar executar o SQL diretamente
       const { error: sqlError } = await supabase.rpc('exec_sql', {
@@ -39,13 +46,39 @@ async function executeSQLFunction() {
       });
       
       if (sqlError) {
-        console.error('❌ Erro ao criar função:', sqlError);
+        console.error('❌ Erro ao criar função ProjectChart:', sqlError);
       } else {
-        console.log('✅ Função criada com sucesso!');
+        console.log('✅ Função ProjectChart criada com sucesso!');
       }
     } else {
-      console.log('✅ Função executada com sucesso!');
-      console.log('📊 Dados retornados:', data);
+      console.log('✅ Função ProjectChart executada com sucesso!');
+      console.log('📊 Dados retornados:', chartData);
+    }
+    
+         // Executar a função SQL do ProjectCarousel
+     const { data: carouselData, error: carouselError } = await supabase.rpc('get_project_carousel_data_v2', {
+      p_date_from: '2024-01-01',
+      p_date_to: '2024-12-31',
+      p_only_accepted: true
+    });
+    
+    if (carouselError) {
+      console.error('❌ Erro ao executar função ProjectCarousel SQL:', carouselError);
+      console.log('💡 Tentando criar a função ProjectCarousel primeiro...');
+      
+      // Tentar executar o SQL diretamente
+      const { error: sqlError } = await supabase.rpc('exec_sql', {
+        sql: projectCarouselSQL
+      });
+      
+      if (sqlError) {
+        console.error('❌ Erro ao criar função ProjectCarousel:', sqlError);
+      } else {
+        console.log('✅ Função ProjectCarousel criada com sucesso!');
+      }
+    } else {
+      console.log('✅ Função ProjectCarousel executada com sucesso!');
+      console.log('📊 Dados retornados:', carouselData?.length || 0, 'registros');
     }
     
   } catch (err) {

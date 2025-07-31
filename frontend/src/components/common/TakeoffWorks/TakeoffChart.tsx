@@ -327,7 +327,7 @@ export function TakeoffChart({ filteredData, selectedYear, selectedMonth }: Take
             {/* Título dos projetos */}
             <div style={{ marginBottom: 20 }}>
               <h5 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
-                Projects
+                Works
               </h5>
             </div>
 

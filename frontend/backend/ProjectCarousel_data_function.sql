@@ -2,10 +2,8 @@
 -- Inclui Bills, Purchases e Vendor Credits como uma entidade "Expenses"
 -- Replica exatamente a lógica complexa do JavaScript com todas as relações entre tabelas
 
--- Remover função existente primeiro
-DROP FUNCTION IF EXISTS get_project_carousel_data(TEXT, TEXT, BOOLEAN);
-
-CREATE OR REPLACE FUNCTION get_project_carousel_data(
+-- Criar nova função com nome único para evitar conflitos
+CREATE OR REPLACE FUNCTION get_project_carousel_data_fixed(
   p_date_from TEXT DEFAULT NULL,
   p_date_to TEXT DEFAULT NULL,
   p_only_accepted BOOLEAN DEFAULT TRUE
@@ -59,7 +57,6 @@ bill_lines_for_estimates AS (
     (bl.customer_id IS NOT NULL AND bl.customer_id = e.customer_id) OR
     (bl.customer_name IS NOT NULL AND bl.customer_name = e.customer_name)
   )
-  WHERE (p_date_from IS NULL OR bl.customer_id IS NOT NULL) -- Simplificar filtro de data
 ),
 
 -- 3. Buscar bills relacionadas às bill_lines
@@ -74,8 +71,6 @@ bills_for_estimates AS (
     'bill' AS expense_type
   FROM bill_lines_for_estimates ble
   INNER JOIN hvac_bills b ON b.id = ble.bill_id
-  WHERE (p_date_from IS NULL OR b.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR b.txn_date <= p_date_to::DATE)
 ),
 
 -- 4. Buscar purchases relacionadas aos estimates (mesmo customer_id OU customer_name)
@@ -93,8 +88,6 @@ purchases_for_estimates AS (
     (pl.customer_name IS NOT NULL AND pl.customer_name = e.customer_name)
   )
   INNER JOIN hvac_purchases p ON p.id = pl.purchase_id
-  WHERE (p_date_from IS NULL OR p.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR p.txn_date <= p_date_to::DATE)
 ),
 
 -- 5. Buscar vendor credits relacionados aos estimates (mesmo customer_id OU customer_name)
@@ -112,8 +105,6 @@ vendor_credits_for_estimates AS (
     (vcl.customer_name IS NOT NULL AND vcl.customer_name = e.customer_name)
   )
   INNER JOIN hvac_vendor_credits vc ON vc.id = vcl.vendor_credit_id
-  WHERE (p_date_from IS NULL OR vc.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR vc.txn_date <= p_date_to::DATE)
 ),
 
 -- 6. Unificar todas as expenses (Bills + Purchases + Vendor Credits)
@@ -136,8 +127,6 @@ invoices_for_estimates AS (
     i.txn_date
   FROM filtered_estimates e
   INNER JOIN hvac_invoices i ON i.customer_id = e.customer_id
-  WHERE (p_date_from IS NULL OR i.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR i.txn_date <= p_date_to::DATE)
 ),
 
 -- 8. Buscar bill_payments relacionados às bills (via bill_payment_links)
@@ -152,8 +141,6 @@ bill_payments_for_estimates AS (
   FROM bills_for_estimates bfe
   INNER JOIN hvac_bill_payment_links bpl ON bpl.txn_id = bfe.external_id
   INNER JOIN hvac_bill_payments bp ON bp.id = bpl.bill_payment_id
-  WHERE (p_date_from IS NULL OR bp.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR bp.txn_date <= p_date_to::DATE)
 ),
 
 -- 9. Buscar payments relacionados às invoices (via payment_links)
@@ -168,8 +155,6 @@ payments_for_estimates AS (
   FROM invoices_for_estimates ife
   INNER JOIN hvac_payment_links pl ON pl.txn_id = ife.external_id AND pl.txn_type = 'Invoice'
   INNER JOIN hvac_payments p ON p.id = pl.payment_id
-  WHERE (p_date_from IS NULL OR p.txn_date >= p_date_from::DATE)
-    AND (p_date_to IS NULL OR p.txn_date <= p_date_to::DATE)
 ),
 
 -- 10. Agregar dados de expenses por estimate (Bills + Purchases + Vendor Credits)

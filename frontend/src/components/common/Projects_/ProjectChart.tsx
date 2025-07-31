@@ -104,16 +104,50 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
 
   // CONSULTA 3: Dados do carrossel para calcular métricas de Profit and Loss
   const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
-    dateFrom: selectedYear && selectedMonth ? `${selectedYear}-${selectedMonth}-01` : selectedYear ? `${selectedYear}-01-01` : '2020-01-01',
-    dateTo: selectedYear && selectedMonth ? (() => {
-      // Calcular o último dia do mês corretamente
-      const year = parseInt(selectedYear);
-      const month = parseInt(selectedMonth);
-      const lastDay = new Date(year, month, 0).getDate(); // Último dia do mês
-      return `${selectedYear}-${selectedMonth}-${lastDay.toString().padStart(2, '0')}`;
-    })() : selectedYear ? `${selectedYear}-12-31` : '2030-12-31',
+    dateFrom: '', // String vazia para buscar todos os dados
+    dateTo: '',   // String vazia para buscar todos os dados
     onlyAccepted: true
   });
+
+  // Filtrar dados do carrossel baseado nos filtros de ano/mês (mesma lógica do carrossel)
+  const filteredCarouselData = useMemo(() => {
+    if (!carouselData) return [];
+
+    let filtered = carouselData;
+
+    // Filtro por data no frontend
+    if (selectedYear || selectedMonth) {
+      filtered = filtered.filter(estimate => {
+        if (!estimate.estimate_date) return false;
+        
+        const estimateDate = new Date(estimate.estimate_date);
+        const estimateYear = estimateDate.getFullYear().toString();
+        const estimateMonth = (estimateDate.getMonth() + 1).toString().padStart(2, '0');
+        
+        // Se ano e mês estão selecionados
+        if (selectedYear && selectedMonth) {
+          return estimateYear === selectedYear && estimateMonth === selectedMonth;
+        }
+        // Se apenas ano está selecionado
+        else if (selectedYear) {
+          return estimateYear === selectedYear;
+        }
+        
+        return true;
+      });
+    }
+
+    // Filtrar para customerIds únicos (mesma lógica do carrossel)
+    const seen = new Set();
+    filtered = filtered.filter(item => {
+      if (!item.customer_id) return false;
+      if (seen.has(item.customer_id)) return false;
+      seen.add(item.customer_id);
+      return true;
+    });
+
+    return filtered;
+  }, [carouselData, selectedYear, selectedMonth]);
 
 
 
@@ -130,7 +164,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
 
   // Calcular totais detalhados quando carouselData mudar
   useEffect(() => {
-    if (!carouselData || carouselData.length === 0) return;
+    if (!filteredCarouselData || filteredCarouselData.length === 0) return;
     
     let cancelled = false;
     async function fetchAll() {
@@ -138,7 +172,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       const expenses: { [estimateId: string]: number } = {};
       const invoices: { [estimateId: string]: number } = {};
       
-      await Promise.all(carouselData.map(async (estimate) => {
+      await Promise.all(filteredCarouselData.map(async (estimate) => {
         expenses[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id);
         invoices[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id);
       }));
@@ -152,7 +186,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     
     fetchAll();
     return () => { cancelled = true; };
-  }, [carouselData]);
+  }, [filteredCarouselData]);
 
   // Loading geral
   const isLoading = accountingLoading || sqlLoading || carouselLoading || detailsLoading;
@@ -224,8 +258,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       totalSpent += item.payable_amount || 0;
     });
 
-    // Para as métricas de projetos (profit/loss), ainda usar dados do carrossel
-    // pois essas métricas são específicas por projeto
+    // Para as métricas de projetos (profit/loss), usar dados do carrossel filtrados
     let profitProjects = 0;
     let lossProjects = 0;
     
@@ -233,17 +266,9 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const profitMargins: number[] = [];
     const lossMargins: number[] = [];
 
-    if (carouselData && carouselData.length > 0) {
-      // Aplicar a mesma lógica de filtro do carrossel (customerIds únicos)
-      const seen = new Set();
-      const uniqueProjects = carouselData.filter(item => {
-        if (!item.customer_id) return false;
-        if (seen.has(item.customer_id)) return false;
-        seen.add(item.customer_id);
-        return true;
-      });
-
-      uniqueProjects.forEach(project => {
+    if (filteredCarouselData && filteredCarouselData.length > 0) {
+      // Usar os dados já filtrados do carrossel
+      filteredCarouselData.forEach(project => {
         // Usar totais detalhados (mesma lógica do carrossel)
         const projectReceived = invoicesTotals[project.estimate_id] ?? 0;
         const projectSpent = expensesTotals[project.estimate_id] ?? 0;
@@ -287,7 +312,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       averageProfitMargin,
       averageLossMargin
     };
-  }, [chartDataFromSQL, carouselData, expensesTotals, invoicesTotals, selectedYear, selectedMonth]);
+  }, [chartDataFromSQL, filteredCarouselData, expensesTotals, invoicesTotals]);
 
 
 
