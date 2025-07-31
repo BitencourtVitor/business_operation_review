@@ -200,15 +200,20 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     fetchResponsavelData();
   }, [telaId, usuarioId, role, isResponsavelPelaTela]);
 
-  // Inicializar filtros quando os dados carregarem (igual ao backup)
+  // Inicializar filtros quando os dados carregarem
   useEffect(() => {
     if (years.length > 0 && !selectedYear) {
-      // Sempre selecionar ano atual se existir
-      const currentYear = new Date().getFullYear().toString();
-      if (years.includes(currentYear)) {
-        setSelectedYear(currentYear);
-      } else if (years.length > 0) {
-        setSelectedYear(years[0]);
+      // Sempre selecionar 2025 se existir, senão ano atual
+      const targetYear = '2025';
+      if (years.includes(targetYear)) {
+        setSelectedYear(targetYear);
+      } else {
+        const currentYear = new Date().getFullYear().toString();
+        if (years.includes(currentYear)) {
+          setSelectedYear(currentYear);
+        } else if (years.length > 0) {
+          setSelectedYear(years[0]);
+        }
       }
     }
   }, [years, selectedYear]);
@@ -225,6 +230,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       setSelectedPayablesCategories(payablesCategories);
     }
   }, [agingIntervals, receivablesCategories, payablesCategories]); // Sem selectedAging.length, etc.
+
+
 
   // Calcular dados filtrados
   const filteredData = useMemo(() => {

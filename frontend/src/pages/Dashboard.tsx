@@ -245,6 +245,25 @@ export default function Dashboard() {
         color: 'var(--color-accent-primary)',
       };
       icon = <i className="bi bi-award" style={{ marginRight: 6, fontSize: 14, verticalAlign: 'middle' }} />;
+    } else if (role === 'owner') {
+      label = 'Owner';
+      const isDark = document.documentElement.classList.contains('dark');
+      style = {
+        ...style,
+        borderColor: isDark ? '#10B981' : '#059669',
+        background: isDark ? 'rgba(16, 185, 129, 0.12)' : 'rgba(5, 150, 105, 0.12)',
+        color: isDark ? '#10B981' : '#059669',
+      };
+      icon = <i className="bi bi-compass" style={{ marginRight: 6, fontSize: 14, verticalAlign: 'middle' }} />;
+    } else if (role === 'user') {
+      label = 'User';
+      style = {
+        ...style,
+        borderColor: 'var(--color-border-divider)',
+        background: 'var(--color-background-secondary)',
+        color: 'var(--color-text-primary)',
+      };
+      icon = <i className="bi bi-person" style={{ marginRight: 6, fontSize: 14, verticalAlign: 'middle' }} />;
     } else if (role === 'admin_setor') {
       label = 'Admin';
       if (adminTelasDescricoes.length > 0) {
