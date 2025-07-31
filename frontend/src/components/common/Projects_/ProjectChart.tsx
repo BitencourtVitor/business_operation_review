@@ -18,119 +18,9 @@ import { useAccountingDataCached } from '../../../hooks/useAccountingDataCached'
 import { useProjectChartData } from '../../../hooks/useProjectChartData';
 import { useProjectCarouselData } from '../../../hooks/useProjectCarouselData';
 import { supabase } from '../../../supabaseClient';
-import { ProjectPieChart } from './ProjectPieChart';
+
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
-
-// Componente ChartTypeDropdown baseado na estrutura dos filtros
-function ChartTypeDropdown({ 
-  chartType, 
-  onChartTypeChange 
-}: {
-  chartType: 'line' | 'pie';
-  onChartTypeChange: (type: 'line' | 'pie') => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  const chartTypes = [
-    { value: 'line' as const, label: 'Line Chart', icon: 'bi-graph-up' },
-    { value: 'pie' as const, label: 'Pie Chart', icon: 'bi-pie-chart' }
-  ];
-
-  const selectedType = chartTypes.find(type => type.value === chartType);
-
-  return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="btn-secondary-custom d-flex align-items-center justify-content-center"
-        style={{ 
-          padding: '8px 16px', 
-          fontSize: 14, 
-          fontWeight: 500,
-          borderRadius: 6,
-          gap: 8,
-          border: '1px solid var(--color-border-divider)',
-          background: 'var(--color-background-primary)',
-          color: 'var(--color-text-secondary)',
-          transition: 'all 0.2s ease',
-          minWidth: 140
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'var(--color-background-secondary)';
-          e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = 'var(--color-background-primary)';
-          e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-        }}
-      >
-        <i className={`bi ${selectedType?.icon}`} style={{ fontSize: 14 }} />
-        {selectedType?.label}
-        <i className="bi bi-chevron-down" style={{ fontSize: 12, marginLeft: 'auto' }} />
-      </button>
-
-      {isOpen && (
-        <div style={{
-          position: 'absolute',
-          top: '100%',
-          left: 0,
-          right: 0,
-          background: 'var(--color-background-primary)',
-          border: '1px solid var(--color-border-divider)',
-          borderRadius: 6,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-          zIndex: 1000,
-          marginTop: 4
-        }}>
-          {chartTypes.map((type) => (
-            <button
-              key={type.value}
-              onClick={() => {
-                onChartTypeChange(type.value);
-                setIsOpen(false);
-              }}
-              style={{
-                width: '100%',
-                padding: '8px 16px',
-                background: 'transparent',
-                border: 'none',
-                color: chartType === type.value ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                fontSize: 14,
-                fontWeight: chartType === type.value ? 600 : 400,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 8,
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--color-background-secondary)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-              }}
-            >
-              <i className={`bi ${type.icon}`} style={{ fontSize: 14 }} />
-              {type.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 interface ProjectChartProps {
   selectedYear: string;
@@ -201,7 +91,6 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
-  const [chartType, setChartType] = useState<'line' | 'pie'>('line');
   
   // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
   const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
@@ -682,8 +571,23 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key].value;
       });
       
-      // Coletar todos os dias válidos presentes nos dados (com open_balance > 0)
+      // Coletar todos os dias válidos presentes nos dados
+      // Incluir dias com dados SQL (What I Received/What I Paid) E dias com Outstanding
       const diasValidosSet = new Set<string>();
+      
+      // 1. Adicionar dias que têm dados SQL (What I Received/What I Paid)
+      if (chartDataFromSQL && chartDataFromSQL.length > 0) {
+        chartDataFromSQL.forEach(item => {
+          // SQL retorna formato "31/5/2025" para dias
+          const parts = item.period_label.split('/');
+          if (parts.length === 3) {
+            const dia = String(Number(parts[0])).padStart(2, '0');
+            diasValidosSet.add(dia);
+          }
+        });
+      }
+      
+      // 2. Adicionar dias que têm dados de Outstanding (open_balance > 0)
       filteredData.forEach(row => {
         if (!!row.date_field && 
             row.date_field.split('-').length === 3 && 
@@ -693,6 +597,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
           diasValidosSet.add(dia);
         }
       });
+      
       chartLabels = Array.from(diasValidosSet).sort((a, b) => Number(a) - Number(b));
 
       // Preparar dados para o gráfico
