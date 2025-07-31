@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ArcElement,
 } from 'chart.js';
 import type { TooltipModel, Chart as ChartJSInstance } from 'chart.js';
 import { RECEIVABLES_COLOR, PAYABLES_COLOR } from '../../../utils/accountingColors';
@@ -17,8 +18,119 @@ import { useAccountingDataCached } from '../../../hooks/useAccountingDataCached'
 import { useProjectChartData } from '../../../hooks/useProjectChartData';
 import { useProjectCarouselData } from '../../../hooks/useProjectCarouselData';
 import { supabase } from '../../../supabaseClient';
+import { ProjectPieChart } from './ProjectPieChart';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
+
+// Componente ChartTypeDropdown baseado na estrutura dos filtros
+function ChartTypeDropdown({ 
+  chartType, 
+  onChartTypeChange 
+}: {
+  chartType: 'line' | 'pie';
+  onChartTypeChange: (type: 'line' | 'pie') => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const chartTypes = [
+    { value: 'line' as const, label: 'Line Chart', icon: 'bi-graph-up' },
+    { value: 'pie' as const, label: 'Pie Chart', icon: 'bi-pie-chart' }
+  ];
+
+  const selectedType = chartTypes.find(type => type.value === chartType);
+
+  return (
+    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="btn-secondary-custom d-flex align-items-center justify-content-center"
+        style={{ 
+          padding: '8px 16px', 
+          fontSize: 14, 
+          fontWeight: 500,
+          borderRadius: 6,
+          gap: 8,
+          border: '1px solid var(--color-border-divider)',
+          background: 'var(--color-background-primary)',
+          color: 'var(--color-text-secondary)',
+          transition: 'all 0.2s ease',
+          minWidth: 140
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'var(--color-background-secondary)';
+          e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'var(--color-background-primary)';
+          e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+        }}
+      >
+        <i className={`bi ${selectedType?.icon}`} style={{ fontSize: 14 }} />
+        {selectedType?.label}
+        <i className="bi bi-chevron-down" style={{ fontSize: 12, marginLeft: 'auto' }} />
+      </button>
+
+      {isOpen && (
+        <div style={{
+          position: 'absolute',
+          top: '100%',
+          left: 0,
+          right: 0,
+          background: 'var(--color-background-primary)',
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 6,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+          zIndex: 1000,
+          marginTop: 4
+        }}>
+          {chartTypes.map((type) => (
+            <button
+              key={type.value}
+              onClick={() => {
+                onChartTypeChange(type.value);
+                setIsOpen(false);
+              }}
+              style={{
+                width: '100%',
+                padding: '8px 16px',
+                background: 'transparent',
+                border: 'none',
+                color: chartType === type.value ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                fontSize: 14,
+                fontWeight: chartType === type.value ? 600 : 400,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-background-secondary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+              }}
+            >
+              <i className={`bi ${type.icon}`} style={{ fontSize: 14 }} />
+              {type.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface ProjectChartProps {
   selectedYear: string;
@@ -89,6 +201,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
+  const [chartType, setChartType] = useState<'line' | 'pie'>('line');
   
   // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
   const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
@@ -198,9 +311,10 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
      return filtered;
   }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
 
-  // Calcular métricas usando dados do carrossel (PROJETOS INDIVIDUAIS)
+  // Calcular métricas usando dados do gráfico de linhas (TOTAIS REAIS EXIBIDOS)
   const metrics = useMemo(() => {
-    if (!carouselData || carouselData.length === 0) {
+    // Se não há dados do gráfico, retornar zeros
+    if (!chartDataFromSQL || chartDataFromSQL.length === 0) {
       return {
         totalReceived: 0,
         totalSpent: 0,
@@ -211,18 +325,18 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       };
     }
 
-    // Aplicar a mesma lógica de filtro do carrossel (customerIds únicos)
-    const seen = new Set();
-    const uniqueProjects = carouselData.filter(item => {
-      if (!item.customer_id) return false;
-      if (seen.has(item.customer_id)) return false;
-      seen.add(item.customer_id);
-      return true;
-    });
-
-    // Calcular totais e profit/loss por projeto usando totais detalhados (mesma lógica do carrossel)
+    // Calcular totais dos dados SQL (What I Received e What I Paid)
     let totalReceived = 0;
     let totalSpent = 0;
+
+    // Somar todos os valores dos dados SQL que são exibidos no gráfico
+    chartDataFromSQL.forEach(item => {
+      totalReceived += item.receivable_amount || 0;
+      totalSpent += item.payable_amount || 0;
+    });
+
+    // Para as métricas de projetos (profit/loss), ainda usar dados do carrossel
+    // pois essas métricas são específicas por projeto
     let profitProjects = 0;
     let lossProjects = 0;
     
@@ -230,35 +344,42 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const profitMargins: number[] = [];
     const lossMargins: number[] = [];
 
-    uniqueProjects.forEach(project => {
-      // Usar totais detalhados (mesma lógica do carrossel)
-      const projectReceived = invoicesTotals[project.estimate_id] ?? 0;
-      const projectSpent = expensesTotals[project.estimate_id] ?? 0;
-      
-      // Profit/Loss do projeto
-      const projectProfit = projectReceived - projectSpent;
-      
-      // Acumular totais
-      totalReceived += projectReceived;
-      totalSpent += projectSpent;
-      
-      // Contar projetos lucrativos e com prejuízo
-      if (projectProfit > 0) {
-        profitProjects++;
-        // Calcular margem de lucro (profit / received * 100)
-        if (projectReceived > 0) {
-          const profitMargin = (projectProfit / projectReceived) * 100;
-          profitMargins.push(profitMargin);
+    if (carouselData && carouselData.length > 0) {
+      // Aplicar a mesma lógica de filtro do carrossel (customerIds únicos)
+      const seen = new Set();
+      const uniqueProjects = carouselData.filter(item => {
+        if (!item.customer_id) return false;
+        if (seen.has(item.customer_id)) return false;
+        seen.add(item.customer_id);
+        return true;
+      });
+
+      uniqueProjects.forEach(project => {
+        // Usar totais detalhados (mesma lógica do carrossel)
+        const projectReceived = invoicesTotals[project.estimate_id] ?? 0;
+        const projectSpent = expensesTotals[project.estimate_id] ?? 0;
+        
+        // Profit/Loss do projeto
+        const projectProfit = projectReceived - projectSpent;
+        
+        // Contar projetos lucrativos e com prejuízo
+        if (projectProfit > 0) {
+          profitProjects++;
+          // Calcular margem de lucro (profit / received * 100)
+          if (projectReceived > 0) {
+            const profitMargin = (projectProfit / projectReceived) * 100;
+            profitMargins.push(profitMargin);
+          }
+        } else if (projectProfit < 0) {
+          lossProjects++;
+          // Calcular margem de prejuízo (abs(profit) / received * 100)
+          if (projectReceived > 0) {
+            const lossMargin = (Math.abs(projectProfit) / projectReceived) * 100;
+            lossMargins.push(lossMargin);
+          }
         }
-      } else if (projectProfit < 0) {
-        lossProjects++;
-        // Calcular margem de prejuízo (abs(profit) / received * 100)
-        if (projectReceived > 0) {
-          const lossMargin = (Math.abs(projectProfit) / projectReceived) * 100;
-          lossMargins.push(lossMargin);
-        }
-      }
-    });
+      });
+    }
 
     // Calcular margens médias
     const averageProfitMargin = profitMargins.length > 0 
@@ -277,7 +398,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       averageProfitMargin,
       averageLossMargin
     };
-  }, [carouselData, expensesTotals, invoicesTotals, selectedYear, selectedMonth]);
+  }, [chartDataFromSQL, carouselData, expensesTotals, invoicesTotals, selectedYear, selectedMonth]);
 
 
 
@@ -601,7 +722,15 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         }
       });
       
-      const mesesOrdenados = Array.from(mesesComDados).sort((a, b) => Number(a) - Number(b));
+      // Para visualização anual, incluir todos os meses do ano, mesmo que não tenham dados
+      let mesesOrdenados: string[];
+      if (selectedYear && !selectedMonth) {
+        // Criar array com todos os meses do ano (01 a 12)
+        mesesOrdenados = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+      } else {
+        // Usar apenas meses que têm dados
+        mesesOrdenados = Array.from(mesesComDados).sort((a, b) => Number(a) - Number(b));
+      }
       
       // Para cada mês, encontrar o último dia com dados
       mesesOrdenados.forEach(mes => {
@@ -648,6 +777,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
             }
           });
         }
+        // Se não há dados para o mês, não fazer nada (valores ficarão como 0)
       });
       
       // Agrupar por mês - somar todas as transações distintas (usando os valores mais recentes)
@@ -664,6 +794,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
 
       chartLabels = mesesOrdenados;
+      
+
 
       // Preparar dados para o gráfico
       const pendingReceivableValues: (number | null)[] = [];
@@ -705,6 +837,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     // Usar dados SQL para "What I Received" e "What I Paid"
     const labels = chartLabels;
     
+
+    
     // Mapear dados SQL para os mesmos labels do JavaScript
     const receivableValues: number[] = [];
     const payableValues: number[] = [];
@@ -713,9 +847,16 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       // Encontrar o item correspondente nos dados SQL
       const sqlItem = chartDataFromSQL?.find(item => {
         // Tentar diferentes formatos de label
+        // SQL retorna "7/2025", JavaScript usa "07"
+        const sqlMonth = item.period_label.split('/')[0];
+        const jsMonth = String(Number(label)).padStart(2, '0');
+        
         return item.period_label === label || 
                item.period_label === label.toString() ||
-               item.period_label === String(Number(label)).padStart(2, '0');
+               item.period_label === String(Number(label)).padStart(2, '0') ||
+               sqlMonth === label ||
+               sqlMonth === jsMonth ||
+               String(Number(sqlMonth)).padStart(2, '0') === jsMonth;
       });
       
       // Se não encontrar correspondência exata, usar o item do mesmo índice
@@ -726,7 +867,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
 
     
 
-    // Filtrar períodos - incluir todos os períodos que têm pelo menos um tipo de dado
+    // Filtrar períodos - incluir apenas períodos que têm pelo menos um tipo de dado
     const filtered = labels.map((label, idx) => {
       return {
         label,
@@ -735,13 +876,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         pendingReceivable: pendingReceivableValues[idx],
         pendingPayable: pendingPayableValues[idx],
       };
-    }).filter(row => {
-      // Incluir se há dados SQL OU dados Outstanding
-      const hasSQLData = row.receivable > 0 || row.payable > 0;
-      const hasOutstandingData = (row.pendingReceivable || 0) > 0 || (row.pendingPayable || 0) > 0;
-      
-      return hasSQLData || hasOutstandingData;
-    });
+                    }).filter(row => {
+                  // Verificar se há pelo menos um tipo de dado não-zero (incluindo valores negativos)
+                  const hasSQLData = row.receivable !== 0 || row.payable !== 0;
+                  const hasOutstandingData = (row.pendingReceivable || 0) !== 0 || (row.pendingPayable || 0) !== 0;
+                  return hasSQLData || hasOutstandingData;
+                });
 
     const filteredLabels = filtered.map(row => row.label);
     const filteredReceivableValues = filtered.map(row => row.receivable);
