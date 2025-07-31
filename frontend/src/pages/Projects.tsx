@@ -45,18 +45,26 @@ export default function Projects({ onNavigateToTela, telas, onShowAccountingCont
           setSelectedGroup={setSelectedGroup}
         />
       </div>
-      {/* Gráfico principal */}
-      <ProjectChart 
-        selectedYear={selectedYear} 
-        selectedMonth={selectedMonth} 
-        selectedGroup={selectedGroup} 
-        onNavigateToAccounting={handleNavigateToAccounting}
-      />
-      {/* Carrossel de Accepted Estimates */}
-      <AcceptedEstimatesCarousel />
-      {/* Conteúdo principal futuro */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'row', width: '100%', minHeight: 0, minWidth: 0 }}>
-        {/* Conteúdo futuro aqui */}
+      
+      {/* Container principal com flex para distribuir o espaço */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, minWidth: 0 }}>
+        {/* Gráfico principal - ocupa todo o espaço disponível */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          <ProjectChart 
+            selectedYear={selectedYear} 
+            selectedMonth={selectedMonth} 
+            selectedGroup={selectedGroup} 
+            onNavigateToAccounting={handleNavigateToAccounting}
+          />
+        </div>
+        
+        {/* Carrossel de Accepted Estimates - altura fixa */}
+        <div style={{ height: '420px', minHeight: '420px', flexShrink: 0 }}>
+          <AcceptedEstimatesCarousel 
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+          />
+        </div>
       </div>
     </div>
   );

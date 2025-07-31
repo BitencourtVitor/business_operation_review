@@ -155,6 +155,7 @@ function useProjectDetails(estimateId: string | null) {
           .in('id', paymentIds) : { data: [] };
         const payments = paymentsRaw || [];
         invoices = (invoicesData || []).map((inv: Record<string, unknown>) => ({
+          id: String(inv.id || inv.external_id || ''),
           ...inv,
           payments: (paymentLinks || [])
             .filter((link: Record<string, unknown>) => link.txn_id === inv.external_id)
@@ -288,25 +289,40 @@ async function fetchInvoicesTotal(estimateId: string): Promise<number> {
   return invoicesTotal + backChargesTotal;
 }
 
-export default function AcceptedEstimatesCarousel() {
-  // Definir datas padrão (ano atual)
-  const now = dayjs();
-  const defaultStartOfYear = now.startOf('year').format('YYYY-MM-DD');
-  const defaultToday = now.format('YYYY-MM-DD');
-  
+interface AcceptedEstimatesCarouselProps {
+  selectedYear: string;
+  selectedMonth: string;
+}
+
+export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth }: AcceptedEstimatesCarouselProps) {
   // Filtros editáveis
   const [onlyAccepted, setOnlyAccepted] = useState(true);
-  const [dateFrom, setDateFrom] = useState(defaultStartOfYear);
-  const [dateTo, setDateTo] = useState(defaultToday);
   
-  // Sempre que a página abrir, setar datas para 01/01/ano atual até hoje
-  useEffect(() => {
-    const now = dayjs();
-    const startOfYear = now.startOf('year').format('YYYY-MM-DD');
-    const today = now.format('YYYY-MM-DD');
-    setDateFrom(startOfYear);
-    setDateTo(today);
-  }, []);
+  // Calcular datas baseadas nos filtros de ano/mês
+  const dateRange = useMemo((): { dateFrom: string; dateTo: string } => {
+    let fromDate: string;
+    let toDate: string;
+    
+    if (selectedYear && selectedMonth) {
+      // Ano e mês específicos
+      fromDate = `${selectedYear}-${selectedMonth}-01`;
+      const lastDay = new Date(parseInt(selectedYear), parseInt(selectedMonth), 0).getDate();
+      toDate = `${selectedYear}-${selectedMonth}-${lastDay}`;
+    } else if (selectedYear) {
+      // Apenas ano selecionado
+      fromDate = `${selectedYear}-01-01`;
+      toDate = `${selectedYear}-12-31`;
+    } else {
+      // Nenhum filtro - usar ano atual
+      const now = dayjs();
+      fromDate = now.startOf('year').format('YYYY-MM-DD');
+      toDate = now.format('YYYY-MM-DD');
+    }
+    
+    return { dateFrom: fromDate, dateTo: toDate };
+  }, [selectedYear, selectedMonth]);
+
+  const { dateFrom, dateTo } = dateRange;
 
   // Adicionar estilos CSS para animações
   useEffect(() => {
@@ -498,11 +514,7 @@ export default function AcceptedEstimatesCarousel() {
     setModalIdx(null);
   }
 
-  // Handler para filtro de datas
-  const handleDateChange = (type: 'from' | 'to', value: string) => {
-    if (type === 'from') setDateFrom(value);
-    if (type === 'to') setDateTo(value);
-  };
+
 
   // Modal Detalhado
   const estimateId = modalIdx !== null && filteredEstimates[modalIdx] ? filteredEstimates[modalIdx].estimate_id : null;
@@ -511,61 +523,51 @@ export default function AcceptedEstimatesCarousel() {
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
       {/* Título fixo */}
-      <div style={{ borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+      <div style={{ borderTop: '1px solid var(--color-border-divider)', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
         <div className='d-flex justify-content-between align-items-center' style={{ padding: '12px 32px', background: 'var(--color-background-primary)' }}>
           <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>Project Information</h4>
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, height: 38 }}>
-            {/* Filtros agrupados visualmente */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 16px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)', justifyContent: 'space-between' }}>
-              {/* Toggle booleano padrão contábil */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, borderRadius: 15, padding: 0, height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Just Accepted</span>
-                <button
-                  type="button"
-                  onClick={() => setOnlyAccepted(v => !v)}
-                  style={{
-                    background: onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)',
-                    color: onlyAccepted ? '#fff' : 'var(--color-accent-primary)',
-                    border: onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
-                    borderRadius: 15,
-                    padding: '4px 18px',
-                    fontWeight: 600,
-                    fontSize: 15,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    height: 26,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minWidth: 60,
-                    outline: 'none',
-                    boxShadow: onlyAccepted ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
-                    opacity: 1
-                  }}
-                  title="Alternar apenas Accepted"
-                  onMouseEnter={e => {
-                    if (!onlyAccepted) {
-                      e.currentTarget.style.background = 'var(--color-background-primary)';
-                      e.currentTarget.style.color = 'var(--color-accent-primary)';
-                      e.currentTarget.style.border = '1px solid var(--color-accent-primary)';
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)';
-                    e.currentTarget.style.color = onlyAccepted ? '#fff' : 'var(--color-accent-primary)';
-                    e.currentTarget.style.border = onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)';
-                  }}
-                >
-                  {onlyAccepted ? 'ON' : 'OFF'}
-                </button>
-              </div>
-              {/* Filtro de datas moderno */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>De</span>
-                <input type="date" value={dateFrom} onChange={e => handleDateChange('from', e.target.value)} lang="en-US" style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 500 }}>até</span>
-                <input type="date" value={dateTo} onChange={e => handleDateChange('to', e.target.value)} lang="en-US" style={{ fontSize: 14, padding: '4px 10px', borderRadius: 8, border: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', outline: 'none', height: 26, boxSizing: 'border-box', fontWeight: 500 }} />
-              </div>
+            {/* Filtro Just Accepted */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 19, padding: '0 6px 0 12px', height: 38, boxSizing: 'border-box', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', border: '1px solid var(--color-border-divider)' }}>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Just Accepted</span>
+              <button
+                type="button"
+                onClick={() => setOnlyAccepted(v => !v)}
+                style={{
+                  background: onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)',
+                  color: onlyAccepted ? '#fff' : 'var(--color-accent-primary)',
+                  border: onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
+                  borderRadius: 15,
+                  padding: '4px 18px',
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  height: 26,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: 60,
+                  outline: 'none',
+                  boxShadow: onlyAccepted ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
+                  opacity: 1
+                }}
+                title="Alternar apenas Accepted"
+                onMouseEnter={e => {
+                  if (!onlyAccepted) {
+                    e.currentTarget.style.background = 'var(--color-background-primary)';
+                    e.currentTarget.style.color = 'var(--color-accent-primary)';
+                    e.currentTarget.style.border = '1px solid var(--color-accent-primary)';
+                  }
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = onlyAccepted ? 'var(--color-accent-primary)' : 'var(--color-background-primary)';
+                  e.currentTarget.style.color = onlyAccepted ? '#fff' : 'var(--color-accent-primary)';
+                  e.currentTarget.style.border = onlyAccepted ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)';
+                }}
+              >
+                {onlyAccepted ? 'ON' : 'OFF'}
+              </button>
             </div>
             {/* Busca */}
             <div
@@ -761,13 +763,19 @@ export default function AcceptedEstimatesCarousel() {
         </div>
       </div>
       {/* Conteúdo principal centralizado e responsivo */}
-      <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--color-background-primary)', overflow: 'hidden', boxSizing: 'border-box', height: 'calc(100vh - 140px)' }}>
+      <div style={{ width: '100%', height: '420px', display: 'flex', flexDirection: 'column', minHeight: 0, background: 'var(--color-background-primary)', overflow: 'hidden', boxSizing: 'border-box', position: 'relative' }}>
         {isLoading && (
           <div style={{ 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center', 
-            height: '100%', 
+            background: 'var(--color-background-primary)',
+            zIndex: 10,
             color: 'var(--color-text-secondary)' 
           }}>
             <div style={{ 
@@ -789,7 +797,22 @@ export default function AcceptedEstimatesCarousel() {
           </div>
         )}
         {error && <div style={{ color: 'var(--challenges-color)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Erro: {error}</div>}
-        <div ref={carouselRef} className="custom-scrollbar px-3" style={{ display: 'flex', flexDirection: 'row', gap: 12, overflowX: 'auto', overflowY: 'hidden', cursor: drag.current.dragging ? 'grabbing' : 'grab', userSelect: 'none', WebkitOverflowScrolling: 'touch', flex: 1, minHeight: 0, height: '100%', boxSizing: 'border-box', alignItems: 'center' }} onMouseDown={onMouseDown}>
+        <div ref={carouselRef} className="custom-scrollbar px-4" style={{ 
+          display: 'flex', 
+          flexDirection: 'row', 
+          gap: 20, 
+          overflowX: 'auto', 
+          overflowY: 'hidden', 
+          cursor: drag.current.dragging ? 'grabbing' : 'grab', 
+          userSelect: 'none', 
+          WebkitOverflowScrolling: 'touch', 
+          flex: 1, 
+          minHeight: 0, 
+          height: '100%', 
+          boxSizing: 'border-box', 
+          alignItems: 'center',
+          padding: '20px 32px'
+        }} onMouseDown={onMouseDown}>
           {!isLoading && !error && filteredEstimates.length === 0 && (
             <div style={{ color: 'var(--color-text-secondary)', fontStyle: 'italic', fontSize: 15, padding: 20 }}>Nenhum projeto encontrado</div>
           )}

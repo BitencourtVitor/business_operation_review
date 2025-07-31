@@ -42,7 +42,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedCompany, setSel
   useEffect(() => {
     if (!selectedYear) {
       setMonths([]);
-      setSelectedMonth('');
+      if (setSelectedMonth) setSelectedMonth('');
       return;
     }
     const meses = Array.from(new Set(
@@ -54,8 +54,8 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedCompany, setSel
     meses.sort((a, b) => Number(a) - Number(b));
     setMonths(meses);
     // Resetar mês se não existir mais
-    if (selectedMonth && !meses.includes(selectedMonth)) setSelectedMonth('');
-  }, [selectedYear, allDates]);
+    if (selectedMonth && !meses.includes(selectedMonth) && setSelectedMonth) setSelectedMonth('');
+  }, [selectedYear, allDates, selectedMonth, setSelectedMonth]);
 
   const selectStyle: React.CSSProperties = {
     background: 'var(--color-background-primary)',
