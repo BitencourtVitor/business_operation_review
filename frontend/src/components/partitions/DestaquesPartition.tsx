@@ -99,10 +99,11 @@ export default function DestaquesPartition({
       
       setLoading(true);
       try {
-        // Buscar destaques de todos os usuários relevantes
+        // Buscar destaques específicos da tela e usuário
         let destaquesQuery = supabase
           .from('destaques')
-          .select('*');
+          .select('*')
+          .eq('tela_id', telaId);
         
         // Se temos usuários específicos para buscar, filtrar por eles
         if (usuariosParaBuscar.length > 0) {

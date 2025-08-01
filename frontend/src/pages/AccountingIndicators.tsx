@@ -52,6 +52,7 @@ interface Oportunidade {
 interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;
@@ -176,7 +177,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         setUsuarioResponsavelId(responsavelId);
 
         // Definir permissões de edição
-        if (role === 'dev') {
+        if (role === 'dev' || role === 'manager' || role === 'gestor') {
           setPodeEditar(true);
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
@@ -184,9 +185,9 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           setPodeEditar(false);
         }
 
-        // Definir quais usuários buscar dados (responsável + dev se aplicável)
+        // Definir quais usuários buscar dados (responsável + dev/manager/gestor se aplicável)
         const usuariosParaBuscarArray = [responsavelId];
-        if (role === 'dev' && !usuariosParaBuscarArray.includes(usuarioId)) {
+        if ((role === 'dev' || role === 'manager' || role === 'gestor') && !usuariosParaBuscarArray.includes(usuarioId)) {
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
@@ -748,6 +749,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           <PlanoAcaoPartition
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
+            telaId={telaId}
             isAdmin={podeEditar}
             onEdit={async (plano) => {
               setModalType('plano');
@@ -759,6 +761,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
               
               setModalData({
                 ...plano,
+                tela_id: telaId,
                 acoes: acoes || [],
               });
               setModalOpen(true);
@@ -768,6 +771,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
               setModalData({
                 id: '',
                 usuario_id: usuarioResponsavelId,
+                tela_id: telaId,
                 titulo: '',
                 descricao: '',
                 criado_em: new Date().toISOString(),
@@ -779,7 +783,10 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
             }}
             onView={async (plano) => {
               setModalType('plano');
-              setModalData(plano);
+              setModalData({
+                ...plano,
+                tela_id: telaId,
+              });
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

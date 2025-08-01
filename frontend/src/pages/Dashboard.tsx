@@ -280,7 +280,7 @@ export default function Dashboard() {
     const tela = telas.find(t => t.id === telaId);
     
     // Verificar se o usuário é responsável pela tela selecionada
-    const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev') : false;
+    const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev' || role === 'manager' || role === 'gestor') : false;
 
     // Se showAccountingContent for true, mostrar AccountingIndicators independente da tela
     if (showAccountingContent) {

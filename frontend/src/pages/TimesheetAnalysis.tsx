@@ -48,6 +48,7 @@ interface Oportunidade {
 interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;
@@ -126,7 +127,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
         setUsuarioResponsavelId(responsavelId);
 
         // Definir permissões de edição
-        if (role === 'dev') {
+        if (role === 'dev' || role === 'manager' || role === 'gestor') {
           setPodeEditar(true);
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
@@ -134,9 +135,9 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           setPodeEditar(false);
         }
 
-        // Definir quais usuários buscar dados (responsável + dev se aplicável)
+        // Definir quais usuários buscar dados (responsável + dev/manager/gestor se aplicável)
         const usuariosParaBuscarArray = [responsavelId];
-        if (role === 'dev' && !usuariosParaBuscarArray.includes(usuarioId)) {
+        if ((role === 'dev' || role === 'manager' || role === 'gestor') && !usuariosParaBuscarArray.includes(usuarioId)) {
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
@@ -494,8 +495,16 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           <PlanoAcaoPartition
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
+            telaId={telaId}
             isAdmin={podeEditar}
             onEdit={async (plano) => {
+              console.log('=== DEBUG TIMESHEET PLANOS DE AÇÃO ===');
+              console.log('telaId:', telaId);
+              console.log('usuarioResponsavelId:', usuarioResponsavelId);
+              console.log('usuariosParaBuscar:', usuariosParaBuscar);
+              console.log('plano:', plano);
+              console.log('=== FIM DEBUG TIMESHEET ===');
+              
               setModalType('plano');
               // Buscar ações do plano específico
               const { data: acoes } = await supabase
@@ -505,6 +514,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
               
               setModalData({
                 ...plano,
+                tela_id: telaId,
                 acoes: acoes || [],
               });
               setModalOpen(true);
@@ -514,6 +524,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
               setModalData({
                 id: '',
                 usuario_id: usuarioResponsavelId,
+                tela_id: telaId,
                 titulo: '',
                 descricao: '',
                 criado_em: new Date().toISOString(),
@@ -525,7 +536,10 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             }}
             onView={async (plano) => {
               setModalType('plano');
-              setModalData(plano);
+              setModalData({
+                ...plano,
+                tela_id: telaId,
+              });
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

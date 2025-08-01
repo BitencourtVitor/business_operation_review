@@ -30,6 +30,7 @@ interface PlanoAcao {
 interface PlanoAcaoPartitionProps {
   usuarioResponsavelId: string;
   usuariosParaBuscar?: string[];
+  telaId: string;
   isAdmin: boolean;
   onEdit?: (plano: PlanoAcao) => void;
   onView?: (plano: PlanoAcao) => void;
@@ -40,6 +41,7 @@ interface PlanoAcaoPartitionProps {
 export default function PlanoAcaoPartition({ 
   usuarioResponsavelId, 
   usuariosParaBuscar = [],
+  telaId,
   isAdmin, 
   onEdit, 
   onView, 
@@ -79,17 +81,18 @@ export default function PlanoAcaoPartition({
   // Buscar planos de ação e ações do usuário responsável pela tela
   useEffect(() => {
     const fetchPlanosEAcoes = async () => {
-      if (!usuarioResponsavelId) {
+      if (!usuarioResponsavelId || !telaId) {
         return;
       }
       
       setLoading(true);
       try {
-        // Buscar planos de ação de todos os usuários relevantes (apenas não deletados)
+        // Buscar planos de ação específicos da tela e usuário (apenas não deletados)
         let planosQuery = supabase
           .from('planos_de_acao')
           .select('*')
-          .eq('deletado', false);
+          .eq('deletado', false)
+          .eq('tela_id', telaId);
         
         // Se temos usuários específicos para buscar, filtrar por eles
         if (usuariosParaBuscar.length > 0) {
@@ -101,22 +104,24 @@ export default function PlanoAcaoPartition({
         
         const { data: planosData } = await planosQuery;
         
-        // Buscar ações
-        const { data: acoesData } = await supabase
-          .from('acoes')
-          .select('*');
-        
-        setAllPlanos(planosData || []);
-        setAllAcoes(acoesData || []);
-      } catch (error) {
-        console.error('Erro ao carregar planos de ação:', error);
+        if (planosData) {
+          // Buscar ações
+          const { data: acoesData } = await supabase
+            .from('acoes')
+            .select('*');
+          
+          setAllPlanos(planosData);
+          setAllAcoes(acoesData || []);
+        }
+      } catch {
+        // erro ignorado intencionalmente
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlanosEAcoes();
-  }, [usuarioResponsavelId, usuariosParaBuscar, refreshTrigger]);
+  }, [usuarioResponsavelId, usuariosParaBuscar, telaId, refreshTrigger]);
 
   // Função para calcular o status geral do plano baseado nas ações
   const calcularStatusGeral = (acoes: Acao[]) => {
@@ -153,10 +158,12 @@ export default function PlanoAcaoPartition({
     });
     
     // Para cada plano, adicionar as ações correspondentes
-    return planosFiltrados.map(plano => ({
+    const resultado = planosFiltrados.map(plano => ({
       ...plano,
       acoes: allAcoes.filter(acao => acao.plano_id === plano.id),
     }));
+    
+    return resultado;
   }, [allPlanos, allAcoes, usuarioResponsavelId, usuariosParaBuscar]);
 
   if (loading) {

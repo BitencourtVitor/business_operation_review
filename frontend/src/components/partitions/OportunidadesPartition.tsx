@@ -100,10 +100,11 @@ export default function OportunidadesPartition({
       
       setLoading(true);
       try {
-        // Buscar oportunidades de todos os usuários relevantes
+        // Buscar oportunidades específicas da tela e usuário
         let oportunidadesQuery = supabase
           .from('oportunidades')
-          .select('*');
+          .select('*')
+          .eq('tela_id', telaId);
         
         // Se temos usuários específicos para buscar, filtrar por eles
         if (usuariosParaBuscar.length > 0) {

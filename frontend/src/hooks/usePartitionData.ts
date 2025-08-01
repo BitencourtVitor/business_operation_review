@@ -56,7 +56,7 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
         .from('planos_de_acao')
         .select('*')
         .eq('deletado', false)
-        .order('criado_em', { ascending: false });
+        .eq('tela_id', telaId);
 
       // Se temos usuários específicos para buscar, filtrar por eles
       if (usuariosParaBuscar && usuariosParaBuscar.length > 0) {

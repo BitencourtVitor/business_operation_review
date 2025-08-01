@@ -3,6 +3,7 @@
 export interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;

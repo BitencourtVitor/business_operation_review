@@ -46,6 +46,7 @@ interface Oportunidade {
 interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;
@@ -104,7 +105,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const [refreshTrigger] = useState(0);
 
   // Verificar se pode editar
-  const podeEditar = isResponsavelPelaTela || role === 'dev';
+  const podeEditar = isResponsavelPelaTela || role === 'dev' || role === 'manager' || role === 'gestor';
 
   // Buscar dados do responsável
   useEffect(() => {
@@ -447,6 +448,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
           <PlanoAcaoPartition
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
+            telaId={telaId}
             isAdmin={podeEditar}
             onEdit={async (plano) => {
               setModalType('plano');
@@ -458,6 +460,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               
               setModalData({
                 ...plano,
+                tela_id: telaId,
                 acoes: acoes || [],
               });
               setModalOpen(true);
@@ -467,6 +470,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               setModalData({
                 id: '',
                 usuario_id: usuarioResponsavelId,
+                tela_id: telaId,
                 titulo: '',
                 descricao: '',
                 criado_em: new Date().toISOString(),
@@ -478,7 +482,10 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
             }}
             onView={async (plano) => {
               setModalType('plano');
-              setModalData(plano);
+              setModalData({
+                ...plano,
+                tela_id: telaId,
+              });
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

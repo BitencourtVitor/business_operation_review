@@ -8,6 +8,7 @@ import CloseButton from '../../utils/CloseButton';
 interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;
@@ -181,7 +182,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
     } = {};
 
     // Comparar campos do plano principal
-    const camposPlano = ['titulo', 'descricao', 'data_inicio', 'data_fim'];
+    const camposPlano = ['titulo', 'descricao', 'data_inicio', 'data_fim', 'tela_id'];
     const mudancasPlano: Partial<PlanoAcao> = {};
     let temMudancaPlano = false;
 
@@ -194,6 +195,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
         if (campo === 'descricao') mudancasPlano.descricao = valorAtual as string;
         if (campo === 'data_inicio') mudancasPlano.data_inicio = valorAtual as string;
         if (campo === 'data_fim') mudancasPlano.data_fim = valorAtual as string | null;
+        if (campo === 'tela_id') mudancasPlano.tela_id = valorAtual as string;
         temMudancaPlano = true;
       }
     });
@@ -255,6 +257,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
         const novoPlano: PlanoAcao = {
           id: '',
           usuario_id: '',
+          tela_id: '',
           titulo: '',
           descricao: '',
           criado_em: '',
@@ -421,13 +424,15 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
           return;
         }
         
-        // Manter o usuario_id original do registro
+        // Manter o usuario_id e tela_id originais do registro
         const usuarioIdOriginal = registroAtual.usuario_id;
+        const telaIdOriginal = registroAtual.tela_id;
         
         const planoParaAtualizar = {
           ...diferencas.plano,
           data_fim: dataFimCalculada,
-          usuario_id: usuarioIdOriginal
+          usuario_id: usuarioIdOriginal,
+          tela_id: telaIdOriginal
         };
         
         // Filtrar campos vazios e campos que não devem ser enviados

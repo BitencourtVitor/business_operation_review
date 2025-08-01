@@ -48,6 +48,7 @@ interface Oportunidade {
 interface PlanoAcao {
   id: string;
   usuario_id: string;
+  tela_id: string;
   titulo: string;
   descricao: string;
   criado_em: string;
@@ -114,7 +115,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
       if (usuariosTelas && usuariosTelas.length > 0) {
         const responsavelId = usuariosTelas[0].usuario_id;
         setUsuarioResponsavelId(responsavelId);
-        if (role === 'dev') {
+        if (role === 'dev' || role === 'manager' || role === 'gestor') {
           setPodeEditar(true);
         } else if (isResponsavelPelaTela) {
           setPodeEditar(true);
@@ -122,7 +123,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
           setPodeEditar(false);
         }
         const usuariosParaBuscarArray = [responsavelId];
-        if (role === 'dev' && !usuariosParaBuscarArray.includes(usuarioId)) {
+        if ((role === 'dev' || role === 'manager' || role === 'gestor') && !usuariosParaBuscarArray.includes(usuarioId)) {
           usuariosParaBuscarArray.push(usuarioId);
         }
         setUsuariosParaBuscar(usuariosParaBuscarArray);
@@ -472,6 +473,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
           <PlanoAcaoPartition
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
+            telaId={telaId}
             isAdmin={podeEditar}
             onEdit={async (plano) => {
               setModalType('plano');
@@ -483,6 +485,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
               
               setModalData({
                 ...plano,
+                tela_id: telaId,
                 acoes: acoes || [],
               });
               setModalOpen(true);
@@ -492,6 +495,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
               setModalData({
                 id: '',
                 usuario_id: usuarioResponsavelId,
+                tela_id: telaId,
                 titulo: '',
                 descricao: '',
                 criado_em: new Date().toISOString(),
@@ -503,7 +507,10 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
             }}
             onView={async (plano) => {
               setModalType('plano');
-              setModalData(plano);
+              setModalData({
+                ...plano,
+                tela_id: telaId,
+              });
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}
