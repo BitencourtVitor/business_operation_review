@@ -364,7 +364,7 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
               selectedSituation={selectedSituation}
             />
             {/* Métricas */}
-            <PermitMetrics allData={permitData} />
+            <PermitMetrics allData={filteredData} />
           </div>
           {/* Carrossel de Cards */}
           <PermitCarousel filteredData={filteredData} selectedSituation={selectedSituation} />
