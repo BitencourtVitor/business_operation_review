@@ -10,17 +10,18 @@ interface ProjectsProps {
 }
 
 export default function Projects({ onNavigateToTela, telas, onShowAccountingContent }: ProjectsProps) {
-  // Estados para filtros
+  // Estados para filtros - inicializar com 2025 e todos os meses
   const [selectedCompany, setSelectedCompany] = useState<string[]>(['Premium HVAC']);
-  const [selectedYear, setSelectedYear] = useState('');
+  const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'receivable' | 'payable'>('all');
 
-  useEffect(() => {
-    const anoAtual = new Date().getFullYear().toString();
-    setSelectedYear(anoAtual);
-    setSelectedMonth('');
-  }, []);
+  // Remover o useEffect que definia o ano atual, pois agora queremos 2025 fixo
+  // useEffect(() => {
+  //   const anoAtual = new Date().getFullYear().toString();
+  //   setSelectedYear(anoAtual);
+  //   setSelectedMonth('');
+  // }, []);
 
   const handleNavigateToAccounting = () => {
     if (onShowAccountingContent) {

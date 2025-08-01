@@ -92,28 +92,63 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   
+  const chartDataCache = React.useRef<{ [key: string]: any }>({});
+  const carouselDataCache = React.useRef<{ [key: string]: any }>({});
+
   // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
+  const cacheKey = `${selectedYear || 'all'}-${selectedMonth || 'all'}-${selectedGroup}`;
+  const [localChartData, setLocalChartData] = useState<any>(null);
+  const [localCarouselData, setLocalCarouselData] = useState<any>(null);
   const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
     selectedYear,
     selectedMonth,
     selectedGroup
   });
+  const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
+    dateFrom: '',
+    dateTo: '',
+    onlyAccepted: true
+  });
+
+  // Cache chart data
+  useEffect(() => {
+    if (chartDataFromSQL && chartDataFromSQL.length > 0) {
+      chartDataCache.current[cacheKey] = chartDataFromSQL;
+      setLocalChartData(chartDataFromSQL);
+    } else if (chartDataCache.current[cacheKey]) {
+      setLocalChartData(chartDataCache.current[cacheKey]);
+    } else {
+      setLocalChartData(null);
+    }
+  }, [chartDataFromSQL, cacheKey]);
+
+  // Cache carousel data
+  useEffect(() => {
+    if (carouselData && carouselData.length > 0) {
+      carouselDataCache.current[cacheKey] = carouselData;
+      setLocalCarouselData(carouselData);
+    } else if (carouselDataCache.current[cacheKey]) {
+      setLocalCarouselData(carouselDataCache.current[cacheKey]);
+    } else {
+      setLocalCarouselData(null);
+    }
+  }, [carouselData, cacheKey]);
 
   // CONSULTA 2: JavaScript para "Outstanding Receivable" e "Outstanding Payable" - ATIVADO
   const { data: accountingData, loading: accountingLoading } = useAccountingDataCached();
 
   // CONSULTA 3: Dados do carrossel para calcular métricas de Profit and Loss
-  const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
-    dateFrom: '', // String vazia para buscar todos os dados
-    dateTo: '',   // String vazia para buscar todos os dados
-    onlyAccepted: true
-  });
+  // const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
+  //   dateFrom: '', // String vazia para buscar todos os dados
+  //   dateTo: '',   // String vazia para buscar todos os dados
+  //   onlyAccepted: true
+  // });
 
   // Filtrar dados do carrossel baseado nos filtros de ano/mês (mesma lógica do carrossel)
   const filteredCarouselData = useMemo(() => {
-    if (!carouselData) return [];
+    if (!localCarouselData) return [];
 
-    let filtered = carouselData;
+    let filtered = localCarouselData;
 
     // Filtro por data no frontend
     if (selectedYear || selectedMonth) {
@@ -147,7 +182,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     });
 
     return filtered;
-  }, [carouselData, selectedYear, selectedMonth]);
+  }, [localCarouselData, selectedYear, selectedMonth]);
 
 
 
@@ -188,8 +223,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     return () => { cancelled = true; };
   }, [filteredCarouselData]);
 
-  // Loading geral
-  const isLoading = accountingLoading || sqlLoading || carouselLoading || detailsLoading;
+  // Loading geral - só mostrar loading se não há dados em cache
+  const isLoading = (!localChartData && sqlLoading) || (!localCarouselData && carouselLoading) || accountingLoading || detailsLoading;
 
      // Calcular dados filtrados (EXATAMENTE como no AccountingIndicators)
    const filteredData = useMemo(() => {
@@ -237,7 +272,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   // Calcular métricas usando dados do gráfico de linhas (TOTAIS REAIS EXIBIDOS)
   const metrics = useMemo(() => {
     // Se não há dados do gráfico, retornar zeros
-    if (!chartDataFromSQL || chartDataFromSQL.length === 0) {
+    if (!localChartData || localChartData.length === 0) {
       return {
         totalReceived: 0,
         totalSpent: 0,
@@ -253,7 +288,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     let totalSpent = 0;
 
     // Somar todos os valores dos dados SQL que são exibidos no gráfico
-    chartDataFromSQL.forEach(item => {
+    localChartData.forEach(item => {
       totalReceived += item.receivable_amount || 0;
       totalSpent += item.payable_amount || 0;
     });
@@ -312,7 +347,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       averageProfitMargin,
       averageLossMargin
     };
-  }, [chartDataFromSQL, filteredCarouselData, expensesTotals, invoicesTotals]);
+  }, [localChartData, filteredCarouselData, expensesTotals, invoicesTotals]);
 
 
 
@@ -327,13 +362,13 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
        console.log('FILTEREDDATA VAZIO - verificando se há dados SQL');
        
        // Se há dados SQL, criar gráfico com Outstanding zerado
-       if (chartDataFromSQL && chartDataFromSQL.length > 0) {
+       if (localChartData && localChartData.length > 0) {
          console.log('Há dados SQL - criando gráfico com Outstanding zerado');
          
          // Usar apenas dados SQL, com Outstanding zerado
-         const labels = chartDataFromSQL.map(item => item.period_label);
-         const receivableValues = chartDataFromSQL.map(item => item.receivable_amount || 0);
-         const payableValues = chartDataFromSQL.map(item => item.payable_amount || 0);
+         const labels = localChartData.map(item => item.period_label);
+         const receivableValues = localChartData.map(item => item.receivable_amount || 0);
+         const payableValues = localChartData.map(item => item.payable_amount || 0);
          
          // Outstanding zerado
          const pendingReceivableValues = new Array(labels.length).fill(0);
@@ -601,8 +636,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       const diasValidosSet = new Set<string>();
       
       // 1. Adicionar dias que têm dados SQL (What I Received/What I Paid)
-      if (chartDataFromSQL && chartDataFromSQL.length > 0) {
-        chartDataFromSQL.forEach(item => {
+      if (localChartData && localChartData.length > 0) {
+        localChartData.forEach(item => {
           // SQL retorna formato "31/5/2025" para dias
           const parts = item.period_label.split('/');
           if (parts.length === 3) {
@@ -775,7 +810,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     
     labels.forEach((label, index) => {
       // Encontrar o item correspondente nos dados SQL
-      const sqlItem = chartDataFromSQL?.find(item => {
+      const sqlItem = localChartData?.find(item => {
         // Tentar diferentes formatos de label
         // SQL retorna "7/2025", JavaScript usa "07"
         const sqlMonth = item.period_label.split('/')[0];
@@ -790,7 +825,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
       
       // Se não encontrar correspondência exata, usar o item do mesmo índice
-      const itemToUse = sqlItem || chartDataFromSQL?.[index];
+      const itemToUse = sqlItem || localChartData?.[index];
       receivableValues.push(itemToUse?.receivable_amount || 0);
       payableValues.push(itemToUse?.payable_amount || 0);
     });
@@ -1022,7 +1057,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const hasData = filteredLabels.length > 0;
     
     return { chartData, chartOptions, hasData };
-  }, [filteredData, selectedYear, selectedMonth, selectedGroup, isLoading, chartDataFromSQL]);
+  }, [filteredData, selectedYear, selectedMonth, selectedGroup, isLoading, localChartData]);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
