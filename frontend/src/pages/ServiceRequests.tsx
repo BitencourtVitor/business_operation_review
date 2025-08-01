@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-import { addCurrentMonthIfMissing } from '../utils/dataUtils';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import { useServiceRequestData } from '../hooks/useServiceRequestData';
@@ -73,7 +72,7 @@ interface ServiceRequestsProps {
 }
 
 export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: ServiceRequestsProps) {
-  const [telaId, setTelaId] = useState<string>(telaIdFromProps);
+  const [telaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
 
@@ -102,7 +101,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'destaque' | 'oportunidade' | 'plano'>('destaque');
   const [modalData, setModalData] = useState<Destaque | Oportunidade | PlanoAcao | null>(null);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [refreshTrigger] = useState(0);
 
   // Verificar se pode editar
   const podeEditar = isResponsavelPelaTela || role === 'dev';
@@ -205,22 +204,26 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
       }
 
       // Filtro por contractor
-      if (selectedContractor.length > 0 && selectedContractor.length < contractors.length) {
+      const shouldApplyContractorFilter = selectedContractor.length > 0 && selectedContractor.length < contractors.length;
+      if (shouldApplyContractorFilter) {
         if (!selectedContractor.includes(item.contractor)) return false;
       }
 
       // Filtro por jobsite
-      if (selectedJobsite.length > 0 && selectedJobsite.length < jobsites.length) {
+      const shouldApplyJobsiteFilter = selectedJobsite.length > 0 && selectedJobsite.length < jobsites.length;
+      if (shouldApplyJobsiteFilter) {
         if (!selectedJobsite.includes(item.job_site)) return false;
       }
 
       // Filtro por city
-      if (selectedCity.length > 0 && selectedCity.length < cities.length) {
+      const shouldApplyCityFilter = selectedCity.length > 0 && selectedCity.length < cities.length;
+      if (shouldApplyCityFilter) {
         if (!selectedCity.includes(item.city)) return false;
       }
 
       // Filtro por issue
-      if (selectedIssue.length > 0 && selectedIssue.length < issues.length) {
+      const shouldApplyIssueFilter = selectedIssue.length > 0 && selectedIssue.length < issues.length;
+      if (shouldApplyIssueFilter) {
         if (!selectedIssue.includes(item.issue)) return false;
       }
 
@@ -237,10 +240,18 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   // Função para resetar filtros para "Todos"
   const resetFiltersToAll = useCallback(() => {
     // Inicializar com todos os valores disponíveis = "Todos" selecionado
-    setSelectedContractor(contractors);
-    setSelectedJobsite(jobsites);
-    setSelectedCity(cities);
-    setSelectedIssue(issues);
+    if (contractors.length > 0) {
+      setSelectedContractor(contractors);
+    }
+    if (jobsites.length > 0) {
+      setSelectedJobsite(jobsites);
+    }
+    if (cities.length > 0) {
+      setSelectedCity(cities);
+    }
+    if (issues.length > 0) {
+      setSelectedIssue(issues);
+    }
   }, [contractors, jobsites, cities, issues]);
 
   // Resetar filtros quando os dados mudarem
@@ -349,11 +360,15 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               selectedStatus={selectedIssue}
             />
             {/* Métricas */}
-            <ServiceMetrics allData={filteredData} />
+            <ServiceMetrics 
+              allData={filteredData} 
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+            />
           </div>
           {/* Carrossel de Cards */}
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <ServiceCarousel filteredData={filteredData} selectedStatus={selectedIssue} />
+            <ServiceCarousel filteredData={filteredData} />
           </div>
         </div>
         <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>

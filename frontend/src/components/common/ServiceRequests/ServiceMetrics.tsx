@@ -1,11 +1,14 @@
 import React from 'react';
 import MetricTooltip from '../../tooltips/MetricTooltip';
+import type { ServiceRequestRow } from '../../../types/service';
 
 interface ServiceMetricsProps {
-  allData: any[]; // Dados completos para calcular métricas atuais
+  allData: ServiceRequestRow[]; // Dados completos para calcular métricas atuais
+  selectedYear?: string;
+  selectedMonth?: string;
 }
 
-export default function ServiceMetrics({ allData }: ServiceMetricsProps) {
+export default function ServiceMetrics({ allData, selectedYear, selectedMonth }: ServiceMetricsProps) {
   // Calcular métricas baseadas nos dados
   const totalRequests = allData.length;
   const materialWaitCount = allData.filter(item => item.material_available_date !== null && item.material_available_date !== '').length;
@@ -29,6 +32,60 @@ export default function ServiceMetrics({ allData }: ServiceMetricsProps) {
   const totalEarned = allData
     .filter(item => item.warranty === false && item.cost) // Apenas não-warranty com custo
     .reduce((total, item) => total + (item.cost || 0), 0);
+
+  // Função para calcular dias úteis em um mês (excluindo domingos)
+  const getWorkingDaysInMonth = (year: number, month: number): number => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    let workingDays = 0;
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month - 1, day);
+      if (date.getDay() !== 0) { // 0 = domingo
+        workingDays++;
+      }
+    }
+    
+    return workingDays;
+  };
+
+  // Função para calcular meses com dados em um ano
+  const getMonthsWithData = (year: number): number => {
+    const monthsWithData = new Set<number>();
+    
+    allData.forEach(item => {
+      if (item.date_received) {
+        const date = new Date(item.date_received);
+        if (date.getFullYear() === year) {
+          monthsWithData.add(date.getMonth() + 1);
+        }
+      }
+    });
+    
+    return monthsWithData.size;
+  };
+
+  // Calcular média de serviços por dia
+  const calculateAverageServicesPerDay = (): number => {
+    if (totalRequests === 0) return 0;
+
+    if (selectedYear && selectedYear !== 'Todos' && selectedMonth && selectedMonth !== 'Todos') {
+      // Filtro específico: ano + mês
+      const year = parseInt(selectedYear);
+      const month = parseInt(selectedMonth);
+      const workingDays = getWorkingDaysInMonth(year, month);
+      return workingDays > 0 ? totalRequests / workingDays : 0;
+    } else if (selectedYear && selectedYear !== 'Todos') {
+      // Filtro geral: apenas ano
+      const year = parseInt(selectedYear);
+      const monthsWithData = getMonthsWithData(year);
+      return monthsWithData > 0 ? totalRequests / monthsWithData : 0;
+    } else {
+      // Sem filtro específico: usar todos os dados
+      return totalRequests;
+    }
+  };
+
+  const averageServicesPerDay = calculateAverageServicesPerDay();
 
   return (
     <div className="d-flex flex-row align-items-center justify-content-between" style={{ borderBottom: '1px solid var(--color-border-divider)', borderTop: '1px solid var(--color-border-divider)' }}>
@@ -65,6 +122,26 @@ export default function ServiceMetrics({ allData }: ServiceMetricsProps) {
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Additional Visits</span>
             <span style={{ color: '#dc3545', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
               {additionalVisitsCount}
+            </span>
+          </div>
+        </MetricTooltip>
+        {/* Média de Serviços por Dia/Mês */}
+        <MetricTooltip 
+          title={selectedYear && selectedYear !== 'Todos' && selectedMonth && selectedMonth !== 'Todos' 
+            ? "Média de Serviços por Dia" 
+            : "Média de Serviços por Mês"} 
+          content={selectedYear && selectedYear !== 'Todos' && selectedMonth && selectedMonth !== 'Todos'
+            ? "Média de serviços realizados por dia útil no mês selecionado."
+            : "Média de serviços realizados por mês no ano selecionado."}
+        >
+          <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 140, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>
+              {selectedYear && selectedYear !== 'Todos' && selectedMonth && selectedMonth !== 'Todos' 
+                ? "Avg Services/Day" 
+                : "Avg Services/Month"}
+            </span>
+            <span style={{ color: 'var(--color-accent-primary)', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
+              {averageServicesPerDay.toFixed(2)}
             </span>
           </div>
         </MetricTooltip>
