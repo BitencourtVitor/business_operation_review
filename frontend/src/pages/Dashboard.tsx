@@ -640,7 +640,7 @@ export default function Dashboard() {
                              // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
                              onMouseUp={e => {
                                if (!isDisabled && selectedCompany !== company) {
-                                 e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                 e.currentTarget.style.background = 'transparent';
                                  e.currentTarget.style.color = 'var(--color-text-primary)';
                                }
                              }}
