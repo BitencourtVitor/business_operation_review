@@ -5,9 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Tipos completos para cada tabela hvac_
-// (Gerados a partir do schema, todos os campos inclusos)
-
+// Tipos para HVAC
 export interface HvacBillLine {
   id: string;
   bill_id: string;
@@ -150,6 +148,149 @@ export interface HvacPayment {
   updated_at: string | null;
 }
 
+// Tipos para Framing (mesma estrutura que HVAC)
+export interface FramingBillLine {
+  id: string;
+  bill_id: string;
+  line_id: string | null;
+  description: string | null;
+  amount: number | null;
+  account_ref_id: string | null;
+  account_ref_name: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+}
+export interface FramingBillLink {
+  id: string;
+  bill_id: string;
+  txn_id: string;
+  txn_type: string | null;
+  created_at: string | null;
+}
+export interface FramingBillPaymentLink {
+  id: string;
+  bill_payment_id: string;
+  txn_id: string;
+  txn_type: string;
+  amount: number;
+}
+export interface FramingBillPayment {
+  id: string;
+  external_id: string | null;
+  vendor_id: string;
+  vendor_name: string | null;
+  pay_type: string;
+  total_amount: number;
+  currency: string | null;
+  txn_date: string | null;
+  doc_number: string | null;
+  private_note: string | null;
+  bank_account_id: string | null;
+  bank_account_name: string | null;
+  cc_account_id: string | null;
+  cc_account_name: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+export interface FramingBill {
+  id: string;
+  external_id: string;
+  updated_at: string;
+  created_at: string | null;
+  doc_number: string | null;
+  txn_date: string | null;
+  due_date: string | null;
+  vendor_id: string | null;
+  vendor_name: string | null;
+  total_amount: number | null;
+  balance: number | null;
+}
+export interface FramingEstimateLine {
+  id: string;
+  estimate_id: string;
+  line_id: string | null;
+  line_num: number | null;
+  description: string | null;
+  amount: number | null;
+  unit_price: number | null;
+  quantity: number | null;
+  item_ref_id: string | null;
+  item_ref_name: string | null;
+  tax_code_ref: string | null;
+  detail_type: string | null;
+  created_at: string | null;
+}
+export interface FramingEstimateLink {
+  id: string;
+  estimate_id: string;
+  txn_id: string;
+  txn_type: string | null;
+  created_at: string | null;
+}
+export interface FramingEstimate {
+  id: string;
+  external_id: string;
+  updated_at: string;
+  created_at: string | null;
+  doc_number: string | null;
+  txn_date: string | null;
+  txn_status: string | null;
+  accepted_date: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+}
+export interface FramingInvoiceLine {
+  id: string;
+  invoice_id: string;
+  external_line_id: string | null;
+  description: string | null;
+  amount: number | null;
+  created_at: string | null;
+}
+export interface FramingInvoiceLink {
+  id: string;
+  invoice_id: string;
+  linked_txn_id: string;
+  linked_txn_type: string | null;
+  created_at: string | null;
+}
+export interface FramingInvoice {
+  id: string;
+  external_id: string;
+  doc_number: string | null;
+  txn_date: string | null;
+  due_date: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+  balance: number | null;
+  last_updated_at: string | null;
+  created_at: string | null;
+}
+export interface FramingPaymentLink {
+  payment_id: string | null;
+  txn_id: string | null;
+  txn_type: string | null;
+  amount: number | null;
+  open_balance: number | null;
+  reference_number: string | null;
+}
+export interface FramingPayment {
+  id: string;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+  currency: string | null;
+  payment_ref: string | null;
+  payment_method_id: string | null;
+  deposit_account_id: string | null;
+  private_note: string | null;
+  txn_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface HvacData {
   hvac_bill_lines: HvacBillLine[];
   hvac_bill_links: HvacBillLink[];
@@ -166,12 +307,30 @@ export interface HvacData {
   hvac_payments: HvacPayment[];
 }
 
-const useQuickbooksData = () => {
-  const [data, setData] = useState<HvacData | null>(null);
+export interface FramingData {
+  framing_bill_lines: FramingBillLine[];
+  framing_bill_links: FramingBillLink[];
+  framing_bill_payment_links: FramingBillPaymentLink[];
+  framing_bill_payments: FramingBillPayment[];
+  framing_bills: FramingBill[];
+  framing_estimate_lines: FramingEstimateLine[];
+  framing_estimate_links: FramingEstimateLink[];
+  framing_estimates: FramingEstimate[];
+  framing_invoice_lines: FramingInvoiceLine[];
+  framing_invoice_links: FramingInvoiceLink[];
+  framing_invoices: FramingInvoice[];
+  framing_payment_links: FramingPaymentLink[];
+  framing_payments: FramingPayment[];
+}
+
+export type CompanyData = HvacData | FramingData;
+
+const useQuickbooksData = (company: 'HVAC' | 'Framing' = 'HVAC') => {
+  const [data, setData] = useState<CompanyData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const loadAllHvacData = async () => {
+  const loadAllData = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -200,41 +359,75 @@ const useQuickbooksData = () => {
         return allData;
       };
 
-      const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
-        fetchAllData('hvac_bill_lines'),
-        fetchAllData('hvac_bill_links'),
-        fetchAllData('hvac_bill_payment_links'),
-        fetchAllData('hvac_bill_payments'),
-        fetchAllData('hvac_bills'),
-        fetchAllData('hvac_estimate_lines'),
-        fetchAllData('hvac_estimate_links'),
-        fetchAllData('hvac_estimates'),
-        fetchAllData('hvac_invoice_lines'),
-        fetchAllData('hvac_invoice_links'),
-        fetchAllData('hvac_invoices'),
-        fetchAllData('hvac_payment_links'),
-        fetchAllData('hvac_payments'),
-      ]);
-      
-      const dataToSet: HvacData = {
-        hvac_bill_lines: billLines as HvacBillLine[],
-        hvac_bill_links: billLinks as HvacBillLink[],
-        hvac_bill_payment_links: billPaymentLinks as HvacBillPaymentLink[],
-        hvac_bill_payments: billPayments as HvacBillPayment[],
-        hvac_bills: bills as HvacBill[],
-        hvac_estimate_lines: estimateLines as HvacEstimateLine[],
-        hvac_estimate_links: estimateLinks as HvacEstimateLink[],
-        hvac_estimates: estimates as HvacEstimate[],
-        hvac_invoice_lines: invoiceLines as HvacInvoiceLine[],
-        hvac_invoice_links: invoiceLinks as HvacInvoiceLink[],
-        hvac_invoices: invoices as HvacInvoice[],
-        hvac_payment_links: paymentLinks as HvacPaymentLink[],
-        hvac_payments: payments as HvacPayment[],
-      };
+      if (company === 'HVAC') {
+        const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+          fetchAllData('hvac_bill_lines'),
+          fetchAllData('hvac_bill_links'),
+          fetchAllData('hvac_bill_payment_links'),
+          fetchAllData('hvac_bill_payments'),
+          fetchAllData('hvac_bills'),
+          fetchAllData('hvac_estimate_lines'),
+          fetchAllData('hvac_estimate_links'),
+          fetchAllData('hvac_estimates'),
+          fetchAllData('hvac_invoice_lines'),
+          fetchAllData('hvac_invoice_links'),
+          fetchAllData('hvac_invoices'),
+          fetchAllData('hvac_payment_links'),
+          fetchAllData('hvac_payments'),
+        ]);
+        
+        const dataToSet: HvacData = {
+          hvac_bill_lines: billLines as HvacBillLine[],
+          hvac_bill_links: billLinks as HvacBillLink[],
+          hvac_bill_payment_links: billPaymentLinks as HvacBillPaymentLink[],
+          hvac_bill_payments: billPayments as HvacBillPayment[],
+          hvac_bills: bills as HvacBill[],
+          hvac_estimate_lines: estimateLines as HvacEstimateLine[],
+          hvac_estimate_links: estimateLinks as HvacEstimateLink[],
+          hvac_estimates: estimates as HvacEstimate[],
+          hvac_invoice_lines: invoiceLines as HvacInvoiceLine[],
+          hvac_invoice_links: invoiceLinks as HvacInvoiceLink[],
+          hvac_invoices: invoices as HvacInvoice[],
+          hvac_payment_links: paymentLinks as HvacPaymentLink[],
+          hvac_payments: payments as HvacPayment[],
+        };
 
+        setData(dataToSet);
+      } else if (company === 'Framing') {
+        const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+          fetchAllData('framing_bill_lines'),
+          fetchAllData('framing_bill_links'),
+          fetchAllData('framing_bill_payment_links'),
+          fetchAllData('framing_bill_payments'),
+          fetchAllData('framing_bills'),
+          fetchAllData('framing_estimate_lines'),
+          fetchAllData('framing_estimate_links'),
+          fetchAllData('framing_estimates'),
+          fetchAllData('framing_invoice_lines'),
+          fetchAllData('framing_invoice_links'),
+          fetchAllData('framing_invoices'),
+          fetchAllData('framing_payment_links'),
+          fetchAllData('framing_payments'),
+        ]);
+        
+        const dataToSet: FramingData = {
+          framing_bill_lines: billLines as FramingBillLine[],
+          framing_bill_links: billLinks as FramingBillLink[],
+          framing_bill_payment_links: billPaymentLinks as FramingBillPaymentLink[],
+          framing_bill_payments: billPayments as FramingBillPayment[],
+          framing_bills: bills as FramingBill[],
+          framing_estimate_lines: estimateLines as FramingEstimateLine[],
+          framing_estimate_links: estimateLinks as FramingEstimateLink[],
+          framing_estimates: estimates as FramingEstimate[],
+          framing_invoice_lines: invoiceLines as FramingInvoiceLine[],
+          framing_invoice_links: invoiceLinks as FramingInvoiceLink[],
+          framing_invoices: invoices as FramingInvoice[],
+          framing_payment_links: paymentLinks as FramingPaymentLink[],
+          framing_payments: payments as FramingPayment[],
+        };
 
-
-      setData(dataToSet);
+        setData(dataToSet);
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -242,14 +435,14 @@ const useQuickbooksData = () => {
   };
 
   useEffect(() => {
-    loadAllHvacData();
-  }, []);
+    loadAllData();
+  }, [company]);
 
   return {
     data,
     loading,
     error,
-    reload: loadAllHvacData,
+    reload: loadAllData,
   };
 };
 

@@ -338,7 +338,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchQuickbooksData = async () => {
+  const fetchQuickbooksData = async (company: 'HVAC' | 'Framing' = 'HVAC') => {
     if (cache.quickbooks.loading) return;
     if (!isDataStale('quickbooks') && cache.quickbooks.data) return;
     setCache(prev => ({ ...prev, quickbooks: { ...prev.quickbooks, loading: true, error: null } }));
@@ -361,45 +361,88 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
         }
         return allData;
       };
-      const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
-        fetchAllData('hvac_bill_lines'),
-        fetchAllData('hvac_bill_links'),
-        fetchAllData('hvac_bill_payment_links'),
-        fetchAllData('hvac_bill_payments'),
-        fetchAllData('hvac_bills'),
-        fetchAllData('hvac_estimate_lines'),
-        fetchAllData('hvac_estimate_links'),
-        fetchAllData('hvac_estimates'),
-        fetchAllData('hvac_invoice_lines'),
-        fetchAllData('hvac_invoice_links'),
-        fetchAllData('hvac_invoices'),
-        fetchAllData('hvac_payment_links'),
-        fetchAllData('hvac_payments'),
-      ]);
-      const dataToSet = {
-        hvac_bill_lines: billLines,
-        hvac_bill_links: billLinks,
-        hvac_bill_payment_links: billPaymentLinks,
-        hvac_bill_payments: billPayments,
-        hvac_bills: bills,
-        hvac_estimate_lines: estimateLines,
-        hvac_estimate_links: estimateLinks,
-        hvac_estimates: estimates,
-        hvac_invoice_lines: invoiceLines,
-        hvac_invoice_links: invoiceLinks,
-        hvac_invoices: invoices,
-        hvac_payment_links: paymentLinks,
-        hvac_payments: payments,
-      };
-      setCache(prev => ({
-        ...prev,
-        quickbooks: {
-          data: dataToSet,
-          loading: false,
-          error: null,
-          lastFetch: Date.now(),
-        }
-      }));
+
+      if (company === 'HVAC') {
+        const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+          fetchAllData('hvac_bill_lines'),
+          fetchAllData('hvac_bill_links'),
+          fetchAllData('hvac_bill_payment_links'),
+          fetchAllData('hvac_bill_payments'),
+          fetchAllData('hvac_bills'),
+          fetchAllData('hvac_estimate_lines'),
+          fetchAllData('hvac_estimate_links'),
+          fetchAllData('hvac_estimates'),
+          fetchAllData('hvac_invoice_lines'),
+          fetchAllData('hvac_invoice_links'),
+          fetchAllData('hvac_invoices'),
+          fetchAllData('hvac_payment_links'),
+          fetchAllData('hvac_payments'),
+        ]);
+        const dataToSet = {
+          hvac_bill_lines: billLines,
+          hvac_bill_links: billLinks,
+          hvac_bill_payment_links: billPaymentLinks,
+          hvac_bill_payments: billPayments,
+          hvac_bills: bills,
+          hvac_estimate_lines: estimateLines,
+          hvac_estimate_links: estimateLinks,
+          hvac_estimates: estimates,
+          hvac_invoice_lines: invoiceLines,
+          hvac_invoice_links: invoiceLinks,
+          hvac_invoices: invoices,
+          hvac_payment_links: paymentLinks,
+          hvac_payments: payments,
+        };
+        setCache(prev => ({
+          ...prev,
+          quickbooks: {
+            data: dataToSet,
+            loading: false,
+            error: null,
+            lastFetch: Date.now(),
+          }
+        }));
+      } else if (company === 'Framing') {
+        const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+          fetchAllData('framing_bill_lines'),
+          fetchAllData('framing_bill_links'),
+          fetchAllData('framing_bill_payment_links'),
+          fetchAllData('framing_bill_payments'),
+          fetchAllData('framing_bills'),
+          fetchAllData('framing_estimate_lines'),
+          fetchAllData('framing_estimate_links'),
+          fetchAllData('framing_estimates'),
+          fetchAllData('framing_invoice_lines'),
+          fetchAllData('framing_invoice_links'),
+          fetchAllData('framing_invoices'),
+          fetchAllData('framing_payment_links'),
+          fetchAllData('framing_payments'),
+        ]);
+        const dataToSet = {
+          framing_bill_lines: billLines,
+          framing_bill_links: billLinks,
+          framing_bill_payment_links: billPaymentLinks,
+          framing_bill_payments: billPayments,
+          framing_bills: bills,
+          framing_estimate_lines: estimateLines,
+          framing_estimate_links: estimateLinks,
+          framing_estimates: estimates,
+          framing_invoice_lines: invoiceLines,
+          framing_invoice_links: invoiceLinks,
+          framing_invoices: invoices,
+          framing_payment_links: paymentLinks,
+          framing_payments: payments,
+        };
+        setCache(prev => ({
+          ...prev,
+          quickbooks: {
+            data: dataToSet,
+            loading: false,
+            error: null,
+            lastFetch: Date.now(),
+          }
+        }));
+      }
     } catch (err) {
       setCache(prev => ({
         ...prev,

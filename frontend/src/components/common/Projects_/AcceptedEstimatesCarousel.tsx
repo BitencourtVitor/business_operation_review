@@ -25,7 +25,7 @@ function getProjectName(rawName?: string | null) {
 // Tipos genéricos para dados vindos do Supabase
 // Usar Record<string, unknown> para evitar erro de tipagem
 
-function useProjectDetails(estimateId: string | null) {
+function useProjectDetails(estimateId: string | null, company: string = 'HVAC') {
   const [loading, setLoading] = useState(false);
   const [details, setDetails] = useState<{ estimateLines: { id: string; description: string | null; amount: number | null; }[]; expenses: Record<string, unknown>[]; invoices: Invoice[] }>({ estimateLines: [], expenses: [], invoices: [] });
 
@@ -37,16 +37,31 @@ function useProjectDetails(estimateId: string | null) {
     }
     setLoading(true);
     (async () => {
+      // Determinar tabelas baseado na empresa
+      const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
+      const estimateLinesTable = company === 'HVAC' ? 'hvac_estimate_lines' : 'framing_estimate_lines';
+      const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
+      const billsTable = company === 'HVAC' ? 'hvac_bills' : 'framing_bills';
+      const billPaymentLinksTable = company === 'HVAC' ? 'hvac_bill_payment_links' : 'framing_bill_payment_links';
+      const billPaymentsTable = company === 'HVAC' ? 'hvac_bill_payments' : 'framing_bill_payments';
+      const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
+      const purchasesTable = company === 'HVAC' ? 'hvac_purchases' : 'framing_purchases';
+      const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
+      const vendorCreditsTable = company === 'HVAC' ? 'hvac_vendor_credits' : 'framing_vendor_credits';
+      const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
+      const paymentLinksTable = company === 'HVAC' ? 'hvac_payment_links' : 'framing_payment_links';
+      const paymentsTable = company === 'HVAC' ? 'hvac_payments' : 'framing_payments';
+      
       // Buscar linhas do estimate
       const { data: estimateLinesRaw } = await supabase
-        .from('hvac_estimate_lines')
+        .from(estimateLinesTable)
         .select('*')
         .eq('estimate_id', estimateId);
       const estimateLines = estimateLinesRaw || [];
 
       // Buscar dados do estimate
       const { data: estimateData } = await supabase
-        .from('hvac_estimates')
+        .from(estimatesTable)
         .select('customer_id, customer_name, external_id')
         .eq('id', estimateId)
         .single();
@@ -55,52 +70,52 @@ function useProjectDetails(estimateId: string | null) {
       if (estimateData) {
         // 1. Buscar bills relacionadas ao estimate
         const { data: billLinesRaw } = await supabase
-          .from('hvac_bill_lines')
+          .from(billLinesTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const billLines = billLinesRaw || [];
         const billIds = [...new Set((billLines || []).map((l: Record<string, unknown>) => l.bill_id))];
         const { data: billsDataRaw } = billIds.length > 0 ? await supabase
-          .from('hvac_bills')
+          .from(billsTable)
           .select('*')
           .in('id', billIds) : { data: [] };
         const billsData = billsDataRaw || [];
         
         // Buscar bill payments para bills
         const { data: billPaymentLinksRaw } = (billsData && billsData.length > 0) ? await supabase
-          .from('hvac_bill_payment_links')
+          .from(billPaymentLinksTable)
           .select('*')
           .in('txn_id', billsData.map((b: Record<string, unknown>) => b.external_id)) : { data: [] };
         const billPaymentLinks = billPaymentLinksRaw || [];
         const billPaymentIds = [...new Set((billPaymentLinks || []).map((l: Record<string, unknown>) => l.bill_payment_id))];
         const { data: billPaymentsRaw } = billPaymentIds.length > 0 ? await supabase
-          .from('hvac_bill_payments')
+          .from(billPaymentsTable)
           .select('*')
           .in('id', billPaymentIds) : { data: [] };
         const billPayments = billPaymentsRaw || [];
 
         // 2. Buscar purchases relacionadas ao estimate
         const { data: purchaseLinesRaw } = await supabase
-          .from('hvac_purchase_lines')
+          .from(purchaseLinesTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const purchaseLines = purchaseLinesRaw || [];
         const purchaseIds = [...new Set((purchaseLines || []).map((l: Record<string, unknown>) => l.purchase_id))];
         const { data: purchasesDataRaw } = purchaseIds.length > 0 ? await supabase
-          .from('hvac_purchases')
+          .from(purchasesTable)
           .select('*')
           .in('id', purchaseIds) : { data: [] };
         const purchasesData = purchasesDataRaw || [];
 
         // 3. Buscar vendor credits relacionados ao estimate
         const { data: vendorCreditLinesRaw } = await supabase
-          .from('hvac_vendor_credit_lines')
+          .from(vendorCreditLinesTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const vendorCreditLines = vendorCreditLinesRaw || [];
         const vendorCreditIds = [...new Set((vendorCreditLines || []).map((l: Record<string, unknown>) => l.vendor_credit_id))];
         const { data: vendorCreditsDataRaw } = vendorCreditIds.length > 0 ? await supabase
-          .from('hvac_vendor_credits')
+          .from(vendorCreditsTable)
           .select('*')
           .in('id', vendorCreditIds) : { data: [] };
         const vendorCreditsData = vendorCreditsDataRaw || [];
@@ -137,19 +152,19 @@ function useProjectDetails(estimateId: string | null) {
       let backCharges: Invoice[] = [];
       if (estimateData) {
         const { data: invoicesDataRaw } = await supabase
-          .from('hvac_invoices')
+          .from(invoicesTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const invoicesData = invoicesDataRaw || [];
         const invoiceExternalIds = (invoicesData || []).map((inv: Record<string, unknown>) => inv.external_id);
         const { data: paymentLinksRaw } = invoiceExternalIds.length > 0 ? await supabase
-          .from('hvac_payment_links')
+          .from(paymentLinksTable)
           .select('*')
           .in('txn_id', invoiceExternalIds) : { data: [] };
         const paymentLinks = paymentLinksRaw || [];
         const paymentIds = [...new Set((paymentLinks || []).map((l: Record<string, unknown>) => l.payment_id).filter(Boolean))];
         const { data: paymentsRaw } = paymentIds.length > 0 ? await supabase
-          .from('hvac_payments')
+          .from(paymentsTable)
           .select('*')
           .in('id', paymentIds) : { data: [] };
         const payments = paymentsRaw || [];
@@ -220,35 +235,40 @@ function useProjectDetails(estimateId: string | null) {
       setDetails({ estimateLines: estimateLines as { id: string; description: string | null; amount: number | null; }[], expenses, invoices });
       setLoading(false);
     })();
-  }, [estimateId]);
+  }, [estimateId, company]);
 
   return { ...details, loading };
 }
 
 // Função utilitária para buscar e somar expenses detalhadas de um projeto
-async function fetchExpensesTotal(estimateId: string): Promise<number> {
+async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
+  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
+  const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
+  const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
+  const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
+  
   // Buscar dados detalhados igual ao modal
   const { data: estimateData } = await supabase
-    .from('hvac_estimates')
+    .from(estimatesTable)
     .select('customer_id, customer_name, external_id')
     .eq('id', estimateId)
     .single();
   if (!estimateData) return 0;
   // Bills
   const { data: billLinesRaw } = await supabase
-    .from('hvac_bill_lines')
+    .from(billLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const billLines = billLinesRaw || [];
   // Purchases
   const { data: purchaseLinesRaw } = await supabase
-    .from('hvac_purchase_lines')
+    .from(purchaseLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const purchaseLines = purchaseLinesRaw || [];
   // Vendor credits
   const { data: vendorCreditLinesRaw } = await supabase
-    .from('hvac_vendor_credit_lines')
+    .from(vendorCreditLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const vendorCreditLines = vendorCreditLinesRaw || [];
@@ -258,23 +278,27 @@ async function fetchExpensesTotal(estimateId: string): Promise<number> {
 }
 
 // Função utilitária para buscar e somar invoices e backcharges detalhados de um projeto
-async function fetchInvoicesTotal(estimateId: string): Promise<number> {
+async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
+  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
+  const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
+  const depositLinesTable = company === 'HVAC' ? 'hvac_deposit_lines' : 'framing_deposit_lines';
+  
   // Buscar dados detalhados igual ao modal
   const { data: estimateData } = await supabase
-    .from('hvac_estimates')
+    .from(estimatesTable)
     .select('customer_id, customer_name, external_id')
     .eq('id', estimateId)
     .single();
   if (!estimateData) return 0;
   // Invoices
   const { data: invoicesDataRaw } = await supabase
-    .from('hvac_invoices')
+    .from(invoicesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const invoicesData = invoicesDataRaw || [];
   // Deposits (BackCharges)
   const { data: depositLinesRaw } = await supabase
-    .from('hvac_deposit_lines')
+    .from(depositLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id)
     .eq('customer_name', estimateData.customer_name)
@@ -291,9 +315,10 @@ async function fetchInvoicesTotal(estimateId: string): Promise<number> {
 interface AcceptedEstimatesCarouselProps {
   selectedYear: string;
   selectedMonth: string;
+  selectedCompany?: string;
 }
 
-export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth }: AcceptedEstimatesCarouselProps) {
+export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth, selectedCompany = 'HVAC' }: AcceptedEstimatesCarouselProps) {
   // Filtros editáveis
   const [onlyAccepted, setOnlyAccepted] = useState(true);
   
@@ -301,7 +326,8 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
   const { data: carouselData, loading: carouselLoading, error } = useProjectCarouselData({
     dateFrom: '', // String vazia para buscar todos os dados
     dateTo: '',   // String vazia para buscar todos os dados
-    onlyAccepted
+    onlyAccepted,
+    company: selectedCompany
   });
 
   // Adicionar estilos CSS para animações
@@ -326,7 +352,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
       setExpensesLoading(true);
       const totals: { [estimateId: string]: number } = {};
       await Promise.all(carouselData.map(async (estimate) => {
-        totals[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id);
+        totals[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id, selectedCompany);
       }));
       if (!cancelled) {
         setExpensesTotals(totals);
@@ -335,7 +361,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
     }
     fetchAll();
     return () => { cancelled = true; };
-  }, [carouselData]);
+  }, [carouselData, selectedCompany]);
 
   // Novo estado para armazenar os totais detalhados de invoices
   const [invoicesTotals, setInvoicesTotals] = useState<{ [estimateId: string]: number }>({});
@@ -348,7 +374,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
       setInvoicesLoading(true);
       const totals: { [estimateId: string]: number } = {};
       await Promise.all(carouselData.map(async (estimate) => {
-        totals[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id);
+        totals[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id, selectedCompany);
       }));
       if (!cancelled) {
         setInvoicesTotals(totals);
@@ -357,7 +383,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
     }
     fetchAll();
     return () => { cancelled = true; };
-  }, [carouselData]);
+  }, [carouselData, selectedCompany]);
 
   // Loading geral - só mostrar conteúdo quando tudo estiver carregado
   const isLoading = carouselLoading || expensesLoading || invoicesLoading;
@@ -513,7 +539,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth 
 
   // Modal Detalhado
   const estimateId = modalIdx !== null && filteredEstimates[modalIdx] ? filteredEstimates[modalIdx].estimate_id : null;
-  const { estimateLines, expenses, invoices, loading: modalLoading } = useProjectDetails(estimateId);
+  const { estimateLines, expenses, invoices, loading: modalLoading } = useProjectDetails(estimateId, selectedCompany);
 
   return (
     <div style={{ width: '100%', height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>

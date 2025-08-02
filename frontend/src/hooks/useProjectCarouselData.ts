@@ -18,7 +18,7 @@ export interface ProjectCarouselData {
   payments_received_total: number;
 }
 
-export function useProjectCarouselData({ dateFrom, dateTo, onlyAccepted }: { dateFrom: string; dateTo: string; onlyAccepted: boolean }) {
+export function useProjectCarouselData({ dateFrom, dateTo, onlyAccepted, company = 'HVAC' }: { dateFrom: string; dateTo: string; onlyAccepted: boolean; company?: string }) {
   const [data, setData] = useState<ProjectCarouselData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,8 +28,11 @@ export function useProjectCarouselData({ dateFrom, dateTo, onlyAccepted }: { dat
       setLoading(true);
       setError(null);
       
+      // Determinar qual função SQL usar baseado na empresa
+      const functionName = company === 'HVAC' ? 'get_project_carousel_data_fixed' : 'get_framing_project_carousel_data_fixed';
+      
       // Sempre buscar todos os dados, o filtro será feito no frontend
-      const { data: result, error: sqlError } = await supabase.rpc('get_project_carousel_data_fixed', {
+      const { data: result, error: sqlError } = await supabase.rpc(functionName, {
         p_date_from: dateFrom && dateFrom.trim() !== '' ? dateFrom : null, // String vazia será convertida para null
         p_date_to: dateTo && dateTo.trim() !== '' ? dateTo : null,     // String vazia será convertida para null
         p_only_accepted: onlyAccepted
@@ -47,7 +50,7 @@ export function useProjectCarouselData({ dateFrom, dateTo, onlyAccepted }: { dat
 
   useEffect(() => {
     fetchData();
-  }, [dateFrom, dateTo, onlyAccepted]);
+  }, [dateFrom, dateTo, onlyAccepted, company]);
 
   return { data, loading, error, refetch: fetchData };
 } 
