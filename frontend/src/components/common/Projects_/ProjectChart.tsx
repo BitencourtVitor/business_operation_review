@@ -26,32 +26,50 @@ interface ProjectChartProps {
   selectedYear: string;
   selectedMonth: string;
   selectedGroup: 'all' | 'receivable' | 'payable';
+  selectedCompany?: string;
   onNavigateToAccounting?: () => void;
 }
 
+interface ChartDataItem {
+  period_label: string;
+  receivable_amount?: number;
+  payable_amount?: number;
+}
+
+interface CarouselDataItem {
+  estimate_id: string;
+  customer_id: string;
+  estimate_date?: string;
+}
+
 // Funções utilitárias para calcular totais detalhados (mesma lógica do carrossel)
-async function fetchExpensesTotal(estimateId: string): Promise<number> {
+async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
+  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
+  const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
+  const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
+  const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
+  
   const { data: estimateData } = await supabase
-    .from('hvac_estimates')
+    .from(estimatesTable)
     .select('customer_id, customer_name, external_id')
     .eq('id', estimateId)
     .single();
   if (!estimateData) return 0;
   
   const { data: billLinesRaw } = await supabase
-    .from('hvac_bill_lines')
+    .from(billLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const billLines = billLinesRaw || [];
   
   const { data: purchaseLinesRaw } = await supabase
-    .from('hvac_purchase_lines')
+    .from(purchaseLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const purchaseLines = purchaseLinesRaw || [];
   
   const { data: vendorCreditLinesRaw } = await supabase
-    .from('hvac_vendor_credit_lines')
+    .from(vendorCreditLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const vendorCreditLines = vendorCreditLinesRaw || [];
@@ -60,22 +78,26 @@ async function fetchExpensesTotal(estimateId: string): Promise<number> {
   return total;
 }
 
-async function fetchInvoicesTotal(estimateId: string): Promise<number> {
+async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
+  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
+  const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
+  const depositLinesTable = company === 'HVAC' ? 'hvac_deposit_lines' : 'framing_deposit_lines';
+  
   const { data: estimateData } = await supabase
-    .from('hvac_estimates')
+    .from(estimatesTable)
     .select('customer_id, customer_name, external_id')
     .eq('id', estimateId)
     .single();
   if (!estimateData) return 0;
   
   const { data: invoicesDataRaw } = await supabase
-    .from('hvac_invoices')
+    .from(invoicesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const invoicesData = invoicesDataRaw || [];
   
   const { data: depositLinesRaw } = await supabase
-    .from('hvac_deposit_lines')
+    .from(depositLinesTable)
     .select('*')
     .eq('customer_id', estimateData.customer_id)
     .eq('customer_name', estimateData.customer_name)
@@ -87,27 +109,29 @@ async function fetchInvoicesTotal(estimateId: string): Promise<number> {
   return invoicesTotal + backChargesTotal;
 }
 
-const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup, onNavigateToAccounting }) => {
+const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup, selectedCompany = 'HVAC', onNavigateToAccounting }) => {
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
   
-  const chartDataCache = React.useRef<{ [key: string]: any }>({});
-  const carouselDataCache = React.useRef<{ [key: string]: any }>({});
+  const chartDataCache = React.useRef<{ [key: string]: unknown }>({});
+  const carouselDataCache = React.useRef<{ [key: string]: unknown }>({});
 
   // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
   const cacheKey = `${selectedYear || 'all'}-${selectedMonth || 'all'}-${selectedGroup}`;
-  const [localChartData, setLocalChartData] = useState<any>(null);
-  const [localCarouselData, setLocalCarouselData] = useState<any>(null);
+  const [localChartData, setLocalChartData] = useState<ChartDataItem[] | null>(null);
+  const [localCarouselData, setLocalCarouselData] = useState<CarouselDataItem[] | null>(null);
   const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
     selectedYear,
     selectedMonth,
-    selectedGroup
+    selectedGroup,
+    company: selectedCompany
   });
   const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
     dateFrom: '',
     dateTo: '',
-    onlyAccepted: true
+    onlyAccepted: true,
+    company: selectedCompany
   });
 
   // Cache chart data
@@ -116,7 +140,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       chartDataCache.current[cacheKey] = chartDataFromSQL;
       setLocalChartData(chartDataFromSQL);
     } else if (chartDataCache.current[cacheKey]) {
-      setLocalChartData(chartDataCache.current[cacheKey]);
+      setLocalChartData(chartDataCache.current[cacheKey] as ChartDataItem[]);
     } else {
       setLocalChartData(null);
     }
@@ -128,7 +152,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       carouselDataCache.current[cacheKey] = carouselData;
       setLocalCarouselData(carouselData);
     } else if (carouselDataCache.current[cacheKey]) {
-      setLocalCarouselData(carouselDataCache.current[cacheKey]);
+      setLocalCarouselData(carouselDataCache.current[cacheKey] as CarouselDataItem[]);
     } else {
       setLocalCarouselData(null);
     }
@@ -136,6 +160,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
 
   // CONSULTA 2: JavaScript para "Outstanding Receivable" e "Outstanding Payable" - ATIVADO
   const { data: accountingData, loading: accountingLoading } = useAccountingDataCached();
+
+
 
   // CONSULTA 3: Dados do carrossel para calcular métricas de Profit and Loss
   // const { data: carouselData, loading: carouselLoading } = useProjectCarouselData({
@@ -208,8 +234,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       const invoices: { [estimateId: string]: number } = {};
       
       await Promise.all(filteredCarouselData.map(async (estimate) => {
-        expenses[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id);
-        invoices[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id);
+        expenses[estimate.estimate_id] = await fetchExpensesTotal(estimate.estimate_id, selectedCompany);
+        invoices[estimate.estimate_id] = await fetchInvoicesTotal(estimate.estimate_id, selectedCompany);
       }));
       
       if (!cancelled) {
@@ -221,12 +247,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     
     fetchAll();
     return () => { cancelled = true; };
-  }, [filteredCarouselData]);
+  }, [filteredCarouselData, selectedCompany]);
 
   // Loading geral - só mostrar loading se não há dados em cache
   const isLoading = (!localChartData && sqlLoading) || (!localCarouselData && carouselLoading) || accountingLoading || detailsLoading;
 
-     // Calcular dados filtrados (EXATAMENTE como no AccountingIndicators)
+          // Calcular dados filtrados (EXATAMENTE como no AccountingIndicators)
    const filteredData = useMemo(() => {
      if (!accountingData) {
        return [];
@@ -234,31 +260,30 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
      
      let filtered = accountingData;
      
-     if (selectedYear) {
+     // Só filtra por ano se selectedYear estiver preenchido
+     if (selectedYear && selectedYear.trim() !== '') {
        filtered = filtered.filter(d => {
-         const hasDate = d.date && d.date.startsWith(selectedYear + '-');
-         const hasDateField = d.date_field && d.date_field.startsWith(selectedYear + '-');
-         return hasDate || hasDateField;
+         const dateToUse = d.date || d.date_field;
+         if (!dateToUse) return false;
+         const year = dateToUse.split('-')[0];
+         return year === selectedYear;
        });
      }
-    
-         if (selectedMonth) {
-      
-      filtered = filtered.filter(d => {
-        const dateToUse = d.date || d.date_field;
-        if (!dateToUse) return false;
-        
-        // Tentar diferentes formatos de data
-        const parts = dateToUse.split('-');
-        if (parts.length >= 2) {
-          const month = parts[1];
-          // Comparar com e sem padding
-          return month === selectedMonth || 
-                 String(Number(month)).padStart(2, '0') === selectedMonth ||
-                 month === String(Number(selectedMonth));
-        }
-        return false;
-             });
+     // Se selectedYear está vazio, manter todos os dados (não filtrar por ano)
+     
+     if (selectedMonth && selectedMonth.trim() !== '') {
+       filtered = filtered.filter(d => {
+         const dateToUse = d.date || d.date_field;
+         if (!dateToUse) return false;
+         const parts = dateToUse.split('-');
+         if (parts.length >= 2) {
+           const month = parts[1];
+           return month === selectedMonth || 
+                  String(Number(month)).padStart(2, '0') === selectedMonth ||
+                  month === String(Number(selectedMonth));
+         }
+         return false;
+       });
      }
      
      if (selectedGroup !== 'all') {
@@ -266,8 +291,10 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
        filtered = filtered.filter(d => d.type === groupFilter);
      }
      
+
+     
      return filtered;
-  }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
+   }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
 
   // Calcular métricas usando dados do gráfico de linhas (TOTAIS REAIS EXIBIDOS)
   const metrics = useMemo(() => {
@@ -404,36 +431,38 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-           datasets.push({
-             label: 'Outstanding Receivable',
-             data: pendingReceivableValues,
-             borderColor: 'rgba(76, 175, 80, 0.7)',
-             backgroundColor: 'rgba(76, 175, 80, 0.18)',
-             borderDash: [8, 6],
-             pointRadius: 4,
-             pointBackgroundColor: 'rgba(76, 175, 80, 0.7)',
-             pointBorderColor: 'rgba(76, 175, 80, 0.7)',
-             pointHoverRadius: 6,
-             borderWidth: 2,
-             fill: false,
-             tension: 0.25,
-             spanGaps: false,
-           });
-           datasets.push({
-             label: 'Outstanding Payable',
-             data: pendingPayableValues,
-             borderColor: 'rgba(211, 47, 47, 0.7)',
-             backgroundColor: 'rgba(211, 47, 47, 0.18)',
-             borderDash: [8, 6],
-             pointRadius: 4,
-             pointBackgroundColor: 'rgba(211, 47, 47, 0.7)',
-             pointBorderColor: 'rgba(211, 47, 47, 0.7)',
-             pointHoverRadius: 6,
-             borderWidth: 2,
-             fill: false,
-             tension: 0.25,
-             spanGaps: false,
-           });
+                       if (selectedCompany === 'HVAC') {
+              datasets.push({
+                label: 'Outstanding Receivable',
+                data: pendingReceivableValues,
+                borderColor: 'rgba(76, 175, 80, 0.7)',
+                backgroundColor: 'rgba(76, 175, 80, 0.18)',
+                borderDash: [8, 6],
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(76, 175, 80, 0.7)',
+                pointBorderColor: 'rgba(76, 175, 80, 0.7)',
+                pointHoverRadius: 6,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.25,
+                spanGaps: false,
+              });
+              datasets.push({
+                label: 'Outstanding Payable',
+                data: pendingPayableValues,
+                borderColor: 'rgba(211, 47, 47, 0.7)',
+                backgroundColor: 'rgba(211, 47, 47, 0.18)',
+                borderDash: [8, 6],
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(211, 47, 47, 0.7)',
+                pointBorderColor: 'rgba(211, 47, 47, 0.7)',
+                pointHoverRadius: 6,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.25,
+                spanGaps: false,
+              });
+            }
          } else if (selectedGroup === 'receivable') {
            datasets.push({
              label: 'Receivable',
@@ -449,21 +478,23 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-           datasets.push({
-             label: 'Outstanding Receivable',
-             data: pendingReceivableValues,
-             borderColor: 'rgba(76, 175, 80, 0.18)',
-             backgroundColor: 'rgba(76, 175, 80, 0.06)',
-             borderDash: [8, 6],
-             pointRadius: 0,
-             pointBackgroundColor: 'rgba(76, 175, 80, 0.18)',
-             pointBorderColor: 'rgba(76, 175, 80, 0.18)',
-             pointHoverRadius: 0,
-             borderWidth: 2,
-             fill: false,
-             tension: 0.25,
-             spanGaps: false,
-           });
+                       if (selectedCompany === 'HVAC') {
+              datasets.push({
+                label: 'Outstanding Receivable',
+                data: pendingReceivableValues,
+                borderColor: 'rgba(76, 175, 80, 0.18)',
+                backgroundColor: 'rgba(76, 175, 80, 0.06)',
+                borderDash: [8, 6],
+                pointRadius: 0,
+                pointBackgroundColor: 'rgba(76, 175, 80, 0.18)',
+                pointBorderColor: 'rgba(76, 175, 80, 0.18)',
+                pointHoverRadius: 0,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.25,
+                spanGaps: false,
+              });
+            }
          } else {
            datasets.push({
              label: 'Payable',
@@ -479,21 +510,23 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-           datasets.push({
-             label: 'Outstanding Payable',
-             data: pendingPayableValues,
-             borderColor: 'rgba(211, 47, 47, 0.18)',
-             backgroundColor: 'rgba(211, 47, 47, 0.06)',
-             borderDash: [8, 6],
-             pointRadius: 0,
-             pointBackgroundColor: 'rgba(211, 47, 47, 0.18)',
-             pointBorderColor: 'rgba(211, 47, 47, 0.18)',
-             pointHoverRadius: 0,
-             borderWidth: 2,
-             fill: false,
-             tension: 0.25,
-             spanGaps: false,
-           });
+                       if (selectedCompany === 'HVAC') {
+              datasets.push({
+                label: 'Outstanding Payable',
+                data: pendingPayableValues,
+                borderColor: 'rgba(211, 47, 47, 0.18)',
+                backgroundColor: 'rgba(211, 47, 47, 0.06)',
+                borderDash: [8, 6],
+                pointRadius: 0,
+                pointBackgroundColor: 'rgba(211, 47, 47, 0.18)',
+                pointBorderColor: 'rgba(211, 47, 47, 0.18)',
+                pointHoverRadius: 0,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.25,
+                spanGaps: false,
+              });
+            }
          }
 
          const chartData = {
@@ -776,25 +809,85 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       outstandingData = { pendingReceivableValues, pendingPayableValues };
 
     } else {
-      // Gráfico geral (sem filtros de ano/mês) - usar total geral
-      const receivablesWithOpenBalance = filteredData.filter(row => 
-        row.type === 'receivables' && 
-        row.open_balance > 0
-      );
-      
-      const payablesWithOpenBalance = filteredData.filter(row => 
-        row.type === 'payables' && 
-        row.open_balance > 0
-      );
+      // Gráfico geral (sem filtros de ano/mês) - mostrar mês a mês de todos os anos
+      // Usar dados SQL que já vêm agrupados por mês/ano
+      if (localChartData && localChartData.length > 0) {
+        // Usar os dados SQL que já vêm no formato "1/2025", "2/2025", etc.
+        chartLabels = localChartData.map(item => item.period_label);
+        
+        // Outstanding é independente - só mostrar onde há dados reais
+        const pendingReceivableValues: number[] = [];
+        const pendingPayableValues: number[] = [];
+        
+        // Usar filteredData que já foi processado corretamente
+        const dataToUse = filteredData;
+        
 
-      const totalReceivablesOutstanding = receivablesWithOpenBalance.reduce((sum, row) => sum + row.open_balance, 0);
-      const totalPayablesOutstanding = payablesWithOpenBalance.reduce((sum, row) => sum + row.open_balance, 0);
+        
+        chartLabels.forEach((label) => {
+          const [monthStr, yearStr] = label.split('/');
+          const month = monthStr.padStart(2, '0');
+          const year = yearStr;
 
-      chartLabels = ['Current Period'];
-      outstandingData = { 
-        pendingReceivableValues: [totalReceivablesOutstanding > 0 ? totalReceivablesOutstanding : 0], 
-        pendingPayableValues: [totalPayablesOutstanding > 0 ? totalPayablesOutstanding : 0] 
-      };
+          // Filtrar registros daquele mês/ano específico
+          const monthYearData = dataToUse.filter(row =>
+            row.date_field &&
+            row.date_field.trim() !== '' &&
+            row.date_field.length >= 10 &&
+            row.date_field.startsWith(`${year}-${month}-`)
+          );
+
+          // Agrupar por conta e pegar o MIN(open_balance) por conta
+          const receivablesByAccount = new Map<string, number>();
+          const payablesByAccount = new Map<string, number>();
+
+          monthYearData.forEach(row => {
+            if (row.open_balance > 0) {
+              if (row.type === 'receivables' && row.inv_num) {
+                // Para receivables, usar inv_num como chave da conta
+                const currentMin = receivablesByAccount.get(row.inv_num) || Infinity;
+                receivablesByAccount.set(row.inv_num, Math.min(currentMin, row.open_balance));
+              } else if (row.type === 'payables' && row.bill_num) {
+                // Para payables, usar bill_num como chave da conta
+                const currentMin = payablesByAccount.get(row.bill_num) || Infinity;
+                payablesByAccount.set(row.bill_num, Math.min(currentMin, row.open_balance));
+              }
+            }
+          });
+
+          // Somar os mínimos de cada conta
+          const periodOutstandingReceivables = Array.from(receivablesByAccount.values())
+            .filter(value => value !== Infinity)
+            .reduce((sum, value) => sum + value, 0);
+
+          const periodOutstandingPayables = Array.from(payablesByAccount.values())
+            .filter(value => value !== Infinity)
+            .reduce((sum, value) => sum + value, 0);
+
+
+
+          pendingReceivableValues.push(periodOutstandingReceivables);
+          pendingPayableValues.push(periodOutstandingPayables);
+        });
+        
+        outstandingData = { 
+          pendingReceivableValues, 
+          pendingPayableValues 
+        };
+      } else {
+        // Fallback para quando não há dados SQL
+        // const receivablesWithOpenBalance = filteredData.filter(row => 
+        //   row.type === 'receivables' && 
+        //   row.open_balance > 0
+        // );
+        // 
+        // const payablesWithOpenBalance = filteredData.filter(row => 
+        //   row.type === 'payables' && 
+        //   row.open_balance > 0
+        // );
+
+
+      }
     }
 
     const { pendingReceivableValues, pendingPayableValues } = outstandingData;
@@ -811,21 +904,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     labels.forEach((label, index) => {
       // Encontrar o item correspondente nos dados SQL
       const sqlItem = localChartData?.find(item => {
-        // Tentar diferentes formatos de label
-        // SQL retorna "7/2025", JavaScript usa "07"
-        const sqlMonth = item.period_label.split('/')[0];
-        const jsMonth = String(Number(label)).padStart(2, '0');
-        
-        return item.period_label === label || 
-               item.period_label === label.toString() ||
-               item.period_label === String(Number(label)).padStart(2, '0') ||
-               sqlMonth === label ||
-               sqlMonth === jsMonth ||
-               String(Number(sqlMonth)).padStart(2, '0') === jsMonth;
+        return item.period_label === label;
       });
       
       // Se não encontrar correspondência exata, usar o item do mesmo índice
       const itemToUse = sqlItem || localChartData?.[index];
+      
       receivableValues.push(itemToUse?.receivable_amount || 0);
       payableValues.push(itemToUse?.payable_amount || 0);
     });
@@ -841,12 +925,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         pendingReceivable: pendingReceivableValues[idx],
         pendingPayable: pendingPayableValues[idx],
       };
-                    }).filter(row => {
-                  // Verificar se há pelo menos um tipo de dado não-zero (incluindo valores negativos)
-                  const hasSQLData = row.receivable !== 0 || row.payable !== 0;
-                  const hasOutstandingData = (row.pendingReceivable || 0) !== 0 || (row.pendingPayable || 0) !== 0;
-                  return hasSQLData || hasOutstandingData;
-                });
+    }).filter(row => {
+      // Verificar se há pelo menos um tipo de dado não-zero
+      const hasSQLData = row.receivable !== 0 || row.payable !== 0;
+      const hasOutstandingData = (row.pendingReceivable || 0) !== 0 || (row.pendingPayable || 0) !== 0;
+      return hasSQLData || hasOutstandingData;
+    });
 
     const filteredLabels = filtered.map(row => row.label);
     const filteredReceivableValues = filtered.map(row => row.receivable);
@@ -884,36 +968,38 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      datasets.push({
-        label: 'Outstanding Receivable',
-        data: filteredPendingReceivableValues,
-        borderColor: 'rgba(76, 175, 80, 0.7)',
-        backgroundColor: 'rgba(76, 175, 80, 0.18)',
-        borderDash: [8, 6],
-        pointRadius: 4,
-        pointBackgroundColor: 'rgba(76, 175, 80, 0.7)',
-        pointBorderColor: 'rgba(76, 175, 80, 0.7)',
-        pointHoverRadius: 6,
-        borderWidth: 2,
-        fill: false,
-        tension: 0.25,
-        spanGaps: false,
-      });
-      datasets.push({
-        label: 'Outstanding Payable',
-        data: filteredPendingPayableValues,
-        borderColor: 'rgba(211, 47, 47, 0.7)',
-        backgroundColor: 'rgba(211, 47, 47, 0.18)',
-        borderDash: [8, 6],
-        pointRadius: 4,
-        pointBackgroundColor: 'rgba(211, 47, 47, 0.7)',
-        pointBorderColor: 'rgba(211, 47, 47, 0.7)',
-        pointHoverRadius: 6,
-        borderWidth: 2,
-        fill: false,
-        tension: 0.25,
-        spanGaps: false,
-      });
+      if (selectedCompany === 'HVAC') {
+        datasets.push({
+          label: 'Outstanding Receivable',
+          data: filteredPendingReceivableValues,
+          borderColor: 'rgba(76, 175, 80, 0.7)',
+          backgroundColor: 'rgba(76, 175, 80, 0.18)',
+          borderDash: [8, 6],
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(76, 175, 80, 0.7)',
+          pointBorderColor: 'rgba(76, 175, 80, 0.7)',
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.25,
+          spanGaps: false,
+        });
+        datasets.push({
+          label: 'Outstanding Payable',
+          data: filteredPendingPayableValues,
+          borderColor: 'rgba(211, 47, 47, 0.7)',
+          backgroundColor: 'rgba(211, 47, 47, 0.18)',
+          borderDash: [8, 6],
+          pointRadius: 4,
+          pointBackgroundColor: 'rgba(211, 47, 47, 0.7)',
+          pointBorderColor: 'rgba(211, 47, 47, 0.7)',
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.25,
+          spanGaps: false,
+        });
+      }
     } else if (selectedGroup === 'receivable') {
       datasets.push({
         label: 'Receivable',
@@ -929,21 +1015,23 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      datasets.push({
-        label: 'Outstanding Receivable',
-        data: filteredPendingReceivableValues,
-        borderColor: 'rgba(76, 175, 80, 0.18)',
-        backgroundColor: 'rgba(76, 175, 80, 0.06)',
-        borderDash: [8, 6],
-        pointRadius: 0,
-        pointBackgroundColor: 'rgba(76, 175, 80, 0.18)',
-        pointBorderColor: 'rgba(76, 175, 80, 0.18)',
-        pointHoverRadius: 0,
-        borderWidth: 2,
-        fill: false,
-        tension: 0.25,
-        spanGaps: false,
-      });
+      if (selectedCompany === 'HVAC') {
+        datasets.push({
+          label: 'Outstanding Receivable',
+          data: filteredPendingReceivableValues,
+          borderColor: 'rgba(76, 175, 80, 0.18)',
+          backgroundColor: 'rgba(76, 175, 80, 0.06)',
+          borderDash: [8, 6],
+          pointRadius: 0,
+          pointBackgroundColor: 'rgba(76, 175, 80, 0.18)',
+          pointBorderColor: 'rgba(76, 175, 80, 0.18)',
+          pointHoverRadius: 0,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.25,
+          spanGaps: false,
+        });
+      }
     } else {
       datasets.push({
         label: 'Payable',
@@ -959,21 +1047,23 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      datasets.push({
-        label: 'Outstanding Payable',
-        data: filteredPendingPayableValues,
-        borderColor: 'rgba(211, 47, 47, 0.18)',
-        backgroundColor: 'rgba(211, 47, 47, 0.06)',
-        borderDash: [8, 6],
-        pointRadius: 0,
-        pointBackgroundColor: 'rgba(211, 47, 47, 0.18)',
-        pointBorderColor: 'rgba(211, 47, 47, 0.18)',
-        pointHoverRadius: 0,
-        borderWidth: 2,
-        fill: false,
-        tension: 0.25,
-        spanGaps: false,
-      });
+      if (selectedCompany === 'HVAC') {
+        datasets.push({
+          label: 'Outstanding Payable',
+          data: filteredPendingPayableValues,
+          borderColor: 'rgba(211, 47, 47, 0.18)',
+          backgroundColor: 'rgba(211, 47, 47, 0.06)',
+          borderDash: [8, 6],
+          pointRadius: 0,
+          pointBackgroundColor: 'rgba(211, 47, 47, 0.18)',
+          pointBorderColor: 'rgba(211, 47, 47, 0.18)',
+          pointHoverRadius: 0,
+          borderWidth: 2,
+          fill: false,
+          tension: 0.25,
+          spanGaps: false,
+        });
+      }
     }
 
     const chartData = {
@@ -1077,7 +1167,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
           <div className='d-flex justify-content-between align-items-center' style={{ padding: '16px 32px 0 32px', background: 'var(--color-background-primary)', flexShrink: 0 }}>
             <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30, margin: 0 }}>Project Value Over Time</h4>
             <div className='d-flex align-items-center gap-2'>
-              {onNavigateToAccounting && (
+              {onNavigateToAccounting && selectedCompany === 'HVAC' && (
                 <button
                   onClick={onNavigateToAccounting}
                   className="btn-secondary-custom d-flex align-items-center justify-content-center"

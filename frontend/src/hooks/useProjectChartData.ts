@@ -12,11 +12,13 @@ export interface ProjectChartData {
 export function useProjectChartData({ 
   selectedYear, 
   selectedMonth, 
-  selectedGroup 
+  selectedGroup,
+  company = 'HVAC'
 }: { 
   selectedYear: string; 
   selectedMonth: string; 
   selectedGroup: 'all' | 'receivable' | 'payable'; 
+  company?: string;
 }) {
   const [data, setData] = useState<ProjectChartData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,10 +29,12 @@ export function useProjectChartData({
       setLoading(true);
       setError(null);
       
-      const { data: result, error: sqlError } = await supabase.rpc('get_project_chart_data', {
+      // Determinar qual função SQL usar baseado na empresa
+      const functionName = company === 'HVAC' ? 'get_project_chart_data' : 'get_framing_project_chart_data';
+      
+      const { data: result, error: sqlError } = await supabase.rpc(functionName, {
         p_selected_year: selectedYear || null,
-        p_selected_month: selectedMonth || null,
-        p_selected_group: selectedGroup
+        p_selected_month: selectedMonth || null
       });
       
       if (sqlError) {
@@ -50,7 +54,7 @@ export function useProjectChartData({
 
   useEffect(() => {
     fetchData();
-  }, [selectedYear, selectedMonth, selectedGroup]);
+  }, [selectedYear, selectedMonth, selectedGroup, company]);
 
   return { data, loading, error, refetch: fetchData };
 } 

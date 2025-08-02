@@ -200,7 +200,7 @@ export default function Dashboard() {
 
   const handleSelectCompany = (company: string) => {
     setSelectedCompany(company);
-    setShowCompanySubmenu(false);
+    // Manter o submenu visível quando selecionar uma empresa
     // Não mostrar AccountingIndicators diretamente, apenas definir a empresa
     // O renderMainContent vai mostrar Projects com a empresa selecionada
   };
@@ -579,78 +579,87 @@ export default function Dashboard() {
                     animation: isCollapsingSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
                     overflow: 'hidden'
                   }}>
-                      {['HVAC', 'Framing', 'PCG'].map(company => (
-                      <button
-                        key={company}
-                        className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
-                                                 style={{ 
-                           gap: 8, 
-                           padding: '6px 10px', 
-                           borderRadius: 0, 
-                           fontSize: 12,
-                           // ===== ESTADO ATIVO (SELECIONADO) =====
-                           borderLeft: selectedCompany === company ? '3px solid var(--color-brand-blue)' : 'none',
-                           color: selectedCompany === company ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                           fontWeight: selectedCompany === company ? 700 : 400,
-                           transition: 'all 0.2s ease',
-                           cursor: selectedCompany === company ? 'default' : 'pointer',
-                           outline: 'none'
-                         }}
-                          onClick={() => {
-                           if (selectedCompany !== company) {
-                             handleSelectCompany(company);
-                           }
-                         }}
-                         
-                         // ===== HOVER EFFECT (MOUSE POR CIMA) =====
-                         onMouseOver={e => {
-                          e.currentTarget.style.background = 'transparent';
-                          if (selectedCompany !== company) {
-                             e.currentTarget.style.color = 'var(--color-text-primary)';
-                             e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
-                             e.currentTarget.style.backdropFilter = 'blur(4px)';
-                             e.currentTarget.style.borderRight = 'none';
-                           }
-                         }}
-                         
-                         // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
-                         onMouseOut={e => {
-                           if (selectedCompany !== company) {
-                             e.currentTarget.style.background = 'transparent';
-                             e.currentTarget.style.color = 'var(--color-text-secondary)';
-                             e.currentTarget.style.backdropFilter = 'none';
-                             e.currentTarget.style.borderRight = 'none';
-                           }
-                         }}
-                         
-                         // ===== MOUSE DOWN (CLICANDO) =====
-                         onMouseDown={e => {
-                           if (selectedCompany !== company) {
-                             e.currentTarget.style.color = 'white';
-                           }
-                         }}
-                         
-                         // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
-                         onMouseUp={e => {
-                           if (selectedCompany !== company) {
-                             e.currentTarget.style.background = 'var(--color-background-secondary)';
-                             e.currentTarget.style.color = 'var(--color-text-primary)';
-                           }
-                         }}
-                       >
-                          <img 
-                            src={empresaIcones[company] || ''} 
-                            alt={company} 
-                            style={{ 
-                              width: 16, 
-                              height: 16, 
-                              objectFit: 'contain',
-                              marginRight: 8 
-                            }} 
-                          />
-                         {company}
-                       </button>
-                     ))}
+                                             {['HVAC', 'Framing', 'PCG'].map(company => {
+                         const isDisabled = company === 'PCG';
+                         return (
+                           <button
+                             key={company}
+                             className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                             style={{ 
+                               gap: 8, 
+                               padding: '6px 10px', 
+                               borderRadius: 0, 
+                               fontSize: 12,
+                               // ===== ESTADO ATIVO (SELECIONADO) =====
+                               borderLeft: selectedCompany === company ? '3px solid var(--color-brand-blue)' : 'none',
+                                                               color: isDisabled ? 'var(--color-text-secondary)' : (selectedCompany === company ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
+                               fontWeight: selectedCompany === company ? 700 : 400,
+                               transition: 'all 0.2s ease',
+                               cursor: isDisabled ? 'not-allowed' : (selectedCompany === company ? 'default' : 'pointer'),
+                               outline: 'none',
+                               opacity: isDisabled ? 0.5 : 1
+                             }}
+                             onClick={() => {
+                               if (!isDisabled && selectedCompany !== company) {
+                                 handleSelectCompany(company);
+                               }
+                             }}
+                             
+                             // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                             onMouseOver={e => {
+                               if (!isDisabled) {
+                                 e.currentTarget.style.background = 'transparent';
+                                 if (selectedCompany !== company) {
+                                    e.currentTarget.style.color = 'var(--color-text-primary)';
+                                    e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                                    e.currentTarget.style.backdropFilter = 'blur(4px)';
+                                    e.currentTarget.style.borderRight = 'none';
+                                  }
+                               }
+                             }}
+                             
+                             // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                             onMouseOut={e => {
+                               if (!isDisabled) {
+                                 if (selectedCompany !== company) {
+                                   e.currentTarget.style.background = 'transparent';
+                                   e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                   e.currentTarget.style.backdropFilter = 'none';
+                                   e.currentTarget.style.borderRight = 'none';
+                                 }
+                               }
+                             }}
+                             
+                             // ===== MOUSE DOWN (CLICANDO) =====
+                             onMouseDown={e => {
+                               if (!isDisabled && selectedCompany !== company) {
+                                 e.currentTarget.style.color = 'white';
+                               }
+                             }}
+                             
+                             // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                             onMouseUp={e => {
+                               if (!isDisabled && selectedCompany !== company) {
+                                 e.currentTarget.style.background = 'var(--color-background-secondary)';
+                                 e.currentTarget.style.color = 'var(--color-text-primary)';
+                               }
+                             }}
+                           >
+                              <img 
+                                src={empresaIcones[company] || ''} 
+                                alt={company} 
+                                style={{ 
+                                  width: 16, 
+                                  height: 16, 
+                                  objectFit: 'contain',
+                                  marginRight: 8,
+                                  opacity: isDisabled ? 0.5 : 1
+                                }} 
+                              />
+                             {company}{isDisabled ? ' (Em breve)' : ''}
+                           </button>
+                         );
+                       })}
                   </div>
                 )}
               </div>

@@ -77,6 +77,7 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
             selectedYear={selectedYear} 
             selectedMonth={selectedMonth} 
             selectedGroup={selectedGroup} 
+            selectedCompany={selectedCompany}
             onNavigateToAccounting={handleNavigateToAccounting}
           />
         </div>
@@ -86,6 +87,7 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
           <AcceptedEstimatesCarousel 
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
+            selectedCompany={selectedCompany}
           />
         </div>
       </div>

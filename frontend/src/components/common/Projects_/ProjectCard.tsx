@@ -108,10 +108,34 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         {/* Barras de Progresso Financeira */}
         <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 42, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          {/* Determina o referencial baseado no maior valor entre Estimate e Expense */}
+          {/* Determina o referencial baseado no maior valor entre Estimate, Expense e Invoice */}
           {(() => {
-            const referenceValue = Math.max(estimateTotal, expensesTotal);
-            const expensePercentage = referenceValue > 0 ? (expensesTotal / referenceValue) * 100 : 0;
+            const referenceValue = Math.max(estimateTotal, expensesTotal, invoicesTotal);
+            
+            // Determina qual é o maior valor para definir o comportamento
+            const isInvoiceLargest = invoicesTotal >= estimateTotal && invoicesTotal >= expensesTotal;
+            const isEstimateLargest = estimateTotal >= expensesTotal && estimateTotal >= invoicesTotal;
+            const isExpenseLargest = expensesTotal >= estimateTotal && expensesTotal >= invoicesTotal;
+            
+            // Calcula as porcentagens baseado no cenário
+            let expensePercentage, estimatePercentage, invoicePercentage;
+            
+            if (isInvoiceLargest) {
+              // Cenário 3: Invoice é o maior - Invoice = 100%, Expense proporcional ao Invoice
+              expensePercentage = invoicesTotal > 0 ? (expensesTotal / invoicesTotal) * 100 : 0;
+              estimatePercentage = invoicesTotal > 0 ? (estimateTotal / invoicesTotal) * 100 : 0;
+              invoicePercentage = 100; // Invoice sempre 100% quando é o maior
+            } else if (isEstimateLargest) {
+              // Cenário 1: Estimate é o maior - Estimate = 100%, Expense proporcional ao Estimate
+              expensePercentage = estimateTotal > 0 ? (expensesTotal / estimateTotal) * 100 : 0;
+              estimatePercentage = 100; // Estimate sempre 100% quando é o maior
+              invoicePercentage = estimateTotal > 0 ? (invoicesTotal / estimateTotal) * 100 : 0;
+            } else {
+              // Cenário 2: Expense é o maior - Expense = 100%, Estimate proporcional ao Expense
+              expensePercentage = 100; // Expense sempre 100% quando é o maior
+              estimatePercentage = expensesTotal > 0 ? (estimateTotal / expensesTotal) * 100 : 0;
+              invoicePercentage = expensesTotal > 0 ? (invoicesTotal / expensesTotal) * 100 : 0;
+            }
             
             return (
               <>
@@ -133,38 +157,38 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
                   )}
                 </div>
                 
-                {/* Barra de Invoice (inferior) - com background cinza como Estimate */}
-                <div style={{ position: 'relative', width: '100%', height: 15, overflow: 'visible' }}>
-                  {/* Container da barra com borda redimensionada */}
-                  <div style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    height: '100%',
-                    width: `${Math.min(100, (estimateTotal / referenceValue) * 100)}%`,
-                    borderRadius: 4,
-                    border: '1px solid var(--color-border-divider)',
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                    background: 'var(--color-background-secondary)',
-                    transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                    zIndex: 1
-                  }}>
-                    {/* Barra de Invoice (verde) sobreposta */}
-                    {referenceValue > 0 && invoicesTotal > 0 && (
-                      <div style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: 0,
-                        height: '100%',
-                        width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
-                        background: '#1bbf5c', // verde
-                        borderRadius: 4,
-                        transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                        zIndex: 2
-                      }} />
-                    )}
-                  </div>
-                </div>
+                                 {/* Barra de Invoice (inferior) - com background cinza como Estimate */}
+                 <div style={{ position: 'relative', width: '100%', height: 15, overflow: 'visible' }}>
+                   {/* Container da barra com borda redimensionada */}
+                   <div style={{
+                     position: 'absolute',
+                     left: 0,
+                     top: 0,
+                     height: '100%',
+                     width: `${Math.min(100, isInvoiceLargest ? invoicePercentage : estimatePercentage)}%`,
+                     borderRadius: 4,
+                     border: '1px solid var(--color-border-divider)',
+                     boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                     background: 'var(--color-background-secondary)',
+                     transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                     zIndex: 1
+                   }}>
+                     {/* Barra de Invoice (verde) sobreposta */}
+                     {referenceValue > 0 && invoicesTotal > 0 && (
+                       <div style={{
+                         position: 'absolute',
+                         left: 0,
+                         top: 0,
+                         height: '100%',
+                         width: `${Math.min(100, invoicePercentage)}%`,
+                         background: '#1bbf5c', // verde
+                         borderRadius: 4,
+                         transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                         zIndex: 2
+                       }} />
+                     )}
+                   </div>
+                 </div>
               </>
             );
           })()}

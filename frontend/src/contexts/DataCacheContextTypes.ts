@@ -51,7 +51,7 @@ export interface DataCacheContextType {
   fetchAccountingData: (company?: string) => Promise<void>;
   fetchTimesheetData: () => Promise<void>;
   fetchPermitData: () => Promise<void>;
-  fetchQuickbooksData: () => Promise<void>;
+  fetchQuickbooksData: (company?: 'HVAC' | 'Framing') => Promise<void>;
   clearCache: () => void;
   isDataStale: (dataType: keyof CacheData, maxAgeMinutes?: number) => boolean;
 }
