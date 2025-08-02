@@ -1,20 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ProjectFilters from '../components/common/Projects_/ProjectFilters';
 import ProjectChart from '../components/common/Projects_/ProjectChart';
 import AcceptedEstimatesCarousel from '../components/common/Projects_/AcceptedEstimatesCarousel';
+import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
+import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
 
 interface ProjectsProps {
-  onNavigateToTela?: (telaId: string) => void;
-  telas?: Array<{ id: string; descricao: string }>;
+  selectedCompany?: string;
   onShowAccountingContent?: () => void;
 }
 
-export default function Projects({ onNavigateToTela, telas, onShowAccountingContent }: ProjectsProps) {
+export default function Projects({ selectedCompany = 'HVAC', onShowAccountingContent }: ProjectsProps) {
   // Estados para filtros - inicializar com 2025 e todos os meses
-  const [selectedCompany, setSelectedCompany] = useState<string[]>(['Premium HVAC']);
   const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'receivable' | 'payable'>('all');
+
+  // Mapeamento de ícones das empresas
+  const empresaIcones: { [empresa: string]: string } = {
+    'HVAC': sublogoHvac,
+    'Framing': sublogoFraming,
+    'PCG': sublogoPcg,
+  };
 
   // Remover o useEffect que definia o ano atual, pois agora queremos 2025 fixo
   // useEffect(() => {
@@ -34,10 +42,24 @@ export default function Projects({ onNavigateToTela, telas, onShowAccountingCont
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Projects</h1>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img 
+            src={empresaIcones[selectedCompany] || ''} 
+            alt={selectedCompany} 
+            style={{ 
+              width: 24, 
+              height: 24, 
+              objectFit: 'contain'
+            }}
+          />
+          <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+            {selectedCompany}
+          </span>
+          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+            Projects
+          </span>
+        </h1>
         <ProjectFilters
-          selectedCompany={selectedCompany}
-          setSelectedCompany={setSelectedCompany}
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}

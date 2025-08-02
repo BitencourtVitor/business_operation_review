@@ -6,8 +6,12 @@ import SupabaseClient from './supabaseClient.js';
 
 dotenv.config();
 
+// Pegar empresa do argumento da linha de comando ou usar 'hvac' como padrão
+const company = process.argv[2] || 'hvac';
+console.log(`🏢 Processando empresa: ${company.toUpperCase()}`);
+
 const PIPELINE_DIR = process.cwd();
-const DATA_FILE = path.join(PIPELINE_DIR, 'hvac_bills.json');
+const DATA_FILE = path.join(PIPELINE_DIR, `${company}_bills.json`);
 const BACKUP_DIR = path.join(PIPELINE_DIR, 'backup');
 
 function getTimestamp() {
@@ -20,7 +24,7 @@ async function backupAndDeleteOldJson() {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
     await fs.access(DATA_FILE);
-    const backupPath = path.join(BACKUP_DIR, `hvac_bills_backup_${getTimestamp()}.json`);
+    const backupPath = path.join(BACKUP_DIR, `${company}_bills_backup_${getTimestamp()}.json`);
     await fs.copyFile(DATA_FILE, backupPath);
     console.log(`🗄️  Backup criado: ${backupPath}`);
     await fs.unlink(DATA_FILE);
@@ -108,11 +112,11 @@ function transformBills(json) {
 
 async function main() {
   const startTime = Date.now();
-  console.log('--- Iniciando sincronização de Bills ---');
+  console.log(`--- Iniciando sincronização de Bills (${company.toUpperCase()}) ---`);
   await backupAndDeleteOldJson();
   await prepareDataFile();
-  const qb = new QuickBooksClient();
-  const sb = new SupabaseClient();
+  const qb = new QuickBooksClient(company);
+  const sb = new SupabaseClient(company);
 
   // 1. Coleta paginada e salvamento incremental do JSON bruto
   let allBills = [];
@@ -147,7 +151,7 @@ async function main() {
     idMap = await sb.upsertBills(bills);
     console.log(`✅ Bills upserted: ${bills.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_bills:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_bills:`, err.message || err);
     process.exit(1);
   }
 

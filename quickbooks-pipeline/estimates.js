@@ -6,15 +6,19 @@ import SupabaseClient from './supabaseClient.js';
 
 dotenv.config();
 
+// Ler empresa do argumento da linha de comando
+const company = process.argv[2] || 'hvac';
+console.log(`🏢 Processando empresa: ${company.toUpperCase()}`);
+
 const BACKUP_DIR = path.join(process.cwd(), 'backup');
-const RAW_JSON = path.join(process.cwd(), 'hvac_estimates.json');
+const RAW_JSON = path.join(process.cwd(), `${company}_estimates.json`);
 
 async function backupAndDeleteOldJson() {
   try {
     await fs.mkdir(BACKUP_DIR, { recursive: true });
     await fs.access(RAW_JSON);
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const backupPath = path.join(BACKUP_DIR, `hvac_estimates_${timestamp}.json`);
+    const backupPath = path.join(BACKUP_DIR, `${company}_estimates_${timestamp}.json`);
     await fs.copyFile(RAW_JSON, backupPath);
     console.log(`🗄️  Backup criado: ${backupPath}`);
     await fs.unlink(RAW_JSON);
@@ -85,8 +89,8 @@ async function main() {
   const startTime = Date.now();
   console.log('--- Iniciando sincronização de Estimates ---');
   await backupAndDeleteOldJson();
-  const qb = new QuickBooksClient();
-  const sb = new SupabaseClient();
+  const qb = new QuickBooksClient(company);
+  const sb = new SupabaseClient(company);
 
   // 1. Coleta paginada e salvamento incremental do JSON bruto
   let allEstimates = [];

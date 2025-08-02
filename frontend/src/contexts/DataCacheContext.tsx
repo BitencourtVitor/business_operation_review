@@ -54,7 +54,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
     return Date.now() - data.lastFetch > maxAge;
   };
 
-  const fetchAccountingData = async () => {
+  const fetchAccountingData = async (company?: string) => {
     // Se já está carregando, não fazer nada
     if (cache.accounting.loading) return;
     
@@ -73,14 +73,19 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       let receivablesData: unknown[] = [];
       let payablesData: unknown[] = [];
       
+      // Determinar as tabelas baseado na empresa
+      const companySuffix = company ? `_${company.toLowerCase()}` : '';
+      const receivablesTable = `receivables_accounting${companySuffix}`;
+      const payablesTable = `payables_accounting${companySuffix}`;
+      
       try {
-        receivablesData = await fetchAllRows('receivables_accounting');
+        receivablesData = await fetchAllRows(receivablesTable);
       } catch {
         receivablesData = [];
       }
       
       try {
-        payablesData = await fetchAllRows('payables_accounting');
+        payablesData = await fetchAllRows(payablesTable);
       } catch {
         payablesData = [];
       }

@@ -6,8 +6,12 @@ import SupabaseClient from './supabaseClient.js';
 
 dotenv.config();
 
+// Ler empresa do argumento da linha de comando
+const company = process.argv[2] || 'hvac';
+console.log(`🏢 Processando empresa: ${company.toUpperCase()}`);
+
 const PIPELINE_DIR = process.cwd();
-const DATA_FILE = path.join(PIPELINE_DIR, 'hvac_purchases.json');
+const DATA_FILE = path.join(PIPELINE_DIR, `${company}_purchases.json`);
 const BACKUP_DIR = path.join(PIPELINE_DIR, 'backup');
 
 function getTimestamp() {
@@ -24,7 +28,7 @@ async function backupAndDeleteOldJson() {
     const fileExists = await fs.access(DATA_FILE).then(() => true).catch(() => false);
     
     if (fileExists) {
-      const backupPath = path.join(BACKUP_DIR, `hvac_purchases_backup_${getTimestamp()}.json`);
+      const backupPath = path.join(BACKUP_DIR, `${company}_purchases_backup_${getTimestamp()}.json`);
       await fs.copyFile(DATA_FILE, backupPath);
       console.log(`🗄️  Backup criado: ${backupPath}`);
       await fs.unlink(DATA_FILE);
@@ -123,8 +127,8 @@ async function main() {
   console.log('--- Iniciando sincronização de Purchases ---');
   await backupAndDeleteOldJson();
   await prepareDataFile();
-  const qb = new QuickBooksClient();
-  const sb = new SupabaseClient();
+  const qb = new QuickBooksClient(company);
+  const sb = new SupabaseClient(company);
 
   // 1. Coleta paginada e salvamento incremental do JSON bruto
   let allPurchases = [];

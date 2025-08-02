@@ -77,9 +77,10 @@ interface AccountingIndicatorsProps {
   role: string;
   isResponsavelPelaTela: boolean;
   onBackToProjects?: () => void;
+  selectedCompany?: string;
 }
 
-const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, onBackToProjects }) => {
+const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, onBackToProjects, selectedCompany = 'HVAC' }) => {
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [podeEditar, setPodeEditar] = useState(false);
@@ -127,7 +128,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     agingIntervals, 
     receivablesCategories, 
     payablesCategories 
-  } = useAccountingDataCached();
+  } = useAccountingDataCached(selectedCompany);
 
   // Estado local para os meses disponíveis
   const [months, setMonths] = useState<string[]>([]);
@@ -160,6 +161,19 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   useEffect(() => {
     setTelaId(telaIdFromProps);
   }, [telaIdFromProps]);
+
+  // Recarregar dados quando a empresa mudar
+  useEffect(() => {
+    // Resetar filtros quando mudar de empresa
+    setSelectedYear('');
+    setSelectedMonth('');
+    setSelectedGroup('all');
+    setSeparateAging(false);
+    setSelectedAging([]);
+    setSelectedReceivablesCategories([]);
+    setSelectedPayablesCategories([]);
+    setSelectedDay('');
+  }, [selectedCompany]);
 
   // Buscar usuário responsável pela tela e definir permissões (igual ao TimesheetAnalysis)
   useEffect(() => {
@@ -524,7 +538,28 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Barra superior com título e filtros (igual ao backup e TimesheetAnalysis) */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Outstanding Indicators</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button
+            onClick={onBackToProjects}
+            className="btn-secondary-custom d-flex align-items-center justify-content-center"
+            style={{ 
+              width: 32, 
+              height: 32, 
+              fontSize: 14,
+              borderRadius: 6,
+              border: '1px solid var(--color-border-divider)',
+              background: 'transparent',
+              color: 'var(--color-text-secondary)',
+              transition: 'all 0.2s ease'
+            }}
+            title="Voltar à seleção de empresa"
+          >
+            <i className="bi bi-arrow-left" />
+          </button>
+          <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, marginBottom: 0 }}>
+            Outstanding Indicators - {selectedCompany}
+          </h1>
+        </div>
         <AccountingFilters
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}

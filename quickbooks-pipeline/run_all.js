@@ -15,13 +15,21 @@ const scripts = [
   'deposit.js',
 ];
 
-for (const script of scripts) {
-  console.log(`\n==============================\nExecutando: ${script}\n==============================`);
-  const result = spawnSync('node', [script], { stdio: 'inherit', cwd: __dirname });
-  if (result.status !== 0) {
-    console.error(`Erro ao executar ${script}. Parando a execução.`);
-    process.exit(result.status);
+const companies = ['hvac', 'framing'];
+
+for (const company of companies) {
+  console.log(`\n🏢 ==========================================`);
+  console.log(`🏢 PROCESSANDO EMPRESA: ${company.toUpperCase()}`);
+  console.log(`🏢 ==========================================`);
+  
+  for (const script of scripts) {
+    console.log(`\n==============================\nExecutando: ${script} para ${company.toUpperCase()}\n==============================`);
+    const result = spawnSync('node', [script, company], { stdio: 'inherit', cwd: __dirname });
+    if (result.status !== 0) {
+      console.error(`Erro ao executar ${script} para ${company}. Parando a execução.`);
+      process.exit(result.status);
+    }
   }
 }
 
-console.log('\nTodos os scripts foram executados com sucesso!'); 
+console.log('\n✅ Todos os scripts foram executados com sucesso para todas as empresas!'); 

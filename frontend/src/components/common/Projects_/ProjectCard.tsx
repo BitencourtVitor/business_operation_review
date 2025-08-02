@@ -108,40 +108,66 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
         {/* Barras de Progresso Financeira */}
         <div style={{margin:'6px 0' , width: '100%', boxSizing: 'border-box', height: 42, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          {/* Barra de Expenses (superior) - sem background, apenas cresce */}
-          <div style={{ position: 'relative', width: '100%', height: 15, borderRadius: 4, overflow: 'visible' }}>
-            {estimateTotal > 0 && expensesTotal > 0 && (
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: `${Math.min(100, (expensesTotal / estimateTotal) * 100)}%`,
-                background: '#dc3545', // vermelho
-                borderRadius: 4,
-                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                zIndex: 2,
-                border: '1px solid var(--color-border-divider)'
-              }} />
-            )}
-          </div>
-          
-          {/* Barra de Invoices (inferior) - com background */}
-          <div style={{ position: 'relative', width: '100%', height: 15, background: 'var(--color-background-secondary)', borderRadius: 4, border: '1px solid var(--color-border-divider)', overflow: 'visible', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            {estimateTotal > 0 && invoicesTotal > 0 && (
-              <div style={{
-                position: 'absolute',
-                left: 0,
-                top: 0,
-                height: '100%',
-                width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
-                background: '#1bbf5c', // verde
-                borderRadius: 4,
-                transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
-                zIndex: 2
-              }} />
-            )}
-          </div>
+          {/* Determina o referencial baseado no maior valor entre Estimate e Expense */}
+          {(() => {
+            const referenceValue = Math.max(estimateTotal, expensesTotal);
+            const expensePercentage = referenceValue > 0 ? (expensesTotal / referenceValue) * 100 : 0;
+            
+            return (
+              <>
+                {/* Barra de Expenses (superior) - sem background, apenas cresce */}
+                <div style={{ position: 'relative', width: '100%', height: 15, borderRadius: 4, overflow: 'visible' }}>
+                  {referenceValue > 0 && expensesTotal > 0 && (
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 0,
+                      height: '100%',
+                      width: `${Math.min(100, expensePercentage)}%`,
+                      background: '#dc3545', // vermelho
+                      borderRadius: 4,
+                      transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                      zIndex: 2,
+                      border: '1px solid var(--color-border-divider)'
+                    }} />
+                  )}
+                </div>
+                
+                {/* Barra de Invoice (inferior) - com background cinza como Estimate */}
+                <div style={{ position: 'relative', width: '100%', height: 15, overflow: 'visible' }}>
+                  {/* Container da barra com borda redimensionada */}
+                  <div style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    height: '100%',
+                    width: `${Math.min(100, (estimateTotal / referenceValue) * 100)}%`,
+                    borderRadius: 4,
+                    border: '1px solid var(--color-border-divider)',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                    background: 'var(--color-background-secondary)',
+                    transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                    zIndex: 1
+                  }}>
+                    {/* Barra de Invoice (verde) sobreposta */}
+                    {referenceValue > 0 && invoicesTotal > 0 && (
+                      <div style={{
+                        position: 'absolute',
+                        left: 0,
+                        top: 0,
+                        height: '100%',
+                        width: `${Math.min(100, (invoicesTotal / estimateTotal) * 100)}%`,
+                        background: '#1bbf5c', // verde
+                        borderRadius: 4,
+                        transition: 'width 0.5s cubic-bezier(0.4,0,0.2,1)',
+                        zIndex: 2
+                      }} />
+                    )}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
         {/* Bloco de métricas */}
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>

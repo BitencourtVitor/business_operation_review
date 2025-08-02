@@ -4,12 +4,28 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class QuickBooksClient {
-  constructor() {
+  constructor(company = 'hvac') {
     this.clientId = process.env.CLIENT_ID;
     this.clientSecret = process.env.CLIENT_SECRET;
-    this.realmId = process.env.REALM_ID;
-    this.accessToken = process.env.ACCESS_TOKEN;
-    this.refreshToken = process.env.REFRESH_TOKEN;
+    
+    // Realm ID específico por empresa
+    if (company === 'hvac') {
+      this.realmId = process.env.HVAC_REALM_ID || process.env.REALM_ID;
+      this.accessToken = process.env.HVAC_ACCESS_TOKEN;
+      this.refreshToken = process.env.HVAC_REFRESH_TOKEN;
+    } else if (company === 'framing') {
+      this.realmId = process.env.FRAMING_REALM_ID || process.env.REALM_ID;
+      this.accessToken = process.env.FRAMING_ACCESS_TOKEN;
+      this.refreshToken = process.env.FRAMING_REFRESH_TOKEN;
+    } else {
+      // Fallback para compatibilidade
+      this.realmId = process.env.REALM_ID;
+      this.accessToken = process.env.ACCESS_TOKEN;
+      this.refreshToken = process.env.REFRESH_TOKEN;
+    }
+    
+    this.company = company;
+    
     // URL de autorização correta para produção e sandbox
     this.authUrl = 'https://appcenter.intuit.com/connect/oauth2';
     // Endpoint de token para produção e sandbox
@@ -59,8 +75,18 @@ class QuickBooksClient {
       
       console.log('✅ Tokens obtidos com sucesso!');
       console.log('📝 Adicione ao seu arquivo .env:');
-      console.log(`ACCESS_TOKEN=${data.access_token}`);
-      console.log(`REFRESH_TOKEN=${data.refresh_token}`);
+      
+      if (this.company === 'hvac') {
+        console.log(`HVAC_ACCESS_TOKEN=${data.access_token}`);
+        console.log(`HVAC_REFRESH_TOKEN=${data.refresh_token}`);
+      } else if (this.company === 'framing') {
+        console.log(`FRAMING_ACCESS_TOKEN=${data.access_token}`);
+        console.log(`FRAMING_REFRESH_TOKEN=${data.refresh_token}`);
+      } else {
+        console.log(`ACCESS_TOKEN=${data.access_token}`);
+        console.log(`REFRESH_TOKEN=${data.refresh_token}`);
+      }
+      
       console.log(`\n⏰ Access Token expira em: ${data.expires_in} segundos`);
       console.log(`🔄 Refresh Token expira em: ${data.refresh_token_expires_in} segundos (${Math.round(data.refresh_token_expires_in / 86400)} dias)`);
       
@@ -103,11 +129,27 @@ class QuickBooksClient {
       console.log(`⏰ Novo token expira em: ${data.expires_in} segundos`);
       
       // Atualizar variáveis de ambiente se possível
-      if (process.env.ACCESS_TOKEN) {
-        process.env.ACCESS_TOKEN = this.accessToken;
-      }
-      if (process.env.REFRESH_TOKEN) {
-        process.env.REFRESH_TOKEN = this.refreshToken;
+      if (this.company === 'hvac') {
+        if (process.env.HVAC_ACCESS_TOKEN) {
+          process.env.HVAC_ACCESS_TOKEN = this.accessToken;
+        }
+        if (process.env.HVAC_REFRESH_TOKEN) {
+          process.env.HVAC_REFRESH_TOKEN = this.refreshToken;
+        }
+      } else if (this.company === 'framing') {
+        if (process.env.FRAMING_ACCESS_TOKEN) {
+          process.env.FRAMING_ACCESS_TOKEN = this.accessToken;
+        }
+        if (process.env.FRAMING_REFRESH_TOKEN) {
+          process.env.FRAMING_REFRESH_TOKEN = this.refreshToken;
+        }
+      } else {
+        if (process.env.ACCESS_TOKEN) {
+          process.env.ACCESS_TOKEN = this.accessToken;
+        }
+        if (process.env.REFRESH_TOKEN) {
+          process.env.REFRESH_TOKEN = this.refreshToken;
+        }
       }
       
       return this.accessToken;
@@ -225,7 +267,7 @@ class QuickBooksClient {
   async validateConnection() {
     try {
       console.log('🔍 Validando conexão com QuickBooks...');
-      const response = await this.makeRequest('companyinfo/' + this.realmId);
+      const response = await this.makeRequest('companyinfo');
       console.log('✅ Conexão válida!');
       console.log(`🏢 Empresa: ${response.CompanyInfo.CompanyName}`);
       return true;

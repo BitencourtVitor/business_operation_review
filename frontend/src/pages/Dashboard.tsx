@@ -4,6 +4,9 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
+import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
+import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
 import TimesheetAnalysis from './TimesheetAnalysis';
 import PermitControl from './PermitControl';
 import Projects from './Projects';
@@ -33,6 +36,9 @@ export default function Dashboard() {
   const [permissoes, setPermissoes] = useState<Permissao>({});
   const [usuarioId, setUsuarioId] = useState<string>('');
   const [showAccountingContent, setShowAccountingContent] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<string>('HVAC');
+  const [showCompanySubmenu, setShowCompanySubmenu] = useState(false);
+  const [isCollapsingSubmenu, setIsCollapsingSubmenu] = useState(false);
 
   // Buscar dados do usuário e telas
   useEffect(() => {
@@ -116,6 +122,8 @@ export default function Dashboard() {
             const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
             if (accountingTela) {
               setTelaId(accountingTela.id);
+              // Mostrar o submenu de empresas automaticamente na primeira vez
+              setShowCompanySubmenu(true);
             } else {
               setTelaId(telasData[0].id);
             }
@@ -150,9 +158,35 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  const handleSetMainContent = (telaId: string) => {
-    setTelaId(telaId);
-    setShowAccountingContent(false); // Reset accounting content when changing telaId
+  const handleSetMainContent = (newTelaId: string) => {
+    const tela = telas.find(t => t.id === newTelaId);
+    const currentTela = telas.find(t => t.id === telaId);
+    
+    // Se for Accounting Indicators, mostrar submenu de empresas
+    if (tela?.descricao === 'Accounting Indicators') {
+      setSelectedCompany('HVAC'); // Sempre resetar para HVAC
+      setShowCompanySubmenu(true);
+      setIsCollapsingSubmenu(false);
+      setTelaId(newTelaId);
+      setShowAccountingContent(false);
+    } else {
+      // Se estamos saindo do Accounting Indicators, fazer animação de saída
+      if (currentTela?.descricao === 'Accounting Indicators' && showCompanySubmenu) {
+        setIsCollapsingSubmenu(true);
+        // Aguardar a animação terminar antes de mudar a tela
+        setTimeout(() => {
+          setShowCompanySubmenu(false);
+          setIsCollapsingSubmenu(false);
+          setTelaId(newTelaId);
+          setShowAccountingContent(false);
+        }, 300); // Duração da animação
+      } else {
+        setShowCompanySubmenu(false);
+        setIsCollapsingSubmenu(false);
+        setTelaId(newTelaId);
+        setShowAccountingContent(false);
+      }
+    }
   };
 
   const handleShowAccountingContent = () => {
@@ -161,7 +195,17 @@ export default function Dashboard() {
 
   const handleBackToProjects = () => {
     setShowAccountingContent(false);
+    setShowCompanySubmenu(true);
   };
+
+  const handleSelectCompany = (company: string) => {
+    setSelectedCompany(company);
+    setShowCompanySubmenu(false);
+    // Não mostrar AccountingIndicators diretamente, apenas definir a empresa
+    // O renderMainContent vai mostrar Projects com a empresa selecionada
+  };
+
+
 
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
@@ -172,6 +216,13 @@ export default function Dashboard() {
     'IT Projects': 'bi bi-braces-asterisk',
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
+  };
+
+  // Mapeamento de ícones das empresas
+  const empresaIcones: { [empresa: string]: string } = {
+    'HVAC': sublogoHvac,
+    'Framing': sublogoFraming,
+    'PCG': sublogoPcg,
   };
 
   // Função para ordenar telas de acordo com a ordem específica
@@ -290,6 +341,7 @@ export default function Dashboard() {
         role={role}
         isResponsavelPelaTela={isResponsavelPelaTela}
         onBackToProjects={handleBackToProjects}
+        selectedCompany={selectedCompany}
       />;
     }
 
@@ -299,7 +351,10 @@ export default function Dashboard() {
       case 'Timesheet Analysis':
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Accounting Indicators':
-        return <Projects onNavigateToTela={handleSetMainContent} telas={telas} onShowAccountingContent={handleShowAccountingContent} />;
+        return <Projects 
+          selectedCompany={selectedCompany}
+          onShowAccountingContent={handleShowAccountingContent} 
+        />;
       case 'Permit Control':
         return <PermitControl telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Takeoff Works':
@@ -478,17 +533,127 @@ export default function Dashboard() {
           overflowY: 'hidden'
         }}>
           {/* All screens in a single list */}
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px 2px 10px'}}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px 0'}}>
             {ordenarTelas(telas).map(tela => (
-              <button
-                key={tela.id}
-                className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
-                onClick={() => handleSetMainContent(tela.id)}
-              >
-                <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-                {tela.descricao}
-              </button>
+              <div key={tela.id} style={{ width: '100%' }}>
+                                 <button
+                   className={`btn-sidebar d-flex align-items-center justify-content-start w-100${tela.descricao === 'Accounting Indicators' ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                                       style={{ 
+                      gap: 10, 
+                      padding: '8px 12px', 
+                      borderRadius: 8, 
+                      fontSize: 14,
+                      cursor: telaId === tela.id ? 'default' : 'pointer',
+                      marginBottom: tela.descricao === 'Accounting Indicators' && telaId === tela.id ? 0 : '0.5rem'
+                    }}
+                   onClick={() => {
+                     if (telaId !== tela.id) {
+                       handleSetMainContent(tela.id);
+                     }
+                   }}
+                 >
+                  <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
+                  {tela.descricao}
+                  {tela.descricao === 'Accounting Indicators' && showAccountingContent && (
+                    <span style={{ 
+                      marginLeft: 'auto', 
+                      fontSize: 10, 
+                      color: 'var(--color-accent-primary)',
+                      fontWeight: 600
+                    }}>
+                      {selectedCompany}
+                    </span>
+                  )}
+                </button>
+                
+                {/* Submenu de empresas para Accounting Indicators */}
+                {tela.descricao === 'Accounting Indicators' && (showCompanySubmenu || isCollapsingSubmenu) && telaId === tela.id && (
+                  <div style={{ 
+                    padding: '2px 0',
+                    marginLeft: '10px',
+                    borderLeft: '1px solid var(--color-border-divider)',
+                    marginBottom: '.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    animation: isCollapsingSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
+                    overflow: 'hidden'
+                  }}>
+                      {['HVAC', 'Framing', 'PCG'].map(company => (
+                      <button
+                        key={company}
+                        className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                                                 style={{ 
+                           gap: 8, 
+                           padding: '6px 10px', 
+                           borderRadius: 0, 
+                           fontSize: 12,
+                           // ===== ESTADO ATIVO (SELECIONADO) =====
+                           borderLeft: selectedCompany === company ? '3px solid var(--color-brand-blue)' : 'none',
+                           color: selectedCompany === company ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                           fontWeight: selectedCompany === company ? 700 : 400,
+                           transition: 'all 0.2s ease',
+                           cursor: selectedCompany === company ? 'default' : 'pointer',
+                           outline: 'none'
+                         }}
+                          onClick={() => {
+                           if (selectedCompany !== company) {
+                             handleSelectCompany(company);
+                           }
+                         }}
+                         
+                         // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                         onMouseOver={e => {
+                          e.currentTarget.style.background = 'transparent';
+                          if (selectedCompany !== company) {
+                             e.currentTarget.style.color = 'var(--color-text-primary)';
+                             e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                             e.currentTarget.style.backdropFilter = 'blur(4px)';
+                             e.currentTarget.style.borderRight = 'none';
+                           }
+                         }}
+                         
+                         // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                         onMouseOut={e => {
+                           if (selectedCompany !== company) {
+                             e.currentTarget.style.background = 'transparent';
+                             e.currentTarget.style.color = 'var(--color-text-secondary)';
+                             e.currentTarget.style.backdropFilter = 'none';
+                             e.currentTarget.style.borderRight = 'none';
+                           }
+                         }}
+                         
+                         // ===== MOUSE DOWN (CLICANDO) =====
+                         onMouseDown={e => {
+                           if (selectedCompany !== company) {
+                             e.currentTarget.style.color = 'white';
+                           }
+                         }}
+                         
+                         // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                         onMouseUp={e => {
+                           if (selectedCompany !== company) {
+                             e.currentTarget.style.background = 'var(--color-background-secondary)';
+                             e.currentTarget.style.color = 'var(--color-text-primary)';
+                           }
+                         }}
+                       >
+                          <img 
+                            src={empresaIcones[company] || ''} 
+                            alt={company} 
+                            style={{ 
+                              width: 16, 
+                              height: 16, 
+                              objectFit: 'contain',
+                              marginRight: 8 
+                            }} 
+                          />
+                         {company}
+                       </button>
+                     ))}
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>

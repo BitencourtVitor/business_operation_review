@@ -4,18 +4,20 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 class SupabaseClient {
-  constructor() {
+  constructor(company = 'hvac') {
     this.supabase = createClient(
       process.env.SUPABASE_URL,
-      process.env.SUPABASE_KEY
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY
     );
+    this.company = company;
+    this.tablePrefix = company === 'hvac' ? 'hvac_' : 'framing_';
   }
 
   // Upsert estimates principais e retorna mapping external_id -> id
   async upsertEstimates(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_estimates')
+      .from(`${this.tablePrefix}estimates`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -30,7 +32,7 @@ class SupabaseClient {
   async upsertEstimateLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_estimate_lines')
+      .from(`${this.tablePrefix}estimate_lines`)
       .upsert(linesRows, { onConflict: 'estimate_id,line_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -39,7 +41,7 @@ class SupabaseClient {
   async upsertEstimateLinks(linksRows) {
     if (!linksRows || linksRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_estimate_links')
+      .from(`${this.tablePrefix}estimate_links`)
       .upsert(linksRows, { onConflict: 'estimate_id,txn_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -48,7 +50,7 @@ class SupabaseClient {
   async upsertInvoices(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_invoices')
+      .from(`${this.tablePrefix}invoices`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -63,7 +65,7 @@ class SupabaseClient {
   async upsertInvoiceLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_invoice_lines')
+      .from(`${this.tablePrefix}invoice_lines`)
       .upsert(linesRows, { onConflict: 'invoice_id,external_line_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -72,7 +74,7 @@ class SupabaseClient {
   async upsertInvoiceLinks(linksRows) {
     if (!linksRows || linksRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_invoice_links')
+      .from(`${this.tablePrefix}invoice_links`)
       .upsert(linksRows, { onConflict: 'invoice_id,linked_txn_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -81,7 +83,7 @@ class SupabaseClient {
   async upsertBills(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_bills')
+      .from(`${this.tablePrefix}bills`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -96,7 +98,7 @@ class SupabaseClient {
   async upsertBillLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_bill_lines')
+      .from(`${this.tablePrefix}bill_lines`)
       .upsert(linesRows, { onConflict: 'bill_id,line_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -105,39 +107,43 @@ class SupabaseClient {
   async upsertBillLinks(linksRows) {
     if (!linksRows || linksRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_bill_links')
+      .from(`${this.tablePrefix}bill_links`)
       .upsert(linksRows, { onConflict: 'bill_id,txn_id', ignoreDuplicates: false });
     if (error) throw error;
   }
 
-  // Upsert payments principais
+  // Upsert payments principais e retorna mapping external_id -> id
   async upsertPayments(mainRows) {
-    if (!mainRows || mainRows.length === 0) return;
-    const { error } = await this.supabase
-      .from('hvac_payments')
-      .upsert(mainRows, { onConflict: 'id', ignoreDuplicates: false });
+    if (!mainRows || mainRows.length === 0) return {};
+    const { data, error } = await this.supabase
+      .from(`${this.tablePrefix}payments`)
+      .upsert(mainRows, { onConflict: 'id', ignoreDuplicates: false })
+      .select('id');
     if (error) throw error;
+    const idMap = {};
+    for (const row of data) {
+      idMap[row.id] = row.id;
+    }
+    return idMap;
   }
 
-  // Upsert payment links
+  // Upsert links de payment
   async upsertPaymentLinks(linksRows) {
     if (!linksRows || linksRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_payment_links')
+      .from(`${this.tablePrefix}payment_links`)
       .upsert(linksRows, { onConflict: 'payment_id,txn_id', ignoreDuplicates: false });
     if (error) throw error;
   }
 
-  // Upsert bill payments principais (agora com id UUID autogerado)
+  // Upsert bill payments principais e retorna mapping external_id -> id
   async upsertBillPayments(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
-    // upsert por external_id para garantir unicidade do registro externo
     const { data, error } = await this.supabase
-      .from('hvac_bill_payments')
+      .from(`${this.tablePrefix}bill_payments`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
-    // retorna um map external_id -> id (UUID)
     const idMap = {};
     for (const row of data) {
       idMap[row.external_id] = row.id;
@@ -145,11 +151,11 @@ class SupabaseClient {
     return idMap;
   }
 
-  // Upsert bill payment links (agora bill_payment_id é UUID)
+  // Upsert links de bill payment
   async upsertBillPaymentLinks(linksRows) {
     if (!linksRows || linksRows.length === 0) return;
     const { error } = await this.supabase
-      .from('hvac_bill_payment_links')
+      .from(`${this.tablePrefix}bill_payment_links`)
       .upsert(linksRows, { onConflict: 'bill_payment_id,txn_id', ignoreDuplicates: false });
     if (error) throw error;
   }
@@ -158,7 +164,7 @@ class SupabaseClient {
   async upsertPurchases(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_purchases')
+      .from(`${this.tablePrefix}purchases`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -172,50 +178,10 @@ class SupabaseClient {
   // Upsert linhas de purchase
   async upsertPurchaseLines(linesRows) {
     if (!linesRows || linesRows.length === 0) return;
-    
-    try {
-      // Filtrar linhas que têm external_line_id (não null)
-      const linesWithExternalId = linesRows.filter(line => line.external_line_id != null);
-      const linesWithoutExternalId = linesRows.filter(line => line.external_line_id == null);
-      
-      console.log(`📊 Processando ${linesWithExternalId.length} linhas com external_line_id e ${linesWithoutExternalId.length} sem external_line_id`);
-      
-      // Processar linhas com external_line_id usando upsert
-      if (linesWithExternalId.length > 0) {
-        try {
-          const { error } = await this.supabase
-            .from('hvac_purchase_lines')
-            .upsert(linesWithExternalId, { onConflict: 'purchase_id,external_line_id', ignoreDuplicates: false });
-          
-          if (error) {
-            console.log('⚠️ Constraint purchase_id,external_line_id não encontrada. Usando método alternativo...');
-            await this.processLinesWithDeleteInsert(linesWithExternalId);
-          } else {
-            console.log(`✅ ${linesWithExternalId.length} linhas upserted com sucesso`);
-          }
-        } catch (error) {
-          console.log('⚠️ Erro no upsert, usando método alternativo...');
-          await this.processLinesWithDeleteInsert(linesWithExternalId);
-        }
-      }
-      
-      // Processar linhas sem external_line_id usando insert simples
-      if (linesWithoutExternalId.length > 0) {
-        console.log('📝 Inserindo linhas sem external_line_id...');
-        const { error: insertError } = await this.supabase
-          .from('hvac_purchase_lines')
-          .insert(linesWithoutExternalId);
-        
-        if (insertError) {
-          console.error('❌ Erro ao inserir linhas sem external_line_id:', insertError);
-          throw insertError;
-        }
-        console.log(`✅ ${linesWithoutExternalId.length} linhas sem external_line_id inseridas`);
-      }
-      
-    } catch (error) {
-      throw error;
-    }
+    const { error } = await this.supabase
+      .from(`${this.tablePrefix}purchase_lines`)
+      .upsert(linesRows, { onConflict: 'purchase_id,external_line_id', ignoreDuplicates: false });
+    if (error) throw error;
   }
   
   // Método auxiliar para deletar e inserir linhas
@@ -246,7 +212,7 @@ class SupabaseClient {
   async upsertVendorCredits(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_vendor_credits')
+      .from(`${this.tablePrefix}vendor_credits`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -272,7 +238,7 @@ class SupabaseClient {
       if (linesWithExternalId.length > 0) {
         try {
           const { error } = await this.supabase
-            .from('hvac_vendor_credit_lines')
+            .from(`${this.tablePrefix}vendor_credit_lines`)
             .upsert(linesWithExternalId, { onConflict: 'vendor_credit_id,external_line_id', ignoreDuplicates: false });
           
           if (error) {
@@ -291,7 +257,7 @@ class SupabaseClient {
       if (linesWithoutExternalId.length > 0) {
         console.log('📝 Inserindo linhas sem external_line_id...');
         const { error: insertError } = await this.supabase
-          .from('hvac_vendor_credit_lines')
+          .from(`${this.tablePrefix}vendor_credit_lines`)
           .insert(linesWithoutExternalId);
         
         if (insertError) {
@@ -312,14 +278,14 @@ class SupabaseClient {
     for (const line of linesRows) {
       // Deletar registros existentes com mesmo vendor_credit_id e external_line_id
       await this.supabase
-        .from('hvac_vendor_credit_lines')
+        .from(`${this.tablePrefix}vendor_credit_lines`)
         .delete()
         .eq('vendor_credit_id', line.vendor_credit_id)
         .eq('external_line_id', line.external_line_id);
       
       // Inserir novo registro
       const { error: insertError } = await this.supabase
-        .from('hvac_vendor_credit_lines')
+        .from(`${this.tablePrefix}vendor_credit_lines`)
         .insert(line);
       
       if (insertError) {
@@ -334,7 +300,7 @@ class SupabaseClient {
   async upsertDeposits(mainRows) {
     if (!mainRows || mainRows.length === 0) return {};
     const { data, error } = await this.supabase
-      .from('hvac_deposits')
+      .from(`${this.tablePrefix}deposits`)
       .upsert(mainRows, { onConflict: 'external_id', ignoreDuplicates: false })
       .select('id, external_id');
     if (error) throw error;
@@ -360,7 +326,7 @@ class SupabaseClient {
       if (linesWithExternalId.length > 0) {
         try {
           const { error } = await this.supabase
-            .from('hvac_deposit_lines')
+            .from(`${this.tablePrefix}deposit_lines`)
             .upsert(linesWithExternalId, { onConflict: 'deposit_id,external_line_id', ignoreDuplicates: false });
           
           if (error) {
@@ -379,7 +345,7 @@ class SupabaseClient {
       if (linesWithoutExternalId.length > 0) {
         console.log('📝 Inserindo linhas sem external_line_id...');
         const { error: insertError } = await this.supabase
-          .from('hvac_deposit_lines')
+          .from(`${this.tablePrefix}deposit_lines`)
           .insert(linesWithoutExternalId);
         
         if (insertError) {
@@ -400,14 +366,14 @@ class SupabaseClient {
     for (const line of linesRows) {
       // Deletar registros existentes com mesmo deposit_id e external_line_id
       await this.supabase
-        .from('hvac_deposit_lines')
+        .from(`${this.tablePrefix}deposit_lines`)
         .delete()
         .eq('deposit_id', line.deposit_id)
         .eq('external_line_id', line.external_line_id);
       
       // Inserir novo registro
       const { error: insertError } = await this.supabase
-        .from('hvac_deposit_lines')
+        .from(`${this.tablePrefix}deposit_lines`)
         .insert(line);
       
       if (insertError) {
@@ -422,7 +388,7 @@ class SupabaseClient {
   async deleteBillLines(bill_id) {
     if (!bill_id) return;
     const { error } = await this.supabase
-      .from('hvac_bill_lines')
+      .from(`${this.tablePrefix}bill_lines`)
       .delete()
       .eq('bill_id', bill_id);
     if (error) throw error;
@@ -432,7 +398,7 @@ class SupabaseClient {
   async deleteBillLinks(bill_id) {
     if (!bill_id) return;
     const { error } = await this.supabase
-      .from('hvac_bill_links')
+      .from(`${this.tablePrefix}bill_links`)
       .delete()
       .eq('bill_id', bill_id);
     if (error) throw error;

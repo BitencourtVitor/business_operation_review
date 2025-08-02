@@ -4,8 +4,6 @@ import MultiSelectDropdown from '../MultiSelectDropdown';
 import Tooltip from '../../tooltips/MetricTooltip';
 
 interface ProjectFiltersProps {
-  selectedCompany: string[];
-  setSelectedCompany: (company: string[]) => void;
   selectedYear: string;
   setSelectedYear: (year: string) => void;
   selectedMonth: string;
@@ -18,7 +16,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedCompany, setSelectedCompany, selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, selectedGroup, setSelectedGroup }) => {
+const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, selectedGroup, setSelectedGroup }) => {
   const [years, setYears] = useState<string[]>([]);
   const [months, setMonths] = useState<string[]>([]);
   const [allDates, setAllDates] = useState<string[]>([]);
@@ -75,35 +73,6 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedCompany, setSel
         <i className="bi bi-funnel" />
         Filters
       </span>
-      {/* Filtro de Empresa (Corporation) */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
-        <Tooltip
-          title="Company Filter"
-          content={
-            'Selecting a company will filter the dashboard to show only data related to that company.'
-          }
-          placement="bottom-right"
-          style={{ maxWidth: 340 }}
-        >
-          <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
-            <i className="bi bi-building" style={{ fontSize: 17 }} />
-          </span>
-        </Tooltip>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
-          <MultiSelectDropdown
-            options={[
-              { value: 'Premium HVAC', label: 'Premium HVAC' },
-              { value: 'Premium Framing', label: 'Premium Framing', disabled: true },
-              { value: 'Premium Foundation', label: 'Premium Foundation', disabled: true },
-            ].filter(opt => !opt.disabled || opt.value === 'Premium HVAC')}
-            selectedValues={selectedCompany}
-            onChange={setSelectedCompany}
-            placeholder="Empresa"
-            allLabel="Todas"
-            dropdownTitle="Empresa"
-          />
-        </div>
-      </div>
       {/* Filtro de ano/mês */}
       <div className="input-group" style={{ minWidth: 197, maxWidth: 197, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
         <Tooltip

@@ -6,8 +6,12 @@ import SupabaseClient from './supabaseClient.js';
 
 dotenv.config();
 
+// Ler empresa do argumento da linha de comando
+const company = process.argv[2] || 'hvac';
+console.log(`🏢 Processando empresa: ${company.toUpperCase()}`);
+
 const PIPELINE_DIR = process.cwd();
-const DATA_FILE = path.join(PIPELINE_DIR, 'hvac_payments.json');
+const DATA_FILE = path.join(PIPELINE_DIR, `${company}_payments.json`);
 const BACKUP_DIR = path.join(PIPELINE_DIR, 'backup');
 
 function getTimestamp() {
@@ -22,7 +26,7 @@ async function backupAndDeleteOldJson() {
     
     // Verificar se o arquivo existe antes de tentar acessá-lo
     if (await fileExists(DATA_FILE)) {
-      const backupPath = path.join(BACKUP_DIR, `hvac_payments_backup_${getTimestamp()}.json`);
+      const backupPath = path.join(BACKUP_DIR, `${company}_payments_backup_${getTimestamp()}.json`);
       await fs.copyFile(DATA_FILE, backupPath);
       console.log(`🗄️  Backup criado: ${backupPath}`);
       
@@ -152,8 +156,8 @@ async function main() {
   console.log('--- Iniciando sincronização de Payments ---');
   await backupAndDeleteOldJson();
   await prepareDataFile();
-  const qb = new QuickBooksClient();
-  const sb = new SupabaseClient();
+  const qb = new QuickBooksClient(company);
+  const sb = new SupabaseClient(company);
 
   // 1. Coleta paginada sem salvamento de JSON
   let allPayments = [];

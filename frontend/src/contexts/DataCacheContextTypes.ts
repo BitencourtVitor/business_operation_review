@@ -48,7 +48,7 @@ export interface CacheData {
 
 export interface DataCacheContextType {
   cache: CacheData;
-  fetchAccountingData: () => Promise<void>;
+  fetchAccountingData: (company?: string) => Promise<void>;
   fetchTimesheetData: () => Promise<void>;
   fetchPermitData: () => Promise<void>;
   fetchQuickbooksData: () => Promise<void>;
