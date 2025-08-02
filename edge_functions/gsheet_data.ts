@@ -134,20 +134,36 @@ function parseDateUS(str: string) {
 
 // Função melhorada para parse de valores numéricos
 function parseNumericValue(value: any, defaultValue = 0) {
-  if (!value || value === '') return defaultValue;
+  console.log(`🔍 parseNumericValue input: ${value}, type: ${typeof value}`);
+  
+  if (!value || value === '') {
+    console.log(`🔍 parseNumericValue: valor vazio, retornando ${defaultValue}`);
+    return defaultValue;
+  }
+  
   try {
     // Converte para string e remove formatação
     const stringValue = String(value).trim();
+    console.log(`🔍 parseNumericValue stringValue: "${stringValue}"`);
+    
     // Remove caracteres de formatação (vírgulas, espaços, parênteses, etc.)
     let cleanValue = stringValue.replace(/[$,()\s]/g, '');
+    console.log(`🔍 parseNumericValue cleanValue: "${cleanValue}"`);
+    
     // Se estava entre parênteses, é negativo
     if (stringValue.startsWith('(') && stringValue.endsWith(')')) {
       cleanValue = '-' + cleanValue;
+      console.log(`🔍 parseNumericValue: valor negativo detectado: "${cleanValue}"`);
     }
+    
     const parsed = parseFloat(cleanValue);
-    return isNaN(parsed) ? defaultValue : parsed;
+    console.log(`🔍 parseNumericValue parsed: ${parsed}, isNaN: ${isNaN(parsed)}`);
+    
+    const result = isNaN(parsed) ? defaultValue : parsed;
+    console.log(`🔍 parseNumericValue final result: ${result}`);
+    return result;
   } catch (error) {
-    console.error(`Erro ao fazer parse do valor: ${value}`, error);
+    console.error(`❌ Erro ao fazer parse do valor: ${value}`, error);
     return defaultValue;
   }
 }
@@ -357,7 +373,9 @@ serve(async (req) => {
         const totalAmountRaw = getField(row, "Total Amount");
         const openBalanceRaw = getField(row, "Open balance");
         
-        return {
+        console.log(`🔍 Payables - Total Amount raw: ${totalAmountRaw}, Open balance raw: ${openBalanceRaw}`);
+        
+        const result = {
           expense_date: getField(row, "Expense Date") ? parseDateUS(getField(row, "Expense Date")) : null,
           transaction_type: getField(row, "Transaction type"),
           bill_num: getField(row, "Bill Num"),
@@ -371,6 +389,9 @@ serve(async (req) => {
           date_field: getField(row, "Date") ? parseDateUS(getField(row, "Date")) : null,
           created_at: new Date()
         };
+        
+        console.log(`📊 Payables processado:`, result);
+        return result;
       })),
       // Mapeamento para takeoff_works (NÃO enviar id nem created_at)
       Promise.resolve(takeoffWorksData.map((row) => {

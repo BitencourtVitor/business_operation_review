@@ -252,11 +252,27 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   const filteredData = useMemo(() => {
     if (!accountingData) return [];
     
+    console.log(`🔍 Filtragem - Dados originais: ${accountingData.length} registros`);
+    console.log(`🔍 Filtragem - Payables originais: ${accountingData.filter(d => d.type === 'payables').length} registros`);
+    console.log(`🔍 Filtragem - Payables com open_balance > 0: ${accountingData.filter(d => d.type === 'payables' && d.open_balance > 0).length} registros`);
+    
     let filtered = accountingData;
-    if (selectedYear) filtered = filtered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
-    if (selectedMonth) filtered = filtered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
-    if (selectedGroup !== 'all') filtered = filtered.filter(d => d.type === selectedGroup);
-    if (selectedAging.length > 0) filtered = filtered.filter(d => selectedAging.includes(d.aging_intervals));
+    if (selectedYear) {
+      filtered = filtered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
+      console.log(`🔍 Filtragem por ano ${selectedYear}: ${filtered.length} registros`);
+    }
+    if (selectedMonth) {
+      filtered = filtered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
+      console.log(`🔍 Filtragem por mês ${selectedMonth}: ${filtered.length} registros`);
+    }
+    if (selectedGroup !== 'all') {
+      filtered = filtered.filter(d => d.type === selectedGroup);
+      console.log(`🔍 Filtragem por grupo ${selectedGroup}: ${filtered.length} registros`);
+    }
+    if (selectedAging.length > 0) {
+      filtered = filtered.filter(d => selectedAging.includes(d.aging_intervals));
+      console.log(`🔍 Filtragem por aging: ${filtered.length} registros`);
+    }
     
     // Filtrar por categorias baseado no tipo
     if (selectedGroup === 'receivables' || selectedGroup === 'all') {
@@ -264,6 +280,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         filtered = filtered.filter(d => 
           d.type === 'receivables' ? selectedReceivablesCategories.includes(d.category) : true
         );
+        console.log(`🔍 Filtragem por categorias receivables: ${filtered.length} registros`);
       }
     }
     if (selectedGroup === 'payables' || selectedGroup === 'all') {
@@ -271,8 +288,13 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         filtered = filtered.filter(d => 
           d.type === 'payables' ? selectedPayablesCategories.includes(d.category) : true
         );
+        console.log(`🔍 Filtragem por categorias payables: ${filtered.length} registros`);
       }
     }
+    
+    console.log(`🔍 Filtragem final - Total: ${filtered.length} registros`);
+    console.log(`🔍 Filtragem final - Payables: ${filtered.filter(d => d.type === 'payables').length} registros`);
+    console.log(`🔍 Filtragem final - Payables com open_balance > 0: ${filtered.filter(d => d.type === 'payables' && d.open_balance > 0).length} registros`);
     
     return filtered;
   }, [accountingData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedReceivablesCategories, selectedPayablesCategories]);

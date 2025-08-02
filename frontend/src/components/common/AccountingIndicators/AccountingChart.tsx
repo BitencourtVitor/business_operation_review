@@ -303,7 +303,10 @@ export function AccountingChart({
       });
       
       // Payables: para cada dia, pegar o open_balance mais recente de cada transação (bill_num)
-      filteredData.filter(row => row.type === 'payables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0).forEach(row => {
+      const payablesFiltered = filteredData.filter(row => row.type === 'payables' && !!row.date_field && row.date_field.split('-').length === 3 && row.open_balance > 0);
+      console.log(`🔍 Gráfico - Payables filtrados: ${payablesFiltered.length} registros`);
+      
+      payablesFiltered.forEach(row => {
         const dia = String(Number(row.date_field!.split('-')[2])).padStart(2, '0');
         const transaction = row.bill_num; // Código da transação
         const key = `${dia}-${transaction}`;
@@ -312,6 +315,9 @@ export function AccountingChart({
           payablesByDay[key] = { value: row.open_balance, date: currentDate };
         }
       });
+      
+      console.log(`🔍 Gráfico - Payables por dia: ${Object.keys(payablesByDay).length} transações únicas`);
+      console.log(`🔍 Gráfico - Payables por dia:`, payablesByDay);
       
       // Agrupar por dia - somar todas as transações distintas (usando os valores mais recentes)
       const receivablesSumByDay: Record<string, number> = {};
@@ -325,6 +331,8 @@ export function AccountingChart({
         const dia = key.split('-')[0];
         payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key].value;
       });
+      
+      console.log(`🔍 Gráfico - Payables somados por dia:`, payablesSumByDay);
       
       // Coletar todos os dias válidos presentes nos dados (com open_balance > 0)
       
@@ -498,11 +506,16 @@ export function AccountingChart({
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
+        console.log(`🔍 Gráfico - Adicionando dataset de payables`);
+        console.log(`🔍 Gráfico - selectedGroup: ${selectedGroup}, separateAging: ${separateAging}`);
+        
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
           const value = payablesSumByDay[dia] || 0;
           payablesData.push(value > 0 ? value : null); // null se não há dados
         });
+        
+        console.log(`🔍 Gráfico - Payables data array:`, payablesData);
         
         chartDatasets.push({
           label: 'Payables',
@@ -518,6 +531,11 @@ export function AccountingChart({
           tension: 0.25,
           spanGaps: false, // não conectar pontos quando há gaps
         });
+        
+        console.log(`🔍 Gráfico - Dataset de payables adicionado`);
+      } else {
+        console.log(`🔍 Gráfico - NÃO adicionando dataset de payables`);
+        console.log(`🔍 Gráfico - selectedGroup: ${selectedGroup}, separateAging: ${separateAging}`);
       }
     } else if (selectedYear) {
       // Gráfico mês a mês do ano selecionado
@@ -784,11 +802,16 @@ export function AccountingChart({
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
+        console.log(`🔍 Gráfico - Adicionando dataset de payables`);
+        console.log(`🔍 Gráfico - selectedGroup: ${selectedGroup}, separateAging: ${separateAging}`);
+        
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
           const value = payablesSumByMonth[mes] || 0;
           payablesData.push(value > 0 ? value : null); // null se não há dados
         });
+        
+        console.log(`🔍 Gráfico - Payables data array:`, payablesData);
         
         chartDatasets.push({
           label: 'Payables',
@@ -804,6 +827,11 @@ export function AccountingChart({
           tension: 0.25,
           spanGaps: false, // não conectar pontos quando há gaps
         });
+        
+        console.log(`🔍 Gráfico - Dataset de payables adicionado`);
+      } else {
+        console.log(`🔍 Gráfico - NÃO adicionando dataset de payables`);
+        console.log(`🔍 Gráfico - selectedGroup: ${selectedGroup}, separateAging: ${separateAging}`);
       }
     }
 
