@@ -134,36 +134,26 @@ function parseDateUS(str: string) {
 
 // Função melhorada para parse de valores numéricos
 function parseNumericValue(value: any, defaultValue = 0) {
-  console.log(`🔍 parseNumericValue input: ${value}, type: ${typeof value}`);
-  
   if (!value || value === '') {
-    console.log(`🔍 parseNumericValue: valor vazio, retornando ${defaultValue}`);
     return defaultValue;
   }
   
   try {
     // Converte para string e remove formatação
     const stringValue = String(value).trim();
-    console.log(`🔍 parseNumericValue stringValue: "${stringValue}"`);
     
     // Remove caracteres de formatação (vírgulas, espaços, parênteses, etc.)
     let cleanValue = stringValue.replace(/[$,()\s]/g, '');
-    console.log(`🔍 parseNumericValue cleanValue: "${cleanValue}"`);
     
     // Se estava entre parênteses, é negativo
     if (stringValue.startsWith('(') && stringValue.endsWith(')')) {
       cleanValue = '-' + cleanValue;
-      console.log(`🔍 parseNumericValue: valor negativo detectado: "${cleanValue}"`);
     }
     
     const parsed = parseFloat(cleanValue);
-    console.log(`🔍 parseNumericValue parsed: ${parsed}, isNaN: ${isNaN(parsed)}`);
-    
-    const result = isNaN(parsed) ? defaultValue : parsed;
-    console.log(`🔍 parseNumericValue final result: ${result}`);
-    return result;
+    return isNaN(parsed) ? defaultValue : parsed;
   } catch (error) {
-    console.error(`❌ Erro ao fazer parse do valor: ${value}`, error);
+    console.error(`Erro ao fazer parse do valor: ${value}`, error);
     return defaultValue;
   }
 }
@@ -226,7 +216,6 @@ function parseBooleanValue(value: any): boolean {
 // Deletar tabelas em paralelo
 async function deleteAllTables() {
   try {
-    console.log('Deletando dados existentes em paralelo...');
     const deletePromises = [
       supabase.from('timesheet_analysis').delete().not('id', 'is', null),
       supabase.from('permit_control').delete().not('id', 'is', null),
@@ -242,7 +231,6 @@ async function deleteAllTables() {
         throw results[i].error;
       }
     }
-    console.log('Todas as tabelas foram limpas com sucesso');
     return "Todas as tabelas foram limpas com sucesso";
   } catch (error) {
     console.error('Erro em deleteAllTables:', error);
@@ -299,13 +287,10 @@ serve(async (req) => {
   }
   
   try {
-    console.log('=== INICIANDO SINCRONIZAÇÃO OTIMIZADA COM UTF-8 ===');
-    
     // 1. Deletar dados existentes
     const deleteResult = await deleteAllTables();
     
     // 2. Buscar novos dados em paralelo
-    console.log('Buscando dados em paralelo...');
     const [timesheetData, permitData, receivablesData, payablesData, takeoffWorksData, takeoffWorksResponsiblesData, serviceRequestsData] = await Promise.all([
       fetchCsvToJson(urls.timesheet, 'Timesheet'),
       fetchCsvToJson(urls.permit, 'Permit'),
@@ -369,13 +354,10 @@ serve(async (req) => {
       })),
       
       Promise.resolve(payablesData.map((row) => {
-        // Debug dos valores problemáticos
         const totalAmountRaw = getField(row, "Total Amount");
         const openBalanceRaw = getField(row, "Open balance");
         
-        console.log(`🔍 Payables - Total Amount raw: ${totalAmountRaw}, Open balance raw: ${openBalanceRaw}`);
-        
-        const result = {
+        return {
           expense_date: getField(row, "Expense Date") ? parseDateUS(getField(row, "Expense Date")) : null,
           transaction_type: getField(row, "Transaction type"),
           bill_num: getField(row, "Bill Num"),
@@ -389,9 +371,6 @@ serve(async (req) => {
           date_field: getField(row, "Date") ? parseDateUS(getField(row, "Date")) : null,
           created_at: new Date()
         };
-        
-        console.log(`📊 Payables processado:`, result);
-        return result;
       })),
       // Mapeamento para takeoff_works (NÃO enviar id nem created_at)
       Promise.resolve(takeoffWorksData.map((row) => {
@@ -450,10 +429,7 @@ serve(async (req) => {
        })))
      ]);
     
-    console.log('Dados mapeados com sucesso e normalizados UTF-8');
-    
     // 4. Inserir novos dados em paralelo
-    console.log('Inserindo dados em paralelo...');
     const upserts = [];
     if (Array.isArray(mappedTimesheet) && mappedTimesheet.length > 0) upserts.push(upsertTableBatch("timesheet_analysis", mappedTimesheet, "Timesheet"));
     if (Array.isArray(mappedPermit) && mappedPermit.length > 0) upserts.push(upsertTableBatch("permit_control", mappedPermit, "Permit"));
@@ -465,8 +441,6 @@ serve(async (req) => {
     if (upserts.length > 0) {
       await Promise.all(upserts);
     }
-    
-    console.log('=== SINCRONIZAÇÃO OTIMIZADA COM UTF-8 CONCLUÍDA COM SUCESSO ===');
     
     return new Response(JSON.stringify({
       success: true,
@@ -487,9 +461,7 @@ serve(async (req) => {
     });
     
   } catch (error) {
-    console.error('=== ERRO NA EDGE FUNCTION OTIMIZADA ===');
-    console.error('Mensagem:', error.message);
-    console.error('Stack:', error.stack);
+    console.error('Erro na edge function:', error.message);
     
     return new Response(JSON.stringify({
       success: false,
