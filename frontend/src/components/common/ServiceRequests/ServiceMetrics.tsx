@@ -33,14 +33,14 @@ export default function ServiceMetrics({ allData, selectedYear, selectedMonth }:
     .filter(item => item.warranty === false && item.cost) // Apenas não-warranty com custo
     .reduce((total, item) => total + (item.cost || 0), 0);
 
-  // Função para calcular dias úteis em um mês (excluindo domingos)
+  // Função para calcular dias úteis em um mês (excluindo sábados e domingos)
   const getWorkingDaysInMonth = (year: number, month: number): number => {
     const daysInMonth = new Date(year, month, 0).getDate();
     let workingDays = 0;
     
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(year, month - 1, day);
-      if (date.getDay() !== 0) { // 0 = domingo
+      if (date.getDay() !== 0 && date.getDay() !== 6) { // 0 = domingo, 6 = sábado
         workingDays++;
       }
     }
