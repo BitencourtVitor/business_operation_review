@@ -554,16 +554,6 @@ export default function Dashboard() {
                  >
                   <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
                   {tela.descricao}
-                  {tela.descricao === 'Accounting Indicators' && showAccountingContent && (
-                    <span style={{ 
-                      marginLeft: 'auto', 
-                      fontSize: 10, 
-                      color: 'var(--color-accent-primary)',
-                      fontWeight: 600
-                    }}>
-                      {selectedCompany}
-                    </span>
-                  )}
                 </button>
                 
                 {/* Submenu de empresas para Accounting Indicators */}

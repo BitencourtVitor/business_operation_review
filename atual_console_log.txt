@@ -1,0 +1,215 @@
+ Console was cleared
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+src/contexts/DataCacheContext.tsx?t=1754309029522:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+ [vite] Failed to reload /src/contexts/DataCacheContext.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+error @ client:809
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+src/contexts/DataCacheContext.tsx?t=1754309053600:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+ [vite] Failed to reload /src/contexts/DataCacheContext.tsx. This could be due to syntax errors or importing non-existent modules. (see errors above)
+error @ client:809
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem - Dados originais: 33422 registros
+ 🔍 Filtragem - Payables originais: 23939 registros
+ 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+ 🔍 Filtragem por ano 2025: 33422 registros
+ 🔍 Filtragem por aging: 33422 registros
+ 🔍 Filtragem por categorias receivables: 33422 registros
+ 🔍 Filtragem por categorias payables: 33422 registros
+ 🔍 Filtragem final - Total: 33422 registros
+ 🔍 Filtragem final - Payables: 23939 registros
+ 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+ 🔍 Gráfico - Adicionando dataset de payables
+ 🔍 Gráfico - selectedGroup: all, separateAging: false
+ 🔍 Gráfico - Payables data array: Array(7)
+ 🔍 Gráfico - Dataset de payables adicionado
+AccountingIndicators.tsx:267 🔍 Filtragem - Dados originais: 33422 registros
+AccountingIndicators.tsx:268 🔍 Filtragem - Payables originais: 23939 registros
+AccountingIndicators.tsx:269 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:274 🔍 Filtragem por ano 2025: 33422 registros
+AccountingIndicators.tsx:286 🔍 Filtragem por aging: 33422 registros
+AccountingIndicators.tsx:295 🔍 Filtragem por categorias receivables: 33422 registros
+AccountingIndicators.tsx:303 🔍 Filtragem por categorias payables: 33422 registros
+AccountingIndicators.tsx:307 🔍 Filtragem final - Total: 33422 registros
+AccountingIndicators.tsx:308 🔍 Filtragem final - Payables: 23939 registros
+AccountingIndicators.tsx:309 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:267 🔍 Filtragem - Dados originais: 33422 registros
+AccountingIndicators.tsx:268 🔍 Filtragem - Payables originais: 23939 registros
+AccountingIndicators.tsx:269 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:274 🔍 Filtragem por ano 2025: 33422 registros
+AccountingIndicators.tsx:286 🔍 Filtragem por aging: 33422 registros
+AccountingIndicators.tsx:295 🔍 Filtragem por categorias receivables: 33422 registros
+AccountingIndicators.tsx:303 🔍 Filtragem por categorias payables: 33422 registros
+AccountingIndicators.tsx:307 🔍 Filtragem final - Total: 33422 registros
+AccountingIndicators.tsx:308 🔍 Filtragem final - Payables: 23939 registros
+AccountingIndicators.tsx:309 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+AccountingChart.tsx:805 🔍 Gráfico - Adicionando dataset de payables
+AccountingChart.tsx:806 🔍 Gráfico - selectedGroup: all, separateAging: false
+AccountingChart.tsx:814 🔍 Gráfico - Payables data array: Array(7)
+AccountingChart.tsx:831 🔍 Gráfico - Dataset de payables adicionado
+AccountingChart.tsx:805 🔍 Gráfico - Adicionando dataset de payables
+AccountingChart.tsx:806 🔍 Gráfico - selectedGroup: all, separateAging: false
+AccountingChart.tsx:814 🔍 Gráfico - Payables data array: Array(7)
+AccountingChart.tsx:831 🔍 Gráfico - Dataset de payables adicionado
+AccountingIndicators.tsx:267 🔍 Filtragem - Dados originais: 33422 registros
+AccountingIndicators.tsx:268 🔍 Filtragem - Payables originais: 23939 registros
+AccountingIndicators.tsx:269 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:274 🔍 Filtragem por ano 2025: 33422 registros
+AccountingIndicators.tsx:286 🔍 Filtragem por aging: 33422 registros
+AccountingIndicators.tsx:295 🔍 Filtragem por categorias receivables: 33422 registros
+AccountingIndicators.tsx:303 🔍 Filtragem por categorias payables: 33422 registros
+AccountingIndicators.tsx:307 🔍 Filtragem final - Total: 33422 registros
+AccountingIndicators.tsx:308 🔍 Filtragem final - Payables: 23939 registros
+AccountingIndicators.tsx:309 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:267 🔍 Filtragem - Dados originais: 33422 registros
+AccountingIndicators.tsx:268 🔍 Filtragem - Payables originais: 23939 registros
+AccountingIndicators.tsx:269 🔍 Filtragem - Payables com open_balance > 0: 23939 registros
+AccountingIndicators.tsx:274 🔍 Filtragem por ano 2025: 33422 registros
+AccountingIndicators.tsx:286 🔍 Filtragem por aging: 33422 registros
+AccountingIndicators.tsx:295 🔍 Filtragem por categorias receivables: 33422 registros
+AccountingIndicators.tsx:303 🔍 Filtragem por categorias payables: 33422 registros
+AccountingIndicators.tsx:307 🔍 Filtragem final - Total: 33422 registros
+AccountingIndicators.tsx:308 🔍 Filtragem final - Payables: 23939 registros
+AccountingIndicators.tsx:309 🔍 Filtragem final - Payables com open_balance > 0: 23939 registros
+AccountingChart.tsx:805 🔍 Gráfico - Adicionando dataset de payables
+AccountingChart.tsx:806 🔍 Gráfico - selectedGroup: all, separateAging: false
+AccountingChart.tsx:814 🔍 Gráfico - Payables data array: Array(7)0: 852098.89000000021: 1156160.66999999952: 1200206.68999999953: 905935.38999999974: 855651.71999999955: 908582.32999999876: 1009499.8500000001length: 7pop: value(...args) {         const res = base.apply(this, args);         array._chartjs.listeners.forEach((object) => {…}push: value(...args) {         const res = base.apply(this, args);         array._chartjs.listeners.forEach((object) => {…}shift: value(...args) {         const res = base.apply(this, args);         array._chartjs.listeners.forEach((object) => {…}splice: value(...args) {         const res = base.apply(this, args);         array._chartjs.listeners.forEach((object) => {…}unshift: value(...args) {         const res = base.apply(this, args);         array._chartjs.listeners.forEach((object) => {…}_chartjs: {listeners: Array(1)}[[Prototype]]: Array(0)
+AccountingChart.tsx:831 🔍 Gráfico - Dataset de payables adicionado
+AccountingChart.tsx:805 🔍 Gráfico - Adicionando dataset de payables
+AccountingChart.tsx:806 🔍 Gráfico - selectedGroup: all, separateAging: false
+AccountingChart.tsx:814 🔍 Gráfico - Payables data array: Array(7)
+AccountingChart.tsx:831 🔍 Gráfico - Dataset de payables adicionado
