@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useCallback, type ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
 import { fetchAllRows, normalizeUtf8String } from '../utils/dataUtils';
 import { DataCacheContext, type CacheData } from './DataCacheContextTypes';
@@ -54,7 +54,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
     return Date.now() - data.lastFetch > maxAge;
   };
 
-  const fetchAccountingData = async (company?: string) => {
+  const fetchAccountingData = useCallback(async (_company?: string) => {
     // Se já está carregando, não fazer nada
     if (cache.accounting.loading) return;
     
@@ -73,30 +73,24 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       let receivablesData: unknown[] = [];
       let payablesData: unknown[] = [];
       
-      // Determinar as tabelas baseado na empresa
-      const companySuffix = company ? `_${company.toLowerCase()}` : '';
-      const receivablesTable = `receivables_accounting${companySuffix}`;
-      const payablesTable = `payables_accounting${companySuffix}`;
+      // As tabelas no banco são apenas receivables_accounting e payables_accounting
+      // sem sufixo de empresa, então vamos usar sempre os mesmos nomes
+      const receivablesTable = 'receivables_accounting';
+      const payablesTable = 'payables_accounting';
       
       // Função para buscar dados com retry
       const fetchDataWithRetry = async (tableName: string, maxRetries = 3): Promise<unknown[]> => {
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
-            console.log(`Tentativa ${attempt} de buscar dados da tabela ${tableName}`);
             const data = await fetchAllRows(tableName);
-            console.log(`Dados obtidos com sucesso da tabela ${tableName} na tentativa ${attempt}`);
             return data;
           } catch (error) {
-            console.warn(`Erro na tentativa ${attempt} para tabela ${tableName}:`, error);
-            
             if (attempt === maxRetries) {
-              console.error(`Falha após ${maxRetries} tentativas para tabela ${tableName}, usando dados vazios`);
               return [];
             }
             
             // Aguardar um pouco antes da próxima tentativa (backoff exponencial)
             const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-            console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
             await new Promise(resolve => setTimeout(resolve, delay));
           }
         }
@@ -215,7 +209,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
         }
       }));
     }
-  };
+  }, [cache.accounting.loading, cache.accounting.data.length, cache.accounting.lastFetch]);
 
   const fetchTimesheetData = async () => {
     if (cache.timesheet.loading) return;

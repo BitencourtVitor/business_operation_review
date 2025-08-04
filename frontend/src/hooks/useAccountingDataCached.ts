@@ -1,13 +1,17 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useDataCache } from './useDataCache';
 
 export function useAccountingDataCached(company?: string) {
   const { cache, fetchAccountingData } = useDataCache();
   const accountingData = cache.accounting;
 
-  useEffect(() => {
+  const memoizedFetchAccountingData = useCallback(() => {
     fetchAccountingData(company);
   }, [fetchAccountingData, company]);
+
+  useEffect(() => {
+    memoizedFetchAccountingData();
+  }, [memoizedFetchAccountingData]);
 
   return {
     data: accountingData.data,

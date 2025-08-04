@@ -5,6 +5,7 @@ import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
 
+
 // Componentes modulares
 import AccountingFilters from '../components/common/AccountingIndicators/AccountingFilters';
 import AccountingMetrics from '../components/common/AccountingIndicators/AccountingMetrics';
@@ -51,6 +52,8 @@ interface Oportunidade {
   desafios: string[];
   melhorias: string[];
 }
+
+
 
 interface PlanoAcao {
   id: string;
@@ -126,7 +129,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     if (forceSeparateAging && !separateAging) {
       setSeparateAging(true);
     }
-  }, [forceSeparateAging, separateAging, setSeparateAging]);
+  }, [forceSeparateAging, separateAging]);
 
   // Hook para dados de accounting
   const { 
