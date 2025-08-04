@@ -78,17 +78,36 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       const receivablesTable = `receivables_accounting${companySuffix}`;
       const payablesTable = `payables_accounting${companySuffix}`;
       
-      try {
-        receivablesData = await fetchAllRows(receivablesTable);
-      } catch {
-        receivablesData = [];
-      }
+      // Função para buscar dados com retry
+      const fetchDataWithRetry = async (tableName: string, maxRetries = 3): Promise<unknown[]> => {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            console.log(`Tentativa ${attempt} de buscar dados da tabela ${tableName}`);
+            const data = await fetchAllRows(tableName);
+            console.log(`Dados obtidos com sucesso da tabela ${tableName} na tentativa ${attempt}`);
+            return data;
+          } catch (error) {
+            console.warn(`Erro na tentativa ${attempt} para tabela ${tableName}:`, error);
+            
+            if (attempt === maxRetries) {
+              console.error(`Falha após ${maxRetries} tentativas para tabela ${tableName}, usando dados vazios`);
+              return [];
+            }
+            
+            // Aguardar um pouco antes da próxima tentativa (backoff exponencial)
+            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+            console.log(`Aguardando ${delay}ms antes da próxima tentativa...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+        return [];
+      };
       
-      try {
-        payablesData = await fetchAllRows(payablesTable);
-      } catch {
-        payablesData = [];
-      }
+      // Buscar dados com retry em paralelo para maior velocidade
+      [receivablesData, payablesData] = await Promise.all([
+        fetchDataWithRetry(receivablesTable),
+        fetchDataWithRetry(payablesTable)
+      ]);
 
       // Transformar dados de receivables para o formato unificado
       const receivables = (receivablesData || []).map((row) => {

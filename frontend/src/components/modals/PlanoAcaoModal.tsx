@@ -22,7 +22,8 @@ interface Acao {
   id: string;
   plano_id: string;
   titulo: string;
-  responsavel: string;
+  responsavel: string; // Mantido para compatibilidade, mas será usado como string separada por vírgulas
+  responsaveis: string[]; // Nova propriedade para múltiplos responsáveis
   status: string;
   data_limite: string;
 }
@@ -33,6 +34,180 @@ interface PlanoAcaoModalProps {
   data: PlanoAcao | null;
   onSaved?: (updatedData?: PlanoAcao) => void;
 }
+
+// Componente MultiSelectResponsavel
+interface MultiSelectResponsavelProps {
+  selectedValues: string[];
+  onChange: (values: string[]) => void;
+  placeholder?: string;
+}
+
+const MultiSelectResponsavel: React.FC<MultiSelectResponsavelProps> = ({
+  selectedValues,
+  onChange,
+  placeholder = 'Select responsible'
+}) => {
+  const [open, setOpen] = useState(false);
+  const [dropdownPos, setDropdownPos] = useState<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  const responsaveis = [
+    'Ananda',
+    'Dário',
+    'Diego',
+    'Eddy',
+    'Eleana',
+    'Felipe',
+    'Florence',
+    'Guilherme',
+    'Ítalo',
+    'Josimar',
+    'Leonardo',
+    'Paula',
+    'Thiago',
+    'Victor Paiva',
+    'Vinicius',
+    'Vitor Bitencourt',
+    'Williana'
+  ];
+
+  // Fecha dropdown ao clicar fora
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target as Node)
+      ) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  // Calcula posição do dropdown
+  useEffect(() => {
+    if (open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, [open]);
+
+  const toggleOption = (responsavel: string) => {
+    if (selectedValues.includes(responsavel)) {
+      onChange(selectedValues.filter(r => r !== responsavel));
+    } else {
+      onChange([...selectedValues, responsavel]);
+    }
+  };
+
+  const displayText = selectedValues.length === 0 
+    ? placeholder 
+    : selectedValues.length === 1 
+      ? selectedValues[0] 
+      : `${selectedValues.length} responsáveis`;
+
+  return (
+    <div style={{ position: 'relative', width: '100%' }}>
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={() => setOpen(!open)}
+        style={{
+          width: '100%',
+          padding: '6px 12px',
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 4,
+          fontSize: 12,
+          background: 'var(--color-background-primary)',
+          color: 'var(--color-text-primary)',
+          cursor: 'pointer',
+          height: '32px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          outline: 'none',
+        }}
+      >
+        <span style={{ 
+          whiteSpace: 'nowrap', 
+          overflow: 'hidden', 
+          textOverflow: 'ellipsis',
+          textAlign: 'left',
+          flex: 1
+        }}>
+          {displayText}
+        </span>
+        <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 10, color: 'var(--color-text-secondary)', marginLeft: 8 }} />
+      </button>
+
+      {open && createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'absolute',
+            zIndex: 10001,
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
+            background: 'var(--color-background-primary)',
+            color: 'var(--color-text-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 4,
+            maxHeight: 200,
+            overflowY: 'auto',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            marginTop: 2,
+          }}
+          className="custom-scrollbar"
+        >
+          {responsaveis.map(responsavel => (
+            <label
+              key={responsavel}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '8px 12px',
+                cursor: 'pointer',
+                fontSize: 12,
+                color: 'var(--color-text-primary)',
+                borderBottom: '1px solid var(--color-border-divider)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-background-secondary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--color-background-primary)';
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={selectedValues.includes(responsavel)}
+                onChange={() => toggleOption(responsavel)}
+                style={{ 
+                  accentColor: 'var(--color-accent-primary)', 
+                  margin: 0,
+                  width: 14,
+                  height: 14
+                }}
+              />
+              <span>{responsavel}</span>
+            </label>
+          ))}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
 
 // Utilitário para exibir feedback
 function Feedback({ message, type }: { message: string; type: 'success' | 'error' }) {
@@ -91,12 +266,10 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
   };
 
   // Validar data limite baseada no status
-  const validarDataLimite = (status: string, dataLimite: string, dataInicio: string) => {
+  const validarDataLimite = (status: string, dataLimite: string) => {
     if (!status || !dataLimite) return null;
     
     const hoje = new Date().toISOString().split('T')[0];
-    const dataLimiteDate = new Date(dataLimite);
-    const dataInicioDate = new Date(dataInicio);
     
     if (status === 'Pending') {
       if (dataLimite < hoje) {
@@ -114,7 +287,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
   };
 
   // Validar uma ação específica
-  const validarAcao = (acao: Acao, dataInicio: string) => {
+  const validarAcao = (acao: Acao) => {
     if (!acao.titulo.trim()) return null;
     
     if (!acao.status) {
@@ -131,11 +304,11 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       return null;
     }
     
-    return validarDataLimite(acao.status, acao.data_limite, dataInicio);
+    return validarDataLimite(acao.status, acao.data_limite);
   };
 
   // Validar apenas incompatibilidade entre status e data limite
-  const validarIncompatibilidadeStatusData = (acao: Acao, dataInicio: string) => {
+  const validarIncompatibilidadeStatusData = (acao: Acao) => {
     if (!acao.status || !acao.data_limite) return null;
     
     // Se a ação está atrasada (Overdue), não validar incompatibilidade
@@ -145,7 +318,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
     }
     
     // Usar o status atual da ação (que pode ter sido alterado pelo usuário)
-    return validarDataLimite(acao.status, acao.data_limite, dataInicio);
+    return validarDataLimite(acao.status, acao.data_limite);
   };
 
   // Função para verificar se uma ação está atrasada
@@ -229,9 +402,13 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
         const acaoOriginal = acoesOriginais.find(a => a.id === acaoAtual.id);
         if (!acaoOriginal) return false;
         
+        // Comparar responsáveis (considerando tanto responsavel quanto responsaveis)
+        const responsaveisAtual = acaoAtual.responsaveis ? acaoAtual.responsaveis.join(', ') : acaoAtual.responsavel;
+        const responsaveisOriginal = acaoOriginal.responsaveis ? acaoOriginal.responsaveis.join(', ') : acaoOriginal.responsavel;
+        
         return (
           acaoAtual.titulo !== acaoOriginal.titulo ||
-          acaoAtual.responsavel !== acaoOriginal.responsavel ||
+          responsaveisAtual !== responsaveisOriginal ||
           acaoAtual.status !== acaoOriginal.status ||
           acaoAtual.data_limite !== acaoOriginal.data_limite
         );
@@ -275,7 +452,10 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
           .select('*')
           .eq('plano_id', data.id)
           .order('data_limite', { ascending: true });
-        const acoes = Array.isArray(acoesData) ? acoesData : [];
+        const acoes = Array.isArray(acoesData) ? acoesData.map(acao => ({
+          ...acao,
+          responsaveis: acao.responsavel ? acao.responsavel.split(', ').filter((r: string) => r.trim()) : []
+        })) : [];
         const dataFim = calcularDataFim(acoes);
         const planoComAcoes = {
           ...data,
@@ -341,6 +521,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       plano_id: plano.id,
       titulo: '',
       responsavel: '',
+      responsaveis: [], // Inicialmente vazio
       status: '',
       data_limite: '',
     };
@@ -378,7 +559,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
         const acao = plano.acoes[i];
         if (!acao.titulo.trim()) continue;
         
-        const erroAcao = validarAcao(acao, plano.data_inicio);
+        const erroAcao = validarAcao(acao);
         if (erroAcao) {
           erros.push(`Ação "${acao.titulo}": ${erroAcao}`);
         }
@@ -456,7 +637,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
             const acaoData = {
               plano_id: plano.id,
               titulo: acao.titulo,
-              responsavel: acao.responsavel,
+              responsavel: acao.responsaveis ? acao.responsaveis.join(', ') : acao.responsavel,
               status: acao.status,
               data_limite: acao.data_limite,
             };
@@ -469,7 +650,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
             const acaoData = {
               plano_id: plano.id,
               titulo: acao.titulo,
-              responsavel: acao.responsavel,
+              responsavel: acao.responsaveis ? acao.responsaveis.join(', ') : acao.responsavel,
               status: acao.status,
               data_limite: acao.data_limite,
             };
@@ -505,7 +686,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
           await supabase.from('acoes').insert([{
             plano_id: planoId,
             titulo: acao.titulo,
-            responsavel: acao.responsavel,
+            responsavel: acao.responsaveis ? acao.responsaveis.join(', ') : acao.responsavel,
             status: acao.status,
             data_limite: acao.data_limite,
           }]);
@@ -779,7 +960,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                     </div>
                     
                                          {plano?.acoes.map((acao, index) => {
-                       const erroAcao = validarIncompatibilidadeStatusData(acao, plano?.data_inicio || '');
+                       const erroAcao = validarIncompatibilidadeStatusData(acao);
                        const realStatus = getActionStatus(acao);
                        const isOverdue = realStatus === 'Overdue';
                        const isDone = realStatus === 'Done';
@@ -885,53 +1066,10 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                               <label style={{ display: 'block', marginBottom: 4, fontSize: 12, color: 'var(--color-text-secondary)', textAlign: 'start' }}>
                                 Responsável
                               </label>
-                              <div style={{
-                                border: '1px solid var(--color-border-divider)',
-                                borderRadius: 4,
-                                background: 'var(--color-background-primary)',
-                                padding: '6px 12px',
-                                height: '32px',
-                                display: 'flex',
-                                alignItems: 'center',
-                              }}>
-                                <select
-                                  value={acao.responsavel}
-                                  onChange={(e) => updateAcao(index, { responsavel: e.target.value })}
-                                  style={{
-                                    width: '100%',
-                                    border: 'none',
-                                    fontSize: 12,
-                                    background: 'transparent',
-                                    color: 'var(--color-text-primary)',
-                                    cursor: 'auto',
-                                    outline: 'none',
-                                  }}
-                                  onFocus={(e) => {
-                                    e.target.style.backgroundColor = 'var(--color-background-primary)';
-                                  }}
-                                  onBlur={(e) => {
-                                    e.target.style.backgroundColor = 'transparent';
-                                  }}
-                                >
-                                  <option value="">Select responsible</option>
-                                  <option value="Ananda">Ananda</option>
-                                  <option value="Dário">Dário</option>
-                                  <option value="Diego">Diego</option>
-                                  <option value="Eddy">Eddy</option>
-                                  <option value="Eleana">Eleana</option>
-                                  <option value="Felipe">Felipe</option>
-                                  <option value="Guilherme">Guilherme</option>
-                                  <option value="Ítalo">Ítalo</option>
-                                  <option value="Josimar">Josimar</option>
-                                  <option value="Leonardo">Leonardo</option>
-                                  <option value="Paula">Paula</option>
-                                  <option value="Thiago">Thiago</option>
-                                  <option value="Victor Paiva">Victor Paiva</option>
-                                  <option value="Vinicius">Vinicius</option>
-                                  <option value="Vitor Bitencourt">Vitor Bitencourt</option>
-                                  <option value="Williana">Williana</option>
-                                </select>
-                              </div>
+                              <MultiSelectResponsavel
+                                selectedValues={acao.responsaveis}
+                                onChange={(values) => updateAcao(index, { responsaveis: values })}
+                              />
                             </div>
                           </div>
                           

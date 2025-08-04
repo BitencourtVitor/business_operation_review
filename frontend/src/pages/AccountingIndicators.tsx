@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { addCurrentMonthIfMissing } from '../utils/dataUtils';
+import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
+import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
 
 // Componentes modulares
 import AccountingFilters from '../components/common/AccountingIndicators/AccountingFilters';
@@ -81,6 +84,12 @@ interface AccountingIndicatorsProps {
 }
 
 const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, onBackToProjects, selectedCompany = 'HVAC' }) => {
+  // Mapeamento de ícones das empresas
+  const empresaIcones: { [empresa: string]: string } = {
+    'HVAC': sublogoHvac,
+    'Framing': sublogoFraming,
+    'PCG': sublogoPcg,
+  };
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [podeEditar, setPodeEditar] = useState(false);
@@ -250,7 +259,10 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
   // Calcular dados filtrados
   const filteredData = useMemo(() => {
-    if (!accountingData) return [];
+    if (!accountingData || !Array.isArray(accountingData)) {
+      console.warn('Dados de accounting inválidos ou vazios');
+      return [];
+    }
     
     console.log(`🔍 Filtragem - Dados originais: ${accountingData.length} registros`);
     console.log(`🔍 Filtragem - Payables originais: ${accountingData.filter(d => d.type === 'payables').length} registros`);
@@ -301,7 +313,10 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
   // Dados não filtrados por categoria/aging para cálculo do total no gráfico
   const unfilteredDataForChart = useMemo(() => {
-    if (!accountingData) return [];
+    if (!accountingData || !Array.isArray(accountingData)) {
+      console.warn('Dados de accounting inválidos para gráfico');
+      return [];
+    }
     
     let unfiltered = accountingData;
     if (selectedYear) unfiltered = unfiltered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
@@ -556,32 +571,86 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     );
   }
 
-  return (
-    <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      {/* Barra superior com título e filtros (igual ao backup e TimesheetAnalysis) */}
-      <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button
-            onClick={onBackToProjects}
-            className="btn-secondary-custom d-flex align-items-center justify-content-center"
-            style={{ 
-              width: 32, 
-              height: 32, 
-              fontSize: 14,
-              borderRadius: 6,
-              border: '1px solid var(--color-border-divider)',
-              background: 'transparent',
-              color: 'var(--color-text-secondary)',
-              transition: 'all 0.2s ease'
-            }}
-            title="Voltar à seleção de empresa"
-          >
-            <i className="bi bi-arrow-left" />
-          </button>
-          <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, marginBottom: 0 }}>
-            Outstanding Indicators - {selectedCompany}
+  // Verificação adicional para dados vazios
+  if (!accountingData || accountingData.length === 0) {
+    // Se for Framing e não há dados, redirecionar automaticamente para Projects
+    if (selectedCompany === 'Framing' && onBackToProjects) {
+      // Usar setTimeout para garantir que o componente seja montado antes do redirecionamento
+      setTimeout(() => {
+        onBackToProjects();
+      }, 100);
+      return null; // Retornar null para não renderizar nada
+    }
+
+    return (
+      <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {/* Barra superior com título e filtros */}
+        <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+          <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img 
+              src={empresaIcones[selectedCompany] || ''} 
+              alt={selectedCompany} 
+              style={{ 
+                width: 24, 
+                height: 24, 
+                objectFit: 'contain'
+              }}
+            />
+            <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+              {selectedCompany}
+            </span>
+            <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+              Outstanding Indicators
+            </span>
           </h1>
         </div>
+        
+        {/* Mensagem de dados vazios */}
+        <div style={{ 
+          flex: 1, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          background: 'var(--color-background-primary)'
+        }}>
+          <div style={{ 
+            textAlign: 'center',
+            color: 'var(--color-text-secondary)'
+          }}>
+            <i className="bi bi-database-x" style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />
+            <h4 style={{ marginBottom: 8, color: 'var(--color-text-primary)' }}>
+              Nenhum dado encontrado
+            </h4>
+            <p style={{ margin: 0, fontSize: 14 }}>
+              Não há dados de accounting disponíveis para {selectedCompany}.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Barra superior com título e filtros */}
+      <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img 
+            src={empresaIcones[selectedCompany] || ''} 
+            alt={selectedCompany} 
+            style={{ 
+              width: 24, 
+              height: 24, 
+              objectFit: 'contain'
+            }}
+          />
+          <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+            {selectedCompany}
+          </span>
+          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+            Outstanding Indicators
+          </span>
+        </h1>
         <AccountingFilters
           selectedYear={selectedYear}
           setSelectedYear={setSelectedYear}
