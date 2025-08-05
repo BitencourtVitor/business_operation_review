@@ -690,73 +690,128 @@ export function PermitChart({ filteredData, selectedYear, selectedMonth, selecte
                 </h5>
               </div>
 
-              {/* Listagem dos projetos */}
-              <div style={{ 
-                flex: 1, 
-                overflowY: 'auto',
-                borderRadius: 8,
-                padding: '8px 12px'
-              }} className="custom-scrollbar">
-                {filteredData.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                    {filteredData.map((permit, index) => {
-                      const statusColor = (() => {
-                        switch (permit.situacao) {
-                          case 'Not Applied': return '#dc3545';
-                          case 'Applied': return '#ffc107';
-                          case 'Issued': return '#1bbf5c';
-                          default: return '#6c757d';
-                        }
-                      })();
-                      
-                      return (
-                        <div 
-                          key={index}
-                          style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 8,
-                            padding: '4px 0',
-                            borderBottom: index < filteredData.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
-                          }}
-                        >
-                          <span style={{ 
-                            display: 'inline-block', 
-                            width: 10, 
-                            height: 10, 
-                            borderRadius: 5, 
-                            background: statusColor,
-                            flexShrink: 0
-                          }} />
-                          <span style={{ 
-                            color: 'var(--color-text-primary)', 
-                            fontSize: 13,
-                            lineHeight: 1.3,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {permit.jobsite && permit.lot_address 
-                              ? `${permit.jobsite} - ${permit.lot_address}`
-                              : permit.jobsite || permit.lot_address || `Permit ${index + 1}`
-                            }
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div style={{ 
-                    color: 'var(--color-text-secondary)', 
-                    fontSize: 12, 
-                    fontStyle: 'italic',
-                    textAlign: 'center',
-                    padding: '12px 0'
-                  }}>
-                    No permits found for selected filters
-                  </div>
-                )}
-              </div>
+                             {/* Listagem dos projetos */}
+               <div style={{ 
+                 flex: 1, 
+                 overflowY: 'auto',
+                 borderRadius: 8,
+                 padding: '8px 12px'
+               }} className="custom-scrollbar">
+                 {filteredData.length > 0 ? (
+                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                     {(() => {
+                       // Agrupar permits por situação
+                       const groupedPermits: Record<string, PermitRow[]> = {
+                         'Issued': [],
+                         'Applied': [],
+                         'Not Applied': []
+                       };
+                       
+                       // Organizar permits por situação
+                       filteredData.forEach(permit => {
+                         if (permit.situacao in groupedPermits) {
+                           groupedPermits[permit.situacao].push(permit);
+                         }
+                       });
+                       
+                       // Ordem das situações para exibição
+                       const situationOrder = ['Issued', 'Applied', 'Not Applied'];
+                       
+                       return situationOrder.map(situation => {
+                         const permits = groupedPermits[situation];
+                         if (permits.length === 0) return null;
+                         
+                         const statusColor = (() => {
+                           switch (situation) {
+                             case 'Not Applied': return '#dc3545';
+                             case 'Applied': return '#ffc107';
+                             case 'Issued': return '#1bbf5c';
+                             default: return '#6c757d';
+                           }
+                         })();
+                         
+                         return (
+                           <div key={situation}>
+                             {/* Header do grupo */}
+                             <div style={{ 
+                               display: 'flex', 
+                               alignItems: 'center', 
+                               gap: 8,
+                               padding: '8px 0',
+                               borderBottom: '1px solid var(--color-border-divider)',
+                               marginBottom: 4
+                             }}>
+                               <span style={{ 
+                                 display: 'inline-block', 
+                                 width: 12, 
+                                 height: 12, 
+                                 borderRadius: 6, 
+                                 background: statusColor,
+                                 flexShrink: 0
+                               }} />
+                               <span style={{ 
+                                 color: 'var(--color-text-primary)', 
+                                 fontSize: 14,
+                                 fontWeight: 600,
+                                 textTransform: 'uppercase'
+                               }}>
+                                 {situation} ({permits.length})
+                               </span>
+                             </div>
+                             
+                             {/* Permits do grupo */}
+                             {permits.map((permit, index) => (
+                               <div 
+                                 key={`${situation}-${index}`}
+                                 style={{ 
+                                   display: 'flex', 
+                                   alignItems: 'center', 
+                                   gap: 8,
+                                   padding: '4px 0 4px 18px',
+                                   borderBottom: index < permits.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                                 }}
+                               >
+                                 <span style={{ 
+                                   display: 'inline-block', 
+                                   width: 8, 
+                                   height: 8, 
+                                   borderRadius: 4, 
+                                   background: statusColor,
+                                   opacity: 0.7,
+                                   flexShrink: 0
+                                 }} />
+                                 <span style={{ 
+                                   color: 'var(--color-text-primary)', 
+                                   fontSize: 13,
+                                   lineHeight: 1.3,
+                                   overflow: 'hidden',
+                                   textOverflow: 'ellipsis',
+                                   whiteSpace: 'nowrap'
+                                 }}>
+                                   {permit.jobsite && permit.lot_address 
+                                     ? `${permit.jobsite} - ${permit.lot_address}`
+                                     : permit.jobsite || permit.lot_address || `Permit ${index + 1}`
+                                   }
+                                 </span>
+                               </div>
+                             ))}
+                           </div>
+                         );
+                       });
+                     })()}
+                   </div>
+                 ) : (
+                   <div style={{ 
+                     color: 'var(--color-text-secondary)', 
+                     fontSize: 12, 
+                     fontStyle: 'italic',
+                     textAlign: 'center',
+                     padding: '12px 0'
+                   }}>
+                     No permits found for selected filters
+                   </div>
+                 )}
+               </div>
             </div>
 
             {/* Gráfico centralizado e legenda à direita */}

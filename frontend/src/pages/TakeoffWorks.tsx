@@ -354,6 +354,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .from('destaques')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
+                .eq('tela_id', telaId)
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef));
               console.log('Destaques Takeoff:', destaques, usuarioResponsavelId, mesRef, anoRef);
@@ -409,6 +410,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .from('oportunidades')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
+                .eq('tela_id', telaId)
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef));
               console.log('Oportunidades Takeoff:', oportunidades, usuarioResponsavelId, mesRef, anoRef);
@@ -444,6 +446,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .from('oportunidades')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
+                .eq('tela_id', telaId)
                 .eq('mes', Number(oportunidade.mes))
                 .eq('ano', Number(oportunidade.ano));
               console.log('Todas Oportunidades Takeoff:', todasOportunidades, usuarioResponsavelId, oportunidade.mes, oportunidade.ano);

@@ -1869,6 +1869,9 @@ export function AccountingChart({
                         }));
                         legendItems.sort((a, b) => b.value - a.value);
 
+                        // Calcular total para percentuais
+                        const totalValue = legendItems.reduce((sum, item) => sum + item.value, 0);
+
                         if (selectedGroup === 'all') {
                           // Separar recebíveis e pagáveis
                           const receivablesItems = legendItems.filter(item => 
@@ -1884,15 +1887,23 @@ export function AccountingChart({
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                               {/* Lista Receivables */}
                               <ul style={{ listStyle: 'none', margin: '0 10px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                {receivablesItems.map((item) => (
-                                  <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
-                                    <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
-                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left' }}>{item.label}</span>
-                                    <span style={{ color: 'var(--color-text-primary)', fontSize: 13, marginLeft: 4, textAlign: 'right' }}>
-                                      {item.value ? `$${item.value.toLocaleString()}` : ''}
-                                    </span>
-                                  </li>
-                                ))}
+                                {receivablesItems.map((item) => {
+                                  const percentage = totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : '0.0';
+                                  return (
+                                    <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+                                      <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
+                                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left', flex: 1 }}>{item.label}</span>
+                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                                        <span style={{ color: 'var(--color-text-primary)', fontSize: 13, textAlign: 'right' }}>
+                                          {item.value ? `$${item.value.toLocaleString()}` : ''}
+                                        </span>
+                                        <span style={{ color: 'var(--color-text-secondary)', fontSize: 11, textAlign: 'right' }}>
+                                          {percentage}%
+                                        </span>
+                                      </div>
+                                    </li>
+                                  );
+                                })}
                               </ul>
 
                               {/* Barra separadora */}
@@ -1906,15 +1917,23 @@ export function AccountingChart({
 
                               {/* Lista Payables */}
                               <ul style={{ listStyle: 'none', margin: '0 10px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                {payablesItems.map((item) => (
-                                  <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
-                                    <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
-                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left' }}>{item.label}</span>
-                                    <span style={{ color: 'var(--color-text-primary)', fontSize: 13, marginLeft: 4, textAlign: 'right' }}>
-                                      {item.value ? `$${item.value.toLocaleString()}` : ''}
-                                    </span>
-                                  </li>
-                                ))}
+                                {payablesItems.map((item) => {
+                                  const percentage = totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : '0.0';
+                                  return (
+                                    <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+                                      <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
+                                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left', flex: 1 }}>{item.label}</span>
+                                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                                        <span style={{ color: 'var(--color-text-primary)', fontSize: 13, textAlign: 'right' }}>
+                                          {item.value ? `$${item.value.toLocaleString()}` : ''}
+                                        </span>
+                                        <span style={{ color: 'var(--color-text-secondary)', fontSize: 11, textAlign: 'right' }}>
+                                          {percentage}%
+                                        </span>
+                                      </div>
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           );
@@ -1922,15 +1941,23 @@ export function AccountingChart({
                           // Comportamento original para outros tipos
                           return (
                             <ul style={{ listStyle: 'none', margin: '0 10px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                              {legendItems.map((item) => (
-                                <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
-                                  <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
-                                  <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left' }}>{item.label}</span>
-                                  <span style={{ color: 'var(--color-text-primary)', fontSize: 13, marginLeft: 4, textAlign: 'right' }}>
-                                    {item.value ? `$${item.value.toLocaleString()}` : ''}
-                                  </span>
-                                </li>
-                              ))}
+                              {legendItems.map((item) => {
+                                const percentage = totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : '0.0';
+                                return (
+                                  <li key={item.label as string} style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+                                    <span style={{ display: 'inline-block', width: 14, height: 14, borderRadius: 7, background: item.color, marginRight: 6 }} />
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, textAlign: 'left', flex: 1 }}>{item.label}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
+                                      <span style={{ color: 'var(--color-text-primary)', fontSize: 13, textAlign: 'right' }}>
+                                        {item.value ? `$${item.value.toLocaleString()}` : ''}
+                                      </span>
+                                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 11, textAlign: 'right' }}>
+                                        {percentage}%
+                                      </span>
+                                    </div>
+                                  </li>
+                                );
+                              })}
                             </ul>
                           );
                         }
