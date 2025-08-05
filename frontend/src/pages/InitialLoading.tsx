@@ -25,6 +25,7 @@ export default function InitialLoading() {
     { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
     { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 }
   ]);
+  const [hasValidSession, setHasValidSession] = useState(false);
 
   const edgeFunctions = [
     { id: 'timesheet', name: 'timesheet_gsheet' },
@@ -47,6 +48,16 @@ export default function InitialLoading() {
   useEffect(() => {
     const processAllFunctions = async () => {
       
+      // Verificar se o usuário já tem uma sessão válida
+      const { data: { session } } = await supabase.auth.getSession();
+      const loginTimestamp = sessionStorage.getItem('loginTimestamp');
+      const hasValidSession = !!(session && loginTimestamp);
+      setHasValidSession(hasValidSession);
+      
+      // Se tem sessão válida, fazer loading mais rápido
+      const progressSpeed = hasValidSession ? 25 : 15;
+      const progressInterval = hasValidSession ? 150 : 200;
+      
       // Atualizar todos os itens para loading
       setLoadingItems(prev => prev.map(item => ({
         ...item,
@@ -59,10 +70,10 @@ export default function InitialLoading() {
         return setInterval(() => {
           setLoadingItems(prev => prev.map(item => 
             item.id === func.id && item.progress < 90 
-              ? { ...item, progress: item.progress + Math.random() * 15 }
+              ? { ...item, progress: item.progress + Math.random() * progressSpeed }
               : item
           ));
-        }, 200);
+        }, progressInterval);
       });
 
       try {
@@ -249,7 +260,7 @@ export default function InitialLoading() {
                  fontSize: '1.75rem'
                }}
              >
-               Loading system data
+               {hasValidSession ? 'Updating system data' : 'Loading system data'}
              </h3>
              
              <p 
@@ -359,7 +370,7 @@ export default function InitialLoading() {
                    fontWeight: 400
                  }}
                >
-                 Preparing your workspace...
+                 {hasValidSession ? 'Refreshing your workspace...' : 'Preparing your workspace...'}
                </p>
         </div>
       </div>

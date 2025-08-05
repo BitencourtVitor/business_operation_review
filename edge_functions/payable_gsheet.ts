@@ -98,31 +98,38 @@ async function fetchCsvToJson(url: string, name: string) {
           resolve(results.data);
         },
         error: (err) => {
-          reject(err);
+          reject(new Error(`Erro ao fazer parse do CSV ${name}: ${err.message}`));
         }
       });
     });
   } catch (error) {
-    console.error(`Erro ao buscar ${name}:`, error);
-    throw error;
+    throw new Error(`Erro ao buscar CSV ${name}: ${error.message}`);
   }
 }
 
-// Funções de parse otimizadas
 function parseDateUS(str: string) {
   if (!str) return null;
+  
   try {
-    const [month, day, year] = str.split('/');
-    // Criar data no fuso horário local para evitar problemas de timezone
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    return date;
+    // Remove espaços e caracteres extras
+    const cleanStr = str.trim();
+    
+    // Tenta diferentes formatos de data
+    const date = new Date(cleanStr);
+    
+    // Verifica se a data é válida
+    if (isNaN(date.getTime())) {
+      console.warn(`Data inválida: ${str}`);
+      return null;
+    }
+    
+    return date.toISOString();
   } catch (error) {
-    console.error(`Erro ao fazer parse da data: ${str}`, error);
+    console.warn(`Erro ao fazer parse da data ${str}:`, error);
     return null;
   }
 }
 
-// Função melhorada para parse de valores numéricos
 function parseNumericValue(value: any, defaultValue = 0) {
   if (!value || value === '') {
     return defaultValue;
@@ -148,60 +155,152 @@ function parseNumericValue(value: any, defaultValue = 0) {
   }
 }
 
-// Função para garantir que pega o campo mesmo com espaços extras e normaliza UTF-8
 function getField(row: any, key: string) {
-  let value = null;
+  if (!row || !key) return '';
   
-  if (row[key] !== undefined) value = row[key];
-  else if (row[` ${key}`] !== undefined) value = row[` ${key}`];
-  else if (row[`${key} `] !== undefined) value = row[`${key} `];
-  else {
-    // Tenta remover todos os espaços
-    const foundKey = Object.keys(row).find((k) => k.replace(/\s/g, '') === key.replace(/\s/g, ''));
-    if (foundKey) value = row[foundKey];
+  try {
+    const value = row[key];
+    if (value === null || value === undefined) return '';
+    
+    return normalizeUtf8String(String(value));
+  } catch (error) {
+    console.warn(`Erro ao buscar campo ${key}:`, error);
+    return '';
   }
-  
-  // Normaliza UTF-8 se for string
-  if (typeof value === 'string') {
-    return normalizeUtf8String(value);
-  }
-  
-  return value;
 }
 
-// Deletar tabela payables
-async function deletePayablesTable() {
+// Função SUPER otimizada para buscar apenas registros que realmente mudaram
+async function getOnlyChangedRecords(table: string, dataToCheck: any[]) {
   try {
-    const { error } = await supabase.from('payables_accounting').delete().not('id', 'is', null);
-    if (error) {
-      throw error;
+    console.log(`🔍 Analisando ${dataToCheck.length} registros para mudanças...`);
+    
+    // Extrair IDs únicos da planilha
+    const allIds = dataToCheck.map(row => row.intern_id).filter(id => id);
+    const uniqueIds = Array.from(new Set(allIds));
+    console.log(`📊 Encontrados ${uniqueIds.length} IDs únicos na planilha`);
+    
+    if (uniqueIds.length === 0) {
+      console.log(`⚠️ Nenhum ID encontrado - processando tudo como novo`);
+      return dataToCheck;
     }
-    return "Tabela payables_accounting foi limpa com sucesso";
+    
+    // Buscar apenas registros existentes em lotes
+    const existingMap = new Map();
+    const batchSize = 1000;
+    
+    for (let i = 0; i < uniqueIds.length; i += batchSize) {
+      const idBatch = uniqueIds.slice(i, i + batchSize);
+      
+      const { data, error } = await supabase
+        .from(table)
+        .select('intern_id, last_update_datetimez')
+        .in('intern_id', idBatch);
+      
+      if (error) throw error;
+      
+      data?.forEach(row => {
+        existingMap.set(row.intern_id, row.last_update_datetimez);
+      });
+    }
+    
+    console.log(`📋 Encontrados ${existingMap.size} registros existentes no banco`);
+    
+    // Filtrar APENAS registros que realmente mudaram
+    const recordsToUpdate = [];
+    let newRecords = 0;
+    let modifiedRecords = 0;
+    let unchangedRecords = 0;
+    
+    for (const row of dataToCheck) {
+      const internId = row.intern_id;
+      const lastUpdate = row.last_update_datetimez;
+      
+      if (!internId) {
+        // Registro sem ID - considerar como novo
+        recordsToUpdate.push(row);
+        newRecords++;
+        continue;
+      }
+      
+      const existingUpdate = existingMap.get(internId);
+      
+      if (!existingUpdate) {
+        // Registro novo
+        recordsToUpdate.push(row);
+        newRecords++;
+      } else if (lastUpdate && new Date(lastUpdate) > new Date(existingUpdate)) {
+        // Registro modificado
+        recordsToUpdate.push(row);
+        modifiedRecords++;
+      } else {
+        // Registro inalterado - NÃO processar
+        unchangedRecords++;
+      }
+    }
+    
+    console.log(`✅ Filtro concluído:`);
+    console.log(`   - Novos: ${newRecords}`);
+    console.log(`   - Modificados: ${modifiedRecords}`);
+    console.log(`   - Inalterados: ${unchangedRecords}`);
+    console.log(`   - TOTAL para processar: ${recordsToUpdate.length}`);
+    
+    return recordsToUpdate;
   } catch (error) {
-    console.error('Erro em deletePayablesTable:', error);
+    console.error('❌ Erro ao buscar registros modificados:', error);
     throw error;
   }
 }
 
-// Inserir dados em lotes para melhor performance
-async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
+async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 100) {
   try {
+    if (data.length === 0) {
+      console.log(`✅ Nenhum registro para processar em ${name}`);
+      return 0;
+    }
+    
+    console.log(`🚀 Iniciando upsert de ${data.length} registros para ${name} (batch: ${batchSize})`);
+    
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
       batches.push(data.slice(i, i + batchSize));
     }
+    
+    let totalUpserted = 0;
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
-      const { error } = await supabase.from(table).upsert(batch, {
-        onConflict: ['id']
+      
+      // Timeout mais curto para cada lote
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout')), 15000);
       });
+      
+      const upsertPromise = supabase
+        .from(table)
+        .upsert(batch, { 
+          onConflict: 'intern_id',
+          ignoreDuplicates: false 
+        });
+      
+      const { data: result, error } = await Promise.race([upsertPromise, timeoutPromise]) as any;
+      
       if (error) {
-        console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
+        console.error(`❌ Erro no lote ${i + 1}/${batches.length}:`, error);
         throw error;
       }
+      
+      totalUpserted += batch.length;
+      console.log(`✅ Lote ${i + 1}/${batches.length}: ${batch.length} registros (Total: ${totalUpserted})`);
+      
+      // Pausa entre lotes
+      if (i < batches.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
     }
+    
+    console.log(`🎉 Upsert concluído para ${name}: ${totalUpserted} registros`);
+    return totalUpserted;
   } catch (error) {
-    console.error(`Erro ao acessar tabela ${name}:`, error);
+    console.error(`❌ Erro ao acessar tabela ${name}:`, error);
     throw error;
   }
 }
@@ -232,18 +331,17 @@ serve(async (req) => {
   }
   
   try {
-    // 1. Deletar dados existentes
-    const deleteResult = await deletePayablesTable();
-    
-    // 2. Buscar novos dados
+    // 1. Buscar novos dados
     const payablesData = await fetchCsvToJson(payablesUrl, 'Payables');
     
-    // 3. Mapear dados com normalização UTF-8
+    // 2. Mapear dados com normalização UTF-8
     const mappedPayables = payablesData.map((row) => {
       const totalAmountRaw = getField(row, "Total Amount");
       const openBalanceRaw = getField(row, "Open balance");
       
       return {
+        intern_id: getField(row, "INTERN_ID"),
+        last_update_datetimez: getField(row, "LAST_UPDATE_DATETIMEZ") ? new Date(getField(row, "LAST_UPDATE_DATETIMEZ")) : null,
         expense_date: getField(row, "Expense Date") ? parseDateUS(getField(row, "Expense Date")) : null,
         transaction_type: getField(row, "Transaction type"),
         bill_num: getField(row, "Bill Num"),
@@ -259,22 +357,49 @@ serve(async (req) => {
       };
     });
     
-    // 4. Inserir novos dados
+    // 3. Fazer upsert dos dados
     if (Array.isArray(mappedPayables) && mappedPayables.length > 0) {
-      await upsertTableBatch("payables_accounting", mappedPayables, "Payables");
-    }
-    
-    return new Response(JSON.stringify({
-      success: true,
-      message: "Sincronização de payables concluída com sucesso!",
-      deleteResult: deleteResult,
-      inserted: {
-        payables: Array.isArray(mappedPayables) ? mappedPayables.length : 0
+      // 3.1. Buscar APENAS registros que realmente mudaram
+      const recordsToUpdate = await getOnlyChangedRecords("payables_accounting", mappedPayables);
+      
+      // 3.2. Fazer upsert apenas dos registros modificados/novos
+      if (recordsToUpdate.length > 0) {
+        const upsertedCount = await upsertTableBatch("payables_accounting", recordsToUpdate, "Payables");
+        
+        return new Response(JSON.stringify({
+          success: true,
+          message: "Sincronização de payables concluída com sucesso!",
+          upserted: {
+            payables: upsertedCount
+          }
+        }), {
+          status: 200,
+          headers: corsHeaders
+        });
+      } else {
+        return new Response(JSON.stringify({
+          success: true,
+          message: "Nenhum dado de payable encontrado para sincronizar.",
+          upserted: {
+            payables: 0
+          }
+        }), {
+          status: 200,
+          headers: corsHeaders
+        });
       }
-    }), {
-      status: 200,
-      headers: corsHeaders
-    });
+    } else {
+      return new Response(JSON.stringify({
+        success: true,
+        message: "Nenhum dado de payable encontrado para sincronizar.",
+        upserted: {
+          payables: 0
+        }
+      }), {
+        status: 200,
+        headers: corsHeaders
+      });
+    }
     
   } catch (error) {
     console.error('Erro na edge function payables:', error.message);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
-import { addCurrentMonthIfMissing } from '../utils/dataUtils';
+
 import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
@@ -123,6 +123,9 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
   // Estado para controlar se o separateAging está forçado pelo Pie Chart
   const [forceSeparateAging, setForceSeparateAging] = useState(false);
+  
+  // Estado para controlar se o usuário selecionou "Todos" no mês manualmente
+  const [userSelectedAllMonth, setUserSelectedAllMonth] = useState(false);
 
     // Efeito para ativar automaticamente o separateAging quando forçado pelo Pie Chart
   useEffect(() => {
@@ -147,7 +150,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
   // Atualizar meses disponíveis conforme ano selecionado
   useEffect(() => {
-    if (!selectedYear || !accountingData) {
+    // Se "Todos" for selecionado no ano, limpar os meses
+    if (!selectedYear || selectedYear.trim() === '' || !accountingData) {
       setMonths([]);
       return;
     }
@@ -160,11 +164,9 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           .filter(Boolean)
       ),
     ].sort((a, b) => Number(a) - Number(b));
-    // Adicionar mês atual se não estiver presente (sempre que for o ano selecionado)
-    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
-    setMonths(mesesComAtual);
+    setMonths(meses);
     // Se o mês selecionado não existir mais, resetar
-    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) {
+    if (selectedMonth && !meses.includes(selectedMonth)) {
       setSelectedMonth('');
     }
   }, [selectedYear, accountingData, selectedMonth]);
@@ -245,6 +247,25 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     }
   }, [years, selectedYear]);
 
+  // Inicializar mês quando meses estiverem disponíveis
+  useEffect(() => {
+    // Se "Todos" for selecionado no ano, resetar o mês
+    if (!selectedYear || selectedYear.trim() === '') {
+      setSelectedMonth('');
+      setUserSelectedAllMonth(false);
+      return;
+    }
+    
+    // Manter mês como "Todos" (string vazia) por padrão
+    // Só selecionar mês automaticamente se o usuário não selecionou "Todos" manualmente
+    if (months.length > 0 && selectedMonth === '' && selectedYear && selectedYear.trim() !== '' && !userSelectedAllMonth) {
+      // Manter como "Todos" (string vazia) em vez de selecionar o mês mais recente
+      setSelectedMonth('');
+      setUserSelectedAllMonth(true);
+      console.log('📅 Mês inicial definido como "Todos"');
+    }
+  }, [months, selectedMonth, selectedYear, userSelectedAllMonth]);
+
   // Inicializar filtros apenas uma vez quando os dados carregarem pela primeira vez
   useEffect(() => {
     if (agingIntervals.length > 0 && selectedAging.length === 0) {
@@ -267,26 +288,33 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       return [];
     }
     
-    console.log(`🔍 Filtragem - Dados originais: ${accountingData.length} registros`);
-    console.log(`🔍 Filtragem - Payables originais: ${accountingData.filter(d => d.type === 'payables').length} registros`);
-    console.log(`🔍 Filtragem - Payables com open_balance > 0: ${accountingData.filter(d => d.type === 'payables' && d.open_balance > 0).length} registros`);
+    console.log('🔍 DEBUG FILTROS:');
+    console.log('  - accountingData total:', accountingData.length);
+    console.log('  - accountingData payables:', accountingData.filter(d => d.type === 'payables').length);
+    console.log('  - selectedYear:', selectedYear);
+    console.log('  - selectedMonth:', selectedMonth);
+    console.log('  - selectedGroup:', selectedGroup);
+    console.log('  - selectedAging:', selectedAging);
+    console.log('  - selectedPayablesCategories:', selectedPayablesCategories);
     
     let filtered = accountingData;
-    if (selectedYear) {
+    // Só filtra por ano se selectedYear estiver preenchido (não vazio)
+    if (selectedYear && selectedYear.trim() !== '') {
       filtered = filtered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
-      console.log(`🔍 Filtragem por ano ${selectedYear}: ${filtered.length} registros`);
+      console.log('  - Após filtro ano:', filtered.length);
     }
-    if (selectedMonth) {
+    // Só filtra por mês se selectedMonth estiver preenchido (não vazio)
+    if (selectedMonth && selectedMonth.trim() !== '') {
       filtered = filtered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
-      console.log(`🔍 Filtragem por mês ${selectedMonth}: ${filtered.length} registros`);
+      console.log('  - Após filtro mês:', filtered.length);
     }
     if (selectedGroup !== 'all') {
       filtered = filtered.filter(d => d.type === selectedGroup);
-      console.log(`🔍 Filtragem por grupo ${selectedGroup}: ${filtered.length} registros`);
+      console.log('  - Após filtro grupo:', filtered.length);
     }
     if (selectedAging.length > 0) {
       filtered = filtered.filter(d => selectedAging.includes(d.aging_intervals));
-      console.log(`🔍 Filtragem por aging: ${filtered.length} registros`);
+      console.log('  - Após filtro aging:', filtered.length);
     }
     
     // Filtrar por categorias baseado no tipo
@@ -295,7 +323,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         filtered = filtered.filter(d => 
           d.type === 'receivables' ? selectedReceivablesCategories.includes(d.category) : true
         );
-        console.log(`🔍 Filtragem por categorias receivables: ${filtered.length} registros`);
       }
     }
     if (selectedGroup === 'payables' || selectedGroup === 'all') {
@@ -303,13 +330,10 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         filtered = filtered.filter(d => 
           d.type === 'payables' ? selectedPayablesCategories.includes(d.category) : true
         );
-        console.log(`🔍 Filtragem por categorias payables: ${filtered.length} registros`);
+        console.log('  - Após filtro categorias payables:', filtered.length);
       }
     }
     
-    console.log(`🔍 Filtragem final - Total: ${filtered.length} registros`);
-    console.log(`🔍 Filtragem final - Payables: ${filtered.filter(d => d.type === 'payables').length} registros`);
-    console.log(`🔍 Filtragem final - Payables com open_balance > 0: ${filtered.filter(d => d.type === 'payables' && d.open_balance > 0).length} registros`);
     
     return filtered;
   }, [accountingData, selectedYear, selectedMonth, selectedGroup, selectedAging, selectedReceivablesCategories, selectedPayablesCategories]);
@@ -322,8 +346,14 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
     }
     
     let unfiltered = accountingData;
-    if (selectedYear) unfiltered = unfiltered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
-    if (selectedMonth) unfiltered = unfiltered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
+    // Só filtra por ano se selectedYear estiver preenchido (não vazio)
+    if (selectedYear && selectedYear.trim() !== '') {
+      unfiltered = unfiltered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
+    }
+    // Só filtra por mês se selectedMonth estiver preenchido (não vazio)
+    if (selectedMonth && selectedMonth.trim() !== '') {
+      unfiltered = unfiltered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
+    }
     if (selectedGroup !== 'all') unfiltered = unfiltered.filter(d => d.type === selectedGroup);
     
     // NÃO filtrar por aging nem categorias aqui - isso será feito no gráfico
@@ -654,28 +684,29 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
             Outstanding Indicators
           </span>
         </h1>
-        <AccountingFilters
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedGroup={selectedGroup}
-          setSelectedGroup={setSelectedGroup}
-          separateAging={separateAging}
-          setSeparateAging={setSeparateAging}
-          selectedAging={selectedAging}
-          setSelectedAging={setSelectedAging}
-          selectedReceivablesCategories={selectedReceivablesCategories}
-          setSelectedReceivablesCategories={setSelectedReceivablesCategories}
-          selectedPayablesCategories={selectedPayablesCategories}
-          setSelectedPayablesCategories={setSelectedPayablesCategories}
-          years={years}
-          months={months}
-          agingIntervals={agingIntervals}
-          receivablesCategories={receivablesCategories}
-          payablesCategories={payablesCategories}
-          forceSeparateAging={forceSeparateAging}
-        />
+                 <AccountingFilters
+           selectedYear={selectedYear}
+           setSelectedYear={setSelectedYear}
+           selectedMonth={selectedMonth}
+           setSelectedMonth={setSelectedMonth}
+           selectedGroup={selectedGroup}
+           setSelectedGroup={setSelectedGroup}
+           separateAging={separateAging}
+           setSeparateAging={setSeparateAging}
+           selectedAging={selectedAging}
+           setSelectedAging={setSelectedAging}
+           selectedReceivablesCategories={selectedReceivablesCategories}
+           setSelectedReceivablesCategories={setSelectedReceivablesCategories}
+           selectedPayablesCategories={selectedPayablesCategories}
+           setSelectedPayablesCategories={setSelectedPayablesCategories}
+           years={years}
+           months={months}
+           agingIntervals={agingIntervals}
+           receivablesCategories={receivablesCategories}
+           payablesCategories={payablesCategories}
+           forceSeparateAging={forceSeparateAging}
+           onUserSelectAllMonth={setUserSelectedAllMonth}
+         />
       </div>
 
       {/* Conteúdo principal: gráfico/tabela à esquerda, partições à direita (igual ao backup e TimesheetAnalysis) */}

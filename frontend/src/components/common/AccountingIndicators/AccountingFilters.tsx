@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { addCurrentMonthIfMissing } from '../../../utils/dataUtils';
 
 // No topo do arquivo, antes do componente:
 const AGING_BUTTON_WIDTH = 180; // largura do botão
@@ -347,6 +346,7 @@ interface AccountingFiltersProps {
   receivablesCategories: string[];
   payablesCategories: string[];
   forceSeparateAging?: boolean;
+  onUserSelectAllMonth?: (selected: boolean) => void;
 }
 
 export default function AccountingFilters({
@@ -369,7 +369,8 @@ export default function AccountingFilters({
   agingIntervals,
   receivablesCategories,
   payablesCategories,
-  forceSeparateAging
+  forceSeparateAging,
+  onUserSelectAllMonth
 }: AccountingFiltersProps) {
   // Estilo para selects customizados (igual ao backup)
   const selectStyle: React.CSSProperties = {
@@ -397,9 +398,16 @@ export default function AccountingFilters({
           <option value="">Todos</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
-        <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
+        <select id="month-select" name="month" value={selectedMonth} onChange={e => {
+          const newValue = e.target.value;
+          setSelectedMonth(newValue);
+          // Se o usuário selecionou "Todos", notificar o componente pai
+          if (onUserSelectAllMonth) {
+            onUserSelectAllMonth(newValue === '');
+          }
+        }} style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
           <option value="">Todos</option>
-          {addCurrentMonthIfMissing(months, selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
+          {months.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>
       {/* Grupo de botões - Padrão do projeto (igual ao backup) */}

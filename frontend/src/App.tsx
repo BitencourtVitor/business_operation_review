@@ -14,7 +14,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/initial-loading" replace />} />
         </Routes>
       </Router>
     </DataCacheProvider>

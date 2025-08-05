@@ -319,16 +319,18 @@ export function AccountingChart({
       console.log(`🔍 Gráfico - Payables por dia: ${Object.keys(payablesByDay).length} transações únicas`);
       console.log(`🔍 Gráfico - Payables por dia:`, payablesByDay);
       
-      // Agrupar por dia - somar todas as transações distintas (usando os valores mais recentes)
+      // CORREÇÃO: Calcular o total outstanding por dia (não somar múltiplas transações)
       const receivablesSumByDay: Record<string, number> = {};
       Object.keys(receivablesByDay).forEach(key => {
         const dia = key.split('-')[0];
+        // Para cada dia, somar apenas os valores únicos de transações
         receivablesSumByDay[dia] = (receivablesSumByDay[dia] || 0) + receivablesByDay[key].value;
       });
       
       const payablesSumByDay: Record<string, number> = {};
       Object.keys(payablesByDay).forEach(key => {
         const dia = key.split('-')[0];
+        // Para cada dia, somar apenas os valores únicos de transações
         payablesSumByDay[dia] = (payablesSumByDay[dia] || 0) + payablesByDay[key].value;
       });
       

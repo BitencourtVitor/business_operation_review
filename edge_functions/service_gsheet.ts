@@ -199,6 +199,18 @@ function parseBooleanValue(value: any): boolean {
   return false;
 }
 
+// Função para gerar ID único baseado nos dados
+function generateUniqueId(row: any): string {
+  const contractor = getField(row, "CONTRACTOR") || '';
+  const jobSite = getField(row, "JOB SITE") || '';
+  const lot = getField(row, "LOT") || '';
+  const address = getField(row, "ADDRESS") || '';
+  
+  // Cria um ID único baseado nos campos principais
+  const uniqueString = `${contractor}-${jobSite}-${lot}-${address}`;
+  return uniqueString.replace(/[^a-zA-Z0-9-]/g, '').toLowerCase();
+}
+
 // Deletar tabela service requests
 async function deleteServiceRequestsTable() {
   try {
@@ -214,7 +226,7 @@ async function deleteServiceRequestsTable() {
 }
 
 // Inserir dados em lotes para melhor performance
-async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
+async function insertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
   try {
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
@@ -222,9 +234,7 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
     }
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
-      const { error } = await supabase.from(table).upsert(batch, {
-        onConflict: ['id']
-      });
+      const { error } = await supabase.from(table).insert(batch);
       if (error) {
         console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
         throw error;
@@ -289,7 +299,7 @@ serve(async (req) => {
     
     // 4. Inserir novos dados
     if (Array.isArray(mappedServiceRequests) && mappedServiceRequests.length > 0) {
-      await upsertTableBatch("service_requests", mappedServiceRequests, "Service_Requests");
+      await insertTableBatch("service_requests", mappedServiceRequests, "Service_Requests");
     }
     
     return new Response(JSON.stringify({
