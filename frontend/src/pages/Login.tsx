@@ -19,17 +19,15 @@ export default function Login() {
   const dataCache = useContext(DataCacheContext);
   const [loadingData, setLoadingData] = useState(false);
 
-  // Adicionar verificação de sessão no início do componente
+  // Verificar sessão e expiração no início do componente
   useEffect(() => {
-    const checkAndClearSession = async () => {
+    const checkSessionExpiration = async () => {
       try {
         // Verificar se há uma sessão ativa
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.log('Erro ao verificar sessão:', error);
-          // Limpar qualquer sessão corrompida
-          await supabase.auth.signOut();
           return;
         }
         
@@ -45,14 +43,10 @@ export default function Login() {
         }
       } catch (err) {
         console.error('Erro ao verificar sessão:', err);
-        // Em caso de erro, limpar tudo
-        await supabase.auth.signOut();
-        sessionStorage.clear();
-        localStorage.removeItem('supabase.auth.token');
       }
     };
     
-    checkAndClearSession();
+    checkSessionExpiration();
   }, []);
 
   // Preencher senha automaticamente se lembrar senha
@@ -119,27 +113,27 @@ export default function Login() {
         console.log('Login bem-sucedido:', data.user);
         
         // Chamar edge function para atualizar tabelas do banco
-        try {
-          console.log('Chamando edge function gsheet_data...');
-          const { error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
-            body: { 
-              userId: data.user.id,
-              email: data.user.email 
-            }
-          });
+        // try {
+        //   console.log('Chamando edge function gsheet_data...');
+        //   const { error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
+        //     body: { 
+        //       userId: data.user.id,
+        //       email: data.user.email 
+        //     }
+        //   });
           
-          if (edgeFunctionError) {
-            console.error('Erro na edge function:', edgeFunctionError);
-            // Não bloquear o login se a edge function falhar
-            console.log('Continuando com o login mesmo com erro na edge function');
-          } else {
-            console.log('Edge function executada com sucesso');
-          }
-        } catch (edgeFunctionError) {
-          console.error('Erro ao chamar edge function:', edgeFunctionError);
-          // Não bloquear o login se a edge function falhar
-          console.log('Continuando com o login mesmo com erro na edge function');
-        }
+        //   if (edgeFunctionError) {
+        //     console.error('Erro na edge function:', edgeFunctionError);
+        //     // Não bloquear o login se a edge function falhar
+        //     console.log('Continuando com o login mesmo com erro na edge function');
+        //   } else {
+        //     console.log('Edge function executada com sucesso');
+        //   }
+        // } catch (edgeFunctionError) {
+        //   console.error('Erro ao chamar edge function:', edgeFunctionError);
+        //   // Não bloquear o login se a edge function falhar
+        //   console.log('Continuando com o login mesmo com erro na edge function');
+        // }
         
         if (remember) {
           Cookies.set('remember', 'true', { expires: 365 });
@@ -151,26 +145,19 @@ export default function Login() {
           Cookies.remove('rememberedPassword');
         }
         
-        // Limpa o sessionStorage para garantir dados atualizados após login
+        // Salvar timestamp do login para controle de sessão
+        const loginTimestamp = Date.now();
+        sessionStorage.setItem('loginTimestamp', loginTimestamp.toString());
+        
+        // Limpar dados antigos do sessionStorage, mas manter o timestamp
+        const currentTimestamp = sessionStorage.getItem('loginTimestamp');
         sessionStorage.clear();
-
-        // Carregar todos os dados no cache antes de navegar
-        if (dataCache) {
-          setLoadingData(true);
-          try {
-            await Promise.all([
-              dataCache.fetchAccountingData(),
-              dataCache.fetchQuickbooksData(),
-              dataCache.fetchTimesheetData(),
-              dataCache.fetchPermitData(),
-            ]);
-          } catch (err) {
-            // Não bloquear o login se algum fetch falhar
-            console.error('Erro ao carregar dados do cache:', err);
-          }
-          setLoadingData(false);
+        if (currentTimestamp) {
+          sessionStorage.setItem('loginTimestamp', currentTimestamp);
         }
-        navigate('/dashboard');
+
+        // Navegar para a tela de loading que irá processar todas as edge functions
+        navigate('/initial-loading');
       }
     } catch {
       setError('Erro inesperado ao fazer login');

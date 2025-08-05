@@ -44,34 +44,9 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        // Verificar se há uma sessão válida
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Erro ao verificar sessão:', sessionError);
-          navigate('/login');
-          return;
-        }
-        
-        if (!session) {
-          console.log('Nenhuma sessão encontrada, redirecionando para login');
-          navigate('/login');
-          return;
-        }
-        
-        // Verificar se o token ainda é válido
-        const now = Math.floor(Date.now() / 1000);
-        if (session.expires_at && session.expires_at < now) {
-          console.log('Sessão expirada, redirecionando para login');
-          await supabase.auth.signOut();
-          navigate('/login');
-          return;
-        }
-        
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          console.log('Usuário não encontrado, redirecionando para login');
-          navigate('/login');
+          console.log('Usuário não encontrado');
           return;
         }
         
@@ -131,7 +106,6 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error('Erro ao buscar dados do usuário:', error);
-        navigate('/login');
       }
     };
 
