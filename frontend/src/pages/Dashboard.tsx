@@ -70,8 +70,10 @@ export default function Dashboard() {
             .eq('usuario_id', usuario.id)
             .single();
 
+          let userRole = '';
           if (perfil) {
-            setRole(perfil.tipo);
+            userRole = perfil.tipo;
+            setRole(userRole);
           }
 
           // Buscar telas
@@ -92,15 +94,31 @@ export default function Dashboard() {
           });
           setPermissoes(permissoesObj);
 
-          // Definir tela inicial como Accounting Indicators
+          // Definir tela inicial baseada no role do usuário
           if (telasData && telasData.length > 0) {
-            const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
-            if (accountingTela) {
-              setTelaId(accountingTela.id);
-              // Mostrar o submenu de empresas automaticamente na primeira vez
-              setShowCompanySubmenu(true);
+            const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
+            const temPermissaoAccounting = rolesComPermissaoAccounting.includes(userRole);
+            
+            // Verificar se é admin_setor com permissão específica para Accounting
+            const isAdminSetorComPermissao = userRole === 'admin_setor' && permissoesObj['46781412-07a6-431a-bd24-ae9f7292b755'];
+            
+            if (temPermissaoAccounting || isAdminSetorComPermissao) {
+              // Usuários com permissão: Accounting Indicators como inicial
+              const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
+              if (accountingTela) {
+                setTelaId(accountingTela.id);
+                setShowCompanySubmenu(true);
+              } else {
+                setTelaId(telasData[0].id);
+              }
             } else {
-              setTelaId(telasData[0].id);
+              // Usuários sem permissão: Timesheet Analysis como inicial
+              const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
+              if (timesheetTela) {
+                setTelaId(timesheetTela.id);
+              } else {
+                setTelaId(telasData[0].id);
+              }
             }
           }
         }
@@ -135,6 +153,26 @@ export default function Dashboard() {
   const handleSetMainContent = (newTelaId: string) => {
     const tela = telas.find(t => t.id === newTelaId);
     const currentTela = telas.find(t => t.id === telaId);
+    
+    // Verificar permissão para Accounting Indicators
+    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
+    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
+    
+    // Verificar se é admin_setor com permissão específica para Accounting
+    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
+    
+    if (tela?.descricao === 'Accounting Indicators' && !temPermissaoAccounting && !isAdminSetorComPermissao) {
+      // Usuário sem permissão tentando acessar Accounting Indicators
+      // Redirecionar para Timesheet Analysis
+      const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
+      if (timesheetTela) {
+        setTelaId(timesheetTela.id);
+        setShowCompanySubmenu(false);
+        setIsCollapsingSubmenu(false);
+        setShowAccountingContent(false);
+      }
+      return;
+    }
     
     // Se for Accounting Indicators, mostrar submenu de empresas
     if (tela?.descricao === 'Accounting Indicators') {
@@ -197,6 +235,23 @@ export default function Dashboard() {
     'HVAC': sublogoHvac,
     'Framing': sublogoFraming,
     'PCG': sublogoPcg,
+  };
+
+  // Função para filtrar telas baseado no role do usuário
+  const filtrarTelasPorPermissao = (telas: Tela[]): Tela[] => {
+    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
+    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
+    
+    // Verificar se é admin_setor com permissão específica para Accounting
+    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
+    
+    // Se o usuário tem permissão para Accounting, mostrar todas as telas
+    if (temPermissaoAccounting || isAdminSetorComPermissao) {
+      return telas;
+    }
+    
+    // Se não tem permissão, filtrar Accounting Indicators
+    return telas.filter(tela => tela.descricao !== 'Accounting Indicators');
   };
 
   // Função para ordenar telas de acordo com a ordem específica
@@ -304,11 +359,35 @@ export default function Dashboard() {
   const renderMainContent = () => {
     const tela = telas.find(t => t.id === telaId);
     
+    // Verificar permissão para Accounting Indicators
+    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
+    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
+    
+    // Verificar se é admin_setor com permissão específica para Accounting
+    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
+    
+    // Se o usuário não tem permissão para Accounting e está tentando acessar, redirecionar
+    if (tela?.descricao === 'Accounting Indicators' && !temPermissaoAccounting && !isAdminSetorComPermissao) {
+      const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
+      if (timesheetTela) {
+        setTelaId(timesheetTela.id);
+        setShowCompanySubmenu(false);
+        setIsCollapsingSubmenu(false);
+        setShowAccountingContent(false);
+      }
+      return null;
+    }
+    
     // Verificar se o usuário é responsável pela tela selecionada
     const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev' || role === 'manager' || role === 'gestor') : false;
 
     // Se showAccountingContent for true, mostrar AccountingIndicators independente da tela
     if (showAccountingContent) {
+      // Verificar permissão antes de mostrar AccountingIndicators
+      if (!temPermissaoAccounting && !isAdminSetorComPermissao) {
+        return null;
+      }
+      
       return <AccountingIndicators 
         telaId={telaId}
         usuarioId={usuarioId}
@@ -508,7 +587,7 @@ export default function Dashboard() {
         }}>
           {/* All screens in a single list */}
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 10px 0'}}>
-            {ordenarTelas(telas).map(tela => (
+            {ordenarTelas(filtrarTelasPorPermissao(telas)).map(tela => (
               <div key={tela.id} style={{ width: '100%' }}>
                                  <button
                    className={`btn-sidebar d-flex align-items-center justify-content-start w-100${tela.descricao === 'Accounting Indicators' ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}

@@ -239,7 +239,7 @@ async function deleteAllTables() {
 }
 
 // Inserir dados em lotes para melhor performance
-async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
+async function insertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
   try {
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
@@ -247,9 +247,7 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
     }
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
-      const { error } = await supabase.from(table).upsert(batch, {
-        onConflict: ['id']
-      });
+      const { error } = await supabase.from(table).insert(batch);
       if (error) {
         console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
         throw error;
@@ -372,7 +370,7 @@ serve(async (req) => {
           created_at: new Date()
         };
       })),
-      // Mapeamento para takeoff_works (NÃO enviar id nem created_at)
+      // Mapeamento para takeoff_works
       Promise.resolve(takeoffWorksData.map((row) => {
         const obj = {
           project: getField(row, "Project"),
@@ -396,7 +394,7 @@ serve(async (req) => {
         Object.keys(obj).forEach(k => (obj[k] === undefined ? delete obj[k] : null));
         return obj;
       })),
-             // Mapeamento para takeoff_works_responsibles (NÃO enviar id nem created_at)
+      // Mapeamento para takeoff_works_responsibles
        Promise.resolve(
          takeoffWorksResponsiblesData
            .map((row) => {
@@ -431,13 +429,13 @@ serve(async (req) => {
     
     // 4. Inserir novos dados em paralelo
     const upserts = [];
-    if (Array.isArray(mappedTimesheet) && mappedTimesheet.length > 0) upserts.push(upsertTableBatch("timesheet_analysis", mappedTimesheet, "Timesheet"));
-    if (Array.isArray(mappedPermit) && mappedPermit.length > 0) upserts.push(upsertTableBatch("permit_control", mappedPermit, "Permit"));
-    if (Array.isArray(mappedReceivables) && mappedReceivables.length > 0) upserts.push(upsertTableBatch("receivables_accounting", mappedReceivables, "Receivables"));
-    if (Array.isArray(mappedPayables) && mappedPayables.length > 0) upserts.push(upsertTableBatch("payables_accounting", mappedPayables, "Payables"));
-    if (Array.isArray(mappedTakeoffWorks) && mappedTakeoffWorks.length > 0) upserts.push(upsertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
-    if (Array.isArray(mappedTakeoffWorksResponsibles) && mappedTakeoffWorksResponsibles.length > 0) upserts.push(upsertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
-    if (Array.isArray(mappedServiceRequests) && mappedServiceRequests.length > 0) upserts.push(upsertTableBatch("service_requests", mappedServiceRequests, "Service_Requests"));
+    if (Array.isArray(mappedTimesheet) && mappedTimesheet.length > 0) upserts.push(insertTableBatch("timesheet_analysis", mappedTimesheet, "Timesheet"));
+    if (Array.isArray(mappedPermit) && mappedPermit.length > 0) upserts.push(insertTableBatch("permit_control", mappedPermit, "Permit"));
+    if (Array.isArray(mappedReceivables) && mappedReceivables.length > 0) upserts.push(insertTableBatch("receivables_accounting", mappedReceivables, "Receivables"));
+    if (Array.isArray(mappedPayables) && mappedPayables.length > 0) upserts.push(insertTableBatch("payables_accounting", mappedPayables, "Payables"));
+    if (Array.isArray(mappedTakeoffWorks) && mappedTakeoffWorks.length > 0) upserts.push(insertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
+    if (Array.isArray(mappedTakeoffWorksResponsibles) && mappedTakeoffWorksResponsibles.length > 0) upserts.push(insertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
+    if (Array.isArray(mappedServiceRequests) && mappedServiceRequests.length > 0) upserts.push(insertTableBatch("service_requests", mappedServiceRequests, "Service_Requests"));
     if (upserts.length > 0) {
       await Promise.all(upserts);
     }

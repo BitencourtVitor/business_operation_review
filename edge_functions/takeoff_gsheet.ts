@@ -151,7 +151,7 @@ async function deleteTakeoffTables() {
 }
 
 // Inserir dados em lotes para melhor performance
-async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
+async function insertTableBatch(table: string, data: any[], name: string, batchSize = 1000) {
   try {
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
@@ -159,9 +159,7 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
     }
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
-      const { error } = await supabase.from(table).upsert(batch, {
-        onConflict: ['id']
-      });
+      const { error } = await supabase.from(table).insert(batch);
       if (error) {
         console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
         throw error;
@@ -247,10 +245,10 @@ serve(async (req) => {
     // 4. Inserir novos dados em paralelo
     const upserts = [];
     if (Array.isArray(mappedTakeoffWorks) && mappedTakeoffWorks.length > 0) {
-      upserts.push(upsertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
+      upserts.push(insertTableBatch("takeoff_works", mappedTakeoffWorks, "Takeoff_Works"));
     }
     if (Array.isArray(mappedTakeoffWorksResponsibles) && mappedTakeoffWorksResponsibles.length > 0) {
-      upserts.push(upsertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
+      upserts.push(insertTableBatch("takeoff_works_responsibles", mappedTakeoffWorksResponsibles, "Takeoff_Works_Responsibles"));
     }
     if (upserts.length > 0) {
       await Promise.all(upserts);
