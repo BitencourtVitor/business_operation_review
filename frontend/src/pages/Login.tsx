@@ -15,6 +15,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [localError, setLocalError] = useState('');
   const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [theme, setTheme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
   const dataCache = useContext(DataCacheContext);
   const [loadingData, setLoadingData] = useState(false);
@@ -108,7 +109,14 @@ export default function Login() {
 
       if (error) {
         console.error('Erro no login:', error);
-        setError(error.message);
+        // Verificar se é erro de credenciais inválidas
+        if (error.message.includes('Invalid login credentials') || 
+            error.message.includes('Invalid email or password') ||
+            error.message.includes('Invalid login credentials')) {
+          setError('Invalid login credentials');
+        } else {
+          setError(error.message);
+        }
       } else if (data.user) {
         console.log('Login bem-sucedido:', data.user);
         
@@ -200,6 +208,19 @@ export default function Login() {
     marginTop: 4,
   };
 
+  const invalidCredentialsStyle: React.CSSProperties = {
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: '#EF4444',
+    border: '1.5px solid rgba(239, 68, 68, 0.3)',
+    borderRadius: 8,
+    padding: '12px 16px',
+    textAlign: 'center',
+    fontSize: 14,
+    marginBottom: 8,
+    marginTop: 4,
+    fontWeight: 500,
+  };
+
   return (
     <div
       id="background"
@@ -274,13 +295,14 @@ export default function Login() {
                   background: 'var(--color-background-secondary)',
                   color: 'var(--color-accent-primary)',
                   border: '1.5px solid var(--color-border-divider)',
+                  borderRight: 'none',
                   transition: 'background 0.3s, color 0.3s, border 0.3s',
                 }}
               >
                 <i className="bi bi-key"></i>
               </span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 name="password"
                 className="form-control"
@@ -288,6 +310,8 @@ export default function Login() {
                   background: 'var(--color-background-primary)',
                   color: 'var(--color-text-primary)',
                   border: '1.5px solid var(--color-border-divider)',
+                  borderLeft: 'none',
+                  borderRight: 'none',
                   transition: 'background 0.3s, color 0.3s, border 0.3s',
                 }}
                 placeholder="Senha"
@@ -297,6 +321,21 @@ export default function Login() {
                 required
                 autoComplete="current-password"
               />
+              <button
+                type="button"
+                className="input-group-text"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  background: 'var(--color-background-secondary)',
+                  color: 'var(--color-accent-primary)',
+                  border: '1.5px solid var(--color-border-divider)',
+                  borderLeft: 'none',
+                  transition: 'background 0.3s, color 0.3s, border 0.3s',
+                  cursor: 'pointer',
+                }}
+              >
+                <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+              </button>
             </div>
           </div>
           <div className="d-flex align-items-center justify-content-between mb-2">
@@ -319,7 +358,7 @@ export default function Login() {
             </button>
           </div>
           {(localError || error) && (
-            <div style={errorStyle}>
+            <div style={error === 'Invalid login credentials' ? invalidCredentialsStyle : errorStyle}>
               {localError || error}
             </div>
           )}
