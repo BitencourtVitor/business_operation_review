@@ -340,49 +340,104 @@ export function TakeoffChart({ filteredData, selectedYear, selectedMonth }: Take
             }} className="custom-scrollbar">
               {filteredData.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {filteredData.map((project, index) => {
-                    const status = getProjectStatus(project);
-                    const statusColor = (() => {
-                      switch (status) {
-                        case 'Not Started': return '#dc3545';
-                        case 'In Progress': return '#ffb300';
-                        case 'Completed': return '#1bbf5c';
-                        default: return '#6c757d';
-                      }
-                    })();
+                  {(() => {
+                    // Agrupar works por status
+                    const groupedWorks: Record<string, TakeoffRow[]> = {
+                      'Completed': [],
+                      'In Progress': [],
+                      'Not Started': []
+                    };
                     
-                    return (
-                      <div 
-                        key={index}
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: 8,
-                          padding: '4px 0',
-                          borderBottom: index < filteredData.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
-                        }}
-                      >
-                        <span style={{ 
-                          display: 'inline-block', 
-                          width: 10, 
-                          height: 10, 
-                          borderRadius: 5, 
-                          background: statusColor,
-                          flexShrink: 0
-                        }} />
-                        <span style={{ 
-                          color: 'var(--color-text-primary)', 
-                          fontSize: 13,
-                          lineHeight: 1.3,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {project.project || `Project ${index + 1}`}
-                        </span>
-                      </div>
-                    );
-                  })}
+                    // Organizar works por status
+                    filteredData.forEach(project => {
+                      const status = getProjectStatus(project);
+                      if (status in groupedWorks) {
+                        groupedWorks[status].push(project);
+                      }
+                    });
+                    
+                    // Ordem dos status para exibição
+                    const statusOrder = ['Completed', 'In Progress', 'Not Started'];
+                    
+                    return statusOrder.map(status => {
+                      const works = groupedWorks[status];
+                      if (works.length === 0) return null;
+                      
+                      const statusColor = (() => {
+                        switch (status) {
+                          case 'Not Started': return '#dc3545';
+                          case 'In Progress': return '#ffb300';
+                          case 'Completed': return '#1bbf5c';
+                          default: return '#6c757d';
+                        }
+                      })();
+                      
+                      return (
+                        <div key={status}>
+                          {/* Header do grupo */}
+                          <div style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: 8,
+                            padding: '8px 0',
+                            borderBottom: '1px solid var(--color-border-divider)',
+                            marginBottom: 4
+                          }}>
+                            <span style={{ 
+                              display: 'inline-block', 
+                              width: 12, 
+                              height: 12, 
+                              borderRadius: 6, 
+                              background: statusColor,
+                              flexShrink: 0
+                            }} />
+                            <span style={{ 
+                              color: 'var(--color-text-primary)', 
+                              fontSize: 14,
+                              fontWeight: 600,
+                              textTransform: 'uppercase'
+                            }}>
+                              {status} ({works.length})
+                            </span>
+                          </div>
+                          
+                          {/* Works do grupo */}
+                          {works.map((project, index) => (
+                            <div 
+                              key={`${status}-${index}`}
+                              style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 8,
+                                padding: '4px 0 4px 18px',
+                                borderBottom: index < works.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                              }}
+                            >
+                              <span style={{ 
+                                display: 'inline-block', 
+                                width: 8, 
+                                height: 8, 
+                                borderRadius: 4, 
+                                background: statusColor,
+                                opacity: 0.7,
+                                flexShrink: 0
+                              }} />
+                              <span style={{ 
+                                color: 'var(--color-text-primary)', 
+                                fontSize: 13,
+                                lineHeight: 1.3,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {project.project || `Project ${index + 1}`}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               ) : (
                 <div style={{ 
