@@ -143,6 +143,10 @@ export function ProjectMonitoringChart({
 }: ProjectMonitoringChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<ProjectMonitoringTooltipExternalProps>>(null);
+  // Estado para controlar o tipo de agrupamento
+  const [groupBy, setGroupBy] = useState<'status' | 'city_jobsite'>('status');
+  // Estado para controlar grupos expandidos/retraídos
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
   // Função para calcular o status baseado nos stages
   const calculateProjectStatus = (project: ProjectMonitoringHvacData): 'completed' | 'in_progress' | 'no_started' => {
@@ -187,102 +191,174 @@ export function ProjectMonitoringChart({
     return parts.length > 0 ? parts.join(' - ') : 'Project';
   };
 
-  // Preparar dados do gráfico de pizza
-  const { chartData, chartOptions, hasData, statusAverages } = useMemo(() => {
-    if (filteredData.length === 0) {
-      return { chartData: null, chartOptions: null, hasData: false, statusAverages: {} };
-    }
-
-    // Calcular contagem por status
-    const statusCounts = {
-      'completed': 0,
-      'in_progress': 0,
-      'no_started': 0
-    };
-
-    // Calcular dias de processamento por status
-    const statusDays = {
-      'completed': [] as number[],
-      'in_progress': [] as number[],
-      'no_started': [] as number[]
-    };
-
-    const currentDate = new Date();
-
-    filteredData.forEach(row => {
-      const status = calculateProjectStatus(row);
-      statusCounts[status]++;
-      
-      // Calcular dias de processamento baseado no status
-      let days = 0;
-      
-      if (status === 'completed') {
-        // Completed: finish_date - start_date
-        if (row.finish_date && row.start_date) {
-          const finishDate = new Date(row.finish_date);
-          const startDate = new Date(row.start_date);
-          days = Math.ceil((finishDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-        }
-      } else if (status === 'in_progress') {
-        // In Progress: data_atual - start_date
-        if (row.start_date) {
-          const startDate = new Date(row.start_date);
-          days = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-        }
+  // Função para alternar expansão de grupo
+  const toggleGroupExpansion = (groupKey: string) => {
+    setExpandedGroups(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupKey)) {
+        newSet.delete(groupKey);
       } else {
-        // No Started: data_atual - start_date (se existir)
-        if (row.start_date) {
-          const startDate = new Date(row.start_date);
-          days = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-        }
+        newSet.add(groupKey);
       }
-      
-      if (days > 0) {
-        statusDays[status].push(days);
-      }
+      return newSet;
     });
+  };
 
-    // Calcular médias de dias por status
-    const statusAverages: Record<string, number> = {};
-    Object.keys(statusDays).forEach(status => {
-      const days = statusDays[status as keyof typeof statusDays];
-      if (days.length > 0) {
-        statusAverages[status] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
-      } else {
-        statusAverages[status] = 0;
-      }
-    });
+     // Preparar dados do gráfico de pizza
+   const { chartData, chartOptions, hasData, statusAverages } = useMemo(() => {
+     if (filteredData.length === 0) {
+       return { chartData: null, chartOptions: null, hasData: false, statusAverages: {} };
+     }
 
-    // Filtrar apenas status com dados
-    const labels: string[] = [];
-    const data: number[] = [];
+     let labels: string[] = [];
+     let data: number[] = [];
+     let backgroundColor: string[] = [];
+     let statusAverages: Record<string, number> = {};
 
-    if (statusCounts['completed'] > 0) {
-      labels.push('Completed');
-      data.push(statusCounts['completed']);
-    }
+     if (groupBy === 'status') {
+       // Calcular contagem por status
+       const statusCounts = {
+         'completed': 0,
+         'in_progress': 0,
+         'no_started': 0
+       };
 
-    if (statusCounts['in_progress'] > 0) {
-      labels.push('In Progress');
-      data.push(statusCounts['in_progress']);
-    }
+       // Calcular dias de processamento por status
+       const statusDays = {
+         'completed': [] as number[],
+         'in_progress': [] as number[],
+         'no_started': [] as number[]
+       };
 
-    if (statusCounts['no_started'] > 0) {
-      labels.push('No Started');
-      data.push(statusCounts['no_started']);
-    }
+       const currentDate = new Date();
 
-    // Cores para cada status
-    const backgroundColor = labels.map(label => {
-      switch (label) {
-        case 'Completed': return '#28a745';
-        case 'In Progress': return '#ffc107';
-        case 'No Started': return '#dc3545';
-        default: return '#6c757d';
-      }
-    });
-    
-    const borderColor = backgroundColor.map(color => color + '80');
+       filteredData.forEach(row => {
+         const status = calculateProjectStatus(row);
+         statusCounts[status]++;
+         
+         // Calcular dias de processamento baseado no status
+         let days = 0;
+         
+         if (status === 'completed') {
+           // Completed: finish_date - start_date
+           if (row.finish_date && row.start_date) {
+             const finishDate = new Date(row.finish_date);
+             const startDate = new Date(row.start_date);
+             days = Math.ceil((finishDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+           }
+         } else if (status === 'in_progress') {
+           // In Progress: data_atual - start_date
+           if (row.start_date) {
+             const startDate = new Date(row.start_date);
+             days = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+           }
+         } else {
+           // No Started: data_atual - start_date (se existir)
+           if (row.start_date) {
+             const startDate = new Date(row.start_date);
+             days = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+           }
+         }
+         
+         if (days > 0) {
+           statusDays[status].push(days);
+         }
+       });
+
+       // Calcular médias de dias por status
+       Object.keys(statusDays).forEach(status => {
+         const days = statusDays[status as keyof typeof statusDays];
+         if (days.length > 0) {
+           statusAverages[status] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
+         } else {
+           statusAverages[status] = 0;
+         }
+       });
+
+       // Filtrar apenas status com dados
+       if (statusCounts['completed'] > 0) {
+         labels.push('Completed');
+         data.push(statusCounts['completed']);
+       }
+
+       if (statusCounts['in_progress'] > 0) {
+         labels.push('In Progress');
+         data.push(statusCounts['in_progress']);
+       }
+
+       if (statusCounts['no_started'] > 0) {
+         labels.push('No Started');
+         data.push(statusCounts['no_started']);
+       }
+
+       // Cores para cada status
+       backgroundColor = labels.map(label => {
+         switch (label) {
+           case 'Completed': return '#28a745';
+           case 'In Progress': return '#ffc107';
+           case 'No Started': return '#dc3545';
+           default: return '#6c757d';
+         }
+       });
+     } else {
+       // Agrupar por cidade • jobsite
+       const cityJobsiteCounts: Record<string, number> = {};
+       const cityJobsiteDays: Record<string, number[]> = {};
+       const currentDate = new Date();
+
+       filteredData.forEach(row => {
+         const city = row.city || 'Unknown City';
+         const jobSite = row.job_site || 'Unknown Jobsite';
+         const groupKey = `${city} • ${jobSite}`;
+         
+         if (!cityJobsiteCounts[groupKey]) {
+           cityJobsiteCounts[groupKey] = 0;
+           cityJobsiteDays[groupKey] = [];
+         }
+         cityJobsiteCounts[groupKey]++;
+         
+         // Calcular dias de processamento
+         let days = 0;
+         const status = calculateProjectStatus(row);
+         
+         if (status === 'completed') {
+           if (row.finish_date && row.start_date) {
+             const finishDate = new Date(row.finish_date);
+             const startDate = new Date(row.start_date);
+             days = Math.ceil((finishDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+           }
+         } else if (row.start_date) {
+           const startDate = new Date(row.start_date);
+           days = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+         }
+         
+         if (days > 0) {
+           cityJobsiteDays[groupKey].push(days);
+         }
+       });
+
+       // Ordenar grupos alfabeticamente
+       const sortedGroups = Object.keys(cityJobsiteCounts).sort();
+       
+       labels = sortedGroups;
+       data = sortedGroups.map(group => cityJobsiteCounts[group]);
+       
+       // Calcular médias de dias por cidade/jobsite
+       sortedGroups.forEach(group => {
+         const days = cityJobsiteDays[group];
+         if (days.length > 0) {
+           statusAverages[group] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
+         } else {
+           statusAverages[group] = 0;
+         }
+       });
+
+       // Cores correspondentes para cidade/jobsite
+       const colors = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#495057'];
+       backgroundColor = sortedGroups.map((_, index) => colors[index % colors.length]);
+     }
+     
+     const borderColor = backgroundColor.map(color => color + '80');
 
     const chartData = {
       labels,
@@ -331,29 +407,99 @@ export function ProjectMonitoringChart({
 
     const hasData = data.length > 0 && data.some(value => value > 0);
 
-    return { chartData, chartOptions, hasData, statusAverages };
-  }, [filteredData, selectedYear, selectedMonth]);
+         return { chartData, chartOptions, hasData, statusAverages };
+   }, [filteredData, selectedYear, selectedMonth, groupBy]);
 
   return (
     <>
-      {/* Header com título */}
-      <div className='px-4 py-2 d-flex justify-content-between align-items-center' style={{ borderBottom: '1px solid var(--color-border-divider)', height: 56 }}>
-        <h4 className='m-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
-          Distribuição de Status dos Projetos
-        </h4>
-      </div>
+             {/* Header com título */}
+       <div className='px-4 py-2 d-flex justify-content-between align-items-center' style={{ borderBottom: '1px solid var(--color-border-divider)', height: 56 }}>
+         <h4 className='m-0' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400 }}>
+           Distribuição de Status dos Projetos
+         </h4>
+                   {/* Controle de Group By */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
+            <button
+              type="button"
+              onClick={() => setGroupBy('status')}
+              style={{
+                background: groupBy === 'status' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: groupBy === 'status' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: groupBy === 'status' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                if (groupBy !== 'status') {
+                  e.currentTarget.style.background = 'var(--color-background-primary)';
+                  e.currentTarget.style.borderColor = 'var(--color-brand-blue)';
+                  e.currentTarget.style.color = 'var(--color-brand-blue)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = groupBy === 'status' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+                e.currentTarget.style.borderColor = groupBy === 'status' ? 'var(--color-brand-blue)' : 'var(--color-border-divider)';
+                e.currentTarget.style.color = groupBy === 'status' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)';
+              }}
+            >
+              Status
+            </button>
+            <button
+              type="button"
+              onClick={() => setGroupBy('city_jobsite')}
+              style={{
+                background: groupBy === 'city_jobsite' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: groupBy === 'city_jobsite' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: groupBy === 'city_jobsite' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                if (groupBy !== 'city_jobsite') {
+                  e.currentTarget.style.background = 'var(--color-background-primary)';
+                  e.currentTarget.style.borderColor = 'var(--color-brand-blue)';
+                  e.currentTarget.style.color = 'var(--color-brand-blue)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = groupBy === 'city_jobsite' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+                e.currentTarget.style.borderColor = groupBy === 'city_jobsite' ? 'var(--color-brand-blue)' : 'var(--color-border-divider)';
+                e.currentTarget.style.color = groupBy === 'city_jobsite' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)';
+              }}
+            >
+              City • Jobsite
+            </button>
+          </div>
+       </div>
       
       {/* Layout principal em duas colunas */}
       <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: '0 0 auto', minHeight: 0, minWidth: 0 }}>
         <div style={{ width: '100%', height: '40vh', minHeight: 320, maxHeight: 500, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 0 }}>
           {/* Filtros - Lado esquerdo */}
           <div style={{ width: 340, minWidth: 260, maxWidth: 400, display: 'flex', flexDirection: 'column', justifyContent: 'start', height: '100%', padding: 10, borderRight: '1px solid var(--color-border-divider)' }}>
-            {/* Título dos projetos */}
-            <div style={{ marginBottom: 20 }}>
-              <h5 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
-                Works
-              </h5>
-            </div>
+                         {/* Título dos projetos */}
+             <div style={{ marginBottom: 20 }}>
+               <h5 style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>
+                 Works
+               </h5>
+             </div>
 
             {/* Listagem dos projetos */}
             <div style={{ 
@@ -365,111 +511,239 @@ export function ProjectMonitoringChart({
               {filteredData.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {(() => {
-                    // Agrupar works por status
-                    const groupedWorks: Record<string, ProjectMonitoringHvacData[]> = {
-                      'completed': [],
-                      'in_progress': [],
-                      'no_started': []
-                    };
-                    
-                    // Organizar works por status
-                    filteredData.forEach(project => {
-                      const status = calculateProjectStatus(project);
-                      if (status in groupedWorks) {
-                        groupedWorks[status].push(project);
-                      }
-                    });
-                    
-                    // Ordem dos status para exibição
-                    const statusOrder = ['completed', 'in_progress', 'no_started'];
-                    
-                    return statusOrder.map(status => {
-                      const works = groupedWorks[status];
-                      if (works.length === 0) return null;
+                    if (groupBy === 'status') {
+                      // Agrupar works por status
+                      const groupedWorks: Record<string, ProjectMonitoringHvacData[]> = {
+                        'completed': [],
+                        'in_progress': [],
+                        'no_started': []
+                      };
                       
-                      const statusColor = (() => {
-                        switch (status) {
-                          case 'no_started': return '#dc3545';
-                          case 'in_progress': return '#ffc107';
-                          case 'completed': return '#28a745';
-                          default: return '#6c757d';
+                      // Organizar works por status
+                      filteredData.forEach(project => {
+                        const status = calculateProjectStatus(project);
+                        if (status in groupedWorks) {
+                          groupedWorks[status].push(project);
                         }
-                      })();
+                      });
                       
-                      const statusLabel = (() => {
-                        switch (status) {
-                          case 'completed': return 'Completed';
-                          case 'in_progress': return 'In Progress';
-                          case 'no_started': return 'No Started';
-                          default: return status;
+                      // Ordem dos status para exibição
+                      const statusOrder = ['completed', 'in_progress', 'no_started'];
+                      
+                      return statusOrder.map(status => {
+                        const works = groupedWorks[status];
+                        if (works.length === 0) return null;
+                        
+                        const statusColor = (() => {
+                          switch (status) {
+                            case 'no_started': return '#dc3545';
+                            case 'in_progress': return '#ffc107';
+                            case 'completed': return '#28a745';
+                            default: return '#6c757d';
+                          }
+                        })();
+                        
+                        const statusLabel = (() => {
+                          switch (status) {
+                            case 'completed': return 'Completed';
+                            case 'in_progress': return 'In Progress';
+                            case 'no_started': return 'No Started';
+                            default: return status;
+                          }
+                        })();
+                        
+                                                 const isExpanded = expandedGroups.has(status);
+                         
+                         return (
+                           <div key={status}>
+                             {/* Header do grupo */}
+                             <div 
+                               style={{ 
+                                 display: 'flex', 
+                                 alignItems: 'center', 
+                                 gap: 8,
+                                 padding: '8px 0',
+                                 borderBottom: '1px solid var(--color-border-divider)',
+                                 marginBottom: 4,
+                                 cursor: 'pointer',
+                                 userSelect: 'none'
+                               }}
+                               onClick={() => toggleGroupExpansion(status)}
+                             >
+                               <i 
+                                 className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`}
+                                 style={{ 
+                                   fontSize: 12, 
+                                   color: 'var(--color-text-secondary)',
+                                   transition: 'transform 0.2s ease'
+                                 }}
+                               />
+                               <span style={{ 
+                                 display: 'inline-block', 
+                                 width: 12, 
+                                 height: 12, 
+                                 borderRadius: 6, 
+                                 background: statusColor,
+                                 flexShrink: 0
+                               }} />
+                               <span style={{ 
+                                 color: 'var(--color-text-primary)', 
+                                 fontSize: 14,
+                                 fontWeight: 600,
+                                 textTransform: 'uppercase',
+                                 flex: 1
+                               }}>
+                                 {statusLabel} ({works.length})
+                               </span>
+                             </div>
+                             
+                             {/* Works do grupo */}
+                             {isExpanded && works.map((project, index) => (
+                               <div 
+                                 key={`${status}-${index}`}
+                                 style={{ 
+                                   display: 'flex', 
+                                   alignItems: 'center', 
+                                   gap: 8,
+                                   padding: '4px 0 4px 18px',
+                                   borderBottom: index < works.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                                 }}
+                               >
+                                 <span style={{ 
+                                   display: 'inline-block', 
+                                   width: 8, 
+                                   height: 8, 
+                                   borderRadius: 4, 
+                                   background: statusColor,
+                                   opacity: 0.7,
+                                   flexShrink: 0
+                                 }} />
+                                 <span style={{ 
+                                   color: 'var(--color-text-primary)', 
+                                   fontSize: 13,
+                                   lineHeight: 1.3,
+                                   overflow: 'hidden',
+                                   textOverflow: 'ellipsis',
+                                   whiteSpace: 'nowrap'
+                                 }}>
+                                   {getProjectTitle(project)}
+                                 </span>
+                               </div>
+                             ))}
+                           </div>
+                         );
+                      });
+                    } else {
+                      // Agrupar works por cidade • jobsite
+                      const groupedWorks: Record<string, ProjectMonitoringHvacData[]> = {};
+                      
+                      // Organizar works por cidade • jobsite
+                      filteredData.forEach(project => {
+                        const city = project.city || 'Unknown City';
+                        const jobSite = project.job_site || 'Unknown Jobsite';
+                        const groupKey = `${city} • ${jobSite}`;
+                        
+                        if (!groupedWorks[groupKey]) {
+                          groupedWorks[groupKey] = [];
                         }
-                      })();
+                        groupedWorks[groupKey].push(project);
+                      });
                       
-                      return (
-                        <div key={status}>
-                          {/* Header do grupo */}
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: 8,
-                            padding: '8px 0',
-                            borderBottom: '1px solid var(--color-border-divider)',
-                            marginBottom: 4
-                          }}>
-                            <span style={{ 
-                              display: 'inline-block', 
-                              width: 12, 
-                              height: 12, 
-                              borderRadius: 6, 
-                              background: statusColor,
-                              flexShrink: 0
-                            }} />
-                            <span style={{ 
-                              color: 'var(--color-text-primary)', 
-                              fontSize: 14,
-                              fontWeight: 600,
-                              textTransform: 'uppercase'
-                            }}>
-                              {statusLabel} ({works.length})
-                            </span>
-                          </div>
+                                             // Ordenar grupos alfabeticamente
+                       const sortedGroups = Object.keys(groupedWorks).sort();
+                       
+                       // Cores correspondentes para cidade/jobsite (mesmas do gráfico)
+                       const colors = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6c757d', '#495057'];
+                       
+                       return sortedGroups.map((groupKey, groupIndex) => {
+                         const works = groupedWorks[groupKey];
+                         if (works.length === 0) return null;
+                         
+                         // Usar a mesma cor do gráfico para este grupo
+                         const groupColor = colors[groupIndex % colors.length];
+                         
+                                                   const isExpanded = expandedGroups.has(groupKey);
                           
-                          {/* Works do grupo */}
-                          {works.map((project, index) => (
-                            <div 
-                              key={`${status}-${index}`}
-                              style={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                gap: 8,
-                                padding: '4px 0 4px 18px',
-                                borderBottom: index < works.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
-                              }}
-                            >
-                              <span style={{ 
-                                display: 'inline-block', 
-                                width: 8, 
-                                height: 8, 
-                                borderRadius: 4, 
-                                background: statusColor,
-                                opacity: 0.7,
-                                flexShrink: 0
-                              }} />
-                              <span style={{ 
-                                color: 'var(--color-text-primary)', 
-                                fontSize: 13,
-                                lineHeight: 1.3,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {getProjectTitle(project)}
-                              </span>
+                          return (
+                            <div key={groupKey}>
+                              {/* Header do grupo */}
+                              <div 
+                                style={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: 8,
+                                  padding: '8px 0',
+                                  borderBottom: '1px solid var(--color-border-divider)',
+                                  marginBottom: 4,
+                                  cursor: 'pointer',
+                                  userSelect: 'none'
+                                }}
+                                onClick={() => toggleGroupExpansion(groupKey)}
+                              >
+                                <i 
+                                  className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`}
+                                  style={{ 
+                                    fontSize: 12, 
+                                    color: 'var(--color-text-secondary)',
+                                    transition: 'transform 0.2s ease'
+                                  }}
+                                />
+                                <span style={{ 
+                                  display: 'inline-block', 
+                                  width: 12, 
+                                  height: 12, 
+                                  borderRadius: 6, 
+                                  background: groupColor,
+                                  flexShrink: 0
+                                }} />
+                                <span style={{ 
+                                  color: 'var(--color-text-primary)', 
+                                  fontSize: 14,
+                                  fontWeight: 600,
+                                  textTransform: 'uppercase',
+                                  flex: 1
+                                }}>
+                                  {groupKey} ({works.length})
+                                </span>
+                              </div>
+                              
+                              {/* Works do grupo */}
+                              {isExpanded && works.map((project, index) => (
+                                <div 
+                                  key={`${groupKey}-${index}`}
+                                  style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 8,
+                                    padding: '4px 0 4px 18px',
+                                    borderBottom: index < works.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                                  }}
+                                >
+                                  <span style={{ 
+                                    display: 'inline-block', 
+                                    width: 8, 
+                                    height: 8, 
+                                    borderRadius: 4, 
+                                    background: groupColor,
+                                    opacity: 0.7,
+                                    flexShrink: 0
+                                  }} />
+                                  <span style={{ 
+                                    color: 'var(--color-text-primary)', 
+                                    fontSize: 13,
+                                    lineHeight: 1.3,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                  }}>
+                                    {getProjectTitle(project)}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
-                      );
-                    });
+                          );
+                      });
+                    }
                   })()}
                 </div>
               ) : (
@@ -503,20 +777,20 @@ export function ProjectMonitoringChart({
                   <div style={{ fontWeight: 600, fontSize: 15, color: 'var(--color-text-primary)', marginBottom: 10, flex: '0 0 auto' }}>
                     Distribution
                   </div>
-                  {/* Cabeçalho da tabela */}
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '10px 1fr 40px 55px',
-                    gap: 8,
-                    marginBottom: 6,
-                    padding: '0 10px',
-                    fontSize: 12,
-                    color: 'var(--color-text-secondary)',
-                    fontWeight: 500
-                  }}>
-                    <span></span> {/* Coluna da cor */}
-                    <span>Status</span>
-                    <span style={{ textAlign: 'right' }}>Count</span>
+                                     {/* Cabeçalho da tabela */}
+                   <div style={{ 
+                     display: 'grid', 
+                     gridTemplateColumns: '10px 1fr 40px 55px',
+                     gap: 8,
+                     marginBottom: 6,
+                     padding: '0 10px',
+                     fontSize: 12,
+                     color: 'var(--color-text-secondary)',
+                     fontWeight: 500
+                   }}>
+                     <span></span> {/* Coluna da cor */}
+                     <span>{groupBy === 'status' ? 'Status' : 'City • Jobsite'}</span>
+                     <span style={{ textAlign: 'right' }}>Count</span>
                     <span 
                       style={{ 
                         textAlign: 'right',
