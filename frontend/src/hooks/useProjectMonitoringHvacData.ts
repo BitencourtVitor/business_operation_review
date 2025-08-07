@@ -10,9 +10,13 @@ export interface ProjectMonitoringHvacData {
   start_date: string | null;
   finish_date: string | null;
   s1_rough: string | null;
+  s1_date: string | null;
   s2_machines: string | null;
+  s2_date: string | null;
   s3_condenser: string | null;
+  s3_date: string | null;
   s4_finish: string | null;
+  s4_date: string | null;
   percent_completed: number | null;
   last_update: string | null;
   notes: string | null;

@@ -245,9 +245,13 @@ serve(async (req) => {
       start_date: getField(row, "Start Date") ? parseDateUS(getField(row, "Start Date")) : null,
       finish_date: getField(row, "Finish Date") ? parseDateUS(getField(row, "Finish Date")) : null,
       s1_rough: getField(row, "S1: Rough"),
+      s1_date: getField(row, "S1_Date") ? parseDateUS(getField(row, "S1_Date")) : null,
       s2_machines: getField(row, "S2: Machines"),
+      s2_date: getField(row, "S2_Date") ? parseDateUS(getField(row, "S2_Date")) : null,
       s3_condenser: getField(row, "S3: Condenser"),
+      s3_date: getField(row, "S3_Date") ? parseDateUS(getField(row, "S3_Date")) : null,
       s4_finish: getField(row, "S4: Finish"),
+      s4_date: getField(row, "S4_Date") ? parseDateUS(getField(row, "S4_Date")) : null,
       percent_completed: getField(row, "% Completed") ? parseNumericValue(getField(row, "% Completed"), 0) : null,
       last_update: getField(row, "Last Update") ? new Date(getField(row, "Last Update")) : null,
       notes: getField(row, "Notes")

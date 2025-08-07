@@ -7,9 +7,13 @@ export interface ProjectMonitoringHvacRow {
   start_date: string;
   finish_date: string;
   s1_rough: string;
+  s1_date?: string;
   s2_machines: string;
+  s2_date?: string;
   s3_condenser: string;
+  s3_date?: string;
   s4_finish: string;
+  s4_date?: string;
   percent_completed: number;
   last_update: string;
   notes: string;
