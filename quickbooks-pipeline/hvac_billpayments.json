@@ -1,6 +1,541 @@
 [
   {
     "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 30560.71,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20317",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T15:11:48-07:00",
+      "LastUpdatedTime": "2025-08-06T15:11:48-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2401.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "18624",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2600.47,
+        "LinkedTxn": [
+          {
+            "TxnId": "18443",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2401.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "18444",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1200.63,
+        "LinkedTxn": [
+          {
+            "TxnId": "18445",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1215.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "18446",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3277.47,
+        "LinkedTxn": [
+          {
+            "TxnId": "18447",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2727.8,
+        "LinkedTxn": [
+          {
+            "TxnId": "18448",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1419.93,
+        "LinkedTxn": [
+          {
+            "TxnId": "20017",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 154.41,
+        "LinkedTxn": [
+          {
+            "TxnId": "18449",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2401.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "18450",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 95.24,
+        "LinkedTxn": [
+          {
+            "TxnId": "18451",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3277.47,
+        "LinkedTxn": [
+          {
+            "TxnId": "18452",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3277.47,
+        "LinkedTxn": [
+          {
+            "TxnId": "18453",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 833.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "19161",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3277.47,
+        "LinkedTxn": [
+          {
+            "TxnId": "18364",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "524",
+      "name": "IPFS Corporation"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 1582.55,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20314",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T14:54:49-07:00",
+      "LastUpdatedTime": "2025-08-06T14:54:49-07:00"
+    },
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1582.55,
+        "LinkedTxn": [
+          {
+            "TxnId": "20313",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "498",
+      "name": "Eagle Leasing Company"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 154.63,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20244",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T08:50:19-07:00",
+      "LastUpdatedTime": "2025-08-05T08:51:19-07:00"
+    },
+    "DocNumber": "1554",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 154.63,
+        "LinkedTxn": [
+          {
+            "TxnId": "20243",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 60000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20240",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:58:26-07:00",
+      "LastUpdatedTime": "2025-08-05T06:12:15-07:00"
+    },
+    "DocNumber": "1553",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": []
+  },
+  {
+    "VendorRef": {
+      "value": "778",
+      "name": "BC Crane Corp"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 1980,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20239",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:37:05-07:00",
+      "LastUpdatedTime": "2025-08-05T06:12:15-07:00"
+    },
+    "DocNumber": "1552",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1980,
+        "LinkedTxn": [
+          {
+            "TxnId": "19859",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1508",
+      "name": "Premium Contractors Group, Inc. (IC Vendor)"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20238",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:28:21-07:00",
+      "LastUpdatedTime": "2025-08-05T06:12:15-07:00"
+    },
+    "DocNumber": "1551",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2286.58,
+        "LinkedTxn": [
+          {
+            "TxnId": "20236",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2286.58,
+        "LinkedTxn": [
+          {
+            "TxnId": "20237",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "727",
+      "name": "A1 AC & Heat Inc"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 5200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20235",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:23:08-07:00",
+      "LastUpdatedTime": "2025-08-05T06:12:15-07:00"
+    },
+    "DocNumber": "1550",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 5200,
+        "LinkedTxn": [
+          {
+            "TxnId": "19757",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "973",
+      "name": "Top Vent HVAC, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 3700,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20234",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:22:35-07:00",
+      "LastUpdatedTime": "2025-08-05T05:32:30-07:00"
+    },
+    "DocNumber": "1549",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19768",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3200,
+        "LinkedTxn": [
+          {
+            "TxnId": "19759",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "73",
+      "name": "New England Paradigm"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 36.77,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20215",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T06:00:46-07:00",
+      "LastUpdatedTime": "2025-08-04T06:00:46-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 36.77,
+        "LinkedTxn": [
+          {
+            "TxnId": "18981",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "73",
+      "name": "New England Paradigm"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 36.77,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20214",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T06:00:06-07:00",
+      "LastUpdatedTime": "2025-08-04T06:00:06-07:00"
+    },
+    "DocNumber": "Paid Online",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 36.77,
+        "LinkedTxn": [
+          {
+            "TxnId": "19299",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "1222",
       "name": "Premium Foundation, Inc"
     },

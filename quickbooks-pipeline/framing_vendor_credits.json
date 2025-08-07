@@ -2,6 +2,429 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "50089",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T17:05:35-07:00",
+      "LastUpdatedTime": "2025-08-04T17:05:35-07:00"
+    },
+    "DocNumber": "203950",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returned",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 119.53,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 119.53
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50063",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T15:19:38-07:00",
+      "LastUpdatedTime": "2025-08-04T15:19:38-07:00"
+    },
+    "DocNumber": "204290",
+    "TxnDate": "2025-07-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Storage",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1341.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1341.14
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50042",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:36:35-07:00",
+      "LastUpdatedTime": "2025-08-04T12:46:03-07:00"
+    },
+    "DocNumber": "130291223",
+    "TxnDate": "2025-07-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return - 22 Flynn Ave., Marlborough",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Premium Black Mini Ledger\nPanel 4.5 in. x 16 in. Splitface\nSlate Wall Tile (5 sq. ft./Case)",
+        "Amount": 481.53,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2337",
+            "name": "Felipe Drumond:22 Flynn Ave, Marlborough"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 481.53
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50044",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:38:41-07:00",
+      "LastUpdatedTime": "2025-08-04T12:38:41-07:00"
+    },
+    "DocNumber": "130803049",
+    "TxnDate": "2025-07-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1/2 in. x 4 ft. x 12 ft. UltraLight\nImperial Gypsum Base\n\n5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 3385.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3385.92
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50043",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:37:42-07:00",
+      "LastUpdatedTime": "2025-08-04T12:37:42-07:00"
+    },
+    "DocNumber": "130601732",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 768.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 768.4
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47945",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-05-01T04:13:29-07:00",
+      "LastUpdatedTime": "2025-08-04T09:32:19-07:00"
+    },
+    "DocNumber": "BC - Lot 141 - ON 1",
+    "TxnDate": "2025-05-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Ridge Vent $500\nBasement and First Floor Sliding Door $600",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Ridge Vent $500\nBasement and First Floor Sliding Door $600",
+        "Amount": 300,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3011",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2987",
+      "name": "Baruc Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 300
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47472",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-04-18T07:07:27-07:00",
+      "LastUpdatedTime": "2025-08-04T09:31:47-07:00"
+    },
+    "DocNumber": "BC - Lot 141 - ON",
+    "TxnDate": "2025-04-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "TB - Owls Nest - Lot 141 - Finishing Frame Punch",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Finishing Frame punch \n03\\21/2025\nHora: 08:20 as 17:40\nAdelio \nEverton\n9 hours, 20 minutes each Total 18.5 hours \n\n7:40a 18:30 \nAdelio \nValdemir \n05/03/25\n10 hours, 50 minutes each Total 21.8 hours \n\nDarmes 8:00 a 13:00\nRicardo\nLuis\nCarlos Henrique \n25/02 /02\n5 hours each Total 20 hours \n\nAdelio\nValdemir \n7:00a 14:00\n7 hours each Total 14 hours",
+        "Amount": 2200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3011",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2987",
+      "name": "Baruc Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2200
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47947",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-05-01T04:18:04-07:00",
+      "LastUpdatedTime": "2025-08-04T09:29:47-07:00"
+    },
+    "DocNumber": "BC - Lot 141 - ON 3",
+    "TxnDate": "2025-05-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Back Charge - Installed windows, nailed hangers, built shower seat, and finish walls that were too low.\n\n5 labors - 7.5 hours each one",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge - Installed windows, nailed hangers, built shower seat, and finish walls that were too low.\n\n5 labors - 7.5 hours each one",
+        "Amount": 1125,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3011",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2987",
+      "name": "Baruc Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1125
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47946",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-05-01T04:15:03-07:00",
+      "LastUpdatedTime": "2025-08-04T09:29:47-07:00"
+    },
+    "DocNumber": "BC - Lot 141 - ON 2",
+    "TxnDate": "2025-05-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "We fix front porch roof, truss and block on lot 141 owl nest Plymouth\n3 Labors (Juan, helper, Kevin) - 10 hours each one\n$30/h x 30h = $900",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "We fix front porch roof, truss and block on lot 141 owl nest Plymouth\n3 Labors (Juan, helper, Kevin) - 10 hours each one\n$30/h x 30h = $900",
+        "Amount": 900,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3011",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2987",
+      "name": "Baruc Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 900
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "49891",
     "SyncToken": "0",
     "MetaData": {
@@ -920,7 +1343,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -3249,202 +3672,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "47947",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-01T04:18:04-07:00",
-      "LastUpdatedTime": "2025-05-21T09:39:12-07:00"
-    },
-    "DocNumber": "BC - Lot 141 - ON 3",
-    "TxnDate": "2025-05-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Back Charge - Installed windows, nailed hangers, built shower seat, and finish walls that were too low.\n\n5 labors - 7.5 hours each one",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Back Charge - Installed windows, nailed hangers, built shower seat, and finish walls that were too low.\n\n5 labors - 7.5 hours each one",
-        "Amount": 1125,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3011",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2987",
-      "name": "Baruc Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1125
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47946",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-01T04:15:03-07:00",
-      "LastUpdatedTime": "2025-05-21T09:37:36-07:00"
-    },
-    "DocNumber": "BC - Lot 141 - ON 2",
-    "TxnDate": "2025-05-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "We fix front porch roof, truss and block on lot 141 owl nest Plymouth\n3 Labors (Juan, helper, Kevin) - 10 hours each one\n$30/h x 30h = $900",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "We fix front porch roof, truss and block on lot 141 owl nest Plymouth\n3 Labors (Juan, helper, Kevin) - 10 hours each one\n$30/h x 30h = $900",
-        "Amount": 900,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3011",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2987",
-      "name": "Baruc Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 900
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47945",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-01T04:13:29-07:00",
-      "LastUpdatedTime": "2025-05-21T09:37:21-07:00"
-    },
-    "DocNumber": "BC - Lot 141 - ON 1",
-    "TxnDate": "2025-05-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Ridge Vent $500\nBasement and First Floor Sliding Door $600",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Ridge Vent $500\nBasement and First Floor Sliding Door $600",
-        "Amount": 1100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3011",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2987",
-      "name": "Baruc Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1100
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47472",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-04-18T07:07:27-07:00",
-      "LastUpdatedTime": "2025-05-20T13:43:00-07:00"
-    },
-    "DocNumber": "BC - Lot 141 - ON",
-    "TxnDate": "2025-04-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "TB - Owls Nest - Lot 141 - Finishing Frame Punch",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Finishing Frame punch \n03\\21/2025\nHora: 08:20 as 17:40\nAdelio \nEverton\n9 hours, 20 minutes each Total 18.5 hours \n\n7:40a 18:30 \nAdelio \nValdemir \n05/03/25\n10 hours, 50 minutes each Total 21.8 hours \n\nDarmes 8:00 a 13:00\nRicardo\nLuis\nCarlos Henrique \n25/02 /02\n5 hours each Total 20 hours \n\nAdelio\nValdemir \n7:00a 14:00\n7 hours each Total 14 hours",
-        "Amount": 2229,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3011",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 141 - Owls Nest-Regency Col"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2987",
-      "name": "Baruc Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2229
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "47270",
     "SyncToken": "2",
     "MetaData": {
@@ -4757,7 +4984,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -5170,7 +5397,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -9636,7 +9863,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -14003,7 +14230,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -15197,7 +15424,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -15246,7 +15473,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -18691,7 +18918,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -23109,7 +23336,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -23384,7 +23611,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",
@@ -23432,7 +23659,7 @@
     ],
     "VendorRef": {
       "value": "1311",
-      "name": "Beacon Building Products"
+      "name": "QXO (Former Beacon Building Products)"
     },
     "APAccountRef": {
       "value": "34",

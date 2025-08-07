@@ -4,6 +4,536 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 190504.9,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20282",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T15:34:52-07:00",
+      "LastUpdatedTime": "2025-08-05T15:34:52-07:00"
+    },
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 17800,
+        "LinkedTxn": [
+          {
+            "TxnId": "20230",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 400,
+        "LinkedTxn": [
+          {
+            "TxnId": "20224",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "20225",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 650,
+        "LinkedTxn": [
+          {
+            "TxnId": "20226",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 889.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "20227",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 11129.2,
+        "LinkedTxn": [
+          {
+            "TxnId": "20228",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 10000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20249",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S4",
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20251",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S4+ Eletronic air cleaner",
+        "Amount": 4750,
+        "LinkedTxn": [
+          {
+            "TxnId": "20253",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S4+full Bath",
+        "Amount": 10000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20255",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 10000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20257",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S4+Finished basement+Full Bath+36\" Gas Cooktop\nDescription 1: \t36\" Gas Cooktop\nDescription 2: \tCombo Oven, Hood, DW",
+        "Amount": 32775,
+        "LinkedTxn": [
+          {
+            "TxnId": "20259",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S3",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20260",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 5775,
+        "LinkedTxn": [
+          {
+            "TxnId": "20262",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20264",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 2100,
+        "LinkedTxn": [
+          {
+            "TxnId": "20272",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 90,
+        "LinkedTxn": [
+          {
+            "TxnId": "20273",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 13525,
+        "LinkedTxn": [
+          {
+            "TxnId": "20275",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 4606,
+        "LinkedTxn": [
+          {
+            "TxnId": "20277",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20278",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 10000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20279",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20281",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Amount": 23775,
+        "LinkedTxn": [
+          {
+            "TxnId": "20268",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Description": "S3",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20270",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "414359"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC vent was installed in wrong location and in the way of the vanity cabinet when original installation was being done.",
+        "Amount": -60,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1300",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "414359"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20232",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T17:17:35-07:00",
+      "LastUpdatedTime": "2025-08-04T17:17:35-07:00"
+    },
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 227928",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "20223",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 18415.28,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18688",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-06-02T11:00:50-07:00",
+      "LastUpdatedTime": "2025-08-04T08:13:52-07:00"
+    },
+    "TxnDate": "2025-05-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Optional 21616 - Garage",
+        "Amount": 13521.88,
+        "LinkedTxn": [
+          {
+            "TxnId": "18685",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-1796"
+        }
+      },
+      {
+        "Description": "4th Floor \n408 - 21617\n411 - 21617",
+        "Amount": 4893.4,
+        "LinkedTxn": [
+          {
+            "TxnId": "18687",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-1796"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 5915,
     "domain": "QBO",
     "sparse": false,
@@ -4702,62 +5232,6 @@
             "name": "ACH"
           },
           "CheckNum": "394102"
-        }
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "TotalAmt": 18415.28,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18688",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-02T11:00:50-07:00",
-      "LastUpdatedTime": "2025-06-02T11:00:50-07:00"
-    },
-    "TxnDate": "2025-06-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Optional 21616 - Garage",
-        "Amount": 13521.88,
-        "LinkedTxn": [
-          {
-            "TxnId": "18685",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "6"
-          },
-          "CheckNum": "1680-PMX-1796"
-        }
-      },
-      {
-        "Description": "4th Floor \n408 - 21617\n411 - 21617",
-        "Amount": 4893.4,
-        "LinkedTxn": [
-          {
-            "TxnId": "18687",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "6"
-          },
-          "CheckNum": "1680-PMX-1796"
         }
       }
     ]

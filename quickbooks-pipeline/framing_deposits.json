@@ -1,6 +1,378 @@
 [
   {
     "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 30000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50136",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:25:48-07:00",
+      "LastUpdatedTime": "2025-08-06T07:25:48-07:00"
+    },
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RETURN CK#2338 INCOMPLETE IMAGE",
+        "Amount": 30000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 177.84,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50135",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:25:42-07:00",
+      "LastUpdatedTime": "2025-08-06T07:25:42-07:00"
+    },
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 7485",
+        "Amount": 177.84,
+        "LinkedTxn": [
+          {
+            "TxnId": "49973",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "10"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 7957.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50127",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:23:39-07:00",
+      "LastUpdatedTime": "2025-08-06T07:23:39-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 2321",
+        "Amount": 7957.5,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 4500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50125",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:23:22-07:00",
+      "LastUpdatedTime": "2025-08-06T07:23:22-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 2313",
+        "Amount": 4500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 10517,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50116",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:08:21-07:00",
+      "LastUpdatedTime": "2025-08-06T07:08:21-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 2301",
+        "Amount": 10517,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 72701.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50109",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T08:40:51-07:00",
+      "LastUpdatedTime": "2025-08-05T08:40:51-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 8041",
+        "Amount": 650,
+        "LinkedTxn": [
+          {
+            "TxnId": "50102",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Description": "C0001006 + C0001008",
+        "Amount": 550,
+        "LinkedTxn": [
+          {
+            "TxnId": "50103",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Description": "First floor + Second floor + Optional 017",
+        "Amount": 30968,
+        "LinkedTxn": [
+          {
+            "TxnId": "50104",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Description": "Second floor + Optionals 048650 + 017",
+        "Amount": 17537,
+        "LinkedTxn": [
+          {
+            "TxnId": "50106",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 036415 + 106158 + 263049",
+        "Amount": 10024,
+        "LinkedTxn": [
+          {
+            "TxnId": "50107",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 13363.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "50108",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge Number: 175504 - Trip charge door openings not correct.",
+        "Amount": -120,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3064",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 13 - Willows at Boxford",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Back Charge Number: 177463 - Lot 21 Floor Repair: additional 1/8inch steel shims for lot 21 steel Ibeam repair",
+        "Amount": -63.75,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3061",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 21 - Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "414358"
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Back Charge Number: 176535 - Cost discrepancy for steel beam. Installed messed up beam that needed to be swapped.",
+        "Amount": -207.19,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2948",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 60 - Willows at Boxford",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "414358"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
       "value": "158",
       "name": "DCU Business Checking 0257"
     },

@@ -7,6 +7,1799 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
+    "Id": "31913",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2023-09-12T09:00:30-07:00",
+      "LastUpdatedTime": "2025-08-05T08:48:39-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "5512",
+    "TxnDate": "2023-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PO 11296114",
+    "LinkedTxn": [
+      {
+        "TxnId": "31917",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "PH - Upton - Upton Ridge - NE1930840-001",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "PH - Upton - Upton Ridge - Lot 22\n\nDig down a foot or more and put new form and concreted. Footings missing.\n\n2 guys - 4 hours each one\n\nTotal: 8 hours",
+        "Amount": 360,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 45,
+          "Qty": 8,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "THE HOME DEPOT #2672",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2023-09-06"
+        }
+      },
+      {
+        "Amount": 401.01,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "11",
+      "name": "Upton Ridge 5964 - Pulte Homes MS-1074"
+    },
+    "BillAddr": {
+      "Id": "11682",
+      "Line1": "Upton Ridge 5964 - Pulte Homes MS-1074"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2023-09-12",
+    "TotalAmt": 401.01,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    },
+    "Balance": 401.01,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2023-09-28T05:42:56-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49935",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-23T06:53:22-07:00",
+      "LastUpdatedTime": "2025-08-05T08:29:26-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8370",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "First floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "49846",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50108",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Base - 3309 sq",
+        "Amount": 13363.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000121",
+            "name": "TB - Owls Nest-Regency:Base First Floor - Chatham Modern Farmhouse"
+          },
+          "UnitPrice": 13363.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Base - Wall Frame Second Floor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000152",
+            "name": "TB - Owls Nest-Regency:Base Second Floor - Chatham"
+          },
+          "UnitPrice": 13363.5,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000162",
+            "name": "TB - Owls Nest-Regency:017 - Chatham"
+          },
+          "UnitPrice": 4900,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath/Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000191",
+            "name": "TB - Owls Nest-Regency:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "QMI Cost Savings",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001591",
+            "name": "TB - Owls Nest-Regency:020400 - All Plans"
+          },
+          "UnitPrice": -500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Extended Garage Depth 4'",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000166",
+            "name": "TB - Owls Nest-Regency:263061 - All Plans"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Soffit in Primary Bedroom",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000163",
+            "name": "TB - Owls Nest-Regency:036008 - Chatham"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Linear fireplace - 42\" Cosmo/Rave",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000134",
+            "name": "TB - Owls Nest-Regency:106158 - Chatham"
+          },
+          "UnitPrice": 750,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Finished Walkout Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49846",
+            "TxnType": "Estimate",
+            "TxnLineId": "9"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000160",
+            "name": "TB - Owls Nest-Regency:263432 - Chatham"
+          },
+          "UnitPrice": 5500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 13363.5,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3279",
+      "name": "Lot 139 - Owls Nest Regency"
+    },
+    "BillAddr": {
+      "Id": "16057",
+      "Line1": "Lot 139 - The Pinehills - Owls Nest",
+      "Line2": "7 Loons Call",
+      "Line3": "Chatham Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "16058",
+      "Line1": "The Pinehills - Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-23",
+    "TotalAmt": 13363.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49718",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-10T07:24:00-07:00",
+      "LastUpdatedTime": "2025-08-05T08:25:05-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8329",
+    "TxnDate": "2025-07-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Second floor + Optional 036415 + 106158 + 263049",
+    "LinkedTxn": [
+      {
+        "TxnId": "49152",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50107",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1721 sf",
+        "Amount": 9124,
+        "LinkedTxn": [
+          {
+            "TxnId": "49152",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001142",
+            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 9124,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49152",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001200",
+            "name": "TB - Wendell Place:201 Dickinson Manchester"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "LinkedTxn": [
+          {
+            "TxnId": "49152",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001170",
+            "name": "TB - Wendell Place:036415 Dickinson Manchester"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Linear Frplc - 42\" Cosmo/Ra Great Room Rplcs",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "49152",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001252",
+            "name": "TB - Wendell Place:106158 Dickinson Manchester"
+          },
+          "UnitPrice": 200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "49152",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001240",
+            "name": "TB - Wendell Place:263049 Dickinson Manchester"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 10024,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3247",
+      "name": "Lot 18 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "15748",
+      "Line1": "Lot 18 - Wendell Place",
+      "Line2": "1 Lady Constance Way",
+      "Line3": "Dickinson Manchester"
+    },
+    "ShipAddr": {
+      "Id": "15749",
+      "Line1": "Wendell Place"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-07",
+    "TotalAmt": 10024,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50105",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-05T08:20:44-07:00",
+      "LastUpdatedTime": "2025-08-05T08:21:13-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8382",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Second floor + Optionals 048650 + 017",
+    "LinkedTxn": [
+      {
+        "TxnId": "49728",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50106",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2226 sf",
+        "Amount": 12537,
+        "LinkedTxn": [
+          {
+            "TxnId": "49728",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Sec Bath Tub-Kohler Villa",
+        "Amount": 100,
+        "LinkedTxn": [
+          {
+            "TxnId": "49728",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001612",
+            "name": "TB - Newbury Glen:048650 - All Plans"
+          },
+          "UnitPrice": 100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "LinkedTxn": [
+          {
+            "TxnId": "49728",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000445",
+            "name": "TB - Newbury Glen:017 - Williamstown"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 17537,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3269",
+      "name": "Lot 16 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "16200",
+      "Line1": "Lot 16 - Newbury Glen",
+      "Line2": "7 Fitch Avenue",
+      "Line3": "Williamstown Modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "16201",
+      "Line1": "Newbury Glen"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-01",
+    "TotalAmt": 17537,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49716",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-10T07:22:15-07:00",
+      "LastUpdatedTime": "2025-08-05T08:18:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8327",
+    "TxnDate": "2025-07-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "First floor + Second floor + Optional 017",
+    "LinkedTxn": [
+      {
+        "TxnId": "49151",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50104",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1746 sf",
+        "Amount": 16944,
+        "LinkedTxn": [
+          {
+            "TxnId": "49151",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001132",
+            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1721 sf",
+        "Amount": 9124,
+        "LinkedTxn": [
+          {
+            "TxnId": "49151",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001142",
+            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 9124,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "LinkedTxn": [
+          {
+            "TxnId": "49151",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001138",
+            "name": "TB - Wendell Place:017 Dickinson Manchester"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 30968,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3246",
+      "name": "Lot 15 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "15744",
+      "Line1": "Lot 15 - Wendell Place",
+      "Line2": "7 Lady Constance Way",
+      "Line3": "Dickinson Manchester"
+    },
+    "ShipAddr": {
+      "Id": "15745",
+      "Line1": "Wendell Place"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-07",
+    "TotalAmt": 30968,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49608",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-03T08:36:34-07:00",
+      "LastUpdatedTime": "2025-08-05T08:13:48-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8313",
+    "TxnDate": "2025-07-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "C0001006 + C0001008",
+    "LinkedTxn": [
+      {
+        "TxnId": "41814",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50103",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "C0001006 - MDL Ceiling Beams and trim in (Foyer, Dining Room & Great Rm)",
+        "Amount": 450,
+        "LinkedTxn": [
+          {
+            "TxnId": "41814",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 450,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "C0001008 - MDL RH Light Fixtures in (Foyer, DR, PriBed, Bed 3)",
+        "Amount": 100,
+        "LinkedTxn": [
+          {
+            "TxnId": "41814",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 550,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "2960",
+      "name": "Lot 01 - Lakemont at Hudson (Model House)"
+    },
+    "BillAddr": {
+      "Id": "15660",
+      "Line1": "Toll Brothers - Lakemont at Hudson"
+    },
+    "ShipAddr": {
+      "Id": "15661",
+      "Line1": "Lakemont at Hudson"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-03",
+    "TotalAmt": 550,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47949",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-05-01T04:31:38-07:00",
+      "LastUpdatedTime": "2025-08-05T08:11:36-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8041",
+    "TxnDate": "2025-05-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 15 - Canton Reserve\nJob description: Provide and install white railing on front porch. Customer satisfaction. \n\nWork Order #14562044",
+    "LinkedTxn": [
+      {
+        "TxnId": "50102",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lot 15 - Canton Reserve",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {}
+      },
+      {
+        "Id": "3",
+        "LineNum": 2,
+        "Description": "Job description: Provide and install white railing on front porch. Customer satisfaction. \n\nWork Order #14562044",
+        "Amount": 650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 650,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1210",
+      "name": "Canton Reserve"
+    },
+    "BillAddr": {
+      "Id": "14082",
+      "Line1": "Canton Reserve"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-05-01",
+    "TotalAmt": 650,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "mryan1@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "34613",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2023-11-27T10:09:01-08:00",
+      "LastUpdatedTime": "2025-08-05T07:22:21-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "5996",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "10/16/2023 - Hopkinton - Edgewood at Hopkinton - Lot 27\n\nBulkhead installation \n2 crew members x hours \nPremium: RR construction \n\nAdditional Framing requirements uncontracted work \n\nTotal: 6 hours\nOriginal date: 11/27/2023\nrequested by toll to update due date.",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 3507",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "10/16/2023 - Hopkinton - Edgewood at Hopkinton - Lot 27\n\nBulkhead installation \n2 crew members x hours \nPremium: RR construction \n\nAdditional Framing requirements uncontracted work \n\nTotal: 6 hours",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 50,
+          "Qty": 6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 300,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1857",
+      "name": "Edgewood at Hopkinton"
+    },
+    "BillAddr": {
+      "Id": "11703",
+      "Line1": "Edgewood at Hopkinton"
+    },
+    "ShipAddr": {
+      "Id": "7555"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-05",
+    "TotalAmt": 300,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "Balance": 300,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryErrorType": "Bounced Email"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50092",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T17:43:19-07:00",
+      "LastUpdatedTime": "2025-08-04T17:43:19-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8381",
+    "TxnDate": "2025-07-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Window & Door Installation Labor + Balcony Decking Labor (partial) - Pay App #4 (retainage discounted)",
+    "LinkedTxn": [
+      {
+        "TxnId": "46850",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "626 Main Street, Dennis Port",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "13"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Window & Door Installation Labor",
+        "Amount": 11608.05,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "10"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 12219,
+          "Qty": 0.95,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Balcony Decking Labor",
+        "Amount": 6124.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "11"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6618,
+          "Qty": 0.9254533,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 17732.7,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3163",
+      "name": "626 Main Street, Dennis Port, MA"
+    },
+    "BillAddr": {
+      "Id": "16195",
+      "Line1": "Turnkey Lumber",
+      "Line2": "Turnkey Lumber, Inc."
+    },
+    "ShipAddr": {
+      "Id": "16196",
+      "Line1": "Turnkey Lumber",
+      "Line2": "Turnkey Lumber, Inc."
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-30",
+    "TotalAmt": 17732.7,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "juliano@turnkeylumber.com"
+    },
+    "Balance": 17732.7
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49836",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-16T10:59:28-07:00",
+      "LastUpdatedTime": "2025-08-04T17:40:10-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8349",
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Per Gui's request",
+    "LinkedTxn": [
+      {
+        "TxnId": "46850",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "626 Main Street, Dennis Port",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "13"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1st Level Wall Installation Field Labor",
+        "Amount": 885.3,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 17706,
+          "Qty": 0.05,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "1st Level Punch and Hold-down Labor",
+        "Amount": 7200.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9683,
+          "Qty": 0.7436383,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "2nd Level Floor Installation Labor",
+        "Amount": 1032.85,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 20657,
+          "Qty": 0.05,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "2nd Level Wall Installation Field Labor",
+        "Amount": 885.3,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 17706,
+          "Qty": 0.05,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "2nd Level Punch and Hold-down Labor",
+        "Amount": 7295.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9683,
+          "Qty": 0.7534493,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Roof Framing Installation Labor",
+        "Amount": 14439.85,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 20657,
+          "Qty": 0.6990294,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Roof Punch Labor",
+        "Amount": 9686.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9686.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Stair Labor",
+        "Amount": 8508,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 8508,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "AVB Labor ",
+        "Amount": 7850,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "9"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 7850,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 11,
+        "Description": "Balcony Railing Labor",
+        "Amount": 6401,
+        "LinkedTxn": [
+          {
+            "TxnId": "46850",
+            "TxnType": "Estimate",
+            "TxnLineId": "12"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6401,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 64185.1,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3163",
+      "name": "626 Main Street, Dennis Port, MA"
+    },
+    "BillAddr": {
+      "Id": "15926",
+      "Line1": "Turnkey Lumber",
+      "Line2": "Turnkey Lumber, Inc."
+    },
+    "ShipAddr": {
+      "Id": "15927",
+      "Line1": "Turnkey Lumber",
+      "Line2": "Turnkey Lumber, Inc."
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-16",
+    "TotalAmt": 64185.1,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "juliano@turnkeylumber.com,mike@turnkeylumber.com"
+    },
+    "Balance": 64185.1,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-01T03:45:38-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50052",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T14:21:09-07:00",
+      "LastUpdatedTime": "2025-08-04T14:21:35-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8380",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Job Supplies - Baldwinville School",
+    "LinkedTxn": [
+      {
+        "TxnId": "50051",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Job Supplies - Baldwinville School",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-08-01"
+        }
+      },
+      {
+        "Amount": 4188.19,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3290",
+      "name": "Baldwinville School Apartments"
+    },
+    "BillAddr": {
+      "Id": "7112",
+      "Line1": "1B Landing Ln",
+      "City": "Hopedale",
+      "Country": "US",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01747"
+    },
+    "ShipAddr": {
+      "Id": "16159",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-01",
+    "TotalAmt": 4188.19,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 4188.19,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-04T14:21:32-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49744",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-10T15:17:12-07:00",
+      "LastUpdatedTime": "2025-08-03T03:36:46-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8334",
+    "TxnDate": "2025-07-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order:\n- Roof change: U$4,200.00\n- 2 laborers - 2 days - Snapping lines due to foundation issues: U$2,000.00",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "626 Main St",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Change order:\n- Roof change: U$4,200.00\n- 2 laborers - 2 days - Snapping lines due to foundation issues: U$2,000.00",
+        "Amount": 6200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 6200,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3163",
+      "name": "626 Main Street, Dennis Port, MA"
+    },
+    "BillAddr": {
+      "Id": "15939",
+      "Line1": "Turnkey Lumber",
+      "Line2": "Turnkey Lumber, Inc."
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-10",
+    "TotalAmt": 6200,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "juliano@turnkeylumber.com"
+    },
+    "Balance": 6200,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-03T03:36:43-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
     "Id": "49845",
     "SyncToken": "0",
     "MetaData": {
@@ -1791,398 +3584,6 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
-    "Id": "49836",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-16T10:59:28-07:00",
-      "LastUpdatedTime": "2025-08-01T03:45:41-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8349",
-    "TxnDate": "2025-07-16",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Per Gui's request",
-    "LinkedTxn": [
-      {
-        "TxnId": "46850",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "626 Main Street, Dennis Port",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "13"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1st Level Wall Installation Field Labor",
-        "Amount": 885.3,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 17706,
-          "Qty": 0.05,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "1st Level Punch and Hold-down Labor",
-        "Amount": 7200.65,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9683,
-          "Qty": 0.7436383,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "2nd Level Floor Installation Labor",
-        "Amount": 1032.85,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 20657,
-          "Qty": 0.05,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "2nd Level Wall Installation Field Labor",
-        "Amount": 885.3,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 17706,
-          "Qty": 0.05,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "2nd Level Punch and Hold-down Labor",
-        "Amount": 7295.65,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9683,
-          "Qty": 0.7534493,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Roof Framing Installation Labor",
-        "Amount": 14439.85,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 20657,
-          "Qty": 0.6990294,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Roof Punch Labor",
-        "Amount": 9686.5,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9686.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Stair Labor",
-        "Amount": 8508,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 8508,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "AVB Labor ",
-        "Amount": 7850,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "9"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 7850,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Window & Door Installation Labor",
-        "Amount": 12219,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "10"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 12219,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Balcony Decking Labor",
-        "Amount": 6618,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "11"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 6618,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Description": "Balcony Railing Labor",
-        "Amount": 6401,
-        "LinkedTxn": [
-          {
-            "TxnId": "46850",
-            "TxnType": "Estimate",
-            "TxnLineId": "12"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 6401,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 83022.1,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3163",
-      "name": "626 Main Street, Dennis Port, MA"
-    },
-    "BillAddr": {
-      "Id": "15926",
-      "Line1": "Turnkey Lumber",
-      "Line2": "Turnkey Lumber, Inc."
-    },
-    "ShipAddr": {
-      "Id": "15927",
-      "Line1": "Turnkey Lumber",
-      "Line2": "Turnkey Lumber, Inc."
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-16",
-    "TotalAmt": 83022.1,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "juliano@turnkeylumber.com,mike@turnkeylumber.com"
-    },
-    "Balance": 83022.1,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-01T03:45:38-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49994",
     "SyncToken": "0",
     "MetaData": {
@@ -3888,111 +5289,6 @@
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": false,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "31913",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2023-09-12T09:00:30-07:00",
-      "LastUpdatedTime": "2025-07-25T07:39:36-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "5512",
-    "TxnDate": "2023-09-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "31917",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "PH - Upton - Upton Ridge - NE1930840-001",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "PH - Upton - Upton Ridge - Lot 22\n\nDig down a foot or more and put new form and concreted. Footings missing.\n\n2 guys - 4 hours each one\n\nTotal: 8 hours",
-        "Amount": 360,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 8,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "THE HOME DEPOT #2672",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2023-09-06"
-        }
-      },
-      {
-        "Amount": 401.01,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "11",
-      "name": "Upton Ridge 5964 - Pulte Homes MS-1074"
-    },
-    "BillAddr": {
-      "Id": "11682",
-      "Line1": "Upton Ridge 5964 - Pulte Homes MS-1074"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2023-09-12",
-    "TotalAmt": 401.01,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    },
-    "Balance": 401.01,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2023-09-28T05:42:56-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
@@ -5522,290 +6818,6 @@
       "Address": "8884210781@onlinecapturecenter.com"
     },
     "Balance": 270
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49935",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T06:53:22-07:00",
-      "LastUpdatedTime": "2025-07-23T06:53:59-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8370",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "First floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "49846",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Base - 3309 sq",
-        "Amount": 13363.5,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000121",
-            "name": "TB - Owls Nest-Regency:Base First Floor - Chatham Modern Farmhouse"
-          },
-          "UnitPrice": 13363.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Base - Wall Frame Second Floor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000152",
-            "name": "TB - Owls Nest-Regency:Base Second Floor - Chatham"
-          },
-          "UnitPrice": 13363.5,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000162",
-            "name": "TB - Owls Nest-Regency:017 - Chatham"
-          },
-          "UnitPrice": 4900,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Full Bath/Finished Lower Level",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000191",
-            "name": "TB - Owls Nest-Regency:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "QMI Cost Savings",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001591",
-            "name": "TB - Owls Nest-Regency:020400 - All Plans"
-          },
-          "UnitPrice": -500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Extended Garage Depth 4'",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000166",
-            "name": "TB - Owls Nest-Regency:263061 - All Plans"
-          },
-          "UnitPrice": 0,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Soffit in Primary Bedroom",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000163",
-            "name": "TB - Owls Nest-Regency:036008 - Chatham"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Linear fireplace - 42\" Cosmo/Rave",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000134",
-            "name": "TB - Owls Nest-Regency:106158 - Chatham"
-          },
-          "UnitPrice": 750,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Finished Walkout Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49846",
-            "TxnType": "Estimate",
-            "TxnLineId": "9"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000160",
-            "name": "TB - Owls Nest-Regency:263432 - Chatham"
-          },
-          "UnitPrice": 5500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 13363.5,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3279",
-      "name": "Lot 139 - Owls Nest Regency"
-    },
-    "BillAddr": {
-      "Id": "16057",
-      "Line1": "Lot 139 - The Pinehills - Owls Nest",
-      "Line2": "7 Loons Call",
-      "Line3": "Chatham Modern Farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "16058",
-      "Line1": "The Pinehills - Owls Nest"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-23",
-    "TotalAmt": 13363.5,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 13363.5
   },
   {
     "AllowIPNPayment": false,
@@ -9598,99 +10610,6 @@
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
     "Balance": 1920
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49744",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-10T15:17:12-07:00",
-      "LastUpdatedTime": "2025-07-18T08:22:14-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8334",
-    "TxnDate": "2025-07-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change order:\n- Roof change: U$4,200.00\n- 2 laborers - 2 days - Snapping lines due to foundation issues: U$2,000.00",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "626 Main St",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Change order:\n- Roof change: U$4,200.00\n- 2 laborers - 2 days - Snapping lines due to foundation issues: U$2,000.00",
-        "Amount": 6200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 6200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 6200,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3163",
-      "name": "626 Main Street, Dennis Port, MA"
-    },
-    "BillAddr": {
-      "Id": "15939",
-      "Line1": "Turnkey Lumber",
-      "Line2": "Turnkey Lumber, Inc."
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-10",
-    "TotalAmt": 6200,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "juliano@turnkeylumber.com"
-    },
-    "Balance": 6200,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-18T08:22:11-07:00"
-    }
   },
   {
     "AllowIPNPayment": false,
@@ -17006,97 +17925,6 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
-    "Id": "34613",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2023-11-27T10:09:01-08:00",
-      "LastUpdatedTime": "2025-07-11T11:42:52-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "5996",
-    "TxnDate": "2023-11-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "10/16/2023 - Hopkinton - Edgewood at Hopkinton - Lot 27\n\nBulkhead installation \n2 crew members x hours \nPremium: RR construction \n\nAdditional Framing requirements uncontracted work \n\nTotal: 6 hours",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 3507",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "10/16/2023 - Hopkinton - Edgewood at Hopkinton - Lot 27\n\nBulkhead installation \n2 crew members x hours \nPremium: RR construction \n\nAdditional Framing requirements uncontracted work \n\nTotal: 6 hours",
-        "Amount": 300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 50,
-          "Qty": 6,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 300,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1857",
-      "name": "Edgewood at Hopkinton"
-    },
-    "BillAddr": {
-      "Id": "11703",
-      "Line1": "Edgewood at Hopkinton"
-    },
-    "ShipAddr": {
-      "Id": "7555"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2023-11-27",
-    "TotalAmt": 300,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "Balance": 300,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryErrorType": "Bounced Email"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
     "Id": "34416",
     "SyncToken": "4",
     "MetaData": {
@@ -21775,190 +22603,6 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
-    "Id": "49718",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-10T07:24:00-07:00",
-      "LastUpdatedTime": "2025-07-10T07:24:00-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8329",
-    "TxnDate": "2025-07-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Second floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "49152",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1721 sf",
-        "Amount": 9124,
-        "LinkedTxn": [
-          {
-            "TxnId": "49152",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001142",
-            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
-          },
-          "UnitPrice": 9124,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Open Railing Replaces Painted Half Wall",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49152",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001200",
-            "name": "TB - Wendell Place:201 Dickinson Manchester"
-          },
-          "UnitPrice": 0,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49152",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001170",
-            "name": "TB - Wendell Place:036415 Dickinson Manchester"
-          },
-          "UnitPrice": 400,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Linear Frplc - 42\" Cosmo/Ra Great Room Rplcs",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49152",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001252",
-            "name": "TB - Wendell Place:106158 Dickinson Manchester"
-          },
-          "UnitPrice": 200,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Additional Bedroom",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49152",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001240",
-            "name": "TB - Wendell Place:263049 Dickinson Manchester"
-          },
-          "UnitPrice": 300,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 9124,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3247",
-      "name": "Lot 18 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "15748",
-      "Line1": "Lot 18 - Wendell Place",
-      "Line2": "1 Lady Constance Way",
-      "Line3": "Dickinson Manchester"
-    },
-    "ShipAddr": {
-      "Id": "15749",
-      "Line1": "Wendell Place"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-07",
-    "TotalAmt": 9124,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 9124
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49717",
     "SyncToken": "0",
     "MetaData": {
@@ -22135,140 +22779,6 @@
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
     "Balance": 12537
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49716",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-10T07:22:15-07:00",
-      "LastUpdatedTime": "2025-07-10T07:22:15-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8327",
-    "TxnDate": "2025-07-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "First floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "49151",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1746 sf",
-        "Amount": 16944,
-        "LinkedTxn": [
-          {
-            "TxnId": "49151",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001132",
-            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
-          },
-          "UnitPrice": 16944,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1721 sf",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49151",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001142",
-            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
-          },
-          "UnitPrice": 9124,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49151",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001138",
-            "name": "TB - Wendell Place:017 Dickinson Manchester"
-          },
-          "UnitPrice": 4900,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 16944,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3246",
-      "name": "Lot 15 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "15744",
-      "Line1": "Lot 15 - Wendell Place",
-      "Line2": "7 Lady Constance Way",
-      "Line3": "Dickinson Manchester"
-    },
-    "ShipAddr": {
-      "Id": "15745",
-      "Line1": "Wendell Place"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-07",
-    "TotalAmt": 16944,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 16944
   },
   {
     "AllowIPNPayment": false,
@@ -25306,113 +25816,6 @@
       "DeliveryType": "Email",
       "DeliveryTime": "2025-07-04T03:45:45-07:00"
     }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49608",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-03T08:36:34-07:00",
-      "LastUpdatedTime": "2025-07-03T08:36:34-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8313",
-    "TxnDate": "2025-07-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "C0001006 + C0001008",
-    "LinkedTxn": [
-      {
-        "TxnId": "41814",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "C0001006 - MDL Ceiling Beams and trim in (Foyer, Dining Room & Great Rm)",
-        "Amount": 450,
-        "LinkedTxn": [
-          {
-            "TxnId": "41814",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 450,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "C0001008 - MDL RH Light Fixtures in (Foyer, DR, PriBed, Bed 3)",
-        "Amount": 100,
-        "LinkedTxn": [
-          {
-            "TxnId": "41814",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 550,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2960",
-      "name": "Lot 01 - Lakemont at Hudson (Model House)"
-    },
-    "BillAddr": {
-      "Id": "15660",
-      "Line1": "Toll Brothers - Lakemont at Hudson"
-    },
-    "ShipAddr": {
-      "Id": "15661",
-      "Line1": "Lakemont at Hudson"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-03",
-    "TotalAmt": 550,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 550
   },
   {
     "AllowIPNPayment": false,
@@ -31456,15 +31859,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35291",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "34427",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "33915",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "35291",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31589,15 +31992,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "28500",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "28084",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "27876",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "28500",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31617,11 +32020,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27998",
+        "TxnId": "28606",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28606",
+        "TxnId": "27998",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -39219,82 +39622,6 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47949",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-05-01T04:31:38-07:00",
-      "LastUpdatedTime": "2025-06-04T14:45:26-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8041",
-    "TxnDate": "2025-05-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 15 - Canton Reserve\nJob description: Provide and install white railing on front porch. Customer satisfaction. \n\nWork Order #14562044",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lot 15 - Canton Reserve",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {}
-      },
-      {
-        "Id": "3",
-        "LineNum": 2,
-        "Description": "Job description: Provide and install white railing on front porch. Customer satisfaction. \n\nWork Order #14562044",
-        "Amount": 650,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Extra"
-          },
-          "UnitPrice": 650,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 650,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1210",
-      "name": "Canton Reserve"
-    },
-    "BillAddr": {
-      "Id": "14082",
-      "Line1": "Canton Reserve"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-05-01",
-    "TotalAmt": 650,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "mryan1@tollbrothers.com"
-    },
-    "Balance": 650
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
@@ -43208,11 +43535,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28347",
+        "TxnId": "30699",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "30699",
+        "TxnId": "28347",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -74649,7 +74976,7 @@
     ],
     "CustomerRef": {
       "value": "3137",
-      "name": "Lot 27 - Wheelock Farm - Pulte Homes - 8856"
+      "name": "Lot 27 - Wheelock Farm"
     },
     "BillAddr": {
       "Id": "13527",
@@ -80538,11 +80865,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "41824",
+        "TxnId": "42256",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42256",
+        "TxnId": "41824",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -87196,19 +87523,19 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "45552",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "43232",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "45553",
+        "TxnId": "45552",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "45073",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "45553",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -123143,11 +123470,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42034",
+        "TxnId": "44546",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "44546",
+        "TxnId": "42034",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -148479,11 +148806,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42639",
+        "TxnId": "42671",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42671",
+        "TxnId": "42639",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -148495,11 +148822,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42164",
+        "TxnId": "42644",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42644",
+        "TxnId": "42164",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -149531,11 +149858,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "40968",
+        "TxnId": "40824",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "40824",
+        "TxnId": "40968",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -160799,11 +161126,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "35917",
+        "TxnId": "33981",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33981",
+        "TxnId": "35917",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -207436,11 +207763,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "39010",
+        "TxnId": "38930",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "38930",
+        "TxnId": "39010",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -293401,11 +293728,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33575",
+        "TxnId": "33159",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33159",
+        "TxnId": "33575",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -303819,11 +304146,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35709",
+        "TxnId": "33917",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33917",
+        "TxnId": "35709",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -324070,11 +324397,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32421",
+        "TxnId": "31781",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "31781",
+        "TxnId": "32421",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -324082,11 +324409,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "30247",
+        "TxnId": "31047",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "31047",
+        "TxnId": "30247",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -337451,11 +337778,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32682",
+        "TxnId": "32746",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32746",
+        "TxnId": "32682",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -364984,11 +365311,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "30530",
+        "TxnId": "28498",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28498",
+        "TxnId": "30530",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -390153,11 +390480,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27383",
+        "TxnId": "27703",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27703",
+        "TxnId": "27383",
         "TxnType": "ReimburseCharge"
       },
       {

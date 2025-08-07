@@ -6,6 +6,6105 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 4772.42,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50097",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:30:42-07:00",
+      "LastUpdatedTime": "2025-08-06T18:42:56-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/14/25 - 07/27/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/14/25 - 07/27/25",
+        "Amount": 2975.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 31.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3033",
+            "name": "Lot 17 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 120.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3171",
+            "name": "Lot 23 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "07/14/25 - 07/27/25",
+        "Amount": 127.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 743.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 425.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 348.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3191",
+      "name": "Wandersondo Construction, Inc",
+      "type": "Vendor"
+    },
+    "TotalAmt": 23000,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50158",
+    "SyncToken": "9",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:31:07-07:00",
+      "LastUpdatedTime": "2025-08-06T18:35:13-07:00"
+    },
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/14/25 - 07/27/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.C.",
+        "Amount": 8849.09,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3264",
+            "name": "Lot 74 / 29 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "07/14/25 - 07/27/25 - T.R. (Woburn,Highland at Vale >> LOT 75 >> Deck)",
+        "Amount": 1278.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.C.",
+        "Amount": 1481.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3265",
+            "name": "Lot 75 / 29 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "07/14/25 - 07/27/25 - T.F. (BACK CHARGE)",
+        "Amount": 136.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3124",
+            "name": "Lot 11 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "07/14/25 - 07/27/25 - T.F. (BACK CHARGE)",
+        "Amount": 157.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3125",
+            "name": "Lot 12 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 228.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3031",
+            "name": "Lot 36 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "Description": "07/14/25 - 07/27/25 - T.F. (BACK CHARGE)",
+        "Amount": 84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3102",
+            "name": "Lot 58 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 695.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 70,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3181",
+            "name": "Lot 05 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 80.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3211",
+            "name": "Lot 06 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 123.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3063",
+            "name": "Lot 07 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "Description": "07/14/25 - 07/27/25 - T.F., T.O.",
+        "Amount": 956.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "Description": "07/14/25 - 07/27/25 - T.F., T.O.",
+        "Amount": 1123.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "Description": "07/14/25 - 07/27/25 - T.O., T.K.",
+        "Amount": 644.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2832",
+            "name": "The Pinehills - Owls Nest"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "Description": "07/14/25 - 07/27/25 - T.F., T.O.",
+        "Amount": 202.66,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3032",
+            "name": "Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 276.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3249",
+            "name": "Lot 01 - Willis Brook at Lynnfield"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 266,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3025",
+            "name": "Lot 100 - Owls Nest-Regency Col"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 852.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3228",
+            "name": "Lot 135 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 812.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3229",
+            "name": "Lot 136 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 847.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3267",
+            "name": "Lot 137 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 190.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3135",
+            "name": "Lot 137 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 274.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3230",
+            "name": "Lot 138 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 53.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3085",
+            "name": "Lot 138 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 272.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3085",
+            "name": "Lot 138 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 779,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3194",
+            "name": "Lot 140 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 175.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3015",
+            "name": "Lot 141 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "Description": "07/14/25 - 07/27/25 - T.F. (BACK CHARGE)",
+        "Amount": 119.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3232",
+            "name": "Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 895.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3232",
+            "name": "Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 713.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3232",
+            "name": "Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "Description": "07/14/25 - 07/27/25 - T.F.",
+        "Amount": 357.81,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3033",
+            "name": "Lot 17 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3191",
+      "name": "Wandersondo Construction, Inc",
+      "type": "Vendor"
+    },
+    "TotalAmt": 37380,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50101",
+    "SyncToken": "9",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:33:52-07:00",
+      "LastUpdatedTime": "2025-08-06T18:25:32-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/14/25 - 07/27/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.C. T.L., T.J., T.K.",
+        "Amount": 1954.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "07/14/25 - 07/27/25",
+        "Amount": 221.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 1120.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 410,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "07/14/25 - 07/27/25 - T.E., T.C., T.L., T.J.",
+        "Amount": 3604.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "07/14/25 - 07/27/25 - T.E.",
+        "Amount": 263.59,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1551",
+            "name": "90 Eames St. - Framingham (Body Shop)"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 362.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3295",
+            "name": "MMD SERVICES INC"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "Description": "07/14/25 - 07/27/25 - T.E.",
+        "Amount": 1380.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3036",
+            "name": "Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "Description": "07/14/25 - 07/27/25 - T.E.",
+        "Amount": 390.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "Description": "07/14/25 - 07/27/25 - T.C. (ESTOQUE)",
+        "Amount": 312.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "Description": "07/14/25 - 07/27/25 - T.O.",
+        "Amount": 2415.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 2840.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3262",
+            "name": "Lot 01 - Riverview"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 1875.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3271",
+            "name": "Lot 02 - Riverview"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 1600.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "125",
+            "name": "Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "Description": "07/14/25 - 07/27/25 - T.E.",
+        "Amount": 165.55,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3086",
+            "name": "Lot 16 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "Description": "07/14/25 - 07/27/25 - T.E.",
+        "Amount": 208.55,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2591",
+            "name": "Lot 32 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "Description": "07/14/25 - 07/27/25 - T.O., T.E.",
+        "Amount": 537.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "Description": "07/14/25 - 07/27/25 - T.O.",
+        "Amount": 99.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "Description": "07/14/25 - 07/27/25 - T.O., T.K.",
+        "Amount": 1528.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "Description": "07/14/25 - 07/27/25 - T.J.",
+        "Amount": 34.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3214",
+            "name": "Lot 28 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "Description": "07/14/25 - 07/27/25 - T.J.",
+        "Amount": 219.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3233",
+            "name": "Lot 41 -  Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 197.34,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2923",
+            "name": "Lot 3 - Cold Brook Preston - Pulte Home 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "Description": "07/14/25 - 07/27/25 - T.J.",
+        "Amount": 230.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2052",
+            "name": "Lot 39 - Pulte Homes MS-1074 - Cold Brook 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 1693.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "Description": "07/14/25 - 07/27/25 - T.J.",
+        "Amount": 652.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 1173.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "Description": "07/14/25 - 07/27/25 - T.C.",
+        "Amount": 2447.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "Description": "07/14/25 - 07/27/25 - T.L.",
+        "Amount": 228.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2562",
+            "name": "Lot 29 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.J.",
+        "Amount": 415.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3185",
+            "name": "Lot 60 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "Description": "07/14/25 - 07/27/25 - T.J.",
+        "Amount": 173.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3134",
+            "name": "Lot 65 - Deck - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "32",
+        "Description": "07/14/25 - 07/27/25 - T.C., T.L., T.J.",
+        "Amount": 1165.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3224",
+            "name": "Lot 70 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "33",
+        "Description": "07/14/25 - 07/27/25 - T.J. (TRIM)",
+        "Amount": 159.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3224",
+            "name": "Lot 70 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "34",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.C., T.L.",
+        "Amount": 4647.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3244",
+            "name": "Lot 73 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "35",
+        "Description": "07/14/25 - 07/27/25 - T.R., T.C.",
+        "Amount": 2650.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3264",
+            "name": "Lot 74 / 29 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3191",
+      "name": "Wandersondo Construction, Inc",
+      "type": "Vendor"
+    },
+    "TotalAmt": 50000,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50100",
+    "SyncToken": "23",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:33:16-07:00",
+      "LastUpdatedTime": "2025-08-06T17:35:13-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/30/25 - 07/13/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.L.",
+        "Amount": 2925.19,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 24.15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 971.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2337",
+            "name": "22 Flynn Ave, Marlborough"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "06/30/25 - 07/13/25 - T.K.",
+        "Amount": 59.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2942",
+            "name": "30 Springdale Ave, Dover"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "06/30/25 - 07/13/25 - T.C. (53 Bluff Ave, Mashpee, MA)",
+        "Amount": 92.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "Premium Contractors Group, Inc."
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "06/30/25 - 07/13/25 - T.C. (61 colonial rd, Medfield, MA)",
+        "Amount": 273,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.C.",
+        "Amount": 6936.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "Description": "06/30/25 - 07/13/25 - T.R.",
+        "Amount": 921.06,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "Description": "06/30/25 - 07/13/25 - T.R.",
+        "Amount": 711.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "Description": "06/30/25 - 07/13/25 - T.L., T.E., T.C.,T.R.",
+        "Amount": 2892.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "Description": "06/30/25 - 07/13/25 - T.C.",
+        "Amount": 127.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "11",
+            "name": "Upton Ridge 5964 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "Description": "06/30/25 - 07/13/25 - T.O.",
+        "Amount": 2103.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "Description": "06/30/25 - 07/13/25 - T.K.",
+        "Amount": 9.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "130",
+            "name": "Riverside Woods 5935 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 121.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3028",
+            "name": "Lot 5 - Winslow Point - Pulte homes - 8177"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "Description": "06/30/25 - 07/13/25 - T.O.",
+        "Amount": 83.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "754",
+            "name": "Legacy North 5873 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "Description": "06/30/25 - 07/13/25 - T.O.",
+        "Amount": 471.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "Description": "06/30/25 - 07/13/25 - T.O., T.K.",
+        "Amount": 337.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "Description": "06/30/25 - 07/13/25 - T.O., T.K.",
+        "Amount": 1237.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.E., T.C.",
+        "Amount": 1169.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2965",
+            "name": "Building 2 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "Description": "06/30/25 - 07/13/25 - T.J.",
+        "Amount": 0.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "Description": "06/30/25 - 07/13/25 - T.J. (Norton,Wheelock Farm >> LOT 28 >> Deck)",
+        "Amount": 114.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "Description": "06/30/25 - 07/13/25 - T.E., T.J.",
+        "Amount": 335.54,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3214",
+            "name": "Lot 28 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "Description": "06/30/25 - 07/13/25 - T.J. (TRIM)",
+        "Amount": 403.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3214",
+            "name": "Lot 28 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "Description": "06/30/25 - 07/13/25 - T.J.",
+        "Amount": 262.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3238",
+            "name": "Lot 40 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "Description": "06/30/25 - 07/13/25 - T.C.",
+        "Amount": 287,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3233",
+            "name": "Lot 41 -  Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "Description": "06/30/25 - 07/13/25 - T.E., T.J.",
+        "Amount": 782.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3233",
+            "name": "Lot 41 -  Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "Description": "06/30/25 - 07/13/25 - T.E.",
+        "Amount": 60.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1054",
+            "name": "Lot 1 - Cold Brook - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "Description": "06/30/25 - 07/13/25 - T.C.",
+        "Amount": 1702.87,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.E., T.J.",
+        "Amount": 1769.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "Description": "06/30/25 - 07/13/25 - T.E.",
+        "Amount": 353.89,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2481",
+            "name": "Building 6 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "32",
+        "Description": "06/30/25 - 07/13/25 - T.C.",
+        "Amount": 7984.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "33",
+        "Description": "06/30/25 - 07/13/25 - T.J.",
+        "Amount": 323.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3185",
+            "name": "Lot 60 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "34",
+        "Description": "06/30/25 - 07/13/25 - T.J.",
+        "Amount": 264.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3187",
+            "name": "Lot 61 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "35",
+        "Description": "06/30/25 - 07/13/25 - T.K. (BACK CHARGE)",
+        "Amount": 148.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3224",
+            "name": "Lot 70 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "36",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.C.",
+        "Amount": 1351.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3224",
+            "name": "Lot 70 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "37",
+        "Description": "06/30/25 - 07/13/25 - T.K. (BACK CHARGE)",
+        "Amount": 122.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3226",
+            "name": "Lot 71 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "38",
+        "Description": "06/30/25 - 07/13/25 - T.R., T.C.",
+        "Amount": 772.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3226",
+            "name": "Lot 71 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "39",
+        "Description": "06/30/25 - 07/13/25 - T.C., T.R.",
+        "Amount": 413.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3244",
+            "name": "Lot 73 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "40",
+        "Description": "06/30/25 - 07/13/25 - T.C., T.R.",
+        "Amount": 1022.13,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3264",
+            "name": "Lot 74 / 29 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "41",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 227.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3138",
+            "name": "Lot 11 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "42",
+        "Description": "06/30/25 - 07/13/25 - T.F.",
+        "Amount": 232.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3269",
+            "name": "Lot 16 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "43",
+        "Description": "06/30/25 - 07/13/25 - T.L., T.F.",
+        "Amount": 388.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3122",
+            "name": "Lot 10 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "44",
+        "Description": "06/30/25 - 07/13/25 - T.F.",
+        "Amount": 270.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "45",
+        "Description": "06/30/25 - 07/13/25 - T.F.",
+        "Amount": 358.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2232",
+            "name": "Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "46",
+        "Description": "06/30/25 - 07/13/25 - T.F., T.O",
+        "Amount": 559.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "47",
+        "Description": "06/30/25 - 07/13/25 - T.F., T.O.",
+        "Amount": 660.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "48",
+        "Description": "06/30/25 - 07/13/25 - T.O., T.K.",
+        "Amount": 271.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2832",
+            "name": "The Pinehills - Owls Nest"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "49",
+        "Description": "06/30/25 - 07/13/25 - T.F., T.O.",
+        "Amount": 2171.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3032",
+            "name": "Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "50",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 409.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3228",
+            "name": "Lot 135 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "51",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 491.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3229",
+            "name": "Lot 136 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "52",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 313.18,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3131",
+            "name": "Lot 136 - Owls Nest Regency."
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "53",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 604.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3230",
+            "name": "Lot 138 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "54",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 118.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3085",
+            "name": "Lot 138 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "55",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 428.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3015",
+            "name": "Lot 141 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "56",
+        "Description": "06/30/25 - 07/13/25 - T.L.",
+        "Amount": 220.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3042",
+            "name": "Lot 99 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "57",
+        "Description": "06/30/25 - 07/13/25 - T.F. (BACK CHARGE)",
+        "Amount": 2326.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 8118.84,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50095",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:30:10-07:00",
+      "LastUpdatedTime": "2025-08-06T17:32:25-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/30/25 - 07/13/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "06/30/25 - 07/13/25",
+        "Amount": 2275.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "06/30/25 - 07/13/25 - T.F.",
+        "Amount": 3683.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "06/30/25 - 07/13/25 - T.C., T.F., T.R.",
+        "Amount": 1617.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "06/30/25 - 07/13/25",
+        "Amount": 167.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "06/30/25 - 07/13/25 - T.C., T.R.",
+        "Amount": 374.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "175",
+      "name": "Gulf",
+      "type": "Vendor"
+    },
+    "TotalAmt": 79.58,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50157",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:29:16-07:00",
+      "LastUpdatedTime": "2025-08-06T07:29:16-07:00"
+    },
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIP) GULF OIL 920677 BELLINGHAM BELLINGHAM MA(1552)",
+        "Amount": 79.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "53",
+            "name": "Fuel"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "439",
+      "name": "Hyphen Solution, LLC.",
+      "type": "Vendor"
+    },
+    "TotalAmt": 187.26,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50156",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:29:02-07:00",
+      "LastUpdatedTime": "2025-08-06T07:29:02-07:00"
+    },
+    "TxnDate": "2025-07-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Hyphen Solutions XXXXXX8100 VSP*Hyphen ID NBR: 22386921",
+        "Amount": 187.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "436",
+      "name": "Fieldwire",
+      "type": "Vendor"
+    },
+    "TotalAmt": 37.19,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50155",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:28:53-07:00",
+      "LastUpdatedTime": "2025-08-06T07:28:53-07:00"
+    },
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) WWW.FIELDWIRE.C 301 Howard Street F SAN FRANCISCO CA(1552)",
+        "Amount": 37.19,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "436",
+      "name": "Fieldwire",
+      "type": "Vendor"
+    },
+    "TotalAmt": 65.45,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50154",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:28:36-07:00",
+      "LastUpdatedTime": "2025-08-06T07:28:36-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) WWW.FIELDWIRE.C 301 Howard Street F SAN FRANCISCO CA(1552)",
+        "Amount": 65.45,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 15,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50153",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:23-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:23-07:00"
+    },
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50152",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:19-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:19-07:00"
+    },
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50151",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:16-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:16-07:00"
+    },
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50150",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:12-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:12-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50149",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:09-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:09-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50148",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:05-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:05-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 15,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50147",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:03-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:03-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50146",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:27:00-07:00",
+      "LastUpdatedTime": "2025-08-06T07:27:00-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 15,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50145",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:57-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:57-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE FEE",
+        "Amount": 15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 30,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50143",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:38-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:38-07:00"
+    },
+    "TxnDate": "2025-07-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Overdraft/Insuff. Funds Charge",
+        "Amount": 30,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2645.75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50142",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:28-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:28-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT FINANCING QBC_PMTS ID NBR: NONE",
+        "Amount": 2645.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2246.22,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50141",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:23-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:23-07:00"
+    },
+    "TxnDate": "2025-07-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT FINANCING QBC_PMTS ID NBR: NONE",
+        "Amount": 2246.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2156.59,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50140",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:19-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:19-07:00"
+    },
+    "TxnDate": "2025-07-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT FINANCING QBC_PMTS ID NBR: NONE",
+        "Amount": 2156.59,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2246.22,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50139",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:15-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:15-07:00"
+    },
+    "TxnDate": "2025-07-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT FINANCING QBC_PMTS ID NBR: NONE",
+        "Amount": 2246.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2645.75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50138",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:26:11-07:00",
+      "LastUpdatedTime": "2025-08-06T07:26:11-07:00"
+    },
+    "TxnDate": "2025-07-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT FINANCING QBC_PMTS ID NBR: NONE",
+        "Amount": 2645.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 30000,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50137",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:25:56-07:00",
+      "LastUpdatedTime": "2025-08-06T07:25:56-07:00"
+    },
+    "TxnDate": "2025-07-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 2358",
+        "Amount": 30000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1002.55,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50132",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:25:05-07:00",
+      "LastUpdatedTime": "2025-08-06T07:25:05-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Internet Transfer to x7690 CML -",
+        "Amount": 1002.55,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "203",
+            "name": "Mutual One - Credit Line 7690"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 444.62,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50131",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:24:56-07:00",
+      "LastUpdatedTime": "2025-08-06T07:24:56-07:00"
+    },
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Internet Transfer to x0914 CML -",
+        "Amount": 444.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150000003",
+            "name": "2024 Toyota Corolla 0914"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 7957.5,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50126",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:23:35-07:00",
+      "LastUpdatedTime": "2025-08-06T07:23:35-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 2321",
+        "Amount": 7957.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 4500,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50124",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:23:19-07:00",
+      "LastUpdatedTime": "2025-08-06T07:23:19-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 2313",
+        "Amount": 4500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 1583.48,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50123",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:21:39-07:00",
+      "LastUpdatedTime": "2025-08-06T07:21:39-07:00"
+    },
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 10275",
+        "Amount": 1583.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 1583.85,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50122",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:21:35-07:00",
+      "LastUpdatedTime": "2025-08-06T07:21:35-07:00"
+    },
+    "TxnDate": "2025-07-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 10274",
+        "Amount": 1583.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 1583.85,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50121",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:21:31-07:00",
+      "LastUpdatedTime": "2025-08-06T07:21:31-07:00"
+    },
+    "TxnDate": "2025-07-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 10273",
+        "Amount": 1583.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 10517,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50117",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:08:32-07:00",
+      "LastUpdatedTime": "2025-08-06T07:08:32-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Check 2301",
+        "Amount": 10517,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 14.54,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50113",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:07:28-07:00",
+      "LastUpdatedTime": "2025-08-06T07:07:28-07:00"
+    },
+    "TxnDate": "2025-07-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Service Charge Assessed",
+        "Amount": 14.54,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "103",
+      "name": "Mutual One Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 11.1,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50112",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:07:24-07:00",
+      "LastUpdatedTime": "2025-08-06T07:07:24-07:00"
+    },
+    "TxnDate": "2025-06-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Service Charge Assessed",
+        "Amount": 11.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 8089.48,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50093",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:27:22-07:00",
+      "LastUpdatedTime": "2025-08-05T17:42:58-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/16/25 - 06/29/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "06/16/25 - 06/29/25",
+        "Amount": 6180.73,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "1",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 1908.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 4780.21,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50094",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:28:45-07:00",
+      "LastUpdatedTime": "2025-08-05T17:39:57-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/16/25 - 06/29/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.F.",
+        "Amount": 432.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3033",
+            "name": "Lot 17 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "06/16/25 - 06/29/25 - T.F.",
+        "Amount": 634.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 3712.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3191",
+      "name": "Wandersondo Construction, Inc",
+      "type": "Vendor"
+    },
+    "TotalAmt": 57420,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50099",
+    "SyncToken": "30",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:32:10-07:00",
+      "LastUpdatedTime": "2025-08-05T17:27:52-07:00"
+    },
+    "TxnDate": "2025-07-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/16/25 - 06/29/25",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "06/16/25 - 06/29/25 - T.R",
+        "Amount": 223.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2936",
+            "name": "165 Baxter Neck Road"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 104.19,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "06/16/25 - 06/29/25 - T.L. , T.E.",
+        "Amount": 2089.66,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2337",
+            "name": "22 Flynn Ave, Marlborough"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "06/16/25 - 06/29/25 - T.E.",
+        "Amount": 79.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2942",
+            "name": "30 Springdale Ave, Dover"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 705.18,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2944",
+            "name": "5 Claflin Ave, Hopkinton"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "06/16/25 - 06/29/25 - T.R. , T.C.",
+        "Amount": 20012.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "Description": "06/16/25 - 06/29/25 - T.R. , T.E. , T.C.",
+        "Amount": 2511.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "Description": "06/16/25 - 06/29/25 - T.R. (69 Central Ave, East Falmouth, MA)",
+        "Amount": 143,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "Premium Contractors Group, Inc."
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "Description": "06/16/25 - 06/29/25 - T.E.",
+        "Amount": 967.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3221",
+            "name": "75 Foundry Lane, Canton"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 69.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3295",
+            "name": "MMD SERVICES INC"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "Description": "06/16/25 - 06/29/25",
+        "Amount": 1101.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "11",
+            "name": "Upton Ridge 5964 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 1164.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 267.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3029",
+            "name": "Lot 5 - Deck - Winslow Point - Pulte homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 1312.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3144",
+            "name": "Lot 17 - Deck - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 450.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "Description": "06/16/25 - 06/29/25 - T.K.",
+        "Amount": 778.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "Description": "06/16/25 - 06/29/25 - T.O., T.K.",
+        "Amount": 1352.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.C.",
+        "Amount": 1689.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2965",
+            "name": "Building 2 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "Description": "06/16/25 - 06/29/25 - T.K.",
+        "Amount": 22.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2069",
+            "name": "Building 8  - Martins Landing- Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "207",
+            "name": "Labor Warranty"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 397.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 321.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3137",
+            "name": "Lot 27 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 632.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3137",
+            "name": "Lot 27 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 796.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3214",
+            "name": "Lot 28 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 116.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 126.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1570",
+            "name": "Building 2 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.C.",
+        "Amount": 1450.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.J.",
+        "Amount": 1366.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 397.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2481",
+            "name": "Building 6 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 382.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2481",
+            "name": "Building 6 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "Description": "06/16/25 - 06/29/25 - T.C.,",
+        "Amount": 4780.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "32",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 85.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "33",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 467.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3185",
+            "name": "Lot 60 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "34",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 170.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3166",
+            "name": "Lot 60 / 23 - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "35",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 123.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3187",
+            "name": "Lot 61 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "36",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 378.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3188",
+            "name": "Lot 62 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "37",
+        "Description": "06/16/25 - 06/29/25 - T.J.",
+        "Amount": 126.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3132",
+            "name": "Lot 63 / 24 - Deck - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "38",
+        "Description": "06/16/25 - 06/29/25 - T.F.",
+        "Amount": 676.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2948",
+            "name": "Lot 60 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "39",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 705.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1871",
+            "name": "Lot 15 - Deck - Canton Reserve"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "40",
+        "Description": "06/16/25 - 06/29/25 - T.F.",
+        "Amount": 268.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3138",
+            "name": "Lot 11 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "41",
+        "Description": "06/16/25 - 06/29/25 - T.L., T.O.",
+        "Amount": 259.81,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "42",
+        "Description": "06/16/25 - 06/29/25 - T.C.",
+        "Amount": 215.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3122",
+            "name": "Lot 10 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "43",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.C., T.L., T.F.",
+        "Amount": 1611.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "44",
+        "Description": "06/16/25 - 06/29/25 - T.E.",
+        "Amount": 193.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2949",
+            "name": "Lot 08 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "45",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.C.",
+        "Amount": 541.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3084",
+            "name": "Lot 09 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "46",
+        "Description": "06/16/25 - 06/29/25 - T.O.",
+        "Amount": 70.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "47",
+        "Description": "06/16/25 - 06/29/25 - T.F., T.O.",
+        "Amount": 392.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "48",
+        "Description": "06/16/25 - 06/29/25 - T.K.",
+        "Amount": 545.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "33",
+            "name": "Plymouth"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "49",
+        "Description": "06/16/25 - 06/29/25 - T.F., T.O.",
+        "Amount": 522.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3032",
+            "name": "Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "50",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 115.23,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3043",
+            "name": "Lot 100 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "51",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 2358.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3228",
+            "name": "Lot 135 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "52",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 1325.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3229",
+            "name": "Lot 136 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "53",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 160.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3230",
+            "name": "Lot 138 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "54",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 138,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3076",
+            "name": "Lot 142 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "55",
+        "Description": "06/16/25 - 06/29/25 - T.L.",
+        "Amount": 117.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3016",
+            "name": "Lot 99 - Owls Nest Regency Col"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "56",
+        "Description": "06/16/25 - 06/29/25 - T.E., T.F.",
+        "Amount": 35.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3033",
+            "name": "Lot 17 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 8070.49,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50098",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:30:49-07:00",
+      "LastUpdatedTime": "2025-08-05T04:30:49-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/14/25 - 07/27/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/14/25 - 07/27/25",
+        "Amount": 8070.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "153",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 4792.83,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50096",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-05T04:30:16-07:00",
+      "LastUpdatedTime": "2025-08-05T04:30:16-07:00"
+    },
+    "TxnDate": "2025-07-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/30/25 - 07/13/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "06/30/25 - 07/13/25",
+        "Amount": 4792.83,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3141",
+      "name": "Avidia Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2163.1,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50091",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T17:15:08-07:00",
+      "LastUpdatedTime": "2025-08-04T17:15:08-07:00"
+    },
+    "TxnDate": "2025-07-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AVIDIA BANK 302 LOAN PYMT ID NBR: XXXXXXXX416504",
+        "Amount": 2163.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040007",
+            "name": "Loan payment"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
       "value": "2732",
       "name": "QuickBooks Payments",
       "type": "Vendor"
@@ -8345,7 +14444,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3137",
-            "name": "Lot 27 - Wheelock Farm - Pulte Homes - 8856"
+            "name": "Lot 27 - Wheelock Farm"
           },
           "AccountRef": {
             "value": "50",
@@ -19630,7 +25729,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3137",
-            "name": "Lot 27 - Wheelock Farm - Pulte Homes - 8856"
+            "name": "Lot 27 - Wheelock Farm"
           },
           "AccountRef": {
             "value": "131",
@@ -20190,7 +26289,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3137",
-            "name": "Lot 27 - Wheelock Farm - Pulte Homes - 8856"
+            "name": "Lot 27 - Wheelock Farm"
           },
           "AccountRef": {
             "value": "131",
@@ -20210,7 +26309,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3137",
-            "name": "Lot 27 - Wheelock Farm - Pulte Homes - 8856"
+            "name": "Lot 27 - Wheelock Farm"
           },
           "AccountRef": {
             "value": "131",
@@ -338272,7 +344371,7 @@
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "RemitToAddr": {
@@ -400638,7 +406737,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2023-09-12T09:58:38-07:00",
-      "LastUpdatedTime": "2025-07-25T07:39:36-07:00"
+      "LastUpdatedTime": "2025-08-05T08:48:39-07:00"
     },
     "TxnDate": "2023-09-06",
     "CurrencyRef": {
@@ -442630,7 +448729,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -674750,7 +680849,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1875.53,
@@ -674814,7 +680913,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1777.86,
@@ -725068,7 +731167,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -725556,7 +731655,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -727264,7 +733363,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -727386,7 +733485,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -728057,7 +734156,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -731717,7 +737816,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -735149,7 +741248,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1442.04,
@@ -735449,7 +741548,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1830.37,
@@ -736289,7 +742388,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 757.35,
@@ -736349,7 +742448,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1244.48,
@@ -736409,7 +742508,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 24.35,
@@ -736589,7 +742688,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 4249.31,
@@ -737249,7 +743348,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 5600.17,
@@ -737309,7 +743408,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 5000,
@@ -737369,7 +743468,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 5605.57,
@@ -738759,7 +744858,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 8390.67,
@@ -766689,7 +772788,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 4848.61,
@@ -766753,7 +772852,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 3319.28,
@@ -767389,7 +773488,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 3000.16,
@@ -767517,7 +773616,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 464.87,
@@ -767581,7 +773680,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1874.25,
@@ -767898,7 +773997,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 1521.97,
@@ -768656,7 +774755,7 @@
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "TotalAmt": 9999,
@@ -769463,7 +775562,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
@@ -778010,7 +784109,7 @@
     "PaymentType": "CreditCard",
     "EntityRef": {
       "value": "1311",
-      "name": "Beacon Building Products",
+      "name": "QXO (Former Beacon Building Products)",
       "type": "Vendor"
     },
     "Credit": false,
