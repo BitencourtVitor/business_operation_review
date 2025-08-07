@@ -537,13 +537,15 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                       {status}
                     </span>
                   </div>
-                  <span style={{
-                    color: 'var(--color-accent-primary)', 
-                    fontSize: 14, 
-                    fontWeight: 600 
-                  }}>
-                    {project.percent_completed}%
-                  </span>
+                  {project.notes ? (
+                    <span style={{
+                      color: 'var(--color-accent-primary)', 
+                      fontSize: 16, 
+                      fontWeight: 600 
+                    }}>
+                      <i className="bi bi-sticky" />
+                    </span>
+                  ) : null}
                 </div>
                 
                 {/* Body do Card */}
@@ -558,17 +560,37 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                     <span title="Start Date">Start: {formatDate(project.start_date)}</span>
                     <span title="Finish Date">End: {formatDate(project.finish_date)}</span>
                   </div>
-                  {/* Team */}
-                  {project.team && (
-                    <div style={{ 
-                      color: 'var(--color-accent-primary)', 
-                      fontSize: 12, 
-                      fontWeight: 500,
-                      textAlign: 'center'
-                    }}>
-                      Team {project.team}
-                    </div>
-                  )}
+                  {/* Team e Progress */}
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: 8,
+                    fontSize: 12, 
+                    fontWeight: 500
+                  }}>
+                    {project.team ? (
+                      <>
+                        <span style={{ color: 'var(--color-accent-primary)' }}>
+                          Team {project.team}
+                        </span>
+                        <span style={{ 
+                          width: 4, 
+                          height: 4, 
+                          borderRadius: '50%', 
+                          background: 'var(--color-border-divider)',
+                          display: 'inline-block'
+                        }} />
+                        <span style={{ color: 'var(--color-accent-primary)' }}>
+                          {project.percent_completed}%
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{ color: 'var(--color-accent-primary)' }}>
+                        {project.percent_completed}%
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             );
