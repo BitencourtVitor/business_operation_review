@@ -13,6 +13,7 @@ import Projects from './Projects';
 import TakeoffWorks from './TakeoffWorks';
 import ServiceRequests from './ServiceRequests';
 import AccountingIndicators from './AccountingIndicators';
+import ProjectMonitoring from './ProjectMonitoring';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -39,6 +40,9 @@ export default function Dashboard() {
   const [selectedCompany, setSelectedCompany] = useState<string>('HVAC');
   const [showCompanySubmenu, setShowCompanySubmenu] = useState(false);
   const [isCollapsingSubmenu, setIsCollapsingSubmenu] = useState(false);
+  const [showProjectMonitoringSubmenu, setShowProjectMonitoringSubmenu] = useState(false);
+  const [isCollapsingProjectMonitoringSubmenu, setIsCollapsingProjectMonitoringSubmenu] = useState(false);
+  const [selectedProjectMonitoringType, setSelectedProjectMonitoringType] = useState<string>('HVAC');
 
   // Buscar dados do usuário e telas
   useEffect(() => {
@@ -181,6 +185,19 @@ export default function Dashboard() {
       setIsCollapsingSubmenu(false);
       setTelaId(newTelaId);
       setShowAccountingContent(false);
+      // Fechar submenu de Project Monitoring se estiver aberto
+      setShowProjectMonitoringSubmenu(false);
+      setIsCollapsingProjectMonitoringSubmenu(false);
+    } else if (tela?.descricao?.startsWith('Project Monitoring')) {
+      // Se for Project Monitoring, mostrar submenu de tipos
+      setSelectedProjectMonitoringType('HVAC'); // Sempre resetar para HVAC
+      setShowProjectMonitoringSubmenu(true);
+      setIsCollapsingProjectMonitoringSubmenu(false);
+      setTelaId(newTelaId);
+      // Fechar submenu de Accounting se estiver aberto
+      setShowCompanySubmenu(false);
+      setIsCollapsingSubmenu(false);
+      setShowAccountingContent(false);
     } else {
       // Se estamos saindo do Accounting Indicators, fazer animação de saída
       if (currentTela?.descricao === 'Accounting Indicators' && showCompanySubmenu) {
@@ -192,9 +209,19 @@ export default function Dashboard() {
           setTelaId(newTelaId);
           setShowAccountingContent(false);
         }, 300); // Duração da animação
+      } else if (currentTela?.descricao?.startsWith('Project Monitoring') && showProjectMonitoringSubmenu) {
+        // Se estamos saindo do Project Monitoring, fazer animação de saída
+        setIsCollapsingProjectMonitoringSubmenu(true);
+        setTimeout(() => {
+          setShowProjectMonitoringSubmenu(false);
+          setIsCollapsingProjectMonitoringSubmenu(false);
+          setTelaId(newTelaId);
+        }, 300);
       } else {
         setShowCompanySubmenu(false);
         setIsCollapsingSubmenu(false);
+        setShowProjectMonitoringSubmenu(false);
+        setIsCollapsingProjectMonitoringSubmenu(false);
         setTelaId(newTelaId);
         setShowAccountingContent(false);
       }
@@ -217,6 +244,11 @@ export default function Dashboard() {
     // O renderMainContent vai mostrar Projects com a empresa selecionada
   };
 
+  const handleSelectProjectMonitoringType = (type: string) => {
+    setSelectedProjectMonitoringType(type);
+    // Manter o submenu visível quando selecionar um tipo
+    // O renderMainContent vai mostrar ProjectMonitoring com o tipo selecionado
+  };
 
 
   // Mapeamento de ícones por descrição de tela
@@ -228,6 +260,14 @@ export default function Dashboard() {
     'IT Projects': 'bi bi-braces-asterisk',
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
+  };
+
+  // Função para obter ícone da tela
+  const getTelaIcone = (descricao: string) => {
+    if (descricao?.startsWith('Project Monitoring')) {
+      return 'bi bi-collection';
+    }
+    return telaIcones[descricao] || 'bi bi-window';
   };
 
   // Mapeamento de ícones das empresas
@@ -262,12 +302,17 @@ export default function Dashboard() {
       'Permit Control',
       'Takeoff Works',
       'Service Requests',
+      'Project Monitoring',
       'IT Projects'
     ];
 
     return telas.sort((a, b) => {
-      const indexA = ordemEspecifica.indexOf(a.descricao);
-      const indexB = ordemEspecifica.indexOf(b.descricao);
+      // Normalizar descrições para comparação
+      const descricaoA = a.descricao?.startsWith('Project Monitoring') ? 'Project Monitoring' : a.descricao;
+      const descricaoB = b.descricao?.startsWith('Project Monitoring') ? 'Project Monitoring' : b.descricao;
+      
+      const indexA = ordemEspecifica.indexOf(descricaoA);
+      const indexB = ordemEspecifica.indexOf(descricaoB);
       
       // Se ambas as telas estão na ordem específica, ordenar por índice
       if (indexA !== -1 && indexB !== -1) {
@@ -279,7 +324,7 @@ export default function Dashboard() {
       if (indexB !== -1) return 1;
       
       // Se nenhuma está na ordem específica, manter ordem alfabética
-      return a.descricao.localeCompare(b.descricao);
+      return descricaoA.localeCompare(descricaoB);
     });
   };
 
@@ -438,6 +483,16 @@ export default function Dashboard() {
           </div>
         );
       default:
+        // Verificar se é Project Monitoring
+        if (tela.descricao?.startsWith('Project Monitoring')) {
+          return <ProjectMonitoring 
+            telaId={telaId} 
+            usuarioId={usuarioId} 
+            role={role} 
+            isResponsavelPelaTela={isResponsavelPelaTela}
+            selectedType={selectedProjectMonitoringType} 
+          />;
+        }
         return (
           <div className="container-fluid">
             <div className="row">
@@ -590,23 +645,23 @@ export default function Dashboard() {
             {ordenarTelas(filtrarTelasPorPermissao(telas)).map(tela => (
               <div key={tela.id} style={{ width: '100%' }}>
                                  <button
-                   className={`btn-sidebar d-flex align-items-center justify-content-start w-100${tela.descricao === 'Accounting Indicators' ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                                       style={{ 
-                      gap: 10, 
-                      padding: '8px 12px', 
-                      borderRadius: 8, 
-                      fontSize: 14,
-                      cursor: telaId === tela.id ? 'default' : 'pointer',
-                      marginBottom: tela.descricao === 'Accounting Indicators' && telaId === tela.id ? 0 : '0.5rem'
-                    }}
-                   onClick={() => {
-                     if (telaId !== tela.id) {
-                       handleSetMainContent(tela.id);
-                     }
-                   }}
-                 >
-                  <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
-                  {tela.descricao}
+                  className={`btn-sidebar d-flex align-items-center justify-content-start w-100${(tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring')) ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                  style={{ 
+                    gap: 10, 
+                    padding: '8px 12px', 
+                    borderRadius: 8, 
+                    fontSize: 14,
+                    cursor: telaId === tela.id ? 'default' : 'pointer',
+                    marginBottom: (tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring')) && telaId === tela.id ? 0 : '0.5rem'
+                  }}
+                  onClick={() => {
+                    if (telaId !== tela.id) {
+                      handleSetMainContent(tela.id);
+                    }
+                  }}
+                >
+                  <i className={getTelaIcone(tela.descricao)} style={{ fontSize: 14 }} />
+                  {tela.descricao?.startsWith('Project Monitoring') ? 'Project Monitoring' : tela.descricao}
                 </button>
                 
                 {/* Submenu de empresas para Accounting Indicators */}
@@ -622,87 +677,184 @@ export default function Dashboard() {
                     animation: isCollapsingSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
                     overflow: 'hidden'
                   }}>
-                                             {['HVAC', 'Framing', 'PCG'].map(company => {
-                         const isDisabled = company === 'PCG';
-                         return (
-                           <button
-                             key={company}
-                             className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
-                             style={{ 
-                               gap: 8, 
-                               padding: '6px 10px', 
-                               borderRadius: 0, 
-                               fontSize: 12,
-                               // ===== ESTADO ATIVO (SELECIONADO) =====
-                               borderLeft: selectedCompany === company ? '3px solid var(--color-brand-blue)' : 'none',
-                                                               color: isDisabled ? 'var(--color-text-secondary)' : (selectedCompany === company ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
-                               fontWeight: selectedCompany === company ? 700 : 400,
-                               transition: 'all 0.2s ease',
-                               cursor: isDisabled ? 'not-allowed' : (selectedCompany === company ? 'default' : 'pointer'),
-                               outline: 'none',
-                               opacity: isDisabled ? 0.5 : 1
-                             }}
-                             onClick={() => {
-                               if (!isDisabled && selectedCompany !== company) {
-                                 handleSelectCompany(company);
-                               }
-                             }}
-                             
-                             // ===== HOVER EFFECT (MOUSE POR CIMA) =====
-                             onMouseOver={e => {
-                               if (!isDisabled) {
-                                 e.currentTarget.style.background = 'transparent';
-                                 if (selectedCompany !== company) {
-                                    e.currentTarget.style.color = 'var(--color-text-primary)';
-                                    e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
-                                    e.currentTarget.style.backdropFilter = 'blur(4px)';
-                                    e.currentTarget.style.borderRight = 'none';
-                                  }
-                               }
-                             }}
-                             
-                             // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
-                             onMouseOut={e => {
-                               if (!isDisabled) {
-                                 if (selectedCompany !== company) {
-                                   e.currentTarget.style.background = 'transparent';
-                                   e.currentTarget.style.color = 'var(--color-text-secondary)';
-                                   e.currentTarget.style.backdropFilter = 'none';
-                                   e.currentTarget.style.borderRight = 'none';
-                                 }
-                               }
-                             }}
-                             
-                             // ===== MOUSE DOWN (CLICANDO) =====
-                             onMouseDown={e => {
-                               if (!isDisabled && selectedCompany !== company) {
-                                 e.currentTarget.style.color = 'white';
-                               }
-                             }}
-                             
-                             // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
-                             onMouseUp={e => {
-                               if (!isDisabled && selectedCompany !== company) {
-                                 e.currentTarget.style.background = 'transparent';
+                    {['HVAC', 'Framing', 'PCG'].map(company => {
+                      const isDisabled = company === 'PCG';
+                      return (
+                        <button
+                          key={company}
+                          className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                          style={{ 
+                            gap: 8, 
+                            padding: '6px 10px', 
+                            borderRadius: 0, 
+                            fontSize: 12,
+                            // ===== ESTADO ATIVO (SELECIONADO) =====
+                            borderLeft: selectedCompany === company ? '3px solid var(--color-brand-blue)' : 'none',
+                            color: isDisabled ? 'var(--color-text-secondary)' : (selectedCompany === company ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
+                            fontWeight: selectedCompany === company ? 700 : 400,
+                            transition: 'all 0.2s ease',
+                            cursor: isDisabled ? 'not-allowed' : (selectedCompany === company ? 'default' : 'pointer'),
+                            outline: 'none',
+                            opacity: isDisabled ? 0.5 : 1
+                          }}
+                          onClick={() => {
+                            if (!isDisabled && selectedCompany !== company) {
+                              handleSelectCompany(company);
+                            }
+                          }}
+                          
+                          // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                          onMouseOver={e => {
+                            if (!isDisabled) {
+                              e.currentTarget.style.background = 'transparent';
+                              if (selectedCompany !== company) {
                                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                                 e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                                 e.currentTarget.style.backdropFilter = 'blur(4px)';
+                                 e.currentTarget.style.borderRight = 'none';
                                }
-                             }}
-                           >
-                              <img 
-                                src={empresaIcones[company] || ''} 
-                                alt={company} 
-                                style={{ 
-                                  width: 16, 
-                                  height: 16, 
-                                  objectFit: 'contain',
-                                  marginRight: 8,
-                                  opacity: isDisabled ? 0.5 : 1
-                                }} 
-                              />
-                             {company}{isDisabled ? ' (Em breve)' : ''}
-                           </button>
-                         );
-                       })}
+                            }
+                          }}
+                          
+                          // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                          onMouseOut={e => {
+                            if (!isDisabled) {
+                              if (selectedCompany !== company) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                e.currentTarget.style.backdropFilter = 'none';
+                                e.currentTarget.style.borderRight = 'none';
+                              }
+                            }
+                          }}
+                          
+                          // ===== MOUSE DOWN (CLICANDO) =====
+                          onMouseDown={e => {
+                            if (!isDisabled && selectedCompany !== company) {
+                              e.currentTarget.style.color = 'white';
+                            }
+                          }}
+                          
+                          // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                          onMouseUp={e => {
+                            if (!isDisabled && selectedCompany !== company) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                            }
+                          }}
+                        >
+                           <img 
+                             src={empresaIcones[company] || ''} 
+                             alt={company} 
+                             style={{ 
+                               width: 16, 
+                               height: 16, 
+                               objectFit: 'contain',
+                               marginRight: 8,
+                               opacity: isDisabled ? 0.5 : 1
+                             }} 
+                           />
+                          {company}{isDisabled ? ' (Em breve)' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Submenu de tipos para Project Monitoring */}
+                {tela.descricao?.startsWith('Project Monitoring') && (showProjectMonitoringSubmenu || isCollapsingProjectMonitoringSubmenu) && telaId === tela.id && (
+                  <div style={{ 
+                    padding: '2px 0',
+                    marginLeft: '10px',
+                    borderLeft: '1px solid var(--color-border-divider)',
+                    marginBottom: '.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    animation: isCollapsingProjectMonitoringSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
+                    overflow: 'hidden'
+                  }}>
+                    {['HVAC'].map(type => {
+                      const isDisabled = false; // Por enquanto apenas HVAC está disponível
+                      return (
+                        <button
+                          key={type}
+                          className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                          style={{ 
+                            gap: 8, 
+                            padding: '6px 10px', 
+                            borderRadius: 0, 
+                            fontSize: 12,
+                            // ===== ESTADO ATIVO (SELECIONADO) =====
+                            borderLeft: selectedProjectMonitoringType === type ? '3px solid var(--color-brand-blue)' : 'none',
+                            color: isDisabled ? 'var(--color-text-secondary)' : (selectedProjectMonitoringType === type ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
+                            fontWeight: selectedProjectMonitoringType === type ? 700 : 400,
+                            transition: 'all 0.2s ease',
+                            cursor: isDisabled ? 'not-allowed' : (selectedProjectMonitoringType === type ? 'default' : 'pointer'),
+                            outline: 'none',
+                            opacity: isDisabled ? 0.5 : 1
+                          }}
+                          onClick={() => {
+                            if (!isDisabled && selectedProjectMonitoringType !== type) {
+                              handleSelectProjectMonitoringType(type);
+                            }
+                          }}
+                          
+                          // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                          onMouseOver={e => {
+                            if (!isDisabled) {
+                              e.currentTarget.style.background = 'transparent';
+                              if (selectedProjectMonitoringType !== type) {
+                                 e.currentTarget.style.color = 'var(--color-text-primary)';
+                                 e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                                 e.currentTarget.style.backdropFilter = 'blur(4px)';
+                                 e.currentTarget.style.borderRight = 'none';
+                               }
+                            }
+                          }}
+                          
+                          // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                          onMouseOut={e => {
+                            if (!isDisabled) {
+                              if (selectedProjectMonitoringType !== type) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                e.currentTarget.style.backdropFilter = 'none';
+                                e.currentTarget.style.borderRight = 'none';
+                              }
+                            }
+                          }}
+                          
+                          // ===== MOUSE DOWN (CLICANDO) =====
+                          onMouseDown={e => {
+                            if (!isDisabled && selectedProjectMonitoringType !== type) {
+                              e.currentTarget.style.color = 'white';
+                            }
+                          }}
+                          
+                          // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                          onMouseUp={e => {
+                            if (!isDisabled && selectedProjectMonitoringType !== type) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                            }
+                          }}
+                        >
+                           <img 
+                             src={empresaIcones[type] || ''} 
+                             alt={type} 
+                             style={{ 
+                               width: 16, 
+                               height: 16, 
+                               objectFit: 'contain',
+                               marginRight: 8,
+                               opacity: isDisabled ? 0.5 : 1
+                             }} 
+                           />
+                          {type}{isDisabled ? ' (Em breve)' : ''}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

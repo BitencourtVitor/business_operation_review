@@ -44,6 +44,15 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       error: null,
       lastFetch: null,
     },
+    projectMonitoringHvac: {
+      data: [],
+      loading: false,
+      error: null,
+      lastFetch: null,
+      cities: [],
+      jobSites: [],
+      teams: [],
+    },
   });
 
   const isDataStale = (dataType: keyof CacheData, maxAgeMinutes = 5) => {
@@ -468,6 +477,74 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchProjectMonitoringHvacData = async () => {
+    if (cache.projectMonitoringHvac.loading) return;
+    
+    if (!isDataStale('projectMonitoringHvac') && cache.projectMonitoringHvac.data.length > 0) {
+      return;
+    }
+
+    setCache(prev => ({
+      ...prev,
+      projectMonitoringHvac: { ...prev.projectMonitoringHvac, loading: true, error: null }
+    }));
+
+    try {
+      const { data: dbData, error: err } = await supabase
+        .from('project_monitoring_hvac')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (err) throw err;
+
+      const projectMonitoringData = (dbData || []).map((row) => ({
+        id: String(row.id ?? ''),
+        city: normalizeUtf8String(row.city),
+        job_site: normalizeUtf8String(row.job_site),
+        lot_number: String(row.lot_number ?? ''),
+        team: normalizeUtf8String(row.team),
+        start_date: row.start_date ? new Date(row.start_date).toISOString().split('T')[0] : '',
+        finish_date: row.finish_date ? new Date(row.finish_date).toISOString().split('T')[0] : '',
+        s1_rough: String(row.s1_rough ?? ''),
+        s2_machines: String(row.s2_machines ?? ''),
+        s3_condenser: String(row.s3_condenser ?? ''),
+        s4_finish: String(row.s4_finish ?? ''),
+        percent_completed: Number(row.percent_completed ?? 0),
+        last_update: row.last_update ? new Date(row.last_update).toISOString().split('T')[0] : '',
+        notes: normalizeUtf8String(row.notes),
+        created_at: row.created_at ? new Date(row.created_at).toISOString().split('T')[0] : '',
+      }));
+
+      // Extrair filtros únicos
+      const uniqueCities = [...new Set(projectMonitoringData.map(d => d.city).filter(Boolean))];
+      const uniqueJobSites = [...new Set(projectMonitoringData.map(d => d.job_site).filter(Boolean))];
+      const uniqueTeams = [...new Set(projectMonitoringData.map(d => d.team).filter(Boolean))];
+
+      setCache(prev => ({
+        ...prev,
+        projectMonitoringHvac: {
+          data: projectMonitoringData,
+          loading: false,
+          error: null,
+          lastFetch: Date.now(),
+          cities: uniqueCities,
+          jobSites: uniqueJobSites,
+          teams: uniqueTeams,
+        }
+      }));
+
+    } catch (err) {
+      setCache(prev => ({
+        ...prev,
+        projectMonitoringHvac: {
+          ...prev.projectMonitoringHvac,
+          loading: false,
+          error: err instanceof Error ? err.message : 'Erro ao carregar dados de monitoramento HVAC'
+        }
+      }));
+    }
+  };
+
   const clearCache = () => {
     setCache({
       accounting: {
@@ -509,6 +586,15 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
         error: null,
         lastFetch: null,
       },
+      projectMonitoringHvac: {
+        data: [],
+        loading: false,
+        error: null,
+        lastFetch: null,
+        cities: [],
+        jobSites: [],
+        teams: [],
+      },
     });
   };
 
@@ -519,6 +605,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       fetchTimesheetData,
       fetchPermitData,
       fetchQuickbooksData,
+      fetchProjectMonitoringHvacData,
       clearCache,
       isDataStale,
     }}>

@@ -23,7 +23,8 @@ export default function InitialLoading() {
     { id: 'receivables', title: 'Receivables Accounting', status: 'pending', progress: 0 },
     { id: 'payables', title: 'Payables Accounting', status: 'pending', progress: 0 },
     { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
-    { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 }
+    { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 },
+    { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 }
   ]);
   const [hasValidSession, setHasValidSession] = useState(false);
 
@@ -33,7 +34,8 @@ export default function InitialLoading() {
     { id: 'receivables', name: 'receivable_gsheet' },
     { id: 'payables', name: 'payable_gsheet' },
     { id: 'takeoff', name: 'takeoff_gsheet' },
-    { id: 'service', name: 'service_gsheet' }
+    { id: 'service', name: 'service_gsheet' },
+    { id: 'monitoring_hvac', name: 'monitoring_hvac_gsheet' }
   ];
 
   // Aplicar tema ao documento
