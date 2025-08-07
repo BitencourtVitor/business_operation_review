@@ -17,7 +17,7 @@ const PROGRESS_STATUS = {
 const formatDate = (date?: string | null) => {
   if (!date) return '-';
   const d = new Date(date);
-  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
+  return d.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
 };
 
 // Função para determinar status do projeto baseado no percentual
@@ -31,17 +31,15 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
   const [selected, setSelected] = useState<ProjectMonitoringHvacData | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [statusOrder, setStatusOrder] = useState<string[]>(['Completed', 'In Progress', 'Not Started']);
-  const [draggedStatus, setDraggedStatus] = useState<string | null>(null);
-  const [dragOverStatus, setDragOverStatus] = useState<string | null>(null);
-  const [showCompleted, setShowCompleted] = useState(true);
-  const [showInProgress, setShowInProgress] = useState(true);
-  const [showNotStarted, setShowNotStarted] = useState(true);
   const [sortByProgress, setSortByProgress] = useState<'asc' | 'desc' | null>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const drag = useRef({ x: 0, scroll: 0, dragging: false });
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [showOnlyWithNotes, setShowOnlyWithNotes] = useState(false);
+  const [draggedStatus, setDraggedStatus] = useState<string | null>(null);
+  const [dragOverStatus, setDragOverStatus] = useState<string | null>(null);
 
   // Drag horizontal com mouse para carrossel
   const onMouseDown = (e: React.MouseEvent) => {
@@ -135,15 +133,13 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
 
   // Filtrar dados baseado nos controles de status
   const displayData = React.useMemo(() => {
-    // Primeiro filtrar os dados baseado nos toggles
-    const filteredData = filteredDataRaw.filter(project => {
-      const status = getProjectStatus(project);
-      return (status === 'Completed' && showCompleted) || 
-             (status === 'In Progress' && showInProgress) || 
-             (status === 'Not Started' && showNotStarted);
-    });
+    // Filtrar por notes se o filtro estiver ativado
+    let filteredData = filteredDataRaw;
+    if (showOnlyWithNotes) {
+      filteredData = filteredData.filter(project => project.notes && project.notes.trim() !== '');
+    }
 
-    // Agrupar por status conforme ordem definida
+    // Agrupar por status conforme ordem definida (APENAS REORDENAÇÃO, SEM FILTRAGEM)
     const groupedByStatus = statusOrder.map(status => {
       const statusGroup = filteredData.filter(project => getProjectStatus(project) === status);
 
@@ -161,7 +157,7 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
 
     // Concatenar todos os grupos de status mantendo a ordem
     return groupedByStatus.flat();
-  }, [filteredDataRaw, showCompleted, showInProgress, showNotStarted, statusOrder, sortByProgress]);
+  }, [filteredDataRaw, statusOrder, sortByProgress, showOnlyWithNotes]);
 
   if (displayData.length === 0) {
   return (
@@ -232,14 +228,18 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
             
             {/* Controles de Filtro */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
-              {/* Filtro de Status */}
+              {/* Controle de Ordem dos Status */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Status</span>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Order</span>
                 <div style={{ display: 'flex', gap: 4 }}>
                   {statusOrder.map((status) => {
-                    const toggleFunction = status === 'Completed' ? () => setShowCompleted(!showCompleted) : 
-                                         status === 'In Progress' ? () => setShowInProgress(!showInProgress) : 
-                                         () => setShowNotStarted(!showNotStarted);
+                    const statusColor = status === 'Completed' ? '#28a745' : 
+                                      status === 'In Progress' ? '#ffc107' : 
+                                      '#dc3545';
+                    
+                    const statusIcon = status === 'Completed' ? 'bi-check-circle-fill' : 
+                                     status === 'In Progress' ? 'bi-clock-fill' : 
+                                     'bi-pause-circle-fill';
                     
                     return (
                       <div
@@ -252,8 +252,9 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 4,
-                          padding: '4px 12px',
+                          justifyContent: 'center',
+                          width: 32,
+                          height: 32,
                           background: draggedStatus === status
                             ? 'var(--color-accent-primary)'
                             : dragOverStatus === status && draggedStatus
@@ -263,20 +264,15 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                             ? '#fff'
                             : 'var(--color-text-primary)',
                           border: '1px solid var(--color-border-divider)',
-                          borderRadius: 20,
-                          fontSize: 12,
-        fontWeight: 500, 
+                          borderRadius: 16,
                           cursor: 'grab',
                           transition: 'all 0.2s',
                           opacity: draggedStatus && draggedStatus !== status ? 0.6 : 1,
                           boxShadow: dragOverStatus === status && draggedStatus ? '0 0 0 2px var(--color-accent-primary)' : undefined,
                         }}
-                        onClick={toggleFunction}
+                        title={status}
                       >
-                        <span style={{ color: PROGRESS_STATUS[status as keyof typeof PROGRESS_STATUS]?.color || 'var(--color-text-secondary)', fontSize: 7 }}>
-                          <i className={PROGRESS_STATUS[status as keyof typeof PROGRESS_STATUS]?.icon || 'bi-circle'} />
-                        </span>
-                        {status}
+                        <i className={statusIcon} style={{ fontSize: 16, color: statusColor }} />
                       </div>
                     );
                   })}
@@ -303,6 +299,28 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                 }}
               >
                 {sortByProgress === 'asc' ? 'ASC' : sortByProgress === 'desc' ? 'DESC' : 'OFF'}
+              </button>
+            </div>
+            
+            {/* Filtro de Notes */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Notes</span>
+              <button 
+                onClick={() => setShowOnlyWithNotes(!showOnlyWithNotes)}
+                style={{ 
+                  background: showOnlyWithNotes ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                  color: showOnlyWithNotes ? '#fff' : 'var(--color-text-secondary)', 
+                  border: '1px solid var(--color-border-divider)', 
+                  borderRadius: 15, 
+                  padding: '4px 10px', 
+                  fontSize: 15, 
+                  cursor: 'pointer', 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                {showOnlyWithNotes ? 'ON' : 'OFF'}
               </button>
             </div>
           </div>
@@ -336,6 +354,8 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
           </h4>
         </div>
         <div className='d-flex flex-row align-items-center justify-content-center gap-2'>
+          
+          
           {/* Filtro de texto */}
           <div
             style={{
@@ -393,59 +413,59 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
             />
           </div>
           
-          {/* Controles de Filtro */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
-            {/* Filtro de Status */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Status</span>
-              <div style={{ display: 'flex', gap: 4 }}>
-                {statusOrder.map((status) => {
-                  const toggleFunction = status === 'Completed' ? () => setShowCompleted(!showCompleted) : 
-                                       status === 'In Progress' ? () => setShowInProgress(!showInProgress) : 
-                                       () => setShowNotStarted(!showNotStarted);
-                  
-                  return (
-                    <div
-                      key={status}
-                      draggable
-                      onDragStart={(e) => handleStatusDragStart(e, status)}
-                      onDragOver={(e) => handleStatusDragOver(e, status)}
-                      onDrop={(e) => handleStatusDrop(e, status)}
-                      onDragEnd={handleStatusDragEnd}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 4,
-                        padding: '4px 12px',
-                        background: draggedStatus === status
-                          ? 'var(--color-accent-primary)'
-                          : dragOverStatus === status && draggedStatus
-                            ? 'var(--color-background-secondary)'
-                            : 'var(--color-background-primary)',
-                        color: draggedStatus === status
-                          ? '#fff'
-                          : 'var(--color-text-primary)',
-                        border: '1px solid var(--color-border-divider)',
-                        borderRadius: 20,
-                        fontSize: 12,
-                        fontWeight: 500,
-                        cursor: 'grab',
-                        transition: 'all 0.2s',
-                        opacity: draggedStatus && draggedStatus !== status ? 0.6 : 1,
-                        boxShadow: dragOverStatus === status && draggedStatus ? '0 0 0 2px var(--color-accent-primary)' : undefined,
-                      }}
-                      onClick={toggleFunction}
-                    >
-                      <span style={{ color: PROGRESS_STATUS[status as keyof typeof PROGRESS_STATUS]?.color || 'var(--color-text-secondary)', fontSize: 7 }}>
-                        <i className={PROGRESS_STATUS[status as keyof typeof PROGRESS_STATUS]?.icon || 'bi-circle'} />
-                      </span>
-                      {status}
-                    </div>
-                  );
-                })}
+                      {/* Controle de Ordem dos Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
+              {/* Controle de Ordem dos Status */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Order</span>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {statusOrder.map((status) => {
+                    const statusColor = status === 'Completed' ? '#28a745' : 
+                                      status === 'In Progress' ? '#ffc107' : 
+                                      '#dc3545';
+                    
+                    const statusIcon = status === 'Completed' ? 'bi-check-circle-fill' : 
+                                     status === 'In Progress' ? 'bi-clock-fill' : 
+                                     'bi-pause-circle-fill';
+                    
+                    return (
+                      <div
+                        key={status}
+                        draggable
+                        onDragStart={(e) => handleStatusDragStart(e, status)}
+                        onDragOver={(e) => handleStatusDragOver(e, status)}
+                        onDrop={(e) => handleStatusDrop(e, status)}
+                        onDragEnd={handleStatusDragEnd}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          width: 32,
+                          height: 32,
+                          background: draggedStatus === status
+                            ? 'var(--color-accent-primary)'
+                            : dragOverStatus === status && draggedStatus
+                              ? 'var(--color-background-secondary)'
+                              : 'var(--color-background-primary)',
+                          color: draggedStatus === status
+                            ? '#fff'
+                            : 'var(--color-text-primary)',
+                          border: '1px solid var(--color-border-divider)',
+                          borderRadius: 16,
+                          cursor: 'grab',
+                          transition: 'all 0.2s',
+                          opacity: draggedStatus && draggedStatus !== status ? 0.6 : 1,
+                          boxShadow: dragOverStatus === status && draggedStatus ? '0 0 0 2px var(--color-accent-primary)' : undefined,
+                        }}
+                        title={status}
+                      >
+                        <i className={statusIcon} style={{ fontSize: 16, color: statusColor }} />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
           
           {/* Ordenação por Progresso */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
@@ -468,6 +488,28 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
               {sortByProgress === 'asc' ? 'ASC' : sortByProgress === 'desc' ? 'DESC' : 'OFF'}
             </button>
           </div>
+          
+          {/* Filtro de Notes */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 42 }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Notes</span>
+            <button 
+              onClick={() => setShowOnlyWithNotes(!showOnlyWithNotes)}
+              style={{ 
+                background: showOnlyWithNotes ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                color: showOnlyWithNotes ? '#fff' : 'var(--color-text-secondary)', 
+                border: '1px solid var(--color-border-divider)', 
+                borderRadius: 15, 
+                padding: '4px 10px', 
+                fontSize: 15, 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center',
+                transition: 'all 0.2s'
+              }}
+            >
+              {showOnlyWithNotes ? 'ON' : 'OFF'}
+            </button>
+          </div>
         </div>
         </div>
       <div style={{ background: 'var(--color-background-primary)', overflow: 'hidden', width: '100%', flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: '40vh', padding: '0 10px 10px 10px' }}>
@@ -486,8 +528,6 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
             flex: '1 1 0%',
             minHeight: 0,
             maxHeight: '100%',
-            scrollbarWidth: 'thin',
-            scrollbarColor: 'var(--color-border-divider) transparent',
           }}
           onMouseDown={onMouseDown}
         >
@@ -742,7 +782,7 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.start_date ? new Date(selected.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }) : 'N/A'}
+                            {selected.start_date ? new Date(selected.start_date).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' }) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -773,7 +813,7 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.finish_date ? new Date(selected.finish_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }) : 'N/A'}
+                            {selected.finish_date ? new Date(selected.finish_date).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' }) : 'N/A'}
                           </span>
                         </div>
                       </div>
