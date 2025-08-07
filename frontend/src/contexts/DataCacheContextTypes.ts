@@ -2,6 +2,7 @@ import { createContext } from 'react';
 import type { AccountingRow } from '../types/accounting';
 import type { TimesheetRow } from '../types/timesheet';
 import type { PermitRow } from '../types/permit';
+import type { ProjectMonitoringHvacData } from '../hooks/useProjectMonitoringHvacData';
 
 // Tipos para o cache
 export interface CacheData {
@@ -44,6 +45,15 @@ export interface CacheData {
     error: string | null;
     lastFetch: number | null;
   };
+  projectMonitoringHvac: {
+    data: ProjectMonitoringHvacData[];
+    loading: boolean;
+    error: string | null;
+    lastFetch: number | null;
+    cities: string[];
+    jobSites: string[];
+    teams: string[];
+  };
 }
 
 export interface DataCacheContextType {
@@ -52,6 +62,7 @@ export interface DataCacheContextType {
   fetchTimesheetData: () => Promise<void>;
   fetchPermitData: () => Promise<void>;
   fetchQuickbooksData: (company?: 'HVAC' | 'Framing') => Promise<void>;
+  fetchProjectMonitoringHvacData: () => Promise<void>;
   clearCache: () => void;
   isDataStale: (dataType: keyof CacheData, maxAgeMinutes?: number) => boolean;
 }

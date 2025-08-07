@@ -120,28 +120,7 @@ export default function Login() {
       } else if (data.user) {
         console.log('Login bem-sucedido:', data.user);
         
-        // Chamar edge function para atualizar tabelas do banco
-        // try {
-        //   console.log('Chamando edge function gsheet_data...');
-        //   const { error: edgeFunctionError } = await supabase.functions.invoke('gsheet_data', {
-        //     body: { 
-        //       userId: data.user.id,
-        //       email: data.user.email 
-        //     }
-        //   });
-          
-        //   if (edgeFunctionError) {
-        //     console.error('Erro na edge function:', edgeFunctionError);
-        //     // Não bloquear o login se a edge function falhar
-        //     console.log('Continuando com o login mesmo com erro na edge function');
-        //   } else {
-        //     console.log('Edge function executada com sucesso');
-        //   }
-        // } catch (edgeFunctionError) {
-        //   console.error('Erro ao chamar edge function:', edgeFunctionError);
-        //   // Não bloquear o login se a edge function falhar
-        //   console.log('Continuando com o login mesmo com erro na edge function');
-        // }
+
         
         if (remember) {
           Cookies.set('remember', 'true', { expires: 365 });
