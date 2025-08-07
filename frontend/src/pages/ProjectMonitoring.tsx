@@ -66,6 +66,7 @@ interface Acao {
   plano_id: string;
   titulo: string;
   responsavel: string;
+  responsaveis?: string[];
   status: string;
   data_limite: string;
 }
@@ -467,7 +468,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
             <ProjectMonitoringMetrics allData={filteredData} />
           </div>
           {/* Carrossel de Cards */}
-          <ProjectMonitoringCarousel filteredData={filteredData} selectedStatus={selectedStatus} />
+          <ProjectMonitoringCarousel filteredData={filteredData} />
         </div>
         <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
@@ -579,7 +580,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
               }
               setModalOpen(true);
             }}
-            onView={async (oportunidade) => {
+            onView={async (oportunidade, mes, ano) => {
               setModalType('oportunidade');
               
               // Buscar todas as oportunidades do período para permitir navegação
@@ -587,8 +588,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
                 .from('oportunidades')
                 .select('*')
                 .eq('usuario_id', usuarioResponsavelId)
-                .eq('mes', Number(oportunidade.mes))
-                .eq('ano', Number(oportunidade.ano));
+                .eq('mes', Number(mes))
+                .eq('ano', Number(ano));
               
               if (todasOportunidades && todasOportunidades.length > 0) {
                 // Buscar desafios e melhorias para todas as oportunidades
@@ -692,7 +693,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
         <PlanoAcaoModal
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'plano' ? modalData as PlanoAcao : null}
+          data={modalType === 'plano' ? modalData as unknown as PlanoAcao : null}
           onSaved={handleSave}
         />
       )}
