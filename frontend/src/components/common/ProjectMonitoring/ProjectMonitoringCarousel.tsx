@@ -5,7 +5,6 @@ import CloseButton from '../../../utils/CloseButton';
 
 interface ProjectMonitoringCarouselProps {
   filteredData: ProjectMonitoringHvacData[];
-  selectedStatus: string[];
 }
 
 // Cores customizáveis por status de progresso
@@ -18,7 +17,7 @@ const PROGRESS_STATUS = {
 const formatDate = (date?: string | null) => {
   if (!date) return '-';
   const d = new Date(date);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' });
 };
 
 // Função para determinar status do projeto baseado no percentual
@@ -28,7 +27,7 @@ const getProjectStatus = (project: ProjectMonitoringHvacData): string => {
   return 'Not Started';
 };
 
-export default function ProjectMonitoringCarousel({ filteredData, selectedStatus }: ProjectMonitoringCarouselProps) {
+export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonitoringCarouselProps) {
   const [selected, setSelected] = useState<ProjectMonitoringHvacData | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [statusOrder, setStatusOrder] = useState<string[]>(['Completed', 'In Progress', 'Not Started']);
@@ -721,7 +720,7 @@ export default function ProjectMonitoringCarousel({ filteredData, selectedStatus
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.start_date ? new Date(selected.start_date).toLocaleDateString('pt-BR') : 'N/A'}
+                            {selected.start_date ? new Date(selected.start_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -752,7 +751,7 @@ export default function ProjectMonitoringCarousel({ filteredData, selectedStatus
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.finish_date ? new Date(selected.finish_date).toLocaleDateString('pt-BR') : 'N/A'}
+                            {selected.finish_date ? new Date(selected.finish_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' }) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -1039,7 +1038,7 @@ export default function ProjectMonitoringCarousel({ filteredData, selectedStatus
                             fontWeight: 600, 
                             fontSize: 14 
                           }}>
-                            {new Date(selected.last_update).toLocaleDateString('pt-BR')}
+                            {new Date(selected.last_update).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
                           </span>
                         </div>
                         <div style={{ 
