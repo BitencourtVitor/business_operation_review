@@ -173,7 +173,7 @@ async function main() {
     idMap = await sb.upsertPurchases(purchases);
     console.log(`✅ Purchases upserted: ${purchases.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_purchases:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_purchases:`, err.message || err);
     process.exit(1);
   }
 

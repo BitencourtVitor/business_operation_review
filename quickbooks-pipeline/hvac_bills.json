@@ -1,5 +1,100 @@
 [
   {
+    "DueDate": "2025-08-18",
+    "Balance": 636.01,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20324",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T01:53:07-07:00",
+      "LastUpdatedTime": "2025-08-08T01:53:07-07:00"
+    },
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Policy Number 968818065",
+        "Amount": 636.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "32",
+            "name": "Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "477",
+      "name": "Progressive"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 636.01
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-15",
+    "Balance": 500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20323",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T12:31:03-07:00",
+      "LastUpdatedTime": "2025-08-07T12:31:03-07:00"
+    },
+    "DocNumber": "221",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "4th Installment PWD EB-3\nAnanda",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "4th Installment PWD EB-3\nAnanda",
+        "Amount": 500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "192",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1415",
+      "name": "Karen Roberts Attorney"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 500
+  },
+  {
     "SalesTermRef": {
       "value": "1"
     },

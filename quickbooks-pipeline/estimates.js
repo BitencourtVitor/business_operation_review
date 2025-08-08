@@ -115,7 +115,7 @@ async function main() {
   try {
     idMap = await sb.upsertEstimates(mainRows);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_estimates:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_estimates:`, err.message || err);
     process.exit(1);
   }
 

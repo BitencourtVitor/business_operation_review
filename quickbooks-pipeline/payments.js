@@ -191,7 +191,7 @@ async function main() {
     await sb.upsertPayments(payments);
     console.log(`✅ Payments upserted: ${payments.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_payments:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_payments:`, err.message || err);
     process.exit(1);
   }
 
@@ -200,7 +200,7 @@ async function main() {
     await sb.upsertPaymentLinks(payment_links);
     console.log(`✅ Payment links upserted: ${payment_links.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_payment_links:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_payment_links:`, err.message || err);
     process.exit(1);
   }
 

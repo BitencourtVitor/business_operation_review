@@ -678,7 +678,7 @@ export default function Dashboard() {
                     overflow: 'hidden'
                   }}>
                     {['HVAC', 'Framing', 'PCG'].map(company => {
-                      const isDisabled = company === 'PCG';
+                      const isDisabled = false; // Habilitar todas as empresas
                       return (
                         <button
                           key={company}

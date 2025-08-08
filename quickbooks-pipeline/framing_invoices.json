@@ -3,6 +3,1032 @@
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50201",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:28:14-07:00",
+      "LastUpdatedTime": "2025-08-07T11:33:42-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8383",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "45451",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Provide labor and nails for All rough frame\nInstall windows\nInstall exterior Doors\nExcluding exterior deck frame",
+        "Amount": 40800,
+        "LinkedTxn": [
+          {
+            "TxnId": "45451",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 68000,
+          "Qty": 0.6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Discount",
+        "Amount": -3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "45451",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "22",
+            "name": "labor"
+          },
+          "UnitPrice": -5000,
+          "Qty": 0.6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 37800,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3278",
+      "name": "41 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "16214",
+      "Line1": "Rob Pagani",
+      "Line2": "41 Johnson Rd., Sterling"
+    },
+    "ShipAddr": {
+      "Id": "16215",
+      "Line1": "Rob Pagani"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-07",
+    "TotalAmt": 37800,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "rapagani@yahoo.com"
+    },
+    "Balance": 37800,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T11:28:28-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50202",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:29:07-07:00",
+      "LastUpdatedTime": "2025-08-07T11:29:17-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8384",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "49861",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Steling",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Provide Labor to all rough framing\ninstall windows\ninstall exterior doors",
+        "Amount": 25650,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 42750,
+          "Qty": 0.6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "combo discount",
+        "Amount": -1800,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": -3000,
+          "Qty": 0.6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 23850,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3276",
+      "name": "43 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "16216",
+      "Line1": "David Pagani"
+    },
+    "ShipAddr": {
+      "Id": "16217",
+      "Line1": "David Pagani"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-07",
+    "TotalAmt": 23850,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "davidapagani@gmail.com"
+    },
+    "Balance": 23850,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T11:29:14-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49873",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-17T15:10:32-07:00",
+      "LastUpdatedTime": "2025-08-07T10:42:09-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8356",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "40% First floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "49861",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Steling",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Provide Labor to all rough framing\ninstall windows\ninstall exterior doors",
+        "Amount": 17100,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 42750,
+          "Qty": 0.4,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "combo discount",
+        "Amount": -1200,
+        "LinkedTxn": [
+          {
+            "TxnId": "49861",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": -3000,
+          "Qty": 0.4,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 15900,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3276",
+      "name": "43 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "15974",
+      "Line1": "David Pagani"
+    },
+    "ShipAddr": {
+      "Id": "15975",
+      "Line1": "David Pagani"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-17",
+    "TotalAmt": 15900,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "davidapagani@gmail.com"
+    },
+    "Balance": 15900,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:42:06-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49936",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-23T06:57:21-07:00",
+      "LastUpdatedTime": "2025-08-07T10:41:46-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8371",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Installation of rubber base board.",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installation of rubber base board.",
+        "Amount": 800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1192",
+            "name": "Services"
+          },
+          "UnitPrice": 800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 800,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3036",
+      "name": "Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
+    },
+    "BillAddr": {
+      "Id": "16060",
+      "Line1": "PJ Keating",
+      "Line2": "998 Reservoir Rd",
+      "Line3": "Lunenburg, MA 01462"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-23",
+    "TotalAmt": 800,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "Rpagani@pjkeating.com"
+    },
+    "Balance": 800,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:41:43-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48455",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-19T12:16:11-07:00",
+      "LastUpdatedTime": "2025-08-07T10:41:38-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8118",
+    "TxnDate": "2025-04-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Doors",
+    "LinkedTxn": [
+      {
+        "TxnId": "48141",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Install interior 9 interior steel doors",
+        "Amount": 2700,
+        "LinkedTxn": [
+          {
+            "TxnId": "48141",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 300,
+          "Qty": 9,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Extra materials:\nZip system and Silicone\n",
+        "Amount": 206.8,
+        "LinkedTxn": [
+          {
+            "TxnId": "48141",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 206.8,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 2906.8,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3036",
+      "name": "Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
+    },
+    "BillAddr": {
+      "Id": "14561",
+      "Line1": "PJ Keating",
+      "Line2": "998 Reservoir Rd",
+      "Line3": "Lunenburg, MA 01462"
+    },
+    "ShipAddr": {
+      "Id": "14562",
+      "Line1": "PJ Keating",
+      "Line2": "998 Reservoir Rd",
+      "Line3": "Lunenburg, MA  01462"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-04-12",
+    "TotalAmt": 2906.8,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "Rpagani@pjkeating.com"
+    },
+    "Balance": 2906.8,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:41:33-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48099",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-05-06T08:54:24-07:00",
+      "LastUpdatedTime": "2025-08-07T10:39:11-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8064",
+    "TxnDate": "2025-05-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "45086",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Mason Sky - 1516 Grafton Rd, Millbury MA 01527 - \n\nAll rough frame including nails install windows and exterior doors -",
+        "Amount": 12500,
+        "LinkedTxn": [
+          {
+            "TxnId": "45086",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 8750,
+          "Qty": 1.4285714,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 12500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3104",
+      "name": "1516 Grafton Rd, Millbury MA - 01527"
+    },
+    "BillAddr": {
+      "Id": "14197",
+      "Line1": "Mason Sky Enterprises, LLC."
+    },
+    "ShipAddr": {
+      "Id": "14198",
+      "Line1": "Mason Sky Enterprises, LLC."
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-05-06",
+    "TotalAmt": 12500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "office@masonsky.com"
+    },
+    "Balance": 12500,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:39:08-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49729",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-10T08:26:16-07:00",
+      "LastUpdatedTime": "2025-08-07T10:37:34-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8332",
+    "TxnDate": "2025-07-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "50% siding",
+    "LinkedTxn": [
+      {
+        "TxnId": "47737",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Install vinyl siding Metropolitan Grey.\nBoard and batten Metropolitan Grey. \nPvc trim only on the front windows and door.\nFront post wrap with pine prime \n\n\nFront ceiling Material it's not included in this quote \n",
+        "Amount": 16350,
+        "LinkedTxn": [
+          {
+            "TxnId": "47737",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 32700,
+          "Qty": 0.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 16350,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "2976",
+      "name": "18 Evergreen Rd, Needham"
+    },
+    "BillAddr": {
+      "Id": "15825",
+      "Line1": "Autumn Leaf Homes",
+      "Line2": "18 Evergreen Rd, Needham"
+    },
+    "ShipAddr": {
+      "Id": "15760",
+      "Line1": "Autumn Leaf Homes"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-10",
+    "TotalAmt": 16350,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "britton.bradford@gmail.com"
+    },
+    "Balance": 16350,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:37:30-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "45927",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-02-25T12:39:19-08:00",
+      "LastUpdatedTime": "2025-08-07T10:37:25-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "7790",
+    "TxnDate": "2025-02-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final 50% - Frame per plan - Estimate #2839",
+    "LinkedTxn": [
+      {
+        "TxnId": "44127",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame per plan / 2nd Part\n\nNot include Basement soffit or raise the basement ceiling high.\nNot include deck",
+        "Amount": 18750,
+        "LinkedTxn": [
+          {
+            "TxnId": "44127",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 37500,
+          "Qty": 0.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 18750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "2976",
+      "name": "18 Evergreen Rd, Needham"
+    },
+    "BillAddr": {
+      "Id": "13000",
+      "Line1": "Autumn Leaf Homes",
+      "Line2": "18 Evergreen Rd Needham"
+    },
+    "ShipAddr": {
+      "Id": "12627",
+      "Line1": "Autumn Leaf Homes"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-02-27",
+    "TotalAmt": 18750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "britton.bradford@gmail.com"
+    },
+    "Balance": 18750,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-07T10:37:21-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49994",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-01T02:46:16-07:00",
+      "LastUpdatedTime": "2025-08-07T06:19:49-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8379",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "SBA Monthly Loan",
+        "Amount": 6360.47,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6360.47,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 6360.47,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1071",
+      "name": "Premium Contractors Group, Inc."
+    },
+    "BillAddr": {
+      "Id": "16085",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "ShipAddr": {
+      "Id": "7112",
+      "Line1": "1B Landing Ln",
+      "City": "Hopedale",
+      "Country": "US",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01747"
+    },
+    "SalesTermRef": {
+      "value": "6",
+      "name": "Due in 10 days"
+    },
+    "DueDate": "2025-08-11",
+    "TotalAmt": 6360.47,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 6360.47,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-01T02:46:16-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50052",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-04T14:21:09-07:00",
+      "LastUpdatedTime": "2025-08-07T06:10:23-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8380",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Job Supplies - Baldwinville School",
+    "LinkedTxn": [
+      {
+        "TxnId": "50051",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Job Supplies - Baldwinville School",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-08-01"
+        }
+      },
+      {
+        "Amount": 4188.19,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3290",
+      "name": "Baldwinville School Apartments"
+    },
+    "BillAddr": {
+      "Id": "7112",
+      "Line1": "1B Landing Ln",
+      "City": "Hopedale",
+      "Country": "US",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01747"
+    },
+    "ShipAddr": {
+      "Id": "16159",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-01",
+    "TotalAmt": 4188.19,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 4188.19,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-04T14:21:32-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": false,
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
@@ -1617,86 +2643,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-01T03:45:38-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50052",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T14:21:09-07:00",
-      "LastUpdatedTime": "2025-08-04T14:21:35-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8380",
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Job Supplies - Baldwinville School",
-    "LinkedTxn": [
-      {
-        "TxnId": "50051",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Job Supplies - Baldwinville School",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2025-08-01"
-        }
-      },
-      {
-        "Amount": 4188.19,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3290",
-      "name": "Baldwinville School Apartments"
-    },
-    "BillAddr": {
-      "Id": "7112",
-      "Line1": "1B Landing Ln",
-      "City": "Hopedale",
-      "Country": "US",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01747"
-    },
-    "ShipAddr": {
-      "Id": "16159",
-      "Line1": "Premium Contractors Group, Inc.",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-01",
-    "TotalAmt": 4188.19,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 4188.19,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-04T14:21:32-07:00"
     }
   },
   {
@@ -3574,696 +4520,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-01T03:45:56-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49994",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T02:46:16-07:00",
-      "LastUpdatedTime": "2025-08-01T02:46:20-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8379",
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "SBA Monthly Loan",
-        "Amount": 6360.47,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 6360.47,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 6360.47,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1071",
-      "name": "Premium Contractors Group, Inc."
-    },
-    "BillAddr": {
-      "Id": "16085",
-      "Line1": "Premium Contractors Group, Inc.",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "ShipAddr": {
-      "Id": "7112",
-      "Line1": "1B Landing Ln",
-      "City": "Hopedale",
-      "Country": "US",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01747"
-    },
-    "SalesTermRef": {
-      "value": "6",
-      "name": "Due in 10 days"
-    },
-    "DueDate": "2025-08-11",
-    "TotalAmt": 6360.47,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 6360.47,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-01T02:46:16-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49873",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-17T15:10:32-07:00",
-      "LastUpdatedTime": "2025-07-31T10:05:34-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8356",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "40% First floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "49861",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Steling",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "49861",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 0,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Provide Labor to all rough framing\ninstall windows\ninstall exterior doors",
-        "Amount": 17100,
-        "LinkedTxn": [
-          {
-            "TxnId": "49861",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 42750,
-          "Qty": 0.4,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "combo discount",
-        "Amount": -1200,
-        "LinkedTxn": [
-          {
-            "TxnId": "49861",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": -3000,
-          "Qty": 0.4,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 15900,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3276",
-      "name": "43 Johnson Rd., Sterling"
-    },
-    "BillAddr": {
-      "Id": "15974",
-      "Line1": "David Pagani"
-    },
-    "ShipAddr": {
-      "Id": "15975",
-      "Line1": "David Pagani"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-17",
-    "TotalAmt": 15900,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "davidapagani@gmail.com"
-    },
-    "Balance": 15900,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T10:05:30-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49936",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T06:57:21-07:00",
-      "LastUpdatedTime": "2025-07-31T10:04:30-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8371",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Installation of rubber base board.",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Installation of rubber base board.",
-        "Amount": 800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1192",
-            "name": "Services"
-          },
-          "UnitPrice": 800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 800,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3036",
-      "name": "Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
-    },
-    "BillAddr": {
-      "Id": "16060",
-      "Line1": "PJ Keating",
-      "Line2": "998 Reservoir Rd",
-      "Line3": "Lunenburg, MA 01462"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-23",
-    "TotalAmt": 800,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "Rpagani@pjkeating.com"
-    },
-    "Balance": 800,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T10:04:26-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48455",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-05-19T12:16:11-07:00",
-      "LastUpdatedTime": "2025-07-31T10:04:17-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8118",
-    "TxnDate": "2025-04-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Doors",
-    "LinkedTxn": [
-      {
-        "TxnId": "48141",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Install interior 9 interior steel doors",
-        "Amount": 2700,
-        "LinkedTxn": [
-          {
-            "TxnId": "48141",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 300,
-          "Qty": 9,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Extra materials:\nZip system and Silicone\n",
-        "Amount": 206.8,
-        "LinkedTxn": [
-          {
-            "TxnId": "48141",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 206.8,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 2906.8,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3036",
-      "name": "Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
-    },
-    "BillAddr": {
-      "Id": "14561",
-      "Line1": "PJ Keating",
-      "Line2": "998 Reservoir Rd",
-      "Line3": "Lunenburg, MA 01462"
-    },
-    "ShipAddr": {
-      "Id": "14562",
-      "Line1": "PJ Keating",
-      "Line2": "998 Reservoir Rd",
-      "Line3": "Lunenburg, MA  01462"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-04-12",
-    "TotalAmt": 2906.8,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "Rpagani@pjkeating.com"
-    },
-    "Balance": 2906.8,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T10:04:13-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48099",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-06T08:54:24-07:00",
-      "LastUpdatedTime": "2025-07-31T10:01:21-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8064",
-    "TxnDate": "2025-05-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final invoice",
-    "LinkedTxn": [
-      {
-        "TxnId": "45086",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Mason Sky - 1516 Grafton Rd, Millbury MA 01527 - \n\nAll rough frame including nails install windows and exterior doors -",
-        "Amount": 12500,
-        "LinkedTxn": [
-          {
-            "TxnId": "45086",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 8750,
-          "Qty": 1.4285714,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 12500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3104",
-      "name": "1516 Grafton Rd, Millbury MA - 01527"
-    },
-    "BillAddr": {
-      "Id": "14197",
-      "Line1": "Mason Sky Enterprises, LLC."
-    },
-    "ShipAddr": {
-      "Id": "14198",
-      "Line1": "Mason Sky Enterprises, LLC."
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-05-06",
-    "TotalAmt": 12500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "office@masonsky.com"
-    },
-    "Balance": 12500,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T10:01:18-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "45927",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-02-25T12:39:19-08:00",
-      "LastUpdatedTime": "2025-07-31T09:57:56-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "7790",
-    "TxnDate": "2025-02-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final 50% - Frame per plan - Estimate #2839",
-    "LinkedTxn": [
-      {
-        "TxnId": "44127",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Frame per plan / 2nd Part\n\nNot include Basement soffit or raise the basement ceiling high.\nNot include deck",
-        "Amount": 18750,
-        "LinkedTxn": [
-          {
-            "TxnId": "44127",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 37500,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 18750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2976",
-      "name": "18 Evergreen Rd, Needham"
-    },
-    "BillAddr": {
-      "Id": "13000",
-      "Line1": "Autumn Leaf Homes",
-      "Line2": "18 Evergreen Rd Needham"
-    },
-    "ShipAddr": {
-      "Id": "12627",
-      "Line1": "Autumn Leaf Homes"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-02-27",
-    "TotalAmt": 18750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "britton.bradford@gmail.com"
-    },
-    "Balance": 18750,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T09:57:52-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49729",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-10T08:26:16-07:00",
-      "LastUpdatedTime": "2025-07-31T09:57:39-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8332",
-    "TxnDate": "2025-07-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "50% siding",
-    "LinkedTxn": [
-      {
-        "TxnId": "47737",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Install vinyl siding Metropolitan Grey.\nBoard and batten Metropolitan Grey. \nPvc trim only on the front windows and door.\nFront post wrap with pine prime \n\n\nFront ceiling Material it's not included in this quote \n",
-        "Amount": 16350,
-        "LinkedTxn": [
-          {
-            "TxnId": "47737",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 32700,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 16350,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2976",
-      "name": "18 Evergreen Rd, Needham"
-    },
-    "BillAddr": {
-      "Id": "15825",
-      "Line1": "Autumn Leaf Homes",
-      "Line2": "18 Evergreen Rd, Needham"
-    },
-    "ShipAddr": {
-      "Id": "15760",
-      "Line1": "Autumn Leaf Homes"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-10",
-    "TotalAmt": 16350,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "britton.bradford@gmail.com"
-    },
-    "Balance": 16350,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T09:57:36-07:00"
     }
   },
   {
@@ -31992,7 +32248,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28500",
+        "TxnId": "27876",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -32000,7 +32256,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27876",
+        "TxnId": "28500",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -80865,11 +81121,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "42256",
+        "TxnId": "41824",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "41824",
+        "TxnId": "42256",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -87152,19 +87408,19 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "43667",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "44115",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "43668",
+        "TxnId": "43667",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "44116",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "43668",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -87523,11 +87779,15 @@
     },
     "LinkedTxn": [
       {
+        "TxnId": "45552",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "43232",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "45552",
+        "TxnId": "43233",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -87536,10 +87796,6 @@
       },
       {
         "TxnId": "45553",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "43233",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -105850,11 +106106,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33544",
+        "TxnId": "34536",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "34536",
+        "TxnId": "33544",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -122186,11 +122442,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42650",
+        "TxnId": "42570",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42570",
+        "TxnId": "42650",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -124199,11 +124455,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42011",
+        "TxnId": "35595",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35595",
+        "TxnId": "42011",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -148798,11 +149054,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42189",
+        "TxnId": "42669",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42669",
+        "TxnId": "42189",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -156690,11 +156946,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "41853",
+        "TxnId": "41469",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "41469",
+        "TxnId": "41853",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -161126,11 +161382,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "33981",
+        "TxnId": "35917",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35917",
+        "TxnId": "33981",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -185037,11 +185293,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33553",
+        "TxnId": "33985",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33985",
+        "TxnId": "33553",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -185049,11 +185305,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33987",
+        "TxnId": "33555",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33555",
+        "TxnId": "33987",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -185061,11 +185317,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33642",
+        "TxnId": "34426",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "34426",
+        "TxnId": "33642",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -291559,11 +291815,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "36218",
+        "TxnId": "36826",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "36826",
+        "TxnId": "36218",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -293728,11 +293984,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33159",
+        "TxnId": "33575",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33575",
+        "TxnId": "33159",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -304146,11 +304402,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33917",
+        "TxnId": "35709",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35709",
+        "TxnId": "33917",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -324385,11 +324641,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32419",
+        "TxnId": "32387",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32387",
+        "TxnId": "32419",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -324453,11 +324709,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "30264",
+        "TxnId": "32408",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32408",
+        "TxnId": "30264",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -337750,11 +338006,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32675",
+        "TxnId": "32483",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32483",
+        "TxnId": "32675",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -337766,11 +338022,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32519",
+        "TxnId": "32711",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32711",
+        "TxnId": "32519",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -390488,11 +390744,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27385",
+        "TxnId": "27465",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27465",
+        "TxnId": "27385",
         "TxnType": "ReimburseCharge"
       },
       {
