@@ -30,7 +30,16 @@ export function useProjectChartData({
       setError(null);
       
       // Determinar qual função SQL usar baseado na empresa
-      const functionName = company === 'HVAC' ? 'get_project_chart_data' : 'get_framing_project_chart_data';
+      let functionName;
+      if (company === 'HVAC') {
+        functionName = 'get_project_chart_data';
+      } else if (company === 'Framing') {
+        functionName = 'get_framing_project_chart_data';
+      } else if (company === 'PCG') {
+        functionName = 'get_pcg_project_chart_data';
+      } else {
+        functionName = 'get_project_chart_data'; // fallback para HVAC
+      }
       
       const { data: result, error: sqlError } = await supabase.rpc(functionName, {
         p_selected_year: selectedYear || null,

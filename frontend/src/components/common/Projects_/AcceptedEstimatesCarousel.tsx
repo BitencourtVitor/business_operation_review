@@ -38,20 +38,74 @@ function useProjectDetails(estimateId: string | null, company: string = 'HVAC') 
     setLoading(true);
     (async () => {
       // Determinar tabelas baseado na empresa
-      const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
-      const estimateLinesTable = company === 'HVAC' ? 'hvac_estimate_lines' : 'framing_estimate_lines';
-      const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
-      const billsTable = company === 'HVAC' ? 'hvac_bills' : 'framing_bills';
-      const billPaymentLinksTable = company === 'HVAC' ? 'hvac_bill_payment_links' : 'framing_bill_payment_links';
-      const billPaymentsTable = company === 'HVAC' ? 'hvac_bill_payments' : 'framing_bill_payments';
-      const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
-      const purchasesTable = company === 'HVAC' ? 'hvac_purchases' : 'framing_purchases';
-      const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
-      const vendorCreditsTable = company === 'HVAC' ? 'hvac_vendor_credits' : 'framing_vendor_credits';
-      const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
-      const paymentLinksTable = company === 'HVAC' ? 'hvac_payment_links' : 'framing_payment_links';
-      const paymentsTable = company === 'HVAC' ? 'hvac_payments' : 'framing_payments';
+      let estimatesTable, estimateLinesTable, billLinesTable, billsTable, billPaymentLinksTable, billPaymentsTable, purchaseLinesTable, purchasesTable, vendorCreditLinesTable, vendorCreditsTable, invoicesTable, paymentLinksTable, paymentsTable, depositsTable, depositLinesTable;
       
+      if (company === 'HVAC') {
+        estimatesTable = 'hvac_estimates';
+        estimateLinesTable = 'hvac_estimate_lines';
+        billLinesTable = 'hvac_bill_lines';
+        billsTable = 'hvac_bills';
+        billPaymentLinksTable = 'hvac_bill_payment_links';
+        billPaymentsTable = 'hvac_bill_payments';
+        purchaseLinesTable = 'hvac_purchase_lines';
+        purchasesTable = 'hvac_purchases';
+        vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+        vendorCreditsTable = 'hvac_vendor_credits';
+        invoicesTable = 'hvac_invoices';
+        paymentLinksTable = 'hvac_payment_links';
+        paymentsTable = 'hvac_payments';
+        depositsTable = 'hvac_deposits';
+        depositLinesTable = 'hvac_deposit_lines';
+      } else if (company === 'Framing') {
+        estimatesTable = 'framing_estimates';
+        estimateLinesTable = 'framing_estimate_lines';
+        billLinesTable = 'framing_bill_lines';
+        billsTable = 'framing_bills';
+        billPaymentLinksTable = 'framing_bill_payment_links';
+        billPaymentsTable = 'framing_bill_payments';
+        purchaseLinesTable = 'framing_purchase_lines';
+        purchasesTable = 'framing_purchases';
+        vendorCreditLinesTable = 'framing_vendor_credit_lines';
+        vendorCreditsTable = 'framing_vendor_credits';
+        invoicesTable = 'framing_invoices';
+        paymentLinksTable = 'framing_payment_links';
+        paymentsTable = 'framing_payments';
+        depositsTable = 'framing_deposits';
+        depositLinesTable = 'framing_deposit_lines';
+      } else if (company === 'PCG') {
+        estimatesTable = 'pcg_estimates';
+        estimateLinesTable = 'pcg_estimate_lines';
+        billLinesTable = 'pcg_bill_lines';
+        billsTable = 'pcg_bills';
+        billPaymentLinksTable = 'pcg_bill_payment_links';
+        billPaymentsTable = 'pcg_bill_payments';
+        purchaseLinesTable = 'pcg_purchase_lines';
+        purchasesTable = 'pcg_purchases';
+        vendorCreditLinesTable = 'pcg_vendor_credit_lines';
+        vendorCreditsTable = 'pcg_vendor_credits';
+        invoicesTable = 'pcg_invoices';
+        paymentLinksTable = 'pcg_payment_links';
+        paymentsTable = 'pcg_payments';
+        depositsTable = 'pcg_deposits';
+        depositLinesTable = 'pcg_deposit_lines';
+      } else {
+        estimatesTable = 'hvac_estimates';
+        estimateLinesTable = 'hvac_estimate_lines';
+        billLinesTable = 'hvac_bill_lines';
+        billsTable = 'hvac_bills';
+        billPaymentLinksTable = 'hvac_bill_payment_links';
+        billPaymentsTable = 'hvac_bill_payments';
+        purchaseLinesTable = 'hvac_purchase_lines';
+        purchasesTable = 'hvac_purchases';
+        vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+        vendorCreditsTable = 'hvac_vendor_credits';
+        invoicesTable = 'hvac_invoices';
+        paymentLinksTable = 'hvac_payment_links';
+        paymentsTable = 'hvac_payments';
+        depositsTable = 'hvac_deposits';
+        depositLinesTable = 'hvac_deposit_lines';
+      }
+
       // Buscar linhas do estimate
       const { data: estimateLinesRaw } = await supabase
         .from(estimateLinesTable)
@@ -178,7 +232,7 @@ function useProjectDetails(estimateId: string | null, company: string = 'HVAC') 
 
         // Buscar deposits (ressarcimentos) relacionados ao estimate (por customer_id)
         const { data: depositsDataRaw } = await supabase
-          .from('hvac_deposits')
+          .from(depositsTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id);
         const depositsData = depositsDataRaw || [];
@@ -194,9 +248,9 @@ function useProjectDetails(estimateId: string | null, company: string = 'HVAC') 
           is_deposit: true
         }));
 
-        // Buscar BackCharges (hvac_deposit_lines negativos para o projeto)
+        // Buscar BackCharges (deposit_lines negativos para o projeto)
         const { data: depositLinesRaw } = await supabase
-          .from('hvac_deposit_lines')
+          .from(depositLinesTable)
           .select('*')
           .eq('customer_id', estimateData.customer_id)
           .eq('customer_name', estimateData.customer_name)
@@ -207,7 +261,7 @@ function useProjectDetails(estimateId: string | null, company: string = 'HVAC') 
         const depositsMap: Record<string, { txn_date?: string | null; private_note?: string | null }> = {};
         if (depositIds.length > 0) {
           const { data: depositsForLinesRaw } = await supabase
-            .from('hvac_deposits')
+            .from(depositsTable)
             .select('id, txn_date, private_note')
             .in('id', depositIds);
           (depositsForLinesRaw || []).forEach((dep: { id: string; txn_date?: string | null; private_note?: string | null }) => {
@@ -242,10 +296,29 @@ function useProjectDetails(estimateId: string | null, company: string = 'HVAC') 
 
 // Função utilitária para buscar e somar expenses detalhadas de um projeto
 async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
-  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
-  const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
-  const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
-  const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
+  let estimatesTable, billLinesTable, purchaseLinesTable, vendorCreditLinesTable;
+  
+  if (company === 'HVAC') {
+    estimatesTable = 'hvac_estimates';
+    billLinesTable = 'hvac_bill_lines';
+    purchaseLinesTable = 'hvac_purchase_lines';
+    vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+  } else if (company === 'Framing') {
+    estimatesTable = 'framing_estimates';
+    billLinesTable = 'framing_bill_lines';
+    purchaseLinesTable = 'framing_purchase_lines';
+    vendorCreditLinesTable = 'framing_vendor_credit_lines';
+  } else if (company === 'PCG') {
+    estimatesTable = 'pcg_estimates';
+    billLinesTable = 'pcg_bill_lines';
+    purchaseLinesTable = 'pcg_purchase_lines';
+    vendorCreditLinesTable = 'pcg_vendor_credit_lines';
+  } else {
+    estimatesTable = 'hvac_estimates';
+    billLinesTable = 'hvac_bill_lines';
+    purchaseLinesTable = 'hvac_purchase_lines';
+    vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+  }
   
   // Buscar dados detalhados igual ao modal
   const { data: estimateData } = await supabase
@@ -279,9 +352,25 @@ async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'):
 
 // Função utilitária para buscar e somar invoices e backcharges detalhados de um projeto
 async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
-  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
-  const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
-  const depositLinesTable = company === 'HVAC' ? 'hvac_deposit_lines' : 'framing_deposit_lines';
+  let estimatesTable, invoicesTable, depositLinesTable;
+  
+  if (company === 'HVAC') {
+    estimatesTable = 'hvac_estimates';
+    invoicesTable = 'hvac_invoices';
+    depositLinesTable = 'hvac_deposit_lines';
+  } else if (company === 'Framing') {
+    estimatesTable = 'framing_estimates';
+    invoicesTable = 'framing_invoices';
+    depositLinesTable = 'framing_deposit_lines';
+  } else if (company === 'PCG') {
+    estimatesTable = 'pcg_estimates';
+    invoicesTable = 'pcg_invoices';
+    depositLinesTable = 'pcg_deposit_lines';
+  } else {
+    estimatesTable = 'hvac_estimates';
+    invoicesTable = 'hvac_invoices';
+    depositLinesTable = 'hvac_deposit_lines';
+  }
   
   // Buscar dados detalhados igual ao modal
   const { data: estimateData } = await supabase
@@ -296,7 +385,7 @@ async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'):
     .select('*')
     .eq('customer_id', estimateData.customer_id);
   const invoicesData = invoicesDataRaw || [];
-  // Deposits (BackCharges)
+  // Deposit lines (backcharges)
   const { data: depositLinesRaw } = await supabase
     .from(depositLinesTable)
     .select('*')
@@ -304,11 +393,9 @@ async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'):
     .eq('customer_name', estimateData.customer_name)
     .lt('amount', 0);
   const depositLines = depositLinesRaw || [];
-  // Soma invoices
+  // Soma todos os amounts
   const invoicesTotal = invoicesData.reduce((sum, inv) => sum + Number(inv.total_amount || 0), 0);
-  // Soma backcharges (amount já é negativo)
   const backChargesTotal = depositLines.reduce((sum, line) => sum + Number(line.amount || 0), 0);
-  // Total recebido = invoices + backcharges (backcharges são negativos)
   return invoicesTotal + backChargesTotal;
 }
 
