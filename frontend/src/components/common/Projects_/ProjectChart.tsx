@@ -44,10 +44,29 @@ interface CarouselDataItem {
 
 // Funções utilitárias para calcular totais detalhados (mesma lógica do carrossel)
 async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
-  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
-  const billLinesTable = company === 'HVAC' ? 'hvac_bill_lines' : 'framing_bill_lines';
-  const purchaseLinesTable = company === 'HVAC' ? 'hvac_purchase_lines' : 'framing_purchase_lines';
-  const vendorCreditLinesTable = company === 'HVAC' ? 'hvac_vendor_credit_lines' : 'framing_vendor_credit_lines';
+  let estimatesTable, billLinesTable, purchaseLinesTable, vendorCreditLinesTable;
+  
+  if (company === 'HVAC') {
+    estimatesTable = 'hvac_estimates';
+    billLinesTable = 'hvac_bill_lines';
+    purchaseLinesTable = 'hvac_purchase_lines';
+    vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+  } else if (company === 'Framing') {
+    estimatesTable = 'framing_estimates';
+    billLinesTable = 'framing_bill_lines';
+    purchaseLinesTable = 'framing_purchase_lines';
+    vendorCreditLinesTable = 'framing_vendor_credit_lines';
+  } else if (company === 'PCG') {
+    estimatesTable = 'pcg_estimates';
+    billLinesTable = 'pcg_bill_lines';
+    purchaseLinesTable = 'pcg_purchase_lines';
+    vendorCreditLinesTable = 'pcg_vendor_credit_lines';
+  } else {
+    estimatesTable = 'hvac_estimates';
+    billLinesTable = 'hvac_bill_lines';
+    purchaseLinesTable = 'hvac_purchase_lines';
+    vendorCreditLinesTable = 'hvac_vendor_credit_lines';
+  }
   
   const { data: estimateData } = await supabase
     .from(estimatesTable)
@@ -79,9 +98,25 @@ async function fetchExpensesTotal(estimateId: string, company: string = 'HVAC'):
 }
 
 async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'): Promise<number> {
-  const estimatesTable = company === 'HVAC' ? 'hvac_estimates' : 'framing_estimates';
-  const invoicesTable = company === 'HVAC' ? 'hvac_invoices' : 'framing_invoices';
-  const depositLinesTable = company === 'HVAC' ? 'hvac_deposit_lines' : 'framing_deposit_lines';
+  let estimatesTable, invoicesTable, depositLinesTable;
+  
+  if (company === 'HVAC') {
+    estimatesTable = 'hvac_estimates';
+    invoicesTable = 'hvac_invoices';
+    depositLinesTable = 'hvac_deposit_lines';
+  } else if (company === 'Framing') {
+    estimatesTable = 'framing_estimates';
+    invoicesTable = 'framing_invoices';
+    depositLinesTable = 'framing_deposit_lines';
+  } else if (company === 'PCG') {
+    estimatesTable = 'pcg_estimates';
+    invoicesTable = 'pcg_invoices';
+    depositLinesTable = 'pcg_deposit_lines';
+  } else {
+    estimatesTable = 'hvac_estimates';
+    invoicesTable = 'hvac_invoices';
+    depositLinesTable = 'hvac_deposit_lines';
+  }
   
   const { data: estimateData } = await supabase
     .from(estimatesTable)

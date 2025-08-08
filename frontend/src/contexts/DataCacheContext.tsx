@@ -93,7 +93,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
           try {
             const data = await fetchAllRows(tableName);
             return data;
-          } catch (error) {
+          } catch {
             if (attempt === maxRetries) {
               return [];
             }
@@ -112,8 +112,76 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
         fetchDataWithRetry(payablesTable)
       ]);
 
+      // Função para filtrar dados por empresa
+      const filterByCompany = (data: unknown[], company?: string) => {
+        if (!company || company === 'HVAC') {
+          // Para HVAC, retornar todos os dados (comportamento padrão)
+          return data;
+        }
+        
+        // Filtrar dados baseado na empresa
+        return data.filter((row) => {
+          const r = row as Record<string, unknown>;
+          
+          // Para Framing, procurar por padrões específicos
+          if (company === 'Framing') {
+            const customerName = String(r.customer_full_name || '').toLowerCase();
+            const vendorName = String(r.vendor_display_name || '').toLowerCase();
+            const category = String(r.category || '').toLowerCase();
+            const transactionType = String(r.transaction_type || '').toLowerCase();
+            
+            // Padrões específicos para Framing - mais específicos
+            const framingPatterns = [
+              'framing',
+              'frame',
+              'wood',
+              'lumber',
+              'builder',
+              'contractor'
+            ];
+            
+            return framingPatterns.some(pattern => 
+              customerName.includes(pattern) || 
+              vendorName.includes(pattern) || 
+              category.includes(pattern) || 
+              transactionType.includes(pattern)
+            );
+          }
+          
+          // Para PCG, procurar por padrões específicos
+          if (company === 'PCG') {
+            const customerName = String(r.customer_full_name || '').toLowerCase();
+            const vendorName = String(r.vendor_display_name || '').toLowerCase();
+            const category = String(r.category || '').toLowerCase();
+            const transactionType = String(r.transaction_type || '').toLowerCase();
+            
+            // Padrões específicos para PCG
+            const pcgPatterns = [
+              'pcg',
+              'precast',
+              'concrete',
+              'manufacturing',
+              'factory'
+            ];
+            
+            return pcgPatterns.some(pattern => 
+              customerName.includes(pattern) || 
+              vendorName.includes(pattern) || 
+              category.includes(pattern) || 
+              transactionType.includes(pattern)
+            );
+          }
+          
+          return true;
+        });
+      };
+
+      // Filtrar dados por empresa
+      const filteredReceivablesData = filterByCompany(receivablesData, _company);
+      const filteredPayablesData = filterByCompany(payablesData, _company);
+
       // Transformar dados de receivables para o formato unificado
-      const receivables = (receivablesData || []).map((row) => {
+      const receivables = (filteredReceivablesData || []).map((row) => {
         const r = row as Record<string, unknown>;
         return {
           id: String(r.id ?? ''),
@@ -132,7 +200,7 @@ export function DataCacheProvider({ children }: { children: ReactNode }) {
       });
 
       // Transformar dados de payables para o formato unificado
-      const payables = (payablesData || []).map((row) => {
+      const payables = (filteredPayablesData || []).map((row) => {
         const p = row as Record<string, unknown>;
         return {
           id: String(p.id ?? ''),

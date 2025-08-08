@@ -29,7 +29,16 @@ export function useProjectCarouselData({ dateFrom, dateTo, onlyAccepted, company
       setError(null);
       
       // Determinar qual função SQL usar baseado na empresa
-      const functionName = company === 'HVAC' ? 'get_project_carousel_data_fixed' : 'get_framing_project_carousel_data_fixed';
+      let functionName;
+      if (company === 'HVAC') {
+        functionName = 'get_project_carousel_data_fixed';
+      } else if (company === 'Framing') {
+        functionName = 'get_framing_project_carousel_data_fixed';
+      } else if (company === 'PCG') {
+        functionName = 'get_pcg_project_carousel_data_fixed';
+      } else {
+        functionName = 'get_project_carousel_data_fixed'; // fallback para HVAC
+      }
       
       // Sempre buscar todos os dados, o filtro será feito no frontend
       const { data: result, error: sqlError } = await supabase.rpc(functionName, {
