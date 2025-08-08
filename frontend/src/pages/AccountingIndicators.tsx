@@ -606,8 +606,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
 
   // Verificação adicional para dados vazios
   if (!accountingData || accountingData.length === 0) {
-    // Se for Framing e não há dados, redirecionar automaticamente para Projects
-    if (selectedCompany === 'Framing' && onBackToProjects) {
+    // Se for Framing ou PCG e não há dados, redirecionar automaticamente para Projects
+    if ((selectedCompany === 'Framing' || selectedCompany === 'PCG') && onBackToProjects) {
       // Usar setTimeout para garantir que o componente seja montado antes do redirecionamento
       setTimeout(() => {
         onBackToProjects();

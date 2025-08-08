@@ -3,6 +3,2778 @@
     "SalesTermRef": {
       "value": "1"
     },
+    "DueDate": "2025-06-19",
+    "Balance": 8843.61,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50259",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T12:56:42-07:00",
+      "LastUpdatedTime": "2025-08-07T12:56:42-07:00"
+    },
+    "DocNumber": "12919",
+    "TxnDate": "2025-06-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 8843.61,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 8843.61
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-03-03",
+    "Balance": 60,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50257",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T12:46:50-07:00",
+      "LastUpdatedTime": "2025-08-07T12:46:50-07:00"
+    },
+    "DocNumber": "2485-1",
+    "TxnDate": "2025-03-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2016 Toyota Tacoma - Oil Change",
+        "Amount": 60,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "229",
+      "name": "Pit Stop Auto Service, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 60
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-10",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47423",
+    "SyncToken": "9",
+    "MetaData": {
+      "CreateTime": "2025-04-14T11:01:55-07:00",
+      "LastUpdatedTime": "2025-08-07T12:36:18-07:00"
+    },
+    "DocNumber": "3041424",
+    "TxnDate": "2025-04-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49703",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "49594",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "3041424",
+        "Amount": 1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Jun/2025 - Lot 60",
+        "Amount": 660.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Jun/2025",
+        "Amount": 55.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1871",
+            "name": "Toll Brothers, Inc.:Canton Reserve:Lot 15 - Deck - Canton Reserve"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Jun/2025",
+        "Amount": 230.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Jun/2025",
+        "Amount": 1813.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Jun/2025  -  Billable To PCG Malborough",
+        "Amount": 43.57,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "Premium Contractors Group, Inc."
+          },
+          "AccountRef": {
+            "value": "26",
+            "name": "Billable Expense Income"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Jun/2025",
+        "Amount": 53.19,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3185",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 60 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Jun/2025",
+        "Amount": 57.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3187",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 61 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Jun/2025",
+        "Amount": 42.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3188",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 62 / 23 - Deck - Highland at Vale - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Jun/2025",
+        "Amount": 380.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3224",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 70 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Jun/2025",
+        "Amount": 252.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3226",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 71 / 27 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "Jun/2025 - Lot 16",
+        "Amount": 138.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Toll Brothers, Inc.:Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "Jun/2025",
+        "Amount": 182.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3261",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "Finance Charge",
+        "Amount": 128.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4039.71
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-15",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49702",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-07-09T11:29:07-07:00",
+      "LastUpdatedTime": "2025-08-07T12:34:41-07:00"
+    },
+    "DocNumber": "#3065561",
+    "TxnDate": "2025-05-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Job Supplies:Materials Premium",
+    "LinkedTxn": [
+      {
+        "TxnId": "49703",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "18TUBE - 18\"X12' SONOTUBE",
+        "Amount": 985.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 985.32
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-28",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48752",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-02T12:34:10-07:00",
+      "LastUpdatedTime": "2025-08-07T12:34:41-07:00"
+    },
+    "DocNumber": "3073365",
+    "TxnDate": "2025-05-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 3073365",
+    "LinkedTxn": [
+      {
+        "TxnId": "49703",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "12\" Sonotube (per lnft)\t48",
+        "Amount": 507.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3230",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 138 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 2,
+        "Description": "12\" Sonotube (per lnft)",
+        "Amount": 507.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3228",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 135 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 3,
+        "Description": "12\" Sonotube (per lnft)",
+        "Amount": 507.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3229",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1521.84
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-14",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48446",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-05-19T10:20:41-07:00",
+      "LastUpdatedTime": "2025-08-07T12:34:41-07:00"
+    },
+    "DocNumber": "3064410",
+    "TxnDate": "2025-05-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49703",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "3064410",
+        "Amount": 4.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Jun/2025",
+        "Amount": 487.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3239",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Jun/2025",
+        "Amount": 90,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3260",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Jun/2025",
+        "Amount": 75.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Jun/2025",
+        "Amount": 11.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3063",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 07 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Jun/2025",
+        "Amount": 408.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3278",
+            "name": "Rob Pagani:41 Johnson Rd., Sterling"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Jun/2025",
+        "Amount": 830,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1906
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-03-20",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48221",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-05-12T09:29:47-07:00",
+      "LastUpdatedTime": "2025-08-07T12:14:33-07:00"
+    },
+    "DocNumber": "5018",
+    "TxnDate": "2025-03-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "5 Claflin Ave, Hopkinton",
+    "LinkedTxn": [
+      {
+        "TxnId": "49832",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5018",
+        "Amount": 2287.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2944",
+            "name": "Premium Contractors Group, Inc.:5 Claflin Ave, Hopkinton"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": 75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1693",
+      "name": "BC Crane Corp"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2362.5
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-02",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47312",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-04-10T08:49:10-07:00",
+      "LastUpdatedTime": "2025-08-07T12:14:33-07:00"
+    },
+    "DocNumber": "5050",
+    "TxnDate": "2025-04-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 5 - Chauncy Lake - Pulte Homes - 6546",
+    "LinkedTxn": [
+      {
+        "TxnId": "49832",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5049",
+        "Amount": 580,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": 25.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1693",
+      "name": "BC Crane Corp"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 605.36
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-25",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47807",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-04-28T07:53:54-07:00",
+      "LastUpdatedTime": "2025-08-07T12:02:08-07:00"
+    },
+    "DocNumber": "3051429",
+    "TxnDate": "2025-04-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49559",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "3051429",
+        "Amount": 7.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Jun/2025",
+        "Amount": 451.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3243",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 72 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Jun/2025",
+        "Amount": 718.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3244",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Jun/2025",
+        "Amount": 674.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3236",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 11 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Jun/2025",
+        "Amount": 270,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3239",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2122.88
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-11-19",
+    "Balance": 1990.13,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47644",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-04-22T12:26:45-07:00",
+      "LastUpdatedTime": "2025-08-07T12:02:08-07:00"
+    },
+    "DocNumber": "2968805",
+    "TxnDate": "2024-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49559",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2968805",
+        "Amount": 4424.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4424.98
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-06",
+    "Balance": 61819.04,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48101",
+    "SyncToken": "10",
+    "MetaData": {
+      "CreateTime": "2025-05-06T10:44:33-07:00",
+      "LastUpdatedTime": "2025-08-07T11:26:54-07:00"
+    },
+    "TxnDate": "2025-05-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor 04/07 - 04/20",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Labor 04/07 - 04/20",
+        "Amount": 214.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Labor 04/07 - 04/20 - TC (110 pleasant)",
+        "Amount": 1803.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3036",
+            "name": "PJ Keating:Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 41.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2776",
+            "name": "Premium Contractors Group, Inc.:155 Eliot St, Ashland"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Labor 04/07 - 04/20 - TL (BACKCHARGE)",
+        "Amount": 58.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 1511.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 1006.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3175",
+            "name": "Mike Harrington:3 Grove St, Newbury - MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 88.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1511",
+            "name": "1 Outside:Guilherme's House - 33 Scott St. - Belligham"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 525,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3103",
+            "name": "John Hansen:44 None Such Way, Weston, MA - 02493"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Labor 04/07 - 04/20 - TC",
+        "Amount": 294.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Labor 04/07 - 04/20 - TC",
+        "Amount": 6467.87,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Labor 04/07 - 04/20 - TK, TL - extra",
+        "Amount": 708.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2352",
+            "name": "Autumn Leaf Homes:68 Summer St, Natick"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "Labor 04/07 - 04/20 - TL MMD extra",
+        "Amount": 1231.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3216",
+            "name": "MMD Construction"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 110.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2903",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "Labor 04/07 - 04/20 - TJS backcharge",
+        "Amount": 136.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3055",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 15,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 299.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3073",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Deck - Winslow Point - Pulte Homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "LineNum": 16,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 257.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3055",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 17,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 129.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3056",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Winslow Point - Pulte Homes 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "LineNum": 18,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 208.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3074",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Deck - Winslow Point - Pulte Homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "LineNum": 19,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 90,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3056",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Winslow Point - Pulte Homes 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "LineNum": 20,
+        "Description": "Labor 04/07 - 04/20 - TJS - Backcharge",
+        "Amount": 131.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3057",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Winslow Point - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "LineNum": 21,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 72.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3075",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Deck - Winslow Point - Pulte Homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "LineNum": 22,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 78.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3057",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Winslow Point - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "LineNum": 23,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 123.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3026",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 4 - Winslow Point - Pulte homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "LineNum": 24,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 90,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3028",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 5 - Winslow Point - Pulte homes - 8177"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "LineNum": 25,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 174.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2167",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "LineNum": 26,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 1049.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3095",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 15 - Deck - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "LineNum": 27,
+        "Description": "Labor 04/07 - 04/20 - TL",
+        "Amount": 196.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3086",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 16 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "LineNum": 28,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 423.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2316",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 19 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "LineNum": 29,
+        "Description": "Labor 04/07 - 04/20 - TL - Extra",
+        "Amount": 262.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2361",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "LineNum": 30,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 196.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2167",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "LineNum": 31,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 339.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2773",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "32",
+        "LineNum": 32,
+        "Description": "Labor 04/07 - 04/20 - TOffice",
+        "Amount": 243.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "33",
+        "LineNum": 33,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 885.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "34",
+        "LineNum": 34,
+        "Description": "Labor 04/07 - 04/20 - TC - Extra",
+        "Amount": 480.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "105",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "35",
+        "LineNum": 35,
+        "Description": "Labor 04/07 - 04/20 - TC",
+        "Amount": 3940.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2965",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 2 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "36",
+        "LineNum": 36,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 463.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3113",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "37",
+        "LineNum": 37,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 211.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3113",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "38",
+        "LineNum": 38,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 154.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3113",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "39",
+        "LineNum": 39,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 1193.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3206",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 26 - Deck - Wheelock Farm - Pulte Homes - 8856"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "40",
+        "LineNum": 40,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 628.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2406",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 14 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "41",
+        "LineNum": 41,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 255.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2524",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 21 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "42",
+        "LineNum": 42,
+        "Description": "Labor 04/07 - 04/20 - TOffice",
+        "Amount": 55.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "43",
+        "LineNum": 43,
+        "Description": "Labor 04/07 - 04/20 - TC",
+        "Amount": 23783.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "44",
+        "LineNum": 44,
+        "Description": "Labor 04/07 - 04/20 - TJS - extra",
+        "Amount": 164.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2152",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "45",
+        "LineNum": 45,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 554.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3109",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 63 / 24 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "46",
+        "LineNum": 46,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3053",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 66 - Highland At Vale - Pulte Homes 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "47",
+        "LineNum": 47,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3054",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 67 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "48",
+        "LineNum": 48,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 374.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3091",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 68 - Deck - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "49",
+        "LineNum": 49,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3090",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 68 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "50",
+        "LineNum": 50,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 174.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3092",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 69 - Deck - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "51",
+        "LineNum": 51,
+        "Description": "Labor 04/07 - 04/20 - The office",
+        "Amount": 485.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "52",
+        "LineNum": 52,
+        "Description": "Labor 04/07 - 04/20 - Office",
+        "Amount": 4257.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "53",
+        "LineNum": 53,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 241.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2232",
+            "name": "Toll Brothers, Inc.:Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "54",
+        "LineNum": 54,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 212.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2232",
+            "name": "Toll Brothers, Inc.:Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "55",
+        "LineNum": 55,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 490.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3101",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 57 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "56",
+        "LineNum": 56,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 63.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "57",
+        "LineNum": 57,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 376.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2960",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 01 - Lakemont at Hudson (Model House)"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "58",
+        "LineNum": 58,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 634.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "59",
+        "LineNum": 59,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 397.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3002",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 2 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "60",
+        "LineNum": 60,
+        "Description": "Labor 04/07 - 04/20 - TFraming - Extra",
+        "Amount": 171.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "61",
+        "LineNum": 61,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 1236.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3062",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 03 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "62",
+        "LineNum": 62,
+        "Description": "Labor 04/07 - 04/20 - TJM",
+        "Amount": 199.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3063",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 07 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "63",
+        "LineNum": 63,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 215,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2949",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 08 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "64",
+        "LineNum": 64,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 591.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3084",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "65",
+        "LineNum": 65,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 637.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2232",
+            "name": "Toll Brothers, Inc.:Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "66",
+        "LineNum": 66,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 471.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3098",
+            "name": "Toll Brothers, Inc.:Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "67",
+        "LineNum": 67,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 573.34,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2927",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "68",
+        "LineNum": 68,
+        "Description": "Labor 04/07 - 04/20 - TK",
+        "Amount": 848.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2832",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "69",
+        "LineNum": 69,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 306.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3032",
+            "name": "Toll Brothers, Inc.:Wendell Place"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "70",
+        "LineNum": 70,
+        "Description": "Labor 04/07 - 04/20 - TJS",
+        "Amount": 58.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2125",
+            "name": "Toll Brothers, Inc.:Regency at Glen Ellen:Lot 289 - Glen Ellen"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "71",
+        "LineNum": 71,
+        "Description": "Labor 04/07 - 04/20 - TF",
+        "Amount": 58.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3209",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 19 - Owls Nest"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "72",
+        "LineNum": 72,
+        "Description": "Labor 04/07 - 04/20 - TFraming",
+        "Amount": 408.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3032",
+            "name": "Toll Brothers, Inc.:Wendell Place"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "73",
+        "LineNum": 73,
+        "Description": "Paid back towards Home Equity Credit Line 07/14/25",
+        "Amount": -3180.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2521",
+      "name": "Guilherme M Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 61819.04
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-01",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48724",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-06-01T03:12:33-07:00",
+      "LastUpdatedTime": "2025-08-07T09:37:30-07:00"
+    },
+    "TxnDate": "2025-07-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50165",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rent 1B Landing Ln - January 2022",
+        "Amount": 7500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "14",
+            "name": "Rent & Lease"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "360",
+      "name": "Hopedale Airport Industrial Park, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7500
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-06",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49985",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-30T01:41:40-07:00",
+      "LastUpdatedTime": "2025-08-07T09:22:25-07:00"
+    },
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Loan 1130",
+    "LinkedTxn": [
+      {
+        "TxnId": "50160",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "UCC Filling #202414861130",
+        "Amount": 6398.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040002",
+            "name": "Loan Mutual One 1130"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "103",
+      "name": "Mutual One Bank"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6398.29
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
     "DueDate": "2025-08-04",
     "Balance": 0,
     "domain": "QBO",
@@ -2103,55 +4875,6 @@
   },
   {
     "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-06",
-    "Balance": 6398.29,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49985",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-30T01:41:40-07:00",
-      "LastUpdatedTime": "2025-08-04T15:16:13-07:00"
-    },
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Loan 1130",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "UCC Filling #202414861130",
-        "Amount": 6398.29,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040002",
-            "name": "Loan Mutual One 1130"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "103",
-      "name": "Mutual One Bank"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 6398.29
-  },
-  {
-    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2025-08-25",
@@ -2727,7 +5450,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-08-04T14:19:25-07:00",
-      "LastUpdatedTime": "2025-08-04T14:21:35-07:00"
+      "LastUpdatedTime": "2025-08-07T06:10:23-07:00"
     },
     "DocNumber": "3120143",
     "TxnDate": "2025-08-01",
@@ -5831,54 +8554,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 745.98
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-01",
-    "Balance": 7500,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48724",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-01T03:12:33-07:00",
-      "LastUpdatedTime": "2025-07-24T08:32:04-07:00"
-    },
-    "TxnDate": "2025-07-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rent 1B Landing Ln - January 2022",
-        "Amount": 7500,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "14",
-            "name": "Rent & Lease"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "360",
-      "name": "Hopedale Airport Industrial Park, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 7500
   },
   {
     "SalesTermRef": {
@@ -10903,187 +13578,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-05-14",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48446",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-05-19T10:20:41-07:00",
-      "LastUpdatedTime": "2025-07-17T13:00:31-07:00"
-    },
-    "DocNumber": "3064410",
-    "TxnDate": "2025-05-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49703",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "3064410",
-        "Amount": 4.3,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Jun/2025",
-        "Amount": 487.07,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3239",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Jun/2025",
-        "Amount": 90,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3260",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Jun/2025",
-        "Amount": 75.1,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3178",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Jun/2025",
-        "Amount": 11.27,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3063",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 07 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Jun/2025",
-        "Amount": 408.26,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3278",
-            "name": "Rob Pagani:41 Johnson Rd., Sterling"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Jun/2025",
-        "Amount": 830,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3163",
-            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1906
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-09",
     "Balance": 0,
     "domain": "QBO",
@@ -12910,126 +15404,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 0
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-03-20",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48221",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-05-12T09:29:47-07:00",
-      "LastUpdatedTime": "2025-07-15T13:22:44-07:00"
-    },
-    "DocNumber": "5018",
-    "TxnDate": "2025-03-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "5 Claflin Ave, Hopkinton",
-    "LinkedTxn": [
-      {
-        "TxnId": "49832",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "5018",
-        "Amount": 2287.5,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2944",
-            "name": "Premium Contractors Group, Inc.:5 Claflin Ave, Hopkinton"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1693",
-      "name": "BC Crane Corp"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2287.5
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-04-02",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47312",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-04-10T08:49:10-07:00",
-      "LastUpdatedTime": "2025-07-15T13:22:44-07:00"
-    },
-    "DocNumber": "5050",
-    "TxnDate": "2025-04-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Building 5 - Chauncy Lake - Pulte Homes - 6546",
-    "LinkedTxn": [
-      {
-        "TxnId": "49832",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "5049",
-        "Amount": 580,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1693",
-      "name": "BC Crane Corp"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 580
   },
   {
     "SalesTermRef": {
@@ -18180,62 +20554,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-05-15",
-    "Balance": 472.41,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49702",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-07-09T11:29:07-07:00",
-      "LastUpdatedTime": "2025-07-09T11:37:35-07:00"
-    },
-    "DocNumber": "#3065561",
-    "TxnDate": "2025-05-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Job Supplies:Materials Premium",
-    "LinkedTxn": [
-      {
-        "TxnId": "49703",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "18TUBE - 18\"X12' SONOTUBE",
-        "Amount": 985.32,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 985.32
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-08",
     "Balance": 353.13,
     "domain": "QBO",
@@ -18431,552 +20749,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 22.83
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-28",
-    "Balance": 1521.84,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48752",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-06-02T12:34:10-07:00",
-      "LastUpdatedTime": "2025-07-09T11:37:35-07:00"
-    },
-    "DocNumber": "3073365",
-    "TxnDate": "2025-05-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 3073365",
-    "Line": [
-      {
-        "Id": "2",
-        "LineNum": 1,
-        "Description": "12\" Sonotube (per lnft)\t48",
-        "Amount": 507.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3230",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 138 - Deck - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 2,
-        "Description": "12\" Sonotube (per lnft)",
-        "Amount": 507.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3228",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 135 - Deck - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 3,
-        "Description": "12\" Sonotube (per lnft)",
-        "Amount": 507.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3229",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Deck - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1521.84
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-04-25",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47807",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-04-28T07:53:54-07:00",
-      "LastUpdatedTime": "2025-07-09T11:37:35-07:00"
-    },
-    "DocNumber": "3051429",
-    "TxnDate": "2025-04-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49703",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "3051429",
-        "Amount": 7.95,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Jun/2025",
-        "Amount": 451.84,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3243",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 72 / 28 - Highland at Vale"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Jun/2025",
-        "Amount": 718.65,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3244",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Jun/2025",
-        "Amount": 674.44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3236",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 11 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Jun/2025",
-        "Amount": 270,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3239",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2122.88
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-04-10",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47423",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-04-14T11:01:55-07:00",
-      "LastUpdatedTime": "2025-07-09T11:37:35-07:00"
-    },
-    "DocNumber": "3041424",
-    "TxnDate": "2025-04-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49594",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "49703",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "3041424",
-        "Amount": 1,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Jun/2025 - Lot 60",
-        "Amount": 660.04,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3164",
-            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Jun/2025",
-        "Amount": 55.44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1871",
-            "name": "Toll Brothers, Inc.:Canton Reserve:Lot 15 - Deck - Canton Reserve"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Jun/2025",
-        "Amount": 230.96,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Jun/2025",
-        "Amount": 1813.36,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3263",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Jun/2025  -  Billable To PCG Malborough",
-        "Amount": 43.57,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1071",
-            "name": "Premium Contractors Group, Inc."
-          },
-          "AccountRef": {
-            "value": "26",
-            "name": "Billable Expense Income"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Jun/2025",
-        "Amount": 53.19,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3185",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 60 / 23 - Deck - Highland at Vale - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Jun/2025",
-        "Amount": 57.22,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3187",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 61 / 23 - Deck - Highland at Vale - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Jun/2025",
-        "Amount": 42.39,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3188",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 62 / 23 - Deck - Highland at Vale - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Jun/2025",
-        "Amount": 380.49,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3224",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 70 / 27 - Highland at Vale"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Jun/2025",
-        "Amount": 252.36,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3226",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 71 / 27 - Highland at Vale"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Jun/2025 - Lot 16",
-        "Amount": 138.77,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3098",
-            "name": "Toll Brothers, Inc.:Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Description": "Jun/2025",
-        "Amount": 182.29,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3261",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3911.08
   },
   {
     "SalesTermRef": {
@@ -21926,61 +23698,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 23.35
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-11-19",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47644",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-04-22T12:26:45-07:00",
-      "LastUpdatedTime": "2025-07-01T11:24:11-07:00"
-    },
-    "DocNumber": "2968805",
-    "TxnDate": "2024-11-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49559",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2968805",
-        "Amount": 4424.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 4424.98
   },
   {
     "SalesTermRef": {
@@ -32532,1542 +34249,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 600
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-06",
-    "Balance": 65000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48101",
-    "SyncToken": "9",
-    "MetaData": {
-      "CreateTime": "2025-05-06T10:44:33-07:00",
-      "LastUpdatedTime": "2025-06-06T13:05:59-07:00"
-    },
-    "TxnDate": "2025-05-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Labor 04/07 - 04/20",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Labor 04/07 - 04/20",
-        "Amount": 214.04,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Labor 04/07 - 04/20 - TC (110 pleasant)",
-        "Amount": 1803.04,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3036",
-            "name": "PJ Keating:Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 41.85,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2776",
-            "name": "Premium Contractors Group, Inc.:155 Eliot St, Ashland"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Labor 04/07 - 04/20 - TL (BACKCHARGE)",
-        "Amount": 58.42,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2976",
-            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 1511.62,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 1006.26,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3175",
-            "name": "Mike Harrington:3 Grove St, Newbury - MA"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 88.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1511",
-            "name": "1 Outside:Guilherme's House - 33 Scott St. - Belligham"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 525,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3103",
-            "name": "John Hansen:44 None Such Way, Weston, MA - 02493"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Labor 04/07 - 04/20 - TC",
-        "Amount": 294.84,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3163",
-            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Labor 04/07 - 04/20 - TC",
-        "Amount": 6467.87,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Labor 04/07 - 04/20 - TK, TL - extra",
-        "Amount": 708.48,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2352",
-            "name": "Autumn Leaf Homes:68 Summer St, Natick"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Labor 04/07 - 04/20 - TL MMD extra",
-        "Amount": 1231.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3216",
-            "name": "MMD Construction"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 110.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2903",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "14",
-        "LineNum": 14,
-        "Description": "Labor 04/07 - 04/20 - TJS backcharge",
-        "Amount": 136.35,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3055",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "15",
-        "LineNum": 15,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 299.39,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3073",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Deck - Winslow Point - Pulte Homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "16",
-        "LineNum": 16,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 257.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3055",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "17",
-        "LineNum": 17,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 129.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3056",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Winslow Point - Pulte Homes 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "18",
-        "LineNum": 18,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 208.08,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3074",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Deck - Winslow Point - Pulte Homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "19",
-        "LineNum": 19,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 90,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3056",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 2 - Winslow Point - Pulte Homes 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "20",
-        "LineNum": 20,
-        "Description": "Labor 04/07 - 04/20 - TJS - Backcharge",
-        "Amount": 131.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3057",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Winslow Point - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "21",
-        "LineNum": 21,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 72.22,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3075",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Deck - Winslow Point - Pulte Homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "22",
-        "LineNum": 22,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 78.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3057",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 3 - Winslow Point - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "23",
-        "LineNum": 23,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 123.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3026",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 4 - Winslow Point - Pulte homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "24",
-        "LineNum": 24,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 90,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3028",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 5 - Winslow Point - Pulte homes - 8177"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "25",
-        "LineNum": 25,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 174.72,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2167",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "26",
-        "LineNum": 26,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 1049.27,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3095",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 15 - Deck - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "27",
-        "LineNum": 27,
-        "Description": "Labor 04/07 - 04/20 - TL",
-        "Amount": 196.21,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3086",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 16 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "28",
-        "LineNum": 28,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 423.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2316",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 19 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "29",
-        "LineNum": 29,
-        "Description": "Labor 04/07 - 04/20 - TL - Extra",
-        "Amount": 262.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2361",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "30",
-        "LineNum": 30,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 196.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2167",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "31",
-        "LineNum": 31,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 339.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2773",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "32",
-        "LineNum": 32,
-        "Description": "Labor 04/07 - 04/20 - TOffice",
-        "Amount": 243.88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "64",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "33",
-        "LineNum": 33,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 885.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "34",
-        "LineNum": 34,
-        "Description": "Labor 04/07 - 04/20 - TC - Extra",
-        "Amount": 480.24,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "105",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "35",
-        "LineNum": 35,
-        "Description": "Labor 04/07 - 04/20 - TC",
-        "Amount": 3940.94,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2965",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 2 - Martins Landing - Pulte Homes - 6492"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "36",
-        "LineNum": 36,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 463.32,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3113",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "37",
-        "LineNum": 37,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 211.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3113",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "38",
-        "LineNum": 38,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 154.88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3113",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 25 - Wheelock Farm - Pulte Homes - 8856"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "39",
-        "LineNum": 39,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 1193.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3206",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 26 - Deck - Wheelock Farm - Pulte Homes - 8856"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "40",
-        "LineNum": 40,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 628.85,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2406",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 14 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "41",
-        "LineNum": 41,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 255.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2524",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 21 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "42",
-        "LineNum": 42,
-        "Description": "Labor 04/07 - 04/20 - TOffice",
-        "Amount": 55.38,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "64",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "43",
-        "LineNum": 43,
-        "Description": "Labor 04/07 - 04/20 - TC",
-        "Amount": 23783.02,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "44",
-        "LineNum": 44,
-        "Description": "Labor 04/07 - 04/20 - TJS - extra",
-        "Amount": 164.04,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "45",
-        "LineNum": 45,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 554.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3109",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 63 / 24 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "46",
-        "LineNum": 46,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3053",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 66 - Highland At Vale - Pulte Homes 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "47",
-        "LineNum": 47,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3054",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 67 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "48",
-        "LineNum": 48,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 374.88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3091",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 68 - Deck - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "49",
-        "LineNum": 49,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3090",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 68 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "50",
-        "LineNum": 50,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 174.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3092",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 69 - Deck - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "51",
-        "LineNum": 51,
-        "Description": "Labor 04/07 - 04/20 - The office",
-        "Amount": 485.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "52",
-        "LineNum": 52,
-        "Description": "Labor 04/07 - 04/20 - Office",
-        "Amount": 4257.43,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "53",
-        "LineNum": 53,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 241.42,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2232",
-            "name": "Toll Brothers, Inc.:Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "54",
-        "LineNum": 54,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 212.86,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2232",
-            "name": "Toll Brothers, Inc.:Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "55",
-        "LineNum": 55,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 490.84,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3101",
-            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 57 - Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "56",
-        "LineNum": 56,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 63.84,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2927",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "57",
-        "LineNum": 57,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 376.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2960",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 01 - Lakemont at Hudson (Model House)"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "58",
-        "LineNum": 58,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 634.2,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3178",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "59",
-        "LineNum": 59,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 397.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3002",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 2 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "60",
-        "LineNum": 60,
-        "Description": "Labor 04/07 - 04/20 - TFraming - Extra",
-        "Amount": 171.64,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2927",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "61",
-        "LineNum": 61,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 1236.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3062",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 03 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "62",
-        "LineNum": 62,
-        "Description": "Labor 04/07 - 04/20 - TJM",
-        "Amount": 199.42,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3063",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 07 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "63",
-        "LineNum": 63,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 215,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2949",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 08 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "64",
-        "LineNum": 64,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 591.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3084",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "65",
-        "LineNum": 65,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 637.56,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2232",
-            "name": "Toll Brothers, Inc.:Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "66",
-        "LineNum": 66,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 471.42,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3098",
-            "name": "Toll Brothers, Inc.:Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "67",
-        "LineNum": 67,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 573.34,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2927",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "68",
-        "LineNum": 68,
-        "Description": "Labor 04/07 - 04/20 - TK",
-        "Amount": 848.82,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2832",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "69",
-        "LineNum": 69,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 306.86,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3032",
-            "name": "Toll Brothers, Inc.:Wendell Place"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "70",
-        "LineNum": 70,
-        "Description": "Labor 04/07 - 04/20 - TJS",
-        "Amount": 58.14,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2125",
-            "name": "Toll Brothers, Inc.:Regency at Glen Ellen:Lot 289 - Glen Ellen"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "71",
-        "LineNum": 71,
-        "Description": "Labor 04/07 - 04/20 - TF",
-        "Amount": 58.65,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3209",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 19 - Owls Nest"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "72",
-        "LineNum": 72,
-        "Description": "Labor 04/07 - 04/20 - TFraming",
-        "Amount": 408.5,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3032",
-            "name": "Toll Brothers, Inc.:Wendell Place"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2521",
-      "name": "Guilherme M Costa"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 65000
   },
   {
     "SalesTermRef": {

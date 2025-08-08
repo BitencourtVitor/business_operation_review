@@ -17,6 +17,10 @@ class QuickBooksClient {
       this.realmId = process.env.FRAMING_REALM_ID || process.env.REALM_ID;
       this.accessToken = process.env.FRAMING_ACCESS_TOKEN;
       this.refreshToken = process.env.FRAMING_REFRESH_TOKEN;
+    } else if (company === 'pcg') {
+      this.realmId = process.env.PCG_REALM_ID || process.env.REALM_ID;
+      this.accessToken = process.env.PCG_ACCESS_TOKEN;
+      this.refreshToken = process.env.PCG_REFRESH_TOKEN;
     } else {
       // Fallback para compatibilidade
       this.realmId = process.env.REALM_ID;
@@ -82,6 +86,9 @@ class QuickBooksClient {
       } else if (this.company === 'framing') {
         console.log(`FRAMING_ACCESS_TOKEN=${data.access_token}`);
         console.log(`FRAMING_REFRESH_TOKEN=${data.refresh_token}`);
+      } else if (this.company === 'pcg') {
+        console.log(`PCG_ACCESS_TOKEN=${data.access_token}`);
+        console.log(`PCG_REFRESH_TOKEN=${data.refresh_token}`);
       } else {
         console.log(`ACCESS_TOKEN=${data.access_token}`);
         console.log(`REFRESH_TOKEN=${data.refresh_token}`);
@@ -101,9 +108,7 @@ class QuickBooksClient {
   }
 
   async refreshAccessToken() {
-    try {
-      console.log('🔄 Renovando access token...');
-      
+    try {     
       const response = await fetch(this.tokenUrl, {
         method: 'POST',
         headers: {
@@ -142,6 +147,13 @@ class QuickBooksClient {
         }
         if (process.env.FRAMING_REFRESH_TOKEN) {
           process.env.FRAMING_REFRESH_TOKEN = this.refreshToken;
+        }
+      } else if (this.company === 'pcg') {
+        if (process.env.PCG_ACCESS_TOKEN) {
+          process.env.PCG_ACCESS_TOKEN = this.accessToken;
+        }
+        if (process.env.PCG_REFRESH_TOKEN) {
+          process.env.PCG_REFRESH_TOKEN = this.refreshToken;
         }
       } else {
         if (process.env.ACCESS_TOKEN) {

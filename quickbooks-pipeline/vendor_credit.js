@@ -170,7 +170,7 @@ async function main() {
     idMap = await sb.upsertVendorCredits(vendor_credits);
     console.log(`✅ Vendor Credits upserted: ${vendor_credits.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_vendor_credits:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_vendor_credits:`, err.message || err);
     process.exit(1);
   }
 

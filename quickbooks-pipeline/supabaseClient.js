@@ -10,7 +10,7 @@ class SupabaseClient {
       process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY
     );
     this.company = company;
-    this.tablePrefix = company === 'hvac' ? 'hvac_' : 'framing_';
+    this.tablePrefix = company === 'hvac' ? 'hvac_' : company === 'framing' ? 'framing_' : 'pcg_';
   }
 
   // Upsert estimates principais e retorna mapping external_id -> id
@@ -190,14 +190,14 @@ class SupabaseClient {
     for (const line of linesRows) {
       // Deletar registros existentes com mesmo purchase_id e external_line_id
       await this.supabase
-        .from('hvac_purchase_lines')
+        .from(`${this.tablePrefix}purchase_lines`)
         .delete()
         .eq('purchase_id', line.purchase_id)
         .eq('external_line_id', line.external_line_id);
       
       // Inserir novo registro
       const { error: insertError } = await this.supabase
-        .from('hvac_purchase_lines')
+        .from(`${this.tablePrefix}purchase_lines`)
         .insert(line);
       
       if (insertError) {
@@ -453,16 +453,16 @@ class SupabaseClient {
   }
 
   async getTableNames() {
-    return ['hvac_estimates', 'hvac_invoices', 'hvac_payments', 'hvac_bills', 'hvac_bill_payments'];
+    return [`${this.tablePrefix}estimates`, `${this.tablePrefix}invoices`, `${this.tablePrefix}payments`, `${this.tablePrefix}bills`, `${this.tablePrefix}bill_payments`];
   }
 
   async getEntityTableMapping() {
     return {
-      'Estimate': 'hvac_estimates',
-      'Invoice': 'hvac_invoices',
-      'Payment': 'hvac_payments',
-      'Bill': 'hvac_bills',
-      'BillPayment': 'hvac_bill_payments'
+      'Estimate': `${this.tablePrefix}estimates`,
+      'Invoice': `${this.tablePrefix}invoices`,
+      'Payment': `${this.tablePrefix}payments`,
+      'Bill': `${this.tablePrefix}bills`,
+      'BillPayment': `${this.tablePrefix}bill_payments`
     };
   }
 }

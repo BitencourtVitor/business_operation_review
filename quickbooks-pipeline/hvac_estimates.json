@@ -2,6 +2,418 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "20266",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-05T13:30:20-07:00",
+      "LastUpdatedTime": "2025-08-07T07:35:40-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1882",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Model: Sedona",
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Brookfield Homes \nModel Home - Sedona\n\nEquipament: LG, Daikin, Fujitsu and Carrier.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "3 zones System ductwork",
+        "Amount": 13500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 13500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ERV - (Energy Recovery Ventilator) - 1 unit",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Heat Pump Air Handler - 1 unit  ",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 4000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Heat Pump condenser ",
+        "Amount": 6000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 6000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Linesets ",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Finishes Grills",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 28000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1534",
+      "name": "David Bauer"
+    },
+    "CustomerMemo": {
+      "value": "Model: Sedona"
+    },
+    "BillAddr": {
+      "Id": "19599",
+      "Line1": "David Bauer",
+      "Line2": "Plan elev: Sedona"
+    },
+    "ShipAddr": {
+      "Id": "19506"
+    },
+    "TotalAmt": 28000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "David.Bauer@brookfieldrp.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20265",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-05T13:26:07-07:00",
+      "LastUpdatedTime": "2025-08-07T07:23:23-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1881",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Plan Elev: Brennan",
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Brookfield Homes \nModel Home - Brennan \n\nEquipament: LG, Daikin, Fujitsu and Carrier.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2 zones System ductwork",
+        "Amount": 13500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 13500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ERV - (Energy Recovery Ventilator) - 1 unit",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Heat Pump Air Handler  - 1 unit  ",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 4000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Heat Pump Condenser ",
+        "Amount": 6000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 6000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Linesets ",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Finishes Grills",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-05",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 28000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1534",
+      "name": "David Bauer"
+    },
+    "CustomerMemo": {
+      "value": "Equipament: LG, Daikin, Fujitsu and Carrier.\nModel: Brennan"
+    },
+    "BillAddr": {
+      "Id": "19597",
+      "Line1": "David Bauer",
+      "Line2": "Plan Elev: Brennan"
+    },
+    "ShipAddr": {
+      "Id": "19506"
+    },
+    "TotalAmt": 28000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "David.Bauer@brookfieldrp.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "20166",
     "SyncToken": "3",
     "MetaData": {
@@ -1175,417 +1587,6 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20265",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-05T13:26:07-07:00",
-      "LastUpdatedTime": "2025-08-05T13:30:41-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1881",
-    "TxnDate": "2025-08-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Brookfield Homes \nModel Home - Brennan ",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2 zones System ductwork",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ERV - (Energy Recovery Ventilator) - 1 unit",
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 2500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Gas Furnace - 1 unit  ",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 3500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Coil and condenser ",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 4000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets ",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Finishes Grills",
-        "Amount": 700,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 700,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 23700,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1534",
-      "name": "David Bauer"
-    },
-    "CustomerMemo": {
-      "value": "Model: Brennan"
-    },
-    "BillAddr": {
-      "Id": "19509",
-      "Line1": "David Bauer",
-      "Line2": "Plan Elev: Brennan"
-    },
-    "ShipAddr": {
-      "Id": "19506"
-    },
-    "TotalAmt": 23700,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "David.Bauer@brookfieldrp.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20266",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-05T13:30:20-07:00",
-      "LastUpdatedTime": "2025-08-05T13:30:20-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1882",
-    "TxnDate": "2025-08-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Brookfield Homes \nModel Home - Sedona",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "3 zones System ductwork",
-        "Amount": 12700,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 12700,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ERV - (Energy Recovery Ventilator) - 1 unit",
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 2500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Gas Furnace - 1 unit  ",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 3500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Coil and condenser ",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 4000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets ",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 400,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Finishes Grills",
-        "Amount": 600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-05",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 600,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 23700,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1534",
-      "name": "David Bauer"
-    },
-    "CustomerMemo": {
-      "value": "Model: Brennan"
-    },
-    "BillAddr": {
-      "Id": "19507",
-      "Line1": "David Bauer",
-      "Line2": "Plan elev: Sedona"
-    },
-    "ShipAddr": {
-      "Id": "19508",
-      "Line1": "David Bauer"
-    },
-    "TotalAmt": 23700,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NeedToPrint",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "David.Bauer@brookfieldrp.com"
-    }
   },
   {
     "domain": "QBO",

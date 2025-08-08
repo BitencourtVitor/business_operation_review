@@ -291,6 +291,161 @@ export interface FramingPayment {
   updated_at: string | null;
 }
 
+// Interfaces PCG (seguindo o mesmo padrão das interfaces Framing)
+export interface PcgBillLine {
+  id: string;
+  bill_id: string;
+  line_id: string | null;
+  description: string | null;
+  amount: number | null;
+  account_ref_id: string | null;
+  account_ref_name: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+}
+
+export interface PcgBillLink {
+  id: string;
+  bill_id: string;
+  txn_id: string;
+  txn_type: string | null;
+  created_at: string | null;
+}
+
+export interface PcgBillPaymentLink {
+  id: string;
+  bill_payment_id: string;
+  txn_id: string;
+  txn_type: string;
+  amount: number;
+}
+
+export interface PcgBillPayment {
+  id: string;
+  external_id: string | null;
+  vendor_id: string;
+  vendor_name: string | null;
+  pay_type: string;
+  total_amount: number;
+  currency: string | null;
+  txn_date: string | null;
+  doc_number: string | null;
+  private_note: string | null;
+  bank_account_id: string | null;
+  bank_account_name: string | null;
+  cc_account_id: string | null;
+  cc_account_name: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+export interface PcgBill {
+  id: string;
+  external_id: string;
+  updated_at: string;
+  created_at: string | null;
+  doc_number: string | null;
+  txn_date: string | null;
+  due_date: string | null;
+  vendor_id: string | null;
+  vendor_name: string | null;
+  total_amount: number | null;
+  balance: number | null;
+}
+
+export interface PcgEstimateLine {
+  id: string;
+  estimate_id: string;
+  line_id: string | null;
+  line_num: number | null;
+  description: string | null;
+  amount: number | null;
+  unit_price: number | null;
+  quantity: number | null;
+  item_ref_id: string | null;
+  item_ref_name: string | null;
+  tax_code_ref: string | null;
+  detail_type: string | null;
+  created_at: string | null;
+}
+
+export interface PcgEstimateLink {
+  id: string;
+  estimate_id: string;
+  txn_id: string;
+  txn_type: string | null;
+  created_at: string | null;
+}
+
+export interface PcgEstimate {
+  id: string;
+  external_id: string;
+  updated_at: string;
+  created_at: string | null;
+  doc_number: string | null;
+  txn_date: string | null;
+  txn_status: string | null;
+  accepted_date: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+}
+
+export interface PcgInvoiceLine {
+  id: string;
+  invoice_id: string;
+  external_line_id: string | null;
+  description: string | null;
+  amount: number | null;
+  created_at: string | null;
+}
+
+export interface PcgInvoiceLink {
+  id: string;
+  invoice_id: string;
+  linked_txn_id: string;
+  linked_txn_type: string | null;
+  created_at: string | null;
+}
+
+export interface PcgInvoice {
+  id: string;
+  external_id: string;
+  doc_number: string | null;
+  txn_date: string | null;
+  due_date: string | null;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+  balance: number | null;
+  last_updated_at: string | null;
+  created_at: string | null;
+}
+
+export interface PcgPaymentLink {
+  payment_id: string | null;
+  txn_id: string | null;
+  txn_type: string | null;
+  amount: number | null;
+  open_balance: number | null;
+  reference_number: string | null;
+}
+
+export interface PcgPayment {
+  id: string;
+  customer_id: string | null;
+  customer_name: string | null;
+  total_amount: number | null;
+  currency: string | null;
+  payment_ref: string | null;
+  payment_method_id: string | null;
+  deposit_account_id: string | null;
+  private_note: string | null;
+  txn_date: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
 export interface HvacData {
   hvac_bill_lines: HvacBillLine[];
   hvac_bill_links: HvacBillLink[];
@@ -323,9 +478,25 @@ export interface FramingData {
   framing_payments: FramingPayment[];
 }
 
-export type CompanyData = HvacData | FramingData;
+export interface PcgData {
+  pcg_bill_lines: PcgBillLine[];
+  pcg_bill_links: PcgBillLink[];
+  pcg_bill_payment_links: PcgBillPaymentLink[];
+  pcg_bill_payments: PcgBillPayment[];
+  pcg_bills: PcgBill[];
+  pcg_estimate_lines: PcgEstimateLine[];
+  pcg_estimate_links: PcgEstimateLink[];
+  pcg_estimates: PcgEstimate[];
+  pcg_invoice_lines: PcgInvoiceLine[];
+  pcg_invoice_links: PcgInvoiceLink[];
+  pcg_invoices: PcgInvoice[];
+  pcg_payment_links: PcgPaymentLink[];
+  pcg_payments: PcgPayment[];
+}
 
-const useQuickbooksData = (company: 'HVAC' | 'Framing' = 'HVAC') => {
+export type CompanyData = HvacData | FramingData | PcgData;
+
+const useQuickbooksData = (company: 'HVAC' | 'Framing' | 'PCG' = 'HVAC') => {
   const [data, setData] = useState<CompanyData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -424,6 +595,40 @@ const useQuickbooksData = (company: 'HVAC' | 'Framing' = 'HVAC') => {
           framing_invoices: invoices as FramingInvoice[],
           framing_payment_links: paymentLinks as FramingPaymentLink[],
           framing_payments: payments as FramingPayment[],
+        };
+
+        setData(dataToSet);
+      } else if (company === 'PCG') {
+        const [billLines, billLinks, billPaymentLinks, billPayments, bills, estimateLines, estimateLinks, estimates, invoiceLines, invoiceLinks, invoices, paymentLinks, payments] = await Promise.all([
+          fetchAllData('pcg_bill_lines'),
+          fetchAllData('pcg_bill_links'),
+          fetchAllData('pcg_bill_payment_links'),
+          fetchAllData('pcg_bill_payments'),
+          fetchAllData('pcg_bills'),
+          fetchAllData('pcg_estimate_lines'),
+          fetchAllData('pcg_estimate_links'),
+          fetchAllData('pcg_estimates'),
+          fetchAllData('pcg_invoice_lines'),
+          fetchAllData('pcg_invoice_links'),
+          fetchAllData('pcg_invoices'),
+          fetchAllData('pcg_payment_links'),
+          fetchAllData('pcg_payments'),
+        ]);
+        
+        const dataToSet: PcgData = {
+          pcg_bill_lines: billLines as PcgBillLine[],
+          pcg_bill_links: billLinks as PcgBillLink[],
+          pcg_bill_payment_links: billPaymentLinks as PcgBillPaymentLink[],
+          pcg_bill_payments: billPayments as PcgBillPayment[],
+          pcg_bills: bills as PcgBill[],
+          pcg_estimate_lines: estimateLines as PcgEstimateLine[],
+          pcg_estimate_links: estimateLinks as PcgEstimateLink[],
+          pcg_estimates: estimates as PcgEstimate[],
+          pcg_invoice_lines: invoiceLines as PcgInvoiceLine[],
+          pcg_invoice_links: invoiceLinks as PcgInvoiceLink[],
+          pcg_invoices: invoices as PcgInvoice[],
+          pcg_payment_links: paymentLinks as PcgPaymentLink[],
+          pcg_payments: payments as PcgPayment[],
         };
 
         setData(dataToSet);

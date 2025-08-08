@@ -133,7 +133,7 @@ async function main() {
     idMap = await sb.upsertInvoices(invoices);
     console.log(`✅ Invoices upserted: ${invoices.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_invoices:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_invoices:`, err.message || err);
     process.exit(1);
   }
 

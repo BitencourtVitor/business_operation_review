@@ -177,7 +177,7 @@ async function main() {
     idMap = await sb.upsertDeposits(deposits);
     console.log(`✅ Deposits upserted: ${deposits.length}`);
   } catch (err) {
-    console.error('❌ Erro ao upsert em hvac_deposits:', err.message || err);
+    console.error(`❌ Erro ao upsert em ${company}_deposits:`, err.message || err);
     process.exit(1);
   }
 

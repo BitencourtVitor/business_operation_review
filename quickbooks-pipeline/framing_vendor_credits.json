@@ -2,6 +2,202 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "50209",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:35:22-07:00",
+      "LastUpdatedTime": "2025-08-07T11:35:22-07:00"
+    },
+    "DocNumber": "BC - 0011",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 139 - Owls Nest Regency \nBack charge on JCPQ\nSafety Violation\n2 fines of $150\nTotal: $300",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back charge on JCPQ\nSafety Violation\n2 fines of $150\nTotal: $300",
+        "Amount": 300,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3279",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 139 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2589",
+      "name": "JCPQ Construction Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 300
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50207",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:33:48-07:00",
+      "LastUpdatedTime": "2025-08-07T11:33:48-07:00"
+    },
+    "DocNumber": "BC - 0010",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 73 - Highland at Vale\n07/30/25\nFraming windows\n\n2 Labors - 4.5 hours each one\n\n9h x $30/h = $270.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "07/30/25\nFraming windows\n\n2 Labors - 4.5 hours each one\n\n9h x $30/h = $270.00",
+        "Amount": 270,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3244",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3242",
+      "name": "Breno Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 270
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50204",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:32:32-07:00",
+      "LastUpdatedTime": "2025-08-07T11:32:32-07:00"
+    },
+    "DocNumber": "BC - 0009",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 72 - Highland at Vale\n07/28/25\nRedoing stairs. Installing Tyvek.\n\n5 Labors - 10 hours of each one\n\n50h x $30/h = $1500.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "07/28/25\nRedoing stairs. Installing Tyvek.\n\n5 Labors - 10 hours of each one\n\n50h x $30/h = $1500.00",
+        "Amount": 1500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3243",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 72 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3242",
+      "name": "Breno Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1500
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50203",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T11:31:07-07:00",
+      "LastUpdatedTime": "2025-08-07T11:31:07-07:00"
+    },
+    "DocNumber": "BC - 0008",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 73 - Highland at Vale\n07/29/25\nRedid walls done incorrectly. Put block in the kitchen area. Attic access and cleaning done.\n\n7 labors - 10,5 hours each one\n\n73.5 h x $30/h = $2205.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "07/29/25\nRedid walls done incorrectly. Put block in the kitchen area. Attic access and cleaning done.\n\n7 labors - 10,5 hours each one\n\n73.5 h x $30/h = $2205.00",
+        "Amount": 2205,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3244",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3242",
+      "name": "Breno Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2205
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "50089",
     "SyncToken": "0",
     "MetaData": {

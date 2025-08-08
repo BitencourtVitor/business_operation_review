@@ -1,6 +1,74 @@
 [
   {
     "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "19600",
+      "Line1": "WANDERSON CONSTRUCTION INC",
+      "Line2": "623 UNION AVE",
+      "Line3": "FRAMINGHAM, MA USA"
+    },
+    "TotalAmt": 8000,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20321",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-07T08:43:48-07:00",
+      "LastUpdatedTime": "2025-08-07T08:45:57-07:00"
+    },
+    "DocNumber": "1555",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payout requested by Edy",
+        "Amount": 8000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "157",
       "name": "Amex Platinum"
     },
@@ -287,7 +355,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-08-06T06:51:21-07:00",
-      "LastUpdatedTime": "2025-08-06T06:56:38-07:00"
+      "LastUpdatedTime": "2025-08-07T05:58:29-07:00"
     },
     "TxnDate": "2025-08-05",
     "CurrencyRef": {
@@ -418,7 +486,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-08-05T09:05:04-07:00",
-      "LastUpdatedTime": "2025-08-06T07:00:33-07:00"
+      "LastUpdatedTime": "2025-08-07T05:58:10-07:00"
     },
     "TxnDate": "2025-08-04",
     "CurrencyRef": {

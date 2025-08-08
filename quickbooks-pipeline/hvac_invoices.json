@@ -4,6 +4,591 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20322",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-07T12:21:01-07:00",
+      "LastUpdatedTime": "2025-08-07T12:24:28-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3807",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Willis Brook at Lynnfield\nTrailer ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-21",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Inspection - \nReport below.",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-21",
+          "ItemRef": {
+            "value": "1539",
+            "name": "Inspection"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1537",
+      "name": "Lynnfield Trailer"
+    },
+    "BillAddr": {
+      "Id": "19601",
+      "Line1": "Willis Brook at Lynnfield"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-07",
+    "TotalAmt": 500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 500
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20308",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T13:32:56-07:00",
+      "LastUpdatedTime": "2025-08-07T08:07:02-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3802",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13 Diane Terrace, Scituate, MA  02066 USA\n",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Diagnostic Fee",
+        "Amount": 199,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 199,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Materials",
+        "Amount": 49,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 49,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 248,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1535",
+      "name": "Jean St Clair"
+    },
+    "BillAddr": {
+      "Id": "19582",
+      "Line1": "Jean St Clair",
+      "Line2": "13 Diane Terrace",
+      "Line3": "Scituate, MA  02066 USA"
+    },
+    "ShipAddr": {
+      "Id": "19581",
+      "Line1": "13 Diane Terrace",
+      "City": "Scituate",
+      "Country": "USA",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "02066"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 248,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "jbstcl@gmail.com"
+    },
+    "Balance": 248,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T13:33:13-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20284",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T06:47:56-07:00",
+      "LastUpdatedTime": "2025-08-07T05:58:39-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3798",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Installment 3 - 25k Loan",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installment 3 - 25k Loan",
+        "Amount": 2246.65,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-22",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 2246.65,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 2246.65,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "30",
+      "name": "Premium Contractors Group, Inc"
+    },
+    "BillAddr": {
+      "Id": "19535",
+      "Line1": "Premium Contractors Group, Inc",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, Massachusetts  01747",
+      "Line4": "United States"
+    },
+    "ShipAddr": {
+      "Id": "12454",
+      "Line1": "1B Landing Lane",
+      "City": "Hopedale",
+      "Country": "United States",
+      "CountrySubDivisionCode": "Massachusetts",
+      "PostalCode": "01747"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 2246.65,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 2246.65,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T06:48:14-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20287",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T06:56:21-07:00",
+      "LastUpdatedTime": "2025-08-07T05:58:29-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3799",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Installment 4 - Loan 50k",
+    "LinkedTxn": [
+      {
+        "TxnId": "20286",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installment 4 - Loan 50k",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-08-05"
+        }
+      },
+      {
+        "Amount": 4493.29,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "30",
+      "name": "Premium Contractors Group, Inc"
+    },
+    "BillAddr": {
+      "Id": "12454",
+      "Line1": "1B Landing Lane",
+      "City": "Hopedale",
+      "Country": "United States",
+      "CountrySubDivisionCode": "Massachusetts",
+      "PostalCode": "01747"
+    },
+    "ShipAddr": {
+      "Id": "19537",
+      "Line1": "Premium Contractors Group, Inc",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, Massachusetts  01747",
+      "Line4": "United States"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 4493.29,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 4493.29,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T06:56:34-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20288",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-06T07:00:15-07:00",
+      "LastUpdatedTime": "2025-08-07T05:58:10-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3800",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium HVAC paid for the PCG's AMEX\n\nAMEX EPAYMENT ER AM ACH PMT ID NBR: A4884",
+    "LinkedTxn": [
+      {
+        "TxnId": "20246",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Premium HVAC paid PCG's AMEX bill.\n\nAMEX EPAYMENT ER AM ACH PMT ID NBR: A4884",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-08-04"
+        }
+      },
+      {
+        "Amount": 18934.97,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "30",
+      "name": "Premium Contractors Group, Inc"
+    },
+    "BillAddr": {
+      "Id": "12454",
+      "Line1": "1B Landing Lane",
+      "City": "Hopedale",
+      "Country": "United States",
+      "CountrySubDivisionCode": "Massachusetts",
+      "PostalCode": "01747"
+    },
+    "ShipAddr": {
+      "Id": "19538",
+      "Line1": "Premium Contractors Group, Inc",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, Massachusetts  01747",
+      "Line4": "United States"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 18934.97,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 18934.97,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T07:00:29-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Viewed",
     "domain": "QBO",
     "sparse": false,
@@ -600,154 +1185,6 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20308",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T13:32:56-07:00",
-      "LastUpdatedTime": "2025-08-06T13:33:17-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3802",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "13 Diane Terrace, Scituate, MA  02066 USA\n",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic Fee",
-        "Amount": 199,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 199,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Materials",
-        "Amount": 49,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 49,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 248,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1535",
-      "name": "Jean St Clair"
-    },
-    "BillAddr": {
-      "Id": "19582",
-      "Line1": "Jean St Clair",
-      "Line2": "13 Diane Terrace",
-      "Line3": "Scituate, MA  02066 USA"
-    },
-    "ShipAddr": {
-      "Id": "19581",
-      "Line1": "13 Diane Terrace",
-      "City": "Scituate",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "02066"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 248,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "jbstcl@gmail.com"
-    },
-    "Balance": 248,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T13:33:13-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Viewed",
     "domain": "QBO",
     "sparse": false,
@@ -1027,332 +1464,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-06T12:30:15-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20288",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T07:00:15-07:00",
-      "LastUpdatedTime": "2025-08-06T07:00:33-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3800",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Premium HVAC paid for the PCG's AMEX\n\nAMEX EPAYMENT ER AM ACH PMT ID NBR: A4884",
-    "LinkedTxn": [
-      {
-        "TxnId": "20246",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Premium HVAC paid PCG's AMEX bill.\n\nAMEX EPAYMENT ER AM ACH PMT ID NBR: A4884",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2025-08-04"
-        }
-      },
-      {
-        "Amount": 18934.97,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "30",
-      "name": "Premium Contractors Group, Inc"
-    },
-    "BillAddr": {
-      "Id": "12454",
-      "Line1": "1B Landing Lane",
-      "City": "Hopedale",
-      "Country": "United States",
-      "CountrySubDivisionCode": "Massachusetts",
-      "PostalCode": "01747"
-    },
-    "ShipAddr": {
-      "Id": "19538",
-      "Line1": "Premium Contractors Group, Inc",
-      "Line2": "1B Landing Lane",
-      "Line3": "Hopedale, Massachusetts  01747",
-      "Line4": "United States"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 18934.97,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 18934.97,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T07:00:29-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20287",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T06:56:21-07:00",
-      "LastUpdatedTime": "2025-08-06T06:56:38-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3799",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Installment 4 - Loan 50k",
-    "LinkedTxn": [
-      {
-        "TxnId": "20286",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Installment 4 - Loan 50k",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2025-08-05"
-        }
-      },
-      {
-        "Amount": 4493.29,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "30",
-      "name": "Premium Contractors Group, Inc"
-    },
-    "BillAddr": {
-      "Id": "12454",
-      "Line1": "1B Landing Lane",
-      "City": "Hopedale",
-      "Country": "United States",
-      "CountrySubDivisionCode": "Massachusetts",
-      "PostalCode": "01747"
-    },
-    "ShipAddr": {
-      "Id": "19537",
-      "Line1": "Premium Contractors Group, Inc",
-      "Line2": "1B Landing Lane",
-      "Line3": "Hopedale, Massachusetts  01747",
-      "Line4": "United States"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 4493.29,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 4493.29,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T06:56:34-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20284",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T06:47:56-07:00",
-      "LastUpdatedTime": "2025-08-06T06:48:18-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3798",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Installment 3 - 25k Loan",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Installment 3 - 25k Loan",
-        "Amount": 2246.65,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-22",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 2246.65,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 2246.65,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "30",
-      "name": "Premium Contractors Group, Inc"
-    },
-    "BillAddr": {
-      "Id": "19535",
-      "Line1": "Premium Contractors Group, Inc",
-      "Line2": "1B Landing Lane",
-      "Line3": "Hopedale, Massachusetts  01747",
-      "Line4": "United States"
-    },
-    "ShipAddr": {
-      "Id": "12454",
-      "Line1": "1B Landing Lane",
-      "City": "Hopedale",
-      "Country": "United States",
-      "CountrySubDivisionCode": "Massachusetts",
-      "PostalCode": "01747"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 2246.65,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 2246.65,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T06:48:14-07:00"
     }
   },
   {
