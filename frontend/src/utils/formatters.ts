@@ -23,6 +23,10 @@ export function formatHours(hours: number): string {
   return `${hours.toFixed(2)}h`;
 }
 
+export function formatNumber(value: number): string {
+  return new Intl.NumberFormat('pt-BR').format(value);
+}
+
 export function getMonthName(month: number): string {
   const months = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',

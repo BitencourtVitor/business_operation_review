@@ -1,0 +1,210 @@
+Veja esses 3 links:
+
+Samsara - Idle Events
+https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/edit?gid=0#gid=0
+
+Samsara - Trips
+https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/edit?gid=2085020611#gid=2085020611
+
+WEX - Transactions
+https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/edit?gid=168001319#gid=168001319
+
+Na verdade só muda o GID, né? É a mesma planilha.
+
+Preciso que estes dados sejam coletados e guardados dentro de tabelas que por sinal ainda não existem no meu banco de dados do Supabase.
+
+Leve em consideração as Edge Functions que eu já possuo, que por sinal estão sendo passadas no contexto.
+
+Portanto, possuo duas demandas pra vc:
+
+1- Me ofereça o CREATE TABLE IF NOT EXIST que crie as 3 tabelas
+2- Crie a Edge Function que irá popular estas tabelas
+
+SOBRE IDLE EVENTS:
+Idle Event Start Time | data e hora do evento
+Asset: Name | nome do responsável
+Idle Event Duration (hh:mm:ss) | duração
+Fuel Consumed (gal) | número decimal do quanto foi consumido em galões
+Address | local onde aconteceu
+EXEMPLO:
+Jul 30 2025 1:35PM EDT
+Norim
+00:30:42
+0.51
+60 Old County Road, Hudson, MA, 01749
+
+SOBRE TRIPS:
+Start Time | data e hora inicial
+Asset: Name | nome do responsável
+Starting GPS Address | local onde o deslocamento começou
+Distance (mi) | distância percorrida ao todo naquele deslocamento
+Fuel Used (gal) | número decimal do quanto foi consumido em galões
+EXEMPLO:
+Mar 29 2024 7:59AM EDT
+Leandro Alves
+24 Union Avenue Terrace, Framingham, MA, 01702
+17.8
+1.02
+
+SOBRE WEX:
+Eu tenho um monte de coluna... A maioria não interessa. Só vou explicar a funcionalidade do que me diz interesse.
+Transaction Date | data do abastecimento
+Transaction Time
+Post Date
+Account Number
+Account Name
+Card Number
+Trans ID
+Emboss Line 2 | nome do responsável
+Custom Vehicle/Asset ID
+Units | número decimal do quanto foi consumido em galões
+Unit of Measure
+Unit Cost
+Total Fuel Cost | valor total abastecido
+Service Cost
+Other Cost
+Total Non-Fuel Cost
+Gross Cost
+Exempt Tax
+Discount
+Net Cost
+Reported Tax
+Transaction Fee Type 1
+Transaction Fee Amount 1
+Transaction Fee Type 2
+Transaction Fee Amount 2
+Transaction Fee Type 3
+Transaction Fee Amount 3
+Transaction Fee Type 4
+Transaction Fee Amount 4
+Transaction Fee Type 5
+Transaction Fee Amount 5
+Product
+Product Description
+Transaction Description
+Merchant (Brand)
+Merchant Name
+Merchant Address
+Merchant City | cidade onde aconteceu aquele abastecimento
+Merchant State / Province
+Merchant Postal Code
+Merchant Site ID
+Current Odometer
+Adjusted Odometer
+Previous Odometer
+Distance Driven
+Fuel Economy
+Cost Per Distance
+Vehicle Description
+VIN
+Tank Capacity
+In Service Date
+Start Odometer
+Driver Last Name
+Driver First Name
+Driver Middle Name
+Driver Department
+Employee ID
+Transaction Ticket Number
+Currency Exchange Rate
+Rebate Code
+Driver Prompt ID
+Vehicle Prompt ID
+Department
+Reforço: desconsidere todas as linhas cuja descrição da coluna eu não indico.
+EXEMPLO:
+07/18/2025 | note que aqui o padrão da data é diferente...
+14:09:00
+07/22/2025
+4.96009E+11
+PREMIUM FRAMING INC
+****04659
+33899048720
+CLAYTON DE SOUZA
+CLAYTON DE SOUZA
+14.682
+GA
+2.898
+42.56
+0
+0
+0
+42.56
+0
+0
+42.56
+0
+
+0
+
+0
+
+0
+
+0
+
+0
+UNL
+Unleaded Regular
+OP
+UNKNOWN
+Sav. On - Mendon
+147 Hartford Ave
+Mendon
+MA
+1756
+
+0
+
+30000
+0
+0
+0
+-
+
+0
+12/31/9999
+0
+DE SOUZA
+CLAYTON
+
+Unassigned
+
+95857
+
+
+1921
+
+Unassigned
+
+-------------------------
+
+Tô pensando no seguinte aqui:
+
+As duas planilhas do Samsara devem gerar uma única, que terá consigo:
+Data | data do evento
+Nome | o cara que consumiu
+Local | address ou starting GPS address
+Distância | se for idle vai ser zero
+Units | combustível gasto
+Type | vai aceitar os valores 'idle' ou 'trip'
+
+Por outro lado, WEX:
+Data
+Nome
+Units
+Valor
+Local
+
+A do Samsara terá no momento 45573 linhas... Portanto é muita coisa.
+A do WEX terá 2212, menos mal.
+Logo, preciso pensar numa forma de trazer isso através de um insert inteligente.
+Podemos ter uma PK pra identificar um evento, será:
+A concatenação de 'Idle Event Start Time' (coluna A) com 'Asset: Name' (coluna B)
+Ninguém vai ALTERAR os dados. Logo, precisamos adicionar no Supabase apenas o que não existe e foi identificado na planilha.
+
+No WEX teremos uma lógica parecida, fazendo upsert ao unir:
+Transaction Date (coluna A)
+Transaction Time (coluna B)
+Emboss Line 2 (coluna H)
+Determinanos portanto dia, hora e pessoa. Seguimos a mesma lógica, não haverá update, apenas insert do que não foi adicionado ainda.

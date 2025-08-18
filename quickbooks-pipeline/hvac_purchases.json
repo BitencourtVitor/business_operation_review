@@ -4,6 +4,628 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 5.95,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20452",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-17T17:34:12-07:00",
+      "LastUpdatedTime": "2025-08-17T17:34:12-07:00"
+    },
+    "TxnDate": "2025-08-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 5.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 82.23,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20436",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T18:05:02-07:00",
+      "LastUpdatedTime": "2025-08-15T18:05:02-07:00"
+    },
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 82.23,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "19742",
+      "Line1": "WANDERSON CONSTRUCTION INC",
+      "Line2": "623 UNION AVE",
+      "Line3": "FRAMINGHAM, MA USA"
+    },
+    "TotalAmt": 1500,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20429",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T07:13:41-07:00",
+      "LastUpdatedTime": "2025-08-15T07:14:18-07:00"
+    },
+    "DocNumber": "1557",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payout Edy",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payout Edy",
+        "Amount": 1500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "266",
+      "name": "JBHE LLC",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 750,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17649",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-04-14T11:23:29-07:00",
+      "LastUpdatedTime": "2025-08-13T19:23:38-07:00"
+    },
+    "TxnDate": "2025-03-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "IN *JBHE LLC MAUMEE OH XXXX3017",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "IN *JBHE LLC MAUMEE OH XXXX3017",
+        "Amount": 750,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1288",
+            "name": "Lot 05 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "192",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 20,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20391",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-11T17:52:19-07:00",
+      "LastUpdatedTime": "2025-08-11T17:52:19-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 20,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 128.91,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20336",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T18:17:24-07:00",
+      "LastUpdatedTime": "2025-08-08T18:17:24-07:00"
+    },
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 128.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20118",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-31T07:03:28-07:00",
+      "LastUpdatedTime": "2025-08-08T14:11:54-07:00"
+    },
+    "TxnDate": "2025-07-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1523",
+            "name": "Lot 71 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "18",
+      "name": "Intuit",
+      "type": "Vendor"
+    },
+    "TotalAmt": 192.58,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20334",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T13:56:13-07:00",
+      "LastUpdatedTime": "2025-08-08T13:56:13-07:00"
+    },
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Hyphen Solutions XXXXXX8100 VSP*Hyphen ID NBR: 23235411",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Hyphen Solutions XXXXXX8100 VSP*Hyphen ID NBR: 23235411",
+        "Amount": 192.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 10247.42,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20333",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T13:55:06-07:00",
+      "LastUpdatedTime": "2025-08-08T13:55:06-07:00"
+    },
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/20/2025 - 08/02/2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 080816A01",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/20/2025 - 08/02/2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 080816A01",
+        "Amount": 10247.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 26308.75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20332",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T13:54:54-07:00",
+      "LastUpdatedTime": "2025-08-08T13:54:54-07:00"
+    },
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/20/2025 - 08/02/2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX3230N4W",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/20/2025 - 08/02/2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX3230N4W",
+        "Amount": 26308.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "PaymentType": "Check",
     "EntityRef": {
       "value": "1350",
@@ -3161,66 +3783,6 @@
           "CustomerRef": {
             "value": "1518",
             "name": "Lot 72 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "158",
-            "name": "Permit Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "TotalAmt": 103.98,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20118",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T07:03:28-07:00",
-      "LastUpdatedTime": "2025-07-31T07:03:28-07:00"
-    },
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "POS Withdrawal (FIS) PLYMOUTH, MA 6525 Crown Blvd #41 SAN JOSE CA(1594)",
-        "Amount": 103.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1523",
-            "name": "Lot 71 - Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "158",
@@ -52244,72 +52806,6 @@
           "AccountRef": {
             "value": "51",
             "name": "Office Supplies & Software"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "266",
-      "name": "JBHE LLC",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 750,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17649",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-04-14T11:23:29-07:00",
-      "LastUpdatedTime": "2025-04-14T11:23:29-07:00"
-    },
-    "TxnDate": "2025-03-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "IN *JBHE LLC MAUMEE OH XXXX3017",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "IN *JBHE LLC MAUMEE OH XXXX3017",
-        "Amount": 750,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1288",
-            "name": "Lot 05 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "158",
-            "name": "Permit Fees"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {

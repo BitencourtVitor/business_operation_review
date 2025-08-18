@@ -2,6 +2,223 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "17047",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-15T05:12:15-07:00",
+      "LastUpdatedTime": "2025-08-15T05:21:41-07:00"
+    },
+    "DocNumber": "Building 3 - Saco BC",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC:Building 4 - Saco Riverside",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back charge fix windows and doors leak",
+        "Amount": 1250.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "797",
+      "name": "Pro Master Carpentry, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1250.75
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17027",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:46:10-07:00",
+      "LastUpdatedTime": "2025-08-13T06:46:10-07:00"
+    },
+    "DocNumber": "Building 4 - Saco BC",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC:Building 4 - Saco Riverside",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back charge fix windows and doors leak",
+        "Amount": 1250.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1250.75
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17017",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T04:21:58-07:00",
+      "LastUpdatedTime": "2025-08-13T04:21:58-07:00"
+    },
+    "DocNumber": "Building 1 - Saco BC",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 1 - Saco Back Charge",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Change on closet doors height and addition trim",
+        "Amount": 6000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Back charge fix windows and doors leak",
+        "Amount": 1250.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7250.75
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14498",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-02-03T05:24:39-08:00",
+      "LastUpdatedTime": "2025-08-08T11:25:03-07:00"
+    },
+    "DocNumber": "167011",
+    "TxnDate": "2025-01-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "167011",
+        "Amount": 481.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3",
+      "name": "Koopman Lumber"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 481.04
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "16513",
     "SyncToken": "2",
     "MetaData": {
@@ -184,55 +401,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 705.46
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "14498",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-02-03T05:24:39-08:00",
-      "LastUpdatedTime": "2025-06-23T11:59:35-07:00"
-    },
-    "DocNumber": "167011",
-    "TxnDate": "2025-01-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "51 West Way, Mashpee, MA",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "167011",
-        "Amount": 481.04,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "658",
-            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "3",
-      "name": "Koopman Lumber"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 481.04
   },
   {
     "domain": "QBO",

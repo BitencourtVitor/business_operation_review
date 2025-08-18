@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
+import { loadFuelControlSchema } from '../utils/fuelControlSchemaLoader';
 import type { Theme } from '../types/common';
 
 interface LoadingItem {
@@ -24,7 +25,9 @@ export default function InitialLoading() {
     { id: 'payables', title: 'Payables Accounting', status: 'pending', progress: 0 },
     { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
     { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 },
-    { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 }
+    { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 },
+    { id: 'fuel_control_schema', title: 'Fuel Control Schema', status: 'pending', progress: 0 },
+    { id: 'fuel_control_data', title: 'Fuel Control Data', status: 'pending', progress: 0 }
   ]);
   const [hasValidSession, setHasValidSession] = useState(false);
 
@@ -112,8 +115,79 @@ export default function InitialLoading() {
           }
         });
 
-        // Aguardar todas as promises
-        await Promise.allSettled(promises);
+        // Carregar esquema de Fuel Control
+        const fuelSchemaPromise = (async () => {
+          try {
+            const fuelSchemaIndex = loadingItems.findIndex(item => item.id === 'fuel_control_schema');
+            if (fuelSchemaIndex !== -1) {
+              const success = await loadFuelControlSchema();
+              
+              if (!success) {
+                setLoadingItems(prev => prev.map(item => 
+                  item.id === 'fuel_control_schema'
+                    ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar esquema' }
+                    : item
+                ));
+              } else {
+                setLoadingItems(prev => prev.map(item => 
+                  item.id === 'fuel_control_schema'
+                    ? { ...item, status: 'completed', progress: 100 }
+                    : item
+                ));
+              }
+            }
+          } catch (error) {
+            setLoadingItems(prev => prev.map(item => 
+              item.id === 'fuel_control_schema'
+                ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar esquema' }
+                : item
+            ));
+          }
+        })();
+
+        // Carregar dados de combustível (Samsara + WEX)
+        const fuelDataPromise = (async () => {
+          try {
+            const fuelDataIndex = loadingItems.findIndex(item => item.id === 'fuel_control_data');
+            if (fuelDataIndex !== -1) {
+              // Atualizar status para loading
+              setLoadingItems(prev => prev.map(item => 
+                item.id === 'fuel_control_data'
+                  ? { ...item, status: 'loading', progress: 0 }
+                  : item
+              ));
+
+              // Simular progresso durante carregamento
+              const progressInterval = setInterval(() => {
+                setLoadingItems(prev => prev.map(item => 
+                  item.id === 'fuel_control_data' && item.progress < 90
+                    ? { ...item, progress: item.progress + Math.random() * 15 }
+                    : item
+                ));
+              }, 200);
+
+              // Aguardar um tempo para simular carregamento dos dados
+              await new Promise(resolve => setTimeout(resolve, 3000));
+
+              // Limpar intervalo e marcar como completo
+              clearInterval(progressInterval);
+              setLoadingItems(prev => prev.map(item => 
+                item.id === 'fuel_control_data'
+                  ? { ...item, status: 'completed', progress: 100 }
+                  : item
+              ));
+            }
+          } catch (error) {
+            setLoadingItems(prev => prev.map(item => 
+              item.id === 'fuel_control_data'
+                ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar dados' }
+                : item
+            ));
+          }
+        })();
+
+        // Aguardar todas as promises incluindo o esquema de Fuel Control e dados de combustível
+        await Promise.allSettled([...promises, fuelSchemaPromise, fuelDataPromise]);
         
         // Limpar todos os intervalos restantes
         progressIntervals.forEach(interval => clearInterval(interval));

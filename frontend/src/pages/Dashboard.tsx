@@ -14,6 +14,7 @@ import TakeoffWorks from './TakeoffWorks';
 import ServiceRequests from './ServiceRequests';
 import AccountingIndicators from './AccountingIndicators';
 import ProjectMonitoring from './ProjectMonitoring';
+import FuelControl from './FuelControl';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -165,18 +166,19 @@ export default function Dashboard() {
     // Verificar se é admin_setor com permissão específica para Accounting
     const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
     
-    if (tela?.descricao === 'Accounting Indicators' && !temPermissaoAccounting && !isAdminSetorComPermissao) {
-      // Usuário sem permissão tentando acessar Accounting Indicators
-      // Redirecionar para Timesheet Analysis
-      const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
-      if (timesheetTela) {
-        setTelaId(timesheetTela.id);
-        setShowCompanySubmenu(false);
-        setIsCollapsingSubmenu(false);
-        setShowAccountingContent(false);
-      }
-      return;
-    }
+         // Verificar permissão para Accounting Indicators e Fuel Control
+     if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !temPermissaoAccounting && !isAdminSetorComPermissao) {
+       // Usuário sem permissão tentando acessar Accounting Indicators ou Fuel Control
+       // Redirecionar para Timesheet Analysis
+       const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
+       if (timesheetTela) {
+         setTelaId(timesheetTela.id);
+         setShowCompanySubmenu(false);
+         setIsCollapsingSubmenu(false);
+         setShowAccountingContent(false);
+       }
+       return;
+     }
     
     // Se for Accounting Indicators, mostrar submenu de empresas
     if (tela?.descricao === 'Accounting Indicators') {
@@ -255,6 +257,7 @@ export default function Dashboard() {
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
     'Accounting Indicators': 'bi bi-cash',
+    'Fuel Control': 'bi bi-fuel-pump',
     'Permit Control': 'bi bi-file-earmark-check',
     'Takeoff Works': 'bi bi-houses',
     'IT Projects': 'bi bi-braces-asterisk',
@@ -290,14 +293,15 @@ export default function Dashboard() {
       return telas;
     }
     
-    // Se não tem permissão, filtrar Accounting Indicators
-    return telas.filter(tela => tela.descricao !== 'Accounting Indicators');
+         // Se não tem permissão, filtrar Accounting Indicators e Fuel Control
+     return telas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
   };
 
   // Função para ordenar telas de acordo com a ordem específica
   const ordenarTelas = (telas: Tela[]): Tela[] => {
     const ordemEspecifica = [
       'Accounting Indicators',
+      'Fuel Control',
       'Timesheet Analysis', 
       'Permit Control',
       'Takeoff Works',
@@ -411,17 +415,17 @@ export default function Dashboard() {
     // Verificar se é admin_setor com permissão específica para Accounting
     const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
     
-    // Se o usuário não tem permissão para Accounting e está tentando acessar, redirecionar
-    if (tela?.descricao === 'Accounting Indicators' && !temPermissaoAccounting && !isAdminSetorComPermissao) {
-      const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
-      if (timesheetTela) {
-        setTelaId(timesheetTela.id);
-        setShowCompanySubmenu(false);
-        setIsCollapsingSubmenu(false);
-        setShowAccountingContent(false);
-      }
-      return null;
-    }
+         // Se o usuário não tem permissão para Accounting ou Fuel Control e está tentando acessar, redirecionar
+     if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !temPermissaoAccounting && !isAdminSetorComPermissao) {
+       const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
+       if (timesheetTela) {
+         setTelaId(timesheetTela.id);
+         setShowCompanySubmenu(false);
+         setIsCollapsingSubmenu(false);
+         setShowAccountingContent(false);
+       }
+       return null;
+     }
     
     // Verificar se o usuário é responsável pela tela selecionada
     const isResponsavelPelaTela = tela ? (permissoes[telaId] || role === 'dev' || role === 'manager' || role === 'gestor') : false;
@@ -459,6 +463,14 @@ export default function Dashboard() {
         return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+             case 'Fuel Control':
+         // Verificar permissão antes de mostrar Fuel Control
+         if (!temPermissaoAccounting && !isAdminSetorComPermissao) {
+           return null;
+         }
+         return <FuelControl 
+           telaId={telaId}
+         />;
       case 'IT Projects':
         return (
           <div className="container-fluid">

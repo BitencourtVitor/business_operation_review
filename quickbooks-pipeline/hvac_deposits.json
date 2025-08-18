@@ -4,6 +4,162 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 199,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20451",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-17T16:47:40-07:00",
+      "LastUpdatedTime": "2025-08-17T16:47:40-07:00"
+    },
+    "TxnDate": "2025-08-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 030845",
+        "Amount": 199,
+        "LinkedTxn": [
+          {
+            "TxnId": "20437",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 2750,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20435",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T17:18:58-07:00",
+      "LastUpdatedTime": "2025-08-15T17:18:58-07:00"
+    },
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 05655S",
+        "Amount": 2750,
+        "LinkedTxn": [
+          {
+            "TxnId": "20426",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 9356,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20390",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-11T16:53:32-07:00",
+      "LastUpdatedTime": "2025-08-11T16:53:32-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 612-287",
+        "Amount": 9356,
+        "LinkedTxn": [
+          {
+            "TxnId": "20341",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 4311.49,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20335",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T17:29:00-07:00",
+      "LastUpdatedTime": "2025-08-08T17:29:00-07:00"
+    },
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 08788G",
+        "Amount": 4311.49,
+        "LinkedTxn": [
+          {
+            "TxnId": "20326",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 190504.9,
     "domain": "QBO",
     "sparse": false,

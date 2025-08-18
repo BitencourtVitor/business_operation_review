@@ -1,0 +1,12 @@
+VM9381:1 Console was cleared
+undefined
+Login.tsx:100 Tentando fazer login com: vitor@premiumgrpinc.com
+Login.tsx:108 Resposta do Supabase: {data: {…}, error: null}
+Login.tsx:121 Login bem-sucedido: {id: 'cbaf72a8-beab-4d76-9eff-75ec8ecf2d6a', aud: 'authenticated', role: 'authenticated', email: 'vitor@premiumgrpinc.com', email_confirmed_at: '2025-06-25T15:50:28.548116Z', …}
+fuelControlSchemaLoader.ts:5 Carregando esquema de Fuel Control...
+fuelControlSchemaLoader.ts:5 Carregando esquema de Fuel Control...
+fuelControlSchemaLoader.ts:13 Tabelas de Fuel Control já existem
+fuelControlSchemaLoader.ts:13 Tabelas de Fuel Control já existem
+FuelControl.tsx:92 FuelControl - Dados filtrados: {startDate: '2025-01-01', endDate: '2025-12-31', selectedDrivers: Array(0), selectedEventTypes: Array(0), filteredSamsara: 19929, …}
+FuelControl.tsx:92 FuelControl - Dados filtrados: {startDate: '2025-01-01', endDate: '2025-12-31', selectedDrivers: Array(0), selectedEventTypes: Array(0), filteredSamsara: 19929, …}
+FuelControl.tsx:92 FuelControl - Dados filtrados: {startDate: '2025-01-01', endDate: '2025-12-31', selectedDrivers: Array(28), selectedEventTypes: Array(0), filteredSamsara: 11425, …}

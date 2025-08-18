@@ -4,6 +4,5420 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20406",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T14:37:56-07:00",
+      "LastUpdatedTime": "2025-08-15T21:09:47-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3817",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "20437",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Ralph Molly\n2 Richardson Drive\nMillis, Massachusets  02054\nUnites States",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Replacement of damaged damper.\n\nService Fee for contracted customers:",
+        "Amount": 199,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 199,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 199,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1498",
+      "name": "Ralph Molly"
+    },
+    "BillAddr": {
+      "Id": "19686",
+      "Line1": "Ralph Molly",
+      "Line2": "2 Richardson Drive",
+      "Line3": "Millis, Massachusets  02054",
+      "Line4": "Unites States"
+    },
+    "ShipAddr": {
+      "Id": "18838",
+      "Line1": "2 Richardson Drive",
+      "City": "Millis",
+      "Country": "Unites States",
+      "CountrySubDivisionCode": "Massachusets",
+      "PostalCode": "02054"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 199,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "ralphmolly315@gmail.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-13T14:38:03-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20202",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-02T09:51:49-07:00",
+      "LastUpdatedTime": "2025-08-15T12:08:35-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3778",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "19139",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Air Handler",
+        "Amount": 6951,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000441",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
+          },
+          "UnitPrice": 6951,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000454",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "PC383 Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000591",
+            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000481",
+            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Williamstown"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 6951,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1327",
+      "name": "Lot 17 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "19438",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "19439",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-14",
+    "TotalAmt": 6951,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 6951
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20428",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T05:46:07-07:00",
+      "LastUpdatedTime": "2025-08-15T05:46:07-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3831",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12521",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12521",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12521",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12521",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1003",
+      "name": "Building 3 - Lot 5 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19739",
+      "Line1": "Building 3 - Lot 5 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19740",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-15",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20427",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T05:44:14-07:00",
+      "LastUpdatedTime": "2025-08-15T05:44:14-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3830",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12523",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 2194.75,
+        "LinkedTxn": [
+          {
+            "TxnId": "12523",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.2500007,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 625,
+        "LinkedTxn": [
+          {
+            "TxnId": "12523",
+            "TxnType": "Estimate",
+            "TxnLineId": "9"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.25,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 1912.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "12523",
+            "TxnType": "Estimate",
+            "TxnLineId": "10"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.25,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 4732.25,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1004",
+      "name": "Building 3 - Lot 6 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19736",
+      "Line1": "Building 3 - Lot 6 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19737",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-15",
+    "TotalAmt": 4732.25,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 4732.25
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20405",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T14:33:37-07:00",
+      "LastUpdatedTime": "2025-08-15T03:56:23-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3816",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "20007",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20426",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "59 Taft Ave, Mendon - MA",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "20007",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-28",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "To add LG R410A 9K BTU WALL \nMOUNTED UNIT ART MIRROR FINISH to the basement living room area",
+        "Amount": 900,
+        "LinkedTxn": [
+          {
+            "TxnId": "20007",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-28",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Line Sets",
+        "Amount": 350,
+        "LinkedTxn": [
+          {
+            "TxnId": "20007",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-28",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 350,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "HVAC Technician\n",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20007",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-28",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 2750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1525",
+      "name": "59 taft Ave, Mendon/MA (Service)"
+    },
+    "BillAddr": {
+      "Id": "19684",
+      "Line1": "John Lozon",
+      "Line2": "59 taft Ave",
+      "Line3": "Mendon, MA 01756"
+    },
+    "ShipAddr": {
+      "Id": "19685",
+      "Line1": "John Lozon ",
+      "Line2": "59 taft Ave",
+      "Line3": "Mendon, MA USA"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 2750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "jfl0212@hotmail.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-13T14:33:44-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20420",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-14T14:44:19-07:00",
+      "LastUpdatedTime": "2025-08-14T14:46:36-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3829",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S4",
+    "LinkedTxn": [
+      {
+        "TxnId": "16525",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Condenser",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "16525",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1169",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Topsfield Manchester"
+          },
+          "UnitPrice": 3425,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final H.V.A.C.",
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "16525",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1187",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Topsfield Manchester"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Additional Bath - Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "16525",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1226",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - Topsfield, 1-383 - Topsfield"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 3000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1296",
+      "name": "Lot 28 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "19722",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "Topsfield Manchester",
+      "Line3": "56 Kestrel Heights"
+    },
+    "ShipAddr": {
+      "Id": "19723",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "56 Kestrel Heights"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-12",
+    "TotalAmt": 3000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3000
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20419",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-14T14:40:38-07:00",
+      "LastUpdatedTime": "2025-08-14T14:43:03-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3828",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "17926",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Air Handler - Sutton - Willis Brook",
+        "Amount": 3500,
+        "LinkedTxn": [
+          {
+            "TxnId": "17926",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000545",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Air Handler - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Compressor - Sutton - Willis Brook",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17926",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000524",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3800,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC - Sutton - Willis Brook",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17926",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000581",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 3500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1342",
+      "name": "Lot 01 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "19720",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "4 Eagleview Drive ",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "19721",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "4 Eagleview Drive ",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 3500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3500
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20418",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T10:57:23-07:00",
+      "LastUpdatedTime": "2025-08-14T10:57:23-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3827",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1+S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "19916",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1092",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Manchester"
+          },
+          "UnitPrice": 12800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1143",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Manchester"
+          },
+          "UnitPrice": 4650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "HVAC Condenser",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "835",
+            "name": "Toll Brothers - Regency at Glen Ellen - Villas - Millis:Base - Condenser - Westford Manchester"
+          },
+          "UnitPrice": 3150,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final H.V.A.C.",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1179",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Manchester"
+          },
+          "UnitPrice": 2000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1212",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263018 - Westford"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19916",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 17450,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1518",
+      "name": "Lot 72 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "19718",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "35 Kestrel Hts",
+      "Line3": "Plymouth, MA 02360",
+      "Line4": "Plan / Elev: Westford Manchester"
+    },
+    "ShipAddr": {
+      "Id": "19719",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-01",
+    "TotalAmt": 17450,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 17450
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20417",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T10:54:12-07:00",
+      "LastUpdatedTime": "2025-08-14T10:54:12-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3826",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "19635",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Furnace",
+        "Amount": 5050,
+        "LinkedTxn": [
+          {
+            "TxnId": "19635",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1138",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Winchester Manor"
+          },
+          "UnitPrice": 5050,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Condenser",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19635",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1158",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Winchester Manchester"
+          },
+          "UnitPrice": 2250,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19635",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1176",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Winchester Manchester"
+          },
+          "UnitPrice": 3225,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19635",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1211",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263018 - Winchester"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 5050,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1493",
+      "name": "Lot 69 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "19716",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "41 Kestrel Hts",
+      "Line3": "Plymouth, MA 02360",
+      "Line4": "Winchester Manchester"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-01",
+    "TotalAmt": 5050,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 5050
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20415",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T10:04:16-07:00",
+      "LastUpdatedTime": "2025-08-14T10:04:16-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3825",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "19996",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 13250,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1087",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Winchester Manor"
+          },
+          "UnitPrice": 13250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finished Walkout Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1114",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263432 - Rough - Winchester"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnace",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1138",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Winchester Manor"
+          },
+          "UnitPrice": 5050,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Condenser",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1156",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Winchester Manor"
+          },
+          "UnitPrice": 3225,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Final H.V.A.C.",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1174",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Winchester Manor"
+          },
+          "UnitPrice": 2250,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19996",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 13250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1523",
+      "name": "Lot 71 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "19712",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "37 Kestrel Hts",
+      "Line3": "Plymouth, MA 02360"
+    },
+    "ShipAddr": {
+      "Id": "19713",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-12",
+    "TotalAmt": 13250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 13250
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20414",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T10:00:31-07:00",
+      "LastUpdatedTime": "2025-08-14T10:00:31-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3824",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "17919",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 19000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000192",
+            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Williamstown"
+          },
+          "UnitPrice": 19000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000203",
+            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Williamstown"
+          },
+          "UnitPrice": 5500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000213",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000243",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 19000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1369",
+      "name": "Lot 11 - Lakemont At Hudson"
+    },
+    "BillAddr": {
+      "Id": "19708",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Shoreline Drive ",
+      "Line3": "Williamstown modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "19709",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Shoreline Drive ",
+      "Line3": "Williamstown modern Craftsman"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-12",
+    "TotalAmt": 19000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 19000
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20413",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-14T09:58:29-07:00",
+      "LastUpdatedTime": "2025-08-14T09:58:55-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3823",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "19851",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14025,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14025,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace/Air Handler",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser/Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000131",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263018 - Chatham"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14025,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1516",
+      "name": "Lot 139 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "19706",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "7 Loons Call",
+      "Line3": "Plymouth, MA 02360",
+      "Line4": "Chatham Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "19707",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-08",
+    "TotalAmt": 14025,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 14025
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20412",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-14T08:19:23-07:00",
+      "LastUpdatedTime": "2025-08-14T09:23:56-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3822",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice 1999 on PCG",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA, MA 01721\n\nBld 1- 2nd floor commom area\nIssue reported: Leak in the mechanical room 2 floor",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "The leak was successfully resolved and the system is now operating normally\nReport attached. ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor $90/Hour\n2 technicians: 3 hours each",
+        "Amount": 540,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 540,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1544",
+      "name": "Cirrus Apartments - Common Area"
+    },
+    "BillAddr": {
+      "Id": "19705",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA, MA 01721",
+      "Line3": "Bld 1- 2nd floor commom area"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 540,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 540
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20411",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-14T07:29:01-07:00",
+      "LastUpdatedTime": "2025-08-14T08:34:15-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3821",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice 1997 on PCG",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA, MA 01721\n\nBuilding 9 - Common Area\nHas a leak coming fromthe AC in the hallway.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "second floor hallway machines was making ice due to low Freon and also was melting the ice and made a lot of water on the pan and also replace return filter\n\nThe AC unit is now operating normally, with no visible leaks and proper cooling \nperformance.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor $90/Hour\n2 Technicians: 6 hours each\nTotal: 12 hours",
+        "Amount": 1080,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 12,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1080,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1544",
+      "name": "Cirrus Apartments - Common Area"
+    },
+    "BillAddr": {
+      "Id": "19700",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA, MA 01721",
+      "Line3": "Building 9 - Common Area"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 1080,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 1080
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20410",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-14T06:51:23-07:00",
+      "LastUpdatedTime": "2025-08-14T08:34:02-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3820",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice 1995 on PCG",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA, MA  \nUnit 9111\nAC is not working.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Complete inspection performed. \nCapacitor Replacement ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor $90/hour\n2 Technicians: 4 Hours each\nTotal 8 hours. ",
+        "Amount": 720,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 8,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 720,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1543",
+      "name": "Cirrus Apartments - unit 9111"
+    },
+    "BillAddr": {
+      "Id": "19703",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA, MA 01721",
+      "Line3": "Unit 9111"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 720,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 720
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20409",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-14T06:21:52-07:00",
+      "LastUpdatedTime": "2025-08-14T08:33:49-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3819",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice 1994 on PCG",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cirrus Apartments - Unit 6109\nFurnace was making a rattling noise and also the hot water was torn off and the intake pipe was also disconnected.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "All systems—AC, furnace, and hot water—are now operating normally. The rattling noise \nhas been eliminated, the intake pipe is secure, and the hot water system is restored.\n",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor $90.00/Hour\n2 technicians: 1:30H each",
+        "Amount": 270,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 3,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 270,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1542",
+      "name": "Cirrus Apartments - Unit 6109"
+    },
+    "BillAddr": {
+      "Id": "19690",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA, MA 01721"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 270,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 270
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20407",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-08-13T14:55:29-07:00",
+      "LastUpdatedTime": "2025-08-14T08:33:35-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3818",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "invoice PCG 1993",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cirrus Apartments\n10 Cirrus Dr. Ashland, MA, MA  01721 US\n\nUnit 1103",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-07",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1 - Airhandler water leak quote per unit \n\n-Level units \n-Insulate plenums \n-Redo Drains \n-Replace drain pans as needed \nP-an not included \n-Sheetrock or paint work not included",
+        "Amount": 1600,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-07",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1600,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1600,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1541",
+      "name": "Cirrus apartments - Unit 1103"
+    },
+    "BillAddr": {
+      "Id": "19688",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA, MA  01721 US"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2025-08-28",
+    "TotalAmt": 1600,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 1600
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20310",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-06T13:57:05-07:00",
+      "LastUpdatedTime": "2025-08-14T06:35:26-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3804",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Cirrus Apartments Unit -  4209",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cirrus Apartments\n10 Cirrus Dr.\nAshland, MA, MA 01721\n\nunit -  4209 ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-31",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "\n1 - Airhandler water leak quote per unit\n\n-Level units\n-Insulate plenums\n-Redo Drains\n-Replace drain pans as needed\nP-an not included\n-Sheetrock or paint work not included",
+        "Amount": 1600,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-31",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 1600,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1600,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1536",
+      "name": "Cirrus Apartments - Unit 4209"
+    },
+    "BillAddr": {
+      "Id": "19691",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA, MA 01721"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 1600,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 1600,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T13:58:30-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20404",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-13T14:18:38-07:00",
+      "LastUpdatedTime": "2025-08-13T14:23:00-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3815",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lot 18 - Edgewood at Hopkinton\n50 Chamberlain Street, Hopkinton, MA 01748\nCN-3854706 \n\nWater leaks from HVAC. HVAC tray fills with water and\nit makes stop AC working.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Inspection\nReplace the three damaged caps with new ones compatible with the unit model.\nCheck the main drain operation after the repair to ensure there are no blockages or backflow issues.",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1539",
+            "name": "Inspection"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1540",
+      "name": "Lot 18 Edgewood at hopkinton (Service)"
+    },
+    "BillAddr": {
+      "Id": "19683",
+      "Line1": "Toll Brothers",
+      "Line2": "Lot 18 - Edgewood at Hopkinton",
+      "Line3": "50 Chamberlain Street, Hopkinton, MA 01748"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 500
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20114",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-31T06:43:24-07:00",
+      "LastUpdatedTime": "2025-08-13T07:01:15-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3737",
+    "TxnDate": "2025-07-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "19790",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "672 Waverly Street, Framingham ",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
+        "Amount": 2355.15,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 4710.314,
+          "Qty": 0.4999985,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
+        "Amount": 2464.35,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1642.9,
+          "Qty": 1.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
+        "Amount": 346.94,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 231.294,
+          "Qty": 1.4999957,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
+        "Amount": 863.62,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 575.75,
+          "Qty": 1.4999913,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Linesets, Stands, Drains, ",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Labor ",
+        "Amount": 4500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 9000,
+          "Qty": 0.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Electrical, labor and material",
+        "Amount": 2030.08,
+        "LinkedTxn": [
+          {
+            "TxnId": "19790",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-17",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3500,
+          "Qty": 0.5800229,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14060.14,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1502",
+      "name": "672 Waverly St, Framingham (Church)"
+    },
+    "CustomerMemo": {
+      "value": "Final invoice"
+    },
+    "BillAddr": {
+      "Id": "19317",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "672 Waverly St",
+      "Line3": "Framingham, MA 01747"
+    },
+    "SalesTermRef": {
+      "value": "3",
+      "name": "Net 30"
+    },
+    "DueDate": "2025-08-30",
+    "TotalAmt": 14060.14,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "philipottaviani@gmail.com"
+    },
+    "Balance": 14060.14,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-07-31T06:43:44-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20403",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:56:01-07:00",
+      "LastUpdatedTime": "2025-08-13T06:56:01-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3814",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12527",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12527",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12527",
+            "TxnType": "Estimate",
+            "TxnLineId": "9"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12527",
+            "TxnType": "Estimate",
+            "TxnLineId": "10"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1005",
+      "name": "Building 4 - Lot 7 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19679",
+      "Line1": "Building 4 - Lot 7 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19680",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20402",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:03:29-07:00",
+      "LastUpdatedTime": "2025-08-13T06:03:29-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3813",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12949",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12949",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12949",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12949",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1002",
+      "name": "Building 2 - Lot 4 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19676",
+      "Line1": "Building 2 - Lot 4 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19677",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting@premiumcontractors.group"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20401",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:00:57-07:00",
+      "LastUpdatedTime": "2025-08-13T06:00:57-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3812",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12946",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 2194.75,
+        "LinkedTxn": [
+          {
+            "TxnId": "12946",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.2500007,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 625,
+        "LinkedTxn": [
+          {
+            "TxnId": "12946",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.25,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 1912.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "12946",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.25,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 4732.25,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1001",
+      "name": "Building 2 - Lot 3 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19673",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19674",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 4732.25,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting@premiumcontractors.group"
+    },
+    "Balance": 4732.25
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20398",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:06:43-07:00",
+      "LastUpdatedTime": "2025-08-13T05:06:43-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3811",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12534",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12534",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12534",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12534",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "999",
+      "name": "Building 1 - Lot 1 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19668",
+      "Line1": "Building 1 - Lot 1 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19669",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20397",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:05:10-07:00",
+      "LastUpdatedTime": "2025-08-13T05:05:25-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3810",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12538",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12538",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12538",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12538",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1000",
+      "name": "Building 1 - Lot 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19665",
+      "Line1": "Building 1 - Lot 2 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19666",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18296",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-05-13T06:59:35-07:00",
+      "LastUpdatedTime": "2025-08-11T06:14:51-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3442",
+    "TxnDate": "2025-05-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "8",
+        "LineNum": 1,
+        "Description": "@ 1 Dove Lane, Methuen - Lot 184\nThe unit was going into Alarm mode.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 2,
+        "Description": "-Adjusted the gas settings, as the unit\nwas shutting down due to the flame\nswitch.\n-After the adjustment, the unit resumed\nnormal operation.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 3,
+        "Description": "Labor $90/Hour\n2 Technicians - 1 hour each\nTravel time - 1 hour ach",
+        "Amount": 360,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 4,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 360,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1538",
+      "name": "1 Dove lane, Methuem (Service)"
+    },
+    "BillAddr": {
+      "Id": "19618",
+      "Line1": "Toll Brothers",
+      "Line2": "1 Dove Lane, Methuen",
+      "Line3": "Lot 184"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-05-13",
+    "TotalAmt": 360,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 360
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "9348",
+    "SyncToken": "25",
+    "MetaData": {
+      "CreateTime": "2024-02-23T06:02:29-08:00",
+      "LastUpdatedTime": "2025-08-11T05:40:38-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "2284",
+    "TxnDate": "2024-02-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "5313",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20341",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "19391",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Labor Costs",
+        "Amount": 7332,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-05",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 28200,
+          "Qty": 0.26,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Sheet Metal & Standard Finishes Materials Pricing",
+        "Amount": 5616,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-05",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 21600,
+          "Qty": 0.26,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Manual J/ Permit Costs",
+        "Amount": 312,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-05",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 1200,
+          "Qty": 0.26,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "ERV Pricing",
+        "Amount": 1508,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-05",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 2900,
+          "Qty": 0.52,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Second Floor Level\n2-PERFORMANCE 96% AFUE 60000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\nSKU 59TP6B060V17--14\n$2746.00/ Each\n\n2- SKU CVPMA3617XMCV-COIL 3.0T MULTI POS CASE 17\" AC USE ONLY\n$836.00/Each \n\n2-SKU 24ACC636A003PERFORMANCE 3-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$3303.00/ Each \n\n2-SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56/ Each\n\nSECOND & FIRST FLOOR UNITS WILL HAVE \n-ELECTRONIC AIR CLEANERS\n-HUMIDIFICATION SYSTEM",
+        "Amount": 3603.37,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-06",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 13859.12,
+          "Qty": 0.26,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Main Floor Level\n1-SKU 59TP6B100V21--20PERFORMANCE 96% AFUE 100000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\n$2746.00\n\n1-SKU CNPVP4821ALA4 TON PURON UPFLOW / DOWNFLOW 21\" CASED N-COIL\n$812\n\n1-SKU 24ACC648A003PERFORMANCE 4-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$4130\n\n1- SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56\n\nSECOND & FIRST FLOOR UNITS WILL HAVE \n-ELECTRONIC AIR CLEANERS\n-HUMIDIFICATION SYSTEM",
+        "Amount": 1709.64,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-06",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 7732.56,
+          "Qty": 0.2210962,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Basement Level\n1-PERFORMANCE 96% AFUE 60000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\nSKU 59TP6B060V17--14\n$2746.00\n\n1- 3 TON PURON UPFLOW / DOWNFLOW 17\" CASED V-COIL\nSKU CVPVA3617XMC\n$644\n\n\n1-SKU 24ACC636A003PERFORMANCE 3-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$3303.00\n\n1-SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56\n\nLABOR \n$1,000.00\nDiscounted: $500.00\n\nSM MATERIAL \n$2,500.00\nDiscounted: $1,500.00\n\nBASEMENT TO INCLUDE \n1- DEHUMIDIFICATION SYSTEM \n1- ELECTRONIC AIR CLEANER",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "5313",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2023-06-06",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 9357.3073147,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 8,
+        "Description": "Discount - $725.01\nReimbursement regarding service performed by another company. ",
+        "Amount": -725.01,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-07",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": -725.01,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 19356,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "504",
+      "name": "25 Fox Meadow, Westwood"
+    },
+    "BillAddr": {
+      "Id": "13957",
+      "Line1": "David DeSimone",
+      "Line2": "DeSimone Building Company Inc"
+    },
+    "ShipAddr": {
+      "Id": "16652",
+      "Line1": "David DeSimone",
+      "Line2": "DeSimone Building Company Inc"
+    },
+    "SalesTermRef": {
+      "value": "2",
+      "name": "Net 15"
+    },
+    "DueDate": "2024-03-09",
+    "TotalAmt": 19356,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "desimonebuildco@aol.com, collins@farhatlawoffice.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-08T05:39:46-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20337",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-09T08:04:18-07:00",
+      "LastUpdatedTime": "2025-08-09T08:11:08-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3808",
+    "TxnDate": "2025-08-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12544",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12544",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12544",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12544",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1007",
+      "name": "Building 5 - Lot 9 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19608",
+      "Line1": "Building 5 - Lot 9 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19609",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-09",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20338",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-09T08:05:54-07:00",
+      "LastUpdatedTime": "2025-08-09T08:05:54-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "110 Main Street Saco, ME "
+      }
+    ],
+    "DocNumber": "3809",
+    "TxnDate": "2025-08-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "12549",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Materials Pricing",
+        "Amount": 877.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "12549",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8778.975,
+          "Qty": 0.1000003,
+          "TaxCodeRef": {
+            "value": "TAX"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finishes Materials Pricing",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12549",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2500,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "TAX"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor Costs",
+        "Amount": 765,
+        "LinkedTxn": [
+          {
+            "TxnId": "12549",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-03-06",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 7650,
+          "Qty": 0.1,
+          "TaxCodeRef": {
+            "value": "TAX"
+          }
+        }
+      },
+      {
+        "Amount": 1892.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1008",
+      "name": "Building 5 - Lot 10 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "19612",
+      "Line1": "Building 5 - Lot 10 - Saco Riverside, LLC"
+    },
+    "ShipAddr": {
+      "Id": "19613",
+      "Line1": "Saco Riverside, LLC"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-09",
+    "TotalAmt": 1892.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 1892.9
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19969",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-07-23T12:48:53-07:00",
+      "LastUpdatedTime": "2025-08-08T07:47:28-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "Sam's Sushi"
+      }
+    ],
+    "DocNumber": "3723",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "50% finish\nsent by mail on 08/08/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "17849",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20326",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lineset Pricing ",
+        "Amount": 661.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "3",
+            "name": "Job Supplies"
+          },
+          "UnitPrice": 441,
+          "Qty": 1.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
+        "Amount": 512.81,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 341.873,
+          "Qty": 1.5000015,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
+        "Amount": 887.18,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 1774.367,
+          "Qty": 0.499998,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
+        "Amount": 2250,
+        "LinkedTxn": [
+          {
+            "TxnId": "17849",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-22",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1.5,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 4311.49,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1358",
+      "name": "Sam's Sushi"
+    },
+    "CustomerMemo": {
+      "value": "50% finish"
+    },
+    "BillAddr": {
+      "Id": "19178",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "ShipAddr": {
+      "Id": "19179",
+      "Line1": "Samuel Almedia",
+      "Line2": "Sam's Sushi"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-23",
+    "TotalAmt": 4311.49,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "samuel@samsushiartmusic.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-08T05:45:48-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "11521",
+    "SyncToken": "16",
+    "MetaData": {
+      "CreateTime": "2024-06-28T11:53:25-07:00",
+      "LastUpdatedTime": "2025-08-08T06:02:04-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "135 Grill"
+      }
+    ],
+    "DocNumber": "2544",
+    "TxnDate": "2024-06-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Final invoice",
+    "LinkedTxn": [
+      {
+        "TxnId": "11291",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20104",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "17512",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "15795",
+        "TxnType": "Payment"
+      },
+      {
+        "TxnId": "14185",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "3",
+        "LineNum": 1,
+        "Description": "8 System Install\nAOU30RLXEH FUJITSU 18.7 SEER SINGLE\nZONE W/EXTENDED LINE SET OPTION\nSerial#: BWP007648\nSerial#: BWP007649\nSerial#: BWP007650\nSerial#: BWP007460\nSerial#: BWP007461\nSerial #: BWP006815\nSerial #: BWP007468\nSerial #: BWP006980\n.\nASU30RLE FUJITSU INDOOR SINGLE ZONE\nSerial#: BWB007525\nSerial#: BWB007574\nSerial#: BWB007636\nSerial#: BWB007612\nSerial#: BWB007566\nSerial #: BWB007366\nSerial #: BWB007253\nSerial #: BWB007364",
+        "Amount": 58000,
+        "LinkedTxn": [
+          {
+            "TxnId": "11291",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2024-06-07",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 13499.9997,
+          "Qty": 4.2962964,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 2,
+        "Description": "Discount given to him. \nEmail attached",
+        "Amount": -3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-31",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": -3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 55000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "962",
+      "name": "135 Grill"
+    },
+    "CustomerMemo": {
+      "value": "PREMIUM HVAC INC \n1B Landing Lane Hopedale, MA 01747\nCompany Contact: Eleana De Oliveira Rodrigues \nPhone: (508) 282- 9160\nEmail: info@premiumhvacinc.com\nMass Save Company ID: HP241919\n\nEquipment INFO\nAHRI Certified Reference Number: \n8912454"
+    },
+    "BillAddr": {
+      "Id": "16947",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "Realty Executives Boston West",
+      "Line3": "1253 Worcester RD, Ste. 104"
+    },
+    "ShipAddr": {
+      "Id": "11750",
+      "Line1": "Philip R Ottaviani, JR.",
+      "Line2": "Realty Executives Boston West",
+      "Line3": "1253 Worcester RD, Ste. 104"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-06-28",
+    "TotalAmt": 55000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "philipottaviani@gmail.com, pottaviani@verizon.net"
+    },
+    "Balance": 10000,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-06-09T08:31:45-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
     "Id": "20322",
@@ -1057,127 +6471,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-06T14:09:20-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20310",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-06T13:57:05-07:00",
-      "LastUpdatedTime": "2025-08-06T14:01:37-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3804",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Cirrus Apartments\n10 Cirrus Dr.\nAshland, MA, MA 01721\n\nunit -  4209 ",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-31",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "\n1 - Airhandler water leak quote per unit\n\n-Level units\n-Insulate plenums\n-Redo Drains\n-Replace drain pans as needed\nP-an not included\n-Sheetrock or paint work not included",
-        "Amount": 1600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-31",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 1600,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 1600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1536",
-      "name": "Cirrus Apartments - Unit 4209"
-    },
-    "BillAddr": {
-      "Id": "19587",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA, MA 01721"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 1600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
-    },
-    "Balance": 1600,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T13:58:30-07:00"
     }
   },
   {
@@ -8384,409 +13677,6 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
-    "Id": "20203",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-02T09:52:42-07:00",
-      "LastUpdatedTime": "2025-08-02T09:52:42-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3779",
-    "TxnDate": "2025-07-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S3",
-    "LinkedTxn": [
-      {
-        "TxnId": "19139",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "PC383 Full Bath - Finished Lower Level",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000591",
-            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Finished Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000481",
-            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 6500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1327",
-      "name": "Lot 17 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "19440",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "19441",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-14",
-    "TotalAmt": 6500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 6500
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20202",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-02T09:51:49-07:00",
-      "LastUpdatedTime": "2025-08-02T09:51:49-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3778",
-    "TxnDate": "2025-07-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S2",
-    "LinkedTxn": [
-      {
-        "TxnId": "19139",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Air Handler",
-        "Amount": 6951,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000441",
-            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
-          },
-          "UnitPrice": 6951,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "PC383 Full Bath - Finished Lower Level",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000591",
-            "name": "Toll Brothers - Newbury Glen:Full Bath - Newbury Glen"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Finished Basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19139",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000481",
-            "name": "Toll Brothers - Newbury Glen:263018 - Finished Basement - Williamstown"
-          },
-          "UnitPrice": 4500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 6951,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1327",
-      "name": "Lot 17 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "19438",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "19439",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "9 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Farmhouse"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-14",
-    "TotalAmt": 6951,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 6951
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
     "Id": "19616",
     "SyncToken": "2",
     "MetaData": {
@@ -9464,204 +14354,6 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
-    "Id": "19969",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T12:48:53-07:00",
-      "LastUpdatedTime": "2025-07-31T08:01:26-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "Sam's Sushi"
-      }
-    ],
-    "DocNumber": "3723",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "50% finish",
-    "LinkedTxn": [
-      {
-        "TxnId": "17849",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lineset Pricing ",
-        "Amount": 661.5,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": 441,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Line Item #2 – Hisense Equipment\nModel: AST-18UW3SBBDH01 (230V, SEER 23)\nType: Hisense Hyper HeatCool Wall-Mounted Indoor Unit – 18,000 BTU\n\nBuilt-in Wi-Fi\n\nIncludes the following serial numbers:\n • 1KK01802GENP0A978J20019\n • 1KK01802GENP0A978J20028\n • 1KK01802GENP0A978J20021\n\nOriginal Unit Price (Per Head): $488.39\nTotal Discount Applied (Line Item #2): $439.55",
-        "Amount": 512.81,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 341.873,
-          "Qty": 1.5000015,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Line Item #3 – Hisense Equipment\nModel: AMW5-42U3STA – Hi-Multi 5-Zone Outdoor Unit\nCapacity: 42,000 BTU\nSerial #: 1KA042007DAP0A95CPG0015\n\nOriginal Price: $2,534.81\nTotal Discount Applied (Line Item #3): $760.44",
-        "Amount": 887.18,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1774.367,
-          "Qty": 0.499998,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Non-Traditional Work Hours – Weekend Schedule (Friday to Sunday)\nIncludes:\n\nLabor for installation during non-traditional hours (Friday–Sunday)\n\nPenetration and labor-related pricing\n\nMiscellaneous materials\n\nEstimated 3-day completion timeframe\n\nPricing per mini-split head\nNote: Electrical work is not included.\n\nStandard Labor Rate per Head: $2,200.00\n(3 HEADS- $6,600.00)\nDiscounted Rate per Head (Labor & Materials): $1,500.00\nTotal Discount Applied (Line Item #4): $2,100.00",
-        "Amount": 2250,
-        "LinkedTxn": [
-          {
-            "TxnId": "17849",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-04-22",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 4311.49,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1358",
-      "name": "Sam's Sushi"
-    },
-    "BillAddr": {
-      "Id": "19178",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "ShipAddr": {
-      "Id": "19179",
-      "Line1": "Samuel Almedia",
-      "Line2": "Sam's Sushi"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-23",
-    "TotalAmt": 4311.49,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "samuel@samsushiartmusic.com"
-    },
-    "Balance": 4311.49,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T08:01:21-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
     "Id": "19393",
     "SyncToken": "1",
     "MetaData": {
@@ -10081,447 +14773,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-07-31T07:30:48-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20114",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-31T06:43:24-07:00",
-      "LastUpdatedTime": "2025-07-31T06:47:01-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3737",
-    "TxnDate": "2025-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final invoice",
-    "LinkedTxn": [
-      {
-        "TxnId": "19790",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "672 Waverly Street, Framingham ",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "AOUH45KWAS5 FUJITSU (R32) 45,000\nBTU MULTI-ZONE HEAT PUMP\nREFRIGERANT FACTORY CHARGE\n6LBS.100Z.",
-        "Amount": 2355.15,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 4710.314,
-          "Qty": 0.4999985,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "ACUH18KUAS FUJITSU (R32) 18,000 BTU",
-        "Amount": 2464.35,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 1642.9,
-          "Qty": 1.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "UTG-CCGFGA FUJITSU COMPАСТ СASSETTE GRILL",
-        "Amount": 346.94,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 231.294,
-          "Qty": 1.4999957,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "UTY-RVRU AIRSTAGE KAGAMI TOUCH\nENABLED CONTROLLER H-SERIES\nJ-SERIES V-SERIES",
-        "Amount": 863.62,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 575.75,
-          "Qty": 1.4999913,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Linesets, Stands, Drains, ",
-        "Amount": 1500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Labor ",
-        "Amount": 4500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 9000,
-          "Qty": 0.5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Electrical, labor and material",
-        "Amount": 2030.08,
-        "LinkedTxn": [
-          {
-            "TxnId": "19790",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-17",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 3500,
-          "Qty": 0.5800229,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 14060.14,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1502",
-      "name": "672 Waverly St, Framingham (Church)"
-    },
-    "CustomerMemo": {
-      "value": "Final invoice"
-    },
-    "BillAddr": {
-      "Id": "19317",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "672 Waverly St",
-      "Line3": "Framingham, MA 01747"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-31",
-    "TotalAmt": 14060.14,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "philipottaviani@gmail.com"
-    },
-    "Balance": 14060.14,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-31T06:43:44-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Paid",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "11521",
-    "SyncToken": "14",
-    "MetaData": {
-      "CreateTime": "2024-06-28T11:53:25-07:00",
-      "LastUpdatedTime": "2025-07-31T05:04:14-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "135 Grill"
-      }
-    ],
-    "DocNumber": "2544",
-    "TxnDate": "2024-06-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Final invoice",
-    "LinkedTxn": [
-      {
-        "TxnId": "11291",
-        "TxnType": "Estimate"
-      },
-      {
-        "TxnId": "20104",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "17512",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "15795",
-        "TxnType": "Payment"
-      },
-      {
-        "TxnId": "14185",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "3",
-        "LineNum": 1,
-        "Description": "8 System Install\nAOU30RLXEH FUJITSU 18.7 SEER SINGLE\nZONE W/EXTENDED LINE SET OPTION\nSerial#: BWP007648\nSerial#: BWP007649\nSerial#: BWP007650\nSerial#: BWP007460\nSerial#: BWP007461\nSerial #: BWP006815\nSerial #: BWP007468\nSerial #: BWP006980\n.\nASU30RLE FUJITSU INDOOR SINGLE ZONE\nSerial#: BWB007525\nSerial#: BWB007574\nSerial#: BWB007636\nSerial#: BWB007612\nSerial#: BWB007566\nSerial #: BWB007366\nSerial #: BWB007253\nSerial #: BWB007364",
-        "Amount": 58000,
-        "LinkedTxn": [
-          {
-            "TxnId": "11291",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2024-06-07",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 13499.9997,
-          "Qty": 4.2962964,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 58000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "962",
-      "name": "135 Grill"
-    },
-    "CustomerMemo": {
-      "value": "PREMIUM HVAC INC \n1B Landing Lane Hopedale, MA 01747\nCompany Contact: Eleana De Oliveira Rodrigues \nPhone: (508) 282- 9160\nEmail: info@premiumhvacinc.com\nMass Save Company ID: HP241919\n\nEquipment INFO\nAHRI Certified Reference Number: \n8912454"
-    },
-    "BillAddr": {
-      "Id": "16947",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "Realty Executives Boston West",
-      "Line3": "1253 Worcester RD, Ste. 104"
-    },
-    "ShipAddr": {
-      "Id": "11750",
-      "Line1": "Philip R Ottaviani, JR.",
-      "Line2": "Realty Executives Boston West",
-      "Line3": "1253 Worcester RD, Ste. 104"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-06-28",
-    "TotalAmt": 58000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "philipottaviani@gmail.com, pottaviani@verizon.net"
-    },
-    "Balance": 13000,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-09T08:31:45-07:00"
     }
   },
   {
@@ -53731,284 +57982,6 @@
   {
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Paid",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "9348",
-    "SyncToken": "22",
-    "MetaData": {
-      "CreateTime": "2024-02-23T06:02:29-08:00",
-      "LastUpdatedTime": "2025-06-27T10:20:44-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "2284",
-    "TxnDate": "2024-02-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "5313",
-        "TxnType": "Estimate"
-      },
-      {
-        "TxnId": "19391",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Labor Costs",
-        "Amount": 7332,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-05",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 28200,
-          "Qty": 0.26,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Sheet Metal & Standard Finishes Materials Pricing",
-        "Amount": 5616,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-05",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 21600,
-          "Qty": 0.26,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Manual J/ Permit Costs",
-        "Amount": 312,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-05",
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 1200,
-          "Qty": 0.26,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "ERV Pricing",
-        "Amount": 1508,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-05",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 2900,
-          "Qty": 0.52,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Second Floor Level\n2-PERFORMANCE 96% AFUE 60000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\nSKU 59TP6B060V17--14\n$2746.00/ Each\n\n2- SKU CVPMA3617XMCV-COIL 3.0T MULTI POS CASE 17\" AC USE ONLY\n$836.00/Each \n\n2-SKU 24ACC636A003PERFORMANCE 3-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$3303.00/ Each \n\n2-SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56/ Each\n\nSECOND & FIRST FLOOR UNITS WILL HAVE \n-ELECTRONIC AIR CLEANERS\n-HUMIDIFICATION SYSTEM",
-        "Amount": 3603.37,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-06",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 13859.12,
-          "Qty": 0.26,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Main Floor Level\n1-SKU 59TP6B100V21--20PERFORMANCE 96% AFUE 100000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\n$2746.00\n\n1-SKU CNPVP4821ALA4 TON PURON UPFLOW / DOWNFLOW 21\" CASED N-COIL\n$812\n\n1-SKU 24ACC648A003PERFORMANCE 4-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$4130\n\n1- SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56\n\nSECOND & FIRST FLOOR UNITS WILL HAVE \n-ELECTRONIC AIR CLEANERS\n-HUMIDIFICATION SYSTEM",
-        "Amount": 1709.64,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-06",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 7732.56,
-          "Qty": 0.2210962,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Basement Level\n1-PERFORMANCE 96% AFUE 60000 BTUH 2-STAGE VARIABLE SPEED GAS FURNACE\nSKU 59TP6B060V17--14\n$2746.00\n\n1- 3 TON PURON UPFLOW / DOWNFLOW 17\" CASED V-COIL\nSKU CVPVA3617XMC\n$644\n\n\n1-SKU 24ACC636A003PERFORMANCE 3-TON 16 SEER R410A AC CONDENSER (208/230 V 1-PHASE)\n$3303.00\n\n1-SKU ACP3636 MFG EP3636-2EQUIPMENT PAD, 36\"X36\"X2\" E-LITE GREY PLASTIC\n$44.56\n\nLABOR \n$1,000.00\nDiscounted: $500.00\n\nSM MATERIAL \n$2,500.00\nDiscounted: $1,500.00\n\nBASEMENT TO INCLUDE \n1- DEHUMIDIFICATION SYSTEM \n1- ELECTRONIC AIR CLEANER",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "5313",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2023-06-06",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 9357.3073147,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 20081.01,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "504",
-      "name": "25 Fox Meadow, Westwood"
-    },
-    "BillAddr": {
-      "Id": "13957",
-      "Line1": "David DeSimone",
-      "Line2": "DeSimone Building Company Inc"
-    },
-    "ShipAddr": {
-      "Id": "16652",
-      "Line1": "David DeSimone",
-      "Line2": "DeSimone Building Company Inc"
-    },
-    "SalesTermRef": {
-      "value": "2",
-      "name": "Net 15"
-    },
-    "DueDate": "2024-03-09",
-    "TotalAmt": 20081.01,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "desimonebuildco@aol.com"
-    },
-    "Balance": 10081.01,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-09T08:28:18-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Paid",
@@ -65462,257 +69435,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-06-11T13:26:46-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18982",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-13T06:42:41-07:00",
-      "LastUpdatedTime": "2025-06-13T06:53:35-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType",
-        "StringValue": "116 Piedmont Street Worcester"
-      }
-    ],
-    "DocNumber": "3576",
-    "TxnDate": "2025-06-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "15780",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Labor First Floor Apartment\nSQ FT: 1759 SQFT",
-        "Amount": 2100,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 6000,
-          "Qty": 0.35,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "SM Job Supplies First Floor\nERV INCLUDED",
-        "Amount": 3745,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": 10700,
-          "Qty": 0.35,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Plan & Spec Job Equipment Attached Below",
-        "Amount": 14495.76,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "1042",
-            "name": "Equipment"
-          },
-          "UnitPrice": 41416.466,
-          "Qty": 0.35,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Labor Second, Third Floor Apartments\nSQ FT: 1734 SQFT/ EACH",
-        "Amount": 4200,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 6000,
-          "Qty": 0.7,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "SM Job Supplies Second, Third Floor Units \nERV INCLUDED",
-        "Amount": 7490,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "3",
-            "name": "Job Supplies"
-          },
-          "UnitPrice": 10700,
-          "Qty": 0.7,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Permit Fee Pricing \nPer Apartment",
-        "Amount": 735,
-        "LinkedTxn": [
-          {
-            "TxnId": "15780",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-02-10",
-          "ItemRef": {
-            "value": "1314",
-            "name": "Contracted Customers:Licensing/ Permitting"
-          },
-          "UnitPrice": 700,
-          "Qty": 1.05,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 32765.76,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1272",
-      "name": "116 Piedmont Street Worcester"
-    },
-    "BillAddr": {
-      "Id": "18025",
-      "Line1": "Robert Cappadona",
-      "Line2": "116 Piedmont St",
-      "Line3": "Worcester, MA 01609"
-    },
-    "ShipAddr": {
-      "Id": "18026",
-      "Line1": "Robert Cappadona",
-      "Line2": "116 Piedmont St",
-      "Line3": "Worcester, MA 01609"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-06-01",
-    "TotalAmt": 32765.76,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "rcappadona@landmarkassoc.com"
-    },
-    "Balance": 32765.76,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-13T06:42:54-07:00"
     }
   },
   {
@@ -90363,163 +94085,6 @@
       "DeliveryType": "Email",
       "DeliveryTime": "2025-05-14T09:33:49-07:00"
     }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18296",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-13T06:59:35-07:00",
-      "LastUpdatedTime": "2025-05-13T10:31:25-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3442",
-    "TxnDate": "2025-05-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "18295",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "5",
-        "LineNum": 1,
-        "Description": "@ 1 Dove Lane, Methuen - Lot 184\nThe unit was going into Alarm mode. ",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18295",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 2,
-        "Description": "- Adjusted the gas settings, as the unit was shutting down due to the flame switch.\n- After the adjustment, the unit resumed normal operation.\n",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18295",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 3,
-        "Description": "Labor $90/Hour \n2 Technicians - 1 hour each\nTravel time - 1 hour ach",
-        "Amount": 360,
-        "LinkedTxn": [
-          {
-            "TxnId": "18295",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "5",
-            "name": "Labor"
-          },
-          "UnitPrice": 90,
-          "Qty": 4,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 360,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "98",
-      "name": "Toll Brothers"
-    },
-    "BillAddr": {
-      "Id": "17084",
-      "Line1": "Toll Brothers"
-    },
-    "ShipAddr": {
-      "Id": "17085",
-      "Line1": "Toll Brothers"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-05-13",
-    "TotalAmt": 360,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 360
   },
   {
     "AllowIPNPayment": false,
@@ -460712,13 +464277,6 @@
         "LineNum": 5,
         "Description": "Expanded Family Room / Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -460737,13 +464295,6 @@
         "LineNum": 6,
         "Description": "Alternate Family Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -460762,13 +464313,6 @@
         "LineNum": 7,
         "Description": "Expanded Kitchen",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "9"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -490709,13 +494253,6 @@
         "LineNum": 7,
         "Description": "Expanded Family Room / Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -490734,13 +494271,6 @@
         "LineNum": 8,
         "Description": "Alternate Family Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -490759,13 +494289,6 @@
         "LineNum": 9,
         "Description": "Expanded Kitchen",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "4050",
-            "TxnType": "Estimate",
-            "TxnLineId": "9"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {

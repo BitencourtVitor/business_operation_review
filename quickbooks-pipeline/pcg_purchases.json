@@ -1,6 +1,1053 @@
 [
   {
     "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "919",
+      "name": "Wandersondo Construction INC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "8668"
+    },
+    "TotalAmt": 1000,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17054",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T10:46:04-07:00",
+      "LastUpdatedTime": "2025-08-15T10:53:28-07:00"
+    },
+    "DocNumber": "1808",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor week 08/20/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor week 08/20/25",
+        "Amount": 1000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "69",
+            "name": "Felipe Drumond"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "919",
+      "name": "Wandersondo Construction INC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "8668"
+    },
+    "TotalAmt": 1339.35,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17036",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T08:19:47-07:00",
+      "LastUpdatedTime": "2025-08-14T08:49:58-07:00"
+    },
+    "DocNumber": "1804",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor week 08/09/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor week 08/03/25 - 08/09/25",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "Reimbursement HVAC 13 Wentworth Rd",
+        "Amount": 99.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "Reimbursement Framing Baldwinville",
+        "Amount": 247.83,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "Reimbursement Framing Needham",
+        "Amount": 181.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "Reimbursement HVAC office expenses",
+        "Amount": 53.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "Reimbursement Framing Baldwinville",
+        "Amount": 57.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "Reimbursement Framing Tools",
+        "Amount": 49.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "633",
+      "name": "ANZ Construction, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "8088",
+      "Line1": "ANZ Construction, Inc."
+    },
+    "TotalAmt": 10000,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15174",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-03-03T12:41:50-08:00",
+      "LastUpdatedTime": "2025-08-13T06:48:04-07:00"
+    },
+    "DocNumber": "1649",
+    "TxnDate": "2025-03-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payment towards bldg 4 pending values",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Ductwork",
+        "Amount": 2027.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "Drywall",
+        "Amount": 3041.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "Painting",
+        "Amount": 1520.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "Interior Trim",
+        "Amount": 2027.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Amount": 1382.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "84",
+      "name": "Mechanics 20 Gullane  (XX94)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "642",
+      "name": "Toucan Services, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "6644",
+      "Line1": "Toucan Services, Inc."
+    },
+    "TotalAmt": 5125,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13303",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2024-11-07T04:40:01-08:00",
+      "LastUpdatedTime": "2025-08-13T06:46:53-07:00"
+    },
+    "DocNumber": "84",
+    "TxnDate": "2024-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor 11/07/2024",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Bernie's payment + 2% fee - Bld 3 - Drywall",
+        "Amount": 4104.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "Bernie's payment + 2% fee - Bld 4 - Drywall",
+        "Amount": 1020.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "697",
+      "name": "Jason Bicknell",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "4092",
+      "Line1": "Jason Bicknell",
+      "Line2": "37 Park Circle Cape",
+      "Line3": "Elizabeth, Maine  04107",
+      "Line4": "United States"
+    },
+    "TotalAmt": 2250,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "10386",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2024-05-06T08:51:38-07:00",
+      "LastUpdatedTime": "2025-08-13T06:21:23-07:00"
+    },
+    "DocNumber": "1209",
+    "TxnDate": "2024-05-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Jason Bicknell\n37 Park Circle Cape\nElizabeth, Maine  04107\nUnited States",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Stay at Maine - 9 nights",
+        "Amount": 1125,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "638",
+            "name": "Saco Riverside, LLC"
+          },
+          "AccountRef": {
+            "value": "19",
+            "name": "Travel"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "Stay at Maine - 9 nights",
+        "Amount": 1125,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "638",
+            "name": "Saco Riverside, LLC"
+          },
+          "AccountRef": {
+            "value": "19",
+            "name": "Travel"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "501",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 20,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17014",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-12T18:13:52-07:00",
+      "LastUpdatedTime": "2025-08-12T18:13:52-07:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 20,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "93",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "848",
+      "name": "LCTO Construction, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "7732",
+      "Line1": "Guilherme Cota",
+      "Line2": "LCTO Construction, Inc.",
+      "Line3": "209 E Main St.",
+      "Line4": "Apto 3",
+      "Line5": "Marlborough, Massachusetts 01752 United States"
+    },
+    "TotalAmt": 4200,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14707",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-02-14T11:03:45-08:00",
+      "LastUpdatedTime": "2025-08-09T08:28:59-07:00"
+    },
+    "DocNumber": "1624",
+    "TxnDate": "2025-02-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid $4200",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Rear deck Building 1",
+        "Amount": 1000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "96",
+            "name": "Sub-Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "PVC Trim Building 3",
+        "Amount": 3200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "96",
+            "name": "Sub-Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "919",
+      "name": "Wandersondo Construction INC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "9740",
+      "Line1": "Wandersondo Construction INC"
+    },
+    "TotalAmt": 2110.15,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16997",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-08T12:22:12-07:00",
+      "LastUpdatedTime": "2025-08-08T13:19:54-07:00"
+    },
+    "DocNumber": "1800",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor 07/27/25 - 08/02/25",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor 07/27/25 - 08/02/25",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "Description": "Safety Supplies Framing",
+        "Amount": 212.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "Description": "Reimbursement office supplies",
+        "Amount": 125.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "Description": "Reimbursement office supplies",
+        "Amount": 186.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "Description": "Safety Supplies HVAC",
+        "Amount": 90.83,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "Description": "Materials Framing 65 Mill",
+        "Amount": 553.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "Description": "Payroll Framing",
+        "Amount": 63.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "Description": "Cirrus Apartments material",
+        "Amount": 31.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "Description": "Tools HVAC",
+        "Amount": 76.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "Description": "Tools HVAC",
+        "Amount": 120.55,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "200",
+            "name": "Premium HVAC"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "Billable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "822",
+      "name": "Central Maine Power",
+      "type": "Vendor"
+    },
+    "TotalAmt": 58.2,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16884",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T11:16:35-07:00",
+      "LastUpdatedTime": "2025-08-08T10:50:45-07:00"
+    },
+    "TxnDate": "2025-07-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CMP CMP PMT",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "CMP CMP PMT",
+        "Amount": 58.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "638",
+            "name": "Saco Riverside, LLC"
+          },
+          "AccountRef": {
+            "value": "20",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "188",
       "name": "Mutual One Parent Acct x1440"
     },
@@ -3753,67 +4800,6 @@
             "value": "268",
             "name": "165 Baxter Neck Rd, Barnstable, MA"
           },
-          "AccountRef": {
-            "value": "20",
-            "name": "Utilities"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "822",
-      "name": "Central Maine Power",
-      "type": "Vendor"
-    },
-    "TotalAmt": 58.2,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16884",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T11:16:35-07:00",
-      "LastUpdatedTime": "2025-08-04T11:16:35-07:00"
-    },
-    "TxnDate": "2025-07-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "CMP CMP PMT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "CMP CMP PMT",
-        "Amount": 58.2,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
           "AccountRef": {
             "value": "20",
             "name": "Utilities"
@@ -35232,101 +36218,6 @@
   },
   {
     "AccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "848",
-      "name": "LCTO Construction, Inc.",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "7732",
-      "Line1": "Guilherme Cota",
-      "Line2": "LCTO Construction, Inc.",
-      "Line3": "209 E Main St.",
-      "Line4": "Apto 3",
-      "Line5": "Marlborough, Massachusetts 01752 United States"
-    },
-    "TotalAmt": 4200,
-    "PrintStatus": "NotSet",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "14707",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-02-14T11:03:45-08:00",
-      "LastUpdatedTime": "2025-03-11T11:27:27-07:00"
-    },
-    "DocNumber": "1624",
-    "TxnDate": "2025-02-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Paid $4200",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Rear deck Building 1",
-        "Amount": 1000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "641",
-            "name": "Building 1 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "96",
-            "name": "Sub-Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "Description": "PVC Trim Building 3",
-        "Amount": 3200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "640",
-            "name": "Building 5 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "96",
-            "name": "Sub-Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
       "value": "36",
       "name": "Due to/from Premium Framing"
     },
@@ -48104,152 +48995,6 @@
           "AccountRef": {
             "value": "92",
             "name": "Due/to from Premium Electrical"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "633",
-      "name": "ANZ Construction, Inc.",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "8088",
-      "Line1": "ANZ Construction, Inc."
-    },
-    "TotalAmt": 10000,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15174",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-03-03T12:41:50-08:00",
-      "LastUpdatedTime": "2025-03-03T13:42:30-08:00"
-    },
-    "DocNumber": "1649",
-    "TxnDate": "2025-03-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Payment towards bldg 4 pending values",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Ductwork",
-        "Amount": 2027.36,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "Description": "Drywall",
-        "Amount": 3041.8,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "Description": "Painting",
-        "Amount": 1520.52,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "Description": "Interior Trim",
-        "Amount": 2027.36,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "Amount": 1382.96,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {
@@ -125092,97 +125837,6 @@
   },
   {
     "AccountRef": {
-      "value": "84",
-      "name": "Mechanics 20 Gullane  (XX94)"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "642",
-      "name": "Toucan Services, Inc.",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "6644",
-      "Line1": "Toucan Services, Inc."
-    },
-    "TotalAmt": 5125,
-    "PrintStatus": "NotSet",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13303",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2024-11-07T04:40:01-08:00",
-      "LastUpdatedTime": "2024-11-07T11:22:57-08:00"
-    },
-    "DocNumber": "84",
-    "TxnDate": "2024-11-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Labor 11/07/2024",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Bernie's payment + 2% fee - Bld 3 - Drywall",
-        "Amount": 4104.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "678",
-            "name": "Building 3 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "Description": "Bernie's payment + 2% fee - Bld 4 - Drywall",
-        "Amount": 1020.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
       "value": "49",
       "name": "Amex Platinum"
     },
@@ -178638,100 +179292,6 @@
     },
     "PaymentType": "Check",
     "EntityRef": {
-      "value": "697",
-      "name": "Jason Bicknell",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "4092",
-      "Line1": "Jason Bicknell",
-      "Line2": "37 Park Circle Cape",
-      "Line3": "Elizabeth, Maine  04107",
-      "Line4": "United States"
-    },
-    "TotalAmt": 2250,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "10386",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-05-06T08:51:38-07:00",
-      "LastUpdatedTime": "2024-05-06T09:01:21-07:00"
-    },
-    "DocNumber": "1209",
-    "TxnDate": "2024-05-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Jason Bicknell\n37 Park Circle Cape\nElizabeth, Maine  04107\nUnited States",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Stay at Maine - 9 nights",
-        "Amount": 1125,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "677",
-            "name": "Building 2 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "19",
-            "name": "Travel"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "Description": "Stay at Maine - 9 nights",
-        "Amount": 1125,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "678",
-            "name": "Building 3 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "19",
-            "name": "Travel"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
       "value": "696",
       "name": "RJP Engineering and Construction",
       "type": "Vendor"
@@ -217249,8 +217809,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217314,8 +217874,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217379,8 +217939,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217444,8 +218004,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217509,8 +218069,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217570,8 +218130,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217631,8 +218191,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217697,8 +218257,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217759,8 +218319,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217820,8 +218380,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217882,8 +218442,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -217944,8 +218504,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218006,8 +218566,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218072,8 +218632,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218138,8 +218698,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218204,8 +218764,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218270,8 +218830,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218332,8 +218892,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218398,8 +218958,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218460,8 +219020,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218516,8 +219076,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218577,8 +219137,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218638,8 +219198,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218699,8 +219259,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218755,8 +219315,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218817,8 +219377,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218879,8 +219439,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -218941,8 +219501,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219003,8 +219563,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219065,8 +219625,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219127,8 +219687,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219189,8 +219749,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219251,8 +219811,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219313,8 +219873,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219375,8 +219935,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219437,8 +219997,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219498,8 +220058,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219560,8 +220120,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219625,8 +220185,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219687,8 +220247,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219749,8 +220309,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219811,8 +220371,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219873,8 +220433,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219934,8 +220494,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -219995,8 +220555,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220056,8 +220616,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220117,8 +220677,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220179,8 +220739,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220235,8 +220795,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220296,8 +220856,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220358,8 +220918,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220419,8 +220979,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220480,8 +221040,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220541,8 +221101,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220602,8 +221162,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220663,8 +221223,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220724,8 +221284,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220785,8 +221345,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220853,8 +221413,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220916,8 +221476,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -220972,8 +221532,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221037,8 +221597,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221102,8 +221662,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221163,8 +221723,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221219,8 +221779,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221281,8 +221841,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221342,8 +221902,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221407,8 +221967,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221468,8 +222028,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221533,8 +222093,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221594,8 +222154,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221656,8 +222216,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221718,8 +222278,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221779,8 +222339,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221840,8 +222400,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221901,8 +222461,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -221963,8 +222523,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222028,8 +222588,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222089,8 +222649,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222151,8 +222711,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222212,8 +222772,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222277,8 +222837,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222350,8 +222910,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222419,8 +222979,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222497,8 +223057,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222558,8 +223118,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222619,8 +223179,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222681,8 +223241,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222742,8 +223302,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222803,8 +223363,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222864,8 +223424,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222926,8 +223486,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -222988,8 +223548,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223050,8 +223610,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223119,8 +223679,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223186,8 +223746,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223248,8 +223808,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223309,8 +223869,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223370,8 +223930,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -223431,8 +223991,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
