@@ -2,6 +2,3227 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "17055",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-15T12:19:57-07:00",
+      "LastUpdatedTime": "2025-08-15T12:19:57-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1323",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cirrus apartments\nunit 1212 ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Material ",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 1200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Freon charge",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 350,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "HVAC Labor \nTechnician",
+        "Amount": 1150,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 1150,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 2350,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9814",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "ShipAddr": {
+      "Id": "9815",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "TotalAmt": 2350,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "11808",
+    "SyncToken": "16",
+    "MetaData": {
+      "CreateTime": "2024-08-06T08:45:55-07:00",
+      "LastUpdatedTime": "2025-08-15T06:09:08-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1243",
+    "TxnDate": "2024-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Framing and Cap Foundation\n*Need to discount extra $1,5k",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13875",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "22",
+        "LineNum": 1,
+        "Description": "Sill Plates",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "LineNum": 2,
+        "Description": "Knee Walls/Basement",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 4000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "LineNum": 3,
+        "Description": "Basement Columns",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "LineNum": 4,
+        "Description": "Stairs to First Floor",
+        "Amount": 1250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 1250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "LineNum": 5,
+        "Description": "Soffits",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "LineNum": 6,
+        "Description": "Strapping",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "LineNum": 7,
+        "Description": "1st Floor Deck",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 8,
+        "Description": "Garage",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 4000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 9,
+        "Description": "1st Floor Walls",
+        "Amount": 6000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 6000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 10,
+        "Description": "Stairs to Second Floor",
+        "Amount": 1250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 1250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 11,
+        "Description": "Gables",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "LineNum": 12,
+        "Description": "Soffits and Strapping",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "LineNum": 13,
+        "Description": "2nd Floor Deck",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "LineNum": 14,
+        "Description": "2nd Floor Walls",
+        "Amount": 6000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "36",
+            "name": "Roofing"
+          },
+          "UnitPrice": 6000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "LineNum": 15,
+        "Description": "Gables",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "LineNum": 16,
+        "Description": "Rafters",
+        "Amount": 10000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 10000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "29",
+        "LineNum": 17,
+        "Description": "Soffits and Strapping",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "30",
+        "LineNum": 18,
+        "Description": "Exterior Trim",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "31",
+        "LineNum": 19,
+        "Description": "Roof Sheating",
+        "Amount": 8000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 8000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "32",
+        "LineNum": 20,
+        "Description": "Skylights",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "33",
+        "LineNum": 21,
+        "Description": "Porches and Decks",
+        "Amount": 8000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 8000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "34",
+        "LineNum": 22,
+        "Description": "Windows/Doors Installed",
+        "Amount": 9000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 9000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "35",
+        "LineNum": 23,
+        "Description": "Roof Shingles Installed",
+        "Amount": 12000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 12000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "36",
+        "LineNum": 24,
+        "Description": "Structural Signoff by Engineer",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "37",
+        "LineNum": 25,
+        "Description": "Items not closed yet",
+        "Amount": -99500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": -99500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "781",
+      "name": "Building 11 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "5856",
+      "Line1": "Building 11 - Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "5378",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13889",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2024-12-12T10:09:50-08:00",
+      "LastUpdatedTime": "2025-08-15T05:13:02-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1287",
+    "TxnDate": "2024-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Right Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13890",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15104",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 3 - Right Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "52",
+            "name": "Finish Carpentry"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "678",
+      "name": "Building 3 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "7130",
+      "Line1": "Buidling 3 - Saco Riverside, LLC",
+      "Line2": "Right Unit",
+      "Line3": "110 Main St",
+      "Line4": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "7131",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13887",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2024-12-12T10:04:59-08:00",
+      "LastUpdatedTime": "2025-08-15T05:12:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1286",
+    "TxnDate": "2024-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13888",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15105",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 3 - Left Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "52",
+            "name": "Finish Carpentry"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "678",
+      "name": "Building 3 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "7124",
+      "Line1": "Building 3 - Saco Riverside, LLC",
+      "Line2": "Left Unit",
+      "Line3": "110 Main St",
+      "Line4": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "7125",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17045",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-14T17:38:25-07:00",
+      "LastUpdatedTime": "2025-08-14T17:39:54-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1322",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17046",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Submittals and Shop Drawings",
+        "Amount": 20000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 20000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Coordination",
+        "Amount": 10000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 10000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "1st Level Wall Materials",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "1st Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "1st Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "2st Level Floor Materials (Trusses)",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "2nd Level Floor Installation Labor",
+        "Amount": 19043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 19043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "2st Level Wall Panels Materials",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "2nd Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "2nd Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "3st Level Floor Materials (Trusses)",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "3rd Level Floor Installation Labor",
+        "Amount": 19043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 19043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "3st Level Wall Panels Materials",
+        "Amount": 46316.64,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.64,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "3rd Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 15,
+        "Description": "3rd Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "LineNum": 16,
+        "Description": "Roof Materials (Trusses)",
+        "Amount": 57833.31,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 57833.31,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 17,
+        "Description": "Roof Framing Installation Labor",
+        "Amount": 33043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 33043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "LineNum": 18,
+        "Description": "Roof Punch Labor",
+        "Amount": 11976.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 11976.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "LineNum": 19,
+        "Description": "Stair Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "LineNum": 20,
+        "Description": "Window & Door Installation Labor",
+        "Amount": 20043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 20043.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "LineNum": 21,
+        "Description": "Stored Material",
+        "Amount": 360532.4,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 360532.4,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "LineNum": 22,
+        "Description": "Historic School",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "LineNum": 23,
+        "Description": "All Materials",
+        "Amount": 27000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 27000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "LineNum": 24,
+        "Description": "1st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "LineNum": 25,
+        "Description": "2st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "LineNum": 26,
+        "Description": "3st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "LineNum": 27,
+        "Description": "Roof Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "LineNum": 28,
+        "Description": "Window Mullion Frame",
+        "Amount": 8000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1014918,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "961",
+      "name": "Baldwinville School"
+    },
+    "BillAddr": {
+      "Id": "9802",
+      "Line1": "Callahan",
+      "Line2": "Callahan"
+    },
+    "ShipAddr": {
+      "Id": "9803",
+      "Line1": "Callahan",
+      "Line2": "Callahan"
+    },
+    "TotalAmt": 1014918,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17043",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-14T09:40:16-07:00",
+      "LastUpdatedTime": "2025-08-14T09:40:16-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1321",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\nUnit 1212\n\nChange out condenser and coil",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "HVAC Technician ",
+        "Amount": 2200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 2200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "120V Uncased 1.5 Ton ECM 2 Row Std Pump HW\n\nR454B 14 SEER2 AC, 1-STAGE, N, STANDARD\n",
+        "Amount": 6123.6,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "ItemRef": {
+            "value": "32",
+            "name": "Material"
+          },
+          "UnitPrice": 6123.6,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 8323.6,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9796",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "Unit 1212"
+    },
+    "ShipAddr": {
+      "Id": "9797",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "TotalAmt": 8323.6,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "12702",
+    "SyncToken": "26",
+    "MetaData": {
+      "CreateTime": "2024-10-02T10:45:34-07:00",
+      "LastUpdatedTime": "2025-08-14T08:19:32-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1264",
+    "TxnDate": "2024-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Based on Draw Schedule (attached)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "12706",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13264",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13422",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13423",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13802",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14055",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14514",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14699",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15052",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15340",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15402",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15625",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15983",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "16615",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17034",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "4",
+        "LineNum": 1,
+        "Description": "Foundation",
+        "Amount": 75000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 75000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 2,
+        "Description": "Framing \nSheating\nRoof boarding\nDoor frames & windows\nInterior partitions\nRoof shingling\nExterior siding installed",
+        "Amount": 250000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 250000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 3,
+        "Description": "Chimney & Fireplace\nRough plumbing\nRough electrical\nRough heating",
+        "Amount": 120000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "69",
+            "name": "Fireplace"
+          },
+          "UnitPrice": 120000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 4,
+        "Description": "Sewer\nWater\nInsulation\nPlaster/drywall/paneling",
+        "Amount": 80000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "17",
+            "name": "Plumbing"
+          },
+          "UnitPrice": 80000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 5,
+        "Description": "Finish heat\nStanding finish\nInterior floors",
+        "Amount": 75000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 75000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 6,
+        "Description": "Kitchen cabinets\nCounter tops\nFinish floors\nCellar\nBath(s)\nHardwood/carpet \nKitchen appliances\nFinish plumbing\nInterior paint\nFinish electrical",
+        "Amount": 217000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 217000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 7,
+        "Description": "Deposit on Escrow account",
+        "Amount": 40000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 40000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 8,
+        "Description": "Exterior paint\nLandscaping\nDrives/walks/steps\nCompletion & occupancy permit",
+        "Amount": 210000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 210000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 9,
+        "Description": "Punchlist completed",
+        "Amount": 65000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 65000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 1132000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "6165",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "6166",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "TotalAmt": 1132000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "10727",
+    "SyncToken": "12",
+    "MetaData": {
+      "CreateTime": "2024-06-10T13:46:12-07:00",
+      "LastUpdatedTime": "2025-08-14T07:48:14-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1225",
+    "TxnDate": "2024-06-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order Basement",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "14495",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15053",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17032",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "9",
+        "LineNum": 1,
+        "Description": "Finish Basement as per plan\n-Scope of work\n-Frame \n-Electrical\n-Hvac \n-Plumbing \n-Insulation\n-Sheetrock and plaster \n-Finishes to match first floor \n-Adding grill gas line to patio\n-Adding Generator gas line for future Generator\n-Add extra tank for navien water heater \n-Floor Allowance $6/sq (vinyl or lvp recommended)\n-Tile Allowance ($9/sq)\n-Plumbing Fixtures allowance ($1000)\n-Electrical Fixtures Allowance ($800)\n-30 Recessed light \n-Shower Glass door \n-Counter top ($95/sq)\n-Cabinet allowance for bar area ($8k)",
+        "Amount": 210000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 210000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 2,
+        "Description": "8' Slider upgrade \nNo charge",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {}
+      },
+      {
+        "Amount": 210000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "3703"
+    },
+    "ShipAddr": {
+      "Id": "5335",
+      "Line1": "Premium Contractors Group, Inc."
+    },
+    "TotalAmt": 210000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13883",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2024-12-12T09:50:44-08:00",
+      "LastUpdatedTime": "2025-08-13T06:35:10-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1284",
+    "TxnDate": "2024-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13884",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15109",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 4 - Left Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete. (50% only) ",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete. (75% only)",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "52",
+            "name": "Finish Carpentry"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "679",
+      "name": "Building 4 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "7113",
+      "Line1": "Buidling 4 - Saco Riverside, LLC",
+      "Line2": "Left Unit",
+      "Line3": "110 Main St",
+      "Line4": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "7114",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13885",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2024-12-12T09:53:58-08:00",
+      "LastUpdatedTime": "2025-08-13T06:34:01-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1285",
+    "TxnDate": "2024-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Right Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13886",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15106",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 4 - Right Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete. (50% only)",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete. (75% only)",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "52",
+            "name": "Finish Carpentry"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "679",
+      "name": "Building 4 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "7136",
+      "Line1": "Building 4 - Saco Riverside, LLC",
+      "Line2": "Right Unit",
+      "Line3": "110 Main St",
+      "Line4": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "7118",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17025",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:19:42-07:00",
+      "LastUpdatedTime": "2025-08-13T06:20:19-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1320",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile",
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17026",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 2 - Right Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to prep all bathrooms for tile installation. ",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 3750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "677",
+      "name": "Building 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9764",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9765",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 3750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17020",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:37:52-07:00",
+      "LastUpdatedTime": "2025-08-13T05:38:22-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1319",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile",
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17021",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 2 - Left Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
+        "Amount": 7500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 7500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 7500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "677",
+      "name": "Building 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9756",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9757",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 7500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15344",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-03-12T14:25:31-07:00",
+      "LastUpdatedTime": "2025-08-13T04:09:10-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1302",
+    "TxnDate": "2025-03-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Shower Glass doors",
+    "TxnStatus": "Rejected",
+    "LinkedTxn": [
+      {
+        "TxnId": "15345",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Unit 1 R\n***Need 50% deposit to order***",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {}
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Heavy  Shower door 3/8\nFirst floor shower door with 3/8 glass - Brushed bronze finish - C-pull handle",
+        "Amount": 4875,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 4875,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Heavy  Shower door 3/8\nSecond floor shower door with 3/8 glass - Brushed bronze finish - C-pull handle",
+        "Amount": 4325,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 4325,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 9200,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "641",
+      "name": "Building 1 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "8347",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "8348",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 9200,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17015",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T04:07:35-07:00",
+      "LastUpdatedTime": "2025-08-13T04:07:54-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1318",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 1- Right unit - Intall hardwood floor",
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17016",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 1 - Right Unit\n\nInstall hardwoord floor",
+        "Amount": 9100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 9100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 9100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "641",
+      "name": "Building 1 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9748",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9749",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 9100,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13895",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2024-12-12T10:37:28-08:00",
+      "LastUpdatedTime": "2025-08-13T03:58:42-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1290",
+    "TxnDate": "2024-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13896",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15108",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 1 - Left Unit - Includes basement",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete. (Only prep work was done 50% of $7500)",
+        "Amount": 3750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete. (Only doors, windows, baseboards were done 75% of $14k) ",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "52",
+            "name": "Finish Carpentry"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete. (Work not done $12,5k) ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "30",
+            "name": "Painting"
+          },
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Install kitchen and cabinets (Work not done $5,6k) ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 14250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "641",
+      "name": "Building 1 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "7886",
+      "Line1": "Building 1 - Saco Riverside, LLC",
+      "Line2": "Left Unit",
+      "Line3": "110 Main St",
+      "Line4": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "7887",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 14250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "9886",
+    "SyncToken": "30",
+    "MetaData": {
+      "CreateTime": "2024-03-25T10:06:14-07:00",
+      "LastUpdatedTime": "2025-08-13T03:32:45-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1177",
+    "TxnDate": "2024-03-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Framing",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "9887",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "9987",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10022",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10227",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10522",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10552",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10686",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11080",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11560",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame garage and first floor walls",
+        "Amount": 12500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 12500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Stairs",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 3500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Second floor deck",
+        "Amount": 9495,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 9495,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Second floor walls",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 10500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Gables",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Rafters",
+        "Amount": 15960,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 15960,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Roof plywood",
+        "Amount": 7000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 7000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 8,
+        "Description": "Skylights",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 9,
+        "Description": "Windows and doors",
+        "Amount": 8040,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 8040,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Description": "Sign off",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 1500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 11,
+        "Description": "Discount U$500.00 per original contract",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": -500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 12,
+        "Description": "Discount of U$1,143.36 from items bought by Bernie",
+        "Amount": -1148,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": -1148,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 74347,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "641",
+      "name": "Building 1 - Saco Riverside"
+    },
+    "CustomerMemo": {
+      "value": "Payment plan\nFrame garage and first floor walls = 10,000\n\nStairs = 2,500\n\nsecond floor deck = 7,500\n\nsecond floor walls = 10,500\n\nGables = 5,500\n\nRafters = 15,000\n\nRoof plywood = 5,500\n\nExterior trim = 9,000\n\nSkylights = 1,000\n\nWindows and doors = 7,000\n\nSign off = 1,500"
+    },
+    "BillAddr": {
+      "Id": "3730",
+      "Line1": "Building 1 - Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "4099",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "TotalAmt": 74347,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "16963",
     "SyncToken": "2",
     "MetaData": {
@@ -1764,295 +4985,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "12702",
-    "SyncToken": "24",
-    "MetaData": {
-      "CreateTime": "2024-10-02T10:45:34-07:00",
-      "LastUpdatedTime": "2025-06-26T07:25:32-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1264",
-    "TxnDate": "2024-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Based on Draw Schedule (attached)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "12706",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13264",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13422",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13423",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13802",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14055",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14514",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14699",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15052",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15340",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15402",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15625",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15983",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "16615",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "4",
-        "LineNum": 1,
-        "Description": "Foundation",
-        "Amount": 75000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 75000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 2,
-        "Description": "Framing \nSheating\nRoof boarding\nDoor frames & windows\nInterior partitions\nRoof shingling\nExterior siding installed",
-        "Amount": 250000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 250000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 3,
-        "Description": "Chimney & Fireplace\nRough plumbing\nRough electrical\nRough heating",
-        "Amount": 120000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "69",
-            "name": "Fireplace"
-          },
-          "UnitPrice": 120000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 4,
-        "Description": "Sewer\nWater\nInsulation\nPlaster/drywall/paneling",
-        "Amount": 80000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "17",
-            "name": "Plumbing"
-          },
-          "UnitPrice": 80000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 5,
-        "Description": "Finish heat\nStanding finish\nInterior floors",
-        "Amount": 75000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 75000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 6,
-        "Description": "Kitchen cabinets\nCounter tops\nFinish floors\nCellar\nBath(s)\nHardwood/carpet \nKitchen appliances\nFinish plumbing\nInterior paint\nFinish electrical",
-        "Amount": 217000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 217000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 7,
-        "Description": "Deposit on Escrow account",
-        "Amount": 40000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 40000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 8,
-        "Description": "Exterior paint\nLandscaping\nDrives/walks/steps\nCompletion & occupancy permit",
-        "Amount": 210000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 210000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 9,
-        "Description": "Punchlist completed",
-        "Amount": 65000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 65000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 1132000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "6165",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "6166",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "TotalAmt": 1132000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "10726",
     "SyncToken": "15",
     "MetaData": {
@@ -2849,105 +5781,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-04-28T09:21:54-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "10727",
-    "SyncToken": "11",
-    "MetaData": {
-      "CreateTime": "2024-06-10T13:46:12-07:00",
-      "LastUpdatedTime": "2025-05-08T09:41:03-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1225",
-    "TxnDate": "2024-06-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change order Basement",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "14495",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15053",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "9",
-        "LineNum": 1,
-        "Description": "Finish Basement as per plan\n-Scope of work\n-Frame \n-Electrical\n-Hvac \n-Plumbing \n-Insulation\n-Sheetrock and plaster \n-Finishes to match first floor \n-Adding grill gas line to patio\n-Adding Generator gas line for future Generator\n-Add extra tank for navien water heater \n-Floor Allowance $6/sq (vinyl or lvp recommended)\n-Tile Allowance ($9/sq)\n-Plumbing Fixtures allowance ($1000)\n-Electrical Fixtures Allowance ($800)\n-30 Recessed light \n-Shower Glass door \n-Counter top ($95/sq)\n-Cabinet allowance for bar area ($8k)",
-        "Amount": 210000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 210000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 2,
-        "Description": "8' Slider upgrade \nNo charge",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {}
-      },
-      {
-        "Amount": 210000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "3703"
-    },
-    "ShipAddr": {
-      "Id": "5335",
-      "Line1": "Premium Contractors Group, Inc."
-    },
-    "TotalAmt": 210000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
     }
   },
   {
@@ -5874,967 +8707,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "15344",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-03-12T14:25:31-07:00",
-      "LastUpdatedTime": "2025-03-14T08:24:02-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1302",
-    "TxnDate": "2025-03-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Shower Glass doors",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "15345",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Unit 1 R\n***Need 50% deposit to order***",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {}
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Heavy  Shower door 3/8\nFirst floor shower door with 3/8 glass - Brushed bronze finish - C-pull handle",
-        "Amount": 4875,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 4875,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Heavy  Shower door 3/8\nSecond floor shower door with 3/8 glass - Brushed bronze finish - C-pull handle",
-        "Amount": 4325,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 4325,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 9200,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "641",
-      "name": "Building 1 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "8347",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "8348",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 9200,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13895",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-12-12T10:37:28-08:00",
-      "LastUpdatedTime": "2025-03-14T08:23:09-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1290",
-    "TxnDate": "2024-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13896",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15108",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 1 - Left Unit - Includes basement",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
-        "Amount": 14000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "52",
-            "name": "Finish Carpentry"
-          },
-          "UnitPrice": 14000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete.",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "30",
-            "name": "Painting"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Install kitchen and cabinets",
-        "Amount": 5600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5600,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "641",
-      "name": "Building 1 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "7886",
-      "Line1": "Building 1 - Saco Riverside, LLC",
-      "Line2": "Left Unit",
-      "Line3": "110 Main St",
-      "Line4": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "7887",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 39600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13889",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2024-12-12T10:09:50-08:00",
-      "LastUpdatedTime": "2025-03-14T08:22:57-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1287",
-    "TxnDate": "2024-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Right Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13890",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15104",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 3 - Right Unit - Includes basement",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
-        "Amount": 14000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "52",
-            "name": "Finish Carpentry"
-          },
-          "UnitPrice": 14000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete.",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "30",
-            "name": "Painting"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Install kitchen and cabinets",
-        "Amount": 5600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5600,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "678",
-      "name": "Building 3 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "7130",
-      "Line1": "Buidling 3 - Saco Riverside, LLC",
-      "Line2": "Right Unit",
-      "Line3": "110 Main St",
-      "Line4": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "7131",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 39600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13887",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2024-12-12T10:04:59-08:00",
-      "LastUpdatedTime": "2025-03-14T08:22:45-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1286",
-    "TxnDate": "2024-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13888",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15105",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 3 - Left Unit - Includes basement",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
-        "Amount": 14000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "52",
-            "name": "Finish Carpentry"
-          },
-          "UnitPrice": 14000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete.",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "30",
-            "name": "Painting"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Install kitchen and cabinets",
-        "Amount": 5600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5600,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "678",
-      "name": "Building 3 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "7124",
-      "Line1": "Building 3 - Saco Riverside, LLC",
-      "Line2": "Left Unit",
-      "Line3": "110 Main St",
-      "Line4": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "7125",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 39600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13885",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2024-12-12T09:53:58-08:00",
-      "LastUpdatedTime": "2025-03-14T08:22:34-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1285",
-    "TxnDate": "2024-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Right Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13886",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15106",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 4 - Right Unit - Includes basement",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
-        "Amount": 14000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "52",
-            "name": "Finish Carpentry"
-          },
-          "UnitPrice": 14000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete.",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "30",
-            "name": "Painting"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Install kitchen and cabinets",
-        "Amount": 5600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5600,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "679",
-      "name": "Building 4 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "7136",
-      "Line1": "Building 4 - Saco Riverside, LLC",
-      "Line2": "Right Unit",
-      "Line3": "110 Main St",
-      "Line4": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "7118",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 39600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NeedToPrint",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13883",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2024-12-12T09:50:44-08:00",
-      "LastUpdatedTime": "2025-03-14T08:22:22-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1284",
-    "TxnDate": "2024-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Left Unit: Tile, finish carpentry, painting and services (install kitchen and cabinets)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13884",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15109",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 4 - Left Unit - Includes basement",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Furnish all necessary Labor to include Millwork installation to include but not limited to Stairs, rails, balusters, skirts, treads, built in cabinets, shoe moldings, cabinets, vanities and any and all other items to make this scope of work complete.",
-        "Amount": 14000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "52",
-            "name": "Finish Carpentry"
-          },
-          "UnitPrice": 14000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Furnish all necessary labor and material to include Prime, 2 coats of paint on all surfaces, clear poly on all unpainted wood to include stair treads and moldings with sealing application to be made prior to installation. All necessary preparations to include sanding, filing, leveling, protection of all in place finishes as well as any other items to make the scope of work complete.",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "30",
-            "name": "Painting"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Install kitchen and cabinets",
-        "Amount": 5600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5600,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39600,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "679",
-      "name": "Building 4 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "7113",
-      "Line1": "Buidling 4 - Saco Riverside, LLC",
-      "Line2": "Left Unit",
-      "Line3": "110 Main St",
-      "Line4": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "7114",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 39600,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "13429",
     "SyncToken": "6",
     "MetaData": {
@@ -7337,516 +9209,6 @@
     "EmailStatus": "NotSet",
     "BillEmail": {
       "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "11808",
-    "SyncToken": "15",
-    "MetaData": {
-      "CreateTime": "2024-08-06T08:45:55-07:00",
-      "LastUpdatedTime": "2025-03-14T08:21:53-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1243",
-    "TxnDate": "2024-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Framing and Cap Foundation\n*Need to discount extra $1,5k",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13875",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "22",
-        "LineNum": 1,
-        "Description": "Sill Plates",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "23",
-        "LineNum": 2,
-        "Description": "Knee Walls/Basement",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 4000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "24",
-        "LineNum": 3,
-        "Description": "Basement Columns",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "25",
-        "LineNum": 4,
-        "Description": "Stairs to First Floor",
-        "Amount": 1250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 1250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "26",
-        "LineNum": 5,
-        "Description": "Soffits",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "27",
-        "LineNum": 6,
-        "Description": "Strapping",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "28",
-        "LineNum": 7,
-        "Description": "1st Floor Deck",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 8,
-        "Description": "Garage",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 4000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 9,
-        "Description": "1st Floor Walls",
-        "Amount": 6000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 6000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "15",
-        "LineNum": 10,
-        "Description": "Stairs to Second Floor",
-        "Amount": 1250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 1250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "17",
-        "LineNum": 11,
-        "Description": "Gables",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "16",
-        "LineNum": 12,
-        "Description": "Soffits and Strapping",
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 2500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "18",
-        "LineNum": 13,
-        "Description": "2nd Floor Deck",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "19",
-        "LineNum": 14,
-        "Description": "2nd Floor Walls",
-        "Amount": 6000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "36",
-            "name": "Roofing"
-          },
-          "UnitPrice": 6000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "20",
-        "LineNum": 15,
-        "Description": "Gables",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "21",
-        "LineNum": 16,
-        "Description": "Rafters",
-        "Amount": 10000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 10000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "29",
-        "LineNum": 17,
-        "Description": "Soffits and Strapping",
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 2500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "30",
-        "LineNum": 18,
-        "Description": "Exterior Trim",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "31",
-        "LineNum": 19,
-        "Description": "Roof Sheating",
-        "Amount": 8000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 8000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "32",
-        "LineNum": 20,
-        "Description": "Skylights",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "33",
-        "LineNum": 21,
-        "Description": "Porches and Decks",
-        "Amount": 8000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 8000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "34",
-        "LineNum": 22,
-        "Description": "Windows/Doors Installed",
-        "Amount": 9000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 9000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "35",
-        "LineNum": 23,
-        "Description": "Roof Shingles Installed",
-        "Amount": 12000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 12000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "36",
-        "LineNum": 24,
-        "Description": "Structural Signoff by Engineer",
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 2500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 114000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "781",
-      "name": "Building 11 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "5856",
-      "Line1": "Building 11 - Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "5378",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 114000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
     }
   },
   {
@@ -8432,332 +9794,6 @@
     "EmailStatus": "NotSet",
     "BillEmail": {
       "Address": "saulnier04@yahoo.com, julie.thompson@gloverproperty.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "9886",
-    "SyncToken": "27",
-    "MetaData": {
-      "CreateTime": "2024-03-25T10:06:14-07:00",
-      "LastUpdatedTime": "2025-03-14T08:07:48-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1177",
-    "TxnDate": "2024-03-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Framing",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "9887",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "9987",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10022",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10227",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10522",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10552",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10686",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11080",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11560",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Frame garage and first floor walls",
-        "Amount": 12500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 12500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Stairs",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 3500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Second floor deck",
-        "Amount": 9495,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 9495,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Second floor walls",
-        "Amount": 10500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 10500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Gables",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Rafters",
-        "Amount": 15960,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 15960,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Roof plywood",
-        "Amount": 7000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 7000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 8,
-        "Description": "Skylights",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 9,
-        "Description": "Windows and doors",
-        "Amount": 8040,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 8040,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 10,
-        "Description": "Sign off",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 1500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "15",
-        "LineNum": 11,
-        "Description": "Discount U$500.00 per original contract",
-        "Amount": -500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": -500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "17",
-        "LineNum": 12,
-        "Description": "Discount of U$1,143.36 from items bought by Bernie",
-        "Amount": 1148,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 1148,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 76643,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "641",
-      "name": "Building 1 - Saco Riverside"
-    },
-    "CustomerMemo": {
-      "value": "Payment plan\nFrame garage and first floor walls = 10,000\n\nStairs = 2,500\n\nsecond floor deck = 7,500\n\nsecond floor walls = 10,500\n\nGables = 5,500\n\nRafters = 15,000\n\nRoof plywood = 5,500\n\nExterior trim = 9,000\n\nSkylights = 1,000\n\nWindows and doors = 7,000\n\nSign off = 1,500"
-    },
-    "BillAddr": {
-      "Id": "3730",
-      "Line1": "Building 1 - Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "4099",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "TotalAmt": 76643,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com, saulnier04@yahoo.com"
     }
   },
   {

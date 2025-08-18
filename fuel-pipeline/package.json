@@ -1,0 +1,33 @@
+{
+  "name": "fuel-pipeline",
+  "version": "1.0.0",
+  "description": "Pipeline para sincronização de dados de combustível do Samsara e WEX",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "migrate-samsara": "node migrate_historical.js",
+    "sync-samsara": "node sync_incremental.js",
+    "run-all-samsara": "node run_all.js",
+    "migrate-wex": "node migrate_wex_historical.js",
+    "sync-wex": "node sync_wex_incremental.js",
+    "run-all-wex": "node run_all_wex.js",
+    "run-all": "node run_all.js && node run_all_wex.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "samsara",
+    "wex",
+    "fuel",
+    "supabase",
+    "pipeline",
+    "sync"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "papaparse": "^5.4.1"
+  }
+}

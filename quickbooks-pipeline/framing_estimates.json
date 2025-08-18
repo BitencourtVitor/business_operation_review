@@ -2,147 +2,33 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "49861",
-    "SyncToken": "4",
+    "Id": "45266",
+    "SyncToken": "5",
     "MetaData": {
-      "CreateTime": "2025-07-17T13:55:32-07:00",
-      "LastUpdatedTime": "2025-08-07T11:29:07-07:00"
+      "CreateTime": "2025-01-28T08:00:35-08:00",
+      "LastUpdatedTime": "2025-08-15T10:13:38-07:00"
     },
     "CustomField": [],
-    "DocNumber": "2993",
-    "TxnDate": "2025-07-17",
+    "DocNumber": "2882",
+    "TxnDate": "2025-01-28",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49873",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "50202",
-        "TxnType": "Invoice"
-      }
-    ],
+    "TxnStatus": "Pending",
     "Line": [
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "Steling",
+        "Description": "Roof singles and metal roof by the plan",
         "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 0,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Provide Labor to all rough framing\ninstall windows\ninstall exterior doors",
-        "Amount": 42750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 42750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "combo discount",
-        "Amount": -3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": -3000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 39750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3276",
-      "name": "43 Johnson Rd., Sterling"
-    },
-    "BillAddr": {
-      "Id": "15973",
-      "Line1": "David Pagani"
-    },
-    "TotalAmt": 39750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "davidapagani@gmail.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "45451",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-02-06T10:51:02-08:00",
-      "LastUpdatedTime": "2025-08-07T11:28:14-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2888",
-    "TxnDate": "2025-02-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49851",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "50201",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Provide labor and nails for All rough frame\nInstall windows\nInstall exterior Doors\nExcluding exterior deck frame",
-        "Amount": 68000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
             "value": "20",
             "name": "Description"
           },
-          "UnitPrice": 68000,
+          "UnitPrice": 0,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -152,105 +38,15 @@
       {
         "Id": "2",
         "LineNum": 2,
-        "Description": "Discount",
-        "Amount": -5000,
+        "Description": "NSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n premium aluminum drip edge to all\n edges of roof deck.\n\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges",
+        "Amount": 25100,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "22",
-            "name": "labor"
+            "value": "20",
+            "name": "Description"
           },
-          "UnitPrice": -5000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 63000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3278",
-      "name": "41 Johnson Rd., Sterling"
-    },
-    "BillAddr": {
-      "Id": "16213",
-      "Line1": "Rob Pagani",
-      "Line2": "41 Johnson Rd., Sterling"
-    },
-    "TotalAmt": 63000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "rapagani@yahoo.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49152",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-17T14:42:05-07:00",
-      "LastUpdatedTime": "2025-08-05T08:24:00-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2970",
-    "TxnDate": "2025-06-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49239",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49718",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1746 sf",
-        "Amount": 16944,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001132",
-            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
-          },
-          "UnitPrice": 16944,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1721 sf",
-        "Amount": 9124,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001142",
-            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
-          },
-          "UnitPrice": 9124,
+          "UnitPrice": 25100,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -260,15 +56,15 @@
       {
         "Id": "3",
         "LineNum": 3,
-        "Description": "Open Railing Replaces Painted Half Wall",
-        "Amount": 0,
+        "Description": "Install new standing seam metal roof by Contractor\n specs.\n NOTE: Any change on scope or plans subjected to\n change order.\n Material and labor included in this proposal.",
+        "Amount": 9900,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001200",
-            "name": "TB - Wendell Place:201 Dickinson Manchester"
+            "value": "20",
+            "name": "Description"
           },
-          "UnitPrice": 0,
+          "UnitPrice": 9900,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -278,15 +74,15 @@
       {
         "Id": "4",
         "LineNum": 4,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 400,
+        "Description": "Roof paper instalation ",
+        "Amount": -650,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001170",
-            "name": "TB - Wendell Place:036415 Dickinson Manchester"
+            "value": "22",
+            "name": "labor"
           },
-          "UnitPrice": 400,
+          "UnitPrice": -650,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -296,15 +92,15 @@
       {
         "Id": "5",
         "LineNum": 5,
-        "Description": "Linear Frplc - 42\" Cosmo/Ra Great Room Rplcs",
-        "Amount": 200,
+        "Description": "Roof paper materal 3 roll",
+        "Amount": -90,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001252",
-            "name": "TB - Wendell Place:106158 Dickinson Manchester"
+            "value": "21",
+            "name": "Material"
           },
-          "UnitPrice": 200,
+          "UnitPrice": -90,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -312,84 +108,63 @@
         }
       },
       {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Additional Bedroom",
-        "Amount": 300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001240",
-            "name": "TB - Wendell Place:263049 Dickinson Manchester"
-          },
-          "UnitPrice": 300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 26968,
+        "Amount": 34260,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
     ],
     "CustomerRef": {
-      "value": "3247",
-      "name": "Lot 18 - Wendell Place"
+      "value": "3278",
+      "name": "41 Johnson Rd., Sterling"
     },
     "BillAddr": {
-      "Id": "15314",
-      "Line1": "Lot 18 - Wendell Place",
-      "Line2": "1 Lady Constance Way",
-      "Line3": "Dickinson Manchester"
+      "Id": "16295",
+      "Line1": "PJ Keating",
+      "Line2": "998 Reservoir Rd",
+      "Line3": "Lunenburg, MA  01462"
     },
-    "TotalAmt": 26968,
+    "TotalAmt": 34260,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "rapagani@yahoo.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-13T10:25:12-07:00"
+    }
   },
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "49728",
-    "SyncToken": "4",
+    "Id": "49115",
+    "SyncToken": "7",
     "MetaData": {
-      "CreateTime": "2025-07-10T08:18:55-07:00",
-      "LastUpdatedTime": "2025-08-05T08:20:44-07:00"
+      "CreateTime": "2025-06-17T06:16:18-07:00",
+      "LastUpdatedTime": "2025-08-15T10:10:20-07:00"
     },
     "CustomField": [],
-    "DocNumber": "2984",
-    "TxnDate": "2025-07-08",
+    "DocNumber": "2960",
+    "TxnDate": "2025-06-17",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49892",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "50105",
-        "TxnType": "Invoice"
-      }
-    ],
+    "TxnStatus": "Pending",
     "Line": [
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "2468 sf",
-        "Amount": 23283,
+        "Description": " Roof InstallProject Scope:\n INSTALL NEW: GAF Shingles ( Color TBD )\n INSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n NOTE: All eave edges will have 6'\n INSTALL New 8\" premium aluminum drip edge to all\n edges of roof deck.\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges.\n CLEAN UP All Gutters to be cleaned after job\n completion. All debris and nails to be cleaned around\n the property.\n NOTE: Metal Roof included in this proposal.",
+        "Amount": 29500,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010000371",
-            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
+            "value": "20",
+            "name": "Description"
           },
-          "UnitPrice": 23283,
+          "UnitPrice": 29500,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -399,15 +174,192 @@
       {
         "Id": "2",
         "LineNum": 2,
-        "Description": "2226 sf",
-        "Amount": 12537,
+        "Description": "Discount for labor and roof paper ",
+        "Amount": -600,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010000372",
-            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+            "value": "20",
+            "name": "Description"
           },
-          "UnitPrice": 12537,
+          "UnitPrice": -600,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 28900,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3162",
+      "name": "David Pagani"
+    },
+    "BillAddr": {
+      "Id": "15923",
+      "Line1": "David Pagani"
+    },
+    "ShipAddr": {
+      "Id": "13203"
+    },
+    "TotalAmt": 28900,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "davidapagani@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-13T10:27:49-07:00"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50306",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-08T10:29:35-07:00",
+      "LastUpdatedTime": "2025-08-15T07:19:01-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2996",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "50377",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "210 Sqf",
+        "Amount": 2560,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1958",
+            "name": "PH - Wheelock Farm - Deck:Base Deck - Hardwick"
+          },
+          "UnitPrice": 2560,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Elevation 1",
+        "Amount": 350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1962",
+            "name": "PH - Wheelock Farm - Deck:63559 Deck - Hardwick"
+          },
+          "UnitPrice": 350,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 2910,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3303",
+      "name": "Lot 28 - Deck - Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "16354",
+      "Line1": "Lot 28 - Deck - Wheelock Farm 8856  - Pulte Homes MS - 1074 ",
+      "Line2": "12 Lloyd Circle",
+      "Line3": "Hardwick V"
+    },
+    "TotalAmt": 2910,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49133",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-17T10:29:21-07:00",
+      "LastUpdatedTime": "2025-08-15T07:13:38-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2963",
+    "TxnDate": "2025-06-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49714",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50372",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,389",
+        "Amount": 8336.7,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1583",
+            "name": "PH - Highland at Vale:Base First Draw - Jackson"
+          },
+          "UnitPrice": 8336.7,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2,389",
+        "Amount": 12516.95,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
+          },
+          "UnitPrice": 12516.95,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -417,15 +369,15 @@
       {
         "Id": "3",
         "LineNum": 3,
-        "Description": "Sec Bath Tub-Kohler Villa",
-        "Amount": 100,
+        "Description": "Bay Window",
+        "Amount": 2000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001612",
-            "name": "TB - Newbury Glen:048650 - All Plans"
+            "value": "1597",
+            "name": "PH - Highland at Vale:39000 - Jackson"
           },
-          "UnitPrice": 100,
+          "UnitPrice": 2000,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -435,15 +387,15 @@
       {
         "Id": "4",
         "LineNum": 4,
-        "Description": "Walkout Basement",
-        "Amount": 4900,
+        "Description": "Tray Ceiling @ Owner´s Suite",
+        "Amount": 1000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010000445",
-            "name": "TB - Newbury Glen:017 - Williamstown"
+            "value": "1802",
+            "name": "PH - Highland at Vale:69162 - All Plans"
           },
-          "UnitPrice": 4900,
+          "UnitPrice": 1000,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -451,38 +403,77 @@
         }
       },
       {
-        "Amount": 40820,
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 2",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1591",
+            "name": "PH - Highland at Vale:63560 - Jackson"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Basement - Walkout 8' Unfinished",
+        "Amount": 2750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1586",
+            "name": "PH - Highland at Vale:68555 - All Plans"
+          },
+          "UnitPrice": 2750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 26878.65,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
     ],
     "CustomerRef": {
-      "value": "3269",
-      "name": "Lot 16 - Newbury Glen"
+      "value": "3243",
+      "name": "Lot 72 / 28 - Highland at Vale"
     },
     "BillAddr": {
-      "Id": "15758",
-      "Line1": "Lot 16 - Newbury Glen",
-      "Line2": "7 Fitch Avenue",
-      "Line3": "Williamstown Modern Craftsman"
+      "Id": "15284",
+      "Line1": "Lot 72 / 28Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "13 Mason Way",
+      "Line3": "Jackson"
     },
-    "TotalAmt": 40820,
+    "TotalAmt": 26878.65,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
   },
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "49151",
-    "SyncToken": "2",
+    "Id": "48650",
+    "SyncToken": "3",
     "MetaData": {
-      "CreateTime": "2025-06-17T14:06:34-07:00",
-      "LastUpdatedTime": "2025-08-05T08:17:36-07:00"
+      "CreateTime": "2025-05-28T12:29:25-07:00",
+      "LastUpdatedTime": "2025-08-15T07:11:05-07:00"
     },
     "CustomField": [],
-    "DocNumber": "2969",
-    "TxnDate": "2025-06-17",
+    "DocNumber": "2951",
+    "TxnDate": "2025-05-28",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
@@ -490,7 +481,11 @@
     "TxnStatus": "Converted",
     "LinkedTxn": [
       {
-        "TxnId": "49716",
+        "TxnId": "49234",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49896",
         "TxnType": "Invoice"
       }
     ],
@@ -498,15 +493,15 @@
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "1746 sf",
-        "Amount": 16944,
+        "Description": "2,389",
+        "Amount": 8336.7,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001132",
-            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
+            "value": "1583",
+            "name": "PH - Highland at Vale:Base First Draw - Jackson"
           },
-          "UnitPrice": 16944,
+          "UnitPrice": 8336.7,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -516,15 +511,15 @@
       {
         "Id": "2",
         "LineNum": 2,
-        "Description": "1721 sf",
-        "Amount": 9124,
+        "Description": "2,389",
+        "Amount": 12516.95,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001142",
-            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
           },
-          "UnitPrice": 9124,
+          "UnitPrice": 12516.95,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -534,15 +529,15 @@
       {
         "Id": "3",
         "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 4900,
+        "Description": "Fireplace / Gas - Gathering Room - Level 1",
+        "Amount": 550,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1010001138",
-            "name": "TB - Wendell Place:017 Dickinson Manchester"
+            "value": "1596",
+            "name": "PH - Highland at Vale:13953 - Jackson"
           },
-          "UnitPrice": 4900,
+          "UnitPrice": 550,
           "Qty": 1,
           "TaxCodeRef": {
             "value": "NON"
@@ -550,34 +545,599 @@
         }
       },
       {
-        "Amount": 30968,
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Bay Window",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1597",
+            "name": "PH - Highland at Vale:39000 - Jackson"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Basement - Walkout 8' Unfinished",
+        "Amount": 2750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1586",
+            "name": "PH - Highland at Vale:68555 - All Plans"
+          },
+          "UnitPrice": 2750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Tray Ceiling @ Owner´s Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1802",
+            "name": "PH - Highland at Vale:69162 - All Plans"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Elevation 3",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1592",
+            "name": "PH - Highland at Vale:63561 - Jackson"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 27428.65,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
     ],
     "CustomerRef": {
-      "value": "3246",
-      "name": "Lot 15 - Wendell Place"
+      "value": "3224",
+      "name": "Lot 70 / 27 - Highland at Vale"
     },
     "BillAddr": {
-      "Id": "15743",
-      "Line1": "Lot 15 - Wendell Place",
-      "Line2": "7 Lady Constance Way",
-      "Line3": "Dickinson Manchester"
+      "Id": "15375",
+      "Line1": "Lot 70 / 27 - Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "9 Mason Way",
+      "Line3": "Jackson"
     },
-    "TotalAmt": 30968,
+    "TotalAmt": 27428.65,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "46852",
+    "SyncToken": "17",
+    "MetaData": {
+      "CreateTime": "2025-03-27T06:35:11-07:00",
+      "LastUpdatedTime": "2025-08-14T06:05:52-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2916",
+    "TxnDate": "2025-03-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "47473",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49344",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49347",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49350",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49837",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Main Building 37,727 sqft",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1st Level Wall Installation Field Labor",
+        "Amount": 22056,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 22056,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "1st Level Punch and Hold-down Labor",
+        "Amount": 9683,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9683,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "2nd Level Floor Installation Labor",
+        "Amount": 28343,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 28343,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "2nd Level Wall Installation Field Labor",
+        "Amount": 22056,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 22056,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "2nd Level Punch and Hold-down Labor",
+        "Amount": 9683,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9683,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "3rd Level Floor Installation Labor",
+        "Amount": 28343,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 28343,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "3rd Level Wall Installation Field Labor",
+        "Amount": 22056,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 22056,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "3rd Level Punch and Hold-down Labor",
+        "Amount": 9683,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9683,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Roof Framing Installation Labor",
+        "Amount": 28343,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 28343,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Roof Punch Labor",
+        "Amount": 9686.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9686.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "Stair Labor",
+        "Amount": 15090,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 15090,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "AVB Labor",
+        "Amount": 9432,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9432,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "Window & Door Installation Labor",
+        "Amount": 16965,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 16965,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 15,
+        "Description": "Balcony Decking Labor",
+        "Amount": 8200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 8200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "LineNum": 16,
+        "Description": "Balcony Railing Labor",
+        "Amount": 9565,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9565,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 17,
+        "Description": "Subtotal: $249184.50",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {}
+      },
+      {
+        "Id": "18",
+        "LineNum": 18,
+        "Description": "Leasing Building 1,193 sqft",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "LineNum": 19,
+        "Description": "1st Level Wall Installation Field Labor",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "LineNum": 20,
+        "Description": "1st Level Punch and Hold-down Labor",
+        "Amount": 1049,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 1049,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "LineNum": 21,
+        "Description": "Roof Framing Installation Labor",
+        "Amount": 2300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 2300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "LineNum": 22,
+        "Description": "Roof Punch Labor",
+        "Amount": 1049,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 1049,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "LineNum": 23,
+        "Description": "AVB Labor",
+        "Amount": 350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 350,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "LineNum": 24,
+        "Description": "Window & Door Installation Labor",
+        "Amount": 1305,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 1305,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "LineNum": 25,
+        "Description": "Subtotal: $8053.00",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {}
+      },
+      {
+        "Amount": 257237.5,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3164",
+      "name": "Woodview at Randolph (Randolph, MA)"
+    },
+    "BillAddr": {
+      "Id": "13638",
+      "Line1": "Turnkey Lumber, Inc."
+    },
+    "TotalAmt": 257237.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "juliano@turnkeylumber.com"
+    }
   },
   {
     "domain": "QBO",
     "sparse": false,
     "Id": "46850",
-    "SyncToken": "12",
+    "SyncToken": "13",
     "MetaData": {
       "CreateTime": "2025-03-27T06:22:14-07:00",
-      "LastUpdatedTime": "2025-08-04T17:40:37-07:00"
+      "LastUpdatedTime": "2025-08-13T20:24:38-07:00"
     },
     "CustomField": [],
     "DocNumber": "2915",
@@ -586,7 +1146,7 @@
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Accepted",
+    "TxnStatus": "Converted",
     "LinkedTxn": [
       {
         "TxnId": "49686",
@@ -602,6 +1162,10 @@
       },
       {
         "TxnId": "50092",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50351",
         "TxnType": "Invoice"
       }
     ],
@@ -862,6 +1426,2262 @@
     "BillEmail": {
       "Address": "juliano@turnkeylumber.com"
     }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49728",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-07-10T08:18:55-07:00",
+      "LastUpdatedTime": "2025-08-13T19:10:52-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2984",
+    "TxnDate": "2025-07-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49892",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50105",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2484 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000371",
+            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
+          },
+          "UnitPrice": 23283,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2303 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Sec Bath Tub-Kohler Villa",
+        "Amount": 100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001612",
+            "name": "TB - Newbury Glen:048650 - All Plans"
+          },
+          "UnitPrice": 100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000445",
+            "name": "TB - Newbury Glen:017 - Williamstown"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 40820,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3269",
+      "name": "Lot 16 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "15758",
+      "Line1": "Lot 16 - Newbury Glen",
+      "Line2": "7 Fitch Avenue",
+      "Line3": "Williamstown Modern Craftsman"
+    },
+    "TotalAmt": 40820,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50323",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-11T15:14:56-07:00",
+      "LastUpdatedTime": "2025-08-13T18:30:05-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2999",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1766 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000404",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1686 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000404",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000689",
+            "name": "TB - Lakemont At Hudson:017 - All Plans"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001107",
+            "name": "TB - Lakemont At Hudson:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000901",
+            "name": "TB - Lakemont At Hudson:036415 - All Plans"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000981",
+            "name": "TB - Lakemont At Hudson:263049 - All Plans"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001094",
+            "name": "TB - Lakemont At Hudson:263432 - All Plans"
+          },
+          "UnitPrice": 4300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 44038,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3298",
+      "name": "Lot 13 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16316",
+      "Line1": "Lot 13 - Lakemont at Hudson",
+      "Line2": "16 Fitch Avenue",
+      "Line3": "Williamstown Modern Farmhouse"
+    },
+    "TotalAmt": 44038,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49116",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-06-17T06:19:32-07:00",
+      "LastUpdatedTime": "2025-08-12T11:22:28-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2961",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Install House wrap\nInstall Vinyl siding coloniol white ( single 8\" wood grain\nAluminum fascia wrap\nVinyl corner \n\nNo windows and door trim (windows and doors should come with J channel intergrade)\n\nFront porch ceiling not included ",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "22",
+            "name": "labor"
+          },
+          "UnitPrice": 12800,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Amount": 14650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "21",
+            "name": "Material"
+          },
+          "UnitPrice": 14650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 27450,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3162",
+      "name": "David Pagani"
+    },
+    "BillAddr": {
+      "Id": "16296",
+      "Line1": "David Pagani"
+    },
+    "ShipAddr": {
+      "Id": "13203"
+    },
+    "TotalAmt": 27450,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "davidapagani@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-12T11:22:25-07:00"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50321",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-11T14:37:09-07:00",
+      "LastUpdatedTime": "2025-08-12T07:49:19-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2997",
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Box Ceiling @ Owner's Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3197",
+            "name": "PH - Riverview THs:69162 - Southbrook"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Privacy Fence",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3206",
+            "name": "PH - Riverview THs - Deck:20034 - Southbrook"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 4",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3195",
+            "name": "PH - Riverview THs:63562 - Southbrook"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 25275,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3296",
+      "name": "Lot 03 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "16267",
+      "Line1": "Lot 03 - Riverview THs - 9042",
+      "Line2": "34 East Point Drive",
+      "Line3": "Southbrook"
+    },
+    "TotalAmt": 25275,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50331",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-12T07:34:00-07:00",
+      "LastUpdatedTime": "2025-08-12T07:34:00-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3002",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2046 sf",
+        "Amount": 20766,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000337",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Copley South Shore"
+          },
+          "UnitPrice": 20766,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2135 sf",
+        "Amount": 11182,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000405",
+            "name": "TB - Lakemont At Hudson:Base Second Draw - Copley South Shore"
+          },
+          "UnitPrice": 11182,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000359",
+            "name": "TB - Lakemont At Hudson:015 - All Plans"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 32348,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3305",
+      "name": "Lot 04 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16277",
+      "Line1": "Lot 04 - Lakemont at Hudson",
+      "Line2": "8 Town Line Road",
+      "Line3": "Copley South Shore"
+    },
+    "TotalAmt": 32348,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50330",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-12T07:28:41-07:00",
+      "LastUpdatedTime": "2025-08-12T07:28:56-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3001",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1971 sf",
+        "Amount": 19747,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000357",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Stockbridge South Shore"
+          },
+          "UnitPrice": 19747,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2017 sf",
+        "Amount": 10633,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000377",
+            "name": "TB - Lakemont At Hudson:Base Second Draw - Stockbridge South Shore"
+          },
+          "UnitPrice": 10633,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001542",
+            "name": "TB - Lakemont At Hudson:020400 - All Plans"
+          },
+          "UnitPrice": -500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000981",
+            "name": "TB - Lakemont At Hudson:263049 - All Plans"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 30180,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3304",
+      "name": "Lot 20 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16276",
+      "Line1": "Lot 20 - Lakemont at Hudson",
+      "Line2": "12 Old County Road",
+      "Line3": "Stockbridge South Shore"
+    },
+    "TotalAmt": 30180,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "45451",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-02-06T10:51:02-08:00",
+      "LastUpdatedTime": "2025-08-12T06:17:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2888",
+    "TxnDate": "2025-02-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49851",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50201",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50327",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Provide labor and nails for All rough frame\nInstall windows\nInstall exterior Doors\nExcluding exterior deck frame",
+        "Amount": 68000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 68000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Discount",
+        "Amount": -5000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "22",
+            "name": "labor"
+          },
+          "UnitPrice": -5000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 63000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3278",
+      "name": "41 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "16213",
+      "Line1": "Rob Pagani",
+      "Line2": "41 Johnson Rd., Sterling"
+    },
+    "TotalAmt": 63000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "rapagani@yahoo.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50324",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-11T15:19:00-07:00",
+      "LastUpdatedTime": "2025-08-11T15:19:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3000",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,652 sq ft - Rough Carpentry 1",
+        "Amount": 12654.32,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1918",
+            "name": "PH - Wheelock Farm:Base - Wellington - 1st Floor"
+          },
+          "UnitPrice": 12654.32,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,773 sq ft - Rough Carpentry 2",
+        "Amount": 13581.18,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1919",
+            "name": "PH - Wheelock Farm:Base - Wellington - 2nd Floor"
+          },
+          "UnitPrice": 13581.18,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window Option @ Living Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1908",
+            "name": "PH - Wheelock Farm:13942 - Hardwick / Wellington"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Fireplace Gas Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1891",
+            "name": "PH - Wheelock Farm:21023 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Window Option @ Dining Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1884",
+            "name": "PH - Wheelock Farm:39036 - All Plans"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Window(s) Option @ Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1909",
+            "name": "PH - Wheelock Farm:65368 - All Plans"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Basement - Walkout Unfinished",
+        "Amount": 2250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1871",
+            "name": "PH - Wheelock Farm:68555 - All Plans"
+          },
+          "UnitPrice": 2250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Elevation 2",
+        "Amount": 4050,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1934",
+            "name": "PH - Wheelock Farm:63560 - Wellington"
+          },
+          "UnitPrice": 4050,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 36135.5,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3297",
+      "name": "Lot 43 - Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "16270",
+      "Line1": "Lot 43 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
+      "Line2": "3 Lloyd Circle",
+      "Line3": "Wellington"
+    },
+    "TotalAmt": 36135.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50322",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-11T14:55:14-07:00",
+      "LastUpdatedTime": "2025-08-11T14:55:42-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2998",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2408 sf",
+        "Amount": 15047.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000293",
+            "name": "TB - Newbury Glen:Base First Draw - Williamstone Modern Farmhouse"
+          },
+          "UnitPrice": 15047.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2226 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000455",
+            "name": "TB - Newbury Glen:015 - Williamstown"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000686",
+            "name": "TB - Newbury Glen:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Soffit in Primary Bedroom",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000468",
+            "name": "TB - Newbury Glen:036008 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Finished Basement",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000580",
+            "name": "TB - Newbury Glen:263018 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 35134.5,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3299",
+      "name": "Lot 06 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "16268",
+      "Line1": "Lot 06 - Newbury Glen",
+      "Line2": "16 Fitch Avenue",
+      "Line3": "Williamstown Modern Farmhouse"
+    },
+    "TotalAmt": 35134.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48871",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-06-05T07:56:37-07:00",
+      "LastUpdatedTime": "2025-08-11T12:45:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2957",
+    "TxnDate": "2025-05-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49240",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49717",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50318",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2484 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001181",
+            "name": "TB - Wendell Place:Base First Draw - Williamstown Manchester"
+          },
+          "UnitPrice": 23283,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2303 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001192",
+            "name": "TB - Wendell Place:Base Second Draw - Williamstown Manchester"
+          },
+          "UnitPrice": 12537,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001187",
+            "name": "TB - Wendell Place:017 Williamstown Manchester"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001255",
+            "name": "TB - Wendell Place:201 Williamstown Manchester"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001338",
+            "name": "TB - Wendell Place:263432 Williamstown Manchester"
+          },
+          "UnitPrice": 4300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Multi Gen Suite Addition w/ Walkout basement",
+        "Amount": 7200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001340",
+            "name": "TB - Wendell Place:263433 Williamstown Manchester"
+          },
+          "UnitPrice": 7200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Sec Bath Tub-Kohler Villa",
+        "Amount": 200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001661",
+            "name": "TB - Wendell Place:048650 - All Plans"
+          },
+          "UnitPrice": 100,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Optional 383 - Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 52670,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3232",
+      "name": "Lot 14 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "15217",
+      "Line1": "Lot 14 - Wendell Place",
+      "Line2": "9 Lady Constance Way",
+      "Line3": "Williamsown Manchester"
+    },
+    "TotalAmt": 52670,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49246",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-19T04:10:42-07:00",
+      "LastUpdatedTime": "2025-08-11T12:34:39-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2972",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49557",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50314",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Carpentry - First Draw",
+        "Amount": 14627,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001731",
+            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Sutton"
+          },
+          "UnitPrice": 14627,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Rough Carpentry - Second Draw",
+        "Amount": 7877,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001741",
+            "name": "TB - Willis Brook at Lynnfield:Base Second Draw - Sutton"
+          },
+          "UnitPrice": 7877,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3229",
+            "name": "TB - Willis Brook at Lynnfield:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Basement Wet Bar w/Island",
+        "Amount": 650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3220",
+            "name": "TB - Willis Brook at Lynnfield:263315 - All Plans"
+          },
+          "UnitPrice": 650,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Basement",
+        "Amount": 7590,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3215",
+            "name": "TB - Willis Brook at Lynnfield:263018 - Sutton"
+          },
+          "UnitPrice": 7590,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3210",
+            "name": "TB - Willis Brook at Lynnfield:036415 - Westford/Beverly/Sutton"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 31744,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3249",
+      "name": "Lot 01 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "15604",
+      "Line1": "Lot 01 - Willis Brook at Lynnfield",
+      "Line2": "4 Eagleview Drive",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "TotalAmt": 31744,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48124",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-05-08T06:23:53-07:00",
+      "LastUpdatedTime": "2025-08-08T10:21:16-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2944",
+    "TxnDate": "2025-05-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "48125",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49253",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,028 sq ft - Rough Carpentry 1",
+        "Amount": 15534.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1894",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 15534.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,991 sq ft - Rough Carpentry 2",
+        "Amount": 15251.06,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1895",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
+          },
+          "UnitPrice": 15251.06,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window @ Cafe Option",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1907",
+            "name": "PH - Wheelock Farm:13935 - Continental / Hardwick"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Fireplace Gas Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1891",
+            "name": "PH - Wheelock Farm:21023 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 1",
+        "Amount": 2900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1903",
+            "name": "PH - Wheelock Farm:63559 - Hardwick"
+          },
+          "UnitPrice": 2900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 35485.54,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3214",
+      "name": "Lot 28 - Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "14255",
+      "Line1": "Lot 28 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
+      "Line2": "12 Lloyd Circle",
+      "Line3": "Hardwick V"
+    },
+    "TotalAmt": 35485.54,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "45583",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-02-12T08:36:29-08:00",
+      "LastUpdatedTime": "2025-08-08T09:55:30-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2892",
+    "TxnDate": "2025-02-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "46570",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "46639",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "47886",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "4,019",
+        "Amount": 28253.57,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1538",
+            "name": "PH - Woodland Hill:Base Hardwick"
+          },
+          "UnitPrice": 28253.57,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 2,
+        "Description": "Window Option @ Living Room",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1549",
+            "name": "PH - Woodland Hill:13942 Hardwick"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window Option @ Living Room",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1549",
+            "name": "PH - Woodland Hill:13942 Hardwick"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Fireplace Option (Gathering)",
+        "Amount": 810,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1797",
+            "name": "PH - Woodland Hill:13953 Hardwick"
+          },
+          "UnitPrice": 810,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 5,
+        "Description": "Window Option @ Gathering Room",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1550",
+            "name": "PH - Woodland Hill:65368 Hardwick"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 6,
+        "Description": "Window Option @ Gathering Room",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1826",
+            "name": "PH - Rookery Lane at Concord:65368 - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 7,
+        "Description": "Elevation 1",
+        "Amount": 2610,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1546",
+            "name": "PH - Woodland Hill:63559 Hardwick"
+          },
+          "UnitPrice": 2610,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 8,
+        "Description": "Tray Celling @ Owner's Suite",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1555",
+            "name": "PH - Woodland Hill:69162 Hardwick"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 9,
+        "Description": "Window Option @ Cafe",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1548",
+            "name": "PH - Woodland Hill:13935 Hardwick"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Description": "Window Option @ Cafe",
+        "Amount": 405,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1548",
+            "name": "PH - Woodland Hill:13935 Hardwick"
+          },
+          "UnitPrice": 405,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 11,
+        "Description": "Extra payments made towards the following optionals:\n- 1 - $2,531.97\n- 13942 - $90.00\n- 13953 - $90.00\n- 69162 - $100.00\n- 63559 - $290.00\n- 65368 - $90.00\n- 13935 - $90.00",
+        "Amount": 3281.97,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 3281.97,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 38285.54,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3118",
+      "name": "Lot 18 - Woodland Hill - Pulte Homes - 8180"
+    },
+    "BillAddr": {
+      "Id": "12839",
+      "Line1": "Woodland Hill 8180 - Pulte Homes MS - 1074"
+    },
+    "TotalAmt": 38285.54,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49861",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-17T13:55:32-07:00",
+      "LastUpdatedTime": "2025-08-07T11:29:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2993",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49873",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50202",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Steling",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Provide Labor to all rough framing\ninstall windows\ninstall exterior doors",
+        "Amount": 42750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 42750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "combo discount",
+        "Amount": -3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": -3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 39750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3276",
+      "name": "43 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "15973",
+      "Line1": "David Pagani"
+    },
+    "TotalAmt": 39750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "davidapagani@gmail.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49152",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-17T14:42:05-07:00",
+      "LastUpdatedTime": "2025-08-05T08:24:00-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2970",
+    "TxnDate": "2025-06-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49239",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49718",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1746 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001132",
+            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1721 sf",
+        "Amount": 9124,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001142",
+            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 9124,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001200",
+            "name": "TB - Wendell Place:201 Dickinson Manchester"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001170",
+            "name": "TB - Wendell Place:036415 Dickinson Manchester"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Linear Frplc - 42\" Cosmo/Ra Great Room Rplcs",
+        "Amount": 200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001252",
+            "name": "TB - Wendell Place:106158 Dickinson Manchester"
+          },
+          "UnitPrice": 200,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001240",
+            "name": "TB - Wendell Place:263049 Dickinson Manchester"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 26968,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3247",
+      "name": "Lot 18 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "15314",
+      "Line1": "Lot 18 - Wendell Place",
+      "Line2": "1 Lady Constance Way",
+      "Line3": "Dickinson Manchester"
+    },
+    "TotalAmt": 26968,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49151",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-17T14:06:34-07:00",
+      "LastUpdatedTime": "2025-08-05T08:17:36-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2969",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49716",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1746 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001132",
+            "name": "TB - Wendell Place:Base First Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1721 sf",
+        "Amount": 9124,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001142",
+            "name": "TB - Wendell Place:Base Second Draw - Dickinson Manchester"
+          },
+          "UnitPrice": 9124,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001138",
+            "name": "TB - Wendell Place:017 Dickinson Manchester"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 30968,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3246",
+      "name": "Lot 15 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "15743",
+      "Line1": "Lot 15 - Wendell Place",
+      "Line2": "7 Lady Constance Way",
+      "Line3": "Dickinson Manchester"
+    },
+    "TotalAmt": 30968,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
   },
   {
     "domain": "QBO",
@@ -2737,184 +5557,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "48650",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-28T12:29:25-07:00",
-      "LastUpdatedTime": "2025-07-21T08:38:56-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2951",
-    "TxnDate": "2025-05-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49234",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49896",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,389",
-        "Amount": 8336.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1583",
-            "name": "PH - Highland at Vale:Base First Draw - Jackson"
-          },
-          "UnitPrice": 8336.7,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2,389",
-        "Amount": 12516.95,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3198",
-            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
-          },
-          "UnitPrice": 12516.95,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Fireplace / Gas - Gathering Room - Level 1",
-        "Amount": 550,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1596",
-            "name": "PH - Highland at Vale:13953 - Jackson"
-          },
-          "UnitPrice": 550,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Bay Window",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1597",
-            "name": "PH - Highland at Vale:39000 - Jackson"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Basement - Walkout 8' Unfinished",
-        "Amount": 2750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1586",
-            "name": "PH - Highland at Vale:68555 - All Plans"
-          },
-          "UnitPrice": 2750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Tray Ceiling @ Owner´s Suite",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1802",
-            "name": "PH - Highland at Vale:69162 - All Plans"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Elevation 3",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1592",
-            "name": "PH - Highland at Vale:63561 - Jackson"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 27428.65,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3224",
-      "name": "Lot 70 / 27 - Highland at Vale"
-    },
-    "BillAddr": {
-      "Id": "15375",
-      "Line1": "Lot 70 / 27 - Highland at Vale 7241 - Pulte Homes MS - 1074",
-      "Line2": "9 Mason Way",
-      "Line3": "Jackson"
-    },
-    "TotalAmt": 27428.65,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49139",
     "SyncToken": "1",
     "MetaData": {
@@ -3618,660 +6260,6 @@
     },
     "DeliveryInfo": {
       "DeliveryType": "Email"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "45266",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-01-28T08:00:35-08:00",
-      "LastUpdatedTime": "2025-07-17T12:59:57-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2882",
-    "TxnDate": "2025-01-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Roof singles and metal roof by the plan",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "NSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n premium aluminum drip edge to all\n edges of roof deck.\n INSTALL New Synthetic breathable underlayment to\n entire roof deck.\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges",
-        "Amount": 25100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 25100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Install new standing seam metal roof by Contractor\n specs.\n NOTE: Any change on scope or plans subjected to\n change order.\n Material and labor included in this proposal.",
-        "Amount": 9900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 35000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3278",
-      "name": "41 Johnson Rd., Sterling"
-    },
-    "BillAddr": {
-      "Id": "12046",
-      "Line1": "PJ Keating",
-      "Line2": "998 Reservoir Rd",
-      "Line3": "Lunenburg, MA  01462"
-    },
-    "TotalAmt": 35000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "rapagani@yahoo.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "46852",
-    "SyncToken": "15",
-    "MetaData": {
-      "CreateTime": "2025-03-27T06:35:11-07:00",
-      "LastUpdatedTime": "2025-07-16T11:03:01-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2916",
-    "TxnDate": "2025-03-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "47473",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49344",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49347",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49350",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49837",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Main Building 37,727 sqft",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1st Level Wall Installation Field Labor",
-        "Amount": 22056,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 22056,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "1st Level Punch and Hold-down Labor",
-        "Amount": 9683,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9683,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "2nd Level Floor Installation Labor",
-        "Amount": 28343,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 28343,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "2nd Level Wall Installation Field Labor",
-        "Amount": 22056,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 22056,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "2nd Level Punch and Hold-down Labor",
-        "Amount": 9683,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9683,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "3rd Level Floor Installation Labor",
-        "Amount": 28343,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 28343,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "3rd Level Wall Installation Field Labor",
-        "Amount": 22056,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 22056,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "3rd Level Punch and Hold-down Labor",
-        "Amount": 9683,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9683,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Roof Framing Installation Labor",
-        "Amount": 28343,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 28343,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Roof Punch Labor",
-        "Amount": 9686.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9686.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Stair Labor",
-        "Amount": 15090,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 15090,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Description": "AVB Labor",
-        "Amount": 9432,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9432,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "14",
-        "LineNum": 14,
-        "Description": "Window & Door Installation Labor",
-        "Amount": 16965,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 16965,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "15",
-        "LineNum": 15,
-        "Description": "Balcony Decking Labor",
-        "Amount": 8200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 8200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "16",
-        "LineNum": 16,
-        "Description": "Balcony Railing Labor",
-        "Amount": 9565,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9565,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "17",
-        "LineNum": 17,
-        "Description": "Subtotal: $249184.50",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {}
-      },
-      {
-        "Id": "18",
-        "LineNum": 18,
-        "Description": "Leasing Building 1,193 sqft",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "19",
-        "LineNum": 19,
-        "Description": "1st Level Wall Installation Field Labor",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "20",
-        "LineNum": 20,
-        "Description": "1st Level Punch and Hold-down Labor",
-        "Amount": 1049,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 1049,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "21",
-        "LineNum": 21,
-        "Description": "Roof Framing Installation Labor",
-        "Amount": 2300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 2300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "22",
-        "LineNum": 22,
-        "Description": "Roof Punch Labor",
-        "Amount": 1049,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 1049,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "23",
-        "LineNum": 23,
-        "Description": "AVB Labor",
-        "Amount": 350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 350,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "24",
-        "LineNum": 24,
-        "Description": "Window & Door Installation Labor",
-        "Amount": 1305,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 1305,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "25",
-        "LineNum": 25,
-        "Description": "Subtotal: $8053.00",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {}
-      },
-      {
-        "Amount": 257237.5,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3164",
-      "name": "Woodview at Randolph (Randolph, MA)"
-    },
-    "BillAddr": {
-      "Id": "13638",
-      "Line1": "Turnkey Lumber, Inc."
-    },
-    "TotalAmt": 257237.5,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "juliano@turnkeylumber.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49115",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-06-17T06:16:18-07:00",
-      "LastUpdatedTime": "2025-07-16T09:04:03-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2960",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": " Roof InstallProject Scope:\n INSTALL NEW: GAF Shingles ( Color TBD )\n INSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n NOTE: All eave edges will have 6'\n INSTALL New 8\" premium aluminum drip edge to all\n edges of roof deck.\n INSTALL New Synthetic breathable underlayment to\n entire roof deck.\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges.\n CLEAN UP All Gutters to be cleaned after job\n completion. All debris and nails to be cleaned around\n the property.\n NOTE: Metal Roof included in this proposal.",
-        "Amount": 29500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 29500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 29500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3162",
-      "name": "David Pagani"
-    },
-    "BillAddr": {
-      "Id": "15923",
-      "Line1": "David Pagani"
-    },
-    "ShipAddr": {
-      "Id": "13203"
-    },
-    "TotalAmt": 29500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "davidapagani@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-07-16T09:04:00-07:00"
     }
   },
   {
@@ -6568,301 +8556,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "48871",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-06-05T07:56:37-07:00",
-      "LastUpdatedTime": "2025-07-10T07:22:51-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2957",
-    "TxnDate": "2025-05-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49240",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49717",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2484 sf",
-        "Amount": 23283,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001181",
-            "name": "TB - Wendell Place:Base First Draw - Williamstown Manchester"
-          },
-          "UnitPrice": 23283,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2303 sf",
-        "Amount": 12537,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001192",
-            "name": "TB - Wendell Place:Base Second Draw - Williamstown Manchester"
-          },
-          "UnitPrice": 12537,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 4900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001187",
-            "name": "TB - Wendell Place:017 Williamstown Manchester"
-          },
-          "UnitPrice": 4900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Open Railing Replaces Painted Half Wall",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001255",
-            "name": "TB - Wendell Place:201 Williamstown Manchester"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Finished Walkout Basement",
-        "Amount": 4300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001338",
-            "name": "TB - Wendell Place:263432 Williamstown Manchester"
-          },
-          "UnitPrice": 4300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Multi Gen Suite Addition w/ Walkout basement",
-        "Amount": 7200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001340",
-            "name": "TB - Wendell Place:263433 Williamstown Manchester"
-          },
-          "UnitPrice": 7200,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 52220,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3232",
-      "name": "Lot 14 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "15217",
-      "Line1": "Lot 14 - Wendell Place",
-      "Line2": "9 Lady Constance Way",
-      "Line3": "Williamsown Manchester"
-    },
-    "TotalAmt": 52220,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49133",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-06-17T10:29:21-07:00",
-      "LastUpdatedTime": "2025-07-10T07:18:50-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2963",
-    "TxnDate": "2025-06-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49714",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,389",
-        "Amount": 8336.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1583",
-            "name": "PH - Highland at Vale:Base First Draw - Jackson"
-          },
-          "UnitPrice": 8336.7,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2,389",
-        "Amount": 12516.95,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3198",
-            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
-          },
-          "UnitPrice": 12516.95,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Bay Window",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1597",
-            "name": "PH - Highland at Vale:39000 - Jackson"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Tray Ceiling @ Owner´s Suite",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1802",
-            "name": "PH - Highland at Vale:69162 - All Plans"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Elevation 2",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1591",
-            "name": "PH - Highland at Vale:63560 - Jackson"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 24128.65,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3243",
-      "name": "Lot 72 / 28 - Highland at Vale"
-    },
-    "BillAddr": {
-      "Id": "15284",
-      "Line1": "Lot 72 / 28Highland at Vale 7241 - Pulte Homes MS - 1074",
-      "Line2": "13 Mason Way",
-      "Line3": "Jackson"
-    },
-    "TotalAmt": 24128.65,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49671",
     "SyncToken": "2",
     "MetaData": {
@@ -7871,159 +9564,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "49246",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-06-19T04:10:42-07:00",
-      "LastUpdatedTime": "2025-07-01T10:06:49-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2972",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49557",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Carpentry - First Draw",
-        "Amount": 14627,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001731",
-            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Sutton"
-          },
-          "UnitPrice": 14627,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Rough Carpentry - Second Draw",
-        "Amount": 7877,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001741",
-            "name": "TB - Willis Brook at Lynnfield:Base Second Draw - Sutton"
-          },
-          "UnitPrice": 7877,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3229",
-            "name": "TB - Willis Brook at Lynnfield:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Basement Wet Bar w/Island",
-        "Amount": 650,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3220",
-            "name": "TB - Willis Brook at Lynnfield:263315 - All Plans"
-          },
-          "UnitPrice": 650,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Finished Basement",
-        "Amount": 7590,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3215",
-            "name": "TB - Willis Brook at Lynnfield:263018 - Sutton"
-          },
-          "UnitPrice": 7590,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3210",
-            "name": "TB - Willis Brook at Lynnfield:036415 - Westford/Beverly/Sutton"
-          },
-          "UnitPrice": 500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 31744,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3249",
-      "name": "Lot 01 - Willis Brook at Lynnfield"
-    },
-    "BillAddr": {
-      "Id": "15604",
-      "Line1": "Lot 01 - Willis Brook at Lynnfield",
-      "Line2": "4 Eagleview Drive",
-      "Line3": "Sutton Modern Craftsman"
-    },
-    "TotalAmt": 31744,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "47296",
     "SyncToken": "9",
     "MetaData": {
@@ -8934,418 +10474,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "45583",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2025-02-12T08:36:29-08:00",
-      "LastUpdatedTime": "2025-06-20T05:44:06-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2892",
-    "TxnDate": "2025-02-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "46570",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "46639",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "47886",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "4,019",
-        "Amount": 28253.57,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1538",
-            "name": "PH - Woodland Hill:Base Hardwick"
-          },
-          "UnitPrice": 28253.57,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Bulkhead Door",
-        "Amount": 450,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1902",
-            "name": "PH - Wheelock Farm:13925 Hardwick (deleted)"
-          },
-          "UnitPrice": 450,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 3,
-        "Description": "Window Option @ Living Room",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1549",
-            "name": "PH - Woodland Hill:13942 Hardwick"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 4,
-        "Description": "Window Option @ Living Room",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1549",
-            "name": "PH - Woodland Hill:13942 Hardwick"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 5,
-        "Description": "Fireplace Option (Gathering)",
-        "Amount": 810,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1797",
-            "name": "PH - Woodland Hill:13953 Hardwick"
-          },
-          "UnitPrice": 810,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 6,
-        "Description": "Window Option @ Gathering Room",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1550",
-            "name": "PH - Woodland Hill:65368 Hardwick"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 7,
-        "Description": "Window Option @ Gathering Room",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1826",
-            "name": "PH - Rookery Lane at Concord:65368 - Hardwick - 1st Floor"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 8,
-        "Description": "Elevation 1",
-        "Amount": 2610,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1546",
-            "name": "PH - Woodland Hill:63559 Hardwick"
-          },
-          "UnitPrice": 2610,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 9,
-        "Description": "Tray Celling @ Owner's Suite",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1555",
-            "name": "PH - Woodland Hill:69162 Hardwick"
-          },
-          "UnitPrice": 900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Window Option @ Cafe",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1548",
-            "name": "PH - Woodland Hill:13935 Hardwick"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Window Option @ Cafe",
-        "Amount": 405,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1548",
-            "name": "PH - Woodland Hill:13935 Hardwick"
-          },
-          "UnitPrice": 405,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Extra payments made towards the following optionals:\n- 1 - $2,531.97\n- 13942 - $90.00\n- 13953 - $90.00\n- 69162 - $100.00\n- 63559 - $290.00\n- 65368 - $90.00\n- 13935 - $90.00",
-        "Amount": 3281.97,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 3281.97,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 38735.54,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3118",
-      "name": "Lot 18 - Woodland Hill - Pulte Homes - 8180"
-    },
-    "BillAddr": {
-      "Id": "12839",
-      "Line1": "Woodland Hill 8180 - Pulte Homes MS - 1074"
-    },
-    "TotalAmt": 38735.54,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48124",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-05-08T06:23:53-07:00",
-      "LastUpdatedTime": "2025-06-20T04:11:59-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2944",
-    "TxnDate": "2025-05-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "48125",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49253",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,028 sq ft - Rough Carpentry 1",
-        "Amount": 15534.48,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1894",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
-          },
-          "UnitPrice": 15534.48,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1,991 sq ft - Rough Carpentry 2",
-        "Amount": 15251.06,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1895",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
-          },
-          "UnitPrice": 15251.06,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window @ Cafe Option",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1907",
-            "name": "PH - Wheelock Farm:13935 - Continental / Hardwick"
-          },
-          "UnitPrice": 450,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Fireplace Gas Gathering Room",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1891",
-            "name": "PH - Wheelock Farm:21023 - Continental / Hardwick / Newberry / Wellington"
-          },
-          "UnitPrice": 900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Elevation 1",
-        "Amount": 2900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1903",
-            "name": "PH - Wheelock Farm:63559 - Hardwick"
-          },
-          "UnitPrice": 2900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 35485.54,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3214",
-      "name": "Lot 28 - Wheelock Farm"
-    },
-    "BillAddr": {
-      "Id": "14255",
-      "Line1": "Lot 28 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
-      "Line2": "12 Lloyd Circle",
-      "Line3": "Hardwick V"
-    },
-    "TotalAmt": 35485.54,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49250",
     "SyncToken": "2",
     "MetaData": {
@@ -9519,104 +10647,6 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49116",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-17T06:19:32-07:00",
-      "LastUpdatedTime": "2025-06-17T06:19:38-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2961",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Install House wrap\nInstall Vinyl siding white\nAluminum fascia wrap\nVinyl corner \n\nNo windows and door trim (windows and doors should come with J channel intergrade)\n\nFront porch ceiling not included ",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Amount": 12800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "22",
-            "name": "labor"
-          },
-          "UnitPrice": 12800,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Amount": 11950,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "21",
-            "name": "Material"
-          },
-          "UnitPrice": 11950,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 24750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3162",
-      "name": "David Pagani"
-    },
-    "BillAddr": {
-      "Id": "13203"
-    },
-    "ShipAddr": {
-      "Id": "13203"
-    },
-    "TotalAmt": 24750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "davidapagani@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-17T06:19:35-07:00"
-    }
   },
   {
     "domain": "QBO",
@@ -32799,7 +33829,7 @@
     ],
     "CustomerRef": {
       "value": "2901",
-      "name": "Lot 7 - Willows at Boxford"
+      "name": "Lot 07 - Willows at Boxford"
     },
     "BillAddr": {
       "Id": "8728",

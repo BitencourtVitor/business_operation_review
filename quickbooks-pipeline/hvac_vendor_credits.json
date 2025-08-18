@@ -2,6 +2,54 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "20355",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-11T11:52:42-07:00",
+      "LastUpdatedTime": "2025-08-11T11:52:42-07:00"
+    },
+    "DocNumber": "S3340479.001",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3340479.001",
+        "Amount": 181.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1237",
+            "name": "David DeSimone:15 Mass Ave Walpole"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 181.9
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "20100",
     "SyncToken": "0",
     "MetaData": {

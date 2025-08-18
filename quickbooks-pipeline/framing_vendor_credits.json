@@ -2,6 +2,472 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "50350",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T17:10:59-07:00",
+      "LastUpdatedTime": "2025-08-13T17:10:59-07:00"
+    },
+    "DocNumber": "Paula's Car",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50349",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T16:58:26-07:00",
+      "LastUpdatedTime": "2025-08-13T16:58:26-07:00"
+    },
+    "DocNumber": "SN42505",
+    "TxnDate": "2025-07-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 135.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 135.01
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50329",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-12T06:31:07-07:00",
+      "LastUpdatedTime": "2025-08-12T06:31:07-07:00"
+    },
+    "DocNumber": "BC - 0007",
+    "TxnDate": "2025-07-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 17 - Lakemont at Hudson \n07/30/25\nWe filled the front porch beam, left it at 11”, and fastened it with 5” screws — it was previously 4 1/2”.\n\n2 Labors - 5 hours each one\n\n10h x $30/h = $300.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "07/30/25\nWe filled the front porch beam, left it at 11”, and fastened it with 5” screws — it was previously 4 1/2”.\n\n2 Labors - 5 hours each one\n\n10h x $30/h = $300.00",
+        "Amount": 300,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3178",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2643",
+      "name": "Patriots Construction Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 300
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50044",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:38:41-07:00",
+      "LastUpdatedTime": "2025-08-08T10:01:37-07:00"
+    },
+    "DocNumber": "130803049",
+    "TxnDate": "2025-07-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1/2 in. x 4 ft. x 12 ft. UltraLight\nImperial Gypsum Base\n\n5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 3385.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3385.92
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50281",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:05:23-07:00",
+      "LastUpdatedTime": "2025-08-08T08:05:23-07:00"
+    },
+    "DocNumber": "17369-0003",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 398,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 398
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50280",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:04:58-07:00",
+      "LastUpdatedTime": "2025-08-08T08:04:58-07:00"
+    },
+    "DocNumber": "17369-0002",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 2000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2000
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47279",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-04-09T13:42:54-07:00",
+      "LastUpdatedTime": "2025-08-08T08:04:10-07:00"
+    },
+    "DocNumber": "14242-0005",
+    "TxnDate": "2024-09-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
+        "Amount": 978,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2906",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 978
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50279",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:02:07-07:00",
+      "LastUpdatedTime": "2025-08-08T08:02:07-07:00"
+    },
+    "DocNumber": "10311-0028",
+    "TxnDate": "2025-01-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 125.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 125.98
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50278",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:01:21-07:00",
+      "LastUpdatedTime": "2025-08-08T08:01:21-07:00"
+    },
+    "DocNumber": "13841-0006",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 2920.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2920.86
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50063",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-04T15:19:38-07:00",
+      "LastUpdatedTime": "2025-08-08T06:34:13-07:00"
+    },
+    "DocNumber": "204290",
+    "TxnDate": "2025-07-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Storage",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1341.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1341.14
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "50209",
     "SyncToken": "0",
     "MetaData": {
@@ -74,7 +540,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3244",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 73 / 28 - Highland at Vale"
           },
           "AccountRef": {
             "value": "124",
@@ -123,7 +589,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3243",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 72 / 28 - Highland at Vale"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 72 / 28 - Highland at Vale"
           },
           "AccountRef": {
             "value": "124",
@@ -172,7 +638,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3244",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 73 / 28 - Highland at Vale"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 73 / 28 - Highland at Vale"
           },
           "AccountRef": {
             "value": "124",
@@ -242,50 +708,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "50063",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T15:19:38-07:00",
-      "LastUpdatedTime": "2025-08-04T15:19:38-07:00"
-    },
-    "DocNumber": "204290",
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Storage",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 1341.14,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1341.14
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "50042",
     "SyncToken": "1",
     "MetaData": {
@@ -331,51 +753,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 481.53
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50044",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T12:38:41-07:00",
-      "LastUpdatedTime": "2025-08-04T12:38:41-07:00"
-    },
-    "DocNumber": "130803049",
-    "TxnDate": "2025-07-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1/2 in. x 4 ft. x 12 ft. UltraLight\nImperial Gypsum Base\n\n5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
-        "Amount": 3385.92,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3385.92
   },
   {
     "domain": "QBO",
@@ -829,7 +1206,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3110",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 64 / 24  - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 64 / 24  - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -2963,7 +3340,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4031,7 +4408,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3093",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 69 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 69 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4080,7 +4457,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3093",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 69 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 69 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4177,7 +4554,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4597,7 +4974,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4791,7 +5168,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4812,7 +5189,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -4833,7 +5210,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -5095,54 +5472,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "47279",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:42:54-07:00",
-      "LastUpdatedTime": "2025-04-11T03:12:13-07:00"
-    },
-    "DocNumber": "14242-0005",
-    "TxnDate": "2024-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
-        "Amount": 978,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2906",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 978
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "47169",
     "SyncToken": "2",
     "MetaData": {
@@ -5327,54 +5656,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1931.43
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47277",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:18:10-07:00",
-      "LastUpdatedTime": "2025-04-09T13:18:35-07:00"
-    },
-    "DocNumber": "14087-0002",
-    "TxnDate": "2025-04-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "14087-0002",
-        "Amount": 178,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2715",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 178
   },
   {
     "domain": "QBO",
@@ -6408,7 +6689,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -6429,7 +6710,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -6525,7 +6806,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -6622,7 +6903,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -6847,49 +7128,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "45985",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-02-28T12:37:57-08:00",
-      "LastUpdatedTime": "2025-02-28T12:37:57-08:00"
-    },
-    "DocNumber": "14058-0001",
-    "TxnDate": "2024-04-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 222.44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 222.44
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "44677",
     "SyncToken": "2",
     "MetaData": {
@@ -7008,7 +7246,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8465,7 +8703,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8561,7 +8799,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2730",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 46 / 18 - Highland at Vale - Pulte Homes -  7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 46 / 18 - Highland at Vale - Pulte Homes -  7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8609,7 +8847,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8630,7 +8868,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8651,7 +8889,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8699,7 +8937,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8825,7 +9063,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -8873,7 +9111,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -9009,7 +9247,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "206",
@@ -10454,7 +10692,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Building 3 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -13888,7 +14126,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2564",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 30 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 30 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -13937,7 +14175,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2564",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 30 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 30 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -15240,7 +15478,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2562",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 29 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 29 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -15376,7 +15614,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241"
           },
           "AccountRef": {
             "value": "161",
@@ -15556,7 +15794,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241"
           },
           "AccountRef": {
             "value": "161",
@@ -15842,7 +16080,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2562",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 29 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 29 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -17257,7 +17495,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2618",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 34 / 13 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 34 / 13 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -17350,7 +17588,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2614",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -17490,7 +17728,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2614",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -17511,7 +17749,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2614",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 32 / 13 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -18608,7 +18846,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2566",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 31 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 31 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -18629,7 +18867,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2566",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 31 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 31 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -18650,7 +18888,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2566",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 31 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 31 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -19147,7 +19385,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2564",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 30 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 30 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",
@@ -19239,7 +19477,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "2566",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241 - Pulte Homes MS - 1074:Lot 31 - Highland at Vale - Pulte Homes - 7241"
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 31 - Highland at Vale - Pulte Homes - 7241"
           },
           "AccountRef": {
             "value": "124",

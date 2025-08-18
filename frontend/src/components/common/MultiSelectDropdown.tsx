@@ -153,8 +153,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           <span>{allLabel}</span>
         </label>
       </div>
-      {options.map(opt => (
-        <label key={opt.value} className="d-flex align-items-center" style={{ 
+      {options.map((opt, index) => (
+        <label key={`${opt.value}-${index}`} className="d-flex align-items-center" style={{ 
           gap: 8, 
           fontSize: 14, 
           color: 'var(--color-text-secondary)', 

@@ -1,6 +1,85 @@
 [
   {
     "VendorRef": {
+      "value": "1392",
+      "name": "Real Print"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 198,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20400",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:33:50-07:00",
+      "LastUpdatedTime": "2025-08-13T05:34:24-07:00"
+    },
+    "DocNumber": "1556",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 198,
+        "LinkedTxn": [
+          {
+            "TxnId": "20399",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1238",
+      "name": "wex"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 2569.76,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20325",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-08T05:17:39-07:00",
+      "LastUpdatedTime": "2025-08-08T05:17:39-07:00"
+    },
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2569.76,
+        "LinkedTxn": [
+          {
+            "TxnId": "19571",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "72",
       "name": "DCNE"
     },
