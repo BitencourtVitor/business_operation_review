@@ -18,7 +18,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
   const [selectedYear, setSelectedYear] = useState<string>(''); // Default to 2025
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // Default to "Todos"
   const [selectedDrivers, setSelectedDrivers] = useState<string[]>([]);
-  const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
+
   
   // Estado para opções de drivers disponíveis
   const [availableDriverOptions, setAvailableDriverOptions] = useState<string[]>([]);
@@ -120,15 +120,10 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       });
     }
 
-    // Filtrar por tipos selecionados
-    if (selectedEventTypes.length > 0) {
-      filteredSamsara = filteredSamsara.filter(event => 
-        selectedEventTypes.includes(event.type)
-      );
-    }
+
 
     return { filteredSamsara, filteredWex };
-  }, [selectedYear, selectedMonth, selectedDrivers, selectedEventTypes, samsaraEvents, wexTransactions, normalizeDriverName]);
+  }, [selectedYear, selectedMonth, selectedDrivers, samsaraEvents, wexTransactions, normalizeDriverName]);
 
   // Carregar anos e meses disponíveis + drivers disponíveis a partir dos dados reais
   useEffect(() => {
@@ -154,43 +149,22 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
         hasSetDefaultYearRef.current = true;
       }
 
-      // Extrair nomes normalizados que realmente aparecem nos dados (dedupe case-insensitive)
-      const availableDriversMap = new Map<string, string>();
-
-      // Adicionar nomes do Samsara
-      samsaraEvents.forEach(event => {
-        if (!event.nome) return;
-        const normalized = normalizeDriverName(event.nome).trim();
-        if (!normalized) return;
-        const key = normalized.toLowerCase();
-        if (!availableDriversMap.has(key)) {
-          availableDriversMap.set(key, normalized);
-        }
-      });
-
-      // Adicionar nomes do WEX
-      wexTransactions.forEach(transaction => {
-        if (!transaction.nome) return;
-        const normalized = normalizeDriverName(transaction.nome).trim();
-        if (!normalized) return;
-        const key = normalized.toLowerCase();
-        if (!availableDriversMap.has(key)) {
-          availableDriversMap.set(key, normalized);
-        }
-      });
-
-      // Converter para array e ordenar alfabeticamente
-      const availableDriverNames = Array.from(availableDriversMap.values()).sort((a, b) => a.localeCompare(b));
+      // Usar todos os nomes da tabela employee_names que estão ativos
+      const availableDriverNames = driverNames
+        ?.filter(driver => driver.is_active)
+        ?.map(driver => driver.normalized_name)
+        ?.sort((a, b) => a.localeCompare(b)) || [];
 
       // Atualizar opções disponíveis
       setAvailableDriverOptions(availableDriverNames);
       
-      // Inicializar seleção de drivers se vazia ou inválida
-      if (selectedDrivers.length === 0 || !selectedDrivers.some(driver => availableDriverNames.includes(driver))) {
+      // Inicializar seleção de drivers APENAS na primeira vez que os dados são carregados
+      // ou quando não há drivers selecionados
+      if (availableDriverNames.length > 0 && selectedDrivers.length === 0) {
         setSelectedDrivers(availableDriverNames);
       }
     }
-  }, [samsaraEvents, wexTransactions, normalizeDriverName]);
+  }, [samsaraEvents, wexTransactions, normalizeDriverName, driverNames]);
 
   // Atualizar meses disponíveis conforme ano selecionado
   useEffect(() => {
@@ -244,7 +218,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       distance: Math.round(totalDistance * 100) / 100,
       amountSpent: Math.round(totalAmountSpent * 100) / 100
     });
-  }, [selectedYear, selectedMonth, selectedDrivers, selectedEventTypes, driverNames, getFilteredData]);
+  }, [selectedYear, selectedMonth, selectedDrivers, driverNames, getFilteredData]);
 
   // Loading e error handling
   if (fuelDataLoading) {
@@ -295,19 +269,17 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
         <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Fuel Control</h1>
-        <FuelControlFilters
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          selectedDrivers={selectedDrivers}
-          setSelectedDrivers={setSelectedDrivers}
-          selectedEventTypes={selectedEventTypes}
-          setSelectedEventTypes={setSelectedEventTypes}
-          years={years}
-          months={months}
-          availableDrivers={availableDriverOptions}
-        />
+                 <FuelControlFilters
+           selectedYear={selectedYear}
+           setSelectedYear={setSelectedYear}
+           selectedMonth={selectedMonth}
+           setSelectedMonth={setSelectedMonth}
+           selectedDrivers={selectedDrivers}
+           setSelectedDrivers={setSelectedDrivers}
+           years={years}
+           months={months}
+           availableDrivers={availableDriverOptions}
+         />
       </div>
       
       {/* Container principal com flex para distribuir o espaço */}

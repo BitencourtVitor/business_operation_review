@@ -9,8 +9,6 @@ interface FuelControlFiltersProps {
   setSelectedMonth: (month: string) => void;
   selectedDrivers: string[];
   setSelectedDrivers: (drivers: string[]) => void;
-  selectedEventTypes: string[];
-  setSelectedEventTypes: (types: string[]) => void;
   years: string[];
   months: string[];
   availableDrivers: string[];
@@ -23,8 +21,6 @@ export default function FuelControlFilters({
   setSelectedMonth,
   selectedDrivers,
   setSelectedDrivers,
-  selectedEventTypes,
-  setSelectedEventTypes,
   years,
   months,
   availableDrivers
@@ -100,86 +96,7 @@ export default function FuelControlFilters({
         </div>
       </div>
 
-      {/* Filtro de Tipos de Evento com cores distintas */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-        <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Event Type</span>
-        <button 
-          onClick={() => setSelectedEventTypes([])} 
-          style={{ 
-            background: selectedEventTypes.length === 0 ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-            color: selectedEventTypes.length === 0 ? 'var(--color-brand-blue)' : 'var(--color-text-primary)', 
-            border: selectedEventTypes.length === 0 ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)', 
-            borderRadius: 15, 
-            padding: '4px 16px', 
-            fontWeight: 500, 
-            fontSize: 14, 
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            height: 26,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-          onMouseEnter={(e) => {
-            if (selectedEventTypes.length !== 0) {
-              e.currentTarget.style.background = 'var(--color-background-primary)';
-              e.currentTarget.style.borderColor = 'var(--color-brand-blue)';
-              e.currentTarget.style.color = 'var(--color-brand-blue)';
-            }
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = selectedEventTypes.length === 0 ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
-            e.currentTarget.style.borderColor = selectedEventTypes.length === 0 ? 'var(--color-brand-blue)' : 'var(--color-border-divider)';
-            e.currentTarget.style.color = selectedEventTypes.length === 0 ? 'var(--color-brand-blue)' : 'var(--color-text-primary)';
-          }}
-        >
-          All
-        </button>
-        {['idle', 'trip'].map(type => (
-          <button 
-            key={type}
-            onClick={() => {
-              if (selectedEventTypes.includes(type)) {
-                // Se já está selecionado, desmarca (volta para "All")
-                setSelectedEventTypes([]);
-              } else {
-                // Se não está selecionado, seleciona apenas este tipo (desmarca os outros)
-                setSelectedEventTypes([type]);
-              }
-            }}
-            style={{ 
-              background: selectedEventTypes.includes(type) ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-              color: selectedEventTypes.includes(type) ? (type === 'idle' ? '#DC2626' : '#16A34A') : 'var(--color-text-primary)', 
-              border: selectedEventTypes.includes(type) ? `1.5px solid ${type === 'idle' ? '#DC2626' : '#16A34A'}` : '1.5px solid var(--color-border-divider)', 
-              borderRadius: 15, 
-              padding: '4px 16px', 
-              fontWeight: 500, 
-              fontSize: 14, 
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-            onMouseEnter={(e) => {
-              if (!selectedEventTypes.includes(type)) {
-                e.currentTarget.style.background = 'var(--color-background-primary)';
-                e.currentTarget.style.borderColor = type === 'idle' ? '#DC2626' : '#16A34A';
-                e.currentTarget.style.color = type === 'idle' ? '#DC2626' : '#16A34A';
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = selectedEventTypes.includes(type) ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
-              e.currentTarget.style.borderColor = selectedEventTypes.includes(type) ? (type === 'idle' ? '#DC2626' : '#16A34A') : 'var(--color-border-divider)';
-              e.currentTarget.style.color = selectedEventTypes.includes(type) ? (type === 'idle' ? '#DC2626' : '#16A34A') : 'var(--color-text-primary)';
-            }}
-          >
-            <i className={`bi ${type === 'idle' ? 'bi-pause' : 'bi-arrow-right'} me-1`}></i>
-            {type === 'idle' ? 'Idle' : 'Trip'}
-          </button>
-        ))}
-      </div>
+
     </div>
   );
 }
