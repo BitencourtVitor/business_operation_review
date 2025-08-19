@@ -13,6 +13,7 @@ interface FuelDriverData {
   driver_name: string;
   average_performance: number;
   total_consumption: number;
+  total_distance: number;
   wex_supplied: number;
   wex_value: number;
 }
@@ -45,11 +46,16 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           driver_name: normalizedName,
           average_performance: 0,
           total_consumption: 0,
+          total_distance: 0,
           wex_supplied: 0,
           wex_value: 0
         };
       }
       drivers[normalizedName].total_consumption += event.units || 0;
+      // Somar apenas distância de viagens (não de idle events)
+      if (event.type === 'trip') {
+        drivers[normalizedName].total_distance += event.distancia || 0;
+      }
     });
 
     // Processar dados do WEX
@@ -60,6 +66,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           driver_name: normalizedName,
           average_performance: 0,
           total_consumption: 0,
+          total_distance: 0,
           wex_supplied: 0,
           wex_value: 0
         };
@@ -68,9 +75,13 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
       drivers[normalizedName].wex_value += transaction.valor || 0;
     });
 
-    // Calcular performance média (placeholder - será implementado quando tivermos dados de distância)
+    // Calcular performance média (MPG real baseado na distância e consumo)
     Object.values(drivers).forEach(driver => {
-      driver.average_performance = driver.total_consumption > 0 ? 15.5 : 0; // Placeholder MPG
+      if (driver.total_consumption > 0 && driver.total_distance > 0) {
+        driver.average_performance = Math.round((driver.total_distance / driver.total_consumption) * 100) / 100;
+      } else {
+        driver.average_performance = 0;
+      }
     });
 
     return drivers;
@@ -258,40 +269,70 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
       <div style={{ background: 'var(--color-background-primary)', overflow: 'hidden', width: '100%', flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: '40vh', padding: '0 10px 10px 10px' }}>
         <div style={{ height: 327, overflowY: 'auto', width: '100%' }} className="custom-scrollbar">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, tableLayout: 'auto' }}>
-            <thead>
-              <tr style={{ background: 'var(--color-background-secondary)' }}>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Driver</th>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Avg Performance (MPG)</th>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
-                                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
-                <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
-              </tr>
-            </thead>
+                         <thead>
+               <tr style={{ background: 'var(--color-background-secondary)' }}>
+                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Driver</th>
+                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Performance</th>
+                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Distance (mi)</th>
+                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
+                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
+                 <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
+               </tr>
+             </thead>
             <tbody>
-              {Object.entries(filteredGroupedData).map(([driverName, data]) => (
-                <tr key={driverName}>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{data.driver_name}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.average_performance.toFixed(1)}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
-                                     <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-                </tr>
-              ))}
-              {/* Linhas vazias responsivas que preenchem o espaço disponível sem exceder limites */}
-              {Object.keys(filteredGroupedData).length === 0 && (
-                <>
-                  {/* Linhas vazias que preenchem o espaço disponível */}
-                  {Array.from({ length: 12 }).map((_, index) => (
-                    <tr key={`empty-${index}`} style={{ height: '32px' }}>
-                      <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>&nbsp;</td>
-                      <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>&nbsp;</td>
-                      <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>&nbsp;</td>
-                      <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>&nbsp;</td>
-                      <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>&nbsp;</td>
-                    </tr>
-                  ))}
-                </>
-              )}
+                             {Object.entries(filteredGroupedData).map(([driverName, data]) => (
+                 <tr key={driverName}>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{data.driver_name}</td>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.average_performance.toFixed(1)}</td>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>{data.total_distance.toFixed(1)}</td>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
+                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                 </tr>
+               ))}
+                             {/* Interface de "sem dados" quando não há dados para exibir */}
+               {Object.keys(filteredGroupedData).length === 0 && (
+                 <tr>
+                   <td colSpan={6} style={{ 
+                     padding: '40px 20px', 
+                     border: '1px solid var(--color-border-divider)', 
+                     textAlign: 'center',
+                     verticalAlign: 'middle'
+                   }}>
+                                           <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        textAlign: 'center'
+                      }}>
+                        <div style={{ 
+                          fontSize: 48, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.5,
+                          marginBottom: 16
+                        }}>
+                          <i className="bi bi-table"></i>
+                        </div>
+                        <div style={{ 
+                          fontSize: 18, 
+                          fontWeight: 500, 
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 8
+                        }}>
+                          Sem dados para exibir
+                        </div>
+                        <div style={{ 
+                          fontSize: 14, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.8,
+                          maxWidth: 300
+                        }}>
+                          Não há dados de combustível para o período e filtros selecionados
+                        </div>
+                      </div>
+                   </td>
+                 </tr>
+               )}
             </tbody>
           </table>
         </div>

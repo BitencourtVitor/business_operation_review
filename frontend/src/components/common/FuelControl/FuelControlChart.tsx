@@ -86,18 +86,22 @@ const PerformanceTooltipExternal = React.memo(function PerformanceTooltipExterna
   
   if (!opacity || !dataPoints || dataPoints.length === 0) return null;
   dataIndex = dataPoints[0].dataIndex;
+  
+  // Validação adicional para garantir que os dados existam
+  if (!chartLabels || !chartDatasets || dataIndex < 0 || dataIndex >= chartLabels.length) return null;
+  
   mpg = chartDatasets[0]?.data[dataIndex] || 0;
   const label = chartLabels[dataIndex];
   
-  if (year && month) {
+  if (year && month && label) {
     // Se tem mês selecionado, label é apenas o dia
     const dia = label;
     periodo = dayjs(`${year}-${month}-${dia.padStart(2, '0')}`).format('DD/MM/YYYY');
-  } else if (year) {
+  } else if (year && label) {
     // Se tem apenas ano, label é "Jan 2025", "Feb 2025", etc.
     periodo = label;
   } else {
-    periodo = label;
+    periodo = label || '';
   }
   
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
@@ -165,6 +169,7 @@ const SupplyConsumedTooltipExternal = React.memo(function SupplyConsumedTooltipE
   let dataIndex: number = 0;
   let supplied: number = 0;
   let consumed: number = 0;
+  let distance: number = 0;
   let periodo: string = '';
   let caretX: number = 0;
   let caretY: number = 0;
@@ -185,29 +190,34 @@ const SupplyConsumedTooltipExternal = React.memo(function SupplyConsumedTooltipE
     if (tooltipRef.current) {
       setRealWidth(tooltipRef.current.offsetWidth);
     }
-  }, [periodo, supplied, consumed]);
+  }, [periodo, supplied, consumed, distance]);
   
   if (!opacity || !dataPoints || dataPoints.length === 0) return null;
   
   dataIndex = dataPoints[0].dataIndex;
   
-  // Para este gráfico, sempre mostrar ambos os valores (supplied e consumed)
+  // Validação adicional para garantir que os dados existam
+  if (!chartLabels || !chartDatasets || dataIndex < 0 || dataIndex >= chartLabels.length) return null;
+  
+  // Para este gráfico, sempre mostrar todos os valores (supplied, consumed, distance)
   // Dataset 0: Total Supplied (WEX) - Azul
   // Dataset 1: Total Consumed (Samsara) - Verde
+  // Dataset 2: Total Distance - Laranja
   supplied = chartDatasets[0]?.data[dataIndex] || 0;
   consumed = chartDatasets[1]?.data[dataIndex] || 0;
+  distance = chartDatasets[2]?.data[dataIndex] || 0;
   
   const label = chartLabels[dataIndex];
   
-  if (year && month) {
+  if (year && month && label) {
     // Se tem mês selecionado, label é apenas o dia
     const dia = label;
     periodo = dayjs(`${year}-${month}-${dia.padStart(2, '0')}`).format('DD/MM/YYYY');
-  } else if (year) {
+  } else if (year && label) {
     // Se tem apenas ano, label é o número do mês
     periodo = dayjs(`${year}-${label.padStart(2, '0')}-01`).format('MM/YYYY');
   } else {
-    periodo = label;
+    periodo = label || '';
   }
   
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
@@ -257,16 +267,20 @@ const SupplyConsumedTooltipExternal = React.memo(function SupplyConsumedTooltipE
       }}
     >
       {periodo && <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', marginBottom: 8, fontSize: 15 }}>{`Período: ${periodo}`}</div>}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Total Supplied</span>
-          <span style={{ color: '#2E6BE6', fontWeight: 600 }}>{supplied.toFixed(2)} gal</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Supplied</span>
+            <span style={{ color: '#2E6BE6', fontWeight: 600 }}>{supplied.toFixed(2)} gal</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Consumed</span>
+            <span style={{ color: '#1bbf5c', fontWeight: 600 }}>{consumed.toFixed(2)} gal</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Distance</span>
+            <span style={{ color: '#fd7e14', fontWeight: 600 }}>{distance.toFixed(2)} mi</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Total Consumed</span>
-          <span style={{ color: '#1bbf5c', fontWeight: 600 }}>{consumed.toFixed(2)} gal</span>
-        </div>
-      </div>
     </div>,
     document.body
   );
@@ -278,7 +292,7 @@ const CostOverTimeTooltipExternal = React.memo(function CostOverTimeTooltipExter
 
   let dataIndex: number = 0;
   let totalCost: number = 0;
-  let avgCost: number = 0;
+  let totalSupplied: number = 0;
   let periodo: string = '';
   let caretX: number = 0;
   let caretY: number = 0;
@@ -299,29 +313,32 @@ const CostOverTimeTooltipExternal = React.memo(function CostOverTimeTooltipExter
     if (tooltipRef.current) {
       setRealWidth(tooltipRef.current.offsetWidth);
     }
-  }, [periodo, totalCost, avgCost]);
+  }, [periodo, totalCost, totalSupplied]);
   
   if (!opacity || !dataPoints || dataPoints.length === 0) return null;
   
   dataIndex = dataPoints[0].dataIndex;
   
-  // Para este gráfico, sempre mostrar ambos os valores (Total Cost e Avg Cost)
+  // Validação adicional para garantir que os dados existam
+  if (!chartLabels || !chartDatasets || dataIndex < 0 || dataIndex >= chartLabels.length) return null;
+  
+  // Para este gráfico, sempre mostrar ambos os valores (Total Cost e Total Supplied)
   // Dataset 0: Total Cost ($) - Amarelo
-  // Dataset 1: Avg Cost ($/gal) - Laranja
+  // Dataset 1: Total Supplied (gal) - Verde
   totalCost = chartDatasets[0]?.data[dataIndex] || 0;
-  avgCost = chartDatasets[1]?.data[dataIndex] || 0;
+  totalSupplied = chartDatasets[1]?.data[dataIndex] || 0;
   
   const label = chartLabels[dataIndex];
   
-  if (year && month) {
+  if (year && month && label) {
     // Se tem mês selecionado, label é apenas o dia
     const dia = label;
     periodo = dayjs(`${year}-${month}-${dia.padStart(2, '0')}`).format('DD/MM/YYYY');
-  } else if (year) {
+  } else if (year && label) {
     // Se tem apenas ano, label é o número do mês
     periodo = dayjs(`${year}-${label.padStart(2, '0')}-01`).format('MM/YYYY');
   } else {
-    periodo = label;
+    periodo = label || '';
   }
   
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
@@ -377,8 +394,8 @@ const CostOverTimeTooltipExternal = React.memo(function CostOverTimeTooltipExter
           <span style={{ color: '#ffc107', fontWeight: 600 }}>${totalCost.toFixed(2)}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Avg Cost per Gallon</span>
-          <span style={{ color: '#fd7e14', fontWeight: 600 }}>${avgCost.toFixed(2)}</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Total Supplied</span>
+          <span style={{ color: '#28a745', fontWeight: 600 }}>{totalSupplied.toFixed(2)} gal</span>
         </div>
       </div>
     </div>,
@@ -401,6 +418,13 @@ export function FuelControlChart({
   selectedMonth = '',
   driverNames = []
 }: FuelControlChartProps) {
+  // Estado para controlar a visibilidade das linhas do gráfico principal
+  const [visibleLines, setVisibleLines] = useState({
+    supplied: true,
+    consumed: true,
+    distance: true
+  });
+
   const [externalTooltip, setExternalTooltip] = useState<{
     tooltip: unknown;
     chartLabels: string[];
@@ -452,25 +476,28 @@ export function FuelControlChart({
       // Agrupar por MÊS
       const monthlyData = new Map<string, { distance: number; fuel: number; mpg: number; days: number }>();
       
-      filteredSamsara.forEach(event => {
-        const date = new Date(event.event_date);
-        // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-        if (selectedYear && date.getFullYear().toString() !== selectedYear) {
-          return; // Pular eventos que não são do ano selecionado
-        }
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+             filteredSamsara.forEach(event => {
+         // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+         const dateOnly = event.event_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+         const dateParts = dateOnly.split('-');
+         const year = dateParts[0];
+         const month = dateParts[1];
+         
+         // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+         if (selectedYear && year !== selectedYear) {
+           return; // Pular eventos que não são do ano selecionado
+         }
+         const monthKey = `${year}-${month}`;
         
         if (!monthlyData.has(monthKey)) {
           monthlyData.set(monthKey, { distance: 0, fuel: 0, mpg: 0, days: 0 });
         }
         
-        const monthData = monthlyData.get(monthKey)!;
-        monthData.fuel += event.units;
-        monthData.days = Math.max(monthData.days, date.getDate());
+                 const monthData = monthlyData.get(monthKey)!;
+         monthData.fuel += event.units;
+         monthData.days = Math.max(monthData.days, parseInt(dateParts[2]));
         
-        if (event.type === 'trip') {
-          monthData.distance += event.distancia;
-        }
+        monthData.distance += event.distancia;
       });
 
       // Calcular MPG para cada mês
@@ -521,13 +548,19 @@ export function FuelControlChart({
       // Agrupar por DIA (quando mês específico selecionado)
       const dailyData = new Map<string, { distance: number; fuel: number; mpg: number }>();
       
-                   filteredSamsara.forEach(event => {
-        const date = new Date(event.event_date);
-        // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-        if (selectedYear && date.getFullYear().toString() !== selectedYear) {
-          return; // Pular eventos que não são do ano selecionado
-        }
-         const dateKey = date.toISOString().split('T')[0];
+                                                                               filteredSamsara.forEach(event => {
+          // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+          const dateOnly = event.event_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+          const dateParts = dateOnly.split('-');
+          const year = dateParts[0];
+          const month = dateParts[1];
+          const day = dateParts[2];
+          
+          // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+          if (selectedYear && year !== selectedYear) {
+            return; // Pular eventos que não são do ano selecionado
+          }
+           const dateKey = `${year}-${month}-${day}`;
          
          if (!dailyData.has(dateKey)) {
            dailyData.set(dateKey, { distance: 0, fuel: 0, mpg: 0 });
@@ -536,9 +569,7 @@ export function FuelControlChart({
          const dayData = dailyData.get(dateKey)!;
          dayData.fuel += event.units;
          
-         if (event.type === 'trip') {
-           dayData.distance += event.distancia;
-         }
+                 dayData.distance += event.distancia;
        });
 
       // Calcular MPG para cada dia
@@ -548,13 +579,16 @@ export function FuelControlChart({
         }
       });
 
-      // Ordenar por data
-      const sortedDates = Array.from(dailyData.keys()).sort();
+             // Ordenar por data cronologicamente
+       const sortedDates = Array.from(dailyData.keys()).sort((a, b) => {
+         // Ordenar strings de data diretamente (YYYY-MM-DD)
+         return a.localeCompare(b);
+       });
       
       return {
         labels: sortedDates.map(date => {
-          const d = new Date(date);
-          return `${d.getDate()}`; // Apenas o dia
+          const [, , day] = date.split('-');
+          return day; // Apenas o dia
         }),
         datasets: [
           {
@@ -624,24 +658,16 @@ export function FuelControlChart({
             maxTicksLimit: selectedMonth ? 15 : 12 // Limitar ticks para não ficar bagunçado
           },
                      title: {
-             display: true,
-             text: selectedYear && selectedMonth ? 'Days of Month' : selectedYear ? 'Months' : 'Years',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 }
+             display: false
            },
         },
         y: {
           grid: { color: borderDivider },
           ticks: { color: '#6c757d' },
           beginAtZero: true,
-          title: {
-            display: true,
-            text: 'MPG (mi/gal)',
-            color: '#6c757d',
-            font: { weight: 600, size: 12 },
-            padding: { top: 10, bottom: 10 }
-          },
+                    title: {
+             display: false
+           },
         },
       },
       layout: {
@@ -675,13 +701,18 @@ export function FuelControlChart({
        // Agrupar por MÊS
        const monthlyCostData = new Map<string, { cost: number; fuel: number; avgCost: number }>();
        
-       filteredWex.forEach(transaction => {
-         const date = new Date(transaction.transaction_date);
-         // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-         if (selectedYear && date.getFullYear().toString() !== selectedYear) {
-           return; // Pular transações que não são do ano selecionado
-         }
-         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                               filteredWex.forEach(transaction => {
+           // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+           const dateOnly = transaction.transaction_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+           const dateParts = dateOnly.split('-');
+           const year = dateParts[0];
+           const month = dateParts[1];
+           
+           // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+           if (selectedYear && year !== selectedYear) {
+             return; // Pular transações que não são do ano selecionado
+           }
+           const monthKey = `${year}-${month}`;
          
          if (!monthlyCostData.has(monthKey)) {
            monthlyCostData.set(monthKey, { cost: 0, fuel: 0, avgCost: 0 });
@@ -736,17 +767,16 @@ export function FuelControlChart({
              yAxisID: 'y',
            },
            {
-             label: 'Avg Cost ($/gal)',
+             label: 'Total Supplied (gal)',
              data: fullMonths.map(monthKey => {
-               const monthData = monthlyCostData.get(monthKey) || { avgCost: 0, cost: 0, fuel: 0 } as { avgCost: number; cost: number; fuel: number };
-               return Math.round((monthData.avgCost || 0) * 100) / 100;
+               const monthData = monthlyCostData.get(monthKey) || { cost: 0, fuel: 0, avgCost: 0 } as { cost: number; fuel: number; avgCost: number };
+               return Math.round((monthData.fuel || 0) * 100) / 100;
              }),
-             borderColor: '#fd7e14',
-             backgroundColor: '#fd7e14',
+             borderColor: '#28a745',
+             backgroundColor: '#28a745',
              pointRadius: 3,
              pointHoverRadius: 5,
              borderWidth: 2,
-             borderDash: [5, 5],
              fill: false,
              tension: 0.25,
              yAxisID: 'y1',
@@ -757,13 +787,19 @@ export function FuelControlChart({
        // Agrupar por DIA (quando mês específico selecionado)
        const dailyCostData = new Map<string, { cost: number; fuel: number; avgCost: number }>();
        
-       filteredWex.forEach(transaction => {
-         const date = new Date(transaction.transaction_date);
-         // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-         if (selectedYear && date.getFullYear().toString() !== selectedYear) {
-           return; // Pular transações que não são do ano selecionado
-         }
-         const dateKey = date.toISOString().split('T')[0];
+                               filteredWex.forEach(transaction => {
+           // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+           const dateOnly = transaction.transaction_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+           const dateParts = dateOnly.split('-');
+           const year = dateParts[0];
+           const month = dateParts[1];
+           const day = dateParts[2];
+           
+           // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+           if (selectedYear && year !== selectedYear) {
+             return; // Pular transações que não são do ano selecionado
+           }
+           const dateKey = `${year}-${month}-${day}`;
          
          if (!dailyCostData.has(dateKey)) {
            dailyCostData.set(dateKey, { cost: 0, fuel: 0, avgCost: 0 });
@@ -781,13 +817,16 @@ export function FuelControlChart({
          }
        });
 
-       // Ordenar por data
-       const sortedDates = Array.from(dailyCostData.keys()).sort();
+               // Ordenar por data cronologicamente
+        const sortedDates = Array.from(dailyCostData.keys()).sort((a, b) => {
+          // Ordenar strings de data diretamente (YYYY-MM-DD)
+          return a.localeCompare(b);
+        });
        
        return {
          labels: sortedDates.map(date => {
-           const d = new Date(date);
-           return `${d.getDate()}`; // Apenas o dia
+           const [, , day] = date.split('-');
+           return day; // Apenas o dia
          }),
          datasets: [
            {
@@ -806,17 +845,16 @@ export function FuelControlChart({
              yAxisID: 'y',
            },
            {
-             label: 'Avg Cost ($/gal)',
+             label: 'Total Supplied (gal)',
              data: sortedDates.map(date => {
                const dayData = dailyCostData.get(date)!;
-               return Math.round(dayData.avgCost * 100) / 100;
+               return Math.round(dayData.fuel * 100) / 100;
              }),
-             borderColor: '#fd7e14',
-             backgroundColor: '#fd7e14',
+             borderColor: '#28a745',
+             backgroundColor: '#28a745',
              pointRadius: 3,
              pointHoverRadius: 5,
              borderWidth: 2,
-             borderDash: [5, 5],
              fill: false,
              tension: 0.25,
              yAxisID: 'y1',
@@ -874,13 +912,9 @@ export function FuelControlChart({
              autoSkip: true,
              maxTicksLimit: selectedMonth ? 15 : 12,
            },
-           title: {
-             display: true,
-             text: selectedYear && selectedMonth ? 'Days of Month' : selectedYear ? 'Months' : 'Time',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 },
-           },
+                       title: {
+              display: false
+            },
          },
          y: {
            type: 'linear' as const,
@@ -889,13 +923,9 @@ export function FuelControlChart({
            grid: { color: borderDivider },
            ticks: { color: '#6c757d' },
            beginAtZero: true,
-           title: {
-             display: true,
-             text: 'Total Cost ($)',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 },
-           },
+                       title: {
+              display: false
+            },
          },
          y1: {
            type: 'linear' as const,
@@ -904,13 +934,9 @@ export function FuelControlChart({
            grid: { drawOnChartArea: false },
            ticks: { color: '#6c757d' },
            beginAtZero: true,
-           title: {
-             display: true,
-             text: 'Avg Cost ($/gal)',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 },
-           },
+                       title: {
+              display: false
+            },
          },
        },
        layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
@@ -923,61 +949,99 @@ export function FuelControlChart({
 
     // Coletar chaves de tempo e mapas por motorista
     const timeKeySet = new Set<string>();
-    const driverToSeries: Record<string, { supplied: Record<string, number>; consumed: Record<string, number> }> = {};
+    const driverToSeries: Record<string, { supplied: Record<string, number>; consumed: Record<string, number>; distance: Record<string, number> }> = {};
 
-    const addPoint = (driver: string, key: string, kind: 'supplied' | 'consumed', value: number) => {
+    const addPoint = (driver: string, key: string, kind: 'supplied' | 'consumed' | 'distance', value: number) => {
       if (!driver) return;
       if (!driverToSeries[driver]) {
-        driverToSeries[driver] = { supplied: {}, consumed: {} };
+        driverToSeries[driver] = { supplied: {}, consumed: {}, distance: {} };
       }
       const bucket = driverToSeries[driver][kind];
       bucket[key] = (bucket[key] || 0) + value;
       timeKeySet.add(key);
     };
 
-         // Processar Samsara (consumed)
-     filteredSamsara.forEach(event => {
-       const normalized = normalizeName(event.nome as unknown as string);
-       const d = new Date(event.event_date);
-       // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-       if (selectedYear && d.getFullYear().toString() !== selectedYear) {
-         return; // Pular eventos que não são do ano selecionado
-       }
-       const key = groupByMonth
-         ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-         : new Date(d.toISOString().split('T')[0]).toISOString().split('T')[0]; // YYYY-MM-DD
+               // Processar Samsara (consumed e distance)
+      filteredSamsara.forEach(event => {
+        const normalized = normalizeName(event.nome as unknown as string);
+        // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+        const dateOnly = event.event_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+        const dateParts = dateOnly.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        
+        // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+        if (selectedYear && year !== selectedYear) {
+          return; // Pular eventos que não são do ano selecionado
+        }
+        
+        const key = groupByMonth
+          ? `${year}-${month}`
+          : `${year}-${month}-${day}`; // YYYY-MM-DD
+       
+
+       
        const val = Number(event.units) || 0;
        addPoint(normalized, key, 'consumed', val);
+       
+               // Adicionar distância para todos os eventos
+        const distanceVal = Number(event.distancia) || 0;
+        addPoint(normalized, key, 'distance', distanceVal);
      });
 
-         // Processar WEX (supplied)
-     filteredWex.forEach(tx => {
-       const normalized = normalizeName(tx.nome as unknown as string);
-       const d = new Date(tx.transaction_date);
-       // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
-       if (selectedYear && d.getFullYear().toString() !== selectedYear) {
-         return; // Pular transações que não são do ano selecionado
-       }
-       const key = groupByMonth
-         ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-         : new Date(d.toISOString().split('T')[0]).toISOString().split('T')[0];
+                   // Processar WEX (supplied)
+      filteredWex.forEach(tx => {
+        const normalized = normalizeName(tx.nome as unknown as string);
+        // Extrair apenas a parte da data (YYYY-MM-DD) do timestamp completo
+        const dateOnly = tx.transaction_date.split('T')[0]; // Pega apenas "2025-01-01" de "2025-01-01T00:32:00+00:00"
+        const dateParts = dateOnly.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        
+        // Verificar se a data está no ano selecionado apenas se um ano específico estiver selecionado
+        if (selectedYear && year !== selectedYear) {
+          return; // Pular transações que não são do ano selecionado
+        }
+        
+        const key = groupByMonth
+          ? `${year}-${month}`
+          : `${year}-${month}-${day}`;
+       
+
+       
        const val = Number(tx.units) || 0;
        addPoint(normalized, key, 'supplied', val);
      });
 
     // Ordenar chaves de tempo
-    const rawKeys = Array.from(timeKeySet.values()).sort();
-    // Garantir faixa contínua mês a mês quando agrupando por mês e sem ano selecionado
-    let sortedKeys = rawKeys;
-    if (groupByMonth && !selectedYear && rawKeys.length > 0) {
-      const start = dayjs(`${rawKeys[0]}-01`);
-      const end = dayjs(`${rawKeys[rawKeys.length - 1]}-01`);
-      const range: string[] = [];
-      for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
-        range.push(d.format('YYYY-MM'));
+    let sortedKeys: string[];
+    if (groupByMonth) {
+      // Para dados mensais, ordenar como strings
+      const rawKeys = Array.from(timeKeySet.values()).sort();
+      // Garantir faixa contínua mês a mês quando agrupando por mês e sem ano selecionado
+      if (!selectedYear && rawKeys.length > 0) {
+        const start = dayjs(`${rawKeys[0]}-01`);
+        const end = dayjs(`${rawKeys[rawKeys.length - 1]}-01`);
+        const range: string[] = [];
+        for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
+          range.push(d.format('YYYY-MM'));
+        }
+        sortedKeys = range;
+      } else {
+        sortedKeys = rawKeys;
       }
-      sortedKeys = range;
+    } else {
+      // Para dados diários, ordenar cronologicamente por data
+      const rawKeys = Array.from(timeKeySet.values());
+      
+             sortedKeys = rawKeys.sort((a, b) => {
+         // Ordenar strings de data diretamente (YYYY-MM-DD)
+         return a.localeCompare(b);
+       });
     }
+    
     const labels = groupByMonth
       ? sortedKeys.map(monthKey => {
           const [, month] = monthKey.split('-');
@@ -985,51 +1049,104 @@ export function FuelControlChart({
           return selectedYear ? month : monthKey;
         })
       : sortedKeys.map(date => {
-          const d = new Date(date);
-          return `${String(d.getDate())}`;
+          // Para dados diários, extrair o dia mantendo a correspondência exata com sortedKeys
+          const [, , day] = date.split('-');
+          return day;
         });
 
-    // Agrupar por tipo (Supplied vs Consumed) em vez de por motorista
-    const aggregatedData = {
-      supplied: sortedKeys.map(k => 
-        Object.values(driverToSeries).reduce((sum, driver) => 
-          sum + (driver.supplied[k] || 0), 0
-        )
-      ),
-      consumed: sortedKeys.map(k => 
-        Object.values(driverToSeries).reduce((sum, driver) => 
-          sum + (driver.consumed[k] || 0), 0
-        )
-      )
-    };
+         // Agrupar por tipo (Supplied vs Consumed vs Distance) em vez de por motorista
+     const aggregatedData = {
+       supplied: sortedKeys.map(k => 
+         Object.values(driverToSeries).reduce((sum, driver) => 
+           sum + (driver.supplied[k] || 0), 0
+         )
+       ),
+       consumed: sortedKeys.map(k => 
+         Object.values(driverToSeries).reduce((sum, driver) => 
+           sum + (driver.consumed[k] || 0), 0
+         )
+       ),
+       distance: sortedKeys.map(k => 
+         Object.values(driverToSeries).reduce((sum, driver) => 
+           sum + (driver.distance[k] || 0), 0
+         )
+       )
+     };
 
-    const datasets = [
-      {
-        label: 'Total Supplied (WEX)',
-        data: aggregatedData.supplied.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
-        borderColor: '#2E6BE6',
-        backgroundColor: '#2E6BE6',
-        pointRadius: 3,
-        pointHoverRadius: 5,
-        borderWidth: 3,
-        fill: false,
-        tension: 0.25,
-      },
-      {
-        label: 'Total Consumed (Samsara)',
-        data: aggregatedData.consumed.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
-        borderColor: '#1bbf5c',
-        backgroundColor: '#1bbf5c',
-        fill: false,
-        tension: 0.25,
-      }
-    ];
+     // Calcular valores acumulativos para média de tendência
+     const cumulativeData = {
+       supplied: aggregatedData.supplied.reduce((acc, val, index) => {
+         acc.push((acc[index - 1] || 0) + val);
+         return acc;
+       }, [] as number[]),
+       consumed: aggregatedData.consumed.reduce((acc, val, index) => {
+         acc.push((acc[index - 1] || 0) + val);
+         return acc;
+       }, [] as number[]),
+       distance: aggregatedData.distance.reduce((acc, val, index) => {
+         acc.push((acc[index - 1] || 0) + val);
+         return acc;
+       }, [] as number[])
+     };
 
+     // Calcular linha de tendência baseada na média de consumo por distância
+     const trendLine = cumulativeData.consumed.map((totalConsumed, index) => {
+       if (index === 0) return 0;
+       const avgConsumptionPerDistance = totalConsumed / (cumulativeData.distance[index] || 1);
+       const expectedConsumption = cumulativeData.distance[index] * avgConsumptionPerDistance;
+       return expectedConsumption;
+     });
+
+         const datasets = [
+               {
+          label: 'Total Supplied (WEX)',
+          data: cumulativeData.supplied.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          borderColor: '#2E6BE6',
+          backgroundColor: '#2E6BE6',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3,
+          fill: false,
+          tension: 0.25,
+          yAxisID: 'y',
+          hidden: !visibleLines.supplied,
+        },
+        {
+          label: 'Total Consumed (Samsara)',
+          data: cumulativeData.consumed.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          borderColor: '#1bbf5c',
+          backgroundColor: '#1bbf5c',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3,
+          fill: false,
+          tension: 0.25,
+          yAxisID: 'y',
+          hidden: !visibleLines.consumed,
+        },
+        {
+          label: 'Total Distance (mi)',
+          data: cumulativeData.distance.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          borderColor: '#fd7e14',
+          backgroundColor: '#fd7e14',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3,
+          fill: false,
+          tension: 0.25,
+          yAxisID: 'y1',
+          hidden: !visibleLines.distance,
+        },
+       
+     ];
+
+
+    
     return {
       labels,
       datasets,
     };
-     }, [filteredSamsara, filteredWex, selectedMonth, normalizeName, selectedYear]);
+     }, [filteredSamsara, filteredWex, selectedMonth, normalizeName, selectedYear, visibleLines]);
 
   const suppliedVsConsumedOptions = useMemo(() => {
     let borderDivider = '#e0e0e0';
@@ -1069,131 +1186,322 @@ export function FuelControlChart({
            }
          },
        },
-      scales: {
-        x: {
-          grid: { color: borderDivider },
-          ticks: {
-            color: '#6c757d',
-            maxRotation: 45,
-            minRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: selectedMonth ? 15 : 12,
-          },
-                     title: {
+             scales: {
+         x: {
+           grid: { color: borderDivider },
+           ticks: {
+             color: '#6c757d',
+             maxRotation: 45,
+             minRotation: 0,
+             autoSkip: true,
+             maxTicksLimit: selectedMonth ? 15 : 12,
+           },
+                      title: {
+              display: false
+            },
+         },
+         y: {
+           type: 'linear' as const,
+           display: true,
+           position: 'left' as const,
+           grid: { color: borderDivider },
+           ticks: { color: '#6c757d' },
+           beginAtZero: true,
+           title: {
              display: true,
-             text: selectedYear && selectedMonth ? 'Days of Month' : selectedYear ? 'Months' : 'Time',
+             text: 'Fuel (gal)',
              color: '#6c757d',
              font: { weight: 600, size: 12 },
              padding: { top: 10, bottom: 10 },
            },
-        },
-        y: {
-          grid: { color: borderDivider },
-          ticks: { color: '#6c757d' },
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Fuel (gal)',
-            color: '#6c757d',
-            font: { weight: 600, size: 12 },
-            padding: { top: 10, bottom: 10 },
-          },
-        },
-      },
+         },
+         y1: {
+           type: 'linear' as const,
+           display: true,
+           position: 'right' as const,
+           grid: { drawOnChartArea: false },
+           ticks: { color: '#6c757d' },
+           beginAtZero: true,
+           title: {
+             display: true,
+             text: 'Distance (mi)',
+             color: '#6c757d',
+             font: { weight: 600, size: 12 },
+             padding: { top: 10, bottom: 10 },
+           },
+         },
+       },
       layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
     };
      }, [selectedYear, selectedMonth]);
 
   return (
     <>
-      <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-        {/* Container dos 3 gráficos - distribuição uniforme sem margens */}
-        <div style={{ 
-          display: 'flex', 
-          flexDirection: 'row', 
-          width: '100%', 
-          height: '100%', 
-          minHeight: 0,
-          borderBottom: '1px solid var(--color-border-divider)'
-        }}>
-          {/* Gráfico 1: Performance MPG - 1/3 da largura, sem margens */}
-          <div style={{ 
-            flex: 1, 
-            minWidth: 0,
-            background: 'var(--color-background-primary)',
-            padding: '6px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-              Performance Over Time
-            </h4>
-                         <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-               <div style={{ flex: 1, minHeight: 0, minWidth: 0, position: 'relative' }}>
-                 {performanceChartData && performanceChartOptions ? (
-                   <Line data={performanceChartData} options={performanceChartOptions} />
-                 ) : (
-                   <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <span style={{ color: 'var(--color-text-secondary)' }}>Carregando gráfico...</span>
-                   </div>
-                 )}
-               </div>
-             </div>
-          </div>
-
-          {/* Gráfico 2: Consumo vs Abastecimento - 1/3 da largura, com bordas laterais */}
-          <div style={{ 
-            flex: 1, 
-            minWidth: 0,
-            background: 'var(--color-background-primary)',
-            borderLeft: '1px solid var(--color-border-divider)',
-            borderRight: '1px solid var(--color-border-divider)',
-            padding: '6px',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <h4 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-              Total Supplied vs Consumed
-            </h4>
-                         <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
-               <div style={{ flex: 1, minHeight: 0, minWidth: 0, position: 'relative' }}>
-                 {suppliedVsConsumedData && suppliedVsConsumedOptions ? (
-                   <Line data={suppliedVsConsumedData} options={suppliedVsConsumedOptions} />
-                 ) : (
-                   <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <span style={{ color: 'var(--color-text-secondary)' }}>Carregando gráfico...</span>
-                   </div>
-                 )}
-               </div>
-             </div>
-          </div>
-
-                     {/* Gráfico 3: Custo Total ao Longo do Tempo - 1/3 da largura, sem margens */}
+             <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+         {/* Container principal - gráfico principal (2/3) + coluna direita (1/3) */}
+         <div style={{ 
+           display: 'flex', 
+           flexDirection: 'row', 
+           width: '100%', 
+           height: '100%', 
+           minHeight: 0,
+           borderBottom: '1px solid var(--color-border-divider)'
+         }}>
+           {/* Gráfico Principal: Consumo vs Abastecimento vs Distância + Média Acumulativa - 2/3 da largura */}
            <div style={{ 
-             flex: 1, 
+             flex: 2, 
              minWidth: 0,
              background: 'var(--color-background-primary)',
              padding: '6px',
              display: 'flex',
              flexDirection: 'column'
            }}>
-             <h4 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-               Cost Over Time
-             </h4>
+              {/* Título e controle de exibição na mesma linha */}
+              <div className='ms-4 my-2 d-flex justify-content-between align-items-center' style={{ minHeight: 30, marginRight: '16px' }}>
+                <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>
+                  Fuel Consumption Analysis
+                </h4>
+                
+                {/* Controle de exibição das linhas */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {/* Botão Supplied */}
+                  <button
+                    onClick={() => setVisibleLines(prev => ({ ...prev, supplied: !prev.supplied }))}
+                    style={{ 
+                      background: visibleLines.supplied ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+                      color: visibleLines.supplied ? '#2E6BE6' : 'var(--color-text-primary)', 
+                      border: visibleLines.supplied ? '1.5px solid #2E6BE6' : '1.5px solid var(--color-border-divider)', 
+                      borderRadius: 15, 
+                      padding: '4px 12px', 
+                      fontWeight: 500, 
+                      fontSize: 12, 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      height: 26,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Supplied
+                  </button>
+
+                  {/* Botão Consumed */}
+                  <button
+                    onClick={() => setVisibleLines(prev => ({ ...prev, consumed: !prev.consumed }))}
+                    style={{ 
+                      background: visibleLines.consumed ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+                      color: visibleLines.consumed ? '#1bbf5c' : 'var(--color-text-primary)', 
+                      border: visibleLines.consumed ? '1.5px solid #1bbf5c' : '1.5px solid var(--color-border-divider)', 
+                      borderRadius: 15, 
+                      padding: '4px 12px', 
+                      fontWeight: 500, 
+                      fontSize: 12, 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      height: 26,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Consumed
+                  </button>
+
+                  {/* Botão Distance */}
+                  <button
+                    onClick={() => setVisibleLines(prev => ({ ...prev, distance: !prev.distance }))}
+                    style={{ 
+                      background: visibleLines.distance ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+                      color: visibleLines.distance ? '#fd7e14' : 'var(--color-text-primary)', 
+                      border: visibleLines.distance ? '1.5px solid #fd7e14' : '1.5px solid var(--color-border-divider)', 
+                      borderRadius: 15, 
+                      padding: '4px 12px', 
+                      fontWeight: 500, 
+                      fontSize: 12, 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      height: 26,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Distance
+                  </button>
+                </div>
+              </div>
              <div style={{ background: 'var(--color-background-primary)', borderRadius: 10, flex: 1, minHeight: 0, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
                <div style={{ flex: 1, minHeight: 0, minWidth: 0, position: 'relative' }}>
-                 {costOverTimeData && costOverTimeOptions ? (
-                   <Line data={costOverTimeData} options={costOverTimeOptions} />
-                 ) : (
-                   <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                     <span style={{ color: 'var(--color-text-secondary)' }}>Carregando gráfico...</span>
-                   </div>
-                 )}
+                                                     {suppliedVsConsumedData && suppliedVsConsumedOptions ? (
+                    <Line data={suppliedVsConsumedData} options={suppliedVsConsumedOptions} />
+                  ) : (
+                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        textAlign: 'center',
+                        padding: '20px'
+                      }}>
+                         <div style={{ 
+                           fontSize: 48, 
+                           color: 'var(--color-text-secondary)',
+                           opacity: 0.5,
+                           marginBottom: 16
+                         }}>
+                           <i className="bi bi-graph-up"></i>
+                         </div>
+                        <div style={{ 
+                          fontSize: 18, 
+                          fontWeight: 500, 
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 8
+                        }}>
+                          Sem dados para exibir
+                        </div>
+                        <div style={{ 
+                          fontSize: 14, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.8,
+                          maxWidth: 300
+                        }}>
+                          Não há dados de combustível para o período e filtros selecionados
+                        </div>
+                      </div>
+                    </div>
+                  )}
                </div>
              </div>
            </div>
-        </div>
-      </div>
+
+                       {/* Coluna Direita: Performance e Custo - 1/3 da largura */}
+            <div style={{ 
+              flex: 1, 
+              minWidth: 0,
+              background: 'var(--color-background-primary)',
+              borderLeft: '1px solid var(--color-border-divider)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+                           {/* Gráfico Superior: Performance MPG - metade da altura */}
+              <div style={{ 
+                flex: 1, 
+                minHeight: 0,
+                background: 'var(--color-background-primary)',
+                borderRadius: 10,
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <h5 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
+                  Performance Over Time
+                </h5>
+                <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                                     {performanceChartData && performanceChartOptions ? (
+                     <Line data={performanceChartData} options={performanceChartOptions} />
+                   ) : (
+                     <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                             <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        textAlign: 'center',
+                        padding: '16px'
+                      }}>
+                         <div style={{ 
+                           fontSize: 36, 
+                           color: 'var(--color-text-secondary)',
+                           opacity: 0.5,
+                           marginBottom: 12
+                         }}>
+                           <i className="bi bi-speedometer2"></i>
+                         </div>
+                        <div style={{ 
+                          fontSize: 16, 
+                          fontWeight: 500, 
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 4
+                        }}>
+                          Sem dados de performance
+                        </div>
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.8,
+                          maxWidth: 200
+                        }}>
+                          Nenhum evento de viagem encontrado
+                        </div>
+                      </div>
+                     </div>
+                   )}
+                </div>
+              </div>
+
+                             {/* Linha separadora entre os gráficos */}
+               <div style={{ 
+                 height: '1px', 
+                 background: 'var(--color-border-divider)'
+               }} />
+
+              {/* Gráfico Inferior: Custo ao Longo do Tempo - metade da altura */}
+              <div style={{ 
+                flex: 1, 
+                minHeight: 0,
+                background: 'var(--color-background-primary)',
+                borderRadius: 10,
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <h5 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
+                  Cost Over Time
+                </h5>
+                <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                                     {costOverTimeData && costOverTimeOptions ? (
+                     <Line data={costOverTimeData} options={costOverTimeOptions} />
+                   ) : (
+                     <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                             <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        textAlign: 'center',
+                        padding: '16px'
+                      }}>
+                         <div style={{ 
+                           fontSize: 36, 
+                           color: 'var(--color-text-secondary)',
+                           opacity: 0.5,
+                           marginBottom: 12
+                         }}>
+                           <i className="bi bi-currency-dollar"></i>
+                         </div>
+                        <div style={{ 
+                          fontSize: 16, 
+                          fontWeight: 500, 
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 4
+                        }}>
+                          Sem dados de custo
+                        </div>
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.8,
+                          maxWidth: 200
+                        }}>
+                          Nenhuma transação WEX encontrada
+                        </div>
+                      </div>
+                     </div>
+                   )}
+                </div>
+              </div>
+           </div>
+         </div>
+       </div>
 
              {/* Tooltips externos */}
        {externalTooltip && (
