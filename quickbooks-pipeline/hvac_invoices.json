@@ -4,6 +4,302 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20308",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-06T13:32:56-07:00",
+      "LastUpdatedTime": "2025-08-19T05:52:39-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3802",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "20482",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13 Diane Terrace, Scituate, MA  02066 USA\n",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Diagnostic Fee",
+        "Amount": 199,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 199,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Materials",
+        "Amount": 49,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-25",
+          "ItemRef": {
+            "value": "6",
+            "name": "Material"
+          },
+          "UnitPrice": 49,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 248,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1535",
+      "name": "Jean St Clair"
+    },
+    "BillAddr": {
+      "Id": "19582",
+      "Line1": "Jean St Clair",
+      "Line2": "13 Diane Terrace",
+      "Line3": "Scituate, MA  02066 USA"
+    },
+    "ShipAddr": {
+      "Id": "19581",
+      "Line1": "13 Diane Terrace",
+      "City": "Scituate",
+      "Country": "USA",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "02066"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 248,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "jbstcl@gmail.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-06T13:33:13-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20463",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:15:50-07:00",
+      "LastUpdatedTime": "2025-08-18T10:37:36-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3832",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "20475",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Annual Maintenance \n\n76 Ingalls Viallage Way\nBoxford, MA  01921 USA",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-08-18"
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Maintenance\n1 Furnace, 1 Condenser ",
+        "Amount": 499,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-18",
+          "ItemRef": {
+            "value": "1247",
+            "name": "Contracted Customers:Maintenance - Units < 5 years"
+          },
+          "UnitPrice": 499,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Filter Humidifier - ",
+        "Amount": 69,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-18",
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 69,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 568,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1547",
+      "name": "Nancy Tagerman"
+    },
+    "BillAddr": {
+      "Id": "19774",
+      "Line1": "Nancy Tagerman",
+      "Line2": "76 Ingalls Viallage Way",
+      "Line3": "Boxford, MA  01921 USA"
+    },
+    "ShipAddr": {
+      "Id": "19772",
+      "Line1": "76 Ingalls Viallage Way",
+      "City": "Boxford",
+      "Country": "USA",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01921"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-12",
+    "TotalAmt": 568,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "nance526@hotmail.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-18T06:28:32-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Paid",
     "domain": "QBO",
     "sparse": false,
@@ -5523,154 +5819,6 @@
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
     "Balance": 500
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20308",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T13:32:56-07:00",
-      "LastUpdatedTime": "2025-08-07T08:07:02-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3802",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "13 Diane Terrace, Scituate, MA  02066 USA\n",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Diagnostic Fee",
-        "Amount": 199,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 199,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Materials",
-        "Amount": 49,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-25",
-          "ItemRef": {
-            "value": "6",
-            "name": "Material"
-          },
-          "UnitPrice": 49,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 248,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1535",
-      "name": "Jean St Clair"
-    },
-    "BillAddr": {
-      "Id": "19582",
-      "Line1": "Jean St Clair",
-      "Line2": "13 Diane Terrace",
-      "Line3": "Scituate, MA  02066 USA"
-    },
-    "ShipAddr": {
-      "Id": "19581",
-      "Line1": "13 Diane Terrace",
-      "City": "Scituate",
-      "Country": "USA",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "02066"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 248,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "jbstcl@gmail.com"
-    },
-    "Balance": 248,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-06T13:33:13-07:00"
-    }
   },
   {
     "AllowIPNPayment": false,

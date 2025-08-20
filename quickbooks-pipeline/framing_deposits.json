@@ -4,6 +4,192 @@
       "value": "158",
       "name": "DCU Business Checking 0257"
     },
+    "TotalAmt": 74403.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50442",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T07:11:03-07:00",
+      "LastUpdatedTime": "2025-08-19T07:11:03-07:00"
+    },
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "First floor",
+        "Amount": 23283,
+        "LinkedTxn": [
+          {
+            "TxnId": "50432",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 16944,
+        "LinkedTxn": [
+          {
+            "TxnId": "50434",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 263018 + 263049",
+        "Amount": 17433,
+        "LinkedTxn": [
+          {
+            "TxnId": "50436",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Description": "PO 923938",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "50437",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Description": "PO 925567",
+        "Amount": 3200,
+        "LinkedTxn": [
+          {
+            "TxnId": "50439",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 13363.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "50441",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "419283"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge Number: 176221 - Main stair top run installed back pitched holding up stair rail install",
+        "Amount": -120,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3131",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "419283"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 43251.07,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50394",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T08:27:48-07:00",
+      "LastUpdatedTime": "2025-08-18T08:27:48-07:00"
+    },
+    "TxnDate": "2025-07-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoices 8285 + 8286",
+        "Amount": 43251.07,
+        "LinkedTxn": [
+          {
+            "TxnId": "50328",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2177"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
     "TotalAmt": 112567,
     "domain": "QBO",
     "sparse": false,
@@ -57980,7 +58166,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "261",
-            "name": "Guilherme M. Costa",
+            "name": "Guilherme Costa",
             "type": "EMPLOYEE"
           },
           "AccountRef": {
@@ -58233,7 +58419,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "838",
-            "name": "Guilherme Costa",
+            "name": "Josimar Santos",
             "type": "EMPLOYEE"
           },
           "AccountRef": {

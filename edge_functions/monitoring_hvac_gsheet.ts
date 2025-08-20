@@ -252,7 +252,16 @@ serve(async (req) => {
       s3_date: getField(row, "S3_Date") ? parseDateUS(getField(row, "S3_Date")) : null,
       s4_finish: getField(row, "S4: Finish"),
       s4_date: getField(row, "S4_Date") ? parseDateUS(getField(row, "S4_Date")) : null,
-      percent_completed: getField(row, "% Completed") ? parseNumericValue(getField(row, "% Completed"), 0) : null,
+      percent_completed: (() => {
+        const stages = [
+          getField(row, "S1: Rough"),
+          getField(row, "S2: Machines"), 
+          getField(row, "S3: Condenser"),
+          getField(row, "S4: Finish")
+        ];
+        const completedCount = stages.filter(stage => stage === 'Completed').length;
+        return Math.round((completedCount / 4) * 100);
+      })(),
       last_update: getField(row, "Last Update") ? new Date(getField(row, "Last Update")) : null,
       notes: getField(row, "Notes")
     }));

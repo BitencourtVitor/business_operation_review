@@ -2,6 +2,640 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "49727",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-10T08:08:59-07:00",
+      "LastUpdatedTime": "2025-08-19T07:07:41-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2983",
+    "TxnDate": "2025-07-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "50440",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Base - 3309 sq",
+        "Amount": 13363.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000121",
+            "name": "TB - Owls Nest-Regency:Base First Floor - Chatham Modern Farmhouse"
+          },
+          "UnitPrice": 13363.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Base - Wall Frame Second Floor",
+        "Amount": 13363.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000152",
+            "name": "TB - Owls Nest-Regency:Base Second Floor - Chatham"
+          },
+          "UnitPrice": 13363.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000162",
+            "name": "TB - Owls Nest-Regency:017 - Chatham"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Open Railing",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000157",
+            "name": "TB - Owls Nest-Regency:201 - Chatham"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Full Bath/Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000191",
+            "name": "TB - Owls Nest-Regency:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001591",
+            "name": "TB - Owls Nest-Regency:020400 - All Plans"
+          },
+          "UnitPrice": -500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Linear fireplace - 42\" Cosmo/Rave",
+        "Amount": 750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000134",
+            "name": "TB - Owls Nest-Regency:106158 - Chatham"
+          },
+          "UnitPrice": 750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Finished Walkout Basement",
+        "Amount": 5500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000160",
+            "name": "TB - Owls Nest-Regency:263432 - Chatham"
+          },
+          "UnitPrice": 5500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 37627,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3268",
+      "name": "Lot 134 - Owls Nest Regecy"
+    },
+    "BillAddr": {
+      "Id": "16409",
+      "Line1": "Lot 134 - The Pinehills - Owls Nest",
+      "Line2": "19 Loons Call",
+      "Line3": "Chatham Modern Farmhouse"
+    },
+    "TotalAmt": 37627,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49600",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-07-02T10:59:14-07:00",
+      "LastUpdatedTime": "2025-08-19T07:01:08-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2977",
+    "TxnDate": "2025-06-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49919",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50435",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1924 sf",
+        "Amount": 19747,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000356",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Stockbridge Modern Craftsman"
+          },
+          "UnitPrice": 19747,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1992 sf",
+        "Amount": 10633,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000346",
+            "name": "TB - Lakemont At Hudson:Base Second Draw - Stockbridge Modern Craftsman"
+          },
+          "UnitPrice": 10633,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Finished basement",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000953",
+            "name": "TB - Lakemont At Hudson:263018 - All Plans"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000981",
+            "name": "TB - Lakemont At Hudson:263049 - All Plans"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 37180,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3260",
+      "name": "Lot 15 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "15777",
+      "Line1": "Lot 15 - Lakemont at Hudson",
+      "Line2": "3 Shoreline Drive",
+      "Line3": "Stockbridge Modern Craftsman"
+    },
+    "TotalAmt": 37180,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50323",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-11T15:14:56-07:00",
+      "LastUpdatedTime": "2025-08-19T06:46:48-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2999",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "50433",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1766 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000404",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1686 sf",
+        "Amount": 16944,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000404",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
+          },
+          "UnitPrice": 16944,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000689",
+            "name": "TB - Lakemont At Hudson:017 - All Plans"
+          },
+          "UnitPrice": 4900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001107",
+            "name": "TB - Lakemont At Hudson:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000901",
+            "name": "TB - Lakemont At Hudson:036415 - All Plans"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Additional Bedroom",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000981",
+            "name": "TB - Lakemont At Hudson:263049 - All Plans"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001094",
+            "name": "TB - Lakemont At Hudson:263432 - All Plans"
+          },
+          "UnitPrice": 4300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 44038,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3298",
+      "name": "Lot 13 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16316",
+      "Line1": "Lot 13 - Lakemont at Hudson",
+      "Line2": "16 Fitch Avenue",
+      "Line3": "Williamstown Modern Farmhouse"
+    },
+    "TotalAmt": 44038,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50322",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-11T14:55:14-07:00",
+      "LastUpdatedTime": "2025-08-19T06:38:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2998",
+    "TxnDate": "2025-08-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "50431",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2468 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000371",
+            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
+          },
+          "UnitPrice": 23283,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2226 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000455",
+            "name": "TB - Newbury Glen:015 - Williamstown"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000686",
+            "name": "TB - Newbury Glen:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Soffit in Primary Bedroom",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000468",
+            "name": "TB - Newbury Glen:036008 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Finished Basement",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000580",
+            "name": "TB - Newbury Glen:263018 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Amount": 43370,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3299",
+      "name": "Lot 06 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "16397",
+      "Line1": "Lot 06 - Newbury Glen",
+      "Line2": "16 Fitch Avenue",
+      "Line3": "Williamstown Modern Farmhouse"
+    },
+    "TotalAmt": 43370,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "45266",
     "SyncToken": "5",
     "MetaData": {
@@ -1551,171 +2185,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "50323",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-11T15:14:56-07:00",
-      "LastUpdatedTime": "2025-08-13T18:30:05-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2999",
-    "TxnDate": "2025-08-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1766 sf",
-        "Amount": 16944,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000404",
-            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
-          },
-          "UnitPrice": 16944,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1686 sf",
-        "Amount": 16944,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000404",
-            "name": "TB - Lakemont At Hudson:Base First Draw - Dickinson South Shore"
-          },
-          "UnitPrice": 16944,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 4900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000689",
-            "name": "TB - Lakemont At Hudson:017 - All Plans"
-          },
-          "UnitPrice": 4900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001107",
-            "name": "TB - Lakemont At Hudson:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000901",
-            "name": "TB - Lakemont At Hudson:036415 - All Plans"
-          },
-          "UnitPrice": 400,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Additional Bedroom",
-        "Amount": 300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000981",
-            "name": "TB - Lakemont At Hudson:263049 - All Plans"
-          },
-          "UnitPrice": 300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Finished Walkout Basement",
-        "Amount": 4300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001094",
-            "name": "TB - Lakemont At Hudson:263432 - All Plans"
-          },
-          "UnitPrice": 4300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 44038,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3298",
-      "name": "Lot 13 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "16316",
-      "Line1": "Lot 13 - Lakemont at Hudson",
-      "Line2": "16 Fitch Avenue",
-      "Line3": "Williamstown Modern Farmhouse"
-    },
-    "TotalAmt": 44038,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49116",
     "SyncToken": "1",
     "MetaData": {
@@ -2427,153 +2896,6 @@
     "BillEmail": {
       "Address": "8884210781@onlinecapturecenter.com"
     }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50322",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-11T14:55:14-07:00",
-      "LastUpdatedTime": "2025-08-11T14:55:42-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2998",
-    "TxnDate": "2025-08-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2408 sf",
-        "Amount": 15047.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000293",
-            "name": "TB - Newbury Glen:Base First Draw - Williamstone Modern Farmhouse"
-          },
-          "UnitPrice": 15047.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2226 sf",
-        "Amount": 12537,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000372",
-            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
-          },
-          "UnitPrice": 12537,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Exterior Basement Entrance",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000455",
-            "name": "TB - Newbury Glen:015 - Williamstown"
-          },
-          "UnitPrice": 400,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000686",
-            "name": "TB - Newbury Glen:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Soffit in Primary Bedroom",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000468",
-            "name": "TB - Newbury Glen:036008 Williamstown Modern Farmhouse"
-          },
-          "UnitPrice": 400,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Finished Basement",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000580",
-            "name": "TB - Newbury Glen:263018 Williamstown Modern Farmhouse"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 35134.5,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3299",
-      "name": "Lot 06 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "16268",
-      "Line1": "Lot 06 - Newbury Glen",
-      "Line2": "16 Fitch Avenue",
-      "Line3": "Williamstown Modern Farmhouse"
-    },
-    "TotalAmt": 35134.5,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
   },
   {
     "domain": "QBO",
@@ -4611,7 +4933,7 @@
         "SalesItemLineDetail": {
           "ItemRef": {
             "value": "1010000293",
-            "name": "TB - Newbury Glen:Base First Draw - Williamstone Modern Farmhouse"
+            "name": "TB - Newbury Glen:Base First Draw - Williamstone Modern Farmhouse (deleted)"
           },
           "UnitPrice": 15047.5,
           "Qty": 1,
@@ -4745,123 +5067,6 @@
       "Line3": "Williamstown Modern Farmhouse"
     },
     "TotalAmt": 39734.5,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49600",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-07-02T10:59:14-07:00",
-      "LastUpdatedTime": "2025-07-22T11:16:16-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2977",
-    "TxnDate": "2025-06-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49919",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1924 sf",
-        "Amount": 19747,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000356",
-            "name": "TB - Lakemont At Hudson:Base First Draw - Stockbridge Modern Craftsman"
-          },
-          "UnitPrice": 19747,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1992 sf",
-        "Amount": 10633,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000346",
-            "name": "TB - Lakemont At Hudson:Base Second Draw - Stockbridge Modern Craftsman"
-          },
-          "UnitPrice": 10633,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Finished basement",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000953",
-            "name": "TB - Lakemont At Hudson:263018 - All Plans"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Additional Bedroom",
-        "Amount": 300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000981",
-            "name": "TB - Lakemont At Hudson:263049 - All Plans"
-          },
-          "UnitPrice": 300,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 37180,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3260",
-      "name": "Lot 15 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "15777",
-      "Line1": "Lot 15 - Lakemont at Hudson",
-      "Line2": "3 Shoreline Drive",
-      "Line3": "Stockbridge Modern Craftsman"
-    },
-    "TotalAmt": 37180,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -8227,189 +8432,6 @@
       "DeliveryType": "Email",
       "DeliveryTime": "2025-04-25T08:43:42-07:00"
     }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49727",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-10T08:08:59-07:00",
-      "LastUpdatedTime": "2025-07-10T08:08:59-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2983",
-    "TxnDate": "2025-07-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Base - 3309 sq",
-        "Amount": 13363.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000121",
-            "name": "TB - Owls Nest-Regency:Base First Floor - Chatham Modern Farmhouse"
-          },
-          "UnitPrice": 13363.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Base - Wall Frame Second Floor",
-        "Amount": 13363.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000152",
-            "name": "TB - Owls Nest-Regency:Base Second Floor - Chatham"
-          },
-          "UnitPrice": 13363.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Walkout Basement",
-        "Amount": 4900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000162",
-            "name": "TB - Owls Nest-Regency:017 - Chatham"
-          },
-          "UnitPrice": 4900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Open Railing",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000157",
-            "name": "TB - Owls Nest-Regency:201 - Chatham"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Full Bath/Finished Lower Level",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000191",
-            "name": "TB - Owls Nest-Regency:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "QMI Cost Savings",
-        "Amount": -500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001591",
-            "name": "TB - Owls Nest-Regency:020400 - All Plans"
-          },
-          "UnitPrice": -500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Linear fireplace - 42\" Cosmo/Rave",
-        "Amount": 750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000134",
-            "name": "TB - Owls Nest-Regency:106158 - Chatham"
-          },
-          "UnitPrice": 750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Finished Walkout Basement",
-        "Amount": 5500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000160",
-            "name": "TB - Owls Nest-Regency:263432 - Chatham"
-          },
-          "UnitPrice": 5500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Amount": 37627,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3268",
-      "name": "Lot 134 - Owls Nest Regecy"
-    },
-    "BillAddr": {
-      "Id": "15756",
-      "Line1": "Lot 134 - The Pinehills - Owls Nest",
-      "Line2": "19 Loons Call",
-      "Line3": "Chatham Modern Farmhouse"
-    },
-    "TotalAmt": 37627,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
   },
   {
     "domain": "QBO",
@@ -21414,7 +21436,7 @@
     ],
     "CustomerRef": {
       "value": "3131",
-      "name": "Lot 136 - Owls Nest Regency."
+      "name": "Lot 136 - Owls Nest Regency"
     },
     "BillAddr": {
       "Id": "12683",

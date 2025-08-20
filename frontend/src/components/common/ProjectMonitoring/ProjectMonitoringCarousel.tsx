@@ -865,20 +865,40 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                           }}>
                             1
                           </div>
-                                                      <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <div style={{ color: 'var(--color-text-primary)', fontWeight: 500, fontSize: 14 }}>
-                                Stage 1 - Rough
-                              </div>
-                              <div style={{ 
-                                color: selected.s1_rough && selected.s1_rough.trim() !== '' ? 
-                                  (selected.s1_rough.toLowerCase().includes('completed') ? '#28a745' : 
-                                   selected.s1_rough.toLowerCase().includes('progress') ? '#ffc107' : '#dc3545') : '#dc3545', 
-                                fontSize: 13,
-                                fontWeight: 500
-                              }}>
-                                {selected.s1_rough || 'Not Started'}
-                              </div>
+                          <div style={{ flex: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ color: 'var(--color-text-primary)', fontWeight: 500, fontSize: 14 }}>
+                              Stage 1 - Rough
                             </div>
+                            <div style={{ 
+                              color: selected.s1_rough && selected.s1_rough.trim() !== '' ? 
+                                (selected.s1_rough.toLowerCase().includes('completed') ? '#28a745' : 
+                                 selected.s1_rough.toLowerCase().includes('progress') ? '#ffc107' : '#dc3545') : '#dc3545', 
+                              fontSize: 13,
+                              fontWeight: 500
+                            }}>
+                              {selected.s1_rough && selected.s1_rough.toLowerCase().includes('completed') && selected.s1_date 
+                                ? `Completed - ${new Date(selected.s1_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                : (selected.s1_rough || 'Not Started')
+                              }
+                              {selected.s1_rough && selected.s1_rough.toLowerCase().includes('completed') && selected.s1_date && selected.start_date && (
+                                <div style={{ 
+                                  fontSize: 11,
+                                  color: 'var(--color-text-secondary)',
+                                  fontWeight: 400,
+                                  marginTop: 2,
+                                  textAlign: 'right'
+                                }}>
+                                  {(() => {
+                                    const startDate = new Date(selected.start_date);
+                                    const s1Date = new Date(selected.s1_date);
+                                    const diffTime = Math.abs(s1Date.getTime() - startDate.getTime());
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                    return `Duration of ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+                                  })()}
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
                         
                         {/* Linha conectora */}
@@ -926,10 +946,30 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                               fontSize: 13,
                               fontWeight: 500
                             }}>
-                              {selected.s2_machines || 'Not Started'}
+                              {selected.s2_machines && selected.s2_machines.toLowerCase().includes('completed') && selected.s2_date 
+                                ? `Completed - ${new Date(selected.s2_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                : (selected.s2_machines || 'Not Started')
+                              }
+                              {selected.s2_machines && selected.s2_machines.toLowerCase().includes('completed') && selected.s2_date && selected.s1_date && (
+                                <div style={{ 
+                                  fontSize: 11,
+                                  color: 'var(--color-text-secondary)',
+                                  fontWeight: 400,
+                                  marginTop: 2,
+                                  textAlign: 'right'
+                                }}>
+                                  {(() => {
+                                    const s1Date = new Date(selected.s1_date);
+                                    const s2Date = new Date(selected.s2_date);
+                                    const diffTime = Math.abs(s2Date.getTime() - s1Date.getTime());
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                    return `Duration of ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+                                  })()}
+                                </div>
+                              )}
                             </div>
                           </div>
-                </div>
+                        </div>
                 
                         {/* Linha conectora */}
                         <div style={{ 
@@ -941,16 +981,16 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                         }} />
                         
                         {/* Stage 3 */}
-                <div style={{ 
+                        <div style={{ 
                           display: 'flex', 
                           alignItems: 'center', 
                           gap: 12,
                           padding: '8px 12px',
-                  background: 'var(--color-background-primary)', 
+                          background: 'var(--color-background-primary)', 
                           borderRadius: 6,
                           border: '1px solid var(--color-border-divider)'
-                }}>
-                  <div style={{
+                        }}>
+                          <div style={{
                             width: 28, 
                             height: 28, 
                             borderRadius: '50%', 
@@ -976,7 +1016,27 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                               fontSize: 13,
                               fontWeight: 500
                             }}>
-                              {selected.s3_condenser || 'Not Started'}
+                              {selected.s3_condenser && selected.s3_condenser.toLowerCase().includes('completed') && selected.s3_date 
+                                ? `Completed - ${new Date(selected.s3_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                : (selected.s3_condenser || 'Not Started')
+                              }
+                              {selected.s3_condenser && selected.s3_condenser.toLowerCase().includes('completed') && selected.s3_date && selected.s2_date && (
+                                <div style={{ 
+                                  fontSize: 11,
+                                  color: 'var(--color-text-secondary)',
+                                  fontWeight: 400,
+                                  marginTop: 2,
+                                  textAlign: 'right'
+                                }}>
+                                  {(() => {
+                                    const s2Date = new Date(selected.s2_date);
+                                    const s3Date = new Date(selected.s3_date);
+                                    const diffTime = Math.abs(s3Date.getTime() - s2Date.getTime());
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                    return `Duration of ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+                                  })()}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -1026,7 +1086,27 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
                               fontSize: 13,
                               fontWeight: 500
                             }}>
-                              {selected.s4_finish || 'Not Started'}
+                              {selected.s4_finish && selected.s4_finish.toLowerCase().includes('completed') && selected.s4_date 
+                                ? `Completed - ${new Date(selected.s4_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                : (selected.s4_finish || 'Not Started')
+                              }
+                              {selected.s4_finish && selected.s4_finish.toLowerCase().includes('completed') && selected.s4_date && selected.s3_date && (
+                                <div style={{ 
+                                  fontSize: 11,
+                                  color: 'var(--color-text-secondary)',
+                                  fontWeight: 400,
+                                  marginTop: 2,
+                                  textAlign: 'right'
+                                }}>
+                                  {(() => {
+                                    const s3Date = new Date(selected.s3_date);
+                                    const s4Date = new Date(selected.s4_date);
+                                    const diffTime = Math.abs(s4Date.getTime() - s3Date.getTime());
+                                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                                    return `Duration of ${diffDays} ${diffDays === 1 ? 'day' : 'days'}`;
+                                  })()}
+                                </div>
+                              )}
                             </div>
                           </div>
                 </div>

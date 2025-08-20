@@ -4,6 +4,45 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 568,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20477",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T17:22:14-07:00",
+      "LastUpdatedTime": "2025-08-18T17:22:14-07:00"
+    },
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 080-507",
+        "Amount": 568,
+        "LinkedTxn": [
+          {
+            "TxnId": "20475",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 199,
     "domain": "QBO",
     "sparse": false,

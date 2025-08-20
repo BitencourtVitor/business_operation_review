@@ -2,6 +2,93 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "50349",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T16:58:26-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "SN42505",
+    "TxnDate": "2025-07-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 135.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 135.01
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48416",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-05-19T09:56:57-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "RX28173",
+    "TxnDate": "2025-04-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RX28173",
+        "Amount": 540.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 540.07
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "50350",
     "SyncToken": "0",
     "MetaData": {
@@ -59,49 +146,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 832.78
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50349",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-13T16:58:26-07:00",
-      "LastUpdatedTime": "2025-08-13T16:58:26-07:00"
-    },
-    "DocNumber": "SN42505",
-    "TxnDate": "2025-07-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 135.01,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 135.01
   },
   {
     "domain": "QBO",
@@ -1879,50 +1923,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 20
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48416",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-05-19T09:56:57-07:00",
-      "LastUpdatedTime": "2025-06-26T09:07:02-07:00"
-    },
-    "DocNumber": "RX28173",
-    "TxnDate": "2025-04-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RX28173",
-        "Amount": 540.07,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 540.07
   },
   {
     "domain": "QBO",
@@ -5771,7 +5771,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "124",
