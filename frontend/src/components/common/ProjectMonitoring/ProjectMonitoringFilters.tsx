@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MultiSelectDropdown from '../MultiSelectDropdown';
 import { addCurrentMonthIfMissing } from '../../../utils/dataUtils';
+import { getWeeksInYear, getWeeksInMonth, formatWeekWithDates } from '../../../utils/weekUtils';
 import type { ProjectMonitoringHvacData } from '../../../hooks/useProjectMonitoringHvacData';
 
 interface ProjectMonitoringFiltersProps {
@@ -8,6 +9,8 @@ interface ProjectMonitoringFiltersProps {
   setSelectedYear: (year: string) => void;
   selectedMonth: string;
   setSelectedMonth: (month: string) => void;
+  selectedWeek: string;
+  setSelectedWeek: (week: string) => void;
   selectedProject: string[];
   setSelectedProject: (projects: string[]) => void;
   selectedTeam: string[];
@@ -29,6 +32,8 @@ export default function ProjectMonitoringFilters({
   setSelectedYear,
   selectedMonth,
   setSelectedMonth,
+  selectedWeek,
+  setSelectedWeek,
   selectedProject,
   setSelectedProject,
   selectedTeam,
@@ -58,6 +63,50 @@ export default function ProjectMonitoringFilters({
     transition: 'background 0.3s, color 0.3s, border 0.3s',
   };
 
+  // Calcular semanas disponíveis baseado nos filtros ativos
+  const getAvailableWeeks = () => {
+    if (!selectedYear) {
+      return [];
+    }
+    
+    const year = parseInt(selectedYear);
+    
+    if (selectedMonth) {
+      // Se mês está selecionado, mostrar apenas semanas do mês
+      const monthIndex = months.indexOf(selectedMonth);
+      if (monthIndex !== -1) {
+        return getWeeksInMonth(year, monthIndex);
+      }
+    } else {
+      // Se apenas ano está selecionado, mostrar todas as semanas do ano (sem duplicatas)
+      return getWeeksInYear(year);
+    }
+    
+    return [];
+  };
+
+  const availableWeeks = getAvailableWeeks();
+  
+  // Debug temporário para verificar semanas
+  if (selectedYear) {
+    console.log('Debug semanas:', {
+      selectedYear,
+      selectedMonth,
+      availableWeeks,
+      uniqueWeeks: [...new Set(availableWeeks)]
+    });
+  }
+  
+  // Garantir que as semanas sejam únicas
+  const uniqueWeeks = [...new Set(availableWeeks)].sort((a, b) => a - b);
+  
+  // Resetar semana quando ano ou mês mudar
+  useEffect(() => {
+    if (selectedWeek && !uniqueWeeks.includes(parseInt(selectedWeek))) {
+      setSelectedWeek('');
+    }
+  }, [selectedYear, selectedMonth, selectedWeek, uniqueWeeks, setSelectedWeek]);
+
   return (
     <div className="d-flex flex-row align-items-center" style={{ gap: 10, flexWrap: 'wrap', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: 12 }}>
       <span style={{ fontSize: 14, fontWeight: 500, gap: 8, display: 'flex', alignItems: 'center', color: 'var(--color-text-secondary)' }}>
@@ -65,18 +114,43 @@ export default function ProjectMonitoringFilters({
         Filters
       </span>
       
-      {/* Ano e Mês */}
-      <div className="input-group" style={{ minWidth: 197, maxWidth: 197, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
+      {/* Ano, Mês e Semana */}
+      <div className="input-group" style={{ minWidth: 272, maxWidth: 272, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
         <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0 }}>
           <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 16 }} />
         </span>
         <select id="year-select" name="year" value={selectedYear} onChange={e => setSelectedYear(e.target.value)} style={{ ...selectStyle, border: 'none', borderRight: '1.5px solid var(--color-border-divider)', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-          <option value="">Todos</option>
+          <option value="">All</option>
           {(years || []).map(y => <option key={y} value={y}>{y}</option>)}
         </select>
-        <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-          <option value="">Todos</option>
+        <select id="month-select" name="month" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)} style={{ ...selectStyle, border: 'none', borderRight: '1.5px solid var(--color-border-divider)', borderRadius: 0, height: 38, width: 60, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
+          <option value="">All</option>
           {addCurrentMonthIfMissing(months || [], selectedYear).map(m => <option key={m} value={m}>{m}</option>)}
+        </select>
+        <select 
+          id="week-select" 
+          name="week" 
+          value={selectedWeek} 
+          onChange={e => setSelectedWeek(e.target.value)}
+          disabled={!selectedYear}
+          style={{ 
+            ...selectStyle, 
+            border: 'none', 
+            borderRadius: 0, 
+            height: 38, 
+            width: 95, 
+            background: selectedYear ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: selectedYear ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+            cursor: selectedYear ? 'pointer' : 'not-allowed',
+            fontSize: 14
+          }}
+        >
+          <option value="">Week</option>
+          {uniqueWeeks.map(week => (
+            <option key={week} value={week.toString()}>
+              Week {week} ({formatWeekWithDates(parseInt(selectedYear), week)})
+            </option>
+          ))}
         </select>
       </div>
 

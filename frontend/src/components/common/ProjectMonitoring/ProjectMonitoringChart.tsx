@@ -134,12 +134,14 @@ interface ProjectMonitoringChartProps {
   filteredData: ProjectMonitoringHvacData[];
   selectedYear: string;
   selectedMonth: string;
+  selectedWeek: string;
 }
 
 export function ProjectMonitoringChart({ 
   filteredData, 
   selectedYear, 
-  selectedMonth
+  selectedMonth,
+  selectedWeek
 }: ProjectMonitoringChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<ProjectMonitoringTooltipExternalProps>>(null);
@@ -407,8 +409,8 @@ export function ProjectMonitoringChart({
 
     const hasData = data.length > 0 && data.some(value => value > 0);
 
-         return { chartData, chartOptions, hasData, statusAverages };
-   }, [filteredData, selectedYear, selectedMonth, groupBy]);
+                   return { chartData, chartOptions, hasData, statusAverages };
+    }, [filteredData, selectedYear, selectedMonth, selectedWeek, groupBy]);
 
   return (
     <>
@@ -927,38 +929,258 @@ export function ProjectMonitoringChart({
                               </span>
                             </div>
                           ))}
-                        </div>
-                      );
-                    })()}
+                          
+                                                                                {/* Métrica de média de estágios quando apenas completed está sendo exibido */}
+                            {legendItems.length === 1 && legendItems[0].label === 'Completed' && (() => {
+                              // Calcular média de dias de cada estágio para projetos completados
+                              const completedProjects = filteredData.filter(row => calculateProjectStatus(row) === 'completed');
+                              
+                              if (completedProjects.length === 0) return null;
+                              
+                              const stageAverages = {
+                                s1: 0,
+                                s2: 0,
+                                s3: 0,
+                                s4: 0
+                              };
+                              
+                              // Calcular médias de cada estágio
+                              const s1Durations: number[] = [];
+                              const s2Durations: number[] = [];
+                              const s3Durations: number[] = [];
+                              const s4Durations: number[] = [];
+                              
+                              completedProjects.forEach(project => {
+                                // Stage 1: s1_date - start_date
+                                if (project.s1_date && project.start_date) {
+                                  const s1Date = new Date(project.s1_date);
+                                  const startDate = new Date(project.start_date);
+                                  const duration = Math.ceil((s1Date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                                  if (duration > 0) s1Durations.push(duration);
+                                }
+                                
+                                // Stage 2: s2_date - s1_date
+                                if (project.s2_date && project.s1_date) {
+                                  const s2Date = new Date(project.s2_date);
+                                  const s1Date = new Date(project.s1_date);
+                                  const duration = Math.ceil((s2Date.getTime() - s1Date.getTime()) / (1000 * 60 * 60 * 24));
+                                  if (duration > 0) s2Durations.push(duration);
+                                }
+                                
+                                // Stage 3: s3_date - s2_date
+                                if (project.s3_date && project.s2_date) {
+                                  const s3Date = new Date(project.s3_date);
+                                  const s2Date = new Date(project.s2_date);
+                                  const duration = Math.ceil((s3Date.getTime() - s2Date.getTime()) / (1000 * 60 * 60 * 24));
+                                  if (duration > 0) s3Durations.push(duration);
+                                }
+                                
+                                // Stage 4: s4_date - s3_date
+                                if (project.s4_date && project.s3_date) {
+                                  const s4Date = new Date(project.s4_date);
+                                  const s3Date = new Date(project.s3_date);
+                                  const duration = Math.ceil((s4Date.getTime() - s3Date.getTime()) / (1000 * 60 * 60 * 24));
+                                  if (duration > 0) s4Durations.push(duration);
+                                }
+                              });
+                              
+                              // Calcular médias
+                              if (s1Durations.length > 0) stageAverages.s1 = Math.round(s1Durations.reduce((sum, days) => sum + days, 0) / s1Durations.length);
+                              if (s2Durations.length > 0) stageAverages.s2 = Math.round(s2Durations.reduce((sum, days) => sum + days, 0) / s2Durations.length);
+                              if (s3Durations.length > 0) stageAverages.s3 = Math.round(s3Durations.reduce((sum, days) => sum + days, 0) / s3Durations.length);
+                              if (s4Durations.length > 0) stageAverages.s4 = Math.round(s4Durations.reduce((sum, days) => sum + days, 0) / s4Durations.length);
+                              
+                              return (
+                                <>
+                                  {/* Espaçamento no topo */}
+                                  <div style={{ marginTop: 16 }} />
+                                  
+                                  {/* Stage 1 */}
+                                  <div style={{ 
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 50px 40px',
+                                    gap: 8,
+                                    alignItems: 'center',
+                                    padding: '4px 0'
+                                  }}>
+                                    <span style={{ 
+                                      color: 'var(--color-text-secondary)', 
+                                      fontSize: 12 
+                                    }}>
+                                      Stage 1 - Rough
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-text-primary)', 
+                                      fontSize: 12, 
+                                      textAlign: 'right',
+                                      fontWeight: 500
+                                    }}>
+                                      {stageAverages.s1 > 0 ? `${stageAverages.s1}d` : '-'}
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-accent-primary)', 
+                                      fontSize: 11, 
+                                      fontWeight: 500, 
+                                      textAlign: 'right'
+                                    }}>
+                                      {(() => {
+                                        const totalDays = stageAverages.s1 + stageAverages.s2 + stageAverages.s3 + stageAverages.s4;
+                                        if (totalDays > 0 && stageAverages.s1 > 0) {
+                                          return `${Math.round((stageAverages.s1 / totalDays) * 100)}%`;
+                                        }
+                                        return '-';
+                                      })()}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Stage 2 */}
+                                  <div style={{ 
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 50px 40px',
+                                    gap: 8,
+                                    alignItems: 'center',
+                                    padding: '4px 0'
+                                  }}>
+                                    <span style={{ 
+                                      color: 'var(--color-text-secondary)', 
+                                      fontSize: 12 
+                                    }}>
+                                      Stage 2 - Machines
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-text-primary)', 
+                                      fontSize: 12, 
+                                      textAlign: 'right',
+                                      fontWeight: 500
+                                    }}>
+                                      {stageAverages.s2 > 0 ? `${stageAverages.s2}d` : '-'}
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-accent-primary)', 
+                                      fontSize: 11, 
+                                      fontWeight: 500, 
+                                      textAlign: 'right'
+                                    }}>
+                                      {(() => {
+                                        const totalDays = stageAverages.s1 + stageAverages.s2 + stageAverages.s3 + stageAverages.s4;
+                                        if (totalDays > 0 && stageAverages.s2 > 0) {
+                                          return `${Math.round((stageAverages.s2 / totalDays) * 100)}%`;
+                                        }
+                                        return '-';
+                                      })()}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Stage 3 */}
+                                  <div style={{ 
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 50px 40px',
+                                    gap: 8,
+                                    alignItems: 'center',
+                                    padding: '4px 0'
+                                  }}>
+                                    <span style={{ 
+                                      color: 'var(--color-text-secondary)', 
+                                      fontSize: 12 
+                                    }}>
+                                      Stage 3 - Condenser
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-text-primary)', 
+                                      fontSize: 12, 
+                                      textAlign: 'right',
+                                      fontWeight: 500
+                                    }}>
+                                      {stageAverages.s3 > 0 ? `${stageAverages.s3}d` : '-'}
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-accent-primary)', 
+                                      fontSize: 11, 
+                                      fontWeight: 500, 
+                                      textAlign: 'right'
+                                    }}>
+                                      {(() => {
+                                        const totalDays = stageAverages.s1 + stageAverages.s2 + stageAverages.s3 + stageAverages.s4;
+                                        if (totalDays > 0 && stageAverages.s3 > 0) {
+                                          return `${Math.round((stageAverages.s3 / totalDays) * 100)}%`;
+                                        }
+                                        return '-';
+                                      })()}
+                                    </span>
+                                  </div>
+                                  
+                                  {/* Stage 4 */}
+                                  <div style={{ 
+                                    display: 'grid',
+                                    gridTemplateColumns: '1fr 50px 40px',
+                                    gap: 8,
+                                    alignItems: 'center',
+                                    padding: '4px 0'
+                                  }}>
+                                    <span style={{ 
+                                      color: 'var(--color-text-secondary)', 
+                                      fontSize: 12 
+                                    }}>
+                                      Stage 4 - Finish
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-text-primary)', 
+                                      fontSize: 12, 
+                                      textAlign: 'right',
+                                      fontWeight: 500
+                                    }}>
+                                      {stageAverages.s4 > 0 ? `${stageAverages.s4}d` : '-'}
+                                    </span>
+                                    <span style={{ 
+                                      color: 'var(--color-accent-primary)', 
+                                      fontSize: 11, 
+                                      fontWeight: 500, 
+                                      textAlign: 'right'
+                                    }}>
+                                      {(() => {
+                                        const totalDays = stageAverages.s1 + stageAverages.s2 + stageAverages.s3 + stageAverages.s4;
+                                        if (totalDays > 0 && stageAverages.s4 > 0) {
+                                          return `${Math.round((stageAverages.s4 / totalDays) * 100)}%`;
+                                        }
+                                        return '-';
+                                      })()}
+                                    </span>
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        );
+                      })()}
+                    </div>
                   </div>
+                </>
+              ) : (
+                <div style={{ 
+                  flex: 1, 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: 16,
+                  fontStyle: 'italic'
+                }}>
+                  {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
                 </div>
-              </>
-            ) : (
-              <div style={{ 
-                flex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                color: 'var(--color-text-secondary)',
-                fontSize: 16,
-                fontStyle: 'italic'
-              }}>
-                {filteredData.length === 0 ? 'Nenhum dado encontrado para os filtros selecionados' : 'Carregando gráfico...'}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Tooltip externo */}
-      {externalTooltip && (
-        <ProjectMonitoringTooltipExternal
-          {...externalTooltip}
-          tooltip={externalTooltip.tooltip ? externalTooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
-          canvas={externalTooltip.canvas}
-          data={externalTooltip.data || []}
-        />
-      )}
-    </>
-  );
-}
+        {/* Tooltip externo */}
+        {externalTooltip && (
+          <ProjectMonitoringTooltipExternal
+            {...externalTooltip}
+            tooltip={externalTooltip.tooltip ? externalTooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
+            canvas={externalTooltip.canvas}
+            data={externalTooltip.data || []}
+          />
+        )}
+      </>
+    );
+  }

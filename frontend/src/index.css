@@ -163,6 +163,8 @@ input::placeholder, textarea::placeholder {
   border-radius: 6px;
 }
 
+
+
 .textarea-positive {
   border-color: var(--positive-color) !important;
   background: var(--positive-background) !important;
@@ -201,4 +203,27 @@ input::placeholder, textarea::placeholder {
 
 .btn-primary {
   background: var(--color-brand-blue) !important;
+}
+
+/* Estilização específica para o select de semana */
+#week-select {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-divider) transparent;
+}
+
+#week-select::-webkit-scrollbar {
+  width: 8px;
+}
+
+#week-select::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#week-select::-webkit-scrollbar-thumb {
+  background: var(--color-border-divider);
+  border-radius: 4px;
+}
+
+#week-select::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
