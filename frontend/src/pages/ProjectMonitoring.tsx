@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { addCurrentMonthIfMissing } from '../utils/dataUtils';
+import { getISOWeek } from '../utils/weekUtils';
+
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import DestaqueModal from '../components/modals/DestaqueModal';
@@ -9,7 +11,6 @@ import PlanoAcaoModal from '../components/modals/PlanoAcaoModal';
 import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
-import type { ProjectMonitoringHvacRow } from '../types/projectMonitoringHvac';
 import { useProjectMonitoringHvacData, type ProjectMonitoringHvacData } from '../hooks/useProjectMonitoringHvacData';
 import ProjectMonitoringFilters from '../components/common/ProjectMonitoring/ProjectMonitoringFilters';
 import ProjectMonitoringMetrics from '../components/common/ProjectMonitoring/ProjectMonitoringMetrics';
@@ -94,6 +95,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [selectedProject, setSelectedProject] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string[]>(['completed', 'in_progress', 'no_started']);
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
@@ -177,7 +179,9 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
 
   // Função para obter a data relevante baseada no percentual de conclusão
   const getRelevantDate = (row: ProjectMonitoringHvacData): string | null => {
-    if (!row.start_date || !row.finish_date) return null;
+    if (!row.start_date || !row.finish_date) {
+      return null;
+    }
     
     // Calcular status baseado nos stages (mesma lógica usada em outros lugares)
     const stages = [
@@ -210,7 +214,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
   // Carregar todos os dados para filtros e cachear
   useEffect(() => {
     const fetchAll = async () => {
-      let all: ProjectMonitoringHvacRow[] = [];
+      let all: ProjectMonitoringHvacData[] = [];
       const cache = sessionStorage.getItem('project_monitoring_hvac');
       if (cache) {
         try {
@@ -221,7 +225,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
       } else {
         const { data: dbData, error: err } = await supabase.from('project_monitoring_hvac').select('*');
         if (!err && dbData) {
-          all = dbData as ProjectMonitoringHvacRow[];
+          all = dbData as ProjectMonitoringHvacData[];
           sessionStorage.setItem('project_monitoring_hvac', JSON.stringify(all));
         }
       }
@@ -241,7 +245,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
       // Anos presentes nos dados (usando data relevante)
       const anos = [...new Set(
         all
-          .map((d: ProjectMonitoringHvacRow) => {
+          .map((d: ProjectMonitoringHvacData) => {
             const relevantDate = getRelevantDate(d);
             return relevantDate && typeof relevantDate === 'string' ? relevantDate.split('-')[0] : undefined;
           })
@@ -303,7 +307,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
         if (!relevantDate) {
           return !selectedMonth; // Incluir projetos sem data apenas se não há filtro de mês
         }
-        return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[0] === selectedYear;
+        const year = relevantDate.split('-')[0];
+        return relevantDate && typeof relevantDate === 'string' && year === selectedYear;
       });
     }
     
@@ -314,7 +319,23 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
         if (!relevantDate) {
           return false;
         }
-        return relevantDate && typeof relevantDate === 'string' && relevantDate.split('-')[1] === selectedMonth;
+        const month = relevantDate.split('-')[1];
+        return relevantDate && typeof relevantDate === 'string' && month === selectedMonth;
+      });
+    }
+    
+    if (selectedWeek) {
+      filtered = filtered.filter(d => {
+        const relevantDate = getRelevantDate(d);
+        // Se não há data relevante (projetos no started), excluir da filtragem por semana
+        if (!relevantDate) {
+          return false;
+        }
+        
+        // Calcular a semana ISO da data relevante
+        const date = new Date(relevantDate);
+        const week = getISOWeek(date);
+        return week === parseInt(selectedWeek);
       });
     }
     
@@ -354,7 +375,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     if (selectedTeam.length > 0) filtered = filtered.filter(d => d.team && selectedTeam.includes(d.team));
     
     return filtered;
-  }, [projectMonitoringData, selectedYear, selectedMonth, selectedProject, selectedStatus, selectedTeam]);
+  }, [projectMonitoringData, selectedYear, selectedMonth, selectedWeek, selectedProject, selectedStatus, selectedTeam]);
 
   // Funções para modais
   const handleSave = async () => {
@@ -437,6 +458,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
           setSelectedYear={setSelectedYear}
           selectedMonth={selectedMonth}
           setSelectedMonth={setSelectedMonth}
+          selectedWeek={selectedWeek}
+          setSelectedWeek={setSelectedWeek}
           selectedProject={selectedProject}
           setSelectedProject={setSelectedProject}
           selectedTeam={selectedTeam}
@@ -463,6 +486,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
               filteredData={filteredData}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
+              selectedWeek={selectedWeek}
             />
             {/* Métricas */}
             <ProjectMonitoringMetrics allData={filteredData} />
