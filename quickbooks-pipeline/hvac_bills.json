@@ -1,6 +1,1527 @@
 [
   {
     "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-18",
+    "Balance": 750,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20489",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T05:36:22-07:00",
+      "LastUpdatedTime": "2025-08-20T05:36:22-07:00"
+    },
+    "DocNumber": "Reimbursement Felipe",
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Reimbursement Felipe \nPayout requested by Edy \nCheck #1553",
+        "Amount": 750,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "221",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 750
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-18",
+    "Balance": 750,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20488",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T05:35:48-07:00",
+      "LastUpdatedTime": "2025-08-20T05:35:48-07:00"
+    },
+    "DocNumber": "Reimbursement Gui",
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Reimbursement Gui\nPayout requested by Edy \nCheck #1553",
+        "Amount": 750,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "221",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 750
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-11",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20486",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-20T05:30:43-07:00",
+      "LastUpdatedTime": "2025-08-20T05:31:07-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Material for stock",
+    "LinkedTxn": [
+      {
+        "TxnId": "20487",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Material for stock",
+        "Amount": 1600,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1548",
+      "name": "Construction Solutions"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1600
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-27",
+    "Balance": 4493.29,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20485",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T02:02:24-07:00",
+      "LastUpdatedTime": "2025-08-20T02:02:24-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installment X - 50k",
+        "Amount": 4493.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Loan Quickboks"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "17",
+      "name": "QuickBooks Payments"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4493.29
+  },
+  {
+    "SalesTermRef": {
+      "value": "2"
+    },
+    "DueDate": "2025-08-26",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20340",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-10T02:05:07-07:00",
+      "LastUpdatedTime": "2025-08-19T05:52:24-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Autopay",
+    "LinkedTxn": [
+      {
+        "TxnId": "20481",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lease VIN: W1Y4EBHY6NT113493",
+        "Amount": 881.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "2022 Mercedes VIN 3493 Loan"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "175",
+      "name": "Mercedes-Benz"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 881.4
+  },
+  {
+    "SalesTermRef": {
+      "value": "2"
+    },
+    "DueDate": "2025-08-26",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20339",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-10T02:05:06-07:00",
+      "LastUpdatedTime": "2025-08-19T05:52:18-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Autopay",
+    "LinkedTxn": [
+      {
+        "TxnId": "20480",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lease VIN: W1Y4EBHY1NT11946",
+        "Amount": 835.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "203",
+            "name": "2022 Mercedes VIN 2946 Loan"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "175",
+      "name": "Mercedes-Benz"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 835.01
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-13",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20395",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-12T01:54:21-07:00",
+      "LastUpdatedTime": "2025-08-19T05:52:11-07:00"
+    },
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Autopay - 2024 Ford Maverick\nVIN: 3FTTW8B99RRA31122",
+    "LinkedTxn": [
+      {
+        "TxnId": "20479",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "VIN: 3FTTW8B99RRA31122",
+        "Amount": 649.54,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "234",
+            "name": "Vehicle:2024 Ford VIN 1122"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "817",
+      "name": "Ally"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 649.54
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 26.72,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20474",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:25:28-07:00",
+      "LastUpdatedTime": "2025-08-18T07:25:28-07:00"
+    },
+    "DocNumber": "S6703403.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6703403.001",
+        "Amount": 26.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1237",
+            "name": "David DeSimone:15 Mass Ave Walpole"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 26.72
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 114.73,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20473",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:19:00-07:00",
+      "LastUpdatedTime": "2025-08-18T07:19:00-07:00"
+    },
+    "DocNumber": "S6702943.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6702943.001",
+        "Amount": 28.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1085",
+            "name": "Toll Brothers:The Willows at Boxford:Lot 57 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "S6702943.001",
+        "Amount": 28.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1086",
+            "name": "Toll Brothers:The Willows at Boxford:Lot 58 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "S6702943.001",
+        "Amount": 58.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "664",
+            "name": "Toll Brothers:The Willows at Boxford:Lot 12 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 114.73
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 17.65,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20472",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:13:36-07:00",
+      "LastUpdatedTime": "2025-08-18T07:13:36-07:00"
+    },
+    "DocNumber": "S6702879.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6702879.001",
+        "Amount": 17.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1036",
+            "name": "Toll Brothers:The Willows at Boxford:Lot 30 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 17.65
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 24.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20471",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:08:07-07:00",
+      "LastUpdatedTime": "2025-08-18T07:08:07-07:00"
+    },
+    "DocNumber": "S6702875.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6702875.001",
+        "Amount": 24.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1429",
+            "name": "Toll Brothers:Regency at Glen Ellen - Carriages:lot 179 - Millis (Service)"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 24.25
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 167.03,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20470",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:05:09-07:00",
+      "LastUpdatedTime": "2025-08-18T07:05:09-07:00"
+    },
+    "DocNumber": "S6702873.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6702873.001",
+        "Amount": 167.03,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1369",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 11 - Lakemont At Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 167.03
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 78.69,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20469",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T07:03:34-07:00",
+      "LastUpdatedTime": "2025-08-18T07:03:34-07:00"
+    },
+    "DocNumber": "S6702872.001",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6702872.001",
+        "Amount": 78.69,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1327",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 17 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 78.69
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-12",
+    "Balance": 1641.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20468",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:56:02-07:00",
+      "LastUpdatedTime": "2025-08-18T06:56:02-07:00"
+    },
+    "DocNumber": "2722080-00",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2722080-00",
+        "Amount": 1641.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1087",
+            "name": "Toll Brothers:The Willows at Boxford:Lot 11 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1641.92
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-11",
+    "Balance": 204.32,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20467",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:47:47-07:00",
+      "LastUpdatedTime": "2025-08-18T06:47:47-07:00"
+    },
+    "DocNumber": "S3379504.001",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379504.001",
+        "Amount": 204.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1329",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 11 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 204.32
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-11",
+    "Balance": 221.1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20466",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:44:46-07:00",
+      "LastUpdatedTime": "2025-08-18T06:44:46-07:00"
+    },
+    "DocNumber": "S3379492.001",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379492.001",
+        "Amount": 221.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1326",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 15 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 221.1
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-11",
+    "Balance": 234.95,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20465",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:36:43-07:00",
+      "LastUpdatedTime": "2025-08-18T06:36:43-07:00"
+    },
+    "DocNumber": "S3379492.001",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379492.001",
+        "Amount": 234.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1326",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 15 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 234.95
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-11",
+    "Balance": 664.28,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20464",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T06:31:22-07:00",
+      "LastUpdatedTime": "2025-08-18T06:31:22-07:00"
+    },
+    "DocNumber": "S3375189.002",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3375189.002",
+        "Amount": 664.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1157",
+            "name": "Pulte Homes:Pulte Homes - Chauncy Lake - 6546:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 664.28
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-11",
+    "Balance": 2401.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20462",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:51:00-07:00",
+      "LastUpdatedTime": "2025-08-18T05:53:09-07:00"
+    },
+    "DocNumber": "2722541-00",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2722541-00",
+        "Amount": 2401.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1323",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 16 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2401.25
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 5.33,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20461",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:41:57-07:00",
+      "LastUpdatedTime": "2025-08-18T05:41:57-07:00"
+    },
+    "DocNumber": "S6700196.001",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6700196.001",
+        "Amount": 5.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1484",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5.33
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 16.75,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20460",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:39:27-07:00",
+      "LastUpdatedTime": "2025-08-18T05:39:27-07:00"
+    },
+    "DocNumber": "S3379318.001",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379318.001",
+        "Amount": 16.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1250",
+            "name": "Toll Brothers:Wendell Place:Lot 21 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 16.75
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 16.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20459",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:37:43-07:00",
+      "LastUpdatedTime": "2025-08-18T05:37:43-07:00"
+    },
+    "DocNumber": "S3379441.002",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379441.002",
+        "Amount": 16.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1311",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 16.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 88.53,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20458",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:34:18-07:00",
+      "LastUpdatedTime": "2025-08-18T05:34:18-07:00"
+    },
+    "DocNumber": "S3379447.001",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379447.001",
+        "Amount": 88.53,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1418",
+            "name": "Toll Brothers:Wendell Place:Lot 23 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 88.53
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 556.42,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20457",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:32:44-07:00",
+      "LastUpdatedTime": "2025-08-18T05:32:44-07:00"
+    },
+    "DocNumber": "S3379441.001",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3379441.001",
+        "Amount": 556.42,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1311",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 556.42
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 29.34,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20456",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:30:01-07:00",
+      "LastUpdatedTime": "2025-08-18T05:30:01-07:00"
+    },
+    "DocNumber": "S3377153.002",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3377153.002",
+        "Amount": 29.34,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1296",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 28 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 29.34
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 284.97,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20455",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:27:52-07:00",
+      "LastUpdatedTime": "2025-08-18T05:27:52-07:00"
+    },
+    "DocNumber": "S3375732.003",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3375732.003",
+        "Amount": 284.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1523",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 71 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 284.97
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-07",
+    "Balance": 46.1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20454",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:25:17-07:00",
+      "LastUpdatedTime": "2025-08-18T05:25:17-07:00"
+    },
+    "DocNumber": "S014685730.001",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S014685730.001",
+        "Amount": 46.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1541",
+            "name": "Cirrus Apartments:Cirrus apartments - Unit 1103"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 46.1
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-07",
+    "Balance": 301.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20453",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T05:22:13-07:00",
+      "LastUpdatedTime": "2025-08-18T05:22:13-07:00"
+    },
+    "DocNumber": "S014685730.001",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S014685730.001",
+        "Amount": 301.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1157",
+            "name": "Pulte Homes:Pulte Homes - Chauncy Lake - 6546:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "272",
+      "name": "The Bell Simons Companies"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 301.92
+  },
+  {
+    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2025-09-10",
@@ -1095,55 +2616,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1034.68
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-13",
-    "Balance": 649.54,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20395",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-12T01:54:21-07:00",
-      "LastUpdatedTime": "2025-08-12T01:54:21-07:00"
-    },
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Autopay - 2024 Ford Maverick\nVIN: 3FTTW8B99RRA31122",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "VIN: 3FTTW8B99RRA31122",
-        "Amount": 649.54,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "234",
-            "name": "Vehicle:2024 Ford VIN 1122"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "817",
-      "name": "Ally"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 649.54
   },
   {
     "SalesTermRef": {
@@ -3593,104 +5065,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1247.86
-  },
-  {
-    "SalesTermRef": {
-      "value": "2"
-    },
-    "DueDate": "2025-08-26",
-    "Balance": 881.4,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20340",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-10T02:05:07-07:00",
-      "LastUpdatedTime": "2025-08-10T02:05:07-07:00"
-    },
-    "TxnDate": "2025-08-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Autopay",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lease VIN: W1Y4EBHY6NT113493",
-        "Amount": 881.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "2022 Mercedes VIN 3493 Loan"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "175",
-      "name": "Mercedes-Benz"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 881.4
-  },
-  {
-    "SalesTermRef": {
-      "value": "2"
-    },
-    "DueDate": "2025-08-26",
-    "Balance": 835.01,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20339",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-10T02:05:06-07:00",
-      "LastUpdatedTime": "2025-08-10T02:05:06-07:00"
-    },
-    "TxnDate": "2025-08-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Autopay",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lease VIN: W1Y4EBHY1NT11946",
-        "Amount": 835.01,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "203",
-            "name": "2022 Mercedes VIN 2946 Loan"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "175",
-      "name": "Mercedes-Benz"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 835.01
   },
   {
     "SalesTermRef": {

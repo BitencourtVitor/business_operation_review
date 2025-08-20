@@ -1,5 +1,61 @@
 [
   {
+    "DueDate": "2025-08-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16827",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-31T14:17:59-07:00",
+      "LastUpdatedTime": "2025-08-18T08:18:31-07:00"
+    },
+    "DocNumber": "July",
+    "TxnDate": "2025-07-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17060",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account number  30016311232",
+        "Amount": 71.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "638",
+            "name": "Saco Riverside, LLC"
+          },
+          "AccountRef": {
+            "value": "20",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "822",
+      "name": "Central Maine Power"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 71.68
+  },
+  {
     "DueDate": "2025-08-27",
     "Balance": 3040.61,
     "domain": "QBO",
@@ -12435,56 +12491,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 16377.61
-  },
-  {
-    "DueDate": "2025-08-19",
-    "Balance": 71.68,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16827",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T14:17:59-07:00",
-      "LastUpdatedTime": "2025-07-31T14:17:59-07:00"
-    },
-    "DocNumber": "July",
-    "TxnDate": "2025-07-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Account number  30016311232",
-        "Amount": 71.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "638",
-            "name": "Saco Riverside, LLC"
-          },
-          "AccountRef": {
-            "value": "20",
-            "name": "Utilities"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "822",
-      "name": "Central Maine Power"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 71.68
   },
   {
     "SalesTermRef": {

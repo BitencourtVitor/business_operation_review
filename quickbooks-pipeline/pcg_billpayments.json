@@ -1,6 +1,45 @@
 [
   {
     "VendorRef": {
+      "value": "822",
+      "name": "Central Maine Power"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 71.68,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17060",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T08:18:31-07:00",
+      "LastUpdatedTime": "2025-08-18T08:18:31-07:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 71.68,
+        "LinkedTxn": [
+          {
+            "TxnId": "16827",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "917",
       "name": "RP Engineering, INC."
     },

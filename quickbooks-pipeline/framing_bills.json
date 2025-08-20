@@ -3,6 +3,4119 @@
     "SalesTermRef": {
       "value": "1"
     },
+    "DueDate": "2025-09-09",
+    "Balance": 579.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50450",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T01:41:59-07:00",
+      "LastUpdatedTime": "2025-08-20T01:41:59-07:00"
+    },
+    "TxnDate": "2025-09-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account 0010558140",
+        "Amount": 579.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "128",
+            "name": "Panels Premium:Equipment for panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1696",
+      "name": "Toyota Commercial Finance"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 579.16
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 11806.75,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50447",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T08:38:38-07:00",
+      "LastUpdatedTime": "2025-08-19T08:38:38-07:00"
+    },
+    "DocNumber": "Lot 19 - LH - 1st",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 19 - Lakemont at Hudson - 1st Payment: Marcando a linha do segundo piso.",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "4,057",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "8",
+            "name": "Square Feet"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "U$22,313.50",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "13",
+            "name": "Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Diesel - U$100.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Garage Stairs - U$150.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Bulkhead Stairs - U$450.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Front Porch Posts (3 un) - U$600.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "U$23,613.50",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "7",
+            "name": "Total Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Lot 19 - Lakemont at Hudson - 1st Payment: Marcando a linha do segundo piso.",
+        "Amount": 11806.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3275",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 11806.75
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 12107,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50446",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T07:38:50-07:00",
+      "LastUpdatedTime": "2025-08-19T07:38:50-07:00"
+    },
+    "DocNumber": "Lot 41 - WF - 2nd",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 41 - Wheelock Farm - Second Payment: 1st +2nd floor and roof done. Doors done we are still waiting for 3 windows (not Javier's fault). Footings are done. No deck yet.OBS: Windows were installed on August 1st",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lot 41 - Wheelock Farm - Second Payment: 1st +2nd floor and roof done. Doors done we are still waiting for 3 windows (not Javier's fault). Footings are done. No deck yet.OBS: Windows were installed on August 1st",
+        "Amount": 12107,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3233",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 41 -  Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "10",
+      "name": "JA Carpentry, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 12107
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 15783,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50445",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T07:36:11-07:00",
+      "LastUpdatedTime": "2025-08-19T07:36:11-07:00"
+    },
+    "DocNumber": "Lot 04 - WP - 2nd",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "TB - Wendell Place - Lot 04 - Last Payment: Todo feito. Já tem colocou spray form por dentro e na garage.",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Multi Gen Suit - $3,100.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "TB - Wendell Place - Lot 04 - Last Payment: Todo feito. Já tem colocou spray form por dentro e na garage.",
+        "Amount": 15783,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 15783
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 12107,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50444",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T07:32:46-07:00",
+      "LastUpdatedTime": "2025-08-19T07:32:46-07:00"
+    },
+    "DocNumber": "Lot 37 - WF - 1st",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 37 - Wheelock Farm - 1st Payment: 1st deck 2nd floor deck and exterior walls are all set we are wating for truss bit it will be here till 7/31/25",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "4,019",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "8",
+            "name": "Square Feet"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "U$24,114.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "13",
+            "name": "Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Diesel - U$100.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "U$24,214.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "7",
+            "name": "Total Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Lot 37 - Wheelock Farm - 1st Payment: 1st deck 2nd floor deck and exterior walls are all set we are wating for truss bit it will be here till 7/31/25",
+        "Amount": 12107,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3250",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 37 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 12107
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 10657,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50443",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T07:24:10-07:00",
+      "LastUpdatedTime": "2025-08-19T07:24:10-07:00"
+    },
+    "DocNumber": "Lot 139 - ON - 1st",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 139 - Owls Nest Regency - First Payment: 1st and 2nd floor done we are working in roof plywood will be done today and also working in inside frame",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "3,309",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "8",
+            "name": "Square Feet"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "$19,854.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "13",
+            "name": "Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout - U$360.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Diesel - U$100.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Basement - U$1,000.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "15",
+            "name": "Extra"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "U$21,314.00",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "7",
+            "name": "Total Price"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Lot 139 - Owls Nest Regency - First Payment: 1st and 2ndf loor done we are working in roof plywood will be done today and also working in inside frame",
+        "Amount": 10657,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3279",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 139 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2589",
+      "name": "JCPQ Construction Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10657
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-11",
+    "Balance": 5140,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49771",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-11T12:52:58-07:00",
+      "LastUpdatedTime": "2025-08-18T15:29:59-07:00"
+    },
+    "DocNumber": "Woodview",
+    "TxnDate": "2025-07-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Woodviewat Randolph (Pending contract)",
+    "LinkedTxn": [
+      {
+        "TxnId": "50429",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "50029",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Windows - 91 x 80",
+        "Amount": 7280,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Windows 3 x 40",
+        "Amount": 120,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Doors 27 x 250",
+        "Amount": 6750,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Tyvek 18 x 150",
+        "Amount": 2700,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2723",
+      "name": "Brothers General Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 16850
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-11",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49770",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-07-11T12:44:32-07:00",
+      "LastUpdatedTime": "2025-08-18T15:28:47-07:00"
+    },
+    "DocNumber": "Bldg 5 - CL",
+    "TxnDate": "2025-07-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 5 - Chauncy Lake (Pending contract)",
+    "LinkedTxn": [
+      {
+        "TxnId": "50428",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "49852",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Hardye",
+        "Amount": 25500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Windows - 305 x 40",
+        "Amount": 12200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Trims doors",
+        "Amount": 2000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Tyvek 27 x 150",
+        "Amount": 4050,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Beam board PVC\nOsvin 7:00am to 5:00pm - 9 hours\nIlver 7:00am to 5:00pm - 9 hours\n18 x 30 = 540",
+        "Amount": 540,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2723",
+      "name": "Brothers General Construction Inc"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 44290
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50426",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T14:41:03-07:00",
+      "LastUpdatedTime": "2025-08-18T14:41:43-07:00"
+    },
+    "DocNumber": "Rob Pagani",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "1st Payment\n41 Johnson Rd., Sterling (Pending contract)",
+    "LinkedTxn": [
+      {
+        "TxnId": "50427",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "41 Johnson Rd., Sterling - 1st Payment",
+        "Amount": 18000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3278",
+            "name": "Rob Pagani:41 Johnson Rd., Sterling"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3277",
+      "name": "HNN General Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 18000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50424",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T14:34:47-07:00",
+      "LastUpdatedTime": "2025-08-18T14:36:34-07:00"
+    },
+    "DocNumber": "Randolph",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building + Leasing Office\nNails, crane lull and boom\n- Premium Framing - 50% of the amount\n- BDS Framing Services, Inc. - 50% of the amount",
+    "LinkedTxn": [
+      {
+        "TxnId": "50425",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Roof",
+        "Amount": 20000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "3rd Floor Punch",
+        "Amount": 10000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3164",
+            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3207",
+      "name": "BDS Framing Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 30000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50421",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T14:25:22-07:00",
+      "LastUpdatedTime": "2025-08-18T14:26:22-07:00"
+    },
+    "DocNumber": "19 Old Connecticut",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "19 Old Connecticut Path - Wayland / 20002971",
+    "LinkedTxn": [
+      {
+        "TxnId": "50422",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Metal Roof Price - 20002971",
+        "Amount": 5600,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2833",
+      "name": "Masterpiece Roofing Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5600
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-18",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49709",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-09T12:20:29-07:00",
+      "LastUpdatedTime": "2025-08-18T11:59:37-07:00"
+    },
+    "DocNumber": "13416",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "YMMS: 2024 GMC Sierra - Oil Change",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Truck Syntetic Oil Change YMMS: 2024 GMC Sierra 1500 Denali\nJun 18, 2025 Engine: 6.2L",
+        "Amount": 99.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Credit card fee",
+        "Amount": 39.04,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 139.03
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-07",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49131",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-06-17T09:52:51-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "1694",
+    "TxnDate": "2025-06-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 1694",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Expansion tank hose; Service Labor; Gold Antifreeze; Wind Shield Washer Fluid - YMMS: 2016 Ford F-150 XLT Jun 13,\n2025 Engine: 2.7L Eng Lic",
+        "Amount": 372.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 372.88
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-07",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49130",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-17T09:44:59-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "1660",
+    "TxnDate": "2025-06-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 1660",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Truck Synthetic Oil Change YMMS: 2022 Chevrolet Silverado 1500 LTD Custom Jun 9, 2025Engine:2.7L EngLicense:w78438MAVIN:1GCRYBEK8NZ188632Odometer:",
+        "Amount": 106.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 106.99
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-05",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49128",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-17T09:39:52-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "13321",
+    "TxnDate": "2025-06-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 13321",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "YMMS: 2022 GMC Savana 2500 Base Jun 5, 2025 Engine: 6.6L En/ Truck Syntetic Oil Change\nCHECK PRESSION TIRES",
+        "Amount": 99.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 99.99
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-27",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48812",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-06-02T15:22:12-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "13260",
+    "TxnDate": "2025-05-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 13260",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "245 75 R16 PNEU VAN LT",
+        "Amount": 264.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 264.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-20",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48627",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-28T07:54:18-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "TxnDate": "2025-05-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 13203",
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Tire valve replacement service for 2011 Hyundai Tucson GLS with 2.4L engine. Work performed on May 20, 2025. Driver: Roderigo. Ref: Marcos.",
+        "Amount": 40,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 40
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-15",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48562",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-27T13:07:42-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "1538",
+    "TxnDate": "2025-05-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "YMMS: 2022 GMC Savana 2500 Base – Engine 6.6L Synthetic Oil + Washer Fluid",
+        "Amount": 106.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 106.99
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-05",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48390",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-19T08:49:31-07:00",
+      "LastUpdatedTime": "2025-08-18T11:58:34-07:00"
+    },
+    "DocNumber": "1486",
+    "TxnDate": "2025-05-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50419",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "YMMS: 2016 Ford F-150 Lariat May 5,\n2025 Engine: 2.7L Eng L",
+        "Amount": 24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Vehicles Expenses:Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "499",
+      "name": "Power Brothers Auto Center"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 24
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-01",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49843",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-17T01:42:29-07:00",
+      "LastUpdatedTime": "2025-08-18T11:54:32-07:00"
+    },
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "OSHA Penalty Settlement – Installment Payment Plan (Inspection #1804574) – 1 of 20 installments of $425.59 as per Expedited Informal Settlement Agreement dated 06/03/2025. $8.511,80",
+    "LinkedTxn": [
+      {
+        "TxnId": "50418",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "OSHA Penalty Settlement – Installment Payment Plan (Inspection #1804574) – 1 of 20 installments of $425.59 as per Expedited Informal Settlement Agreement dated 06/03/2025. $8.511,80",
+        "Amount": 425.59,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "65",
+            "name": "Fine"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2894",
+      "name": "U.S. Department of Labor"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 425.59
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49812",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-15T08:03:05-07:00",
+      "LastUpdatedTime": "2025-08-18T11:52:50-07:00"
+    },
+    "DocNumber": "RI2819393",
+    "TxnDate": "2025-05-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Container Rental / Taxes - 65 Mill St.",
+    "LinkedTxn": [
+      {
+        "TxnId": "50417",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "20' Container rental – 4 weeks (05/26/25 a 06/22/25) + Contents Protection – 4 weeks (05/26/25 a 06/22/25) + Damage Waiver – 4 weeks (05/26/25 a 06/22/25) + Taxes",
+        "Amount": 186.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "674",
+      "name": "The Eagle Leasing"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 186.5
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-30",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49811",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-15T07:57:42-07:00",
+      "LastUpdatedTime": "2025-08-18T11:52:27-07:00"
+    },
+    "DocNumber": "RI2809363",
+    "TxnDate": "2025-04-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Rental of 20' container Includes contents insurance and damage waiver - 65 Mill St",
+    "LinkedTxn": [
+      {
+        "TxnId": "50416",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "20' Container rental – 4 weeks (04/28/25 a 05/25/25) / Contents Protection – 4 weeks (04/28/25 a 05/25/25 - Damage Waiver – 4 weeks (04/28/25 a 05/25/25) + Taxes",
+        "Amount": 186.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "674",
+      "name": "The Eagle Leasing"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 186.5
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48073",
+    "SyncToken": "7",
+    "MetaData": {
+      "CreateTime": "2025-05-05T09:46:28-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "RT79667",
+    "TxnDate": "2025-04-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49787",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "49110",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "49099",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "50415",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "20255",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RT79667",
+        "Amount": 25931.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": 266.31,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 26198.22
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48072",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-05-05T09:45:22-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "RV54035",
+    "TxnDate": "2025-04-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "18 Evergreen Rd, Needham",
+    "LinkedTxn": [
+      {
+        "TxnId": "50415",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RV54035",
+        "Amount": 241.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 241.27
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48071",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-05-05T09:44:39-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "RV47833",
+    "TxnDate": "2025-04-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50415",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RV47833",
+        "Amount": 1219.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1219.6
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 236.82,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48070",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-05-05T09:43:48-07:00",
+      "LastUpdatedTime": "2025-08-18T11:43:21-07:00"
+    },
+    "DocNumber": "RW14944",
+    "TxnDate": "2025-04-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50415",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RW14944",
+        "Amount": 1433.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1433.12
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-31",
+    "Balance": 3658.68,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49509",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-30T14:11:40-07:00",
+      "LastUpdatedTime": "2025-08-18T11:36:37-07:00"
+    },
+    "DocNumber": "SG66014",
+    "TxnDate": "2025-06-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#SG66014 - Materials - Oc Lab - 1260 Reservoir Rd., Lunenburg - MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Siding, soffit, trim & coil – Savannah Wicker and White.",
+        "Amount": 3658.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3036",
+            "name": "PJ Keating:Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3658.68
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-30",
+    "Balance": 555.39,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49458",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-30T11:23:07-07:00",
+      "LastUpdatedTime": "2025-08-18T11:36:37-07:00"
+    },
+    "DocNumber": "RY79051",
+    "TxnDate": "2025-05-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#RY79051 - Black triple 4\" solid soffit panels.",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "EXP AIR FLO SOFF T4 SLD BLACK PC 24 UNIT PRICE EXTENSION T4SS75 2SQ/CTN 16PCS/CTN BLACK SOFFIT TRIPLE 4\" SOLID 12'",
+        "Amount": 555.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 555.39
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-30",
+    "Balance": 554.73,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49457",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-30T11:05:39-07:00",
+      "LastUpdatedTime": "2025-08-18T11:36:37-07:00"
+    },
+    "DocNumber": "RY79153",
+    "TxnDate": "2025-05-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#RY79153 - White soffit panels - Wayland",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "White soffit panels, F-channels, SS nails, and shake fasteners.",
+        "Amount": 554.73,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3035",
+            "name": "32 Pemberton LLC:32 Pemberton Rd Wayland"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 554.73
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 1212.97,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48424",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-05-19T10:05:16-07:00",
+      "LastUpdatedTime": "2025-08-18T11:36:37-07:00"
+    },
+    "DocNumber": "RX16937",
+    "TxnDate": "2025-04-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RX16937",
+        "Amount": 1212.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1212.97
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-05-31",
+    "Balance": 273.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48415",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-05-19T09:55:27-07:00",
+      "LastUpdatedTime": "2025-08-18T11:36:37-07:00"
+    },
+    "DocNumber": "RX24140",
+    "TxnDate": "2025-04-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "RX24140",
+        "Amount": 273.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1311",
+      "name": "QXO (Former Beacon Building Products)"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 273.16
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-30",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50054",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T14:27:44-07:00",
+      "LastUpdatedTime": "2025-08-18T11:21:34-07:00"
+    },
+    "DocNumber": "16051",
+    "TxnDate": "2025-07-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2025 Monthly Fee - July",
+    "LinkedTxn": [
+      {
+        "TxnId": "50413",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2025 Monthly Fee - July",
+        "Amount": 325,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "9",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1976",
+      "name": "Premium Tax Group"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 325
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-02",
+    "Balance": 353.79,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47214",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-04-07T07:48:39-07:00",
+      "LastUpdatedTime": "2025-08-18T10:38:46-07:00"
+    },
+    "DocNumber": "2917710",
+    "TxnDate": "2025-04-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "LinkedTxn": [
+      {
+        "TxnId": "50412",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "50027",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2917710",
+        "Amount": 7461.87,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "228",
+      "name": "Koopman Lumber"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7461.87
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-07-07",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50065",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T15:28:28-07:00",
+      "LastUpdatedTime": "2025-08-18T10:32:16-07:00"
+    },
+    "DocNumber": "8239",
+    "TxnDate": "2025-06-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 03 - Wendell Place\nHD ramp truck;\n12k lull from 2 Codman Way, Westborough MA.\nTransported to 6 Wendell pl, Westford MA.\n5 hours @ $165.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "50411",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HD ramp truck;\n12k lull from 2 Codman Way, Westborough MA.\nTransported to 6 Wendell pl, Westford MA.\n5 hours @ $165.00",
+        "Amount": 825,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2598",
+      "name": "Independent Transport, LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 825
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-07-23",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49461",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-30T12:16:53-07:00",
+      "LastUpdatedTime": "2025-08-18T10:30:30-07:00"
+    },
+    "DocNumber": "130049588",
+    "TxnDate": "2025-06-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#130049588 - 65 Mill St. - Materials",
+    "LinkedTxn": [
+      {
+        "TxnId": "50410",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "49957",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Drywall boards, plaster, corner beads, screws, tape & roof felt.",
+        "Amount": 6181.67,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6181.67
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-08-25",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50062",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-04T15:13:37-07:00",
+      "LastUpdatedTime": "2025-08-18T10:27:18-07:00"
+    },
+    "DocNumber": "115452148",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "License plate: X87546\nInvoice period: 06/19/2025 - 07/25/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "50409",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "License plate: X87546\nInvoice period: 06/19/2025 - 07/25/2025",
+        "Amount": 28.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Vehicles Expenses:Tolls"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1259",
+      "name": "EZ Pass"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 28.7
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-18",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50081",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-04T16:35:51-07:00",
+      "LastUpdatedTime": "2025-08-18T10:25:32-07:00"
+    },
+    "DocNumber": "115211541",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "License plate: 4GXT32\nInvoice period: 06/13/2025 - 07/19/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "50408",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "License plate: 4GXT32\nInvoice period: 06/13/2025 - 07/19/2025",
+        "Amount": 10.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Vehicles Expenses:Tolls"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1259",
+      "name": "EZ Pass"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10.5
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-18",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50085",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-04T16:53:25-07:00",
+      "LastUpdatedTime": "2025-08-18T10:24:00-07:00"
+    },
+    "DocNumber": "115160616",
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "License plate: 3KZG67\nInvoice period: 06/12/2025 - 07/18/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "50407",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "License plate: 3KZG67\nInvoice period: 06/12/2025 - 07/18/2025",
+        "Amount": 46.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Vehicles Expenses:Tolls"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1259",
+      "name": "EZ Pass"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 46.6
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-11",
+    "Balance": 5859.31,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50403",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T10:03:07-07:00",
+      "LastUpdatedTime": "2025-08-18T10:17:04-07:00"
+    },
+    "DocNumber": "13364",
+    "TxnDate": "2025-07-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Materials storage",
+    "LinkedTxn": [
+      {
+        "TxnId": "50406",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13364",
+        "Amount": 14659.31,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 14659.31
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50259",
+    "SyncToken": "15",
+    "MetaData": {
+      "CreateTime": "2025-08-07T12:56:42-07:00",
+      "LastUpdatedTime": "2025-08-18T10:09:37-07:00"
+    },
+    "DocNumber": "12919",
+    "TxnDate": "2025-06-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50405",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "Jul/25",
+        "Amount": 716.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3265",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 75 / 29 - Highland at Vale"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "3",
+        "LineNum": 2,
+        "Description": "Jul/25",
+        "Amount": 777.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3278",
+            "name": "Rob Pagani:41 Johnson Rd., Sterling"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "4",
+        "LineNum": 3,
+        "Description": "Jul/25",
+        "Amount": 917.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3276",
+            "name": "David Pagani:43 Johnson Rd., Sterling"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "5",
+        "LineNum": 4,
+        "Description": "Jul/25",
+        "Amount": 475.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3298",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 13 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "6",
+        "LineNum": 5,
+        "Description": "Jul/25",
+        "Amount": 907.37,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3275",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "Jul/25",
+        "Amount": 130.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "Jul/25",
+        "Amount": 176.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "9",
+        "LineNum": 8,
+        "Description": "Jul/25",
+        "Amount": 137.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3138",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 11 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "10",
+        "LineNum": 9,
+        "Description": "Jul/25",
+        "Amount": 137.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3190",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 12 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Description": "Jul/25",
+        "Amount": 6.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3232",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "12",
+        "LineNum": 11,
+        "Description": "Jul/25",
+        "Amount": 274.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3161",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 15 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "13",
+        "LineNum": 12,
+        "Description": "Jul/25",
+        "Amount": 459.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3269",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 16 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "14",
+        "LineNum": 13,
+        "Description": "Jul/25",
+        "Amount": 183.93,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3261",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "15",
+        "LineNum": 14,
+        "Description": "Jul/25",
+        "Amount": 54.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "16",
+        "LineNum": 15,
+        "Description": "Jul/25",
+        "Amount": 6.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3212",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 04 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "17",
+        "LineNum": 16,
+        "Description": "Jul/25",
+        "Amount": 596.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3299",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 06 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "18",
+        "LineNum": 17,
+        "Description": "Jul/25",
+        "Amount": 591.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3268",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 134 - Owls Nest Regecy"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "19",
+        "LineNum": 18,
+        "Description": "Jul/25",
+        "Amount": 64.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3135",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 137 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "20",
+        "LineNum": 19,
+        "Description": "Jul/25",
+        "Amount": 665.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3279",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 139 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "21",
+        "LineNum": 20,
+        "Description": "Jul/25",
+        "Amount": 66.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3194",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 140 - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "22",
+        "LineNum": 21,
+        "Description": "Jul/25",
+        "Amount": 413.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3262",
+            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 01 - Riverview"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "23",
+        "LineNum": 22,
+        "Description": "Jul/25",
+        "Amount": 367.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3271",
+            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 02 - Riverview"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "24",
+        "LineNum": 23,
+        "Description": "Jul/25",
+        "Amount": 367.44,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3296",
+            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 03 - Riverview"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "25",
+        "LineNum": 24,
+        "Description": "Jul/25 - Lot 16 School St.",
+        "Amount": 137.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3290",
+            "name": "Premium Contractors Group, Inc.:Baldwinville School Apartments"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "26",
+        "LineNum": 25,
+        "Description": "Jul/25 - Supply Extra Labor",
+        "Amount": 114.83,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "27",
+        "LineNum": 26,
+        "Description": "Jul/25",
+        "Amount": 45.79,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3232",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "28",
+        "LineNum": 27,
+        "Description": "Jul/25",
+        "Amount": 49.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3246",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 15 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 8843.61
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-28",
+    "Balance": 707.48,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50404",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T10:04:06-07:00",
+      "LastUpdatedTime": "2025-08-18T10:04:06-07:00"
+    },
+    "DocNumber": "13716",
+    "TxnDate": "2025-07-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Repair tools",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13716",
+        "Amount": 707.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "160",
+            "name": "Labor:Labor Repair tools"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 707.48
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-15",
+    "Balance": 150.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50402",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T10:02:02-07:00",
+      "LastUpdatedTime": "2025-08-18T10:02:02-07:00"
+    },
+    "DocNumber": "13432",
+    "TxnDate": "2025-07-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Repair guns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13432",
+        "Amount": 150.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "160",
+            "name": "Labor:Labor Repair tools"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 150.8
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-05",
+    "Balance": 594.96,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50401",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T10:01:07-07:00",
+      "LastUpdatedTime": "2025-08-18T10:01:07-07:00"
+    },
+    "DocNumber": "13910",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Repair guns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13910",
+        "Amount": 594.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "160",
+            "name": "Labor:Labor Repair tools"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 594.96
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-25",
+    "Balance": 2018.7,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50400",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T10:00:04-07:00",
+      "LastUpdatedTime": "2025-08-18T10:00:04-07:00"
+    },
+    "DocNumber": "13670",
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Nail guns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13670",
+        "Amount": 2018.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "197",
+            "name": "Tools and Small Equipment"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2544",
+      "name": "Central Equipment and Fasteners"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2018.7
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-11-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47644",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-04-22T12:26:45-07:00",
+      "LastUpdatedTime": "2025-08-18T08:54:02-07:00"
+    },
+    "DocNumber": "2968805",
+    "TxnDate": "2024-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "49559",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2968805",
+        "Amount": 2434.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2434.85
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-11",
+    "Balance": 2569.65,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49120",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-17T08:35:12-07:00",
+      "LastUpdatedTime": "2025-08-18T08:53:29-07:00"
+    },
+    "DocNumber": "3084113",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice: 3084113 / Lot 136 - Owls Nest Regency.",
+    "LinkedTxn": [
+      {
+        "TxnId": "50399",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Pressure-treated lumber (various sizes), Simpson Strong-Tie connectors, anchors, and deck hardware.",
+        "Amount": 4559.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3229",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Deck - Owls Nest Regency"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4559.78
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-04-02",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47307",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-04-10T08:38:57-07:00",
+      "LastUpdatedTime": "2025-08-18T08:47:15-07:00"
+    },
+    "DocNumber": "5049",
+    "TxnDate": "2025-04-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 5 - Chauncy Lake - Pulte Homes - 6546",
+    "LinkedTxn": [
+      {
+        "TxnId": "50398",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5049",
+        "Amount": 4765,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Late fees",
+        "Amount": 292.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3017",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1693",
+      "name": "BC Crane Corp"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5057.4
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-08",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49976",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-07-29T01:50:05-07:00",
+      "LastUpdatedTime": "2025-08-18T08:42:13-07:00"
+    },
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Home Investments - Policy Number 1020134518",
+    "LinkedTxn": [
+      {
+        "TxnId": "50397",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Policy Number 1020134518",
+        "Amount": 619.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "326",
+      "name": "Arbella Insurance Group"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 619.65
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-19",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49317",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-24T10:13:01-07:00",
+      "LastUpdatedTime": "2025-08-18T08:31:14-07:00"
+    },
+    "DocNumber": "Insurance Audit GL",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Insurance Audit GL",
+    "LinkedTxn": [
+      {
+        "TxnId": "50396",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Insurance Audit GL",
+        "Amount": 8443.89,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "87",
+            "name": "Insurance:General Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "3252",
+      "name": "Premium Insurance Group"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 8443.89
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-09",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49887",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-20T01:50:08-07:00",
+      "LastUpdatedTime": "2025-08-18T08:27:58-07:00"
+    },
+    "TxnDate": "2025-08-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50395",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account 0010558140",
+        "Amount": 579.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "128",
+            "name": "Panels Premium:Equipment for panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1696",
+      "name": "Toyota Commercial Finance"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 579.16
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-10",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49986",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-31T01:50:42-07:00",
+      "LastUpdatedTime": "2025-08-18T08:27:40-07:00"
+    },
+    "TxnDate": "2025-08-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50393",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "NJN - D69102",
+        "Amount": 2489.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "88",
+            "name": "Insurance:Workmens Comp"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "277",
+      "name": "IPFS"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2489.38
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-12",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49928",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-23T01:42:37-07:00",
+      "LastUpdatedTime": "2025-08-18T08:27:02-07:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2022 GMC Savana Cargo - Vin #19406",
+    "LinkedTxn": [
+      {
+        "TxnId": "50392",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2022 GMC Savana Cargo - Vin #19406",
+        "Amount": 606.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "189",
+            "name": "2022 GMC Savana VIN 9406"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1808",
+      "name": "Ally Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 606.8
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-12",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49927",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-23T01:42:36-07:00",
+      "LastUpdatedTime": "2025-08-18T08:27:00-07:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2022 GMC Savana Cargo",
+    "LinkedTxn": [
+      {
+        "TxnId": "50391",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2022 GMC Savana Cargo - Vin #19380",
+        "Amount": 606.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "190",
+            "name": "2022 GMC Savana VIN 9380"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ],
+    "VendorRef": {
+      "value": "1808",
+      "name": "Ally Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 606.8
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
     "DueDate": "2025-08-28",
     "Balance": 5842.24,
     "domain": "QBO",
@@ -5377,601 +9490,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 100
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-19",
-    "Balance": 8843.61,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50259",
-    "SyncToken": "14",
-    "MetaData": {
-      "CreateTime": "2025-08-07T12:56:42-07:00",
-      "LastUpdatedTime": "2025-08-08T08:02:27-07:00"
-    },
-    "DocNumber": "12919",
-    "TxnDate": "2025-06-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "2",
-        "LineNum": 1,
-        "Description": "Jul/25",
-        "Amount": 716.11,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3265",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 75 / 29 - Highland at Vale"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 2,
-        "Description": "Jul/25",
-        "Amount": 777.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3278",
-            "name": "Rob Pagani:41 Johnson Rd., Sterling"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 3,
-        "Description": "Jul/25",
-        "Amount": 917.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3276",
-            "name": "David Pagani:43 Johnson Rd., Sterling"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 4,
-        "Description": "Jul/25",
-        "Amount": 475.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3298",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 13 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "6",
-        "LineNum": 5,
-        "Description": "Jul/25",
-        "Amount": 907.37,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3275",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "Jul/25",
-        "Amount": 130.96,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3163",
-            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "Jul/25",
-        "Amount": 176.8,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "9",
-        "LineNum": 8,
-        "Description": "Jul/25",
-        "Amount": 137.38,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3138",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 11 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "10",
-        "LineNum": 9,
-        "Description": "Jul/25",
-        "Amount": 137.38,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3190",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 12 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "11",
-        "LineNum": 10,
-        "Description": "Jul/25",
-        "Amount": 6.29,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3232",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 14 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "12",
-        "LineNum": 11,
-        "Description": "Jul/25",
-        "Amount": 274.77,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3161",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 15 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "13",
-        "LineNum": 12,
-        "Description": "Jul/25",
-        "Amount": 459.39,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3269",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 16 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "14",
-        "LineNum": 13,
-        "Description": "Jul/25",
-        "Amount": 183.93,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3261",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "15",
-        "LineNum": 14,
-        "Description": "Jul/25",
-        "Amount": 54.27,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3195",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "16",
-        "LineNum": 15,
-        "Description": "Jul/25",
-        "Amount": 6.29,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3212",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 04 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "17",
-        "LineNum": 16,
-        "Description": "Jul/25",
-        "Amount": 596.17,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3299",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 06 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "18",
-        "LineNum": 17,
-        "Description": "Jul/25",
-        "Amount": 591.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3268",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 134 - Owls Nest Regecy"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "19",
-        "LineNum": 18,
-        "Description": "Jul/25",
-        "Amount": 64.05,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3135",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 137 - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "20",
-        "LineNum": 19,
-        "Description": "Jul/25",
-        "Amount": 665.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3279",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 139 - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "21",
-        "LineNum": 20,
-        "Description": "Jul/25",
-        "Amount": 66.91,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3194",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 140 - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "22",
-        "LineNum": 21,
-        "Description": "Jul/25",
-        "Amount": 413.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3262",
-            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 01 - Riverview"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "23",
-        "LineNum": 22,
-        "Description": "Jul/25",
-        "Amount": 367.44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3271",
-            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 02 - Riverview"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "24",
-        "LineNum": 23,
-        "Description": "Jul/25",
-        "Amount": 367.44,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3296",
-            "name": "Pulte Homes, Inc.:Riverview THs - 9042:Lot 03 - Riverview"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "25",
-        "LineNum": 24,
-        "Description": "Jul/25 - Lot 16 School St.",
-        "Amount": 137.62,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3290",
-            "name": "Premium Contractors Group, Inc.:Baldwinville School Apartments"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "26",
-        "LineNum": 25,
-        "Description": "Jul/25 - Supply Extra Labor",
-        "Amount": 114.83,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "27",
-        "LineNum": 26,
-        "Description": "Jul/25",
-        "Amount": 45.79,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3232",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 14 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "28",
-        "LineNum": 27,
-        "Description": "Jul/25",
-        "Amount": 49.78,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3246",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 15 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2544",
-      "name": "Central Equipment and Fasteners"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 8843.61
   },
   {
     "SalesTermRef": {
@@ -11514,7 +15032,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "131",
@@ -13075,61 +16593,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2122.88
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-11-19",
-    "Balance": 1990.13,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47644",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-04-22T12:26:45-07:00",
-      "LastUpdatedTime": "2025-08-07T12:02:08-07:00"
-    },
-    "DocNumber": "2968805",
-    "TxnDate": "2024-11-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49559",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2968805",
-        "Amount": 4424.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 4424.98
   },
   {
     "SalesTermRef": {
@@ -15443,105 +18906,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-08-08",
-    "Balance": 313.65,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49976",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-29T01:50:05-07:00",
-      "LastUpdatedTime": "2025-08-04T16:56:31-07:00"
-    },
-    "TxnDate": "2025-08-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Premium Home Investments - Policy Number 1020134518",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Policy Number 1020134518",
-        "Amount": 313.65,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "Vehicles Expenses:Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "326",
-      "name": "Arbella Insurance Group"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 313.65
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-18",
-    "Balance": 46,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50085",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T16:53:25-07:00",
-      "LastUpdatedTime": "2025-08-04T16:53:25-07:00"
-    },
-    "DocNumber": "115160616",
-    "TxnDate": "2025-07-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "License plate: 3KZG67\nInvoice period: 06/12/2025 - 07/18/2025",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "License plate: 3KZG67\nInvoice period: 06/12/2025 - 07/18/2025",
-        "Amount": 46,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Vehicles Expenses:Tolls"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1259",
-      "name": "EZ Pass"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 46
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-24",
     "Balance": 12500,
     "domain": "QBO",
@@ -15641,56 +19005,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 72.68
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-18",
-    "Balance": 10.5,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50081",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T16:35:51-07:00",
-      "LastUpdatedTime": "2025-08-04T16:35:51-07:00"
-    },
-    "DocNumber": "115211541",
-    "TxnDate": "2025-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "License plate: 4GXT32\nInvoice period: 06/13/2025 - 07/19/2025",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "License plate: 4GXT32\nInvoice period: 06/13/2025 - 07/19/2025",
-        "Amount": 10.5,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Vehicles Expenses:Tolls"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1259",
-      "name": "EZ Pass"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 10.5
   },
   {
     "SalesTermRef": {
@@ -16056,56 +19370,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-06-05",
-    "Balance": 99.99,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49128",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-17T09:39:52-07:00",
-      "LastUpdatedTime": "2025-08-04T15:43:34-07:00"
-    },
-    "DocNumber": "13321",
-    "TxnDate": "2025-06-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 13321",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "YMMS: 2022 GMC Savana 2500 Base Jun 5, 2025 Engine: 6.6L En/ Truck Syntetic Oil Change\nCHECK PRESSION TIRES",
-        "Amount": 99.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 99.99
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-15",
     "Balance": 99.99,
     "domain": "QBO",
@@ -16204,308 +19468,6 @@
   },
   {
     "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-16",
-    "Balance": 99.99,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50066",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T15:37:14-07:00",
-      "LastUpdatedTime": "2025-08-04T15:37:14-07:00"
-    },
-    "DocNumber": "1709",
-    "TxnDate": "2025-06-16",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Truck Synthetic Oil Change\nYMMS: 2024 Ford Maverick XL Jun 16,\n2025 Engine: 2.0L Eng L",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Truck Synthetic Oil Change\nYMMS: 2024 Ford Maverick XL Jun 16,\n2025 Engine: 2.0L Eng L",
-        "Amount": 99.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 99.99
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2025-07-07",
-    "Balance": 825,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50065",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T15:28:28-07:00",
-      "LastUpdatedTime": "2025-08-04T15:28:28-07:00"
-    },
-    "DocNumber": "8239",
-    "TxnDate": "2025-06-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 03 - Wendell Place\nHD ramp truck;\n12k lull from 2 Codman Way, Westborough MA.\nTransported to 6 Wendell pl, Westford MA.\n5 hours @ $165.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "HD ramp truck;\n12k lull from 2 Codman Way, Westborough MA.\nTransported to 6 Wendell pl, Westford MA.\n5 hours @ $165.00",
-        "Amount": 825,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3195",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2598",
-      "name": "Independent Transport, LLC"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 825
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-12",
-    "Balance": 606.8,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49927",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T01:42:36-07:00",
-      "LastUpdatedTime": "2025-08-04T15:23:31-07:00"
-    },
-    "TxnDate": "2025-08-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2022 GMC Savana Cargo",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2022 GMC Savana Cargo - Vin #19380",
-        "Amount": 606.8,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "190",
-            "name": "2022 GMC Savana VIN 9380"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1808",
-      "name": "Ally Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 606.8
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-12",
-    "Balance": 606.8,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49928",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-23T01:42:37-07:00",
-      "LastUpdatedTime": "2025-08-04T15:23:04-07:00"
-    },
-    "TxnDate": "2025-08-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2022 GMC Savana Cargo - Vin #19406",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2022 GMC Savana Cargo - Vin #19406",
-        "Amount": 606.8,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "189",
-            "name": "2022 GMC Savana VIN 9406"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1808",
-      "name": "Ally Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 606.8
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2025-08-25",
-    "Balance": 23.3,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50062",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T15:13:37-07:00",
-      "LastUpdatedTime": "2025-08-04T15:13:37-07:00"
-    },
-    "DocNumber": "115452148",
-    "TxnDate": "2025-07-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "License plate: X87546\nInvoice period: 06/19/2025 - 07/25/2025",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "License plate: X87546\nInvoice period: 06/19/2025 - 07/25/2025",
-        "Amount": 23.3,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Vehicles Expenses:Tolls"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1259",
-      "name": "EZ Pass"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 23.3
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-30",
-    "Balance": 325,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50054",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-04T14:27:44-07:00",
-      "LastUpdatedTime": "2025-08-04T14:27:44-07:00"
-    },
-    "DocNumber": "16051",
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2025 Monthly Fee - July",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2025 Monthly Fee - July",
-        "Amount": 325,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "9",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1976",
-      "name": "Premium Tax Group"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 325
-  },
-  {
-    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2025-08-31",
@@ -16565,7 +19527,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-08-04T14:19:25-07:00",
-      "LastUpdatedTime": "2025-08-07T06:10:23-07:00"
+      "LastUpdatedTime": "2025-08-20T01:38:34-07:00"
     },
     "DocNumber": "3120143",
     "TxnDate": "2025-08-01",
@@ -18038,129 +21000,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-07-11",
-    "Balance": 10850,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49771",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-11T12:52:58-07:00",
-      "LastUpdatedTime": "2025-08-04T08:59:07-07:00"
-    },
-    "DocNumber": "Woodview",
-    "TxnDate": "2025-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Woodviewat Randolph (Pending contract)",
-    "LinkedTxn": [
-      {
-        "TxnId": "50029",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Windows - 91 x 80",
-        "Amount": 7280,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3164",
-            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Windows 3 x 40",
-        "Amount": 120,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3164",
-            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Doors 27 x 250",
-        "Amount": 6750,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3164",
-            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Tyvek 18 x 150",
-        "Amount": 2700,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3164",
-            "name": "Turnkey Lumber, Inc.:Woodview at Randolph (Randolph, MA)"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2723",
-      "name": "Brothers General Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 16850
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-14",
     "Balance": 0,
     "domain": "QBO",
@@ -18216,66 +21055,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 12530.25
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-04-02",
-    "Balance": 2461.87,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47214",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-04-07T07:48:39-07:00",
-      "LastUpdatedTime": "2025-08-04T08:30:28-07:00"
-    },
-    "DocNumber": "2917710",
-    "TxnDate": "2025-04-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
-    "LinkedTxn": [
-      {
-        "TxnId": "50027",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2917710",
-        "Amount": 7461.87,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "228",
-      "name": "Koopman Lumber"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 7461.87
   },
   {
     "SalesTermRef": {
@@ -18995,54 +21774,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-08-10",
-    "Balance": 2489.38,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49986",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-31T01:50:42-07:00",
-      "LastUpdatedTime": "2025-07-31T01:50:42-07:00"
-    },
-    "TxnDate": "2025-08-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "NJN - D69102",
-        "Amount": 2489.38,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "88",
-            "name": "Insurance:Workmens Comp"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "277",
-      "name": "IPFS"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2489.38
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-11",
     "Balance": 12880.25,
     "domain": "QBO",
@@ -19406,54 +22137,6 @@
   },
   {
     "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-01",
-    "Balance": 745.98,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49960",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-25T01:40:17-07:00",
-      "LastUpdatedTime": "2025-07-25T01:40:17-07:00"
-    },
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Joe's Truck",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 745.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "4",
-            "name": "Vehicles Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1061",
-      "name": "GM Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 745.98
-  },
-  {
-    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2025-07-13",
@@ -19567,66 +22250,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2137.2
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2025-07-23",
-    "Balance": 2181.67,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49461",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-30T12:16:53-07:00",
-      "LastUpdatedTime": "2025-07-24T08:17:00-07:00"
-    },
-    "DocNumber": "130049588",
-    "TxnDate": "2025-06-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#130049588 - 65 Mill St. - Materials",
-    "LinkedTxn": [
-      {
-        "TxnId": "49957",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Drywall boards, plaster, corner beads, screws, tape & roof felt.",
-        "Amount": 6181.67,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 6181.67
   },
   {
     "SalesTermRef": {
@@ -21024,54 +23647,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 550
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-09-09",
-    "Balance": 579.16,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49887",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-20T01:50:08-07:00",
-      "LastUpdatedTime": "2025-07-22T08:05:32-07:00"
-    },
-    "TxnDate": "2025-08-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Account 0010558140",
-        "Amount": 579.16,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "128",
-            "name": "Panels Premium:Equipment for panels"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1696",
-      "name": "Toyota Commercial Finance"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 579.16
   },
   {
     "SalesTermRef": {
@@ -22937,7 +25512,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "134",
@@ -23435,150 +26010,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-07-11",
-    "Balance": 14290,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49770",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-07-11T12:44:32-07:00",
-      "LastUpdatedTime": "2025-07-17T13:02:52-07:00"
-    },
-    "DocNumber": "Bldg 5 - CL",
-    "TxnDate": "2025-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Building 5 - Chauncy Lake (Pending contract)",
-    "LinkedTxn": [
-      {
-        "TxnId": "49852",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Hardye",
-        "Amount": 25500,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Windows - 305 x 40",
-        "Amount": 12200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Trims doors",
-        "Amount": 2000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Tyvek 27 x 150",
-        "Amount": 4050,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Beam board PVC\nOsvin 7:00am to 5:00pm - 9 hours\nIlver 7:00am to 5:00pm - 9 hours\n18 x 30 = 540",
-        "Amount": 540,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "6",
-            "name": "Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2723",
-      "name": "Brothers General Construction Inc"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 44290
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-07-09",
     "Balance": 0,
     "domain": "QBO",
@@ -23801,55 +26232,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 550
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-01",
-    "Balance": 425.59,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49843",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-17T01:42:29-07:00",
-      "LastUpdatedTime": "2025-07-17T01:42:29-07:00"
-    },
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "OSHA Penalty Settlement – Installment Payment Plan (Inspection #1804574) – 1 of 20 installments of $425.59 as per Expedited Informal Settlement Agreement dated 06/03/2025. $8.511,80",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "OSHA Penalty Settlement – Installment Payment Plan (Inspection #1804574) – 1 of 20 installments of $425.59 as per Expedited Informal Settlement Agreement dated 06/03/2025. $8.511,80",
-        "Amount": 425.59,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "65",
-            "name": "Fine"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2894",
-      "name": "U.S. Department of Labor"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 425.59
   },
   {
     "SalesTermRef": {
@@ -27210,114 +29592,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-05-31",
-    "Balance": 186.5,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49812",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-15T08:03:05-07:00",
-      "LastUpdatedTime": "2025-07-15T08:03:05-07:00"
-    },
-    "DocNumber": "RI2819393",
-    "TxnDate": "2025-05-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Container Rental / Taxes - 65 Mill St.",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "20' Container rental – 4 weeks (05/26/25 a 06/22/25) + Contents Protection – 4 weeks (05/26/25 a 06/22/25) + Damage Waiver – 4 weeks (05/26/25 a 06/22/25) + Taxes",
-        "Amount": 186.5,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "674",
-      "name": "The Eagle Leasing"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 186.5
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-04-30",
-    "Balance": 186.5,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49811",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-15T07:57:42-07:00",
-      "LastUpdatedTime": "2025-07-15T07:57:42-07:00"
-    },
-    "DocNumber": "RI2809363",
-    "TxnDate": "2025-04-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Rental of 20' container Includes contents insurance and damage waiver - 65 Mill St",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "20' Container rental – 4 weeks (04/28/25 a 05/25/25) / Contents Protection – 4 weeks (04/28/25 a 05/25/25 - Damage Waiver – 4 weeks (04/28/25 a 05/25/25) + Taxes",
-        "Amount": 186.5,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "674",
-      "name": "The Eagle Leasing"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 186.5
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-05-10",
     "Balance": 0,
     "domain": "QBO",
@@ -27815,474 +30089,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 18065.31
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-31",
-    "Balance": 1234.92,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49509",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-30T14:11:40-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "SG66014",
-    "TxnDate": "2025-06-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#SG66014 - Materials - Oc Lab - 1260 Reservoir Rd., Lunenburg - MA",
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Siding, soffit, trim & coil – Savannah Wicker and White.",
-        "Amount": 3658.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3036",
-            "name": "PJ Keating:Oc Lab - 1260 Reservoir Rd., Lunenburg - MA"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3658.68
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-30",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49458",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-30T11:23:07-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RY79051",
-    "TxnDate": "2025-05-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#RY79051 - Black triple 4\" solid soffit panels.",
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "EXP AIR FLO SOFF T4 SLD BLACK PC 24 UNIT PRICE EXTENSION T4SS75 2SQ/CTN 16PCS/CTN BLACK SOFFIT TRIPLE 4\" SOLID 12'",
-        "Amount": 555.39,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 555.39
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-30",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49457",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-30T11:05:39-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RY79153",
-    "TxnDate": "2025-05-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#RY79153 - White soffit panels - Wayland",
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "White soffit panels, F-channels, SS nails, and shake fasteners.",
-        "Amount": 554.73,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3035",
-            "name": "32 Pemberton LLC:32 Pemberton Rd Wayland"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 554.73
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48424",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-05-19T10:05:16-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RX16937",
-    "TxnDate": "2025-04-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RX16937",
-        "Amount": 1212.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1212.97
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48415",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-05-19T09:55:27-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RX24140",
-    "TxnDate": "2025-04-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RX24140",
-        "Amount": 273.16,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 273.16
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48072",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-05-05T09:45:22-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RV54035",
-    "TxnDate": "2025-04-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "18 Evergreen Rd, Needham",
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RV54035",
-        "Amount": 241.27,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2976",
-            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 241.27
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48071",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-05T09:44:39-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RV47833",
-    "TxnDate": "2025-04-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RV47833",
-        "Amount": 1219.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1219.6
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48070",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-05T09:43:48-07:00",
-      "LastUpdatedTime": "2025-07-14T13:04:57-07:00"
-    },
-    "DocNumber": "RW14944",
-    "TxnDate": "2025-04-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49787",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RW14944",
-        "Amount": 1433.12,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1433.12
   },
   {
     "SalesTermRef": {
@@ -29524,56 +31330,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-06-18",
-    "Balance": 99.99,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49709",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-09T12:20:29-07:00",
-      "LastUpdatedTime": "2025-07-10T13:07:25-07:00"
-    },
-    "DocNumber": "13416",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "YMMS: 2024 GMC Sierra - Oil Change",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Truck Syntetic Oil Change YMMS: 2024 GMC Sierra 1500 Denali\nJun 18, 2025 Engine: 6.2L",
-        "Amount": 99.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 99.99
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-06-09",
     "Balance": 760,
     "domain": "QBO",
@@ -29885,60 +31641,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 108.35
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-11",
-    "Balance": 4559.78,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49120",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-17T08:35:12-07:00",
-      "LastUpdatedTime": "2025-07-10T09:58:07-07:00"
-    },
-    "DocNumber": "3084113",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 3084113 / Lot 136 - Owls Nest Regency.",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Pressure-treated lumber (various sizes), Simpson Strong-Tie connectors, anchors, and deck hardware.",
-        "Amount": 4559.78,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3229",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Deck - Owls Nest Regency"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 4559.78
   },
   {
     "SalesTermRef": {
@@ -34303,56 +36005,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-08-19",
-    "Balance": 8440.64,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49317",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-24T10:13:01-07:00",
-      "LastUpdatedTime": "2025-06-24T10:13:01-07:00"
-    },
-    "DocNumber": "Insurance Audit GL",
-    "TxnDate": "2025-08-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Insurance Audit GL",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Insurance Audit GL",
-        "Amount": 8440.64,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "87",
-            "name": "Insurance:General Liability"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "3252",
-      "name": "Premium Insurance Group"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 8440.64
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-06-10",
     "Balance": 0,
     "domain": "QBO",
@@ -38680,173 +40332,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2655.32
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-07",
-    "Balance": 372.88,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49131",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-17T09:52:51-07:00",
-      "LastUpdatedTime": "2025-06-17T09:52:51-07:00"
-    },
-    "DocNumber": "1694",
-    "TxnDate": "2025-06-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 1694",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Expansion tank hose; Service Labor; Gold Antifreeze; Wind Shield Washer Fluid - YMMS: 2016 Ford F-150 XLT Jun 13,\n2025 Engine: 2.7L Eng Lic",
-        "Amount": 372.88,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 372.88
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-06-07",
-    "Balance": 106.99,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49130",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-17T09:44:59-07:00",
-      "LastUpdatedTime": "2025-06-17T09:45:18-07:00"
-    },
-    "DocNumber": "1660",
-    "TxnDate": "2025-06-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 1660",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Truck Synthetic Oil Change YMMS: 2022 Chevrolet Silverado 1500 LTD Custom Jun 9, 2025Engine:2.7L EngLicense:w78438MAVIN:1GCRYBEK8NZ188632Odometer:",
-        "Amount": 106.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 106.99
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-31",
-    "Balance": 10665.6,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48073",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-05-05T09:46:28-07:00",
-      "LastUpdatedTime": "2025-06-16T11:10:05-07:00"
-    },
-    "DocNumber": "RT79667",
-    "TxnDate": "2025-04-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "49110",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "49099",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "20255",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "RT79667",
-        "Amount": 25931.91,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1311",
-      "name": "QXO (Former Beacon Building Products)"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 25931.91
   },
   {
     "SalesTermRef": {
@@ -48825,56 +50310,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-05-27",
-    "Balance": 264.56,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48812",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-02T15:22:12-07:00",
-      "LastUpdatedTime": "2025-06-02T15:22:12-07:00"
-    },
-    "DocNumber": "13260",
-    "TxnDate": "2025-05-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 13260",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "245 75 R16 PNEU VAN LT",
-        "Amount": 264.56,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 264.56
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-05-31",
     "Balance": 226.5,
     "domain": "QBO",
@@ -49754,60 +51189,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-04-02",
-    "Balance": 4765,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47307",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-04-10T08:38:57-07:00",
-      "LastUpdatedTime": "2025-05-28T11:03:44-07:00"
-    },
-    "DocNumber": "5049",
-    "TxnDate": "2025-04-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Building 5 - Chauncy Lake - Pulte Homes - 6546",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "5049",
-        "Amount": 4765,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3017",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 5 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1693",
-      "name": "BC Crane Corp"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 4765
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-05-23",
     "Balance": 168.64,
     "domain": "QBO",
@@ -49970,55 +51351,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-05-20",
-    "Balance": 40,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48627",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-28T07:54:18-07:00",
-      "LastUpdatedTime": "2025-05-28T07:54:18-07:00"
-    },
-    "TxnDate": "2025-05-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice: 13203",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Tire valve replacement service for 2011 Hyundai Tucson GLS with 2.4L engine. Work performed on May 20, 2025. Driver: Roderigo. Ref: Marcos.",
-        "Amount": 40,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 40
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-05-05",
     "Balance": 0,
     "domain": "QBO",
@@ -50125,55 +51457,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 203.2
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-15",
-    "Balance": 106.99,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48562",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-27T13:07:42-07:00",
-      "LastUpdatedTime": "2025-05-27T13:07:42-07:00"
-    },
-    "DocNumber": "1538",
-    "TxnDate": "2025-05-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "YMMS: 2022 GMC Savana 2500 Base – Engine 6.6L Synthetic Oil + Washer Fluid",
-        "Amount": 106.99,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 106.99
   },
   {
     "SalesTermRef": {
@@ -54854,55 +56137,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 13189.99
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-05-05",
-    "Balance": 24,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48390",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-19T08:49:31-07:00",
-      "LastUpdatedTime": "2025-05-19T08:49:31-07:00"
-    },
-    "DocNumber": "1486",
-    "TxnDate": "2025-05-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "YMMS: 2016 Ford F-150 Lariat May 5,\n2025 Engine: 2.7L Eng L",
-        "Amount": 24,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "148",
-            "name": "Vehicles Expenses:Maintenance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "499",
-      "name": "Power Brothers Auto Center"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 24
   },
   {
     "SalesTermRef": {
@@ -76977,7 +78211,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "131",
@@ -81229,7 +82463,7 @@
         "ItemBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "BillableStatus": "NotBillable",
           "ItemRef": {
@@ -81252,7 +82486,7 @@
         "ItemBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "BillableStatus": "NotBillable",
           "ItemRef": {
@@ -81275,7 +82509,7 @@
         "ItemBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "BillableStatus": "NotBillable",
           "ItemRef": {
@@ -81298,7 +82532,7 @@
         "ItemBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "BillableStatus": "NotBillable",
           "ItemRef": {
@@ -81321,7 +82555,7 @@
         "ItemBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "BillableStatus": "NotBillable",
           "ItemRef": {
@@ -81344,7 +82578,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "6",
@@ -81365,7 +82599,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3131",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency."
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 136 - Owls Nest Regency"
           },
           "AccountRef": {
             "value": "6",

@@ -6,6 +6,258 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1553.35,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20484",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T06:01:30-07:00",
+      "LastUpdatedTime": "2025-08-19T06:01:30-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/20/2025 - 08/02/2025 - Check 10148",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/20/2025 - 08/02/2025 - Check 10148",
+        "Amount": 1553.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2208.08,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20483",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-19T05:59:25-07:00",
+      "LastUpdatedTime": "2025-08-19T05:59:25-07:00"
+    },
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
+        "Amount": 2208.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 5.68,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20478",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T18:04:25-07:00",
+      "LastUpdatedTime": "2025-08-18T18:04:25-07:00"
+    },
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 5.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1508",
+      "name": "Premium Contractors Group, Inc. (IC Vendor)",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "19786",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B LANDING LN",
+      "Line3": "HOPEDALE, MA  017471531 USA"
+    },
+    "TotalAmt": 4573.16,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20476",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-18T13:12:03-07:00",
+      "LastUpdatedTime": "2025-08-18T13:12:38-07:00"
+    },
+    "DocNumber": "1558",
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "August Weeks 2 and 3",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Weeks 2 and 3",
+        "Amount": 4573.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040000",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
       "value": "17",
       "name": "QuickBooks Payments",
       "type": "Vendor"
