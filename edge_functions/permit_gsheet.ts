@@ -146,11 +146,26 @@ function getField(row: any, key: string) {
 // Deletar tabela permit
 async function deletePermitTable() {
   try {
+    // Primeiro verifica quantos registros existem
+    const { count: beforeCount } = await supabase
+      .from('permit_control')
+      .select('*', { count: 'exact', head: true });
+    
+    // Deleta TODOS os registros usando uma condição que sempre será verdadeira
     const { error } = await supabase.from('permit_control').delete().not('id', 'is', null);
+    
     if (error) {
       throw error;
     }
-    return "Tabela permit_control foi limpa com sucesso";
+    
+    // Verifica se realmente foi limpa
+    const { count: afterCount } = await supabase
+      .from('permit_control')
+      .select('*', { count: 'exact', head: true });
+    
+    console.log(`Permit table: ${beforeCount} registros antes, ${afterCount} após limpeza`);
+    
+    return `Tabela permit_control foi limpa com sucesso. ${beforeCount} registros removidos.`;
   } catch (error) {
     console.error('Erro em deletePermitTable:', error);
     throw error;
@@ -204,14 +219,21 @@ serve(async (req) => {
   }
   
   try {
+    console.log('Iniciando sincronização de permit control...');
+    
     // 1. Deletar dados existentes
+    console.log('Limpando tabela existente...');
     const deleteResult = await deletePermitTable();
+    console.log('Resultado da limpeza:', deleteResult);
     
     // 2. Buscar novos dados
+    console.log('Buscando dados da planilha...');
     const permitData = await fetchCsvToJson(permitUrl, 'Permit');
+    console.log(`Dados obtidos da planilha: ${Array.isArray(permitData) ? permitData.length : 0} registros`);
     
     // 3. Mapear dados com normalização UTF-8
-    const mappedPermit = permitData.map((row) => ({
+    console.log('Mapeando e normalizando dados...');
+    const mappedPermit = permitData.map((row: any) => ({
       model: getField(row, "MODEL"),
       jobsite: getField(row, "JOBSITE"),
       lot_address: getField(row, "LOT/ADDRESS"),
@@ -223,9 +245,25 @@ serve(async (req) => {
       arquivo: getField(row, "ARQUIVO")
     }));
     
-    // 4. Inserir novos dados
-    if (Array.isArray(mappedPermit) && mappedPermit.length > 0) {
-      await insertTableBatch("permit_control", mappedPermit, "Permit");
+    // 4. Remover duplicatas baseado em uma combinação única de campos
+    console.log('Removendo duplicatas...');
+    const uniquePermits = mappedPermit.filter((permit, index, self) => {
+      const key = `${permit.model}-${permit.jobsite}-${permit.lot_address}-${permit.situacao}`;
+      return index === self.findIndex(p => 
+        `${p.model}-${p.jobsite}-${p.lot_address}-${p.situacao}` === key
+      );
+    });
+    
+    console.log(`Dados mapeados: ${mappedPermit.length} registros`);
+    console.log(`Após remoção de duplicatas: ${uniquePermits.length} registros`);
+    
+    // 5. Inserir novos dados (sem duplicatas)
+    if (Array.isArray(uniquePermits) && uniquePermits.length > 0) {
+      console.log('Inserindo novos dados...');
+      await insertTableBatch("permit_control", uniquePermits, "Permit");
+      console.log('Dados inseridos com sucesso');
+    } else {
+      console.log('Nenhum dado para inserir');
     }
     
     return new Response(JSON.stringify({
@@ -233,7 +271,7 @@ serve(async (req) => {
       message: "Sincronização de permit concluída com sucesso!",
       deleteResult: deleteResult,
       inserted: {
-        permit: Array.isArray(mappedPermit) ? mappedPermit.length : 0
+        permit: Array.isArray(uniquePermits) ? uniquePermits.length : 0
       }
     }), {
       status: 200,
