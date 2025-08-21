@@ -265,12 +265,17 @@ export default function InitialLoading() {
 
   return (
     <div
-      className="min-vh-100 d-flex flex-column align-items-center justify-content-center"
       style={{
+        width: '100vw',
+        height: '100vh',
         background: `linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)`,
         transition: 'all 0.3s ease',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px'
       }}
     >
       {/* Background pattern */}
@@ -290,8 +295,9 @@ export default function InitialLoading() {
 
       <div
         style={{
-          maxWidth: 700,
           width: '100%',
+          maxWidth: 'min(800px, 95vw)',
+          maxHeight: 'min(700px, 95vh)',
           background: 'var(--color-background-primary)',
           color: 'var(--color-text-primary)',
           border: theme === 'dark' 
@@ -300,71 +306,95 @@ export default function InitialLoading() {
           boxShadow: theme === 'dark' 
             ? '0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 4px 16px 0 rgba(0, 0, 0, 0.2)'
             : '0 8px 32px 0 rgba(0, 0, 0, 0.1), 0 4px 16px 0 rgba(0, 0, 0, 0.05)',
-          borderRadius: 16,
-          padding: 40,
-          margin: '0 auto',
+          borderRadius: 'clamp(12px, 2vw, 16px)',
+          padding: 'clamp(20px, 4vw, 40px)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           transition: 'all 0.3s ease',
           position: 'relative',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          overflow: 'auto'
         }}
       >
         <img
           src={theme === 'dark' ? logoWhite : logoBlack}
           alt="Logo"
           style={{
-            width: '25%',
-            minWidth: 100,
-            maxWidth: 180,
+            width: 'clamp(80px, 15vw, 180px)',
             height: 'auto',
-            marginBottom: 24,
+            marginBottom: 'clamp(16px, 3vw, 24px)',
             background: 'transparent',
             display: 'block',
             filter: theme === 'dark' ? 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3))' : 'none'
           }}
         />
         
-                     <h3
-               className="h3 fw-light text-center mb-3"
-               style={{ 
-                 color: 'var(--color-accent-primary)', 
-                 letterSpacing: 0.5,
-                 fontWeight: 300,
-                 fontSize: '1.75rem'
-               }}
-             >
-               {hasValidSession ? 'Updating system data' : 'Loading system data'}
-             </h3>
-             
-             <p 
-               className="text-center mb-4"
-               style={{ 
-                 color: 'var(--color-text-secondary)',
-                 fontSize: '0.95rem',
-                 fontWeight: 400,
-                 maxWidth: 400,
-                 lineHeight: 1.5
-               }}
-             >
-               
-             </p>
+        <h3
+          className="h3 fw-light text-center mb-3"
+          style={{ 
+            color: 'var(--color-accent-primary)', 
+            letterSpacing: 0.5,
+            fontWeight: 300,
+            fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
+            margin: '0 0 clamp(12px, 2vw, 20px) 0',
+            lineHeight: 1.2
+          }}
+        >
+          {hasValidSession ? 'Updating system data' : 'Loading system data'}
+        </h3>
+        
+        <p 
+          className="text-center mb-4"
+          style={{ 
+            color: 'var(--color-text-secondary)',
+            fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+            fontWeight: 400,
+            maxWidth: 'min(400px, 80vw)',
+            lineHeight: 1.5,
+            margin: '0 0 clamp(16px, 3vw, 24px) 0'
+          }}
+        >
+          
+        </p>
 
-        <div className="w-100" style={{ maxWidth: 500 }}>
+        <div 
+          style={{ 
+            width: '100%', 
+            maxWidth: 'min(600px, 90vw)',
+            flex: '1',
+            overflow: 'auto',
+            paddingRight: '8px',
+            // Custom scrollbar
+            scrollbarWidth: 'thin',
+            scrollbarColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.1)'
+          }}
+          className="custom-scrollbar"
+        >
           {loadingItems.map((item) => (
-            <div key={item.id} className="mb-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <div className="d-flex align-items-center">
-                  <span className="me-3" style={{ fontSize: '1.1rem' }}>
+            <div key={item.id} style={{ marginBottom: 'clamp(16px, 3vw, 24px)' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                marginBottom: 'clamp(8px, 1.5vw, 12px)',
+                flexWrap: 'wrap',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', flex: '1', minWidth: '200px' }}>
+                  <span style={{ 
+                    fontSize: 'clamp(1rem, 3vw, 1.1rem)',
+                    marginRight: 'clamp(8px, 1.5vw, 12px)'
+                  }}>
                     {getStatusIcon(item.status)}
                   </span>
                   <span 
                     className="fw-medium"
                     style={{ 
-                      fontSize: '0.95rem',
-                      ...getStatusColor(item.status)
+                      fontSize: 'clamp(0.85rem, 2.5vw, 0.95rem)',
+                      ...getStatusColor(item.status),
+                      wordBreak: 'break-word'
                     }}
                   >
                     {item.title}
@@ -373,8 +403,9 @@ export default function InitialLoading() {
                 <span 
                   className="small fw-medium"
                   style={{ 
-                    fontSize: '0.8rem',
-                    ...getStatusColor(item.status)
+                    fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
+                    ...getStatusColor(item.status),
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {item.status === 'loading' ? `${Math.round(item.progress)}%` : getStatusText(item.status)}
@@ -384,8 +415,8 @@ export default function InitialLoading() {
               <div 
                 className="progress" 
                 style={{ 
-                  height: '8px',
-                  borderRadius: '4px',
+                  height: 'clamp(6px, 1.5vw, 8px)',
+                  borderRadius: 'clamp(3px, 1vw, 4px)',
                   background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
                   overflow: 'hidden'
                 }}
@@ -396,7 +427,7 @@ export default function InitialLoading() {
                     width: `${item.progress}%`,
                     background: getProgressBarColor(item.status),
                     transition: 'width 0.3s ease, background-color 0.3s ease',
-                    borderRadius: '4px',
+                    borderRadius: 'clamp(3px, 1vw, 4px)',
                     boxShadow: item.status === 'loading' 
                       ? `0 0 8px ${getProgressBarColor(item.status)}40`
                       : 'none'
@@ -409,12 +440,14 @@ export default function InitialLoading() {
                   className="mt-2 d-block"
                   style={{ 
                     color: '#EF4444',
-                    fontSize: '0.8rem',
+                    fontSize: 'clamp(0.75rem, 2vw, 0.8rem)',
                     fontWeight: 500,
-                    padding: '8px 12px',
+                    padding: 'clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 12px)',
                     background: 'rgba(239, 68, 68, 0.1)',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                    borderRadius: 'clamp(4px, 1vw, 6px)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    marginTop: 'clamp(8px, 1.5vw, 12px)',
+                    display: 'block'
                   }}
                 >
                   <i className="bi bi-exclamation-triangle me-1" />
@@ -425,31 +458,62 @@ export default function InitialLoading() {
           ))}
         </div>
 
-        <div className="mt-5 text-center">
+        <div style={{ 
+          marginTop: 'clamp(20px, 4vw, 32px)', 
+          textAlign: 'center',
+          flexShrink: 0
+        }}>
           <div 
             className="spinner-border" 
             role="status" 
             style={{ 
-              width: '1.5rem', 
-              height: '1.5rem',
+              width: 'clamp(1.25rem, 3vw, 1.5rem)', 
+              height: 'clamp(1.25rem, 3vw, 1.5rem)',
               color: 'var(--color-accent-primary)',
               borderWidth: '2px'
             }}
           >
-                           <span className="visually-hidden">Loading...</span>
+            <span className="visually-hidden">Loading...</span>
           </div>
-                         <p 
-                 className="mt-3 mb-0"
-                 style={{ 
-                   color: 'var(--color-text-secondary)',
-                   fontSize: '0.9rem',
-                   fontWeight: 400
-                 }}
-               >
-                 {hasValidSession ? 'Refreshing your workspace...' : 'Preparing your workspace...'}
-               </p>
+          <p 
+            className="mt-3 mb-0"
+            style={{ 
+              color: 'var(--color-text-secondary)',
+              fontSize: 'clamp(0.8rem, 2.5vw, 0.9rem)',
+              fontWeight: 400,
+              margin: 'clamp(12px, 2vw, 16px) 0 0 0'
+            }}
+          >
+            {hasValidSession ? 'Refreshing your workspace...' : 'Preparing your workspace...'}
+          </p>
         </div>
       </div>
+
+      {/* Custom scrollbar styles */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'};
+          border-radius: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)'};
+          border-radius: 4px;
+          transition: background 0.2s ease;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: ${theme === 'dark' ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.5)'};
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-corner {
+          background: transparent;
+        }
+      `}</style>
     </div>
   );
 } 
