@@ -16,15 +16,25 @@ interface FuelDriverData {
   total_distance: number;
   wex_supplied: number;
   wex_value: number;
+  idle_time_hours: number;
+  idle_fuel_consumption: number;
 }
 
 export default function FuelControlTable({ filteredSamsara, filteredWex, selectedDrivers, driverNames }: FuelControlTableProps) {
   // Estados para ordenação da tabela
-  const [sortBy, setSortBy] = React.useState<'driver' | 'performance' | 'consumed' | 'wex_supplied' | 'wex_value'>('driver');
+  const [sortBy, setSortBy] = React.useState<'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Função para formatar o tempo de idle
+  const formatIdleTime = (hours: number) => {
+    if (!hours || hours === 0) return '0';
+    
+    // Retornar horas com 2 casas decimais
+    return hours.toFixed(2);
+  };
 
   // Dados processados para a tabela
   const processedData = useMemo(() => {
@@ -48,13 +58,52 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           total_consumption: 0,
           total_distance: 0,
           wex_supplied: 0,
-          wex_value: 0
+          wex_value: 0,
+          idle_time_hours: 0,
+          idle_fuel_consumption: 0
         };
       }
+      
       drivers[normalizedName].total_consumption += event.units || 0;
-      // Somar apenas distância de viagens (não de idle events)
+      
+      // Processar eventos de viagem vs idle
       if (event.type === 'trip') {
+        // Somar apenas distância de viagens
         drivers[normalizedName].total_distance += event.distancia || 0;
+      } else if (event.type === 'idle') {
+        console.log('Fuel Control Table - Evento IDLE encontrado:', {
+          driver: normalizedName,
+          idle_duration: event.idle_duration,
+          units: event.units,
+          event: event,
+          eventKeys: Object.keys(event),
+          eventValues: Object.values(event)
+        });
+        
+        // Calcular tempo parado em horas
+        if (event.idle_duration) {
+          // idle_duration já vem em horas como número
+          const totalHours = event.idle_duration;
+          drivers[normalizedName].idle_time_hours += totalHours;
+          
+          console.log('Fuel Control Table - Tempo idle calculado:', {
+            driver: normalizedName,
+            idle_duration: event.idle_duration,
+            totalHours,
+            acumulado: drivers[normalizedName].idle_time_hours
+          });
+        } else {
+          console.log('Fuel Control Table - Evento idle sem duração. Estrutura completa:', {
+            driver: normalizedName,
+            event: event,
+            hasIdleDuration: 'idle_duration' in event,
+            idleDurationValue: event.idle_duration,
+            allFields: Object.entries(event)
+          });
+        }
+        
+        // Somar combustível gasto com carro parado
+        drivers[normalizedName].idle_fuel_consumption += event.units || 0;
       }
     });
 
@@ -68,21 +117,45 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           total_consumption: 0,
           total_distance: 0,
           wex_supplied: 0,
-          wex_value: 0
+          wex_value: 0,
+          idle_time_hours: 0,
+          idle_fuel_consumption: 0
         };
       }
       drivers[normalizedName].wex_supplied += transaction.units || 0;
       drivers[normalizedName].wex_value += transaction.valor || 0;
     });
 
-    // Calcular performance média (MPG real baseado na distância e consumo)
+    // Calcular performance média (MPG real baseado na distância e consumo de viagens)
     Object.values(drivers).forEach(driver => {
-      if (driver.total_consumption > 0 && driver.total_distance > 0) {
-        driver.average_performance = Math.round((driver.total_distance / driver.total_consumption) * 100) / 100;
+      // Calcular combustível gasto apenas em viagens (excluindo idle)
+      const tripFuelConsumption = driver.total_consumption - driver.idle_fuel_consumption;
+      
+      if (tripFuelConsumption > 0 && driver.total_distance > 0) {
+        driver.average_performance = Math.round((driver.total_distance / tripFuelConsumption) * 100) / 100;
       } else {
         driver.average_performance = 0;
       }
     });
+
+    // Log para debug dos dados processados
+    console.log('Fuel Control Table - Dados processados:', Object.entries(drivers).map(([name, data]) => ({
+      driver: name,
+      total_consumption: data.total_consumption,
+      idle_fuel: data.idle_fuel_consumption,
+      idle_time_hours: data.idle_time_hours,
+      idle_time_formatted: formatIdleTime(data.idle_time_hours)
+    })));
+    
+    // Log adicional para verificar eventos idle
+    const idleEvents = filteredSamsara.filter(event => event.type === 'idle');
+    console.log('Fuel Control Table - Total de eventos idle:', idleEvents.length);
+    console.log('Fuel Control Table - Eventos idle com idle_duration:', idleEvents.filter(e => e.idle_duration).length);
+    console.log('Fuel Control Table - Amostra de eventos idle:', idleEvents.slice(0, 3).map(e => ({
+      driver: e.nome,
+      idle_duration: e.idle_duration,
+      units: e.units
+    })));
 
     return drivers;
   }, [filteredSamsara, filteredWex, driverNames]);
@@ -102,22 +175,31 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
     const entries = Object.entries(filteredData);
     entries.sort((a, b) => {
       let vA, vB;
-      if (sortBy === 'driver') {
-        vA = a[0];
-        vB = b[0];
-      } else if (sortBy === 'performance') {
-        vA = a[1].average_performance;
-        vB = b[1].average_performance;
-             } else if (sortBy === 'consumed') {
+             if (sortBy === 'driver') {
+         vA = a[0];
+         vB = b[0];
+       } else if (sortBy === 'performance') {
+         vA = a[1].average_performance;
+         vB = b[1].average_performance;
+       } else if (sortBy === 'total_distance') {
+         vA = a[1].total_distance;
+         vB = b[1].total_distance;
+       } else if (sortBy === 'total_consumption') {
          vA = a[1].total_consumption;
          vB = b[1].total_consumption;
-             } else if (sortBy === 'wex_supplied') {
+       } else if (sortBy === 'idle_fuel_consumption') {
+         vA = a[1].idle_fuel_consumption;
+         vB = b[1].idle_fuel_consumption;
+       } else if (sortBy === 'idle_time') {
+         vA = a[1].idle_time_hours;
+         vB = b[1].idle_time_hours;
+       } else if (sortBy === 'wex_supplied') {
          vA = a[1].wex_supplied;
          vB = b[1].wex_supplied;
-      } else { // wex_value
-        vA = a[1].wex_value;
-        vB = b[1].wex_value;
-      }
+       } else { // wex_value
+         vA = a[1].wex_value;
+         vB = b[1].wex_value;
+       }
       
       if (vA < vB) return sortDir === 'asc' ? -1 : 1;
       if (vA > vB) return sortDir === 'asc' ? 1 : -1;
@@ -223,25 +305,28 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
             <div style={{ height: 42, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
               <div style={{ position: 'relative', display: 'inline-block' }}>
-                                 <select value={sortBy} onChange={e => setSortBy(e.target.value as 'driver' | 'performance' | 'consumed' | 'wex_supplied' | 'wex_value')}
-                  style={{
-                    background: 'var(--color-background-primary)',
-                    color: 'var(--color-text-primary)',
-                    border: '1.5px solid var(--color-border-divider)',
-                    borderRadius: 8,
-                    padding: '4px 32px 4px 8px',
-                    fontSize: 14,
-                    appearance: 'none',
-                    WebkitAppearance: 'none',
-                    MozAppearance: 'none',
-                    minWidth: 110,
-                  }}>
-                  <option value="driver">Driver</option>
-                  <option value="performance">Performance (MPG)</option>
-                                     <option value="consumed">Total Consumed</option>
-                                     <option value="wex_supplied">WEX Supplied</option>
-                  <option value="wex_value">WEX Value</option>
-                </select>
+                                                  <select value={sortBy} onChange={e => setSortBy(e.target.value as 'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_time' | 'wex_supplied' | 'wex_value')}
+                   style={{
+                     background: 'var(--color-background-primary)',
+                     color: 'var(--color-text-primary)',
+                     border: '1.5px solid var(--color-border-divider)',
+                     borderRadius: 8,
+                     padding: '4px 32px 4px 8px',
+                     fontSize: 14,
+                     appearance: 'none',
+                     WebkitAppearance: 'none',
+                     MozAppearance: 'none',
+                     minWidth: 110,
+                   }}>
+                   <option value="driver">Driver</option>
+                   <option value="performance">Performance (MPG)</option>
+                   <option value="total_distance">Total Distance (mi)</option>
+                   <option value="total_consumption">Total Consumed (gal)</option>
+                   <option value="idle_fuel_consumption">Idle Fuel (gal)</option>
+                   <option value="idle_time">Idle Time (hours)</option>
+                   <option value="wex_supplied">WEX Supplied (gal)</option>
+                   <option value="wex_value">WEX Value ($)</option>
+                 </select>
                 <i
                   className="bi bi-chevron-down"
                   style={{
@@ -269,31 +354,35 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
       <div style={{ background: 'var(--color-background-primary)', overflow: 'hidden', width: '100%', flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: '40vh', padding: '0 10px 10px 10px' }}>
         <div style={{ height: 327, overflowY: 'auto', width: '100%' }} className="custom-scrollbar">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, tableLayout: 'auto' }}>
-                         <thead>
-               <tr style={{ background: 'var(--color-background-secondary)' }}>
-                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Driver</th>
-                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Performance</th>
-                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Distance (mi)</th>
-                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
-                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
-                 <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
-               </tr>
-             </thead>
+            <thead>
+              <tr style={{ background: 'var(--color-background-secondary)' }}>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Driver</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Performance</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Distance (mi)</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Fuel (gal)</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Time</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
+                <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
+              </tr>
+            </thead>
             <tbody>
                              {Object.entries(filteredGroupedData).map(([driverName, data]) => (
-                 <tr key={driverName}>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{data.driver_name}</td>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.average_performance.toFixed(1)}</td>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>{data.total_distance.toFixed(1)}</td>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
-                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-                 </tr>
-               ))}
+                <tr key={driverName}>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{data.driver_name}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.average_performance.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>{data.total_distance.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'rgba(27, 191, 92, 0.75)', textAlign: 'right' }}>{data.idle_fuel_consumption.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#ff6b35', textAlign: 'right' }}>{formatIdleTime(data.idle_time_hours)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                </tr>
+              ))}
                              {/* Interface de "sem dados" quando não há dados para exibir */}
                {Object.keys(filteredGroupedData).length === 0 && (
                  <tr>
-                   <td colSpan={6} style={{ 
+                   <td colSpan={8} style={{ 
                      padding: '40px 20px', 
                      border: '1px solid var(--color-border-divider)', 
                      textAlign: 'center',

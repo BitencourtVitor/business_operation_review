@@ -52,7 +52,6 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       
       // Calcular posição considerando limites da tela
       let left = rect.left + window.scrollX;
-      const viewportWidth = window.innerWidth;
       
       // Se a largura customizada for maior que a largura do botão
       if (customWidth > rect.width) {
@@ -80,7 +79,33 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     }
   }, [open, hasPreRendered, dropdownWidth]);
 
-  const allSelected = selectedValues.length === options.length;
+  // Verificar se todos estão selecionados de forma mais robusta
+  const allSelected = options.length > 0 && 
+    selectedValues.length === options.length && 
+    options.every(opt => selectedValues.includes(opt.value));
+  
+  // Log para debug mais detalhado
+  if (options.length > 0) {
+    console.log('MultiSelectDropdown Debug:', {
+      dropdownTitle,
+      optionsLength: options.length,
+      selectedValuesLength: selectedValues.length,
+      allSelected,
+      selectedValues,
+      optionsValues: options.map(opt => opt.value),
+      allOptionsSelected: options.every(opt => selectedValues.includes(opt.value)),
+      missingOptions: options.filter(opt => !selectedValues.includes(opt.value)).map(opt => opt.value),
+      extraSelected: selectedValues.filter(val => !options.some(opt => opt.value === val)),
+      // Verificação adicional
+      isLengthEqual: selectedValues.length === options.length,
+      hasAllValues: options.every(opt => selectedValues.includes(opt.value)),
+      // Verificação de arrays
+      selectedValuesSet: new Set(selectedValues),
+      optionsValuesSet: new Set(options.map(opt => opt.value)),
+      setsEqual: new Set(selectedValues).size === new Set(options.map(opt => opt.value)).size && 
+                 options.every(opt => selectedValues.includes(opt.value))
+    });
+  }
   const toggleOption = (opt: string) => {
     if (selectedValues.includes(opt)) {
       onChange(selectedValues.filter(o => o !== opt));
@@ -209,7 +234,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         }}>
           {selectedValues.length === 0
             ? placeholder
-            : selectedValues.length === options.length
+            : allSelected
               ? allLabel
               : `${selectedValues.length} selecionados`}
         </span>

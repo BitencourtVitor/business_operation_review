@@ -9,8 +9,11 @@ export interface SamsaraEvent {
   distancia: number;
   units: number;
   type: 'idle' | 'trip';
-  duration: string | null;
+  idle_duration: number | null;
+  raw_start_time: string | null;
+  raw_asset_name: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface WexTransaction {

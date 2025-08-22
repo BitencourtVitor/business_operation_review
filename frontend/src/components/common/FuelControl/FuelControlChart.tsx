@@ -56,6 +56,16 @@ interface CostOverTimeTooltipExternalProps {
   canvas?: HTMLCanvasElement | null;
 }
 
+// Tooltip customizado para o gráfico de Idle Consumption
+interface IdleConsumptionTooltipExternalProps {
+  tooltip: unknown;
+  chartLabels: string[];
+  chartDatasets: Array<{ label: string; data: number[]; borderColor: string }>;
+  year: string;
+  month: string;
+  canvas?: HTMLCanvasElement | null;
+}
+
 const PerformanceTooltipExternal = React.memo(function PerformanceTooltipExternal({ tooltip, chartLabels, chartDatasets, year, month, canvas }: PerformanceTooltipExternalProps) {
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const [realWidth, setRealWidth] = React.useState<number>(320);
@@ -403,6 +413,114 @@ const CostOverTimeTooltipExternal = React.memo(function CostOverTimeTooltipExter
   );
 });
 
+const IdleConsumptionTooltipExternal = React.memo(function IdleConsumptionTooltipExternal({ tooltip, chartLabels, chartDatasets, year, month, canvas }: IdleConsumptionTooltipExternalProps) {
+  const tooltipRef = React.useRef<HTMLDivElement>(null);
+  const [realWidth, setRealWidth] = React.useState<number>(320);
+
+  let dataIndex: number = 0;
+  let idleConsumption: number = 0;
+  let periodo: string = '';
+  let caretX: number = 0;
+  let caretY: number = 0;
+
+  const safeTooltip = tooltip as {
+    opacity?: number;
+    dataPoints?: Array<{ dataIndex: number }>;
+    caretX?: number;
+    caretY?: number;
+  };
+  const opacity = safeTooltip.opacity;
+  const dataPoints = safeTooltip.dataPoints;
+  const caretXVal = safeTooltip.caretX;
+  const caretYVal = safeTooltip.caretY;
+  
+  // Medir largura real do tooltip após renderizar
+  React.useLayoutEffect(() => {
+    if (tooltipRef.current) {
+      setRealWidth(tooltipRef.current.offsetWidth);
+    }
+  }, [periodo, idleConsumption]);
+  
+  if (!opacity || !dataPoints || dataPoints.length === 0) return null;
+  dataIndex = dataPoints[0].dataIndex;
+  
+  // Validação adicional para garantir que os dados existam
+  if (!chartLabels || !chartDatasets || dataIndex < 0 || dataIndex >= chartLabels.length) return null;
+  
+  // Dataset 0: Idle Consumption (gal) - Vermelho
+  idleConsumption = chartDatasets[0]?.data[dataIndex] || 0;
+  
+  const label = chartLabels[dataIndex];
+  
+  if (year && month && label) {
+    // Se tem mês selecionado, label é apenas o dia
+    const dia = label;
+    periodo = dayjs(`${year}-${month}-${dia.padStart(2, '0')}`).format('DD/MM/YYYY');
+  } else if (year && label) {
+    // Se tem apenas ano, label é o número do mês
+    periodo = dayjs(`${year}-${label.padStart(2, '0')}-01`).format('MM/YYYY');
+  } else {
+    periodo = label || '';
+  }
+  
+  caretX = typeof caretXVal === 'number' ? caretXVal : 0;
+  caretY = typeof caretYVal === 'number' ? caretYVal : 0;
+
+  let absLeft = caretX;
+  let absTop = caretY;
+  let side: 'left' | 'right' = 'right';
+  const offsetX = 16;
+  const tooltipHeight = 120;
+  
+  if (canvas) {
+    const rect = canvas.getBoundingClientRect();
+    const canvasMidX = rect.left + rect.width / 2;
+    const pointAbsX = rect.left + caretX;
+    side = pointAbsX < canvasMidX ? 'right' : 'left';
+    absTop = rect.top + caretY - tooltipHeight / 2;
+    if (side === 'right') {
+      absLeft = rect.left + caretX + offsetX;
+    } else {
+      absLeft = rect.left + caretX - offsetX - realWidth;
+    }
+  }
+
+  return createPortal(
+    <div
+      ref={tooltipRef}
+      style={{
+        position: 'fixed',
+        left: absLeft,
+        top: absTop,
+        transform: 'none',
+        background: 'var(--color-background-secondary)',
+        color: 'var(--color-text-primary)',
+        border: '1.5px solid var(--color-border-divider)',
+        borderRadius: 10,
+        boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
+        padding: 16,
+        minWidth: 220,
+        maxWidth: 320,
+        zIndex: 9999,
+        opacity: 0.9,
+        pointerEvents: 'none',
+        fontSize: 14,
+        fontFamily: 'inherit',
+        userSelect: 'none',
+      }}
+    >
+      {periodo && <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', marginBottom: 8, fontSize: 15 }}>{`Período: ${periodo}`}</div>}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Idle Consumption</span>
+          <span style={{ color: '#e74c3c', fontWeight: 600 }}>{idleConsumption.toFixed(2)} gal</span>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+});
+
 interface FuelControlChartProps {
   filteredSamsara: SamsaraEvent[];
   filteredWex: WexTransaction[];
@@ -445,6 +563,15 @@ export function FuelControlChart({
   } | null>(null);
 
   const [costOverTimeTooltip, setCostOverTimeTooltip] = useState<{
+    tooltip: unknown;
+    chartLabels: string[];
+    chartDatasets: Array<{ label: string; data: number[]; borderColor: string }>;
+    year: string;
+    month: string;
+    canvas?: HTMLCanvasElement | null;
+  } | null>(null);
+
+  const [idleConsumptionTooltip, setIdleConsumptionTooltip] = useState<{
     tooltip: unknown;
     chartLabels: string[];
     chartDatasets: Array<{ label: string; data: number[]; borderColor: string }>;
@@ -651,11 +778,7 @@ export function FuelControlChart({
         x: {
           grid: { color: borderDivider },
           ticks: { 
-            color: '#6c757d',
-            maxRotation: 45,
-            minRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: selectedMonth ? 15 : 12 // Limitar ticks para não ficar bagunçado
+            display: false
           },
                      title: {
              display: false
@@ -906,11 +1029,7 @@ export function FuelControlChart({
          x: {
            grid: { color: borderDivider },
            ticks: {
-             color: '#6c757d',
-             maxRotation: 45,
-             minRotation: 0,
-             autoSkip: true,
-             maxTicksLimit: selectedMonth ? 15 : 12,
+             display: false
            },
                        title: {
               display: false
@@ -924,7 +1043,11 @@ export function FuelControlChart({
            ticks: { color: '#6c757d' },
            beginAtZero: true,
                        title: {
-              display: false
+              display: true,
+              text: 'Fuel (gal)',
+              color: '#6c757d',
+              font: { weight: 600, size: 12 },
+              padding: { top: 10, bottom: 10 },
             },
          },
          y1: {
@@ -942,6 +1065,136 @@ export function FuelControlChart({
        layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
      };
    }, [selectedYear, selectedMonth]);
+
+  // Dados para o gráfico de consumo idle ao longo do tempo
+  const idleConsumptionData = useMemo(() => {
+    if (!filteredSamsara || filteredSamsara.length === 0) return null;
+
+    const dailyIdleData = new Map<string, { idle_consumption: number; event_count: number }>();
+
+    filteredSamsara.forEach(event => {
+      if (event.type === 'idle' && event.units) {
+        const dateOnly = event.event_date.split('T')[0];
+        const dateParts = dateOnly.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        
+        if (selectedYear && year !== selectedYear) {
+          return;
+        }
+        
+        const dateKey = selectedMonth 
+          ? `${year}-${month}-${day}`
+          : `${year}-${month}`;
+        
+        if (!dailyIdleData.has(dateKey)) {
+          dailyIdleData.set(dateKey, { idle_consumption: 0, event_count: 0 });
+        }
+        
+        const dayData = dailyIdleData.get(dateKey)!;
+        dayData.idle_consumption += Number(event.units) || 0;
+        dayData.event_count += 1;
+      }
+    });
+
+    if (dailyIdleData.size === 0) return null;
+
+    const sortedDates = Array.from(dailyIdleData.keys()).sort((a, b) => a.localeCompare(b));
+    
+    return {
+      labels: sortedDates.map(date => {
+        if (selectedMonth) {
+          const [, , day] = date.split('-');
+          return day;
+        } else {
+          const [, month] = date.split('-');
+          return month;
+        }
+      }),
+      datasets: [
+        {
+          label: 'Idle Consumption (gal)',
+          data: sortedDates.map(date => {
+            const dayData = dailyIdleData.get(date)!;
+            return Math.round(dayData.idle_consumption * 100) / 100;
+          }),
+          borderColor: '#e74c3c',
+          backgroundColor: '#e74c3c',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 3,
+          fill: false,
+          tension: 0.25,
+        }
+      ]
+    };
+  }, [filteredSamsara, selectedMonth, selectedYear]);
+
+  const idleConsumptionOptions = useMemo(() => {
+    let borderDivider = '#e0e0e0';
+    try {
+      if (typeof document !== 'undefined' && document.documentElement) {
+        borderDivider = getComputedStyle(document.documentElement).getPropertyValue('--color-border-divider').trim() || '#e0e0e0';
+      }
+    } catch {
+      // noop
+    }
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          enabled: false,
+          external: (context: Record<string, unknown>) => {
+            if (!context.tooltip || (context.tooltip as { opacity: number }).opacity === 0) {
+              setIdleConsumptionTooltip(null);
+              return;
+            }
+            if (idleConsumptionData) {
+              // Ao ativar este tooltip, esconder os demais
+              setExternalTooltip(null);
+              setSupplyConsumedTooltip(null);
+              setCostOverTimeTooltip(null);
+              setIdleConsumptionTooltip({
+                tooltip: context.tooltip,
+                chartLabels: idleConsumptionData.labels,
+                chartDatasets: idleConsumptionData.datasets,
+                year: selectedYear,
+                month: selectedMonth,
+                canvas: (context.chart && (context.chart as { canvas?: HTMLCanvasElement }).canvas) ? (context.chart as { canvas?: HTMLCanvasElement }).canvas : undefined,
+              });
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          grid: { color: borderDivider },
+          ticks: {
+            display: false
+          },
+          title: {
+            display: false
+          },
+        },
+        y: {
+          type: 'linear' as const,
+          display: true,
+          position: 'left' as const,
+          grid: { color: borderDivider },
+          ticks: { color: '#6c757d' },
+          beginAtZero: true,
+          title: {
+            display: false
+          },
+        }
+      },
+      layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
+    };
+  }, [selectedYear, selectedMonth]);
 
   const suppliedVsConsumedData = useMemo(() => {
     // Decidir agrupamento
@@ -1073,34 +1326,25 @@ export function FuelControlChart({
        )
      };
 
-     // Calcular valores acumulativos para média de tendência
-     const cumulativeData = {
-       supplied: aggregatedData.supplied.reduce((acc, val, index) => {
-         acc.push((acc[index - 1] || 0) + val);
-         return acc;
-       }, [] as number[]),
-       consumed: aggregatedData.consumed.reduce((acc, val, index) => {
-         acc.push((acc[index - 1] || 0) + val);
-         return acc;
-       }, [] as number[]),
-       distance: aggregatedData.distance.reduce((acc, val, index) => {
-         acc.push((acc[index - 1] || 0) + val);
-         return acc;
-       }, [] as number[])
+     // Usar valores específicos de cada período (não acumulativos)
+     const periodData = {
+       supplied: aggregatedData.supplied,
+       consumed: aggregatedData.consumed,
+       distance: aggregatedData.distance
      };
 
      // Calcular linha de tendência baseada na média de consumo por distância
-     const trendLine = cumulativeData.consumed.map((totalConsumed, index) => {
-       if (index === 0) return 0;
-       const avgConsumptionPerDistance = totalConsumed / (cumulativeData.distance[index] || 1);
-       const expectedConsumption = cumulativeData.distance[index] * avgConsumptionPerDistance;
-       return expectedConsumption;
-     });
+     // const trendLine = periodData.consumed.map((totalConsumed, index) => {
+     //   if (index === 0) return 0;
+     //   const avgConsumptionPerDistance = totalConsumed / (periodData.distance[index] || 1);
+     //   const expectedConsumption = periodData.distance[index] * avgConsumptionPerDistance;
+     //   return expectedConsumption;
+     // });
 
          const datasets = [
                {
           label: 'Total Supplied (WEX)',
-          data: cumulativeData.supplied.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          data: periodData.supplied.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
           borderColor: '#2E6BE6',
           backgroundColor: '#2E6BE6',
           pointRadius: 4,
@@ -1113,7 +1357,7 @@ export function FuelControlChart({
         },
         {
           label: 'Total Consumed (Samsara)',
-          data: cumulativeData.consumed.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          data: periodData.consumed.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
           borderColor: '#1bbf5c',
           backgroundColor: '#1bbf5c',
           pointRadius: 4,
@@ -1126,7 +1370,7 @@ export function FuelControlChart({
         },
         {
           label: 'Total Distance (mi)',
-          data: cumulativeData.distance.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
+          data: periodData.distance.map(v => Math.round((v + Number.EPSILON) * 100) / 100),
           borderColor: '#fd7e14',
           backgroundColor: '#fd7e14',
           pointRadius: 4,
@@ -1257,7 +1501,7 @@ export function FuelControlChart({
              flexDirection: 'column'
            }}>
               {/* Título e controle de exibição na mesma linha */}
-              <div className='ms-4 my-2 d-flex justify-content-between align-items-center' style={{ minHeight: 30, marginRight: '16px' }}>
+              <div className='ms-4 my-0 d-flex justify-content-between align-items-center' style={{ minHeight: 30, marginRight: '16px' }}>
                 <h4 style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, margin: 0 }}>
                   Fuel Consumption Analysis
                 </h4>
@@ -1394,7 +1638,7 @@ export function FuelControlChart({
                 display: 'flex',
                 flexDirection: 'column'
               }}>
-                <h5 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
+                <h5 className='ms-3 my-0 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
                   Performance Over Time
                 </h5>
                 <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
@@ -1445,6 +1689,67 @@ export function FuelControlChart({
                  background: 'var(--color-border-divider)'
                }} />
 
+              {/* Gráfico do Meio: Consumo Idle ao Longo do Tempo - metade da altura */}
+              <div style={{ 
+                flex: 1, 
+                minHeight: 0,
+                background: 'var(--color-background-primary)',
+                borderRadius: 10,
+                padding: '6px',
+                display: 'flex',
+                flexDirection: 'column'
+              }}>
+                <h5 className='ms-3 my-0 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
+                  Idle Consumption Over Time
+                </h5>
+                <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+                  {idleConsumptionData && idleConsumptionOptions ? (
+                    <Line data={idleConsumptionData} options={idleConsumptionOptions} />
+                  ) : (
+                    <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        textAlign: 'center',
+                        padding: '16px'
+                      }}>
+                        <div style={{ 
+                          fontSize: 36, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.5,
+                          marginBottom: 12
+                        }}>
+                          <i className="bi bi-stopwatch"></i>
+                        </div>
+                        <div style={{ 
+                          fontSize: 16, 
+                          fontWeight: 500, 
+                          color: 'var(--color-text-secondary)',
+                          marginBottom: 4
+                        }}>
+                          Sem dados de idle
+                        </div>
+                        <div style={{ 
+                          fontSize: 12, 
+                          color: 'var(--color-text-secondary)',
+                          opacity: 0.8,
+                          maxWidth: 200
+                        }}>
+                          Nenhum evento de idle encontrado
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Linha separadora entre os gráficos */}
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--color-border-divider)'
+              }} />
+
               {/* Gráfico Inferior: Custo ao Longo do Tempo - metade da altura */}
               <div style={{ 
                 flex: 1, 
@@ -1455,7 +1760,7 @@ export function FuelControlChart({
                 display: 'flex',
                 flexDirection: 'column'
               }}>
-                <h5 className='ms-3 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
+                <h5 className='ms-3 my-0 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 25 }}>
                   Cost Over Time
                 </h5>
                 <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
@@ -1538,6 +1843,18 @@ export function FuelControlChart({
            year={costOverTimeTooltip.year || ''}
            month={costOverTimeTooltip.month || ''}
            canvas={costOverTimeTooltip.canvas}
+         />
+       )}
+
+       {idleConsumptionTooltip && (
+         <IdleConsumptionTooltipExternal
+           {...idleConsumptionTooltip}
+           tooltip={idleConsumptionTooltip.tooltip ? idleConsumptionTooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
+           chartLabels={idleConsumptionTooltip.chartLabels || []}
+           chartDatasets={idleConsumptionTooltip.chartDatasets || []}
+           year={idleConsumptionTooltip.year || ''}
+           month={idleConsumptionTooltip.month || ''}
+           canvas={idleConsumptionTooltip.canvas}
          />
        )}
     </>
