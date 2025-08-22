@@ -513,7 +513,7 @@ const IdleConsumptionTooltipExternal = React.memo(function IdleConsumptionToolti
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
           <span style={{ color: 'var(--color-text-secondary)' }}>Idle Consumption</span>
-          <span style={{ color: '#e74c3c', fontWeight: 600 }}>{idleConsumption.toFixed(2)} gal</span>
+                     <span style={{ color: '#ff6b35', fontWeight: 600 }}>{idleConsumption.toFixed(2)} gal</span>
         </div>
       </div>
     </div>,
@@ -1113,20 +1113,20 @@ export function FuelControlChart({
         }
       }),
       datasets: [
-        {
-          label: 'Idle Consumption (gal)',
-          data: sortedDates.map(date => {
-            const dayData = dailyIdleData.get(date)!;
-            return Math.round(dayData.idle_consumption * 100) / 100;
-          }),
-          borderColor: '#e74c3c',
-          backgroundColor: '#e74c3c',
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          borderWidth: 3,
-          fill: false,
-          tension: 0.25,
-        }
+                 {
+           label: 'Idle Consumption (gal)',
+           data: sortedDates.map(date => {
+             const dayData = dailyIdleData.get(date)!;
+             return Math.round(dayData.idle_consumption * 100) / 100;
+           }),
+           borderColor: '#ff6b35',
+           backgroundColor: '#ff6b35',
+           pointRadius: 4,
+           pointHoverRadius: 6,
+           borderWidth: 3,
+           fill: false,
+           tension: 0.25,
+         }
       ]
     };
   }, [filteredSamsara, selectedMonth, selectedYear]);
