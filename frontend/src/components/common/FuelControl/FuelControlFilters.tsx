@@ -39,21 +39,25 @@ export default function FuelControlFilters({
     transition: 'background 0.3s, color 0.3s, border 0.3s',
   };
 
-  // Converter availableDrivers para o formato esperado pelo MultiSelectDropdown (dedupe case-insensitive)
+  // Converter availableDrivers para o formato esperado pelo MultiSelectDropdown
   const driverOptions = React.useMemo(() => {
-    const map = new Map<string, string>();
-    availableDrivers.forEach(d => {
-      if (!d) return;
-      const trimmed = d.trim();
-      if (!trimmed) return;
-      const key = trimmed.toLowerCase();
-      if (!map.has(key)) {
-        map.set(key, trimmed);
-      }
-    });
-    return Array.from(map.values())
-      .sort((a, b) => a.localeCompare(b))
+    // Log para debug
+    console.log('Fuel Control Filters - availableDrivers recebidos:', availableDrivers.length);
+    console.log('Fuel Control Filters - availableDrivers:', availableDrivers);
+    
+    // Remover valores vazios e criar opções únicas
+    const uniqueDrivers = availableDrivers
+      .filter(d => d && d.trim()) // Remove valores vazios
+      .map(d => d.trim()) // Remove espaços em branco
+      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicatas exatas
+      .sort((a, b) => a.localeCompare(b)) // Ordena alfabeticamente
       .map(driver => ({ value: driver, label: driver }));
+    
+    // Log para debug
+    console.log('Fuel Control Filters - driverOptions processados:', uniqueDrivers.length);
+    console.log('Fuel Control Filters - driverOptions:', uniqueDrivers);
+    
+    return uniqueDrivers;
   }, [availableDrivers]);
 
   return (
@@ -64,7 +68,7 @@ export default function FuelControlFilters({
       </span>
       
       {/* Filtro de Ano/Mês */}
-      <div className="input-group" style={{ minWidth: 193, maxWidth: 193, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
+      <div className="input-group" style={{ minWidth: 197, maxWidth: 197, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
         <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0 }}>
           <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 16 }} />
         </span>
@@ -84,15 +88,17 @@ export default function FuelControlFilters({
           <i className="bi bi-person-badge" style={{ fontSize: 17 }} />
         </span>
         <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
-          <MultiSelectDropdown 
-            options={driverOptions}
-            selectedValues={selectedDrivers}
-            onChange={setSelectedDrivers}
-            placeholder="Drivers"
-            allLabel="Todos"
-            dropdownTitle="Drivers"
-            dropdownWidth={DRIVER_DROPDOWN_WIDTH}
-          />
+          {driverOptions.length > 0 && (
+            <MultiSelectDropdown 
+              options={driverOptions}
+              selectedValues={selectedDrivers}
+              onChange={setSelectedDrivers}
+              placeholder="Drivers"
+              allLabel="Todos"
+              dropdownTitle="Drivers"
+              dropdownWidth={DRIVER_DROPDOWN_WIDTH}
+            />
+          )}
         </div>
       </div>
 
