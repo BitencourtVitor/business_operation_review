@@ -22,6 +22,7 @@ interface DestaqueModalProps {
   onSaved?: () => void;
   anoSelecionado?: string;
   mesSelecionado?: string;
+  usuarioId?: string;
 }
 
 function Feedback({ message, type }: { message: string; type: 'success' | 'error' }) {
@@ -40,7 +41,7 @@ function Feedback({ message, type }: { message: string; type: 'success' | 'error
   );
 }
 
-const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSaved, anoSelecionado = '', mesSelecionado = '' }) => {
+const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSaved, anoSelecionado = '', mesSelecionado = '', usuarioId }) => {
   const [destaque, setDestaque] = useState<Destaque | null>(null);
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -64,7 +65,7 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
       } else {
         setDestaque({
           id: '',
-          usuario_id: '',
+          usuario_id: usuarioId || '',
           tela_id: '',
           mes: mesSelecionado,
           ano: anoSelecionado,
@@ -90,22 +91,13 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
       const mesDb = Number(destaque.mes);
       const anoDb = Number(destaque.ano);
 
-      // Verificar se o usuário está autenticado
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user?.email) {
-        throw new Error('Usuário não autenticado');
+      // Verificar se o usuarioId foi passado
+      if (!usuarioId) {
+        throw new Error('ID do usuário não fornecido');
       }
 
-      // Buscar o ID do usuário na tabela usuarios
-      const { data: usuarioRow, error: usuarioError } = await supabase
-        .from('usuarios')
-        .select('id')
-        .eq('email', user.email)
-        .single();
-      
-      if (usuarioError || !usuarioRow) {
-        throw new Error('Usuário não encontrado na base de dados');
-      }
+      // Usar o usuarioId passado diretamente
+      const usuarioRow = { id: usuarioId };
 
       if (destaque.id) {
         // Atualização
