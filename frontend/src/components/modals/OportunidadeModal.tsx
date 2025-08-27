@@ -21,6 +21,7 @@ interface Oportunidade {
   valor_estimado?: number;
   prazo?: string;
   responsavel?: string;
+  usuario_nome?: string; // Nome do usuário que criou a oportunidade
 }
 
 interface OportunidadeModalProps {
@@ -28,6 +29,8 @@ interface OportunidadeModalProps {
   onClose: () => void;
   data: Oportunidade | null;
   onSaved?: () => void;
+  anoSelecionado?: string;
+  mesSelecionado?: string;
 }
 
 // Utilitário para exibir feedback
@@ -54,7 +57,7 @@ const monthNamesEn: Record<string, string> = {
   "09": "September", "10": "October", "11": "November", "12": "December"
 };
 
-const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, data, onSaved }) => {
+const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, data, onSaved, anoSelecionado = '', mesSelecionado = '' }) => {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -104,6 +107,32 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
     }
   }, [show, visible]);
 
+  // Atualizar estados quando o modal abre
+  useEffect(() => {
+    if (show) {
+      if (data) {
+        setOportunidade(data);
+        setMes(data.mes);
+        setAno(data.ano);
+      } else {
+        // Para novos registros, usar os valores selecionados
+        setOportunidade({
+          id: '',
+          usuario_id: '',
+          tela_id: '',
+          mes: mesSelecionado,
+          ano: anoSelecionado,
+          titulo: '',
+          criado_em: new Date().toISOString(),
+          desafios: [],
+          melhorias: []
+        });
+        setMes(mesSelecionado);
+        setAno(anoSelecionado);
+      }
+    }
+  }, [show, data, mesSelecionado, anoSelecionado]);
+
   // Carregar todas as oportunidades do mesmo mês/ano/tela/usuário ao abrir modal
   useEffect(() => {
     async function fetchOportunidadesList() {
@@ -119,14 +148,16 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
         .eq('ano', op.ano)
         .order('criado_em', { ascending: true });
       if (ops && ops.length > 0) {
-        // Para cada oportunidade, busca desafios/melhorias
+        // Para cada oportunidade, busca desafios/melhorias e nome do usuário
         const opsCompletas = await Promise.all(ops.map(async (o: Oportunidade) => {
           const { data: desafios } = await supabase.from('desafios').select('texto').eq('oportunidade_id', o.id);
           const { data: melhorias } = await supabase.from('melhorias').select('texto').eq('oportunidade_id', o.id);
+          const { data: usuario } = await supabase.from('usuarios').select('nome_completo').eq('id', o.usuario_id).single();
           return {
             ...o,
             desafios: (desafios || []).map(d => d.texto),
             melhorias: (melhorias || []).map(m => m.texto),
+            usuario_nome: usuario?.nome_completo || `Admin ${o.usuario_id.slice(0, 8)}...`
           };
         }));
         setOportunidadesList(opsCompletas);
@@ -168,7 +199,14 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
   }, [oportunidade]);
 
   // Handler para adicionar nova oportunidade
-  function handleAddOportunidade() {
+  async function handleAddOportunidade() {
+    // Buscar nome do usuário atual
+    let usuarioNome = '';
+    if (data?.usuario_id) {
+      const { data: usuario } = await supabase.from('usuarios').select('nome_completo').eq('id', data.usuario_id).single();
+      usuarioNome = usuario?.nome_completo || `Admin ${data.usuario_id.slice(0, 8)}...`;
+    }
+    
     const nova: Oportunidade = {
       id: '',
       usuario_id: data?.usuario_id || '',
@@ -179,6 +217,7 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
       criado_em: new Date().toISOString(),
       desafios: [],
       melhorias: [],
+      usuario_nome: usuarioNome
     };
     const novaLista = [...oportunidadesList, nova];
     setOportunidadesList(novaLista);
@@ -192,14 +231,16 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
     if (nextIdx >= 0 && nextIdx < oportunidadesList.length) {
       setCurrentOportunidadeIdx(nextIdx);
       const op = oportunidadesList[nextIdx];
-      // Sempre buscar desafios/melhorias do banco ao navegar
+      // Sempre buscar desafios/melhorias e nome do usuário do banco ao navegar
       (async () => {
         const { data: desafios } = await supabase.from('desafios').select('texto').eq('oportunidade_id', op.id);
         const { data: melhorias } = await supabase.from('melhorias').select('texto').eq('oportunidade_id', op.id);
+        const { data: usuario } = await supabase.from('usuarios').select('nome_completo').eq('id', op.usuario_id).single();
         setOportunidade({
           ...op,
           desafios: (desafios || []).map(d => d.texto),
           melhorias: (melhorias || []).map(m => m.texto),
+          usuario_nome: usuario?.nome_completo || `Admin ${op.usuario_id.slice(0, 8)}...`
         });
       })();
     }
@@ -243,10 +284,12 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
           const op = novaLista[novoIdx];
           const { data: desafios } = await supabase.from('desafios').select('texto').eq('oportunidade_id', op.id);
           const { data: melhorias } = await supabase.from('melhorias').select('texto').eq('oportunidade_id', op.id);
+          const { data: usuario } = await supabase.from('usuarios').select('nome_completo').eq('id', op.usuario_id).single();
           setOportunidade({
             ...op,
             desafios: (desafios || []).map(d => d.texto),
             melhorias: (melhorias || []).map(m => m.texto),
+            usuario_nome: usuario?.nome_completo || `Admin ${op.usuario_id.slice(0, 8)}...`
           });
           
           setFeedback({ message: 'Oportunidade deletada com sucesso!', type: 'success' });
@@ -355,6 +398,31 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
             return;
           }
         } else {
+          // Insert - verificar se já existe uma oportunidade para QUALQUER usuário responsável pela tela, mês e ano
+          // Primeiro, buscar todos os usuários responsáveis pela tela
+          const { data: usuariosResponsaveis } = await supabase
+            .from('usuarios_telas')
+            .select('usuario_id')
+            .eq('tela_id', oportunidade.tela_id);
+          
+          if (usuariosResponsaveis && usuariosResponsaveis.length > 0) {
+            const responsaveisIds = usuariosResponsaveis.map(ut => ut.usuario_id);
+            
+            // Verificar se já existe oportunidade para qualquer usuário responsável
+            const { data: existente } = await supabase
+              .from('oportunidades')
+              .select('id')
+              .eq('tela_id', oportunidade.tela_id)
+              .eq('mes', mesDb)
+              .eq('ano', anoDb)
+              .in('usuario_id', responsaveisIds)
+              .single();
+            
+            if (existente) {
+              throw new Error('Já existe uma oportunidade para esta tela, mês e ano');
+            }
+          }
+          
           // Insert - usar o usuario_id do responsável pela tela
           // O usuario_id já deve estar correto no objeto oportunidade (definido na página)
           const oportunidadePrincipal = Object.fromEntries(
@@ -374,9 +442,15 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
         }
         // Atualiza lista local
         const novaLista = oportunidadesList.slice();
-        novaLista[currentOportunidadeIdx] = principal;
+        // Buscar nome do usuário para atualizar a lista local
+        const { data: usuario } = await supabase.from('usuarios').select('nome_completo').eq('id', principal.usuario_id).single();
+        const principalComNome = {
+          ...principal,
+          usuario_nome: usuario?.nome_completo || `Admin ${principal.usuario_id.slice(0, 8)}...`
+        };
+        novaLista[currentOportunidadeIdx] = principalComNome;
         setOportunidadesList(novaLista);
-        setOportunidade(principal);
+        setOportunidade(principalComNome);
         setFeedback({ message: 'Oportunidade salva com sucesso!', type: 'success' });
         if (onSaved) onSaved();
       }

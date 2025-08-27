@@ -57,6 +57,7 @@ export interface Oportunidade {
   valor_estimado?: number;
   prazo?: string;
   responsavel?: string;
+  usuario_nome?: string; // Nome do usuário que criou a oportunidade
 }
 
 export interface AccountingData {
@@ -89,4 +90,28 @@ export interface TooltipExternalProps {
     backgroundColor: string;
     tension: number;
   }[];
+} 
+
+export interface DestaquesPartitionProps {
+  usuarioResponsavelId: string | string[];
+  usuariosParaBuscar?: string[];
+  telaId: string;
+  selectedYear: string;
+  selectedMonth: string;
+  isAdmin: boolean;
+  onEdit?: (mes: string | number, ano: string | number) => void;
+  onView?: (destaque: Destaque) => void;
+  refreshTrigger?: number;
+}
+
+export interface OportunidadesPartitionProps {
+  usuarioResponsavelId: string | string[];
+  usuariosParaBuscar?: string[];
+  telaId: string;
+  selectedYear: string;
+  selectedMonth: string;
+  isAdmin: boolean;
+  onEdit?: (mes: string | number, ano: string | number) => void;
+  onView?: (oportunidade: Oportunidade) => void;
+  refreshTrigger?: number;
 } 
