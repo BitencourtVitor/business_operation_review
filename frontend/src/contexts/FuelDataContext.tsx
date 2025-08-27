@@ -29,6 +29,8 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
   const [wexProgress, setWexProgress] = useState(0);
   const [employeeProgress, setEmployeeProgress] = useState(0);
 
+
+
   const fetchSamsaraEvents = async () => {
     try {
       setSamsaraProgress(0);
@@ -76,7 +78,6 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
         setSamsaraEvents(data || []);
       }
     } catch (err) {
-      console.error('❌ Erro ao buscar eventos Samsara:', err);
       setError('Erro ao carregar eventos Samsara');
     }
   };
@@ -128,7 +129,6 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
         setWexTransactions(data || []);
       }
     } catch (err) {
-      console.error('❌ Erro ao buscar transações WEX:', err);
       setError('Erro ao carregar transações WEX');
     }
   };
@@ -147,14 +147,12 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
       setEmployeeProgress(100);
       setEmployeeNames(data || []);
     } catch (err) {
-      console.error('❌ Erro ao buscar nomes de funcionários:', err);
       setError('Erro ao carregar nomes de funcionários');
     }
   };
 
   const loadAllData = async () => {
     if (isDataLoaded) {
-      console.log('ℹ️ Dados já carregados anteriormente, pulando carregamento...');
       return;
     }
 
@@ -170,7 +168,6 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
       ]);
       setIsDataLoaded(true);
     } catch (err) {
-      console.error('❌ Erro durante carregamento:', err);
       setError('Erro durante carregamento dos dados');
     } finally {
       setLoading(false);
