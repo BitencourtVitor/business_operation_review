@@ -28,7 +28,7 @@ export default function Login() {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.log('Erro ao verificar sessão:', error);
+  
           return;
         }
         
@@ -36,7 +36,7 @@ export default function Login() {
           // Verificar se o token ainda é válido
           const now = Math.floor(Date.now() / 1000);
           if (session.expires_at && session.expires_at < now) {
-            console.log('Sessão expirada, limpando...');
+    
             await supabase.auth.signOut();
             sessionStorage.clear();
             localStorage.removeItem('supabase.auth.token');
@@ -97,7 +97,7 @@ export default function Login() {
 
     setLoading(true);
     setLoadingData(false);
-    console.log('Tentando fazer login com:', email);
+    
     
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -105,7 +105,7 @@ export default function Login() {
         password,
       });
 
-      console.log('Resposta do Supabase:', { data, error });
+      
 
       if (error) {
         console.error('Erro no login:', error);
@@ -118,7 +118,7 @@ export default function Login() {
           setError(error.message);
         }
       } else if (data.user) {
-        console.log('Login bem-sucedido:', data.user);
+
         
 
         

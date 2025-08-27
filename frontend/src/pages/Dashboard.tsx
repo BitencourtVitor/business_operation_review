@@ -51,7 +51,7 @@ export default function Dashboard() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          console.log('Usuário não encontrado');
+  
           return;
         }
         

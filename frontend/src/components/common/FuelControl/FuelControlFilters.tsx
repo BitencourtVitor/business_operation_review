@@ -9,6 +9,8 @@ interface FuelControlFiltersProps {
   setSelectedMonth: (month: string) => void;
   selectedDrivers: string[];
   setSelectedDrivers: (drivers: string[]) => void;
+  isDetailView: boolean;
+  setIsDetailView: (isDetail: boolean) => void;
   years: string[];
   months: string[];
   availableDrivers: string[];
@@ -21,6 +23,8 @@ export default function FuelControlFilters({
   setSelectedMonth,
   selectedDrivers,
   setSelectedDrivers,
+  isDetailView,
+  setIsDetailView,
   years,
   months,
   availableDrivers
@@ -41,10 +45,6 @@ export default function FuelControlFilters({
 
   // Converter availableDrivers para o formato esperado pelo MultiSelectDropdown
   const driverOptions = React.useMemo(() => {
-    // Log para debug
-    console.log('Fuel Control Filters - availableDrivers recebidos:', availableDrivers.length);
-    console.log('Fuel Control Filters - availableDrivers:', availableDrivers);
-    
     // Remover valores vazios e criar opções únicas
     const uniqueDrivers = availableDrivers
       .filter(d => d && d.trim()) // Remove valores vazios
@@ -52,10 +52,6 @@ export default function FuelControlFilters({
       .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicatas exatas
       .sort((a, b) => a.localeCompare(b)) // Ordena alfabeticamente
       .map(driver => ({ value: driver, label: driver }));
-    
-    // Log para debug
-    console.log('Fuel Control Filters - driverOptions processados:', uniqueDrivers.length);
-    console.log('Fuel Control Filters - driverOptions:', uniqueDrivers);
     
     return uniqueDrivers;
   }, [availableDrivers]);
@@ -102,6 +98,73 @@ export default function FuelControlFilters({
         </div>
       </div>
 
+      {/* View Principal/Detail */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 6px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+        <button 
+          onClick={() => setIsDetailView(false)} 
+          style={{ 
+            background: !isDetailView ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: !isDetailView ? 'var(--color-brand-blue)' : 'var(--color-text-primary)', 
+            border: !isDetailView ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)', 
+            borderRadius: 15, 
+            padding: '4px 16px', 
+            fontWeight: 500, 
+            fontSize: 14, 
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            height: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            if (isDetailView) {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-brand-blue)';
+              e.currentTarget.style.color = 'var(--color-brand-blue)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = !isDetailView ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+            e.currentTarget.style.borderColor = !isDetailView ? 'var(--color-brand-blue)' : 'var(--color-border-divider)';
+            e.currentTarget.style.color = !isDetailView ? 'var(--color-brand-blue)' : 'var(--color-text-primary)';
+          }}
+        >
+          Principal
+        </button>
+        <button 
+          onClick={() => setIsDetailView(true)} 
+          style={{ 
+            background: isDetailView ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+            color: isDetailView ? 'var(--challenges-color)' : 'var(--color-text-primary)', 
+            border: isDetailView ? '1.5px solid var(--challenges-color)' : '1.5px solid var(--color-border-divider)', 
+            borderRadius: 15, 
+            padding: '4px 16px', 
+            fontWeight: 500, 
+            fontSize: 14, 
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            height: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+          onMouseEnter={(e) => {
+            if (!isDetailView) {
+              e.currentTarget.style.background = 'var(--color-background-primary)';
+              e.currentTarget.style.borderColor = 'var(--challenges-color)';
+              e.currentTarget.style.color = 'var(--challenges-color)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = isDetailView ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+            e.currentTarget.style.borderColor = isDetailView ? 'var(--challenges-color)' : 'var(--color-border-divider)';
+            e.currentTarget.style.color = isDetailView ? 'var(--challenges-color)' : 'var(--color-text-primary)';
+          }}
+        >
+          Detail
+        </button>
+      </div>
 
     </div>
   );

@@ -89,12 +89,13 @@ export default function ProjectMonitoringFilters({
   
   // Debug temporário para verificar semanas
   if (selectedYear) {
-    console.log('Debug semanas:', {
+    // Debug das semanas
+    const weekDebug = {
       selectedYear,
       selectedMonth,
       availableWeeks,
       uniqueWeeks: [...new Set(availableWeeks)]
-    });
+    };
   }
   
   // Garantir que as semanas sejam únicas

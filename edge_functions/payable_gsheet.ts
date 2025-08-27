@@ -172,15 +172,11 @@ function getField(row: any, key: string) {
 // Função SUPER otimizada para buscar apenas registros que realmente mudaram
 async function getOnlyChangedRecords(table: string, dataToCheck: any[]) {
   try {
-    console.log(`🔍 Analisando ${dataToCheck.length} registros para mudanças...`);
-    
     // Extrair IDs únicos da planilha
     const allIds = dataToCheck.map(row => row.intern_id).filter(id => id);
     const uniqueIds = Array.from(new Set(allIds));
-    console.log(`📊 Encontrados ${uniqueIds.length} IDs únicos na planilha`);
     
     if (uniqueIds.length === 0) {
-      console.log(`⚠️ Nenhum ID encontrado - processando tudo como novo`);
       return dataToCheck;
     }
     
@@ -202,8 +198,6 @@ async function getOnlyChangedRecords(table: string, dataToCheck: any[]) {
         existingMap.set(row.intern_id, row.last_update_datetimez);
       });
     }
-    
-    console.log(`📋 Encontrados ${existingMap.size} registros existentes no banco`);
     
     // Filtrar APENAS registros que realmente mudaram
     const recordsToUpdate = [];
@@ -238,12 +232,6 @@ async function getOnlyChangedRecords(table: string, dataToCheck: any[]) {
       }
     }
     
-    console.log(`✅ Filtro concluído:`);
-    console.log(`   - Novos: ${newRecords}`);
-    console.log(`   - Modificados: ${modifiedRecords}`);
-    console.log(`   - Inalterados: ${unchangedRecords}`);
-    console.log(`   - TOTAL para processar: ${recordsToUpdate.length}`);
-    
     return recordsToUpdate;
   } catch (error) {
     console.error('❌ Erro ao buscar registros modificados:', error);
@@ -254,11 +242,8 @@ async function getOnlyChangedRecords(table: string, dataToCheck: any[]) {
 async function upsertTableBatch(table: string, data: any[], name: string, batchSize = 100) {
   try {
     if (data.length === 0) {
-      console.log(`✅ Nenhum registro para processar em ${name}`);
       return 0;
     }
-    
-    console.log(`🚀 Iniciando upsert de ${data.length} registros para ${name} (batch: ${batchSize})`);
     
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
@@ -289,7 +274,6 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
       }
       
       totalUpserted += batch.length;
-      console.log(`✅ Lote ${i + 1}/${batches.length}: ${batch.length} registros (Total: ${totalUpserted})`);
       
       // Pausa entre lotes
       if (i < batches.length - 1) {
@@ -297,7 +281,6 @@ async function upsertTableBatch(table: string, data: any[], name: string, batchS
       }
     }
     
-    console.log(`🎉 Upsert concluído para ${name}: ${totalUpserted} registros`);
     return totalUpserted;
   } catch (error) {
     console.error(`❌ Erro ao acessar tabela ${name}:`, error);

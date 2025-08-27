@@ -421,11 +421,11 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
          // Se não há dados JavaScript mas há dados SQL, ainda devemos mostrar o gráfico
      // com as linhas SQL e Outstanding zeradas
      if (!filteredData || filteredData.length === 0) {
-       console.log('FILTEREDDATA VAZIO - verificando se há dados SQL');
+               // FILTEREDDATA VAZIO - verificando se há dados SQL
        
        // Se há dados SQL, criar gráfico com Outstanding zerado
        if (localChartData && localChartData.length > 0) {
-         console.log('Há dados SQL - criando gráfico com Outstanding zerado');
+         // Há dados SQL - criando gráfico com Outstanding zerado
          
          // Usar apenas dados SQL, com Outstanding zerado
          const labels = localChartData.map(item => item.period_label);
@@ -645,7 +645,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
          return { chartData, chartOptions, hasData: true };
        }
        
-       console.log('RETORNANDO POR FILTEREDDATA VAZIO E SEM DADOS SQL');
+               // RETORNANDO POR FILTEREDDATA VAZIO E SEM DADOS SQL
        return { chartData: null, chartOptions: null, hasData: false };
      }
 

@@ -31,6 +31,7 @@ interface OportunidadeModalProps {
   onSaved?: () => void;
   anoSelecionado?: string;
   mesSelecionado?: string;
+  usuarioId?: string;
 }
 
 // Utilitário para exibir feedback
@@ -57,7 +58,7 @@ const monthNamesEn: Record<string, string> = {
   "09": "September", "10": "October", "11": "November", "12": "December"
 };
 
-const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, data, onSaved, anoSelecionado = '', mesSelecionado = '' }) => {
+const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, data, onSaved, anoSelecionado = '', mesSelecionado = '', usuarioId }) => {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -118,7 +119,7 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
         // Para novos registros, usar os valores selecionados
         setOportunidade({
           id: '',
-          usuario_id: '',
+          usuario_id: usuarioId || '',
           tela_id: '',
           mes: mesSelecionado,
           ano: anoSelecionado,
@@ -209,7 +210,7 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
     
     const nova: Oportunidade = {
       id: '',
-      usuario_id: data?.usuario_id || '',
+      usuario_id: data?.usuario_id || usuarioId || '',
       tela_id: data?.tela_id || '',
       mes: mes,
       ano: ano,
@@ -331,6 +332,14 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
         // Padronizar mês e ano como integer
         const mesDb = Number(mes);
         const anoDb = Number(ano);
+        
+        // Validar se mes e ano são números válidos
+        if (isNaN(mesDb) || isNaN(anoDb)) {
+          setFeedback({ message: 'Mês e ano devem ser números válidos.', type: 'error' });
+          setLoading(false);
+          return;
+        }
+        
         let usuarioEmail = '';
         usuarioEmail = (window as Window & { user?: { email?: string } }).user?.email || '';
         if (!usuarioEmail && typeof supabase.auth.getUser === 'function') {
@@ -356,15 +365,38 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
           // Busca o registro atual da oportunidade
           const { data: registroAtual } = await supabase.from('oportunidades').select('*').eq('id', oportunidadeId).single();
           if (registroAtual) {
+            // Verificar se o usuário logado pode editar este registro
+            if (usuarioId && registroAtual.usuario_id !== usuarioId) {
+              throw new Error('Você só pode editar registros que você criou');
+            }
+            
             // Manter o usuario_id original do registro
             const usuarioIdOriginal = registroAtual.usuario_id;
             
-            // Atualiza apenas campos da oportunidade principal se necessário, mantendo o usuario_id original
+            // Criar objeto para atualização com tipos corretos
+            const dadosParaAtualizar: any = {
+              titulo: oportunidade.titulo,
+              mes: mesDb,
+              ano: anoDb
+            };
+            
+            // Filtrar campos vazios
             const oportunidadePrincipal = Object.fromEntries(
-              Object.entries({ ...oportunidade, usuario_id: usuarioIdOriginal, mes: mesDb, ano: anoDb })
-                .filter(([k, v]) => !['desafios', 'melhorias', 'id'].includes(k) && v !== '')
+              Object.entries(dadosParaAtualizar)
+                .filter(([k, v]) => v !== undefined && v !== '' && v !== null)
             );
-            await supabase.from('oportunidades').update(oportunidadePrincipal).eq('id', oportunidadeId);
+            
+    
+            
+            const { error: updateError } = await supabase
+              .from('oportunidades')
+              .update(oportunidadePrincipal)
+              .eq('id', oportunidadeId);
+              
+            if (updateError) {
+              console.error('Erro no update:', updateError);
+              throw updateError;
+            }
             
             // Atualiza desafios e melhorias
             // Busca os desafios e melhorias atuais
@@ -398,37 +430,27 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
             return;
           }
         } else {
-          // Insert - verificar se já existe uma oportunidade para QUALQUER usuário responsável pela tela, mês e ano
-          // Primeiro, buscar todos os usuários responsáveis pela tela
-          const { data: usuariosResponsaveis } = await supabase
-            .from('usuarios_telas')
-            .select('usuario_id')
-            .eq('tela_id', oportunidade.tela_id);
-          
-          if (usuariosResponsaveis && usuariosResponsaveis.length > 0) {
-            const responsaveisIds = usuariosResponsaveis.map(ut => ut.usuario_id);
-            
-            // Verificar se já existe oportunidade para qualquer usuário responsável
-            const { data: existente } = await supabase
-              .from('oportunidades')
-              .select('id')
-              .eq('tela_id', oportunidade.tela_id)
-              .eq('mes', mesDb)
-              .eq('ano', anoDb)
-              .in('usuario_id', responsaveisIds)
-              .single();
-            
-            if (existente) {
-              throw new Error('Já existe uma oportunidade para esta tela, mês e ano');
-            }
-          }
+          // Insert - permitir múltiplas oportunidades no mesmo mês/ano
+          // Não é necessário verificar duplicatas, pois o sistema suporta múltiplas oportunidades
           
           // Insert - usar o usuario_id do responsável pela tela
           // O usuario_id já deve estar correto no objeto oportunidade (definido na página)
+          const dadosParaInserir: any = {
+            usuario_id: oportunidade.usuario_id,
+            tela_id: oportunidade.tela_id,
+            titulo: oportunidade.titulo,
+            mes: mesDb,
+            ano: anoDb
+          };
+          
+          // Filtrar campos vazios
           const oportunidadePrincipal = Object.fromEntries(
-            Object.entries({ ...oportunidade, mes: mesDb, ano: anoDb })
-              .filter(([k, v]) => !['desafios', 'melhorias', 'id'].includes(k) && v !== '')
+            Object.entries(dadosParaInserir)
+              .filter(([k, v]) => v !== undefined && v !== '' && v !== null)
           );
+          
+  
+          
           const { data: inserted, error } = await supabase.from('oportunidades').insert([oportunidadePrincipal]).select('id').single();
           if (error) throw error;
           const oportunidadeId = inserted.id;

@@ -105,8 +105,6 @@ export default function DestaquesPartition({
       setOpenDestaques('');
       setLoading(true);
       
-      console.log('🔄 Buscando dados frescos de destaques...');
-      
       try {
         // Buscar destaques específicos da tela e usuário
         let destaquesQuery = supabase
@@ -133,8 +131,6 @@ export default function DestaquesPartition({
           console.error('Erro ao buscar destaques:', destaquesError);
           return;
         }
-        
-        console.log('📊 Destaques encontrados:', destaques?.length || 0);
         
         if (destaques) {
           // Buscar positivos e negativos apenas para os destaques encontrados
@@ -178,7 +174,6 @@ export default function DestaquesPartition({
             usuario_nome: usuariosNomes.find(u => u.id === d.usuario_id)?.nome_completo || `Admin ${d.usuario_id.slice(0, 8)}...`
           }));
           
-          console.log('✅ Destaques processados e atualizados');
           setAllDestaques(destaquesCompletos);
         }
       } catch (error) {
@@ -194,9 +189,6 @@ export default function DestaquesPartition({
   // Agrupar dados por mês/ano, ignorando destaques inválidos
   const destaquesValidos = allDestaques.filter(d => {
     const mesValido = d.mes && d.ano && Number(d.mes) > 0 && Number(d.ano) > 0;
-    if (!mesValido) {
-      console.log('Destaque inválido filtrado:', d);
-    }
     return mesValido;
   });
   const destaquesByMonth = groupByMonthYear(destaquesValidos);

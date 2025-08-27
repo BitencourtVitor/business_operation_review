@@ -2,53 +2,50 @@ import { supabase } from '../supabaseClient';
 
 export const loadFuelControlSchema = async () => {
   try {
-    console.log('Carregando esquema de Fuel Control...');
-    
-    // Verificar se as tabelas já existem tentando fazer uma consulta simples
-    try {
-      await supabase.from('samsara_events').select('id').limit(1);
-      await supabase.from('wex_transactions').select('id').limit(1);
-      await supabase.from('employee_names').select('id').limit(1);
-      
-      console.log('Tabelas de Fuel Control já existem');
-      return true;
-    } catch {
-      // Tabelas não existem, continuar com a criação
+    // Verificar se as tabelas já existem
+    const { data: existingTables, error: listError } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_schema', 'public')
+      .in('table_name', ['samsara_events', 'wex_transactions', 'employee_names']);
+
+    if (listError) {
+      throw listError;
     }
 
-    // Carregar e executar o esquema SQL
-    const response = await fetch('/fuel_schema.sql');
-    if (!response.ok) {
-      throw new Error(`Erro ao carregar esquema: ${response.statusText}`);
+    if (existingTables && existingTables.length >= 3) {
+      // Log quando as tabelas já existem
+      const existingSummary = {
+        message: 'Tabelas de Fuel Control já existem',
+        existingTables: existingTables.map(t => t.table_name)
+      };
+      return { success: true, message: 'Esquema já existe' };
     }
 
-    const schemaSQL = await response.text();
-    
-    // Executar o esquema em partes para evitar problemas com múltiplas declarações
-    const statements = schemaSQL
-      .split(';')
-      .map(stmt => stmt.trim())
-      .filter(stmt => stmt.length > 0 && !stmt.startsWith('--'));
+    // Carregar esquemas das tabelas
+    const schemas = [
+      { name: 'samsara.sql', content: samsaraSchema },
+      { name: 'wex.sql', content: wexSchema },
+      { name: 'employee_names.sql', content: employeeNamesSchema }
+    ];
 
-    for (const statement of statements) {
-      if (statement.trim()) {
-        try {
-          const { error } = await supabase.rpc('exec_sql', { sql: statement + ';' });
-          if (error) {
-            console.warn('Aviso ao executar statement:', statement, error);
-          }
-        } catch (rpcError) {
-          console.warn('Erro RPC ao executar statement:', statement, rpcError);
-        }
+    for (const schema of schemas) {
+      const { error } = await supabase.rpc('exec_sql', { sql: schema.content });
+      if (error) {
+        throw new Error(`Erro ao executar ${schema.name}: ${error.message}`);
       }
     }
 
-    console.log('Esquema de Fuel Control carregado com sucesso');
-    return true;
-    
+    // Log de sucesso
+    const successSummary = {
+      message: 'Esquema de Fuel Control carregado com sucesso',
+      tablesCreated: schemas.length
+    };
+
+    return { success: true, message: 'Esquema carregado com sucesso' };
   } catch (error) {
-    console.error('Erro ao carregar esquema de Fuel Control:', error);
-    return false;
+    console.error('Erro ao carregar esquema:', error);
+    throw error;
   }
 };
 

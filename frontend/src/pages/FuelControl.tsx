@@ -18,6 +18,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
   const [selectedYear, setSelectedYear] = useState<string>(''); // Default to 2025
   const [selectedMonth, setSelectedMonth] = useState<string>(''); // Default to "Todos"
   const [selectedDrivers, setSelectedDrivers] = useState<string[]>([]);
+  const [isDetailView, setIsDetailView] = useState<boolean>(false); // Switch Principal/Detalhe
   
   // Estado para opções de drivers disponíveis
   const [availableDriverOptions, setAvailableDriverOptions] = useState<string[]>([]);
@@ -104,8 +105,8 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     
     // Filtrar por motoristas selecionados
     if (driversToUse.length > 0) {
-      console.log('Fuel Control - Filtrando por drivers selecionados:', driversToUse.length);
-      console.log('Fuel Control - Drivers selecionados:', driversToUse);
+      
+      
       
       filteredSamsara = filteredSamsara.filter(event => {
         const normalizedName = normalizeDriverName(event.nome);
@@ -117,7 +118,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
         return driversToUse.includes(normalizedName);
       });
     } else {
-      console.log('Fuel Control - Nenhum driver selecionado, mostrando todos');
+      
     }
 
     return { filteredSamsara, filteredWex };
@@ -159,15 +160,15 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       
       // Sempre sincronizar drivers selecionados com os disponíveis
       if (availableDriverNames.length > 0) {
-        console.log('Fuel Control - Sincronizando drivers selecionados com todos os disponíveis');
-        console.log('Fuel Control - Drivers disponíveis para seleção:', availableDriverNames);
+
+
         setSelectedDrivers([...availableDriverNames]); // Usar spread para criar novo array
       }
       
       // Log para debug
-      console.log('Fuel Control - Drivers disponíveis:', availableDriverNames.length);
-      console.log('Fuel Control - Drivers selecionados:', selectedDrivers.length);
-      console.log('Fuel Control - selectedDrivers atual:', selectedDrivers);
+      
+      
+      
     }
   }, [samsaraEvents, wexTransactions, normalizeDriverName, driverNames]);
 
@@ -246,6 +247,8 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
            years={years}
            months={months}
            availableDrivers={availableDriverOptions}
+           isDetailView={isDetailView}
+           setIsDetailView={setIsDetailView}
          />
       </div>
       

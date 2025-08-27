@@ -17,14 +17,14 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.log('Erro ao verificar sessão:', error);
+  
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
         }
         
         if (!session) {
-          console.log('Nenhuma sessão encontrada');
+  
           setIsAuthenticated(false);
           setIsLoading(false);
           return;
@@ -33,7 +33,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
         // Verificar se o token ainda é válido
         const now = Math.floor(Date.now() / 1000);
         if (session.expires_at && session.expires_at < now) {
-          console.log('Sessão expirada');
+  
           await supabase.auth.signOut();
           sessionStorage.clear();
           setIsAuthenticated(false);
@@ -49,7 +49,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
           const sessionDuration = 8 * 60 * 60 * 1000; // 8 horas em millisegundos
           
           if (currentTime - loginTime > sessionDuration) {
-            console.log('Sessão expirou por tempo limite (8h)');
+    
             await supabase.auth.signOut();
             sessionStorage.clear();
             setIsAuthenticated(false);

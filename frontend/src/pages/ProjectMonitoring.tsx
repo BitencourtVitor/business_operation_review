@@ -532,6 +532,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
               const { data: destaques } = await supabase
                 .from('destaques')
                 .select('*')
+                .eq('tela_id', telaId) // Adicionar filtro por tela_id
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef))
                 .eq('usuario_id', usuariosParaBuscarDados[0]);
@@ -627,6 +628,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
               const { data: todasOportunidades } = await supabase
                 .from('oportunidades')
                 .select('*')
+                .eq('tela_id', telaId) // Adicionar filtro por tela_id
                 .eq('usuario_id', oportunidade.usuario_id)
                 .eq('mes', Number(mes))
                 .eq('ano', Number(ano));
@@ -728,6 +730,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
+          usuarioId={usuarioId}
         />
       )}
 

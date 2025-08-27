@@ -584,6 +584,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
+          usuarioId={usuarioId}
         />
       )}
 

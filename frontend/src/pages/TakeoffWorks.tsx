@@ -368,10 +368,11 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
               const { data: destaques } = await supabase
                 .from('destaques')
                 .select('*')
+                .eq('tela_id', telaId) // Adicionar filtro por tela_id
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef))
                 .eq('usuario_id', usuariosParaBuscarDados[0]);
-              console.log('Destaques Takeoff:', destaques, usuarioResponsavelId, mesRef, anoRef);
+      
               if (destaques && destaques.length > 0) {
                 const destaque = destaques[0];
                 const { data: positivos } = await supabase.from('destaques_positivos').select('*').eq('destaque_id', destaque.id);
@@ -428,7 +429,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .eq('tela_id', telaId)
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef));
-              console.log('Oportunidades Takeoff:', oportunidades, usuarioResponsavelId, mesRef, anoRef);
+      
               if (oportunidades && oportunidades.length > 0) {
                 const oportunidade = oportunidades[0];
                 const { data: desafios } = await supabase.from('desafios').select('*').eq('oportunidade_id', oportunidade.id);
@@ -464,7 +465,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .eq('tela_id', telaId)
                 .eq('mes', Number(oportunidade.mes))
                 .eq('ano', Number(oportunidade.ano));
-              console.log('Todas Oportunidades Takeoff:', todasOportunidades, usuarioResponsavelId, oportunidade.mes, oportunidade.ano);
+      
               if (todasOportunidades && todasOportunidades.length > 0) {
                 const { data: todosDesafios } = await supabase.from('desafios').select('*');
                 const { data: todasMelhorias } = await supabase.from('melhorias').select('*');
@@ -551,6 +552,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
+          usuarioId={usuarioId}
         />
       )}
       {modalOpen && modalType === 'plano' && (
