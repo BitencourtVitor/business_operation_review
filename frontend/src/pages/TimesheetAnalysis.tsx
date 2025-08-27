@@ -10,6 +10,7 @@ import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
 import type { TimesheetRow } from '../types/timesheet';
+import type { PlanoAcao, Acao } from '../types/planoAcao';
 import { useTimesheetData } from '../hooks/useTimesheetData';
 import TimesheetFilters from '../components/common/TimesheetAnalysis/TimesheetFilters';
 import TimesheetMetrics from '../components/common/TimesheetAnalysis/TimesheetMetrics';
@@ -45,27 +46,7 @@ interface Oportunidade {
   melhorias: string[];
 }
 
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
 
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  status: string;
-  data_limite: string;
-}
 
 interface TimesheetAnalysisProps {
   telaId: string;
@@ -548,7 +529,10 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
               setModalData({
                 ...plano,
                 tela_id: telaId,
-                acoes: acoes || [],
+                acoes: (acoes || []).map(acao => ({
+                  ...acao,
+                  responsaveis: acao.responsaveis || [acao.responsavel]
+                })),
               });
               setModalOpen(true);
             }}
@@ -562,7 +546,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
                 descricao: '',
                 criado_em: new Date().toISOString(),
                 data_inicio: '',
-                data_fim: '',
+                data_fim: null,
                 acoes: [],
               });
               setModalOpen(true);
@@ -588,6 +572,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           onClose={() => setModalOpen(false)}
           data={modalData as Destaque}
           onSaved={handleSave}
+          usuarioId={usuarioId}
         />
       )}
 
