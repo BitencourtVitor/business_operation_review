@@ -110,27 +110,33 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   // Buscar dados do responsável
   useEffect(() => {
     const fetchResponsavelData = async () => {
-      if (!isResponsavelPelaTela) {
-        // Se não é responsável, buscar dados do responsável
-        const { data: responsavel } = await supabase
-          .from('usuarios_telas')
-          .select('usuario_id')
-          .eq('tela_id', telaId)
-          .single();
+      if (!telaId) return;
 
-        if (responsavel) {
-          setUsuarioResponsavelId(responsavel.usuario_id);
-          setUsuariosParaBuscar([responsavel.usuario_id]);
+      // Buscar usuários responsáveis pela tela
+      const { data: usuariosTelas } = await supabase
+        .from('usuarios_telas')
+        .select('usuario_id')
+        .eq('tela_id', telaId);
+
+      if (usuariosTelas && usuariosTelas.length > 0) {
+        const responsaveisIds = usuariosTelas.map(ut => ut.usuario_id);
+        const responsavelPrincipalId = responsaveisIds[0]; // Para compatibilidade
+        setUsuarioResponsavelId(responsavelPrincipalId);
+
+        // Definir quais usuários buscar dados (responsáveis + dev/manager/gestor se aplicável)
+        const usuariosParaBuscarArray = [...responsaveisIds];
+        if ((role === 'dev' || role === 'manager' || role === 'gestor') && !usuariosParaBuscarArray.includes(usuarioId)) {
+          usuariosParaBuscarArray.push(usuarioId);
         }
+        setUsuariosParaBuscar(usuariosParaBuscarArray);
       } else {
-        // Se é responsável, usar seus próprios dados
-        setUsuarioResponsavelId(usuarioId);
-        setUsuariosParaBuscar([usuarioId]);
+        setUsuarioResponsavelId('');
+        setUsuariosParaBuscar([]);
       }
     };
 
     fetchResponsavelData();
-  }, [telaId, usuarioId, isResponsavelPelaTela]);
+  }, [telaId, usuarioId, role]);
 
   // Processar dados quando serviceData mudar
   useEffect(() => {
@@ -381,7 +387,8 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             isAdmin={podeEditar}
-            onEdit={async (mes, ano) => {
+            usuarioLogadoId={usuarioId}
+            onEdit={async (mes, ano, usuarioId) => {
               setModalType('destaque');
               const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
               const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
@@ -390,9 +397,22 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
                 setModalOpen(true);
                 return;
               }
+              // Se temos um usuarioId específico, usar apenas ele para buscar dados
+              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
+                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
+                  ? usuariosParaBuscar 
+                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
+              
+              if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+                console.error('Nenhum usuário disponível para buscar dados');
+                setModalData(null);
+                setModalOpen(true);
+                return;
+              }
+              
               setModalData({
                 id: '',
-                usuario_id: usuarioResponsavelId,
+                usuario_id: usuariosParaBuscarDados[0],
                 tela_id: telaId,
                 mes: mesRef,
                 ano: anoRef,
@@ -509,6 +529,8 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
           onClose={() => setModalOpen(false)}
           data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
           onSaved={handleSave}
+          anoSelecionado={selectedYear?.toString()}
+          mesSelecionado={selectedMonth?.toString()}
         />
       )}
 

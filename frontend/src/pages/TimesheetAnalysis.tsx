@@ -116,15 +116,21 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
     const fetchResponsavelData = async () => {
       if (!telaId) return;
 
-      // Buscar usuário responsável pela tela
-      const { data: usuariosTelas } = await supabase
+      // Buscar usuários responsáveis pela tela
+      const { data: usuariosTelas, error: usuariosTelasError } = await supabase
         .from('usuarios_telas')
         .select('usuario_id')
         .eq('tela_id', telaId);
 
+      if (usuariosTelasError) {
+        console.error('Erro ao buscar usuarios_telas:', usuariosTelasError);
+        return;
+      }
+
       if (usuariosTelas && usuariosTelas.length > 0) {
-        const responsavelId = usuariosTelas[0].usuario_id;
-        setUsuarioResponsavelId(responsavelId);
+        const responsaveisIds = usuariosTelas.map(ut => ut.usuario_id);
+        const responsavelPrincipalId = responsaveisIds[0]; // Para compatibilidade
+        setUsuarioResponsavelId(responsavelPrincipalId);
 
         // Definir permissões de edição
         if (role === 'dev' || role === 'manager' || role === 'gestor') {
@@ -135,8 +141,8 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           setPodeEditar(false);
         }
 
-        // Definir quais usuários buscar dados (responsável + dev/manager/gestor se aplicável)
-        const usuariosParaBuscarArray = [responsavelId];
+        // Definir quais usuários buscar dados (responsáveis + dev/manager/gestor se aplicável)
+        const usuariosParaBuscarArray = [...responsaveisIds];
         if ((role === 'dev' || role === 'manager' || role === 'gestor') && !usuariosParaBuscarArray.includes(usuarioId)) {
           usuariosParaBuscarArray.push(usuarioId);
         }
@@ -346,24 +352,39 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             isAdmin={podeEditar}
-            onEdit={async (mes, ano) => {
+            usuarioLogadoId={usuarioId}
+            onEdit={async (mes, ano, usuarioId) => {
               setModalType('destaque');
-              // Se mes/ano não vierem do card, usa o filtro
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : (selectedMonth || '');
+              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : (selectedYear || '');
               if (!mesRef || !anoRef) {
                 setModalData(null);
                 setModalOpen(true);
                 return;
               }
-              // Buscar dados existentes para o período
+              
+              // Se temos um usuarioId específico, usar apenas ele para buscar dados
+              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
+                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
+                  ? usuariosParaBuscar 
+                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
+              
+              if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+                console.error('Nenhum usuário disponível para buscar dados');
+                setModalData(null);
+                setModalOpen(true);
+                return;
+              }
+              
+              // Buscar dados existentes usando o usuarioId específico
               const { data: destaques } = await supabase
                 .from('destaques')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId)
                 .eq('tela_id', telaId)
                 .eq('mes', Number(mesRef))
-                .eq('ano', Number(anoRef));
+                .eq('ano', Number(anoRef))
+                .eq('usuario_id', usuariosParaBuscarDados[0]);
+              
               if (destaques && destaques.length > 0) {
                 const destaque = destaques[0];
                 // Buscar positivos e negativos
@@ -377,9 +398,11 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
                   negativos: (negativos || []).map((n: { texto: string }) => n.texto),
                 });
               } else {
+                // Para novos registros, usar o primeiro usuário responsável
+                const usuarioIdParaNovo = usuariosParaBuscarDados[0];
                 setModalData({
                   id: '',
-                  usuario_id: usuarioResponsavelId,
+                  usuario_id: usuarioIdParaNovo,
                   tela_id: telaId,
                   mes: mesRef,
                   ano: anoRef,
@@ -404,24 +427,39 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             isAdmin={podeEditar}
-            onEdit={async (mes, ano) => {
+            usuarioLogadoId={usuarioId}
+            onEdit={async (mes, ano, usuarioId) => {
               setModalType('oportunidade');
-              // Se mes/ano não vierem do card, usa o filtro
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : (selectedMonth || '');
+              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : (selectedYear || '');
               if (!mesRef || !anoRef) {
                 setModalData(null);
                 setModalOpen(true);
                 return;
               }
-              // Buscar dados existentes para o período
+              
+              // Se temos um usuarioId específico, usar apenas ele para buscar dados
+              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
+                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
+                  ? usuariosParaBuscar 
+                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
+              
+              if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+                console.error('Nenhum usuário disponível para buscar dados');
+                setModalData(null);
+                setModalOpen(true);
+                return;
+              }
+              
+              // Buscar dados existentes usando o usuarioId específico
               const { data: oportunidades } = await supabase
                 .from('oportunidades')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId)
                 .eq('tela_id', telaId)
                 .eq('mes', Number(mesRef))
-                .eq('ano', Number(anoRef));
+                .eq('ano', Number(anoRef))
+                .eq('usuario_id', usuariosParaBuscarDados[0]);
+              
               if (oportunidades && oportunidades.length > 0) {
                 const oportunidade = oportunidades[0];
                 // Buscar desafios e melhorias
@@ -435,12 +473,14 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
                   melhorias: (melhorias || []).map((m: { texto: string }) => m.texto),
                 });
               } else {
+                // Para novos registros, usar o primeiro usuário responsável
+                const usuarioIdParaNovo = usuariosParaBuscarDados[0];
                 setModalData({
                   id: '',
-                  usuario_id: usuarioResponsavelId,
+                  usuario_id: usuarioIdParaNovo,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   titulo: '',
                   criado_em: new Date().toISOString(),
                   desafios: [],
@@ -456,7 +496,7 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
               const { data: todasOportunidades } = await supabase
                 .from('oportunidades')
                 .select('*')
-                .eq('usuario_id', usuarioResponsavelId)
+                .eq('usuario_id', oportunidade.usuario_id)
                 .eq('tela_id', telaId)
                 .eq('mes', Number(oportunidade.mes))
                 .eq('ano', Number(oportunidade.ano));
@@ -498,13 +538,6 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             telaId={telaId}
             isAdmin={podeEditar}
             onEdit={async (plano) => {
-              console.log('=== DEBUG TIMESHEET PLANOS DE AÇÃO ===');
-              console.log('telaId:', telaId);
-              console.log('usuarioResponsavelId:', usuarioResponsavelId);
-              console.log('usuariosParaBuscar:', usuariosParaBuscar);
-              console.log('plano:', plano);
-              console.log('=== FIM DEBUG TIMESHEET ===');
-              
               setModalType('plano');
               // Buscar ações do plano específico
               const { data: acoes } = await supabase
@@ -564,6 +597,8 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
           onClose={() => setModalOpen(false)}
           data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
           onSaved={handleSave}
+          anoSelecionado={selectedYear?.toString()}
+          mesSelecionado={selectedMonth?.toString()}
         />
       )}
 

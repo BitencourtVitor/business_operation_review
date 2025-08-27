@@ -51,7 +51,7 @@ export default function PlanoAcaoPartition({
   const [allPlanos, setAllPlanos] = useState<PlanoAcao[]>([]);
   const [allAcoes, setAllAcoes] = useState<Acao[]>([]);
   const [loading, setLoading] = useState(false);
-  const [openPlanoId, setOpenPlanoId] = useState<string>('');
+  const [openPlanos, setOpenPlanos] = useState<string>('');
   const [loadingView, setLoadingView] = useState<string>('');
 
   // Função para verificar se uma ação está atrasada
@@ -94,13 +94,19 @@ export default function PlanoAcaoPartition({
           .eq('deletado', false)
           .eq('tela_id', telaId);
         
-        // Se temos usuários específicos para buscar, filtrar por eles
-        if (usuariosParaBuscar.length > 0) {
-          planosQuery = planosQuery.in('usuario_id', usuariosParaBuscar);
-        } else {
-          // Fallback para o comportamento original
-          planosQuery = planosQuery.eq('usuario_id', usuarioResponsavelId);
+        // SEMPRE usar usuariosParaBuscar se disponível, senão fallback para usuarioResponsavelId
+        const usuariosParaBuscarDados = usuariosParaBuscar && usuariosParaBuscar.length > 0 
+          ? usuariosParaBuscar 
+          : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]);
+        
+        if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+          console.error('Nenhum usuário disponível para buscar dados');
+          setAllPlanos([]);
+          setAllAcoes([]);
+          return;
         }
+        
+        planosQuery = planosQuery.in('usuario_id', usuariosParaBuscarDados);
         
         const { data: planosData } = await planosQuery;
         
@@ -113,8 +119,8 @@ export default function PlanoAcaoPartition({
           setAllPlanos(planosData);
           setAllAcoes(acoesData || []);
         }
-      } catch {
-        // erro ignorado intencionalmente
+      } catch (error) {
+        console.error('Erro ao buscar planos de ação:', error);
       } finally {
         setLoading(false);
       }
@@ -149,13 +155,19 @@ export default function PlanoAcaoPartition({
   const planosComAcoes = React.useMemo(() => {
     if (!allPlanos.length) return [];
     
+    // SEMPRE usar usuariosParaBuscar se disponível, senão fallback para usuarioResponsavelId
+    const usuariosParaBuscarDados = usuariosParaBuscar && usuariosParaBuscar.length > 0 
+      ? usuariosParaBuscar 
+      : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]);
+    
+    if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+      return [];
+    }
+    
     // Filtrar planos dos usuários relevantes
-    const planosFiltrados = allPlanos.filter(plano => {
-      if (usuariosParaBuscar.length > 0) {
-        return usuariosParaBuscar.includes(plano.usuario_id);
-      }
-      return plano.usuario_id === usuarioResponsavelId;
-    });
+    const planosFiltrados = allPlanos.filter(plano => 
+      usuariosParaBuscarDados.includes(plano.usuario_id)
+    );
     
     // Para cada plano, adicionar as ações correspondentes
     const resultado = planosFiltrados.map(plano => ({
@@ -187,9 +199,9 @@ export default function PlanoAcaoPartition({
             {planosComAcoes.map(plano => (
               <div key={plano.id} style={{ borderRadius: 10, background: 'var(--color-background-secondary)', marginBottom: 0, border: '1px solid var(--color-border-divider)' }}>
                 <button
-                  className={`btn-sidebar d-flex align-items-center justify-content-between w-100${openPlanoId === plano.id ? ' btn-sidebar-ativo' : ''}`}
+                  className={`btn-sidebar d-flex align-items-center justify-content-between w-100${openPlanos === plano.id ? ' btn-sidebar-ativo' : ''}`}
                   style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
-                  onClick={() => setOpenPlanoId(openPlanoId === plano.id ? '' : plano.id)}
+                  onClick={() => setOpenPlanos(openPlanos === plano.id ? '' : plano.id)}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {(() => {
@@ -208,7 +220,7 @@ export default function PlanoAcaoPartition({
                     <span style={{ fontWeight: 600, color: 'inherit', fontSize: 15 }}>{plano.titulo || 'Sem título'}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${openPlanoId === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
+                    <i className={`bi ${openPlanos === plano.id ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
                     <div
                       className="btn btn-tertiary-custom p-0 ms-1"
                       style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none', cursor: 'pointer', border: 'none', background: 'none' }}
@@ -303,7 +315,7 @@ export default function PlanoAcaoPartition({
                     )}
                   </div>
                 </button>
-                {openPlanoId === plano.id && (
+                {openPlanos === plano.id && (
                   <div style={{ padding: 12, paddingTop: 0 }}>
                     <div style={{ color: 'var(--color-text-secondary)', fontSize: 14, marginBottom: 8, textAlign: 'start' }}>{plano.descricao || <span style={{ color: '#aaa' }}>Sem descrição</span>}</div>
                     {/* Listar ações do plano */}

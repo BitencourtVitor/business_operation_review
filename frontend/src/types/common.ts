@@ -44,4 +44,15 @@ export interface Perfil {
   setor_id?: string;
 }
 
-export type Theme = 'light' | 'dark'; 
+export type Theme = 'light' | 'dark';
+
+export interface PlanoAcaoPartitionProps {
+  usuarioResponsavelId: string | string[];
+  usuariosParaBuscar?: string[];
+  telaId: string;
+  isAdmin: boolean;
+  onEdit?: (plano: PlanoAcao) => void;
+  onView?: (plano: PlanoAcao) => void;
+  onAdd?: () => void;
+  refreshTrigger?: number;
+} 

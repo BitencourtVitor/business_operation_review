@@ -54,6 +54,11 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
 
   useEffect(() => {
     if (show) {
+      // Limpar estado anterior
+      setDestaque(null);
+      setFeedback(null);
+      setLoading(false);
+      
       if (data) {
         setDestaque(data);
       } else {
@@ -135,18 +140,29 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
           }
         }
       } else {
-        // Inserção - verificar se já existe um destaque para este usuário, tela, mês e ano
-        const { data: existente } = await supabase
-          .from('destaques')
-          .select('id')
-          .eq('usuario_id', usuarioRow.id)
-          .eq('tela_id', destaque.tela_id)
-          .eq('mes', mesDb)
-          .eq('ano', anoDb)
-          .single();
+        // Inserção - verificar se já existe um destaque para QUALQUER usuário responsável pela tela, mês e ano
+        // Primeiro, buscar todos os usuários responsáveis pela tela
+        const { data: usuariosResponsaveis } = await supabase
+          .from('usuarios_telas')
+          .select('usuario_id')
+          .eq('tela_id', destaque.tela_id);
         
-        if (existente) {
-          throw new Error('Já existe um destaque para este usuário, tela, mês e ano');
+        if (usuariosResponsaveis && usuariosResponsaveis.length > 0) {
+          const responsaveisIds = usuariosResponsaveis.map(ut => ut.usuario_id);
+          
+          // Verificar se já existe destaque para qualquer usuário responsável
+          const { data: existente } = await supabase
+            .from('destaques')
+            .select('id')
+            .eq('tela_id', destaque.tela_id)
+            .eq('mes', mesDb)
+            .eq('ano', anoDb)
+            .in('usuario_id', responsaveisIds)
+            .single();
+          
+          if (existente) {
+            throw new Error('Já existe um destaque para esta tela, mês e ano');
+          }
         }
 
         const destaquePrincipal = Object.fromEntries(
@@ -171,7 +187,11 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
       }
       
       setFeedback({ message: 'Destaque salvo com sucesso!', type: 'success' });
+      
+      // Não fechar automaticamente, deixar o usuário fechar manualmente
+      // e chamar onSaved para atualizar os dados na interface
       if (onSaved) onSaved();
+      
     } catch (err: unknown) {
       if (err instanceof Error) {
         setFeedback({ message: err.message || 'Erro ao salvar.', type: 'error' });
@@ -226,56 +246,56 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
           </div>
           
           <div style={{ padding: 0, paddingBottom: 24, background: 'var(--color-background-primary)' }}>
-                          <div>
-                <div style={{ marginBottom: 16, borderBottom: '1px solid var(--color-border-divider)', display: 'flex', gap: 16, alignItems: 'center' }}>
-                  <h4 style={{ color: 'var(--color-text-secondary)', fontWeight: 400, fontSize: 16, margin: '0 0 0 24px' }}>Selected Period</h4>
-                  <span style={{ color: 'var(--color-text-primary)', height: 38, fontSize: 16, fontWeight: 400, display: 'flex', alignItems: 'center' }}>
-                    {(monthNamesEn[destaque?.mes || ''] || destaque?.mes) + ' / ' + destaque?.ano}
-                  </span>
+            <div>
+              <div style={{ marginBottom: 16, borderBottom: '1px solid var(--color-border-divider)', display: 'flex', gap: 16, alignItems: 'center' }}>
+                <h4 style={{ color: 'var(--color-text-secondary)', fontWeight: 400, fontSize: 16, margin: '0 0 0 24px' }}>Selected Period</h4>
+                <span style={{ color: 'var(--color-text-primary)', height: 38, fontSize: 16, fontWeight: 400, display: 'flex', alignItems: 'center' }}>
+                  {(monthNamesEn[destaque?.mes || ''] || destaque?.mes) + ' / ' + destaque?.ano}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', gap: 8, padding: '0 12px' }}>
+                <div style={{ flex: 1 }}>
+                  <label style={{ color: 'var(--positive-color)', fontWeight: 500, marginBottom: 4, display: 'block' }}>Positives</label>
+                  <textarea 
+                    className="form-control textarea-positive"
+                    rows={5} 
+                    value={destaque?.positivos?.join('\n') || ''} 
+                    onChange={e => setDestaque(destaque ? { ...destaque, positivos: e.target.value.split('\n') } : null)} 
+                    style={{ 
+                      width: '100%',
+                      marginBottom: 12, 
+                      borderRadius: 6, 
+                      background: 'var(--color-background-primary)', 
+                      color: 'var(--color-text-primary)', 
+                      border: '1px solid var(--color-border-divider)', 
+                      fontSize: 14, 
+                      padding: '8px' 
+                    }} 
+                  />
                 </div>
-                
-                <div style={{ display: 'flex', gap: 8, padding: '0 12px' }}>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ color: 'var(--positive-color)', fontWeight: 500, marginBottom: 4, display: 'block' }}>Positives</label>
-                    <textarea 
-                      className="form-control textarea-positive"
-                      rows={5} 
-                      value={destaque?.positivos?.join('\n') || ''} 
-                      onChange={e => setDestaque(destaque ? { ...destaque, positivos: e.target.value.split('\n') } : null)} 
-                      style={{ 
-                        width: '100%',
-                        marginBottom: 12, 
-                        borderRadius: 6, 
-                        background: 'var(--color-background-primary)', 
-                        color: 'var(--color-text-primary)', 
-                        border: '1px solid var(--color-border-divider)', 
-                        fontSize: 14, 
-                        padding: '8px' 
-                      }} 
-                    />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label style={{ color: 'var(--negative-color)', fontWeight: 500, marginBottom: 4, display: 'block' }}>Negatives</label>
-                    <textarea 
-                      className="form-control textarea-negative"
-                      rows={5} 
-                      value={destaque?.negativos?.join('\n') || ''} 
-                      onChange={e => setDestaque(destaque ? { ...destaque, negativos: e.target.value.split('\n') } : null)} 
-                      style={{ 
-                        width: '100%',
-                        marginBottom: 12, 
-                        borderRadius: 6, 
-                        background: 'var(--color-background-primary)', 
-                        color: 'var(--color-text-primary)', 
-                        border: '1px solid var(--color-border-divider)', 
-                        fontSize: 14, 
-                        padding: '8px' 
-                      }} 
-                    />
-                  </div>
+                <div style={{ flex: 1 }}>
+                  <label style={{ color: 'var(--negative-color)', fontWeight: 500, marginBottom: 4, display: 'block' }}>Negatives</label>
+                  <textarea 
+                    className="form-control textarea-negative"
+                    rows={5} 
+                    value={destaque?.negativos?.join('\n') || ''} 
+                    onChange={e => setDestaque(destaque ? { ...destaque, negativos: e.target.value.split('\n') } : null)} 
+                    style={{ 
+                      width: '100%',
+                      marginBottom: 12, 
+                      borderRadius: 6, 
+                      background: 'var(--color-background-primary)', 
+                      color: 'var(--color-text-primary)', 
+                      border: '1px solid var(--color-border-divider)', 
+                      fontSize: 14, 
+                      padding: '8px' 
+                    }} 
+                  />
                 </div>
-                
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: -8, marginBottom: 8, padding: '0 24px' }}>
+              </div>
+              
+              <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginTop: -8, marginBottom: 8, padding: '0 24px' }}>
                 <p style={{ margin: 0, lineHeight: 1.4 }}>
                   <strong>Formatting:</strong> Use *text* for <em>italic</em>, **text** for <strong>bold</strong>, and ***text*** for <strong><em>bold italic</em></strong>.
                 </p>

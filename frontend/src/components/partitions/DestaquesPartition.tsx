@@ -15,6 +15,7 @@ interface Destaque {
   criado_em: string;
   positivos: string[];
   negativos: string[];
+  usuario_nome?: string; // Nome do usuário que criou o destaque
 }
 
 // Função para formatar *...*, **...**, ***...***
@@ -64,13 +65,14 @@ function groupByMonthYear<T extends { mes: string | number; ano: string | number
 }
 
 interface DestaquesPartitionProps {
-  usuarioResponsavelId: string;
+  usuarioResponsavelId: string | string[];
   usuariosParaBuscar?: string[];
   telaId: string;
   selectedYear?: string;
   selectedMonth?: string;
   isAdmin: boolean;
-  onEdit?: (mes?: string, ano?: string) => void;
+  usuarioLogadoId?: string; // ID do usuário atualmente logado
+  onEdit?: (mes?: string, ano?: string, usuarioId?: string) => void;
   onView?: (destaque: Destaque) => void;
   refreshTrigger?: number;
 }
@@ -82,6 +84,7 @@ export default function DestaquesPartition({
   selectedYear, 
   selectedMonth, 
   isAdmin, 
+  usuarioLogadoId,
   onEdit, 
   onView, 
   refreshTrigger
@@ -97,7 +100,13 @@ export default function DestaquesPartition({
         return;
       }
       
+      // SEMPRE limpar cache e buscar dados frescos
+      setAllDestaques([]);
+      setOpenDestaques('');
       setLoading(true);
+      
+      console.log('🔄 Buscando dados frescos de destaques...');
+      
       try {
         // Buscar destaques específicos da tela e usuário
         let destaquesQuery = supabase
@@ -105,33 +114,75 @@ export default function DestaquesPartition({
           .select('*')
           .eq('tela_id', telaId);
         
-        // Se temos usuários específicos para buscar, filtrar por eles
-        if (usuariosParaBuscar.length > 0) {
-          destaquesQuery = destaquesQuery.in('usuario_id', usuariosParaBuscar);
-        } else {
-          // Fallback para o comportamento original
-          destaquesQuery = destaquesQuery.eq('usuario_id', usuarioResponsavelId);
+        // SEMPRE usar usuariosParaBuscar se disponível, senão fallback para usuarioResponsavelId
+        const usuariosParaBuscarDados = usuariosParaBuscar && usuariosParaBuscar.length > 0 
+          ? usuariosParaBuscar 
+          : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]);
+        
+        if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+          console.error('Nenhum usuário disponível para buscar dados');
+          setAllDestaques([]);
+          return;
         }
         
-        const { data: destaques } = await destaquesQuery;
+        destaquesQuery = destaquesQuery.in('usuario_id', usuariosParaBuscarDados);
+        
+        const { data: destaques, error: destaquesError } = await destaquesQuery;
+        
+        if (destaquesError) {
+          console.error('Erro ao buscar destaques:', destaquesError);
+          return;
+        }
+        
+        console.log('📊 Destaques encontrados:', destaques?.length || 0);
         
         if (destaques) {
-          // Buscar positivos e negativos
-          const { data: positivos } = await supabase.from('destaques_positivos').select('*');
-          const { data: negativos } = await supabase.from('destaques_negativos').select('*');
+          // Buscar positivos e negativos apenas para os destaques encontrados
+          const destaqueIds = destaques.map(d => d.id);
+          
+          let positivos: { destaque_id: string; texto: string }[] = [];
+          let negativos: { destaque_id: string; texto: string }[] = [];
+          
+          if (destaqueIds.length > 0) {
+            const { data: positivosData } = await supabase
+              .from('destaques_positivos')
+              .select('*')
+              .in('destaque_id', destaqueIds);
+            const { data: negativosData } = await supabase
+              .from('destaques_negativos')
+              .select('*')
+              .in('destaque_id', destaqueIds);
+            
+            positivos = positivosData || [];
+            negativos = negativosData || [];
+          }
+          
+          // Buscar nomes dos usuários dos destaques
+          const userIds = [...new Set(destaques.map(d => d.usuario_id))];
+          let usuariosNomes: { id: string; nome_completo: string }[] = [];
+          
+          if (userIds.length > 0) {
+            const { data: usuariosData } = await supabase
+              .from('usuarios')
+              .select('id, nome_completo')
+              .in('id', userIds);
+            usuariosNomes = usuariosData || [];
+          }
           
           const destaquesCompletos = destaques.map(d => ({
             ...d,
             mes: d.mes.toString(),
             ano: d.ano.toString(),
-            positivos: (positivos || []).filter((p: { destaque_id: string; texto: string }) => p.destaque_id === d.id).map((p: { texto: string }) => p.texto),
-            negativos: (negativos || []).filter((n: { destaque_id: string; texto: string }) => n.destaque_id === d.id).map((n: { texto: string }) => n.texto),
+            positivos: positivos.filter((p: { destaque_id: string; texto: string }) => p.destaque_id === d.id).map((p: { texto: string }) => p.texto),
+            negativos: negativos.filter((n: { destaque_id: string; texto: string }) => n.destaque_id === d.id).map((n: { texto: string }) => n.texto),
+            usuario_nome: usuariosNomes.find(u => u.id === d.usuario_id)?.nome_completo || `Admin ${d.usuario_id.slice(0, 8)}...`
           }));
           
+          console.log('✅ Destaques processados e atualizados');
           setAllDestaques(destaquesCompletos);
         }
-      } catch {
-        // erro ignorado intencionalmente
+      } catch (error) {
+        console.error('Erro ao buscar destaques:', error);
       } finally {
         setLoading(false);
       }
@@ -141,8 +192,16 @@ export default function DestaquesPartition({
   }, [usuarioResponsavelId, usuariosParaBuscar, telaId, refreshTrigger]);
 
   // Agrupar dados por mês/ano, ignorando destaques inválidos
-  const destaquesValidos = allDestaques.filter(d => d.mes && d.ano && Number(d.mes) > 0 && Number(d.ano) > 0);
+  const destaquesValidos = allDestaques.filter(d => {
+    const mesValido = d.mes && d.ano && Number(d.mes) > 0 && Number(d.ano) > 0;
+    if (!mesValido) {
+      console.log('Destaque inválido filtrado:', d);
+    }
+    return mesValido;
+  });
   const destaquesByMonth = groupByMonthYear(destaquesValidos);
+  
+
 
   // Função para formatar título do card
   function formatMonthYear(key: string) {
@@ -177,181 +236,238 @@ export default function DestaquesPartition({
         </div>
       </div>
       <div className="custom-scrollbar d-flex flex-column gap-1" style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
-        {selectedYear && selectedMonth ? (
-          (() => {
-            const key = `${Number(selectedYear)}-${Number(selectedMonth)}`;
-            const destaques = destaquesByMonth[key];
-            if (!destaques || destaques.length === 0) {
-              return (
-                <PartitionCard>
-                  <EmptyMessage message="No highlights found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
-                </PartitionCard>
-              );
-            }
-            return (
-              <div key={key} style={{ borderRadius: 10, background: 'var(--color-background-secondary)', marginBottom: 0, border: '1px solid var(--color-border-divider)' }}>
-                <button
-                  className={`btn-sidebar d-flex align-items-center justify-content-between w-100${openDestaques === key ? ' btn-sidebar-ativo' : ''}`}
-                  style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
-                  onClick={() => setOpenDestaques(openDestaques === key ? '' : key)}
-                >
-                  <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                    <div
-                      className="btn btn-link p-0 ms-1"
-                      style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (onView && destaques[0]) onView(destaques[0]);
-                      }}
-                      aria-label="Expandir em modal"
-                      title="Expandir em modal"
-                    >
-                      <i className="bi bi-box-arrow-up-left" />
-                    </div>
-                    {isAdmin && (
-                      <div
-                        className="btn btn-link p-0 ms-2"
-                        style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
-                        onClick={e => {
-                          e.stopPropagation();
-                          if (onEdit) onEdit(destaques[0].mes, destaques[0].ano);
-                        }}
-                        aria-label="Editar"
-                      >
-                        <i className="bi bi-pencil" />
-                      </div>
-                    )}
-                  </div>
-                </button>
-                {openDestaques === key && (
-                  <div style={{ padding: 12 }}>
-                    <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
-                      <div style={{ flex: 1, background: 'rgba(0,200,100,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                        <div style={{ color: '#1bbf5c', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-up" /> Positivos</div>
-                        {destaques[0].positivos.length > 0 ? destaques[0].positivos.map((t, i) => {
-                          const parsed = parseAsterisksFormatting(t);
-                          const bold = isBold(parsed);
-                          return (
-                            <div key={i} style={{ color: '#1bbf5c', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                              {bold ? (
-                                <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#1bbf5c', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                              ) : (
-                                <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                              )}
-                              <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                            </div>
-                          );
-                        }) : <span style={{ color: '#1bbf5c', fontSize: 13 }}>Nenhum</span>}
-                      </div>
-                      <div style={{ flex: 1, background: 'rgba(220,53,69,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                        <div style={{ color: '#dc3545', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-down" /> Negativos</div>
-                        {destaques[0].negativos.length > 0 ? destaques[0].negativos.map((t, i) => {
-                          const parsed = parseAsterisksFormatting(t);
-                          const bold = isBold(parsed);
-                          return (
-                            <div key={i} style={{ color: '#dc3545', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                              {bold ? (
-                                <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#dc3545', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                              ) : (
-                                <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                              )}
-                              <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                            </div>
-                          );
-                        }) : <span style={{ color: '#dc3545', fontSize: 13 }}>Nenhum</span>}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()
+                 {selectedYear && selectedMonth ? (
+           // Quando há filtro mensal, mostrar todos os destaques daquele período individualmente
+           (() => {
+             const key = `${Number(selectedYear)}-${Number(selectedMonth)}`;
+             const destaques = destaquesByMonth[key];
+             if (!destaques || destaques.length === 0) {
+               return (
+                 <PartitionCard>
+                   <EmptyMessage message="No highlights found for this period." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
+                 </PartitionCard>
+               );
+             }
+             
+             // Mostrar cada destaque individualmente, igual ao comportamento sem filtro
+             return destaques.map((destaque) => {
+               const destaqueKey = `${destaque.ano}-${destaque.mes}-${destaque.usuario_id}`;
+               const isOpen = openDestaques === destaqueKey;
+               
+               return (
+                 <div key={destaqueKey} style={{ borderRadius: 10, background: 'var(--color-background-secondary)', marginBottom: 2, border: '1px solid var(--color-border-divider)' }}>
+                   <button
+                     className={`btn-sidebar d-flex align-items-center justify-content-between w-100${isOpen ? ' btn-sidebar-ativo' : ''}`}
+                     style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
+                     onClick={() => setOpenDestaques(isOpen ? '' : destaqueKey)}
+                   >
+                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                       <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>
+                         {formatMonthYear(`${destaque.ano}-${destaque.mes}`)}
+                       </span>
+                       <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+                         • {destaque.usuario_nome || `Admin ${destaque.usuario_id.slice(0, 8)}...`}
+                       </span>
+                     </div>
+                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                       <i className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
+                       <div
+                         className="btn btn-link p-0 ms-1"
+                         style={{ color: 'var(--color-text-secondary)', fontSize: 14, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
+                         onClick={e => {
+                           e.stopPropagation();
+                           if (onView && destaque) onView(destaque);
+                         }}
+                         aria-label="Expandir em modal"
+                         title="Expandir em modal"
+                       >
+                         <i className="bi bi-box-arrow-up-left" />
+                       </div>
+                       {isAdmin && (() => {
+                         // Verificar se o usuário logado pode editar este bloco específico
+                         // O usuário logado só pode editar os blocos que ELE criou
+                         const podeEditarEsteBloco = usuarioLogadoId && destaque.usuario_id === usuarioLogadoId;
+                         
+                         return podeEditarEsteBloco ? (
+                           <div
+                             className="btn btn-link p-0 ms-2"
+                             style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
+                             onClick={e => {
+                               e.stopPropagation();
+                               if (onEdit) onEdit(destaque.mes, destaque.ano, destaque.usuario_id);
+                             }}
+                             aria-label="Editar"
+                           >
+                             <i className="bi bi-pencil" />
+                           </div>
+                         ) : null;
+                       })()}
+                     </div>
+                   </button>
+                   {isOpen && (
+                     <div style={{ padding: 12 }}>
+                       <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+                         <div style={{ flex: 1, background: 'rgba(0,200,100,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                           <div style={{ color: '#1bbf5c', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-up" /> Positivos</div>
+                           {destaque.positivos.length > 0 ? destaque.positivos.map((t, i) => {
+                             const parsed = parseAsterisksFormatting(t);
+                             const bold = isBold(parsed);
+                             return (
+                               <div key={i} style={{ color: '#1bbf5c', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                 {bold ? (
+                                   <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#1bbf5c', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                 ) : (
+                                   <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                 )}
+                                 <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                               </div>
+                             );
+                           }) : <span style={{ color: '#1bbf5c', fontSize: 13 }}>Nenhum</span>}
+                         </div>
+                         <div style={{ flex: 1, background: 'rgba(220,53,69,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                           <div style={{ color: '#dc3545', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-down" /> Negativos</div>
+                           {destaque.negativos.length > 0 ? destaque.negativos.map((t, i) => {
+                             const parsed = parseAsterisksFormatting(t);
+                             const bold = isBold(parsed);
+                             return (
+                               <div key={i} style={{ color: '#dc3545', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                 {bold ? (
+                                   <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#dc3545', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                 ) : (
+                                   <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                 )}
+                                 <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                               </div>
+                             );
+                           }) : <span style={{ color: '#dc3545', fontSize: 13 }}>Nenhum</span>}
+                         </div>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+               );
+             });
+           })()
         ) : Object.keys(destaquesByMonth).length === 0 ? (
           <PartitionCard>
             <EmptyMessage message="No highlights found." showEdit={isAdmin} onEdit={onEdit} icon="bi-star" />
           </PartitionCard>
         ) : (
-          Object.entries(destaquesByMonth).sort((a, b) => b[0].localeCompare(a[0])).map(([key, destaques]) => (
-            <div key={key} style={{ borderRadius: 10, background: 'var(--color-background-secondary)', marginBottom: 0, border: '1px solid var(--color-border-divider)' }}>
-              <button
-                className={`btn-sidebar d-flex align-items-center justify-content-between w-100${openDestaques === key ? ' btn-sidebar-ativo' : ''}`}
-                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
-                onClick={() => setOpenDestaques(openDestaques === key ? '' : key)}
-              >
-                <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>{formatMonthYear(key)}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <i className={`bi ${openDestaques === key ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
-                  <div
-                    className="btn btn-tertiary-custom p-0 ms-1"
-                    style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      if (onView && destaques[0]) onView(destaques[0]);
-                    }}
-                    aria-label="Expandir em modal"
-                    title="Expandir em modal"
+          // Criar blocos separados para cada administrador, mesmo quando são do mesmo período
+          allDestaques
+            .filter(d => {
+              const mesValido = d.mes && d.ano && Number(d.mes) > 0 && Number(d.ano) > 0;
+              return mesValido;
+            })
+            .sort((a, b) => {
+              // Ordenar por ano (decrescente), depois por mês (decrescente), depois por usuário
+              const anoA = Number(a.ano);
+              const anoB = Number(b.ano);
+              if (anoA !== anoB) return anoB - anoA;
+              
+              const mesA = Number(a.mes);
+              const mesB = Number(b.mes);
+              if (mesA !== mesB) return mesB - mesA;
+              
+              return a.usuario_id.localeCompare(b.usuario_id);
+            })
+            .map((destaque) => {
+              const key = `${destaque.ano}-${destaque.mes}-${destaque.usuario_id}`;
+              const isOpen = openDestaques === key;
+              
+              return (
+                <div key={key} style={{ borderRadius: 10, background: 'var(--color-background-secondary)', marginBottom: 2, border: '1px solid var(--color-border-divider)' }}>
+                  <button
+                    className={`btn-sidebar d-flex align-items-center justify-content-between w-100${isOpen ? ' btn-sidebar-ativo' : ''}`}
+                    style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, borderTopLeftRadius: 10, borderTopRightRadius: 10, marginBottom: 0, minHeight: 38, width: '100%', border: 'none', outline: 'none', boxShadow: 'none' }}
+                    onClick={() => setOpenDestaques(isOpen ? '' : key)}
                   >
-                    <i className="bi bi-box-arrow-up-left" />
-                  </div>
-                  {isAdmin && (
-                    <div
-                      className="btn btn-link p-0 ms-2"
-                      style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (onEdit) onEdit(destaques[0].mes, destaques[0].ano);
-                      }}
-                      aria-label="Editar"
-                    >
-                      <i className="bi bi-pencil" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 500, color: 'inherit', fontSize: 14 }}>
+                        {formatMonthYear(`${destaque.ano}-${destaque.mes}`)}
+                      </span>
+                      <span style={{ fontSize: 12, color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+                        • {destaque.usuario_nome || `Admin ${destaque.usuario_id.slice(0, 8)}...`}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <i className={`bi ${isOpen ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ fontSize: 16, color: 'inherit' }} />
+                      <div
+                        className="btn btn-tertiary-custom p-0 ms-1"
+                        style={{ fontSize: 14, lineHeight: 1, boxShadow: 'none' }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (onView && destaque) onView(destaque);
+                        }}
+                        aria-label="Expandir em modal"
+                        title="Expandir em modal"
+                      >
+                        <i className="bi bi-box-arrow-up-left" />
+                      </div>
+                                             {isAdmin && (() => {
+                         // Verificar se o usuário logado pode editar este bloco específico
+                         // O usuário logado só pode editar os blocos que ELE criou
+                         const podeEditarEsteBloco = usuarioLogadoId && destaque.usuario_id === usuarioLogadoId;
+                         
+                         return podeEditarEsteBloco ? (
+                          <div
+                            className="btn btn-link p-0 ms-2"
+                            style={{ color: 'var(--color-accent-primary)', fontSize: 16, lineHeight: 1, boxShadow: 'none', border: 'none', background: 'none', cursor: 'pointer' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              if (onEdit) onEdit(destaque.mes, destaque.ano, destaque.usuario_id);
+                            }}
+                            aria-label="Editar"
+                          >
+                            <i className="bi bi-pencil" />
+                          </div>
+                        ) : null;
+                      })()}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div style={{ padding: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+                        <div style={{ flex: 1, background: 'rgba(0,200,100,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                          <div style={{ color: '#1bbf5c', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-up" /> Positivos</div>
+                          {destaque.positivos.length > 0 ? destaque.positivos.map((t, i) => {
+                            const parsed = parseAsterisksFormatting(t);
+                            const bold = isBold(parsed);
+                            return (
+                              <div key={i} style={{ color: '#1bbf5c', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                {bold ? (
+                                  <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#1bbf5c', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                ) : (
+                                  <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                )}
+                                <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                              </div>
+                            );
+                          }) : <span style={{ color: '#1bbf5c', fontSize: 13 }}>Nenhum</span>}
+                        </div>
+                        <div style={{ flex: 1, background: 'rgba(220,53,69,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                          <div style={{ color: '#dc3545', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-down" /> Negativos</div>
+                          {destaque.negativos.length > 0 ? destaque.negativos.map((t, i) => {
+                            const parsed = parseAsterisksFormatting(t);
+                            const bold = isBold(parsed);
+                            return (
+                              <div key={i} style={{ color: '#dc3545', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                {bold ? (
+                                  <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#dc3545', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                ) : (
+                                  <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                )}
+                                <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                              </div>
+                            );
+                          }) : <span style={{ color: '#dc3545', fontSize: 13 }}>Nenhum</span>}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
-              </button>
-              {openDestaques === key && (
-                <div style={{ padding: 12 }}>
-                  <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
-                    <div style={{ flex: 1, background: 'rgba(0,200,100,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                      <div style={{ color: '#1bbf5c', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-up" /> Positivos</div>
-                      {destaques[0].positivos.length > 0 ? destaques[0].positivos.map((t, i) => {
-                        const parsed = parseAsterisksFormatting(t);
-                        const bold = isBold(parsed);
-                        return (
-                          <div key={i} style={{ color: '#1bbf5c', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                            {bold ? (
-                              <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#1bbf5c', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                            ) : (
-                              <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                            )}
-                            <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                          </div>
-                        );
-                      }) : <span style={{ color: '#1bbf5c', fontSize: 13 }}>Nenhum</span>}
-                    </div>
-                    <div style={{ flex: 1, background: 'rgba(220,53,69,0.04)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                      <div style={{ color: '#dc3545', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}><i className="bi bi-hand-thumbs-down" /> Negativos</div>
-                      {destaques[0].negativos.length > 0 ? destaques[0].negativos.map((t, i) => {
-                        const parsed = parseAsterisksFormatting(t);
-                        const bold = isBold(parsed);
-                        return (
-                          <div key={i} style={{ color: '#dc3545', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                            {bold ? (
-                              <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#dc3545', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                            ) : (
-                              <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                            )}
-                            <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                          </div>
-                        );
-                      }) : <span style={{ color: '#dc3545', fontSize: 13 }}>Nenhum</span>}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))
+              );
+            })
         )}
       </div>
     </div>

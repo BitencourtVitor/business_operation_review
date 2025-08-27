@@ -3,7 +3,7 @@ import { supabase } from '../supabaseClient';
 import type { Destaque, Oportunidade } from '../types/accounting';
 import type { PlanoAcao } from '../types/common';
 
-export function usePartitionData(telaId: string, usuarioResponsavelId: string, usuariosParaBuscar?: string[]) {
+export function usePartitionData(telaId: string, usuarioResponsavelId: string | string[], usuariosParaBuscar?: string[]) {
   const [destaques, setDestaques] = useState<Destaque[]>([]);
   const [oportunidades, setOportunidades] = useState<Oportunidade[]>([]);
   const [planosAcao, setPlanosAcao] = useState<PlanoAcao[]>([]);
@@ -22,12 +22,20 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
         .eq('tela_id', telaId)
         .order('criado_em', { ascending: false });
 
-      // Se temos usuários específicos para buscar, filtrar por eles
-      if (usuariosParaBuscar && usuariosParaBuscar.length > 0) {
-        destaquesQuery = destaquesQuery.in('usuario_id', usuariosParaBuscar);
-      } else {
-        destaquesQuery = destaquesQuery.eq('usuario_id', usuarioResponsavelId);
+      // SEMPRE usar usuariosParaBuscar se disponível, senão fallback para usuarioResponsavelId
+      const usuariosParaBuscarDados = usuariosParaBuscar && usuariosParaBuscar.length > 0 
+        ? usuariosParaBuscar 
+        : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]);
+      
+      if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+        console.error('Nenhum usuário disponível para buscar dados');
+        setDestaques([]);
+        setOportunidades([]);
+        setPlanosAcao([]);
+        return;
       }
+      
+      destaquesQuery = destaquesQuery.in('usuario_id', usuariosParaBuscarDados);
 
       const { data: destaquesData, error: destaquesError } = await destaquesQuery;
       if (destaquesError) throw destaquesError;
@@ -40,12 +48,8 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
         .eq('tela_id', telaId)
         .order('criado_em', { ascending: false });
 
-      // Se temos usuários específicos para buscar, filtrar por eles
-      if (usuariosParaBuscar && usuariosParaBuscar.length > 0) {
-        oportunidadesQuery = oportunidadesQuery.in('usuario_id', usuariosParaBuscar);
-      } else {
-        oportunidadesQuery = oportunidadesQuery.eq('usuario_id', usuarioResponsavelId);
-      }
+      // Usar os mesmos usuários para oportunidades
+      oportunidadesQuery = oportunidadesQuery.in('usuario_id', usuariosParaBuscarDados);
 
       const { data: oportunidadesData, error: oportunidadesError } = await oportunidadesQuery;
       if (oportunidadesError) throw oportunidadesError;
@@ -58,12 +62,8 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
         .eq('deletado', false)
         .eq('tela_id', telaId);
 
-      // Se temos usuários específicos para buscar, filtrar por eles
-      if (usuariosParaBuscar && usuariosParaBuscar.length > 0) {
-        planosQuery = planosQuery.in('usuario_id', usuariosParaBuscar);
-      } else {
-        planosQuery = planosQuery.eq('usuario_id', usuarioResponsavelId);
-      }
+      // Usar os mesmos usuários para planos de ação
+      planosQuery = planosQuery.in('usuario_id', usuariosParaBuscarDados);
 
       const { data: planosData, error: planosError } = await planosQuery;
       if (planosError) throw planosError;
@@ -81,8 +81,6 @@ export function usePartitionData(telaId: string, usuarioResponsavelId: string, u
       fetchPartitionData();
     }
   }, [telaId, usuarioResponsavelId, usuariosParaBuscar]);
-
-
 
   return {
     destaques,
