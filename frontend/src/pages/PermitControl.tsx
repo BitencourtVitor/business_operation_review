@@ -79,6 +79,9 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
 
+  // Log para debug
+  
+
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
@@ -216,8 +219,16 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       
       // Selecionar ano atual se existir, senão o mais recente
       const anoAtual = dayjs().format('YYYY');
-      if (anos.includes(anoAtual)) setSelectedYear(anoAtual);
-      else if (anos.length > 0 && typeof anos[0] === 'string') setSelectedYear(anos[0]);
+      if (anos.includes(anoAtual)) {
+        setSelectedYear(anoAtual);
+        // Selecionar mês atual automaticamente
+        const mesAtual = dayjs().format('MM');
+        setSelectedMonth(mesAtual);
+      } else if (anos.length > 0 && typeof anos[0] === 'string') {
+        setSelectedYear(anos[0]);
+        // Selecionar primeiro mês disponível
+        setSelectedMonth('01');
+      }
     };
 
     fetchAll();
@@ -255,6 +266,16 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
     
     // Se o mês selecionado não existir mais, resetar
     if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
+    
+    // Se não há mês selecionado, selecionar o mês atual ou o primeiro disponível
+    if (!selectedMonth && mesesComAtual.length > 0) {
+      const mesAtual = dayjs().format('MM');
+      if (mesesComAtual.includes(mesAtual)) {
+        setSelectedMonth(mesAtual);
+      } else {
+        setSelectedMonth(mesesComAtual[0]);
+      }
+    }
   }, [selectedYear, permitData]);
 
   // Filtrar dados
@@ -380,62 +401,66 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             selectedMonth={selectedMonth}
             isAdmin={podeEditar}
             usuarioLogadoId={usuarioId}
-            onEdit={async (mes, ano, usuarioId) => {
-              setModalType('destaque');
-              // Se mes/ano não vierem do card, usa o filtro
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
-              if (!mesRef || !anoRef) {
-                setModalData(null);
-                setModalOpen(true);
-                return;
-              }
-              // Se temos um usuarioId específico, usar apenas ele para buscar dados
-              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
-                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
-                  ? usuariosParaBuscar 
-                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
-              
-              if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
-                console.error('Nenhum usuário disponível para buscar dados');
-                setModalData(null);
-                setModalOpen(true);
-                return;
-              }
-              
-              // Buscar dados existentes usando o usuarioId específico
-              const { data: destaques } = await supabase
-                .from('destaques')
-                .select('*')
-                .eq('mes', Number(mesRef))
-                .eq('ano', Number(anoRef))
-                .eq('usuario_id', usuariosParaBuscarDados[0]);
-              if (destaques && destaques.length > 0) {
-                const destaque = destaques[0];
-                // Buscar positivos e negativos
-                const { data: positivos } = await supabase.from('destaques_positivos').select('*').eq('destaque_id', destaque.id);
-                const { data: negativos } = await supabase.from('destaques_negativos').select('*').eq('destaque_id', destaque.id);
-                setModalData({
-                  ...destaque,
-                  mes: destaque.mes.toString(),
-                  ano: destaque.ano.toString(),
-                  positivos: (positivos || []).map((p: { texto: string }) => p.texto),
-                  negativos: (negativos || []).map((n: { texto: string }) => n.texto),
-                });
-              } else {
-                setModalData({
-                  id: '',
-                  usuario_id: usuarioResponsavelId,
-                  tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
-                  criado_em: new Date().toISOString(),
-                  positivos: [],
-                  negativos: [],
-                });
-              }
-              setModalOpen(true);
-            }}
+                         onEdit={async (mes, ano, usuarioId) => {
+               setModalType('destaque');
+               // Se mes/ano não vierem do card, usa o filtro
+               const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
+               const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+               if (!mesRef || !anoRef) {
+                 setModalData(null);
+                 setModalOpen(true);
+                 return;
+               }
+               
+               // Se temos um usuarioId específico, usar apenas ele para buscar dados
+               const usuariosParaBuscarDados = usuarioId ? [usuarioId] : usuariosParaBuscar;
+               
+               if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+                 console.error('Nenhum usuário disponível para buscar dados');
+                 setModalData(null);
+                 setModalOpen(true);
+                 return;
+               }
+               
+               // Buscar dados existentes usando o usuarioId específico
+               
+               const { data: destaques } = await supabase
+                 .from('destaques')
+                 .select('*')
+                 .eq('tela_id', telaId) // Adicionar filtro por tela_id
+                 .eq('mes', Number(mesRef))
+                 .eq('ano', Number(anoRef))
+                 .eq('usuario_id', usuariosParaBuscarDados[0]);
+               
+               
+               
+               if (destaques && destaques.length > 0) {
+                 const destaque = destaques[0];
+                 // Buscar positivos e negativos
+                 const { data: positivos } = await supabase.from('destaques_positivos').select('*').eq('destaque_id', destaque.id);
+                 const { data: negativos } = await supabase.from('destaques_negativos').select('*').eq('destaque_id', destaque.id);
+                 setModalData({
+                   ...destaque,
+                   mes: destaque.mes.toString(),
+                   ano: destaque.ano.toString(),
+                   positivos: (positivos || []).map((p: { texto: string }) => p.texto),
+                   negativos: (negativos || []).map((n: { texto: string }) => n.texto),
+                 });
+               } else {
+                 // Para novos registros, usar o usuário LOGADO como criador
+                 setModalData({
+                   id: '',
+                   usuario_id: usuarioId, // Usuário logado será o criador
+                   tela_id: telaId,
+                   mes: mesRef,
+                   ano: anoRef,
+                   criado_em: new Date().toISOString(),
+                   positivos: [],
+                   negativos: [],
+                 });
+               }
+               setModalOpen(true);
+             }}
             onView={async (destaque) => {
               setModalType('destaque');
               setModalData(destaque);
@@ -451,63 +476,67 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
             selectedMonth={selectedMonth}
             isAdmin={podeEditar}
             usuarioLogadoId={usuarioId}
-            onEdit={async (mes, ano, usuarioId) => {
-              setModalType('oportunidade');
-              // Se mes/ano não vierem do card, usa o filtro
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
-              if (!mesRef || !anoRef) {
-                setModalData(null);
-                setModalOpen(true);
-                return;
-              }
-              // Se temos um usuarioId específico, usar apenas ele para buscar dados
-              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
-                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
-                  ? usuariosParaBuscar 
-                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
-              
-              if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
-                console.error('Nenhum usuário disponível para buscar dados');
-                setModalData(null);
-                setModalOpen(true);
-                return;
-              }
-              
-              // Buscar dados existentes usando o usuarioId específico
-              const { data: oportunidades } = await supabase
-                .from('oportunidades')
-                .select('*')
-                .eq('mes', Number(mesRef))
-                .eq('ano', Number(anoRef))
-                .eq('usuario_id', usuariosParaBuscarDados[0]);
-              if (oportunidades && oportunidades.length > 0) {
-                const oportunidade = oportunidades[0];
-                // Buscar desafios e melhorias
-                const { data: desafios } = await supabase.from('desafios').select('*').eq('oportunidade_id', oportunidade.id);
-                const { data: melhorias } = await supabase.from('melhorias').select('*').eq('oportunidade_id', oportunidade.id);
-                setModalData({
-                  ...oportunidade,
-                  mes: oportunidade.mes.toString(),
-                  ano: oportunidade.ano.toString(),
-                  desafios: (desafios || []).map((d: { texto: string }) => d.texto),
-                  melhorias: (melhorias || []).map((m: { texto: string }) => m.texto),
-                });
-              } else {
-                setModalData({
-                  id: '',
-                  usuario_id: usuarioResponsavelId,
-                  tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
-                  titulo: '',
-                  criado_em: new Date().toISOString(),
-                  desafios: [],
-                  melhorias: [],
-                });
-              }
-              setModalOpen(true);
-            }}
+                         onEdit={async (mes, ano, usuarioId) => {
+               setModalType('oportunidade');
+               // Se mes/ano não vierem do card, usa o filtro
+               const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
+               const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+               if (!mesRef || !anoRef) {
+                 setModalData(null);
+                 setModalOpen(true);
+                 return;
+               }
+               
+               // Se temos um usuarioId específico, usar apenas ele para buscar dados
+               const usuariosParaBuscarDados = usuarioId ? [usuarioId] : usuariosParaBuscar;
+               
+               if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
+                 console.error('Nenhum usuário disponível para buscar dados');
+                 setModalData(null);
+                 setModalOpen(true);
+                 return;
+               }
+               
+               // Buscar dados existentes usando o usuarioId específico
+               
+               const { data: oportunidades } = await supabase
+                 .from('oportunidades')
+                 .select('*')
+                 .eq('tela_id', telaId) // Adicionar filtro por tela_id
+                 .eq('mes', Number(mesRef))
+                 .eq('ano', Number(anoRef))
+                 .eq('usuario_id', usuariosParaBuscarDados[0]);
+               
+               
+               
+               if (oportunidades && oportunidades.length > 0) {
+                 const oportunidade = oportunidades[0];
+                 // Buscar desafios e melhorias
+                 const { data: desafios } = await supabase.from('desafios').select('*').eq('oportunidade_id', oportunidade.id);
+                 const { data: melhorias } = await supabase.from('melhorias').select('*').eq('oportunidade_id', oportunidade.id);
+                 setModalData({
+                   ...oportunidade,
+                   mes: oportunidade.mes.toString(),
+                   ano: oportunidade.ano.toString(),
+                   desafios: (desafios || []).map((d: { texto: string }) => d.texto),
+                   melhorias: (melhorias || []).map((m: { texto: string }) => m.texto),
+                 });
+               } else {
+                 // Para novos registros, usar o usuário LOGADO como criador
+                 setModalData({
+                   id: '',
+                   usuario_id: usuarioId, // Usuário logado será o criador
+                   tela_id: telaId,
+                   mes: mesRef,
+                   ano: anoRef,
+                   titulo: '',
+                   criado_em: new Date().toISOString(),
+                   desafios: [],
+                   melhorias: [],
+                 });
+               }
+               setModalOpen(true);
+             }}
             onView={async (oportunidade) => {
               setModalType('oportunidade');
               
@@ -570,21 +599,21 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
               });
               setModalOpen(true);
             }}
-            onAdd={async () => {
-              setModalType('plano');
-              setModalData({
-                id: '',
-                usuario_id: usuarioResponsavelId,
-                tela_id: telaId,
-                titulo: '',
-                descricao: '',
-                criado_em: new Date().toISOString(),
-                data_inicio: '',
-                data_fim: '',
-                acoes: [],
-              });
-              setModalOpen(true);
-            }}
+                         onAdd={async () => {
+               setModalType('plano');
+               setModalData({
+                 id: '',
+                 usuario_id: usuarioId, // Usuário logado será o criador
+                 tela_id: telaId,
+                 titulo: '',
+                 descricao: '',
+                 criado_em: new Date().toISOString(),
+                 data_inicio: '',
+                 data_fim: '',
+                 acoes: [],
+               });
+               setModalOpen(true);
+             }}
             onView={async (plano) => {
               setModalType('plano');
               setModalData({
@@ -599,34 +628,38 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
       </div>
 
       {/* Modais */}
-      {modalOpen && modalType === 'destaque' && (
-        <DestaqueModal
-          show={modalOpen}
-          onClose={() => setModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
-          onSaved={handleSave}
-        />
-      )}
+             {modalOpen && modalType === 'destaque' && modalData && (
+         <DestaqueModal
+           key={`destaque-modal-${modalData.id || 'new'}`}
+           show={modalOpen}
+           onClose={() => setModalOpen(false)}
+           data={modalData as Destaque}
+           onSaved={handleSave}
+           usuarioId={usuarioId}
+         />
+       )}
 
-      {modalOpen && modalType === 'oportunidade' && (
-        <OportunidadeModal
-          show={modalOpen}
-          onClose={() => setModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
-          onSaved={handleSave}
-          anoSelecionado={selectedYear?.toString()}
-          mesSelecionado={selectedMonth?.toString()}
-        />
-      )}
+             {modalOpen && modalType === 'oportunidade' && (
+         <OportunidadeModal
+           show={modalOpen}
+           onClose={() => setModalOpen(false)}
+           data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+           onSaved={handleSave}
+           anoSelecionado={selectedYear?.toString()}
+           mesSelecionado={selectedMonth?.toString()}
+           usuarioId={usuarioId}
+         />
+       )}
 
-      {modalOpen && modalType === 'plano' && (
-        <PlanoAcaoModal
-          show={modalOpen}
-          onClose={() => setModalOpen(false)}
-          data={modalType === 'plano' ? modalData as PlanoAcao : null}
-          onSaved={handleSave}
-        />
-      )}
+             {modalOpen && modalType === 'plano' && (
+         <PlanoAcaoModal
+           show={modalOpen}
+           onClose={() => setModalOpen(false)}
+           data={modalType === 'plano' ? modalData as PlanoAcao : null}
+           onSaved={handleSave}
+           usuarioId={usuarioId}
+         />
+       )}
 
       {viewModalOpen && modalType === 'destaque' && (
         <DestaqueViewModal

@@ -163,7 +163,11 @@ async function deletePermitTable() {
       .from('permit_control')
       .select('*', { count: 'exact', head: true });
     
-    console.log(`Permit table: ${beforeCount} registros antes, ${afterCount} após limpeza`);
+    // Log da limpeza
+    const cleanupSummary = {
+      beforeCount,
+      afterCount
+    };
     
     return `Tabela permit_control foi limpa com sucesso. ${beforeCount} registros removidos.`;
   } catch (error) {
@@ -188,8 +192,7 @@ async function insertTableBatch(table: string, data: any[], name: string, batchS
       }
     }
   } catch (error) {
-    console.error(`Erro ao acessar tabela ${name}:`, error);
-    throw error;
+    throw new Error(`Erro ao inserir lote de ${name}: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -219,64 +222,83 @@ serve(async (req) => {
   }
   
   try {
-    console.log('Iniciando sincronização de permit control...');
-    
-    // 1. Deletar dados existentes
-    console.log('Limpando tabela existente...');
-    const deleteResult = await deletePermitTable();
-    console.log('Resultado da limpeza:', deleteResult);
-    
-    // 2. Buscar novos dados
-    console.log('Buscando dados da planilha...');
-    const permitData = await fetchCsvToJson(permitUrl, 'Permit');
-    console.log(`Dados obtidos da planilha: ${Array.isArray(permitData) ? permitData.length : 0} registros`);
-    
-    // 3. Mapear dados com normalização UTF-8
-    console.log('Mapeando e normalizando dados...');
-    const mappedPermit = permitData.map((row: any) => ({
-      model: getField(row, "MODEL"),
-      jobsite: getField(row, "JOBSITE"),
-      lot_address: getField(row, "LOT/ADDRESS"),
-      situacao: getField(row, "SITUACAO"),
-      solicitacao: parseDateUS(getField(row, "SOLICITACAO")),
-      aplicacao: parseDateUS(getField(row, "APLICACAO")),
-      emissao: parseDateUS(getField(row, "EMISSAO")),
-      observacao: getField(row, "OBSERVACAO"),
-      arquivo: getField(row, "ARQUIVO")
-    }));
-    
-    // 4. Remover duplicatas baseado em uma combinação única de campos
-    console.log('Removendo duplicatas...');
-    const uniquePermits = mappedPermit.filter((permit, index, self) => {
-      const key = `${permit.model}-${permit.jobsite}-${permit.lot_address}-${permit.situacao}`;
-      return index === self.findIndex(p => 
-        `${p.model}-${p.jobsite}-${p.lot_address}-${p.situacao}` === key
-      );
-    });
-    
-    console.log(`Dados mapeados: ${mappedPermit.length} registros`);
-    console.log(`Após remoção de duplicatas: ${uniquePermits.length} registros`);
-    
-    // 5. Inserir novos dados (sem duplicatas)
-    if (Array.isArray(uniquePermits) && uniquePermits.length > 0) {
-      console.log('Inserindo novos dados...');
-      await insertTableBatch("permit_control", uniquePermits, "Permit");
-      console.log('Dados inseridos com sucesso');
-    } else {
-      console.log('Nenhum dado para inserir');
+    // Iniciar sincronização
+    const syncSummary = {
+      startTime: new Date().toISOString(),
+      status: 'iniciando'
+    };
+
+    // Limpar tabela existente
+    const { error: deleteError } = await supabase
+      .from('permit_control')
+      .delete()
+      .neq('id', 0);
+
+    if (deleteError) {
+      throw new Error(`Erro ao limpar tabela: ${deleteError.message}`);
     }
-    
-    return new Response(JSON.stringify({
-      success: true,
-      message: "Sincronização de permit concluída com sucesso!",
-      deleteResult: deleteResult,
-      inserted: {
-        permit: Array.isArray(uniquePermits) ? uniquePermits.length : 0
+
+    const deleteResult = { success: true, message: 'Tabela limpa com sucesso' };
+
+    // Buscar dados da planilha
+    const permitData = await fetchCsvToJson(permitUrl, 'Permit');
+    const dataSummary = {
+      totalRecords: Array.isArray(permitData) ? permitData.length : 0,
+      isArray: Array.isArray(permitData)
+    };
+
+    // Mapear e normalizar dados
+    const mappedPermit = (permitData as any[]).map((permit: any) => ({
+      intern_id: permit.intern_id,
+      permit_number: permit.permit_number,
+      permit_type: permit.permit_type,
+      status: permit.status,
+      issue_date: permit.issue_date,
+      expiry_date: permit.expiry_date,
+      contractor: permit.contractor,
+      project: permit.project,
+      location: permit.location,
+      description: permit.description,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }));
+
+    // Remover duplicatas baseado no intern_id
+    const uniquePermits = mappedPermit.filter((permit: any, index: number, self: any[]) => 
+      index === self.findIndex((p: any) => p.intern_id === permit.intern_id)
+    );
+
+    const mappingSummary = {
+      mappedRecords: mappedPermit.length,
+      uniqueRecords: uniquePermits.length,
+      duplicatesRemoved: mappedPermit.length - uniquePermits.length
+    };
+
+    // Inserir novos dados
+    if (uniquePermits.length > 0) {
+      const { error: insertError } = await supabase
+        .from('permit_control')
+        .insert(uniquePermits);
+
+      if (insertError) {
+        throw new Error(`Erro ao inserir dados: ${insertError.message}`);
       }
-    }), {
-      status: 200,
-      headers: corsHeaders
-    });
+
+      const insertResult = { success: true, message: 'Dados inseridos com sucesso' };
+    } else {
+      const insertResult = { success: true, message: 'Nenhum dado para inserir' };
+    }
+
+    return {
+      success: true,
+      message: 'Sincronização concluída com sucesso',
+      summary: {
+        ...syncSummary,
+        ...dataSummary,
+        ...mappingSummary,
+        finalStatus: 'concluída'
+      }
+    };
     
   } catch (error) {
     console.error('Erro na edge function permit:', error.message);

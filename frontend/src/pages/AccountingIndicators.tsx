@@ -263,7 +263,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
       // Manter como "Todos" (string vazia) em vez de selecionar o mês mais recente
       setSelectedMonth('');
       setUserSelectedAllMonth(true);
-      console.log('📅 Mês inicial definido como "Todos"');
     }
   }, [months, selectedMonth, selectedYear, userSelectedAllMonth]);
 
@@ -285,37 +284,23 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   // Calcular dados filtrados
   const filteredData = useMemo(() => {
     if (!accountingData || !Array.isArray(accountingData)) {
-      console.warn('Dados de accounting inválidos ou vazios');
       return [];
     }
-    
-    console.log('🔍 DEBUG FILTROS:');
-    console.log('  - accountingData total:', accountingData.length);
-    console.log('  - accountingData payables:', accountingData.filter(d => d.type === 'payables').length);
-    console.log('  - selectedYear:', selectedYear);
-    console.log('  - selectedMonth:', selectedMonth);
-    console.log('  - selectedGroup:', selectedGroup);
-    console.log('  - selectedAging:', selectedAging);
-    console.log('  - selectedPayablesCategories:', selectedPayablesCategories);
     
     let filtered = accountingData;
     // Só filtra por ano se selectedYear estiver preenchido (não vazio)
     if (selectedYear && selectedYear.trim() !== '') {
       filtered = filtered.filter(d => d.date && d.date.startsWith(selectedYear + '-'));
-      console.log('  - Após filtro ano:', filtered.length);
     }
     // Só filtra por mês se selectedMonth estiver preenchido (não vazio)
     if (selectedMonth && selectedMonth.trim() !== '') {
       filtered = filtered.filter(d => d.date && String(Number(d.date.split('-')[1])).padStart(2, '0') === selectedMonth);
-      console.log('  - Após filtro mês:', filtered.length);
     }
     if (selectedGroup !== 'all') {
       filtered = filtered.filter(d => d.type === selectedGroup);
-      console.log('  - Após filtro grupo:', filtered.length);
     }
     if (selectedAging.length > 0) {
       filtered = filtered.filter(d => selectedAging.includes(d.aging_intervals));
-      console.log('  - Após filtro aging:', filtered.length);
     }
     
     // Filtrar por categorias baseado no tipo
@@ -331,7 +316,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
         filtered = filtered.filter(d => 
           d.type === 'payables' ? selectedPayablesCategories.includes(d.category) : true
         );
-        console.log('  - Após filtro categorias payables:', filtered.length);
       }
     }
     
@@ -342,7 +326,6 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
   // Dados não filtrados por categoria/aging para cálculo do total no gráfico
   const unfilteredDataForChart = useMemo(() => {
     if (!accountingData || !Array.isArray(accountingData)) {
-      console.warn('Dados de accounting inválidos para gráfico');
       return [];
     }
     
@@ -789,6 +772,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
               const { data: destaques } = await supabase
                 .from('destaques')
                 .select('*')
+                .eq('tela_id', telaId) // Adicionar filtro por tela_id
                 .eq('mes', Number(mesRef))
                 .eq('ano', Number(anoRef))
                 .eq('usuario_id', usuariosParaBuscarDados[0]);
@@ -987,6 +971,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
+          usuarioId={usuarioId}
         />
       )}
 

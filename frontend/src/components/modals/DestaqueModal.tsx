@@ -60,6 +60,8 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
       setFeedback(null);
       setLoading(false);
       
+      // Não validar aqui, permitir que o modal seja aberto
+      
       if (data) {
         setDestaque(data);
       } else {
@@ -75,7 +77,7 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
         });
       }
     }
-  }, [show, data, mesSelecionado, anoSelecionado]);
+  }, [show, data, mesSelecionado, anoSelecionado, usuarioId]);
 
   const handleClose = () => {
     onClose();
@@ -96,6 +98,11 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
         throw new Error('ID do usuário não fornecido');
       }
 
+      // Verificar se o usuário logado pode editar este registro
+      if (destaque.id && destaque.usuario_id !== usuarioId) {
+        throw new Error('Você só pode editar registros que você criou');
+      }
+
       // Usar o usuarioId passado diretamente
       const usuarioRow = { id: usuarioId };
 
@@ -103,9 +110,17 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
         // Atualização
         const { data: existente } = await supabase.from('destaques').select('*').eq('id', destaque.id).single();
         if (existente) {
+          const dadosParaAtualizar = {
+            ...destaque,
+            mes: mesDb,
+            ano: anoDb,
+            positivos: destaque.positivos.filter(t => t.trim() !== ''),
+            negativos: destaque.negativos.filter(t => t.trim() !== '')
+          };
+          // Filtrar campos vazios
           const destaquePrincipal = Object.fromEntries(
-            Object.entries({ ...destaque, mes: mesDb, ano: anoDb })
-              .filter(([k, v]) => !['positivos', 'negativos', 'id'].includes(k) && v !== '')
+            Object.entries(dadosParaAtualizar)
+              .filter(([, v]) => v !== undefined && v !== null)
           );
           await supabase.from('destaques').update(destaquePrincipal).eq('id', destaque.id);
           

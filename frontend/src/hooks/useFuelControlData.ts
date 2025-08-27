@@ -18,8 +18,6 @@ export const useFuelControlData = () => {
 
       if (countError) throw countError;
       
-      console.log('Total de registros Samsara:', count);
-      
       if (count && count > 1000) {
         // Se tem mais de 1000, buscar em lotes
         let allData: SamsaraEvent[] = [];
@@ -36,7 +34,6 @@ export const useFuelControlData = () => {
           if (data) allData = [...allData, ...data];
         }
         
-        console.log('Samsara events carregados (paginação):', allData.length);
         setSamsaraEvents(allData);
       } else {
         // Se tem 1000 ou menos, buscar direto
@@ -46,7 +43,6 @@ export const useFuelControlData = () => {
           .order('event_date', { ascending: false });
 
         if (error) throw error;
-        console.log('Samsara events carregados:', data?.length || 0);
         setSamsaraEvents(data || []);
       }
     } catch (err) {
@@ -64,8 +60,6 @@ export const useFuelControlData = () => {
 
       if (countError) throw countError;
       
-      console.log('Total de registros WEX:', count);
-      
       if (count && count > 1000) {
         // Se tem mais de 1000, buscar em lotes
         let allData: WexTransaction[] = [];
@@ -82,7 +76,6 @@ export const useFuelControlData = () => {
           if (data) allData = [...allData, ...data];
         }
         
-        console.log('WEX transactions carregadas (paginação):', allData.length);
         setWexTransactions(allData);
       } else {
         // Se tem 1000 ou menos, buscar direto
@@ -92,7 +85,6 @@ export const useFuelControlData = () => {
           .order('transaction_date', { ascending: false });
 
         if (error) throw error;
-        console.log('WEX transactions carregadas:', data?.length || 0);
         setWexTransactions(data || []);
       }
     } catch (err) {
@@ -110,7 +102,6 @@ export const useFuelControlData = () => {
         .order('normalized_name');
 
       if (error) throw error;
-      console.log('useFuelControlData - Employee names carregados:', data?.length || 0);
       setEmployeeNames(data || []);
     } catch (err) {
       console.error('Erro ao buscar nomes de funcionários:', err);

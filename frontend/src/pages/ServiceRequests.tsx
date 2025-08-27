@@ -531,6 +531,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
+          usuarioId={usuarioId}
         />
       )}
 

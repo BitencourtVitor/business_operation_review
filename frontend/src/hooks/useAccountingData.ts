@@ -10,8 +10,6 @@ async function fetchAllRows(table: string) {
   let to = pageSize - 1;
   let finished = false;
 
-  console.log(`🔍 Buscando dados da tabela: ${table}`);
-
   while (!finished) {
     const { data, error } = await supabase
       .from(table)
@@ -22,7 +20,6 @@ async function fetchAllRows(table: string) {
       throw error;
     }
     if (data && data.length > 0) {
-      console.log(`📊 ${table}: Encontrados ${data.length} registros (página ${Math.floor(from/pageSize) + 1})`);
       allRows = allRows.concat(data);
       if (data.length < pageSize) {
         finished = true;
@@ -31,12 +28,10 @@ async function fetchAllRows(table: string) {
         to += pageSize;
       }
     } else {
-      console.log(`📊 ${table}: Nenhum registro encontrado`);
       finished = true;
     }
   }
   
-  console.log(`✅ ${table}: Total de ${allRows.length} registros carregados`);
   return allRows;
 }
 
@@ -110,13 +105,6 @@ export function useAccountingData() {
           type: 'payables' as const,
         };
       });
-
-      console.log(`📊 Payables transformados: ${payables.length} registros`);
-      console.log(`📊 Payables com open_balance > 0: ${payables.filter(p => p.open_balance > 0).length} registros`);
-      
-      if (payables.length > 0) {
-        console.log('📊 Exemplo de payables:', payables[0]);
-      }
 
       // Combinar os dados
       const combinedData = [...receivables, ...payables];

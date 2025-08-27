@@ -33,6 +33,7 @@ interface PlanoAcaoModalProps {
   onClose: () => void;
   data: PlanoAcao | null;
   onSaved?: (updatedData?: PlanoAcao) => void;
+  usuarioId?: string;
 }
 
 // Componente MultiSelectResponsavel
@@ -226,7 +227,7 @@ function Feedback({ message, type }: { message: string; type: 'success' | 'error
   );
 }
 
-const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, onSaved }) => {
+const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, onSaved, usuarioId }) => {
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [plano, setPlano] = useState<PlanoAcao | null>(null);
@@ -595,7 +596,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       if (plano.id) {
         // Update - sempre atualizar a data_fim calculada
         const dataFimCalculada = calcularDataFim(plano.acoes);
-        console.log('Data fim calculada para update:', dataFimCalculada);
+
         
         // Buscar o registro atual do plano para manter o usuario_id original
         const { data: registroAtual } = await supabase.from('planos_de_acao').select('*').eq('id', plano.id).single();
@@ -603,6 +604,11 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
           setFeedback({ message: 'Plano não encontrado.', type: 'error' });
           setLoading(false);
           return;
+        }
+        
+        // Verificar se o usuário logado pode editar este registro
+        if (usuarioId && registroAtual.usuario_id !== usuarioId) {
+          throw new Error('Você só pode editar registros que você criou');
         }
         
         // Manter o usuario_id e tela_id originais do registro
@@ -622,7 +628,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
             .filter(([k, v]) => !['acoes', 'id'].includes(k) && v !== undefined && v !== '')
         );
         
-        console.log('Dados do plano para atualizar:', planoPrincipal);
+
         await supabase.from('planos_de_acao').update(planoPrincipal).eq('id', plano.id);
         
         // Aplicar mudanças nas ações
@@ -706,7 +712,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
       
       // Chamar callback para atualizar dados na página
       if (onSaved) {
-        console.log('Chamando onSaved com dados atualizados:', planoSalvo);
+
         onSaved(planoSalvo);
       }
       
@@ -1094,12 +1100,12 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const dropdown = document.getElementById(`status-dropdown-${index}`);
-                                    console.log('Dropdown clicked:', dropdown);
+                            
                                     if (dropdown) {
                                       const currentDisplay = dropdown.style.display;
                                       const newDisplay = currentDisplay === 'block' ? 'none' : 'block';
                                       dropdown.style.display = newDisplay;
-                                      console.log('Dropdown display changed to:', newDisplay);
+                              
                                     }
                                   }}
                                 >
