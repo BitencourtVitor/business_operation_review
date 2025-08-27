@@ -71,35 +71,11 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
         // Somar apenas distância de viagens
         drivers[normalizedName].total_distance += event.distancia || 0;
       } else if (event.type === 'idle') {
-        console.log('Fuel Control Table - Evento IDLE encontrado:', {
-          driver: normalizedName,
-          idle_duration: event.idle_duration,
-          units: event.units,
-          event: event,
-          eventKeys: Object.keys(event),
-          eventValues: Object.values(event)
-        });
-        
         // Calcular tempo parado em horas
         if (event.idle_duration) {
           // idle_duration já vem em horas como número
           const totalHours = event.idle_duration;
           drivers[normalizedName].idle_time_hours += totalHours;
-          
-          console.log('Fuel Control Table - Tempo idle calculado:', {
-            driver: normalizedName,
-            idle_duration: event.idle_duration,
-            totalHours,
-            acumulado: drivers[normalizedName].idle_time_hours
-          });
-        } else {
-          console.log('Fuel Control Table - Evento idle sem duração. Estrutura completa:', {
-            driver: normalizedName,
-            event: event,
-            hasIdleDuration: 'idle_duration' in event,
-            idleDurationValue: event.idle_duration,
-            allFields: Object.entries(event)
-          });
         }
         
         // Somar combustível gasto com carro parado
@@ -138,24 +114,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
       }
     });
 
-    // Log para debug dos dados processados
-    console.log('Fuel Control Table - Dados processados:', Object.entries(drivers).map(([name, data]) => ({
-      driver: name,
-      total_consumption: data.total_consumption,
-      idle_fuel: data.idle_fuel_consumption,
-      idle_time_hours: data.idle_time_hours,
-      idle_time_formatted: formatIdleTime(data.idle_time_hours)
-    })));
-    
-    // Log adicional para verificar eventos idle
-    const idleEvents = filteredSamsara.filter(event => event.type === 'idle');
-    console.log('Fuel Control Table - Total de eventos idle:', idleEvents.length);
-    console.log('Fuel Control Table - Eventos idle com idle_duration:', idleEvents.filter(e => e.idle_duration).length);
-    console.log('Fuel Control Table - Amostra de eventos idle:', idleEvents.slice(0, 3).map(e => ({
-      driver: e.nome,
-      idle_duration: e.idle_duration,
-      units: e.units
-    })));
+
 
     return drivers;
   }, [filteredSamsara, filteredWex, driverNames]);

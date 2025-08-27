@@ -27,14 +27,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
   const [months, setMonths] = useState<string[]>([]);
   const hasSetDefaultYearRef = React.useRef<boolean>(false);
 
-  // Estados para métricas calculadas
-  const [metrics, setMetrics] = useState({
-    performance: 0,
-    consumed: 0,
-    supplied: 0,
-    distance: 0,
-    amountSpent: 0
-  });
+
 
   // useEffect para telaId
   useEffect(() => {
@@ -192,45 +185,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     setSelectedMonth(''); // Set month to "Todos" by default
   }, [selectedYear]);
 
-  // Calcular métricas baseadas nos filtros selecionados
-  useEffect(() => {
-    if (!selectedYear) return;
 
-    const { filteredSamsara, filteredWex } = getFilteredData();
-
-    // Calcular métricas
-    let totalConsumed = 0;
-    let totalSupplied = 0;
-    let totalDistance = 0;
-    let totalAmountSpent = 0;
-
-    // Calcular consumo total (Samsara)
-    filteredSamsara.forEach(event => {
-      totalConsumed += event.units;
-      if (event.type === 'trip') {
-        totalDistance += event.distancia;
-      }
-    });
-
-    // Calcular abastecimento total (WEX)
-    filteredWex.forEach(transaction => {
-      totalSupplied += transaction.units;
-      totalAmountSpent += transaction.valor;
-    });
-
-    // Calcular performance (milhas por galão)
-    const performance = totalDistance > 0 && totalConsumed > 0 
-      ? totalDistance / totalConsumed 
-      : 0;
-
-    setMetrics({
-      performance: Math.round(performance * 100) / 100, // Arredondar para 2 casas decimais
-      consumed: Math.round(totalConsumed * 100) / 100,
-      supplied: Math.round(totalSupplied * 100) / 100,
-      distance: Math.round(totalDistance * 100) / 100,
-      amountSpent: Math.round(totalAmountSpent * 100) / 100
-    });
-  }, [selectedYear, selectedMonth, selectedDrivers, driverNames, getFilteredData]);
 
   // Loading e error handling
   if (fuelDataLoading) {
@@ -312,159 +267,19 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
            })()}
          </div>
         
-                 {/* Área inferior: Tabela (75%) + Métricas (25%) lado a lado */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row' }}>
-                     {/* Tabela de Performance - 75% da largura */}
-           <div style={{ width: '75%', height: '100%', borderRight: '1px solid var(--color-border-divider)', overflow: 'hidden' }}>
-             {(() => {
-               const filteredData = getFilteredData();
-               return (
-                 <FuelControlTable 
-                   filteredSamsara={filteredData.filteredSamsara}
-                   filteredWex={filteredData.filteredWex}
-                   selectedDrivers={selectedDrivers}
-                   driverNames={driverNames || []}
-                 />
-               );
-             })()}
-           </div>
-          
-                     {/* Métricas de Resumo - 25% da largura */}
-           <div style={{ 
-             width: '25%', 
-             height: '100%', 
-             background: 'var(--color-background-primary)', 
-             overflow: 'hidden',
-             display: 'flex',
-             flexDirection: 'column'
-           }}>
-                         {/* Header das métricas */}
-             <div style={{ 
-               background: 'var(--color-background-primary)', 
-               padding: '16px 20px 16px 20px'
-             }}>
-               <h4 style={{ 
-                 color: 'var(--color-text-secondary)', 
-                 fontSize: 18, 
-                 fontWeight: 400, 
-                 margin: 0,
-                 textAlign: 'center'
-               }}>
-                 Fuel Metrics
-               </h4>
-             </div>
-             
-             {/* Container dos cards de métricas */}
-             <div style={{ 
-               flex: 1, 
-               display: 'flex', 
-               flexDirection: 'column', 
-               overflow: 'hidden',
-               minHeight: 0
-             }}>
-                                               {/* Primeiro bloco - Desempenho Médio com bordas superior e inferior */}
-                 <div style={{ 
-                   background: 'var(--color-background-primary)', 
-                   borderTop: '1px solid var(--color-border-divider)',
-                   borderBottom: '1px solid var(--color-border-divider)',
-                   padding: '20px',
-                   flex: '0 0 auto',
-                   minHeight: '80px',
-                   display: 'flex',
-                   flexDirection: 'row',
-                   alignItems: 'center',
-                   justifyContent: 'space-evenly'
-                 }}>
-                                       <div style={{ fontSize: '16px', color: 'var(--color-text-secondary)', marginBottom: '6px', fontWeight: '500' }}>
-                      Performance
-                    </div>
-                   <div style={{ fontSize: '24px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                     {metrics.performance} mi/gal
-                   </div>
-                 </div>
-
-               {/* Grid 2x2 das métricas específicas - mesmo layout do PROJECTS */}
-               <div style={{ 
-                 flex: 1,
-                 display: 'grid',
-                 gridTemplateColumns: '1fr 1fr',
-                 gridTemplateRows: '1fr 1fr',
-                 minHeight: 0
-               }}>
-                                                     {/* Primeira linha, primeira coluna - Quantidade Consumida (SAMSARA) */}
-                   <div style={{ 
-                     background: 'var(--color-background-primary)', 
-                     borderRight: '1px solid var(--color-border-divider)',
-                     borderBottom: '1px solid var(--color-border-divider)',
-                     padding: '16px',
-                     textAlign: 'center',
-                     display: 'flex',
-                     flexDirection: 'column',
-                     justifyContent: 'center'
-                   }}>
-                     <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px', fontWeight: '500' }}>
-                       Consumed
-                     </div>
-                     <div style={{ fontSize: '18px', fontWeight: '600', color: '#1bbf5c' }}>
-                       {metrics.consumed} gal
-                     </div>
-                  </div>
-
-                                     {/* Primeira linha, segunda coluna - Quantidade Abastecida (WEX) */}
-                   <div style={{ 
-                     background: 'var(--color-background-primary)', 
-                     borderBottom: '1px solid var(--color-border-divider)',
-                     padding: '16px',
-                     textAlign: 'center',
-                     display: 'flex',
-                     flexDirection: 'column',
-                     justifyContent: 'center'
-                   }}>
-                       <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px', fontWeight: '500' }}>
-                        Supplied
-                      </div>
-                       <div style={{ fontSize: '18px', fontWeight: '600', color: '#2E6BE6' }}>
-                         {metrics.supplied} gal
-                       </div>
-                   </div>
-
-                   {/* Segunda linha, primeira coluna - Distância Percorrida */}
-                   <div style={{ 
-                     background: 'var(--color-background-primary)', 
-                     borderRight: '1px solid var(--color-border-divider)',
-                     padding: '16px',
-                     textAlign: 'center',
-                     display: 'flex',
-                     flexDirection: 'column',
-                     justifyContent: 'center'
-                   }}>
-                     <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px', fontWeight: '500' }}>
-                       Distance Traveled
-                     </div>
-                     <div style={{ fontSize: '18px', fontWeight: '600', color: 'var(--color-text-primary)' }}>
-                         {metrics.distance} mi
-                       </div>
-                   </div>
-
-                   {/* Segunda linha, segunda coluna - Valor Gasto */}
-                   <div style={{ 
-                     background: 'var(--color-background-primary)', 
-                     padding: '16px',
-                     textAlign: 'center',
-                     display: 'flex',
-                     flexDirection: 'column',
-                     justifyContent: 'center'
-                   }}>
-                    <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '6px', fontWeight: '500' }}>
-                      Amount Spent
-                    </div>
-                     <div style={{ fontSize: '18px', fontWeight: '600', color: '#dc3545' }}>
-                       ${metrics.amountSpent.toFixed(2)}
-                     </div>
-                  </div>
-               </div>
-             </div>
-          </div>
+                 {/* Área inferior: Tabela ocupando 100% da largura */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+          {(() => {
+            const filteredData = getFilteredData();
+            return (
+              <FuelControlTable 
+                filteredSamsara={filteredData.filteredSamsara}
+                filteredWex={filteredData.filteredWex}
+                selectedDrivers={selectedDrivers}
+                driverNames={driverNames || []}
+              />
+            );
+          })()}
         </div>
       </div>
     </div>
