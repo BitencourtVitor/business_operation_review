@@ -14,6 +14,7 @@ import wexLogo from '../../../assets/wex_logo.png';
 import samsaraLogo from '../../../assets/samsara_logo.png';
 import dayjs from 'dayjs';
 import type { SamsaraEvent, WexTransaction, EmployeeName } from '../../../types/fuelControl';
+import { getDriverColorManager } from '../../../utils/driverColorManager';
 
 ChartJS.register(
   CategoryScale,
@@ -172,84 +173,85 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
     return name;
   }, [driverNames]);
 
-  // Dados para o primeiro gráfico: Performance por galão (Samsara)
-  const performancePerGallonData = useMemo(() => {
-    if (!filteredSamsara || !filteredSamsara.length) return null;
-
-    const shouldGroupByMonth = !selectedMonth;
-    
-    if (shouldGroupByMonth) {
-      // Agrupar por MÊS
-      const monthlyDriverData = new Map<string, Map<string, { miles: number; gallons: number }>>();
-      
-      filteredSamsara.forEach(event => {
-        if (event.type !== 'trip') return; // Apenas viagens para calcular milhas
+         // Dados para o primeiro gráfico: Performance por galão (Samsara)
+       const performancePerGallonData = useMemo(() => {
+         if (!filteredSamsara || !filteredSamsara.length) return null;
+ 
+         const shouldGroupByMonth = !selectedMonth;
+         
+         if (shouldGroupByMonth) {
+           // Agrupar por MÊS
+           const monthlyDriverData = new Map<string, Map<string, { miles: number; gallons: number }>>();
+           
+           filteredSamsara.forEach(event => {
+             if (event.type !== 'trip') return; // Apenas viagens para calcular milhas
+             
+             const dateOnly = event.event_date.split('T')[0];
+             const dateParts = dateOnly.split('-');
+             const year = dateParts[0];
+             const month = dateParts[1];
+             
+             if (selectedYear && year !== selectedYear) return;
+             
+             const monthKey = `${year}-${month}`;
+             const driverName = normalizeName(event.nome as unknown as string);
+             
+             if (!monthlyDriverData.has(monthKey)) {
+               monthlyDriverData.set(monthKey, new Map());
+             }
+             
+             const monthData = monthlyDriverData.get(monthKey)!;
+             if (!monthData.has(driverName)) {
+               monthData.set(driverName, { miles: 0, gallons: 0 });
+             }
+             
+             const driverData = monthData.get(driverName)!;
+             driverData.miles += event.distancia;
+             driverData.gallons += event.units;
+           });
+ 
+           const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
+           let fullMonths = sortedMonths;
+           
+           if (!selectedYear && sortedMonths.length > 0) {
+             const start = dayjs(`${sortedMonths[0]}-01`);
+             const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
+             const range: string[] = [];
+             for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
+               range.push(d.format('YYYY-MM'));
+             }
+             fullMonths = range;
+           }
+ 
+           const allDrivers = new Set<string>();
+           monthlyDriverData.forEach(monthData => {
+             monthData.forEach((_, driver) => allDrivers.add(driver));
+           });
+ 
+           const datasets = Array.from(allDrivers).map((driver) => {
+             const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+             const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+               selectedDriver.toLowerCase() === driver.toLowerCase()
+             );
         
-        const dateOnly = event.event_date.split('T')[0];
-        const dateParts = dateOnly.split('-');
-        const year = dateParts[0];
-        const month = dateParts[1];
-        
-        if (selectedYear && year !== selectedYear) return;
-        
-        const monthKey = `${year}-${month}`;
-        const driverName = normalizeName(event.nome as unknown as string);
-        
-        if (!monthlyDriverData.has(monthKey)) {
-          monthlyDriverData.set(monthKey, new Map());
-        }
-        
-        const monthData = monthlyDriverData.get(monthKey)!;
-        if (!monthData.has(driverName)) {
-          monthData.set(driverName, { miles: 0, gallons: 0 });
-        }
-        
-        const driverData = monthData.get(driverName)!;
-        driverData.miles += event.distancia;
-        driverData.gallons += event.units;
-      });
-
-      const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
-      let fullMonths = sortedMonths;
-      
-      if (!selectedYear && sortedMonths.length > 0) {
-        const start = dayjs(`${sortedMonths[0]}-01`);
-        const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
-        const range: string[] = [];
-        for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
-          range.push(d.format('YYYY-MM'));
-        }
-        fullMonths = range;
-      }
-
-      const allDrivers = new Set<string>();
-      monthlyDriverData.forEach(monthData => {
-        monthData.forEach((_, driver) => allDrivers.add(driver));
-      });
-
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#4ecdc4', '#ff6b35', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
+        const colorManager = getDriverColorManager();
+        const baseColor = colorManager.getDriverColor(driver);
         
         let color: string;
         let borderWidth: number;
+        let pointRadius: number;
+        let pointHoverRadius: number;
         
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
+        if (isDriverSelected) {
+          color = baseColor;
+          borderWidth = 3;
+          pointRadius = 4;
+          pointHoverRadius = 6;
         } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
-            selectedDriver.toLowerCase() === driver.toLowerCase()
-          );
-          
-          if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
-            borderWidth = 3;
-          } else {
-            color = neutralColor + '80'; // 50% de opacidade
-            borderWidth = 1;
-          }
+          color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+          borderWidth = 1;
+          pointRadius = 2;
+          pointHoverRadius = 4;
         }
        
         return {
@@ -263,8 +265,8 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
           }),
           borderColor: color,
           backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          pointRadius: pointRadius,
+          pointHoverRadius: pointHoverRadius,
           borderWidth: borderWidth,
           fill: false,
           tension: 0.25,
@@ -278,88 +280,89 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
         }),
         datasets
       };
-    } else {
-      // Agrupar por DIA
-      const dailyDriverData = new Map<string, Map<string, { miles: number; gallons: number }>>();
-      
-      filteredSamsara.forEach(event => {
-        if (event.type !== 'trip') return;
-        
-        const dateOnly = event.event_date.split('T')[0];
-        const dateParts = dateOnly.split('-');
-        const year = dateParts[0];
-        const month = dateParts[1];
-        const day = dateParts[2];
-        
-        if (selectedYear && year !== selectedYear) return;
-        
-        const dateKey = `${year}-${month}-${day}`;
-        const driverName = normalizeName(event.nome as unknown as string);
-        
-        if (!dailyDriverData.has(dateKey)) {
-          dailyDriverData.set(dateKey, new Map());
-        }
-        
-        const dayData = dailyDriverData.get(dateKey)!;
-        if (!dayData.has(driverName)) {
-          dayData.set(driverName, { miles: 0, gallons: 0 });
-        }
-        
-        const driverData = dayData.get(driverName)!;
-        driverData.miles += event.distancia;
-        driverData.gallons += event.units;
-      });
+         } else {
+       // Agrupar por DIA
+       const dailyDriverData = new Map<string, Map<string, { miles: number; gallons: number }>>();
+       
+       filteredSamsara.forEach(event => {
+         if (event.type !== 'trip') return;
+         
+         const dateOnly = event.event_date.split('T')[0];
+         const dateParts = dateOnly.split('-');
+         const year = dateParts[0];
+         const month = dateParts[1];
+         const day = dateParts[2];
+         
+         if (selectedYear && year !== selectedYear) return;
+         
+         const dateKey = `${year}-${month}-${day}`;
+         const driverName = normalizeName(event.nome as unknown as string);
+         
+         if (!dailyDriverData.has(dateKey)) {
+           dailyDriverData.set(dateKey, new Map());
+         }
+         
+         const dayData = dailyDriverData.get(dateKey)!;
+         if (!dayData.has(driverName)) {
+           dayData.set(driverName, { miles: 0, gallons: 0 });
+         }
+         
+         const driverData = dayData.get(driverName)!;
+         driverData.miles += event.distancia;
+         driverData.gallons += event.units;
+       });
 
-      const sortedDates = Array.from(dailyDriverData.keys()).sort((a, b) => a.localeCompare(b));
+       const sortedDates = Array.from(dailyDriverData.keys()).sort((a, b) => a.localeCompare(b));
 
-      const allDrivers = new Set<string>();
-      dailyDriverData.forEach(dayData => {
-        dayData.forEach((_, driver) => allDrivers.add(driver));
-      });
+       const allDrivers = new Set<string>();
+       dailyDriverData.forEach(dayData => {
+         dayData.forEach((_, driver) => allDrivers.add(driver));
+       });
 
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#4ecdc4', '#ff6b35', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
-        
-        let color: string;
-        let borderWidth: number;
-        
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
-        } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
-            selectedDriver.toLowerCase() === driver.toLowerCase()
-          );
-          
-          if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
-            borderWidth = 3;
-          } else {
-            color = neutralColor + '80'; // 50% de opacidade
-            borderWidth = 1;
-          }
-        }
-        
-        return {
-          label: driver,
-          data: sortedDates.map(dateKey => {
-            const dayData = dailyDriverData.get(dateKey);
-            if (!dayData || !dayData.has(driver)) return 0;
-            const driverData = dayData.get(driver)!;
-            if (driverData.gallons === 0) return 0;
-            return Math.round((driverData.miles / driverData.gallons) * 100) / 100;
-          }),
-          borderColor: color,
-          backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          borderWidth: borderWidth,
-          fill: false,
-          tension: 0.25,
-        };
-      });
+       const datasets = Array.from(allDrivers).map((driver) => {
+         const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+         const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+           selectedDriver.toLowerCase() === driver.toLowerCase()
+         );
+         
+         const colorManager = getDriverColorManager();
+         const baseColor = colorManager.getDriverColor(driver);
+         
+         let color: string;
+         let borderWidth: number;
+         let pointRadius: number;
+         let pointHoverRadius: number;
+         
+         if (isDriverSelected) {
+           color = baseColor;
+           borderWidth = 3;
+           pointRadius = 4;
+           pointHoverRadius = 6;
+         } else {
+           color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+           borderWidth = 1;
+           pointRadius = 2;
+           pointHoverRadius = 4;
+         }
+         
+         return {
+           label: driver,
+           data: sortedDates.map(dateKey => {
+             const dayData = dailyDriverData.get(dateKey);
+             if (!dayData || !dayData.has(driver)) return 0;
+             const driverData = dayData.get(driver)!;
+             if (driverData.gallons === 0) return 0;
+             return Math.round((driverData.miles / driverData.gallons) * 100) / 100;
+           }),
+           borderColor: color,
+           backgroundColor: color,
+           pointRadius: pointRadius,
+           pointHoverRadius: pointHoverRadius,
+           borderWidth: borderWidth,
+           fill: false,
+           tension: 0.25,
+         };
+       });
       
       return {
         labels: sortedDates.map(date => {
@@ -371,85 +374,86 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
     }
   }, [filteredSamsara, selectedMonth, selectedYear, selectedDrivers, normalizeName]);
 
-  // Dados para o segundo gráfico: Idle consumption impact (Samsara)
-  const idleConsumptionData = useMemo(() => {
-    if (!filteredSamsara || !filteredSamsara.length) return null;
-
-    const shouldGroupByMonth = !selectedMonth;
-    
-    if (shouldGroupByMonth) {
-      // Agrupar por MÊS
-      const monthlyDriverData = new Map<string, Map<string, { idleGallons: number; totalGallons: number }>>();
-      
-      filteredSamsara.forEach(event => {
-        const dateOnly = event.event_date.split('T')[0];
-        const dateParts = dateOnly.split('-');
-        const year = dateParts[0];
-        const month = dateParts[1];
+         // Dados para o segundo gráfico: Idle consumption impact (Samsara)
+       const idleConsumptionData = useMemo(() => {
+         if (!filteredSamsara || !filteredSamsara.length) return null;
+ 
+         const shouldGroupByMonth = !selectedMonth;
+         
+         if (shouldGroupByMonth) {
+           // Agrupar por MÊS
+           const monthlyDriverData = new Map<string, Map<string, { idleGallons: number; totalGallons: number }>>();
+           
+           filteredSamsara.forEach(event => {
+             const dateOnly = event.event_date.split('T')[0];
+             const dateParts = dateOnly.split('-');
+             const year = dateParts[0];
+             const month = dateParts[1];
+             
+             if (selectedYear && year !== selectedYear) return;
+             
+             const monthKey = `${year}-${month}`;
+             const driverName = normalizeName(event.nome as unknown as string);
+             
+             if (!monthlyDriverData.has(monthKey)) {
+               monthlyDriverData.set(monthKey, new Map());
+             }
+             
+             const monthData = monthlyDriverData.get(monthKey)!;
+             if (!monthData.has(driverName)) {
+               monthData.set(driverName, { idleGallons: 0, totalGallons: 0 });
+             }
+             
+             const driverData = monthData.get(driverName)!;
+             driverData.totalGallons += event.units;
+             
+             if (event.type === 'idle') {
+               driverData.idleGallons += event.units;
+             }
+           });
+ 
+           const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
+           let fullMonths = sortedMonths;
+           
+           if (!selectedYear && sortedMonths.length > 0) {
+             const start = dayjs(`${sortedMonths[0]}-01`);
+             const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
+             const range: string[] = [];
+             for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
+               range.push(d.format('YYYY-MM'));
+             }
+             fullMonths = range;
+           }
+ 
+           const allDrivers = new Set<string>();
+           monthlyDriverData.forEach(monthData => {
+             monthData.forEach((_, driver) => allDrivers.add(driver));
+           });
+ 
+           const datasets = Array.from(allDrivers).map((driver) => {
+             const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+             const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+               selectedDriver.toLowerCase() === driver.toLowerCase()
+             );
         
-        if (selectedYear && year !== selectedYear) return;
-        
-        const monthKey = `${year}-${month}`;
-        const driverName = normalizeName(event.nome as unknown as string);
-        
-        if (!monthlyDriverData.has(monthKey)) {
-          monthlyDriverData.set(monthKey, new Map());
-        }
-        
-        const monthData = monthlyDriverData.get(monthKey)!;
-        if (!monthData.has(driverName)) {
-          monthData.set(driverName, { idleGallons: 0, totalGallons: 0 });
-        }
-        
-        const driverData = monthData.get(driverName)!;
-        driverData.totalGallons += event.units;
-        
-        if (event.type === 'idle') {
-          driverData.idleGallons += event.units;
-        }
-      });
-
-      const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
-      let fullMonths = sortedMonths;
-      
-      if (!selectedYear && sortedMonths.length > 0) {
-        const start = dayjs(`${sortedMonths[0]}-01`);
-        const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
-        const range: string[] = [];
-        for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
-          range.push(d.format('YYYY-MM'));
-        }
-        fullMonths = range;
-      }
-
-      const allDrivers = new Set<string>();
-      monthlyDriverData.forEach(monthData => {
-        monthData.forEach((_, driver) => allDrivers.add(driver));
-      });
-
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
+        const colorManager = getDriverColorManager();
+        const baseColor = colorManager.getDriverColor(driver);
         
         let color: string;
         let borderWidth: number;
+        let pointRadius: number;
+        let pointHoverRadius: number;
         
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
+        if (isDriverSelected) {
+          color = baseColor;
+          borderWidth = 3;
+          pointRadius = 4;
+          pointHoverRadius = 6;
         } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
-            selectedDriver.toLowerCase() === driver.toLowerCase()
-          );
-          
-          if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
-            borderWidth = 3;
-          } else {
-            color = neutralColor + '80'; // 50% de opacidade
-            borderWidth = 1;
-          }
+          color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+          borderWidth = 1;
+          pointRadius = 2;
+          pointHoverRadius = 4;
         }
        
         return {
@@ -463,8 +467,8 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
           }),
           borderColor: color,
           backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          pointRadius: pointRadius,
+          pointHoverRadius: pointHoverRadius,
           borderWidth: borderWidth,
           fill: false,
           tension: 0.25,
@@ -518,49 +522,50 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
         dayData.forEach((_, driver) => allDrivers.add(driver));
       });
 
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
-        
-        let color: string;
-        let borderWidth: number;
-        
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
-        } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
+              const datasets = Array.from(allDrivers).map((driver) => {
+          const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+          const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
             selectedDriver.toLowerCase() === driver.toLowerCase()
           );
           
+          const colorManager = getDriverColorManager();
+          const baseColor = colorManager.getDriverColor(driver);
+          
+          let color: string;
+          let borderWidth: number;
+          let pointRadius: number;
+          let pointHoverRadius: number;
+          
           if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
+            color = baseColor;
             borderWidth = 3;
+            pointRadius = 4;
+            pointHoverRadius = 6;
           } else {
-            color = neutralColor + '80'; // 50% de opacidade
+            color = colorManager.getDriverColorWithOpacity(driver, 0.3);
             borderWidth = 1;
+            pointRadius = 2;
+            pointHoverRadius = 4;
           }
-        }
-        
-        return {
-          label: driver,
-          data: sortedDates.map(dateKey => {
-            const dayData = dailyDriverData.get(dateKey);
-            if (!dayData || !dayData.has(driver)) return 0;
-            const driverData = dayData.get(driver);
-            if (!driverData || driverData.totalGallons === 0) return 0;
-            return Math.round((driverData.idleGallons / driverData.totalGallons) * 100 * 100) / 100;
-          }),
-          borderColor: color,
-          backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          borderWidth: borderWidth,
-          fill: false,
-          tension: 0.25,
-        };
-      });
+          
+          return {
+            label: driver,
+            data: sortedDates.map(dateKey => {
+              const dayData = dailyDriverData.get(dateKey);
+              if (!dayData || !dayData.has(driver)) return 0;
+              const driverData = dayData.get(driver);
+              if (!driverData || driverData.totalGallons === 0) return 0;
+              return Math.round((driverData.idleGallons / driverData.totalGallons) * 100 * 100) / 100;
+            }),
+            borderColor: color,
+            backgroundColor: color,
+            pointRadius: pointRadius,
+            pointHoverRadius: pointHoverRadius,
+            borderWidth: borderWidth,
+            fill: false,
+            tension: 0.25,
+          };
+        });
       
       return {
         labels: sortedDates.map(date => {
@@ -572,76 +577,77 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
     }
   }, [filteredSamsara, selectedMonth, selectedYear, selectedDrivers, normalizeName]);
 
-  // Dados para o terceiro gráfico: Consumo por motorista (igual ao segundo do principal)
-  const driverConsumptionData = useMemo(() => {
-    if (!filteredWex || !filteredWex.length) return null;
-
-    const shouldGroupByMonth = !selectedMonth;
-    
-    if (shouldGroupByMonth) {
-      // Agrupar por MÊS
-      const monthlyDriverData = new Map<string, Map<string, number>>();
-      
-      filteredWex.forEach(transaction => {
-        const dateOnly = transaction.transaction_date.split('T')[0];
-        const dateParts = dateOnly.split('-');
-        const year = dateParts[0];
-        const month = dateParts[1];
+         // Dados para o terceiro gráfico: Consumo por motorista (igual ao segundo do principal)
+       const driverConsumptionData = useMemo(() => {
+         if (!filteredWex || !filteredWex.length) return null;
+ 
+         const shouldGroupByMonth = !selectedMonth;
+         
+         if (shouldGroupByMonth) {
+           // Agrupar por MÊS
+           const monthlyDriverData = new Map<string, Map<string, number>>();
+           
+           filteredWex.forEach(transaction => {
+             const dateOnly = transaction.transaction_date.split('T')[0];
+             const dateParts = dateOnly.split('-');
+             const year = dateParts[0];
+             const month = dateParts[1];
+             
+             if (selectedYear && year !== selectedYear) return;
+             
+             const monthKey = `${year}-${month}`;
+             const driverName = normalizeName(transaction.nome as unknown as string);
+             
+             if (!monthlyDriverData.has(monthKey)) {
+               monthlyDriverData.set(monthKey, new Map());
+             }
+             
+             const monthData = monthlyDriverData.get(monthKey)!;
+             monthData.set(driverName, (monthData.get(driverName) || 0) + transaction.valor);
+           });
+ 
+           const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
+           let fullMonths = sortedMonths;
+           
+           if (!selectedYear && sortedMonths.length > 0) {
+             const start = dayjs(`${sortedMonths[0]}-01`);
+             const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
+             const range: string[] = [];
+             for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
+               range.push(d.format('YYYY-MM'));
+             }
+             fullMonths = range;
+           }
+ 
+           const allDrivers = new Set<string>();
+           monthlyDriverData.forEach(monthData => {
+             monthData.forEach((_, driver) => allDrivers.add(driver));
+           });
+ 
+           const datasets = Array.from(allDrivers).map((driver) => {
+             const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+             const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+               selectedDriver.toLowerCase() === driver.toLowerCase()
+             );
         
-        if (selectedYear && year !== selectedYear) return;
-        
-        const monthKey = `${year}-${month}`;
-        const driverName = normalizeName(transaction.nome as unknown as string);
-        
-        if (!monthlyDriverData.has(monthKey)) {
-          monthlyDriverData.set(monthKey, new Map());
-        }
-        
-        const monthData = monthlyDriverData.get(monthKey)!;
-        monthData.set(driverName, (monthData.get(driverName) || 0) + transaction.valor);
-      });
-
-      const sortedMonths = Array.from(monthlyDriverData.keys()).sort();
-      let fullMonths = sortedMonths;
-      
-      if (!selectedYear && sortedMonths.length > 0) {
-        const start = dayjs(`${sortedMonths[0]}-01`);
-        const end = dayjs(`${sortedMonths[sortedMonths.length - 1]}-01`);
-        const range: string[] = [];
-        for (let d = start; d.isBefore(end) || d.isSame(end); d = d.add(1, 'month')) {
-          range.push(d.format('YYYY-MM'));
-        }
-        fullMonths = range;
-      }
-
-      const allDrivers = new Set<string>();
-      monthlyDriverData.forEach(monthData => {
-        monthData.forEach((_, driver) => allDrivers.add(driver));
-      });
-
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
+        const colorManager = getDriverColorManager();
+        const baseColor = colorManager.getDriverColor(driver);
         
         let color: string;
         let borderWidth: number;
+        let pointRadius: number;
+        let pointHoverRadius: number;
         
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
+        if (isDriverSelected) {
+          color = baseColor;
+          borderWidth = 3;
+          pointRadius = 4;
+          pointHoverRadius = 6;
         } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
-            selectedDriver.toLowerCase() === driver.toLowerCase()
-          );
-          
-          if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
-            borderWidth = 3;
-          } else {
-            color = neutralColor + '80'; // 50% de opacidade
-            borderWidth = 1;
-          }
+          color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+          borderWidth = 1;
+          pointRadius = 2;
+          pointHoverRadius = 4;
         }
        
         return {
@@ -652,8 +658,8 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
           }),
           borderColor: color,
           backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
+          pointRadius: pointRadius,
+          pointHoverRadius: pointHoverRadius,
           borderWidth: borderWidth,
           fill: false,
           tension: 0.25,
@@ -698,46 +704,47 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
         dayData.forEach((_, driver) => allDrivers.add(driver));
       });
 
-      const datasets = Array.from(allDrivers).map((driver, index) => {
-        const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-        const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-        const neutralColor = '#6c757d';
-        
-        let color: string;
-        let borderWidth: number;
-        
-        if (allDriversSelected) {
-          color = highlightColors[index % highlightColors.length];
-          borderWidth = 2;
-        } else {
-          const isDriverSelected = selectedDrivers.some(selectedDriver => 
+              const datasets = Array.from(allDrivers).map((driver) => {
+          const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+          const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
             selectedDriver.toLowerCase() === driver.toLowerCase()
           );
           
+          const colorManager = getDriverColorManager();
+          const baseColor = colorManager.getDriverColor(driver);
+          
+          let color: string;
+          let borderWidth: number;
+          let pointRadius: number;
+          let pointHoverRadius: number;
+          
           if (isDriverSelected) {
-            color = highlightColors[index % highlightColors.length];
+            color = baseColor;
             borderWidth = 3;
+            pointRadius = 4;
+            pointHoverRadius = 6;
           } else {
-            color = neutralColor + '80'; // 50% de opacidade
+            color = colorManager.getDriverColorWithOpacity(driver, 0.3);
             borderWidth = 1;
+            pointRadius = 2;
+            pointHoverRadius = 4;
           }
-        }
-        
-        return {
-          label: driver,
-          data: sortedDates.map(dateKey => {
-            const dayData = dailyDriverData.get(dateKey);
-            return dayData ? Math.round((dayData.get(driver) || 0) * 100) / 100 : 0;
-          }),
-          borderColor: color,
-          backgroundColor: color,
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          borderWidth: borderWidth,
-          fill: false,
-          tension: 0.25,
-        };
-      });
+          
+          return {
+            label: driver,
+            data: sortedDates.map(dateKey => {
+              const dayData = dailyDriverData.get(dateKey);
+              return dayData ? Math.round((dayData.get(driver) || 0) * 100) / 100 : 0;
+            }),
+            borderColor: color,
+            backgroundColor: color,
+            pointRadius: pointRadius,
+            pointHoverRadius: pointHoverRadius,
+            borderWidth: borderWidth,
+            fill: false,
+            tension: 0.25,
+          };
+        });
       
       return {
         labels: sortedDates.map(date => {

@@ -14,6 +14,7 @@ import wexLogo from '../../../assets/wex_logo.png';
 
 import dayjs from 'dayjs';
 import type { WexTransaction } from '../../../types/fuelControl';
+import { getDriverColorManager } from '../../../utils/driverColorManager';
 
 ChartJS.register(
   CategoryScale,
@@ -440,34 +441,30 @@ export function FuelControlChart({
           monthData.forEach((_, driver) => allDrivers.add(driver));
         });
 
-              const datasets = Array.from(allDrivers).map((driver, index) => {
-          // Verificar se todos os motoristas estão selecionados
-          const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+                             const datasets = Array.from(allDrivers).map((driver) => {
+                 const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+                 const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+                   selectedDriver.toLowerCase() === driver.toLowerCase()
+                 );
           
-          // Definir cores base
-          const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-          const neutralColor = '#6c757d'; // Cor neutra para motoristas não selecionados
+          const colorManager = getDriverColorManager();
+          const baseColor = colorManager.getDriverColor(driver);
           
           let color: string;
           let borderWidth: number;
+          let pointRadius: number;
+          let pointHoverRadius: number;
           
-          if (allDriversSelected) {
-            // Todos selecionados: usar cores diferentes para cada motorista
-            color = highlightColors[index % highlightColors.length];
-            borderWidth = 2;
+          if (isDriverSelected) {
+            color = baseColor;
+            borderWidth = 3;
+            pointRadius = 4;
+            pointHoverRadius = 6;
           } else {
-            // Alguns selecionados: destacar apenas os selecionados
-            const isDriverSelected = selectedDrivers.some(selectedDriver => 
-              selectedDriver.toLowerCase() === driver.toLowerCase()
-            );
-            
-            if (isDriverSelected) {
-              color = highlightColors[index % highlightColors.length];
-              borderWidth = 3;
-            } else {
-              color = neutralColor + '80'; // 50% de opacidade
-              borderWidth = 1;
-            }
+            color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+            borderWidth = 1;
+            pointRadius = 2;
+            pointHoverRadius = 4;
           }
          
          return {
@@ -478,8 +475,8 @@ export function FuelControlChart({
            }),
            borderColor: color,
            backgroundColor: color,
-           pointRadius: 3,
-           pointHoverRadius: 5,
+           pointRadius: pointRadius,
+           pointHoverRadius: pointHoverRadius,
            borderWidth: borderWidth,
            fill: false,
            tension: 0.25,
@@ -527,51 +524,47 @@ export function FuelControlChart({
           dayData.forEach((_, driver) => allDrivers.add(driver));
         });
 
-             const datasets = Array.from(allDrivers).map((driver, index) => {
-         // Verificar se todos os motoristas estão selecionados
-         const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
-         
-         // Definir cores base
-         const highlightColors = ['#ff6b35', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-         const neutralColor = '#6c757d'; // Cor neutra para motoristas não selecionados
-         
-         let color: string;
-         let borderWidth: number;
-         
-         if (allDriversSelected) {
-           // Todos selecionados: usar cores diferentes para cada motorista
-           color = highlightColors[index % highlightColors.length];
-           borderWidth = 2;
-         } else {
-           // Alguns selecionados: destacar apenas os selecionados
-           const isDriverSelected = selectedDrivers.some(selectedDriver => 
-             selectedDriver.toLowerCase() === driver.toLowerCase()
-           );
-           
-           if (isDriverSelected) {
-             color = highlightColors[index % highlightColors.length];
-             borderWidth = 3;
-           } else {
-             color = neutralColor + '80'; // 50% de opacidade
-             borderWidth = 1;
-           }
-         }
-         
-         return {
-           label: driver,
-           data: sortedDates.map(dateKey => {
-             const dayData = dailyDriverData.get(dateKey);
-             return dayData ? Math.round((dayData.get(driver) || 0) * 100) / 100 : 0;
-           }),
-           borderColor: color,
-           backgroundColor: color,
-           pointRadius: 3,
-           pointHoverRadius: 5,
-           borderWidth: borderWidth,
-           fill: false,
-           tension: 0.25,
-         };
-       });
+             const datasets = Array.from(allDrivers).map((driver) => {
+               const allDriversSelected = selectedDrivers.length === 0 || selectedDrivers.length === Array.from(allDrivers).length;
+               const isDriverSelected = !allDriversSelected && selectedDrivers.some(selectedDriver => 
+                 selectedDriver.toLowerCase() === driver.toLowerCase()
+               );
+               
+               const colorManager = getDriverColorManager();
+               const baseColor = colorManager.getDriverColor(driver);
+               
+               let color: string;
+               let borderWidth: number;
+               let pointRadius: number;
+               let pointHoverRadius: number;
+               
+               if (isDriverSelected) {
+                 color = baseColor;
+                 borderWidth = 3;
+                 pointRadius = 4;
+                 pointHoverRadius = 6;
+               } else {
+                 color = colorManager.getDriverColorWithOpacity(driver, 0.3);
+                 borderWidth = 1;
+                 pointRadius = 2;
+                 pointHoverRadius = 4;
+               }
+               
+               return {
+                 label: driver,
+                 data: sortedDates.map(dateKey => {
+                   const dayData = dailyDriverData.get(dateKey);
+                   return dayData ? Math.round((dayData.get(driver) || 0) * 100) / 100 : 0;
+                 }),
+                 borderColor: color,
+                 backgroundColor: color,
+                 pointRadius: pointRadius,
+                 pointHoverRadius: pointHoverRadius,
+                 borderWidth: borderWidth,
+                 fill: false,
+                 tension: 0.25,
+               };
+             });
       
       return {
         labels: sortedDates.map(date => {
