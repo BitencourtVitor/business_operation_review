@@ -10,6 +10,7 @@ import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
 import type { TakeoffRow } from '../types/takeoff';
+import type { PlanoAcao } from '../types/planoAcao';
 import { useTakeoffData } from '../hooks/useTakeoffData';
 import TakeoffFilters from '../components/common/TakeoffWorks/TakeoffFilters';
 import TakeoffMetrics from '../components/common/TakeoffWorks/TakeoffMetrics';
@@ -43,28 +44,6 @@ interface Oportunidade {
   criado_em: string;
   desafios: string[];
   melhorias: string[];
-}
-
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
-
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  status: string;
-  data_limite: string;
 }
 
 interface TakeoffWorksProps {
@@ -383,7 +362,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                   ano: destaque.ano.toString(),
                   positivos: (positivos || []).map((p: { texto: string }) => p.texto),
                   negativos: (negativos || []).map((n: { texto: string }) => n.texto),
-                });
+                } as Destaque);
               } else {
                 setModalData({
                   id: '',
@@ -440,7 +419,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                   ano: oportunidade.ano.toString(),
                   desafios: (desafios || []).map((d: { texto: string }) => d.texto),
                   melhorias: (melhorias || []).map((m: { texto: string }) => m.texto),
-                });
+                } as Oportunidade);
               } else {
                 setModalData({
                   id: '',
@@ -505,7 +484,10 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
               setModalData({
                 ...plano,
                 tela_id: telaId,
-                acoes: acoes || [],
+                acoes: (acoes || []).map(acao => ({
+                  ...acao,
+                  responsaveis: [acao.responsavel]
+                })),
               });
               setModalOpen(true);
             }}
@@ -519,7 +501,7 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 descricao: '',
                 criado_em: new Date().toISOString(),
                 data_inicio: '',
-                data_fim: '',
+                data_fim: null,
                 acoes: [],
               });
               setModalOpen(true);
@@ -529,6 +511,10 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
               setModalData({
                 ...plano,
                 tela_id: telaId,
+                acoes: (plano.acoes || []).map(acao => ({
+                  ...acao,
+                  responsaveis: [acao.responsavel]
+                })),
               });
               setViewModalOpen(true);
             }}
@@ -536,19 +522,22 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
           />
         </div>
       </div>
-      {modalOpen && modalType === 'destaque' && (
+      {modalOpen && modalType === 'destaque' && modalData && (
         <DestaqueModal
+          key={`destaque-modal-${modalData.id || 'new'}`}
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
           onSaved={handleSave}
+          usuarioId={usuarioId}
         />
       )}
-      {modalOpen && modalType === 'oportunidade' && (
+      {modalOpen && modalType === 'oportunidade' && modalData && (
         <OportunidadeModal
+          key={`oportunidade-modal-${modalData.id || 'new'}`}
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+          data={modalData as Oportunidade}
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
