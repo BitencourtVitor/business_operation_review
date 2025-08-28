@@ -102,7 +102,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'destaque' | 'oportunidade' | 'plano'>('destaque');
   const [modalData, setModalData] = useState<Destaque | Oportunidade | PlanoAcao | null>(null);
-  const [refreshTrigger] = useState(0);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   // Verificar se pode editar
   const podeEditar = isResponsavelPelaTela || role === 'dev' || role === 'manager' || role === 'gestor';
@@ -269,6 +269,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
   const handleSave = async () => {
     setModalOpen(false);
     setViewModalOpen(false);
+    setRefreshTrigger(prevTrigger => prevTrigger + 1);
     refetchServiceData();
   };
 
