@@ -28,11 +28,12 @@ interface FuelDriverData {
   wex_value: number;
   idle_time_hours: number;
   idle_fuel_consumption: number;
+  idle_fuel_percentage: number;
 }
 
 export default function FuelControlTable({ filteredSamsara, filteredWex, selectedDrivers, driverNames }: FuelControlTableProps) {
   // Estados para ordenação da tabela
-  const [sortBy, setSortBy] = React.useState<'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
+  const [sortBy, setSortBy] = React.useState<'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_fuel_percentage' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -91,7 +92,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           wex_supplied: 0,
           wex_value: 0,
           idle_time_hours: 0,
-          idle_fuel_consumption: 0
+          idle_fuel_consumption: 0,
+          idle_fuel_percentage: 0
         };
         
 
@@ -134,7 +136,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           wex_supplied: 0,
           wex_value: 0,
           idle_time_hours: 0,
-          idle_fuel_consumption: 0
+          idle_fuel_consumption: 0,
+          idle_fuel_percentage: 0
         };
       }
       drivers[normalizedName].wex_supplied += transaction.units || 0;
@@ -150,6 +153,13 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
         driver.average_performance = Math.round((driver.total_distance / tripFuelConsumption) * 100) / 100;
       } else {
         driver.average_performance = 0;
+      }
+      
+      // Calcular percentual de combustível gasto com carro parado
+      if (driver.total_consumption > 0) {
+        driver.idle_fuel_percentage = Math.round((driver.idle_fuel_consumption / driver.total_consumption) * 100 * 100) / 100;
+      } else {
+        driver.idle_fuel_percentage = 0;
       }
     });
 
@@ -188,6 +198,9 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
        } else if (sortBy === 'idle_fuel_consumption') {
          vA = a[1].idle_fuel_consumption;
          vB = b[1].idle_fuel_consumption;
+       } else if (sortBy === 'idle_fuel_percentage') {
+         vA = a[1].idle_fuel_percentage;
+         vB = b[1].idle_fuel_percentage;
        } else if (sortBy === 'idle_time') {
          vA = a[1].idle_time_hours;
          vB = b[1].idle_time_hours;
@@ -350,6 +363,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                    <option value="total_distance">Total Distance (mi)</option>
                    <option value="total_consumption">Total Consumed (gal)</option>
                    <option value="idle_fuel_consumption">Idle Fuel (gal)</option>
+                   <option value="idle_fuel_percentage">Idle %</option>
                    <option value="idle_time">Idle Time (hours)</option>
                    <option value="wex_supplied">WEX Supplied (gal)</option>
                    <option value="wex_value">WEX Value ($)</option>
@@ -400,6 +414,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Distance (mi)</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Fuel (gal)</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle %</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Time</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
                 <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
@@ -432,13 +447,10 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>{data.total_distance.toFixed(1)}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'rgba(27, 191, 92, 0.75)', textAlign: 'right' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
-                      <span>{data.idle_fuel_consumption.toFixed(1)}</span>
-                      <span style={{ color: 'var(--color-text-secondary)', opacity: 0.7 }}>•</span>
-                      <span style={{ color: 'var(--color-text-secondary)', opacity: 0.7 }}>
-                        {data.total_consumption > 0 ? `${((data.idle_fuel_consumption / data.total_consumption) * 100).toFixed(1)}%` : '0%'}
-                      </span>
-                    </div>
+                    {data.idle_fuel_consumption.toFixed(1)}
+                  </td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'rgba(27, 191, 92, 0.75)', textAlign: 'right' }}>
+                    {data.idle_fuel_percentage.toFixed(1)}%
                   </td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#ff6b35', textAlign: 'right' }}>{formatIdleTime(data.idle_time_hours)}h</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
@@ -448,7 +460,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                              {/* Interface de "sem dados" quando não há dados para exibir */}
                {Object.keys(filteredGroupedData).length === 0 && (
                  <tr>
-                   <td colSpan={10} style={{ 
+                   <td colSpan={11} style={{ 
                      padding: '40px 20px', 
                      border: '1px solid var(--color-border-divider)', 
                      textAlign: 'center',
