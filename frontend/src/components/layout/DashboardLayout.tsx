@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logoWhite from '../assets/logo_white.png';
+import logoBlack from '../assets/logo_black.png';
 import type { Tela, Permissao } from '../../types/common';
 import { ROLES } from '../../utils/constants';
 
@@ -118,7 +121,7 @@ export default function DashboardLayout({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 215, minWidth: 215, height: '100%', justifyContent: 'center', borderRight: '1.5px solid var(--color-border-divider)'}}>
           <img
-            src={theme === 'dark' ? '/src/assets/logo_white.png' : '/src/assets/logo_black.png'}
+            src={theme === 'dark' ? logoWhite : logoBlack}
             alt="Logo"
             style={{
               width: '75%',
