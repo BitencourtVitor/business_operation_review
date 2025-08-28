@@ -245,7 +245,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }
@@ -335,7 +335,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }
@@ -445,7 +445,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }
@@ -536,7 +536,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }
@@ -637,7 +637,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }
@@ -716,7 +716,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             color = highlightColors[index % highlightColors.length];
             borderWidth = 3;
           } else {
-            color = neutralColor;
+            color = neutralColor + '80'; // 50% de opacidade
             borderWidth = 1;
           }
         }

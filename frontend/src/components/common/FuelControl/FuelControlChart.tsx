@@ -464,7 +464,7 @@ export function FuelControlChart({
               color = highlightColors[index % highlightColors.length];
               borderWidth = 3;
             } else {
-              color = neutralColor;
+              color = neutralColor + '80'; // 50% de opacidade
               borderWidth = 1;
             }
           }
@@ -551,7 +551,7 @@ export function FuelControlChart({
              color = highlightColors[index % highlightColors.length];
              borderWidth = 3;
            } else {
-             color = neutralColor;
+             color = neutralColor + '80'; // 50% de opacidade
              borderWidth = 1;
            }
          }
