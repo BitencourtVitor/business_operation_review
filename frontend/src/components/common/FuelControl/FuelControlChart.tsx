@@ -653,7 +653,7 @@ export function FuelControlChart({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>WEX</span><span>Cost vs Gallons</span>
             </div>
-            <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo WEX:', e)} onLoad={() => console.log('Logo WEX carregada com sucesso:', wexLogo)} />
+            <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {totalCostVsGallonsData && totalCostVsGallonsOptions ? (
@@ -710,7 +710,7 @@ export function FuelControlChart({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>WEX</span><span>Cost by Driver</span>
             </div>
-            <img src="/src/assets/wex_logo.png" alt="WEX Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo WEX:', e)} onLoad={() => console.log('Logo WEX carregada com sucesso:', '/src/assets/wex_logo.png')} />
+            <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {driverCostData && driverCostOptions ? (
