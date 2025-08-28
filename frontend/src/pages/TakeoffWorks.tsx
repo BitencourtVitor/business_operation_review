@@ -446,8 +446,10 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 .eq('ano', Number(oportunidade.ano));
       
               if (todasOportunidades && todasOportunidades.length > 0) {
+                // Buscar desafios e melhorias para todas as oportunidades do período
                 const { data: todosDesafios } = await supabase.from('desafios').select('*');
                 const { data: todasMelhorias } = await supabase.from('melhorias').select('*');
+                
                 const oportunidadesCompletas = todasOportunidades.map(op => ({
                   ...op,
                   mes: op.mes.toString(),
