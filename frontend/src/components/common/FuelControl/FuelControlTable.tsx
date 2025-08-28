@@ -33,7 +33,7 @@ interface FuelDriverData {
 
 export default function FuelControlTable({ filteredSamsara, filteredWex, selectedDrivers, driverNames }: FuelControlTableProps) {
   // Estados para ordenação da tabela
-  const [sortBy, setSortBy] = React.useState<'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_fuel_percentage' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
+  const [sortBy, setSortBy] = React.useState<'driver' | 'vehicle' | 'estimated_performance' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_fuel_percentage' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -183,34 +183,41 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
     const entries = Object.entries(filteredData);
     entries.sort((a, b) => {
       let vA, vB;
-             if (sortBy === 'driver') {
-         vA = a[0];
-         vB = b[0];
-       } else if (sortBy === 'performance') {
-         vA = a[1].average_performance;
-         vB = b[1].average_performance;
-       } else if (sortBy === 'total_distance') {
-         vA = a[1].total_distance;
-         vB = b[1].total_distance;
-       } else if (sortBy === 'total_consumption') {
-         vA = a[1].total_consumption;
-         vB = b[1].total_consumption;
-       } else if (sortBy === 'idle_fuel_consumption') {
-         vA = a[1].idle_fuel_consumption;
-         vB = b[1].idle_fuel_consumption;
-       } else if (sortBy === 'idle_fuel_percentage') {
-         vA = a[1].idle_fuel_percentage;
-         vB = b[1].idle_fuel_percentage;
-       } else if (sortBy === 'idle_time') {
-         vA = a[1].idle_time_hours;
-         vB = b[1].idle_time_hours;
-       } else if (sortBy === 'wex_supplied') {
-         vA = a[1].wex_supplied;
-         vB = b[1].wex_supplied;
-       } else { // wex_value
-         vA = a[1].wex_value;
-         vB = b[1].wex_value;
-       }
+      
+      if (sortBy === 'vehicle') {
+        vA = a[1].vehicle_model || '';
+        vB = b[1].vehicle_model || '';
+      } else if (sortBy === 'estimated_performance') {
+        vA = a[1].estimated_performance || '';
+        vB = b[1].estimated_performance || '';
+      } else if (sortBy === 'driver') {
+        vA = a[0];
+        vB = b[0];
+      } else if (sortBy === 'performance') {
+        vA = a[1].average_performance;
+        vB = b[1].average_performance;
+      } else if (sortBy === 'total_distance') {
+        vA = a[1].total_distance;
+        vB = b[1].total_distance;
+      } else if (sortBy === 'total_consumption') {
+        vA = a[1].total_consumption;
+        vB = b[1].total_consumption;
+      } else if (sortBy === 'idle_fuel_consumption') {
+        vA = a[1].idle_fuel_consumption;
+        vB = b[1].idle_fuel_consumption;
+      } else if (sortBy === 'idle_fuel_percentage') {
+        vA = a[1].idle_fuel_percentage;
+        vB = b[1].idle_fuel_percentage;
+      } else if (sortBy === 'idle_time') {
+        vA = a[1].idle_time_hours;
+        vB = b[1].idle_time_hours;
+      } else if (sortBy === 'wex_supplied') {
+        vA = a[1].wex_supplied;
+        vB = b[1].wex_supplied;
+      } else { // wex_value
+        vA = a[1].wex_value;
+        vB = b[1].wex_value;
+      }
       
       if (vA < vB) return sortDir === 'asc' ? -1 : 1;
       if (vA > vB) return sortDir === 'asc' ? 1 : -1;
@@ -345,7 +352,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
             <div style={{ height: 42, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)' }}>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by</span>
               <div style={{ position: 'relative', display: 'inline-block' }}>
-                                                  <select value={sortBy} onChange={e => setSortBy(e.target.value as 'driver' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_time' | 'wex_supplied' | 'wex_value')}
+                                                  <select value={sortBy} onChange={e => setSortBy(e.target.value as 'driver' | 'vehicle' | 'estimated_performance' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_fuel_percentage' | 'idle_time' | 'wex_supplied' | 'wex_value')}
                    style={{
                      background: 'var(--color-background-primary)',
                      color: 'var(--color-text-primary)',
@@ -359,6 +366,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                      minWidth: 110,
                    }}>
                    <option value="driver">Driver</option>
+                   <option value="vehicle">Vehicle</option>
+                   <option value="estimated_performance">Estimated Performance</option>
                    <option value="performance">Performed (MPG)</option>
                    <option value="total_distance">Total Distance (mi)</option>
                    <option value="total_consumption">Total Consumed (gal)</option>
