@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { supabase } from '../supabaseClient';
 import type { SamsaraEvent, WexTransaction, EmployeeName } from '../types/fuelControl';
 
@@ -77,7 +78,8 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
         setSamsaraProgress(100);
         setSamsaraEvents(data || []);
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Erro ao carregar eventos Samsara:', error);
       setError('Erro ao carregar eventos Samsara');
     }
   };
@@ -144,6 +146,7 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
         .order('normalized_name');
 
       if (error) throw error;
+      
       setEmployeeProgress(100);
       setEmployeeNames(data || []);
     } catch (err) {
@@ -152,10 +155,6 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
   };
 
   const loadAllData = async () => {
-    if (isDataLoaded) {
-      return;
-    }
-
     setLoading(true);
     setError(null);
     
@@ -166,6 +165,7 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
         fetchWexTransactions(),
         fetchEmployeeNames()
       ]);
+      
       setIsDataLoaded(true);
     } catch (err) {
       setError('Erro durante carregamento dos dados');

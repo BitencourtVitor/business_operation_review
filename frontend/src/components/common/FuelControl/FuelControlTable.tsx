@@ -6,11 +6,21 @@ interface FuelControlTableProps {
   filteredSamsara: SamsaraEvent[];
   filteredWex: WexTransaction[];
   selectedDrivers: string[];
-  driverNames: Array<{ id: number; normalized_name: string; wex_name: string | null; samsara_name: string | null }>;
+  driverNames: Array<{ 
+    id: number; 
+    normalized_name: string; 
+    wex_name: string | null; 
+    samsara_name: string | null;
+    vehicle_model: string | null;
+    vehicle_min_consumption: number | null;
+    vehicle_max_consumption: number | null;
+  }>;
 }
 
 interface FuelDriverData {
   driver_name: string;
+  vehicle_model: string | null;
+  estimated_performance: string | null;
   average_performance: number;
   total_consumption: number;
   total_distance: number;
@@ -26,6 +36,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   const [searchText, setSearchText] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Função para formatar o tempo de idle
@@ -47,13 +59,32 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
       );
       return found ? found.normalized_name : name;
     };
+
+    // Função para obter dados do funcionário
+    const getEmployeeData = (name: string) => {
+      const found = driverNames.find(d => 
+        d.wex_name === name || d.samsara_name === name
+      );
+      
+
+      
+      return found;
+    };
     
     // Processar dados do Samsara
     filteredSamsara.forEach(event => {
       const normalizedName = normalizeName(event.nome);
+      const employeeData = getEmployeeData(event.nome);
+      
+
+      
       if (!drivers[normalizedName]) {
         drivers[normalizedName] = {
           driver_name: normalizedName,
+          vehicle_model: employeeData?.vehicle_model || null,
+          estimated_performance: employeeData?.vehicle_min_consumption && employeeData?.vehicle_max_consumption 
+            ? `${employeeData.vehicle_min_consumption} - ${employeeData.vehicle_max_consumption}` 
+            : null,
           average_performance: 0,
           total_consumption: 0,
           total_distance: 0,
@@ -62,6 +93,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
           idle_time_hours: 0,
           idle_fuel_consumption: 0
         };
+        
+
       }
       
       drivers[normalizedName].total_consumption += event.units || 0;
@@ -86,9 +119,15 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
     // Processar dados do WEX
     filteredWex.forEach(transaction => {
       const normalizedName = normalizeName(transaction.nome);
+      const employeeData = getEmployeeData(transaction.nome);
+      
       if (!drivers[normalizedName]) {
         drivers[normalizedName] = {
           driver_name: normalizedName,
+          vehicle_model: employeeData?.vehicle_model || null,
+          estimated_performance: employeeData?.vehicle_min_consumption && employeeData?.vehicle_max_consumption 
+            ? `${employeeData.vehicle_min_consumption} - ${employeeData.vehicle_max_consumption}` 
+            : null,
           average_performance: 0,
           total_consumption: 0,
           total_distance: 0,
@@ -192,6 +231,34 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
 
   return (
     <>
+      {/* Tooltip customizado */}
+      {showTooltip && (
+        <div
+          style={{
+            position: 'fixed',
+            left: tooltipPosition.x,
+            top: tooltipPosition.y,
+            transform: 'translateX(-50%) translateY(-100%)',
+            background: 'var(--color-background-primary)',
+            color: 'var(--color-text-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            fontSize: '13px',
+            fontWeight: '500',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            zIndex: 1000,
+            maxWidth: '200px',
+            whiteSpace: 'normal',
+            pointerEvents: 'none',
+            textAlign: 'center'
+          }}
+        >
+          <div style={{ fontWeight: '600', marginBottom: '4px' }}>Estimated Performance</div>
+          <div style={{ fontSize: '12px', opacity: 0.8, lineHeight: '1.3' }}>Consumo estimado de combustível do veículo (gal/mi)</div>
+        </div>
+      )}
+      
       <div style={{ 
         background: 'var(--color-background-primary)', 
         padding: '8px 20px',
@@ -279,7 +346,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                      minWidth: 110,
                    }}>
                    <option value="driver">Driver</option>
-                   <option value="performance">Performance (MPG)</option>
+                   <option value="performance">Performed (MPG)</option>
                    <option value="total_distance">Total Distance (mi)</option>
                    <option value="total_consumption">Total Consumed (gal)</option>
                    <option value="idle_fuel_consumption">Idle Fuel (gal)</option>
@@ -317,7 +384,19 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
             <thead>
               <tr style={{ background: 'var(--color-background-secondary)' }}>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Driver</th>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Performance</th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2, width: 'auto', minWidth: 'fit-content' }}>Vehicle</th>
+                <th 
+                  style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2, cursor: 'help' }}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setTooltipPosition({ x: rect.left + rect.width / 2, y: rect.top - 5 });
+                    setShowTooltip(true);
+                  }}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  EP
+                </th>
+                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Performed</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Distance (mi)</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Total Consumed (gal)</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Fuel (gal)</th>
@@ -330,11 +409,38 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                              {Object.entries(filteredGroupedData).map(([driverName, data]) => (
                 <tr key={driverName}>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{data.driver_name}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.average_performance.toFixed(1)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.vehicle_model || '-'}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{data.estimated_performance || '-'}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                      <span style={{ 
+                        color: data.estimated_performance && data.average_performance < parseFloat(data.estimated_performance.split(' - ')[0]) ? '#dc3545' : 
+                               data.estimated_performance && data.average_performance > parseFloat(data.estimated_performance.split(' - ')[1]) ? '#28a745' : 
+                               'var(--color-text-secondary)',
+                        fontWeight: data.estimated_performance && (data.average_performance < parseFloat(data.estimated_performance.split(' - ')[0]) || data.average_performance > parseFloat(data.estimated_performance.split(' - ')[1])) ? '600' : 'normal'
+                      }}>
+                        {data.average_performance.toFixed(1)}
+                      </span>
+                      {data.estimated_performance && data.average_performance < parseFloat(data.estimated_performance.split(' - ')[0]) && (
+                        <i className="bi bi-exclamation-triangle" style={{ color: '#dc3545', fontSize: '14px' }} title="Performance abaixo do limite mínimo estimado" />
+                      )}
+                      {data.estimated_performance && data.average_performance > parseFloat(data.estimated_performance.split(' - ')[1]) && (
+                        <i className="bi bi-check-circle" style={{ color: '#28a745', fontSize: '14px' }} title="Performance acima do limite máximo estimado - Excelente!" />
+                      )}
+                    </div>
+                  </td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'right' }}>{data.total_distance.toFixed(1)}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{data.total_consumption.toFixed(1)}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'rgba(27, 191, 92, 0.75)', textAlign: 'right' }}>{data.idle_fuel_consumption.toFixed(1)}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#ff6b35', textAlign: 'right' }}>{formatIdleTime(data.idle_time_hours)}</td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'rgba(27, 191, 92, 0.75)', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                      <span>{data.idle_fuel_consumption.toFixed(1)}</span>
+                      <span style={{ color: 'var(--color-text-secondary)', opacity: 0.7 }}>•</span>
+                      <span style={{ color: 'var(--color-text-secondary)', opacity: 0.7 }}>
+                        {data.total_consumption > 0 ? `${((data.idle_fuel_consumption / data.total_consumption) * 100).toFixed(1)}%` : '0%'}
+                      </span>
+                    </div>
+                  </td>
+                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#ff6b35', textAlign: 'right' }}>{formatIdleTime(data.idle_time_hours)}h</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
                 </tr>
@@ -342,7 +448,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                              {/* Interface de "sem dados" quando não há dados para exibir */}
                {Object.keys(filteredGroupedData).length === 0 && (
                  <tr>
-                   <td colSpan={8} style={{ 
+                   <td colSpan={10} style={{ 
                      padding: '40px 20px', 
                      border: '1px solid var(--color-border-divider)', 
                      textAlign: 'center',

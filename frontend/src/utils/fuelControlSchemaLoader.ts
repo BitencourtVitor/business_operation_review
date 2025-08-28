@@ -51,7 +51,10 @@ CREATE TABLE IF NOT EXISTS employee_names (
     normalized_name TEXT NOT NULL,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    vehicle_model TEXT NULL,
+    vehicle_min_consumption BIGINT NULL,
+    vehicle_max_consumption BIGINT NULL
 );
 
 -- Índices para performance

@@ -95,16 +95,29 @@ export const useFuelControlData = () => {
 
   const fetchEmployeeNames = async () => {
     try {
+      console.log('🔍 Hook Debug - Iniciando busca de employee_names...');
+      
       const { data, error } = await supabase
         .from('employee_names')
         .select('*')
         .eq('is_active', true)
         .order('normalized_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Hook Erro na consulta employee_names:', error);
+        throw error;
+      }
+      
+      console.log('🔍 Hook Debug - employee_names carregados:', data);
+      console.log('🔍 Hook Debug - Quantidade de registros:', data?.length || 0);
+      
+      if (data && data.length > 0) {
+        console.log('🔍 Hook Debug - Primeiro registro:', data[0]);
+      }
+      
       setEmployeeNames(data || []);
     } catch (err) {
-      console.error('Erro ao buscar nomes de funcionários:', err);
+      console.error('❌ Hook Erro ao buscar nomes de funcionários:', err);
       setError('Erro ao carregar nomes de funcionários');
     }
   };

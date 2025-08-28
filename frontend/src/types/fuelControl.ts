@@ -35,6 +35,9 @@ export interface EmployeeName {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  vehicle_model: string | null;
+  vehicle_min_consumption: number | null;
+  vehicle_max_consumption: number | null;
 }
 
 export interface FuelConsumptionData {
