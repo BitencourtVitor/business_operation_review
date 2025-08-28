@@ -5,6 +5,7 @@ import {
   FuelControlChart,
   FuelControlTable
 } from '../components/common/FuelControl';
+import FuelControlChartDetail from '../components/common/FuelControl/FuelControlChartDetail';
 import React from 'react';
 
 interface FuelControlProps {
@@ -65,7 +66,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     return normalized?.normalized_name || trimmedName;
   }, [driverNames]);
 
-  // Função para obter dados filtrados (apenas por data, não por motoristas)
+  // Função para obter dados filtrados (apenas por data, não por motoristas - para mostrar todas as linhas)
   const getFilteredDataForCharts = useCallback(() => {
     let filteredSamsara = samsaraEvents || [];
     let filteredWex = wexTransactions || [];
@@ -99,6 +100,9 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
         return transactionMonth === selectedMonth;
       });
     }
+
+    // NÃO filtrar por motoristas - deixar todos os dados para os gráficos exibirem
+    // com cores diferentes baseadas na seleção
 
     return { filteredSamsara, filteredWex };
   }, [selectedYear, selectedMonth, samsaraEvents, wexTransactions]);
@@ -191,11 +195,9 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       // Atualizar opções disponíveis
       setAvailableDriverOptions(availableDriverNames);
       
-      // Sempre sincronizar drivers selecionados com os disponíveis
-      if (availableDriverNames.length > 0) {
-
-
-        setSelectedDrivers([...availableDriverNames]); // Usar spread para criar novo array
+      // Inicialmente, nenhum motorista selecionado para mostrar todas as linhas com cores diferentes
+      if (availableDriverNames.length > 0 && selectedDrivers.length === 0) {
+        setSelectedDrivers([]); // Array vazio = nenhum motorista selecionado
       }
       
       // Log para debug
@@ -291,9 +293,23 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
            {(() => {
              const filteredData = getFilteredDataForCharts();
+             
+             if (isDetailView) {
+               return (
+                 <FuelControlChartDetail 
+                   filteredWex={filteredData?.filteredWex || []}
+                   filteredSamsara={filteredData?.filteredSamsara || []}
+                   selectedYear={selectedYear}
+                   selectedMonth={selectedMonth}
+                   selectedDrivers={selectedDrivers}
+                   driverNames={driverNames || []}
+                 />
+               );
+             }
+             
              return (
                <FuelControlChart 
-                 filteredWex={filteredData.filteredWex}
+                 filteredWex={filteredData?.filteredWex || []}
                  selectedYear={selectedYear}
                  selectedMonth={selectedMonth}
                  selectedDrivers={selectedDrivers}
@@ -309,8 +325,8 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
             const filteredData = getFilteredData();
             return (
               <FuelControlTable 
-                filteredSamsara={filteredData.filteredSamsara}
-                filteredWex={filteredData.filteredWex}
+                filteredSamsara={filteredData?.filteredSamsara || []}
+                filteredWex={filteredData?.filteredWex || []}
                 selectedDrivers={selectedDrivers}
                 driverNames={driverNames || []}
               />
