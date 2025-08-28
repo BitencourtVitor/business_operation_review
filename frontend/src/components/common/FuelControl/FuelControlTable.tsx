@@ -194,7 +194,8 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
     <>
       <div style={{ 
         background: 'var(--color-background-primary)', 
-        padding: '16px 20px 16px 20px'
+        padding: '8px 20px',
+        borderTop: '1px solid var(--color-border-divider)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center' }} className='justify-content-between'>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -311,7 +312,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
         </div>
       </div>
       <div style={{ background: 'var(--color-background-primary)', overflow: 'hidden', width: '100%', flex: '1 1 0%', display: 'flex', flexDirection: 'column', minHeight: 0, maxHeight: '40vh', padding: '0 10px 10px 10px' }}>
-        <div style={{ height: 327, overflowY: 'auto', width: '100%' }} className="custom-scrollbar">
+        <div style={{ height: '100%', overflowY: 'auto', width: '100%' }} className="custom-scrollbar">
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, tableLayout: 'auto' }}>
             <thead>
               <tr style={{ background: 'var(--color-background-secondary)' }}>

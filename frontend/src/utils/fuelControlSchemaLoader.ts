@@ -1,24 +1,87 @@
 import { supabase } from '../supabaseClient';
 
+// Esquemas SQL para as tabelas de Fuel Control
+const samsaraSchema = `
+-- Schema para tabela Samsara (eventos unificados)
+CREATE TABLE IF NOT EXISTS samsara_events (
+    id BIGSERIAL PRIMARY KEY,
+    event_key TEXT UNIQUE NOT NULL,
+    event_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    nome TEXT NOT NULL,
+    local TEXT,
+    distancia DECIMAL(10,2) DEFAULT 0,
+    units DECIMAL(10,3) NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('idle', 'trip')),
+    duration INTERVAL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para melhorar performance
+CREATE INDEX IF NOT EXISTS idx_samsara_events_event_key ON samsara_events(event_key);
+CREATE INDEX IF NOT EXISTS idx_samsara_events_event_date ON samsara_events(event_date);
+CREATE INDEX IF NOT EXISTS idx_samsara_events_nome ON samsara_events(nome);
+CREATE INDEX IF NOT EXISTS idx_samsara_events_type ON samsara_events(type);
+`;
+
+const wexSchema = `
+-- Schema para tabela WEX (transações de combustível)
+CREATE TABLE IF NOT EXISTS wex_transactions (
+    id BIGSERIAL PRIMARY KEY,
+    transaction_key TEXT UNIQUE NOT NULL,
+    transaction_date DATE NOT NULL,
+    nome TEXT NOT NULL,
+    units DECIMAL(10,3) NOT NULL,
+    valor DECIMAL(10,2) NOT NULL,
+    local TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para performance
+CREATE INDEX IF NOT EXISTS idx_wex_transactions_transaction_key ON wex_transactions(transaction_key);
+CREATE INDEX IF NOT EXISTS idx_wex_transactions_transaction_date ON wex_transactions(transaction_date);
+CREATE INDEX IF NOT EXISTS idx_wex_transactions_nome ON wex_transactions(nome);
+`;
+
+const employeeNamesSchema = `
+-- Tabela de normalização de nomes de funcionários
+CREATE TABLE IF NOT EXISTS employee_names (
+    id BIGSERIAL PRIMARY KEY,
+    wex_name TEXT UNIQUE,
+    samsara_name TEXT UNIQUE,
+    normalized_name TEXT NOT NULL,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Índices para performance
+CREATE INDEX IF NOT EXISTS idx_employee_names_wex_name ON employee_names(wex_name);
+CREATE INDEX IF NOT EXISTS idx_employee_names_samsara_name ON employee_names(samsara_name);
+CREATE INDEX IF NOT EXISTS idx_employee_names_normalized_name ON employee_names(normalized_name);
+`;
+
 export const loadFuelControlSchema = async () => {
   try {
-    // Verificar se as tabelas já existem
-    const { data: existingTables, error: listError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
-      .in('table_name', ['samsara_events', 'wex_transactions', 'employee_names']);
+    // Verificar se as tabelas já existem usando uma abordagem compatível com Supabase
+    const tablesToCheck = ['samsara_events', 'wex_transactions', 'employee_names'];
+    const existingTables: string[] = [];
 
-    if (listError) {
-      throw listError;
+    for (const tableName of tablesToCheck) {
+      try {
+        const { error } = await supabase
+          .from(tableName)
+          .select('*')
+          .limit(1);
+        
+        if (!error) {
+          existingTables.push(tableName);
+        }
+      } catch (err) {
+        // Tabela não existe, continuar
+      }
     }
 
-    if (existingTables && existingTables.length >= 3) {
-      // Log quando as tabelas já existem
-      const existingSummary = {
-        message: 'Tabelas de Fuel Control já existem',
-        existingTables: existingTables.map(t => t.table_name)
-      };
+    if (existingTables.length >= 3) {
       return { success: true, message: 'Esquema já existe' };
     }
 
@@ -35,12 +98,6 @@ export const loadFuelControlSchema = async () => {
         throw new Error(`Erro ao executar ${schema.name}: ${error.message}`);
       }
     }
-
-    // Log de sucesso
-    const successSummary = {
-      message: 'Esquema de Fuel Control carregado com sucesso',
-      tablesCreated: schemas.length
-    };
 
     return { success: true, message: 'Esquema carregado com sucesso' };
   } catch (error) {
