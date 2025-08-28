@@ -10,6 +10,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import wexLogo from '../../../assets/wex_logo.png';
+import samsaraLogo from '../../../assets/samsara_logo.png';
 import dayjs from 'dayjs';
 import type { SamsaraEvent, WexTransaction, EmployeeName } from '../../../types/fuelControl';
 
@@ -815,7 +817,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>SAMSARA</span><span>Performance per Gallon</span>
             </div>
-            <img src="/src/assets/samsara_logo.png" alt="Samsara Logo" style={{ height: '25px', width: 'auto' }} />
+            <img src={samsaraLogo} alt="Samsara Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo Samsara:', e)} onLoad={() => console.log('Logo Samsara carregada com sucesso:', samsaraLogo)} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {performancePerGallonData ? (
@@ -873,7 +875,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>SAMSARA</span><span>Idle Consumption Impact</span>
             </div>
-            <img src="/src/assets/samsara_logo.png" alt="Samsara Logo" style={{ height: '25px', width: 'auto' }} />
+            <img src={samsaraLogo} alt="Samsara Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo Samsara:', e)} onLoad={() => console.log('Logo Samsara carregada com sucesso:', samsaraLogo)} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {idleConsumptionData ? (
@@ -930,7 +932,7 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>WEX</span><span>Cost by Driver</span>
             </div>
-            <img src="/src/assets/wex_logo.png" alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
+            <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {driverConsumptionData ? (

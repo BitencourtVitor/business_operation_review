@@ -10,6 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
+import wexLogo from '../../../assets/wex_logo.png';
 
 import dayjs from 'dayjs';
 import type { WexTransaction } from '../../../types/fuelControl';
@@ -648,12 +649,12 @@ export function FuelControlChart({
           flexDirection: 'column',
           borderRight: '1px solid var(--color-border-divider)'
         }}>
-            <h5 className='mx-3 my-1 d-flex justify-content-between align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 30 }}>
-              <div style={{ display: 'flex', gap: 6}}>
-                <span style={{ fontWeight: 600}}>WEX</span><span>Cost vs Gallons</span>
-              </div>
-              <img src="/src/assets/wex_logo.png" alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
-            </h5>
+                      <h5 className='mx-3 my-1 d-flex justify-content-between align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 30 }}>
+            <div style={{ display: 'flex', gap: 6}}>
+              <span style={{ fontWeight: 600}}>WEX</span><span>Cost vs Gallons</span>
+            </div>
+            <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo WEX:', e)} onLoad={() => console.log('Logo WEX carregada com sucesso:', wexLogo)} />
+          </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {totalCostVsGallonsData && totalCostVsGallonsOptions ? (
               <Line data={totalCostVsGallonsData} options={totalCostVsGallonsOptions} />
@@ -709,7 +710,7 @@ export function FuelControlChart({
             <div style={{ display: 'flex', gap: 6}}>
               <span style={{ fontWeight: 600}}>WEX</span><span>Cost by Driver</span>
             </div>
-            <img src="/src/assets/wex_logo.png" alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
+            <img src="/src/assets/wex_logo.png" alt="WEX Logo" style={{ height: '25px', width: 'auto' }} onError={(e) => console.error('Erro ao carregar logo WEX:', e)} onLoad={() => console.log('Logo WEX carregada com sucesso:', '/src/assets/wex_logo.png')} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
             {driverCostData && driverCostOptions ? (
