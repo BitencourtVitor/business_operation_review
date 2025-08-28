@@ -65,7 +65,45 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     return normalized?.normalized_name || trimmedName;
   }, [driverNames]);
 
-  // Função para obter dados filtrados
+  // Função para obter dados filtrados (apenas por data, não por motoristas)
+  const getFilteredDataForCharts = useCallback(() => {
+    let filteredSamsara = samsaraEvents || [];
+    let filteredWex = wexTransactions || [];
+
+    // Filtrar por ano apenas se um ano específico estiver selecionado
+    if (selectedYear) {
+      filteredSamsara = filteredSamsara.filter(event => {
+        if (!event.event_date) return false;
+        const eventYear = event.event_date.split('-')[0];
+        return eventYear === selectedYear;
+      });
+
+      filteredWex = filteredWex.filter(transaction => {
+        if (!transaction.transaction_date) return false;
+        const transactionYear = transaction.transaction_date.split('-')[0];
+        return transactionYear === selectedYear;
+      });
+    }
+
+    // Filtrar por mês se selecionado
+    if (selectedMonth) {
+      filteredSamsara = filteredSamsara.filter(event => {
+        if (!event.event_date) return false;
+        const eventMonth = event.event_date.split('-')[1];
+        return eventMonth === selectedMonth;
+      });
+
+      filteredWex = filteredWex.filter(transaction => {
+        if (!transaction.transaction_date) return false;
+        const transactionMonth = transaction.transaction_date.split('-')[1];
+        return transactionMonth === selectedMonth;
+      });
+    }
+
+    return { filteredSamsara, filteredWex };
+  }, [selectedYear, selectedMonth, samsaraEvents, wexTransactions]);
+
+  // Função para obter dados filtrados (incluindo motoristas para a tabela)
   const getFilteredData = useCallback(() => {
     let filteredSamsara = samsaraEvents || [];
     let filteredWex = wexTransactions || [];
@@ -105,9 +143,6 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     
     // Filtrar por motoristas selecionados
     if (driversToUse.length > 0) {
-      
-      
-      
       filteredSamsara = filteredSamsara.filter(event => {
         const normalizedName = normalizeDriverName(event.nome);
         return driversToUse.includes(normalizedName);
@@ -117,8 +152,6 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
         const normalizedName = normalizeDriverName(transaction.nome);
         return driversToUse.includes(normalizedName);
       });
-    } else {
-      
     }
 
     return { filteredSamsara, filteredWex };
@@ -257,13 +290,13 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
                  {/* Gráficos principais - ocupam todo o espaço disponível */}
          <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
            {(() => {
-             const filteredData = getFilteredData();
+             const filteredData = getFilteredDataForCharts();
              return (
                <FuelControlChart 
-                 filteredSamsara={filteredData.filteredSamsara}
                  filteredWex={filteredData.filteredWex}
                  selectedYear={selectedYear}
                  selectedMonth={selectedMonth}
+                 selectedDrivers={selectedDrivers}
                  driverNames={driverNames || []}
                />
              );
