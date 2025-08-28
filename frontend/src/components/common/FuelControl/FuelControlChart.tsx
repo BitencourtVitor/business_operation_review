@@ -30,20 +30,23 @@ ChartJS.register({
   afterDraw: (chart: any) => {
     const ctx = chart.ctx;
     
-    // Verificar se é o gráfico correto (segundo gráfico)
+    // Verificar se é um gráfico válido
     if (!chart.data || !chart.data.datasets || chart.data.datasets.length === 0) return;
     
-    // Verificar se é o gráfico de motoristas (deve ter datasets com labels de motoristas)
+    // Verificar se é um gráfico com datasets que têm labels (não é um gráfico simples)
     const firstDataset = chart.data.datasets[0];
-    if (!firstDataset || !firstDataset.label || firstDataset.label === 'Total Cost ($)') return;
+    if (!firstDataset || !firstDataset.label) return;
     
-    // Apenas mostrar badges se alguns motoristas estiverem selecionados
+    // Verificar se é um gráfico de motoristas (deve ter múltiplos datasets com nomes de motoristas)
+    if (chart.data.datasets.length === 1 && firstDataset.label === 'Total Cost ($)') return; // Primeiro gráfico WEX
+    
+    // Mostrar badges apenas se alguns motoristas estiverem selecionados (não todos)
     const allDrivers = new Set(chart.data.datasets.map((ds: any) => ds.label));
     const selectedDrivers = chart.options?.selectedDrivers || [];
     
-    // CORREÇÃO: Verificar se TODOS os motoristas estão selecionados
+    // Mostrar badges apenas se alguns motoristas estiverem selecionados (não todos e não nenhum)
     if (!selectedDrivers || selectedDrivers.length === 0 || selectedDrivers.length >= Array.from(allDrivers).length) {
-      return; // Não mostrar badges se todos estiverem selecionados
+      return; // Não mostrar badges se todos estiverem selecionados ou se nenhum estiver selecionado
     }
     
     // Encontrar o último ponto de cada linha para posicionar as badges
@@ -183,6 +186,12 @@ export function FuelControlChart({
         
         if (selectedYear && year !== selectedYear) return;
         
+        // Filtrar por motoristas selecionados
+        const driverName = normalizeName(transaction.nome as unknown as string);
+        if (selectedDrivers.length > 0 && !selectedDrivers.includes(driverName)) {
+          return; // Pular se o motorista não estiver selecionado
+        }
+        
         const monthKey = `${year}-${month}`;
         if (!monthlyData.has(monthKey)) {
           monthlyData.set(monthKey, { cost: 0, fuel: 0 });
@@ -257,6 +266,12 @@ export function FuelControlChart({
         
         if (selectedYear && year !== selectedYear) return;
         
+        // Filtrar por motoristas selecionados
+        const driverName = normalizeName(transaction.nome as unknown as string);
+        if (selectedDrivers.length > 0 && !selectedDrivers.includes(driverName)) {
+          return; // Pular se o motorista não estiver selecionado
+        }
+        
         const dateKey = `${year}-${month}-${day}`;
         if (!dailyData.has(dateKey)) {
           dailyData.set(dateKey, { cost: 0, fuel: 0 });
@@ -308,7 +323,7 @@ export function FuelControlChart({
         ]
       };
     }
-  }, [filteredWex, selectedMonth, selectedYear]);
+  }, [filteredWex, selectedMonth, selectedYear, selectedDrivers, normalizeName]);
 
   // Opções para o primeiro gráfico
   const totalCostVsGallonsOptions = useMemo(() => {
