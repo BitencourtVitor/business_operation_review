@@ -37,6 +37,15 @@ Tabela para transações de combustível do WEX:
 - `total_fuel_cost`: Valor total do abastecimento
 - `merchant_city`: Cidade do abastecimento
 
+### `employee_names`
+Tabela de normalização de nomes entre WEX e Samsara:
+- `wex_name`: Nome do funcionário no sistema WEX
+- `samsara_name`: Nome do funcionário no sistema Samsara
+- `normalized_name`: Nome normalizado para uso interno
+- `vehicle_model`: Modelo do veículo do funcionário
+- `vehicle_min_consumption`: Consumo mínimo estimado em MPG
+- `vehicle_max_consumption`: Consumo máximo estimado em MPG
+
 ## 🛠️ Instalação
 
 ```bash
@@ -86,6 +95,22 @@ npm run run-all-wex
 # Pipeline completo Samsara + WEX
 npm run run-all
 ```
+
+## 🔄 Atualizações Recentes
+
+### Novas Colunas de Veículo
+A tabela `employee_names` agora inclui informações sobre os veículos dos funcionários:
+
+- **`vehicle_model`**: Modelo do veículo (ex: "Ford F-150", "Chevrolet Silverado")
+- **`vehicle_min_consumption`**: Consumo mínimo estimado em MPG (ex: 15)
+- **`vehicle_max_consumption`**: Consumo máximo estimado em MPG (ex: 20)
+
+Essas informações são usadas na tabela de Fuel Control para mostrar:
+- Modelo do veículo de cada motorista
+- Performance estimada no formato "15 - 20" MPG
+
+### Script de Atualização
+Execute o script `edge_functions/update_employee_names_table.sql` no seu banco Supabase para adicionar as novas colunas.
 
 ## 🔄 Como Funciona
 

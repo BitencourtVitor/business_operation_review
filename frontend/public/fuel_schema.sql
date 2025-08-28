@@ -64,7 +64,10 @@ CREATE TABLE IF NOT EXISTS employee_names (
     normalized_name TEXT NOT NULL,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    vehicle_model TEXT NULL,
+    vehicle_min_consumption BIGINT NULL,
+    vehicle_max_consumption BIGINT NULL
 );
 
 -- Índices para performance
@@ -74,9 +77,12 @@ CREATE INDEX IF NOT EXISTS idx_employee_names_normalized_name ON employee_names(
 
 -- Comentários para documentação
 COMMENT ON TABLE employee_names IS 'Tabela de normalização de nomes entre WEX e Samsara';
-COMMENT ON COLUMN employee_names.wex_name IS 'Nome como aparece nas transações WEX';
-COMMENT ON COLUMN employee_names.samsara_name IS 'Nome como aparece nos eventos Samsara';
-COMMENT ON COLUMN employee_names.normalized_name IS 'Nome padronizado para uso interno';
+COMMENT ON COLUMN employee_names.wex_name IS 'Nome do funcionário no sistema WEX';
+COMMENT ON COLUMN employee_names.samsara_name IS 'Nome do funcionário no sistema Samsara';
+COMMENT ON COLUMN employee_names.normalized_name IS 'Nome normalizado para uso interno';
+COMMENT ON COLUMN employee_names.vehicle_model IS 'Modelo do veículo do funcionário';
+COMMENT ON COLUMN employee_names.vehicle_min_consumption IS 'Consumo mínimo estimado em MPG';
+COMMENT ON COLUMN employee_names.vehicle_max_consumption IS 'Consumo máximo estimado em MPG';
 
 -- Dados iniciais baseados na análise
 INSERT INTO employee_names (wex_name, samsara_name, normalized_name) VALUES
