@@ -514,20 +514,23 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
       </div>
 
       {/* Modais */}
-      {modalOpen && modalType === 'destaque' && (
+      {modalOpen && modalType === 'destaque' && modalData && (
         <DestaqueModal
+          key={`destaque-modal-${modalData.id || 'new'}`}
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'destaque' ? modalData as Destaque : null}
+          data={modalData as Destaque}
           onSaved={handleSave}
+          usuarioId={usuarioId}
         />
       )}
 
-      {modalOpen && modalType === 'oportunidade' && (
+      {modalOpen && modalType === 'oportunidade' && modalData && (
         <OportunidadeModal
+          key={`oportunidade-modal-${modalData.id || 'new'}`}
           show={modalOpen}
           onClose={() => setModalOpen(false)}
-          data={modalType === 'oportunidade' ? modalData as Oportunidade : null}
+          data={modalData as Oportunidade}
           onSaved={handleSave}
           anoSelecionado={selectedYear?.toString()}
           mesSelecionado={selectedMonth?.toString()}
