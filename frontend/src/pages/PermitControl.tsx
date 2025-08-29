@@ -157,9 +157,68 @@ export default function PermitControl({ telaId: telaIdFromProps, usuarioId, role
   // Buscar dados de permit control
   const { data: permitDataFromHook, error: permitError } = usePermitData();
 
+  // Aplicar os três efeitos solicitados aos dados carregados
   useEffect(() => {
     if (permitDataFromHook) {
-      setPermitData(permitDataFromHook);
+      // Efeito 1: Unificar por Modelo, Jobsite e Lot Address (remover duplicatas)
+      let processedData = permitDataFromHook.reduce((acc: PermitRow[], current) => {
+        const existingIndex = acc.findIndex(item => 
+          item.model === current.model && 
+          item.jobsite === current.jobsite && 
+          item.lot_address === current.lot_address
+        );
+        
+        if (existingIndex === -1) {
+          acc.push(current);
+        }
+        return acc;
+      }, []);
+      
+      // Efeito 2: Adicionar um dia a todas as datas
+      processedData = processedData.map(row => {
+        const addOneDay = (dateStr: string) => {
+          try {
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() + 1);
+            return date.toISOString().split('T')[0];
+          } catch {
+            return dateStr;
+          }
+        };
+        
+        return {
+          ...row,
+          solicitacao: addOneDay(row.solicitacao),
+          aplicacao: addOneDay(row.aplicacao),
+          emissao: addOneDay(row.emissao),
+          vencimento: row.vencimento ? addOneDay(row.vencimento) : undefined
+        };
+      });
+      
+      // Efeito 3: Reorganizar formato das datas (primeiro mês, depois dia)
+      processedData = processedData.map(row => {
+        const reformatDate = (dateStr: string) => {
+          try {
+            const [year, month, day] = dateStr.split('-');
+            if (year && month && day) {
+              return `${year}-${month}-${day}`;
+            }
+            return dateStr;
+          } catch {
+            return dateStr;
+          }
+        };
+        
+        return {
+          ...row,
+          solicitacao: reformatDate(row.solicitacao),
+          aplicacao: reformatDate(row.aplicacao),
+          emissao: reformatDate(row.emissao),
+          vencimento: row.vencimento ? reformatDate(row.vencimento) : undefined
+        };
+      });
+      
+      setPermitData(processedData);
     }
   }, [permitDataFromHook]);
 
