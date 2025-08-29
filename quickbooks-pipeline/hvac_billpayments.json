@@ -1,6 +1,1596 @@
 [
   {
     "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 10088.43,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20641",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-27T09:15:49-07:00",
+      "LastUpdatedTime": "2025-08-28T11:42:14-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 259.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "20576",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 763.77,
+        "LinkedTxn": [
+          {
+            "TxnId": "20578",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1417.29,
+        "LinkedTxn": [
+          {
+            "TxnId": "20642",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 46.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "20643",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 80.46,
+        "LinkedTxn": [
+          {
+            "TxnId": "20580",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 325.16,
+        "LinkedTxn": [
+          {
+            "TxnId": "20389",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 32.07,
+        "LinkedTxn": [
+          {
+            "TxnId": "20584",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 437.08,
+        "LinkedTxn": [
+          {
+            "TxnId": "20585",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 5.33,
+        "LinkedTxn": [
+          {
+            "TxnId": "20461",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2402.31,
+        "LinkedTxn": [
+          {
+            "TxnId": "20212",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2554.46,
+        "LinkedTxn": [
+          {
+            "TxnId": "20372",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 78.69,
+        "LinkedTxn": [
+          {
+            "TxnId": "20469",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 108.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "20374",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 167.03,
+        "LinkedTxn": [
+          {
+            "TxnId": "20470",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 21.37,
+        "LinkedTxn": [
+          {
+            "TxnId": "20375",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 178.42,
+        "LinkedTxn": [
+          {
+            "TxnId": "20439",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 24.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "20471",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 17.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "20472",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 114.73,
+        "LinkedTxn": [
+          {
+            "TxnId": "20473",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 26.72,
+        "LinkedTxn": [
+          {
+            "TxnId": "20474",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 9.07,
+        "LinkedTxn": [
+          {
+            "TxnId": "20573",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 963.54,
+        "LinkedTxn": [
+          {
+            "TxnId": "20574",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 293.13,
+        "LinkedTxn": [
+          {
+            "TxnId": "20575",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 194.39,
+        "LinkedTxn": [
+          {
+            "TxnId": "20640",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      },
+      {
+        "Amount": 44.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "20581",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 10711.08,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20629",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-27T07:20:59-07:00",
+      "LastUpdatedTime": "2025-08-27T07:20:59-07:00"
+    },
+    "DocNumber": "Paid Online",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid Online",
+    "Line": [
+      {
+        "Amount": 1149.61,
+        "LinkedTxn": [
+          {
+            "TxnId": "20096",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 8834.02,
+        "LinkedTxn": [
+          {
+            "TxnId": "20097",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 383.83,
+        "LinkedTxn": [
+          {
+            "TxnId": "20346",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 343.62,
+        "LinkedTxn": [
+          {
+            "TxnId": "20095",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "272",
+      "name": "The Bell Simons Companies"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 1329.13,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20624",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-27T05:57:27-07:00",
+      "LastUpdatedTime": "2025-08-27T05:57:27-07:00"
+    },
+    "DocNumber": "Paid Online",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid Onlie",
+    "Line": [
+      {
+        "Amount": 132.03,
+        "LinkedTxn": [
+          {
+            "TxnId": "19812",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 301.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "20453",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 125.69,
+        "LinkedTxn": [
+          {
+            "TxnId": "20102",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 17.16,
+        "LinkedTxn": [
+          {
+            "TxnId": "20103",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 153.96,
+        "LinkedTxn": [
+          {
+            "TxnId": "20376",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 481.36,
+        "LinkedTxn": [
+          {
+            "TxnId": "20440",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 117.01,
+        "LinkedTxn": [
+          {
+            "TxnId": "20620",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "69",
+      "name": "S.G. Torrice Company / Ferguson"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20623",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-27T05:56:09-07:00",
+      "LastUpdatedTime": "2025-08-27T05:56:09-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 2125.34,
+        "LinkedTxn": [
+          {
+            "TxnId": "18337",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 11071.57,
+        "LinkedTxn": [
+          {
+            "TxnId": "18361",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3196.91,
+        "LinkedTxn": [
+          {
+            "TxnId": "18403",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "12",
+      "name": "Johnstone Supply, Inc."
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 2211.93,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20622",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-27T05:52:28-07:00",
+      "LastUpdatedTime": "2025-08-27T05:52:28-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 236.68,
+        "LinkedTxn": [
+          {
+            "TxnId": "19715",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 104.96,
+        "LinkedTxn": [
+          {
+            "TxnId": "19860",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 158.16,
+        "LinkedTxn": [
+          {
+            "TxnId": "20344",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 233.43,
+        "LinkedTxn": [
+          {
+            "TxnId": "20360",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 160.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "20347",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 149.89,
+        "LinkedTxn": [
+          {
+            "TxnId": "20092",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 264.27,
+        "LinkedTxn": [
+          {
+            "TxnId": "20348",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 18.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "20093",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 686.73,
+        "LinkedTxn": [
+          {
+            "TxnId": "20094",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 389.88,
+        "LinkedTxn": [
+          {
+            "TxnId": "19743",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 191.07,
+        "LinkedTxn": [
+          {
+            "TxnId": "20619",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 14395.48,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20621",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-27T05:44:18-07:00",
+      "LastUpdatedTime": "2025-08-27T05:44:18-07:00"
+    },
+    "DocNumber": "Paid Online",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid Online",
+    "Line": [
+      {
+        "Amount": 1334.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19152",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1334.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19153",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1215.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19156",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1215.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19157",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1215.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19158",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1638.74,
+        "LinkedTxn": [
+          {
+            "TxnId": "19159",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1638.74,
+        "LinkedTxn": [
+          {
+            "TxnId": "19160",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2401.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "18622",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2401.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "18623",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "17",
+      "name": "QuickBooks Payments"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 2246.65,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20538",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-26T05:41:19-07:00",
+      "LastUpdatedTime": "2025-08-26T05:41:19-07:00"
+    },
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2246.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "20320",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 60000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20240",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-05T05:58:26-07:00",
+      "LastUpdatedTime": "2025-08-26T05:27:45-07:00"
+    },
+    "DocNumber": "1553",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1193.83,
+        "LinkedTxn": [
+          {
+            "TxnId": "18244",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1231.18,
+        "LinkedTxn": [
+          {
+            "TxnId": "18249",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2404.14,
+        "LinkedTxn": [
+          {
+            "TxnId": "18251",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 745.63,
+        "LinkedTxn": [
+          {
+            "TxnId": "18258",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 283.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "18069",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3791.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19672",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 359.42,
+        "LinkedTxn": [
+          {
+            "TxnId": "18266",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 254.17,
+        "LinkedTxn": [
+          {
+            "TxnId": "18267",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 211.96,
+        "LinkedTxn": [
+          {
+            "TxnId": "18268",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 177.64,
+        "LinkedTxn": [
+          {
+            "TxnId": "18333",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 7546.88,
+        "LinkedTxn": [
+          {
+            "TxnId": "18335",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 129.81,
+        "LinkedTxn": [
+          {
+            "TxnId": "18340",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 568.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "18342",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 247.39,
+        "LinkedTxn": [
+          {
+            "TxnId": "18470",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 641.17,
+        "LinkedTxn": [
+          {
+            "TxnId": "18471",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 58.89,
+        "LinkedTxn": [
+          {
+            "TxnId": "18345",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 2003.45,
+        "LinkedTxn": [
+          {
+            "TxnId": "18346",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1240.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "18347",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 304.39,
+        "LinkedTxn": [
+          {
+            "TxnId": "18348",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 345.99,
+        "LinkedTxn": [
+          {
+            "TxnId": "18349",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 77.3,
+        "LinkedTxn": [
+          {
+            "TxnId": "18350",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 218.82,
+        "LinkedTxn": [
+          {
+            "TxnId": "18351",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 61.51,
+        "LinkedTxn": [
+          {
+            "TxnId": "18353",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 339.85,
+        "LinkedTxn": [
+          {
+            "TxnId": "19634",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 43.24,
+        "LinkedTxn": [
+          {
+            "TxnId": "18354",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 11084.24,
+        "LinkedTxn": [
+          {
+            "TxnId": "18355",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 46.13,
+        "LinkedTxn": [
+          {
+            "TxnId": "18356",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 12295.14,
+        "LinkedTxn": [
+          {
+            "TxnId": "18357",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 7271.46,
+        "LinkedTxn": [
+          {
+            "TxnId": "18358",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3205.52,
+        "LinkedTxn": [
+          {
+            "TxnId": "18359",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 1390.56,
+        "LinkedTxn": [
+          {
+            "TxnId": "18552",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 107.03,
+        "LinkedTxn": [
+          {
+            "TxnId": "18875",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 118.08,
+        "LinkedTxn": [
+          {
+            "TxnId": "18876",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "973",
+      "name": "Top Vent HVAC, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 12200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20525",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:39:15-07:00",
+      "LastUpdatedTime": "2025-08-22T06:40:48-07:00"
+    },
+    "DocNumber": "1566",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 3700,
+        "LinkedTxn": [
+          {
+            "TxnId": "20290",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3200,
+        "LinkedTxn": [
+          {
+            "TxnId": "20292",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "20293",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20294",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "20295",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20296",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20297",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "20298",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "20299",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "20300",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "163",
+      "name": "Premium Tax Group, Inc"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 525,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20524",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:38:24-07:00",
+      "LastUpdatedTime": "2025-08-22T06:40:48-07:00"
+    },
+    "DocNumber": "1565",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "20345",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 275,
+        "LinkedTxn": [
+          {
+            "TxnId": "20330",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1415",
+      "name": "Karen Roberts Attorney"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20523",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:37:33-07:00",
+      "LastUpdatedTime": "2025-08-22T06:40:48-07:00"
+    },
+    "DocNumber": "1564",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "20323",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1433",
+      "name": "Edmilson Junior"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 4800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20522",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:32:28-07:00",
+      "LastUpdatedTime": "2025-08-22T06:40:48-07:00"
+    },
+    "DocNumber": "1563",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 4400,
+        "LinkedTxn": [
+          {
+            "TxnId": "20301",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "20302",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "19378",
+            "TxnType": "VendorCredit"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1481",
+      "name": "D Lara HVAC Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 3400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20517",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:07:32-07:00",
+      "LastUpdatedTime": "2025-08-22T06:40:48-07:00"
+    },
+    "DocNumber": "1561",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 01 Willis Brook at Lynfield",
+    "Line": [
+      {
+        "Amount": 3400,
+        "LinkedTxn": [
+          {
+            "TxnId": "20304",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "498",
+      "name": "Eagle Leasing Company"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 186.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20521",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:29:48-07:00",
+      "LastUpdatedTime": "2025-08-22T06:29:48-07:00"
+    },
+    "DocNumber": "Paid online",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Paid online",
+    "Line": [
+      {
+        "Amount": 186.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "19800",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "498",
+      "name": "Eagle Leasing Company"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 154.63,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20244",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-05T08:50:19-07:00",
+      "LastUpdatedTime": "2025-08-22T06:22:06-07:00"
+    },
+    "DocNumber": "1554",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 154.63,
+        "LinkedTxn": [
+          {
+            "TxnId": "19799",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "498",
+      "name": "Eagle Leasing Company"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 186.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20519",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-22T06:17:09-07:00",
+      "LastUpdatedTime": "2025-08-22T06:17:09-07:00"
+    },
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 186.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "20242",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "23",
+      "name": "AT&T"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "157",
+        "name": "Amex Platinum"
+      }
+    },
+    "TotalAmt": 574.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20515",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T07:46:29-07:00",
+      "LastUpdatedTime": "2025-08-20T07:46:29-07:00"
+    },
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 574.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "19993",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "477",
+      "name": "Progressive"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 636.01,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20513",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T07:17:13-07:00",
+      "LastUpdatedTime": "2025-08-20T07:17:13-07:00"
+    },
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 636.01,
+        "LinkedTxn": [
+          {
+            "TxnId": "20324",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "1548",
       "name": "Construction Solutions"
     },
@@ -438,76 +2028,6 @@
         ]
       }
     ]
-  },
-  {
-    "VendorRef": {
-      "value": "498",
-      "name": "Eagle Leasing Company"
-    },
-    "PayType": "Check",
-    "CheckPayment": {
-      "BankAccountRef": {
-        "value": "231",
-        "name": "Mutual One Checking (8980)"
-      },
-      "PrintStatus": "PrintComplete"
-    },
-    "TotalAmt": 154.63,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20244",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-05T08:50:19-07:00",
-      "LastUpdatedTime": "2025-08-05T08:51:19-07:00"
-    },
-    "DocNumber": "1554",
-    "TxnDate": "2025-08-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 154.63,
-        "LinkedTxn": [
-          {
-            "TxnId": "20243",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "PayType": "Check",
-    "CheckPayment": {
-      "BankAccountRef": {
-        "value": "231",
-        "name": "Mutual One Checking (8980)"
-      },
-      "PrintStatus": "PrintComplete"
-    },
-    "TotalAmt": 60000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20240",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-05T05:58:26-07:00",
-      "LastUpdatedTime": "2025-08-05T06:12:15-07:00"
-    },
-    "DocNumber": "1553",
-    "TxnDate": "2025-08-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": []
   },
   {
     "VendorRef": {
@@ -7845,7 +9365,7 @@
   {
     "VendorRef": {
       "value": "1354",
-      "name": "IFPS Insurance"
+      "name": "IPFS Insurance"
     },
     "PayType": "Check",
     "CheckPayment": {
