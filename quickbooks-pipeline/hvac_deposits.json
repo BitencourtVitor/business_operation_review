@@ -4,6 +4,519 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 10856.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20639",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-27T08:09:11-07:00",
+      "LastUpdatedTime": "2025-08-27T08:10:57-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1600,
+        "LinkedTxn": [
+          {
+            "TxnId": "20633",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Through PCG"
+        }
+      },
+      {
+        "Amount": 3863.2,
+        "LinkedTxn": [
+          {
+            "TxnId": "20634",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Through PCG"
+        }
+      },
+      {
+        "Amount": 3863.2,
+        "LinkedTxn": [
+          {
+            "TxnId": "20635",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Throug PCG"
+        }
+      },
+      {
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "20636",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Through PCG"
+        }
+      },
+      {
+        "Amount": 720,
+        "LinkedTxn": [
+          {
+            "TxnId": "20637",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Through PCG"
+        }
+      },
+      {
+        "Amount": 540,
+        "LinkedTxn": [
+          {
+            "TxnId": "20638",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "Through PCG"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 13090.52,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20562",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-26T08:11:25-07:00",
+      "LastUpdatedTime": "2025-08-26T08:11:25-07:00"
+    },
+    "TxnDate": "2025-08-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 13090.52,
+        "LinkedTxn": [
+          {
+            "TxnId": "20561",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2264"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 15570.11,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20559",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-26T07:40:55-07:00",
+      "LastUpdatedTime": "2025-08-26T07:40:55-07:00"
+    },
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2476,
+        "LinkedTxn": [
+          {
+            "TxnId": "20554",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2196"
+        }
+      },
+      {
+        "Description": "Apartment 108 - 21623",
+        "Amount": 764.59,
+        "LinkedTxn": [
+          {
+            "TxnId": "20555",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2196"
+        }
+      },
+      {
+        "Description": "1st floor\noptional 21614 - all units",
+        "Amount": 12028.43,
+        "LinkedTxn": [
+          {
+            "TxnId": "20557",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2196"
+        }
+      },
+      {
+        "Description": "Apartment 106 - optional 21623",
+        "Amount": 781.09,
+        "LinkedTxn": [
+          {
+            "TxnId": "20558",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2196"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-11301376",
+        "Amount": -480,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1157",
+            "name": "Pulte Homes:Pulte Homes - Chauncy Lake - 6546:Building 5 - Chauncy Lake - Pulte Homes - 6546",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "BC-INV-11301376"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 57276,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20512",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T07:14:45-07:00",
+      "LastUpdatedTime": "2025-08-20T07:14:45-07:00"
+    },
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 5050,
+        "LinkedTxn": [
+          {
+            "TxnId": "20506",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 7300,
+        "LinkedTxn": [
+          {
+            "TxnId": "20500",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 6951,
+        "LinkedTxn": [
+          {
+            "TxnId": "20501",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 5200,
+        "LinkedTxn": [
+          {
+            "TxnId": "20503",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 5050,
+        "LinkedTxn": [
+          {
+            "TxnId": "20504",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 18525,
+        "LinkedTxn": [
+          {
+            "TxnId": "20508",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "20509",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      },
+      {
+        "Amount": 6200,
+        "LinkedTxn": [
+          {
+            "TxnId": "20511",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "419284"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 17980,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20497",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-20T06:31:26-07:00",
+      "LastUpdatedTime": "2025-08-20T06:31:26-07:00"
+    },
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 275,
+        "LinkedTxn": [
+          {
+            "TxnId": "20491",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "416874"
+        }
+      },
+      {
+        "Amount": 180,
+        "LinkedTxn": [
+          {
+            "TxnId": "20493",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "416874"
+        }
+      },
+      {
+        "Amount": 18025,
+        "LinkedTxn": [
+          {
+            "TxnId": "20496",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "416874"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1434",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - Pinehills Owls Nest",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "416874"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 568,
     "domain": "QBO",
     "sparse": false,
@@ -625,7 +1138,8 @@
             "name": "ACH"
           },
           "CheckNum": "414359"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -827,7 +1341,13 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
       }
     ]
   },
@@ -978,7 +1498,13 @@
             "value": "32",
             "name": "Insurance"
           }
-        }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
       }
     ]
   },
@@ -1477,7 +2003,8 @@
             "name": "ACH"
           },
           "CheckNum": "411247"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -1500,7 +2027,8 @@
             "name": "ACH"
           },
           "CheckNum": "411247"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -1735,7 +2263,8 @@
             "name": "ACH"
           },
           "CheckNum": "1680-PMX-1371"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -1758,7 +2287,8 @@
             "name": "ACH"
           },
           "CheckNum": "1680-PMX-1371"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -1837,7 +2367,13 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
       }
     ]
   },
@@ -1898,7 +2434,8 @@
             "name": "ACH"
           },
           "CheckNum": "1680-PMX-2057"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -2205,7 +2742,8 @@
             "name": "ACH"
           },
           "CheckNum": "408537"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -2228,7 +2766,8 @@
             "name": "ACH"
           },
           "CheckNum": "408537"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3010,7 +3549,8 @@
             "name": "ACH"
           },
           "CheckNum": "404151"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -3033,7 +3573,8 @@
             "name": "ACH"
           },
           "CheckNum": "405151"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3112,7 +3653,13 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
       }
     ]
   },
@@ -3388,7 +3935,8 @@
             "name": "ACH"
           },
           "CheckNum": "1680-PMX-1896"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3590,7 +4138,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3631,7 +4180,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3672,7 +4222,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3713,7 +4264,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -3832,7 +4384,8 @@
             "value": "150",
             "name": "QuickBooks Payments Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4197,7 +4750,8 @@
             "name": "ACH"
           },
           "CheckNum": "399531"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -4220,7 +4774,8 @@
             "name": "ACH"
           },
           "CheckNum": "399531"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -4243,7 +4798,8 @@
             "name": "ACH"
           },
           "CheckNum": "399531"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -4266,7 +4822,8 @@
             "name": "ACH"
           },
           "CheckNum": "399531"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4435,7 +4992,8 @@
             "name": "ACH"
           },
           "CheckNum": "396597"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4597,7 +5155,8 @@
             "name": "Check"
           },
           "CheckNum": "330"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4633,7 +5192,8 @@
             "value": "141",
             "name": "HVAC DCU BANK  (5697) - 1"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4674,7 +5234,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4715,7 +5276,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4756,7 +5318,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4797,7 +5360,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4838,7 +5402,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4879,7 +5444,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -4959,7 +5525,8 @@
             "value": "51",
             "name": "Office Supplies & Software"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5405,7 +5972,8 @@
             "name": "ACH"
           },
           "CheckNum": "394102"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -5427,7 +5995,8 @@
             "name": "ACH"
           },
           "CheckNum": "394102"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5473,7 +6042,8 @@
             "name": "Check"
           },
           "CheckNum": "329"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5519,7 +6089,8 @@
             "name": "Check"
           },
           "CheckNum": "328"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5565,7 +6136,8 @@
             "name": "Check"
           },
           "CheckNum": "327"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5606,7 +6178,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5647,7 +6220,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -5893,7 +6467,8 @@
             "name": "ACH"
           },
           "CheckNum": "391807"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -5916,7 +6491,8 @@
             "name": "ACH"
           },
           "CheckNum": "391807"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -5939,7 +6515,8 @@
             "name": "ACH"
           },
           "CheckNum": "391807"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -6293,7 +6870,8 @@
             "name": "ACH"
           },
           "CheckNum": "389406"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -6627,7 +7205,8 @@
             "name": "ACH"
           },
           "CheckNum": "386993"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -6746,7 +7325,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -6787,7 +7367,8 @@
             "value": "32",
             "name": "Insurance"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -6867,7 +7448,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -7104,7 +7686,8 @@
             "name": "ACH"
           },
           "CheckNum": "382267"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -7127,7 +7710,8 @@
             "name": "ACH"
           },
           "CheckNum": "382267"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -7897,7 +8481,8 @@
             "name": "ACH"
           },
           "CheckNum": "379796"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "32",
@@ -7920,7 +8505,8 @@
             "name": "ACH"
           },
           "CheckNum": "379796"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -8240,7 +8826,8 @@
             "value": "1150040001",
             "name": "Loan Quickboks"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -8564,7 +9151,8 @@
             "name": "ACH"
           },
           "CheckNum": "377078"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8587,7 +9175,8 @@
             "name": "ACH"
           },
           "CheckNum": "377078"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -9714,7 +10303,8 @@
             "name": "ACH"
           },
           "CheckNum": "370167"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10009,7 +10599,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10284,7 +10875,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10519,7 +11111,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10560,7 +11153,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10601,7 +11195,8 @@
             "value": "207",
             "name": "Vehicles:Insurance"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10642,7 +11237,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10738,7 +11334,8 @@
             "value": "1150040001",
             "name": "Loan Quickboks"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10779,7 +11376,8 @@
             "value": "1150040001",
             "name": "Loan Quickboks"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10820,7 +11418,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -10967,7 +11566,8 @@
             "name": "ACH"
           },
           "CheckNum": "365358"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -11764,7 +12364,8 @@
             "name": "ACH"
           },
           "CheckNum": "362948"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -11787,7 +12388,8 @@
             "name": "ACH"
           },
           "CheckNum": "362948"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -11810,7 +12412,8 @@
             "name": "ACH"
           },
           "CheckNum": "362948"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -12365,7 +12968,8 @@
             "name": "ACH"
           },
           "CheckNum": "18362"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -13284,7 +13888,8 @@
             "name": "ACH"
           },
           "CheckNum": "17552"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -15368,7 +15973,8 @@
             "name": "ACH"
           },
           "CheckNum": "1266"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -16308,7 +16914,8 @@
             "name": "ACH"
           },
           "CheckNum": "353475"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -16331,7 +16938,8 @@
             "name": "ACH"
           },
           "CheckNum": "353475"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -16840,7 +17448,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -16881,7 +17490,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17121,7 +17731,8 @@
             "name": "ACH"
           },
           "CheckNum": "346692"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17646,7 +18257,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17765,7 +18377,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17806,7 +18419,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17847,7 +18461,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -17888,7 +18503,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -18137,7 +18753,8 @@
             "name": "ACH"
           },
           "CheckNum": "377402"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -18319,7 +18936,8 @@
             "value": "68",
             "name": "Sales of Product Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -19923,7 +20541,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -21043,7 +21662,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22268,7 +22888,8 @@
             "name": "ACH"
           },
           "CheckNum": "307098"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22309,7 +22930,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22350,7 +22972,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22524,7 +23147,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22565,7 +23189,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -22606,7 +23231,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -24249,7 +24875,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -24290,7 +24917,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -24331,7 +24959,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -25077,7 +25706,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -25113,7 +25743,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -25685,7 +26316,8 @@
             "name": "ACH"
           },
           "CheckNum": "288989"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26192,7 +26824,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26233,7 +26866,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26329,7 +26963,8 @@
             "name": "ACH"
           },
           "CheckNum": "18308"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26718,7 +27353,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26759,7 +27395,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26833,7 +27470,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26874,7 +27512,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -26910,7 +27549,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -27141,7 +27781,8 @@
             "name": "ACH"
           },
           "CheckNum": "271936"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -27164,7 +27805,8 @@
             "name": "ACH"
           },
           "CheckNum": "271936"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -27470,7 +28112,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -27511,7 +28154,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -27552,7 +28196,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -27710,7 +28355,8 @@
             "value": "165",
             "name": "Owner's Pay and Personal Expenses:Edy Silva"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -29169,7 +29815,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -29192,7 +29839,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -29215,7 +29863,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -29238,7 +29887,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -29261,7 +29911,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "6",
@@ -29284,7 +29935,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "7",
@@ -29307,7 +29959,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "8",
@@ -29330,7 +29983,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "9",
@@ -29353,7 +30007,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "10",
@@ -29376,7 +30031,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "11",
@@ -29399,7 +30055,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "12",
@@ -29422,7 +30079,8 @@
             "name": "Check"
           },
           "CheckNum": "482591"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -29463,7 +30121,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -29504,7 +30163,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -30602,7 +31262,8 @@
             "name": "ACH"
           },
           "CheckNum": "207570"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -32987,7 +33648,8 @@
             "name": "ACH"
           },
           "CheckNum": "255251"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -33010,7 +33672,8 @@
             "name": "ACH"
           },
           "CheckNum": "255251"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -33033,7 +33696,8 @@
             "name": "ACH"
           },
           "CheckNum": "255251"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -33056,7 +33720,8 @@
             "name": "ACH"
           },
           "CheckNum": "255251"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -33079,7 +33744,8 @@
             "name": "ACH"
           },
           "CheckNum": "255251"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -33120,7 +33786,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -33161,7 +33828,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -33632,7 +34300,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34013,7 +34682,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34054,7 +34724,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34090,7 +34761,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34170,7 +34842,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34211,7 +34884,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34252,7 +34926,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34399,7 +35074,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34440,7 +35116,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -34929,7 +35606,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35022,7 +35700,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35155,7 +35834,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35191,7 +35871,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35271,7 +35952,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35510,7 +36192,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35814,7 +36497,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35855,7 +36539,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -35930,7 +36615,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36003,7 +36689,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36039,7 +36726,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36075,7 +36763,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36111,7 +36800,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36147,7 +36837,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36183,7 +36874,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36219,7 +36911,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36291,7 +36984,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36327,7 +37021,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36363,7 +37058,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36399,7 +37095,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36706,7 +37403,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36742,7 +37440,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36778,7 +37477,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36853,7 +37553,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36889,7 +37590,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36925,7 +37627,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36961,7 +37664,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -36997,7 +37701,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37033,7 +37738,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37163,7 +37869,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37238,7 +37945,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37274,7 +37982,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37310,7 +38019,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37351,7 +38061,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37534,7 +38245,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37570,7 +38282,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37606,7 +38319,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37642,7 +38356,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37678,7 +38393,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37714,7 +38430,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37750,7 +38467,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37791,7 +38509,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -37832,7 +38551,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -38056,7 +38776,8 @@
             "value": "6",
             "name": "ACH"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -38078,7 +38799,8 @@
             "value": "6",
             "name": "ACH"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -38100,7 +38822,8 @@
             "value": "6",
             "name": "ACH"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -38122,7 +38845,8 @@
             "value": "6",
             "name": "ACH"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -38144,7 +38868,8 @@
             "value": "6",
             "name": "ACH"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -38180,7 +38905,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -38221,7 +38947,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39145,7 +39872,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39186,7 +39914,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39300,7 +40029,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39409,7 +40139,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39450,7 +40181,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39491,7 +40223,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39532,7 +40265,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39573,7 +40307,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39614,7 +40349,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39655,7 +40391,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39696,7 +40433,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39737,7 +40475,8 @@
             "value": "218",
             "name": "Loan to Group - IN"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -39919,7 +40658,8 @@
             "value": "225",
             "name": "Owners Pay"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40083,7 +40823,8 @@
             "name": "ACH"
           },
           "CheckNum": "625101"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "15",
@@ -40106,7 +40847,8 @@
             "name": "ACH"
           },
           "CheckNum": "625101"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40142,7 +40884,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40183,7 +40926,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40224,7 +40968,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40270,7 +41015,8 @@
             "name": "Check"
           },
           "CheckNum": "6779143720"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40619,7 +41365,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -40888,7 +41635,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -41880,7 +42628,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -41921,7 +42670,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -42085,7 +42835,8 @@
             "name": "ACH"
           },
           "CheckNum": "198722"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -42451,7 +43202,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -42610,7 +43362,8 @@
             "name": "Job Supplies"
           },
           "CheckNum": "S100471326.002"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -42827,7 +43580,8 @@
             "name": "ACH"
           },
           "CheckNum": "30452273"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -42943,7 +43697,8 @@
             "value": "17",
             "name": "Cash"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -43404,7 +44159,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -43445,7 +44201,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -43486,7 +44243,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -43684,7 +44442,8 @@
             "name": "ACH"
           },
           "CheckNum": "195282"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -43707,7 +44466,8 @@
             "name": "ACH"
           },
           "CheckNum": "195282"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -43730,7 +44490,8 @@
             "name": "ACH"
           },
           "CheckNum": "195282"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -43753,7 +44514,8 @@
             "name": "ACH"
           },
           "CheckNum": "195282"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -43776,7 +44538,8 @@
             "name": "ACH"
           },
           "CheckNum": "195282"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44098,7 +44861,8 @@
             "name": "ACH"
           },
           "CheckNum": "193840"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44421,7 +45185,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44462,7 +45227,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44497,7 +45263,8 @@
             "value": "52",
             "name": "Opening balance equity"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44538,7 +45305,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44579,7 +45347,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44705,7 +45474,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44870,7 +45640,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -44911,7 +45682,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45109,7 +45881,8 @@
             "name": "ACH"
           },
           "CheckNum": "625878"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45296,7 +46069,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45337,7 +46111,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45378,7 +46153,8 @@
             "value": "57",
             "name": "Payroll"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45559,7 +46335,8 @@
             "name": "ACH"
           },
           "CheckNum": "623636"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45898,7 +46675,8 @@
             "name": "ACH"
           },
           "CheckNum": "620593"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -45921,7 +46699,8 @@
             "name": "ACH"
           },
           "CheckNum": "620593"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -45944,7 +46723,8 @@
             "name": "ACH"
           },
           "CheckNum": "620593"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -45985,7 +46765,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46026,7 +46807,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46065,7 +46847,8 @@
             "value": "17",
             "name": "Cash"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46106,7 +46889,8 @@
             "value": "168",
             "name": "Vehicles"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46235,7 +47019,8 @@
             "value": "86",
             "name": "Labor"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46269,7 +47054,8 @@
             "value": "183",
             "name": "Job Supplies"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46310,7 +47096,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46509,7 +47296,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46550,7 +47338,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46591,7 +47380,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46632,7 +47422,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46673,7 +47464,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -46714,7 +47506,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47014,7 +47807,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -47037,7 +47831,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -47060,7 +47855,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -47083,7 +47879,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -47106,7 +47903,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "6",
@@ -47129,7 +47927,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "7",
@@ -47152,7 +47951,8 @@
             "name": "ACH"
           },
           "CheckNum": "00617650"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47193,7 +47993,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47234,7 +48035,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47275,7 +48077,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47316,7 +48119,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47357,7 +48161,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47393,7 +48198,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -47970,7 +48776,8 @@
             "name": "ACH"
           },
           "CheckNum": "00616813"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -47993,7 +48800,8 @@
             "name": "ACH"
           },
           "CheckNum": "00616813"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48204,7 +49012,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48240,7 +49049,8 @@
             "value": "94",
             "name": "Bank Charges & Fees"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48281,7 +49091,8 @@
             "value": "151",
             "name": "Due to/ From Premium Framing"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48322,7 +49133,8 @@
             "value": "151",
             "name": "Due to/ From Premium Framing"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48396,7 +49208,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48437,7 +49250,8 @@
             "value": "54",
             "name": "Partner Investments"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48478,7 +49292,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -48953,7 +49768,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -48976,7 +49792,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -48999,7 +49816,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -49022,7 +49840,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -49045,7 +49864,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "6",
@@ -49068,7 +49888,8 @@
             "name": "ACH"
           },
           "CheckNum": "00613476"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -49475,7 +50296,8 @@
             "name": "ACH"
           },
           "CheckNum": "00612985"
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -49498,7 +50320,8 @@
             "name": "ACH"
           },
           "CheckNum": "00612985"
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -49777,7 +50600,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52521,7 +53345,8 @@
             "value": "168",
             "name": "Vehicles"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52617,7 +53442,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52658,7 +53484,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52699,7 +53526,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52740,7 +53568,8 @@
             "value": "34",
             "name": "Interest Earned"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52781,7 +53610,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52822,7 +53652,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   },
@@ -52972,7 +53803,8 @@
             "value": "1",
             "name": "Uncategorized Income"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ]
   }

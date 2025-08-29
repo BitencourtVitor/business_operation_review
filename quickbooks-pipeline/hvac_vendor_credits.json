@@ -2,6 +2,240 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "20581",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-26T11:20:05-07:00",
+      "LastUpdatedTime": "2025-08-27T09:35:58-07:00"
+    },
+    "DocNumber": "S6708507.001",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6708507.001",
+        "Amount": 44.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1545",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 55 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 44.65
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20640",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-27T08:58:10-07:00",
+      "LastUpdatedTime": "2025-08-27T09:15:49-07:00"
+    },
+    "DocNumber": "Vendor credit",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Discount for paying in advance",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Discount for paying in advance",
+        "Amount": 194.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 194.39
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18403",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-05-16T10:36:16-07:00",
+      "LastUpdatedTime": "2025-08-27T05:56:09-07:00"
+    },
+    "DocNumber": "CM923973",
+    "TxnDate": "2025-05-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "CM923973 65 Mill Street",
+        "Amount": 3196.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "573",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "69",
+      "name": "S.G. Torrice Company / Ferguson"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3196.91
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20619",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-26T14:55:42-07:00",
+      "LastUpdatedTime": "2025-08-27T05:52:28-07:00"
+    },
+    "DocNumber": "S102318089.002",
+    "TxnDate": "2025-08-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S102318089.002",
+        "Amount": 191.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "12",
+      "name": "Johnstone Supply, Inc."
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 191.07
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19378",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-06-25T11:48:40-07:00",
+      "LastUpdatedTime": "2025-08-22T06:32:28-07:00"
+    },
+    "DocNumber": "Tools",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Tools bought for Junior.",
+        "Amount": 200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "217",
+            "name": "Tools and Small Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1433",
+      "name": "Edmilson Junior"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 200
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "20355",
     "SyncToken": "0",
     "MetaData": {
@@ -34,7 +268,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -82,7 +317,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -94,54 +330,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 48.73
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18403",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-05-16T10:36:16-07:00",
-      "LastUpdatedTime": "2025-07-28T13:07:19-07:00"
-    },
-    "DocNumber": "CM923973",
-    "TxnDate": "2025-05-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "CM923973 65 Mill Street",
-        "Amount": 3196.91,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "573",
-            "name": "Premium Framing"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "HasBeenBilled",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "69",
-      "name": "S.G. Torrice Company / Ferguson"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3196.91
   },
   {
     "domain": "QBO",
@@ -179,7 +367,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -227,7 +416,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -275,7 +465,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -323,7 +514,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -371,7 +563,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -419,7 +612,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -467,7 +661,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -515,7 +710,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -563,7 +759,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -611,7 +808,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -659,7 +857,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -707,7 +906,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -755,7 +955,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -803,7 +1004,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -847,7 +1049,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -891,7 +1094,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -936,7 +1140,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -980,7 +1185,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1028,7 +1234,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1076,7 +1283,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1124,7 +1332,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1136,50 +1345,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 98.41
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19378",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-25T11:48:40-07:00",
-      "LastUpdatedTime": "2025-06-25T11:48:40-07:00"
-    },
-    "DocNumber": "Tools",
-    "TxnDate": "2025-08-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Tools bought for Junior.",
-        "Amount": 200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "217",
-            "name": "Tools and Small Equipments"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        }
-      }
-    ],
-    "VendorRef": {
-      "value": "1433",
-      "name": "Edmilson Junior"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 200
   },
   {
     "domain": "QBO",
@@ -1212,7 +1377,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1256,7 +1422,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1304,7 +1471,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1349,7 +1517,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1393,7 +1562,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1441,7 +1611,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1485,7 +1656,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1530,7 +1702,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1578,7 +1751,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1626,7 +1800,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1674,7 +1849,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1722,7 +1898,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1766,7 +1943,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1814,7 +1992,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1858,7 +2037,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1902,7 +2082,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1946,7 +2127,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -1995,7 +2177,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2039,7 +2222,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2088,7 +2272,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2136,7 +2321,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2184,7 +2370,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2232,7 +2419,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2280,7 +2468,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2329,7 +2518,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2373,7 +2563,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2417,7 +2608,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2461,7 +2653,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2505,7 +2698,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2554,7 +2748,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2598,7 +2793,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2647,7 +2843,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2691,7 +2888,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2735,7 +2933,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2779,7 +2978,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2823,7 +3023,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2867,7 +3068,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2911,7 +3113,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2955,7 +3158,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -2999,7 +3203,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3043,7 +3248,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3091,7 +3297,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3136,7 +3343,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3185,7 +3393,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3234,7 +3443,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3278,7 +3488,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3323,7 +3534,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3368,7 +3580,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3417,7 +3630,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3461,7 +3675,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3510,7 +3725,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3554,7 +3770,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3603,7 +3820,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3648,7 +3866,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3693,7 +3912,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3737,7 +3957,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3782,7 +4003,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3831,7 +4053,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3876,7 +4099,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3925,7 +4149,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -3974,7 +4199,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4023,7 +4249,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4068,7 +4295,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4113,7 +4341,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4158,7 +4387,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4203,7 +4433,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4248,7 +4479,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4297,7 +4529,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4346,7 +4579,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4395,7 +4629,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4444,7 +4679,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4493,7 +4729,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4542,7 +4779,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4587,7 +4825,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4636,7 +4875,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4681,7 +4921,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4730,7 +4971,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4779,7 +5021,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4828,7 +5071,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4877,7 +5121,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4922,7 +5167,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -4971,7 +5217,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5016,7 +5263,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5061,7 +5309,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5110,7 +5359,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5155,7 +5405,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5200,7 +5451,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5243,7 +5495,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5292,7 +5545,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5341,7 +5595,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5390,7 +5645,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5435,7 +5691,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5480,7 +5737,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5525,7 +5783,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5574,7 +5833,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5619,7 +5879,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5668,7 +5929,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5711,7 +5973,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5754,7 +6017,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5797,7 +6061,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5842,7 +6107,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5887,7 +6153,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5932,7 +6199,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -5977,7 +6245,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6022,7 +6291,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6067,7 +6337,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6112,7 +6383,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6157,7 +6429,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6206,7 +6479,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6251,7 +6525,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6296,7 +6571,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6345,7 +6621,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6389,7 +6666,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6434,7 +6712,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6479,7 +6758,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6528,7 +6808,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6577,7 +6858,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6622,7 +6904,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6667,7 +6950,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6712,7 +6996,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6757,7 +7042,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6802,7 +7088,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6851,7 +7138,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6896,7 +7184,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -6939,7 +7228,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -6960,7 +7250,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -6981,7 +7272,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -7002,7 +7294,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7047,7 +7340,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7096,7 +7390,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -7117,7 +7412,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7162,7 +7458,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7207,7 +7504,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7252,7 +7550,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7301,7 +7600,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7345,7 +7645,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7394,7 +7695,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7443,7 +7745,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7492,7 +7795,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7541,7 +7845,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -7562,7 +7867,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7611,7 +7917,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -7632,7 +7939,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7677,7 +7985,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7720,7 +8029,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7763,7 +8073,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7807,7 +8118,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7851,7 +8163,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7899,7 +8212,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7944,7 +8258,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -7992,7 +8307,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8036,7 +8352,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8053,7 +8370,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -8070,7 +8388,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "5",
@@ -8087,7 +8406,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8135,7 +8455,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8183,7 +8504,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8231,7 +8553,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8278,7 +8601,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8298,7 +8622,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8342,7 +8667,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8387,7 +8713,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8435,7 +8762,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8482,7 +8810,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8531,7 +8860,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8552,7 +8882,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8596,7 +8927,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8617,7 +8949,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8664,7 +8997,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8711,7 +9045,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8754,7 +9089,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8797,7 +9133,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -8818,7 +9155,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -8835,7 +9173,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -8856,7 +9195,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8904,7 +9244,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -8952,7 +9293,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9000,7 +9342,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9048,7 +9391,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9096,7 +9440,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9143,7 +9488,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -9163,7 +9509,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -9183,7 +9530,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9231,7 +9579,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -9252,7 +9601,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -9273,7 +9623,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -9294,7 +9645,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9337,7 +9689,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9385,7 +9738,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9433,7 +9787,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9476,7 +9831,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9525,7 +9881,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9573,7 +9930,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9621,7 +9979,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -9642,7 +10001,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -9663,7 +10023,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9711,7 +10072,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9759,7 +10121,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -9780,7 +10143,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9828,7 +10192,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9872,7 +10237,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -9889,7 +10255,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9937,7 +10304,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -9984,7 +10352,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "2",
@@ -10005,7 +10374,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "3",
@@ -10022,7 +10392,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       },
       {
         "Id": "4",
@@ -10039,7 +10410,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -10083,7 +10455,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
@@ -10126,7 +10499,8 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        }
+        },
+        "CustomExtensions": []
       }
     ],
     "VendorRef": {
