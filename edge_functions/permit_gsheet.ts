@@ -222,6 +222,8 @@ serve(async (req) => {
   }
   
   try {
+    console.log('🚀 Iniciando sincronização de permissões...');
+    
     // Iniciar sincronização
     const syncSummary = {
       startTime: new Date().toISOString(),
@@ -229,44 +231,54 @@ serve(async (req) => {
     };
 
     // Limpar tabela existente
+    console.log('🧹 Limpando tabela permit_control...');
     const { error: deleteError } = await supabase
       .from('permit_control')
       .delete()
-      .neq('id', 0);
+      .not('id', 'is', null);
 
     if (deleteError) {
       throw new Error(`Erro ao limpar tabela: ${deleteError.message}`);
     }
+    console.log('✅ Tabela limpa com sucesso');
 
     const deleteResult = { success: true, message: 'Tabela limpa com sucesso' };
 
     // Buscar dados da planilha
+    console.log('📥 Buscando dados da planilha Google Sheets...');
     const permitData = await fetchCsvToJson(permitUrl, 'Permit');
     const dataSummary = {
       totalRecords: Array.isArray(permitData) ? permitData.length : 0,
       isArray: Array.isArray(permitData)
     };
+    console.log(`📊 Dados recebidos: ${dataSummary.totalRecords} registros`);
 
     // Mapear e normalizar dados
+    console.log('🔄 Mapeando e normalizando dados...');
     const mappedPermit = (permitData as any[]).map((permit: any) => ({
-      intern_id: permit.intern_id,
-      permit_number: permit.permit_number,
-      permit_type: permit.permit_type,
-      status: permit.status,
-      issue_date: permit.issue_date,
-      expiry_date: permit.expiry_date,
-      contractor: permit.contractor,
-      project: permit.project,
-      location: permit.location,
-      description: permit.description,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      model: getField(permit, 'MODEL'),
+      jobsite: getField(permit, 'JOBSITE'),
+      lot_address: getField(permit, 'LOT/ADDRESS'),
+      situacao: getField(permit, 'SITUACAO'),
+      solicitacao: parseDateUS(getField(permit, 'SOLICITACAO')),
+      aplicacao: parseDateUS(getField(permit, 'APLICACAO')),
+      emissao: parseDateUS(getField(permit, 'EMISSAO')),
+      observacao: getField(permit, 'OBSERVACAO'),
+      arquivo: getField(permit, 'ARQUIVO'),
+      created_at: new Date().toISOString()
     }));
+    console.log(`✅ Mapeamento concluído: ${mappedPermit.length} registros mapeados`);
 
-    // Remover duplicatas baseado no intern_id
+    // Remover duplicatas baseado em uma combinação de campos únicos
+    console.log('🔍 Removendo duplicatas...');
     const uniquePermits = mappedPermit.filter((permit: any, index: number, self: any[]) => 
-      index === self.findIndex((p: any) => p.intern_id === permit.intern_id)
+      index === self.findIndex((p: any) => 
+        p.model === permit.model && 
+        p.jobsite === permit.jobsite && 
+        p.lot_address === permit.lot_address
+      )
     );
+    console.log(`✅ Duplicatas removidas: ${mappedPermit.length - uniquePermits.length} registros duplicados encontrados`);
 
     const mappingSummary = {
       mappedRecords: mappedPermit.length,
@@ -276,6 +288,7 @@ serve(async (req) => {
 
     // Inserir novos dados
     if (uniquePermits.length > 0) {
+      console.log(`💾 Inserindo ${uniquePermits.length} registros únicos no banco...`);
       const { error: insertError } = await supabase
         .from('permit_control')
         .insert(uniquePermits);
@@ -283,13 +296,16 @@ serve(async (req) => {
       if (insertError) {
         throw new Error(`Erro ao inserir dados: ${insertError.message}`);
       }
-
+      console.log('✅ Dados inseridos com sucesso no banco');
       const insertResult = { success: true, message: 'Dados inseridos com sucesso' };
     } else {
+      console.log('ℹ️ Nenhum dado para inserir');
       const insertResult = { success: true, message: 'Nenhum dado para inserir' };
     }
 
-    return {
+    console.log('🎉 Sincronização concluída com sucesso!');
+    
+    const response = {
       success: true,
       message: 'Sincronização concluída com sucesso',
       summary: {
@@ -299,6 +315,12 @@ serve(async (req) => {
         finalStatus: 'concluída'
       }
     };
+    
+    console.log('📤 Enviando resposta HTTP...');
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: corsHeaders
+    });
     
   } catch (error) {
     console.error('Erro na edge function permit:', error.message);
