@@ -97,11 +97,8 @@ export default function OportunidadesPartition({
   // Função wrapper para compatibilidade com EmptyMessage
   const handleEmptyMessageEdit = () => {
     if (onEdit && selectedYear && selectedMonth) {
-      // Usar o primeiro usuário disponível como padrão
-      const defaultUserId = Array.isArray(usuarioResponsavelId) 
-        ? usuarioResponsavelId[0] 
-        : usuarioResponsavelId;
-      onEdit(selectedMonth, selectedYear, defaultUserId);
+      // Usar o usuário logado como responsável pela oportunidade
+      onEdit(selectedMonth, selectedYear, usuarioLogadoId);
     }
   };
 
@@ -242,9 +239,12 @@ export default function OportunidadesPartition({
         {selectedYear && selectedMonth ? (
           // Quando há filtro mensal, mostrar todas as oportunidades daquele período individualmente
           (() => {
-            const key = `${Number(selectedYear)}-${Number(selectedMonth)}`;
-            const oportunidades = oportunidadesByMonth[key];
-            if (!oportunidades || oportunidades.length === 0) {
+            // Buscar oportunidades que correspondem ao mês/ano filtrado, independente do usuário
+            const oportunidadesDoPeriodo = allOportunidades.filter(op => 
+              Number(op.mes) === Number(selectedMonth) && Number(op.ano) === Number(selectedYear)
+            );
+            
+            if (!oportunidadesDoPeriodo || oportunidadesDoPeriodo.length === 0) {
               return (
                 <PartitionCard>
                   <EmptyMessage message="No opportunities found for this period." showEdit={isAdmin} onEdit={handleEmptyMessageEdit} icon="bi-lightbulb" />
@@ -253,7 +253,7 @@ export default function OportunidadesPartition({
             }
             
             // Mostrar cada oportunidade individualmente, igual ao comportamento sem filtro
-            return oportunidades.map((oportunidade) => {
+            return oportunidadesDoPeriodo.map((oportunidade) => {
               const oportunidadeKey = `${oportunidade.ano}-${oportunidade.mes}-${oportunidade.usuario_id}`;
               const isOpen = openOportunidades === oportunidadeKey;
               
@@ -308,71 +308,69 @@ export default function OportunidadesPartition({
                     </div>
                   </button>
                   {isOpen && (
-                    <div style={{ padding: 12 }}>
-                      <PartitionCard>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--color-background-secondary)' }}>
-                          <div style={{ background: 'var(--color-background-secondary)', borderRadius: 8, padding: 12, border: '1px solid var(--color-border-divider)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                              <div style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 14, textAlign: 'left' }}>{parseAsterisksFormatting(oportunidade.titulo)}</div>
-                              {oportunidade.usuario_nome && (
-                                <div style={{ 
-                                  fontSize: 12, 
-                                  color: 'var(--color-text-secondary)', 
-                                  background: 'var(--color-background-primary)', 
-                                  padding: '4px 8px', 
-                                  borderRadius: 4,
-                                  border: '1px solid var(--color-border-divider)'
-                                }}>
-                                  {oportunidade.usuario_nome}
-                                </div>
-                              )}
+                    <PartitionCard>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: 'var(--color-background-secondary)' }}>
+                        <div style={{ background: 'var(--color-background-secondary)', borderRadius: 8, padding: 12, border: '1px solid var(--color-border-divider)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <div style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: 14, textAlign: 'left' }}>{parseAsterisksFormatting(oportunidade.titulo)}</div>
+                            {oportunidade.usuario_nome && (
+                              <div style={{ 
+                                fontSize: 12, 
+                                color: 'var(--color-text-secondary)', 
+                                background: 'var(--color-background-primary)', 
+                                padding: '4px 8px', 
+                                borderRadius: 4,
+                                border: '1px solid var(--color-border-divider)'
+                              }}>
+                                {oportunidade.usuario_nome}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
+                            {/* Desafios */}
+                            <div style={{ flex: 1, background: 'rgba(230, 126, 34, 0.08)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                              <div style={{ color: '#e67e22', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <i className="bi bi-exclamation-triangle" /> Desafios
+                              </div>
+                              {oportunidade.desafios.length > 0 ? oportunidade.desafios.map((t, i) => {
+                                const parsed = parseAsterisksFormatting(t);
+                                const bold = isBold(parsed);
+                                return (
+                                  <div key={i} style={{ color: '#e67e22', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                    {bold ? (
+                                      <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#e67e22', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                    ) : (
+                                      <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                    )}
+                                    <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                                  </div>
+                                );
+                              }) : <span style={{ color: '#e67e22', fontSize: 13 }}>Nenhum</span>}
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'row', gap: 12 }}>
-                              {/* Desafios */}
-                              <div style={{ flex: 1, background: 'rgba(230, 126, 34, 0.08)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                                <div style={{ color: '#e67e22', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <i className="bi bi-exclamation-triangle" /> Desafios
-                                </div>
-                                {oportunidade.desafios.length > 0 ? oportunidade.desafios.map((t, i) => {
-                                  const parsed = parseAsterisksFormatting(t);
-                                  const bold = isBold(parsed);
-                                  return (
-                                    <div key={i} style={{ color: '#e67e22', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                                      {bold ? (
-                                        <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#e67e22', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                                      ) : (
-                                        <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                                      )}
-                                      <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                                    </div>
-                                  );
-                                }) : <span style={{ color: '#e67e22', fontSize: 13 }}>Nenhum</span>}
+                            {/* Melhorias */}
+                            <div style={{ flex: 1, background: 'rgba(46, 107, 230, 0.08)', borderRadius: 8, padding: 10, minHeight: 60 }}>
+                              <div style={{ color: '#2e86de', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <i className="bi bi-lightbulb" /> Melhorias
                               </div>
-                              {/* Melhorias */}
-                              <div style={{ flex: 1, background: 'rgba(46, 107, 230, 0.08)', borderRadius: 8, padding: 10, minHeight: 60 }}>
-                                <div style={{ color: '#2e86de', fontWeight: 600, fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <i className="bi bi-lightbulb" /> Melhorias
-                                </div>
-                                {oportunidade.melhorias.length > 0 ? oportunidade.melhorias.map((t, i) => {
-                                  const parsed = parseAsterisksFormatting(t);
-                                  const bold = isBold(parsed);
-                                  return (
-                                    <div key={i} style={{ color: '#2e86de', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                                      {bold ? (
-                                        <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#2e86de', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
-                                      ) : (
-                                        <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
-                                      )}
-                                      <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
-                                    </div>
-                                  );
-                                }) : <span style={{ color: '#2e86de', fontSize: 13 }}>Nenhuma</span>}
-                              </div>
+                              {oportunidade.melhorias.length > 0 ? oportunidade.melhorias.map((t, i) => {
+                                const parsed = parseAsterisksFormatting(t);
+                                const bold = isBold(parsed);
+                                return (
+                                  <div key={i} style={{ color: '#2e86de', fontSize: 14, marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                                    {bold ? (
+                                      <i className="bi bi-star-fill" style={{ fontSize: 8, color: '#2e86de', marginRight: 4, display: 'inline-block', lineHeight: 1, paddingTop: 7 }} />
+                                    ) : (
+                                      <span style={{ fontSize: 18, lineHeight: 1, marginRight: 4, display: 'inline-block' }}>•</span>
+                                    )}
+                                    <span style={{ textAlign: 'left', flex: 1 }}>{parsed}</span>
+                                  </div>
+                                );
+                              }) : <span style={{ color: '#2e86de', fontSize: 13 }}>Nenhuma</span>}
                             </div>
                           </div>
                         </div>
-                      </PartitionCard>
-                    </div>
+                      </div>
+                    </PartitionCard>
                   )}
                 </div>
               );
@@ -386,8 +384,15 @@ export default function OportunidadesPartition({
           // Agrupar oportunidades por período/usuário e exibir todas juntas
           Object.entries(oportunidadesByMonth)
             .sort(([keyA], [keyB]) => {
-              const [anoA, mesA, usuarioA] = keyA.split('-');
-              const [anoB, mesB, usuarioB] = keyB.split('-');
+              // Extrair ano, mês e usuarioId da chave de forma robusta
+              const partsA = keyA.split('-');
+              const partsB = keyB.split('-');
+              const anoA = partsA[0];
+              const mesA = partsA[1];
+              const usuarioA = partsA.slice(2).join('-');
+              const anoB = partsB[0];
+              const mesB = partsB[1];
+              const usuarioB = partsB.slice(2).join('-');
               
               const anoNumA = Number(anoA);
               const anoNumB = Number(anoB);
@@ -400,7 +405,12 @@ export default function OportunidadesPartition({
               return usuarioA.localeCompare(usuarioB);
             })
             .map(([key, oportunidades]) => {
-              const [ano, mes, usuarioId] = key.split('-');
+              // Extrair ano, mês e usuarioId da chave de forma robusta
+              const parts = key.split('-');
+              const ano = parts[0];
+              const mes = parts[1];
+              // O usuarioId é tudo que vem depois do segundo hífen
+              const usuarioId = parts.slice(2).join('-');
               const primeiraOportunidade = oportunidades[0];
               const isOpen = openOportunidades === key;
               
