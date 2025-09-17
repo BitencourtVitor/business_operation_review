@@ -60,7 +60,7 @@ export default function ForecastFilters({
           onChange={e => onYearChange(e.target.value)} 
           style={{ ...selectStyle, border: 'none', borderRight: '1.5px solid var(--color-border-divider)', borderRadius: 0, height: 38, width: 70, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}
         >
-          <option value="">Todos</option>
+          <option value="">All</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select 
@@ -70,8 +70,8 @@ export default function ForecastFilters({
           onChange={e => onMonthChange(e.target.value)} 
           style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 75, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}
         >
-          <option value="">Todos</option>
-          {months.map(m => <option key={m} value={m}>{m}</option>)}
+          <option value="">All</option>
+          {months.map(m => <option key={m} value={m}>{String(months.indexOf(m) + 1).padStart(2, '0')}</option>)}
         </select>
       </div>
 
@@ -85,9 +85,9 @@ export default function ForecastFilters({
             options={clients.map(client => ({ value: client, label: client }))}
             selectedValues={selectedClient}
             onChange={onClientChange}
-            placeholder="Cliente"
-            allLabel="Todos"
-            dropdownTitle="Cliente"
+            placeholder="Client"
+            allLabel="All"
+            dropdownTitle="Client"
           />
         </div>
       </div>
@@ -103,7 +103,7 @@ export default function ForecastFilters({
             selectedValues={selectedJobSite}
             onChange={onJobSiteChange}
             placeholder="Job Site"
-            allLabel="Todos"
+            allLabel="All"
             dropdownTitle="Job Site"
           />
         </div>
