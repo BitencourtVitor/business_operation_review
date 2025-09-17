@@ -2,6 +2,54 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "20693",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:36:59-07:00",
+      "LastUpdatedTime": "2025-09-02T09:36:59-07:00"
+    },
+    "DocNumber": "S6705992.006",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 503.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1461",
+            "name": "Toll Brothers:Wendell Place:Lot 07 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 503.94
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "20581",
     "SyncToken": "2",
     "MetaData": {

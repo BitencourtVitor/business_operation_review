@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
@@ -19,6 +19,7 @@ export default function InitialLoading() {
   const navigate = useNavigate();
   const [theme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
   const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([
+    { id: 'workforce', title: 'Forecast', status: 'pending', progress: 0 },
     { id: 'timesheet', title: 'Timesheet Analysis', status: 'pending', progress: 0 },
     { id: 'permit', title: 'Permit Control', status: 'pending', progress: 0 },
     { id: 'receivables', title: 'Receivables Accounting', status: 'pending', progress: 0 },
@@ -30,8 +31,11 @@ export default function InitialLoading() {
     { id: 'fuel_control_data', title: 'Fuel Control Data', status: 'pending', progress: 0 }
   ]);
   const [hasValidSession, setHasValidSession] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const hasProcessed = useRef(false);
 
   const edgeFunctions = [
+    { id: 'workforce', name: 'workforce_gsheet' },
     { id: 'timesheet', name: 'timesheet_gsheet' },
     { id: 'permit', name: 'permit_gsheet' },
     { id: 'receivables', name: 'receivable_gsheet' },
@@ -52,6 +56,15 @@ export default function InitialLoading() {
 
   useEffect(() => {
     const processAllFunctions = async () => {
+      // Evitar execuções múltiplas com useRef (mais imediato)
+      if (hasProcessed.current) {
+        console.log('⚠️ InitialLoading: Já foi processado, ignorando chamada duplicada...');
+        return;
+      }
+      
+      hasProcessed.current = true;
+      setIsProcessing(true);
+      console.log('🚀 InitialLoading: Iniciando processamento das edge functions...');
       
       // Verificar se o usuário já tem uma sessão válida
       const { data: { session } } = await supabase.auth.getSession();
@@ -85,6 +98,9 @@ export default function InitialLoading() {
         // Executar todas as edge functions em paralelo
         const promises = edgeFunctions.map(async (func, index) => {
           try {
+            if (func.name === 'workforce_gsheet') {
+              console.log('📊 InitialLoading: Chamando workforce_gsheet...');
+            }
             const { error } = await supabase.functions.invoke(func.name, {
               body: { userId: 'loading-process' }
             });
@@ -201,6 +217,9 @@ export default function InitialLoading() {
         console.error('Erro geral no processamento:', error);
         // Limpar todos os intervalos em caso de erro
         progressIntervals.forEach(interval => clearInterval(interval));
+      } finally {
+        // Resetar estado de processamento
+        setIsProcessing(false);
       }
     };
 

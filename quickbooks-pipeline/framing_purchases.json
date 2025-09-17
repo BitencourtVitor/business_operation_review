@@ -1,6 +1,282 @@
 [
   {
     "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 251,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50588",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T18:20:38-07:00",
+      "LastUpdatedTime": "2025-08-29T18:20:38-07:00"
+    },
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 251,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "204",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "332",
+      "name": "Neto Construction, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "16588",
+      "Line1": "Heitor Neto",
+      "Line2": "Neto Construction, Inc.",
+      "Line3": "29 Settlers Ln",
+      "Line4": "Marlborough, MA  01752"
+    },
+    "TotalAmt": 500,
+    "PrintStatus": "NeedToPrint",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50585",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T13:19:52-07:00",
+      "LastUpdatedTime": "2025-08-29T13:19:52-07:00"
+    },
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order 18 Evergreen Rd, Needham",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Change order 18 Evergreen Rd, Needham",
+        "Amount": 500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "134",
+            "name": "Contractors Extra Hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "3320",
+      "name": "Willian Painting",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "16584",
+      "Line1": "Willian Painting",
+      "Line2": "2006 Faunce St",
+      "Line3": "Philadelphia, PA  01952"
+    },
+    "TotalAmt": 4500,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50582",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-29T11:54:05-07:00",
+      "LastUpdatedTime": "2025-08-29T12:07:45-07:00"
+    },
+    "DocNumber": "2415",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "3",
+        "Description": "Painting 65 Mill St, Hopedale",
+        "Amount": 4500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "3169",
+      "name": "EPL Construction",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "15154"
+    },
+    "TotalAmt": 56867.01,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50579",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T06:41:07-07:00",
+      "LastUpdatedTime": "2025-08-29T06:41:53-07:00"
+    },
+    "DocNumber": "2414",
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CL7 - First Floor Framing Rough",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "CL7 - First Floor Framing Rough",
+        "Amount": 56867.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "146",
       "name": "DCU Business Checking 7418"
     },
@@ -600,7 +876,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-08-07T11:43:13-07:00",
-      "LastUpdatedTime": "2025-08-13T11:34:42-07:00"
+      "LastUpdatedTime": "2025-08-29T01:45:24-07:00"
     },
     "TxnDate": "2025-05-30",
     "CurrencyRef": {
@@ -203249,8 +203525,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203314,8 +203590,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203376,8 +203652,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203484,8 +203760,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203550,8 +203826,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203612,8 +203888,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203674,8 +203950,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203735,8 +204011,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203802,8 +204078,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203864,8 +204140,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203926,8 +204202,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -203988,8 +204264,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204050,8 +204326,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204112,8 +204388,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204174,8 +204450,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204236,8 +204512,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204298,8 +204574,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204359,8 +204635,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204421,8 +204697,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204483,8 +204759,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204544,8 +204820,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204607,8 +204883,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204689,8 +204965,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204772,8 +205048,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -204876,8 +205152,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -205119,8 +205395,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -205223,8 +205499,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -206897,8 +207173,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -206958,8 +207234,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207025,8 +207301,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207092,8 +207368,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207154,8 +207430,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207220,8 +207496,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207286,8 +207562,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207353,8 +207629,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207419,8 +207695,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207485,8 +207761,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207551,8 +207827,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207620,8 +207896,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207685,8 +207961,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207751,8 +208027,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207817,8 +208093,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207883,8 +208159,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -207949,8 +208225,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208015,8 +208291,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208081,8 +208357,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208147,8 +208423,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208213,8 +208489,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208275,8 +208551,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208341,8 +208617,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208407,8 +208683,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208463,8 +208739,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208519,8 +208795,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208585,8 +208861,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208648,8 +208924,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208704,8 +208980,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208766,8 +209042,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208832,8 +209108,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208898,8 +209174,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -208962,8 +209238,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209029,8 +209305,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209109,8 +209385,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209165,8 +209441,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209230,8 +209506,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209291,8 +209567,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209356,8 +209632,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209421,8 +209697,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209486,8 +209762,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209551,8 +209827,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209617,8 +209893,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209683,8 +209959,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209749,8 +210025,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209814,8 +210090,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209879,8 +210155,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -209945,8 +210221,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210007,8 +210283,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210069,8 +210345,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210132,8 +210408,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210194,8 +210470,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210256,8 +210532,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210318,8 +210594,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210380,8 +210656,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210442,8 +210718,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210503,8 +210779,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210559,8 +210835,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210615,8 +210891,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210671,8 +210947,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210727,8 +211003,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210789,8 +211065,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210851,8 +211127,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210913,8 +211189,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -210975,8 +211251,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211037,8 +211313,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211103,8 +211379,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211164,8 +211440,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211230,8 +211506,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211291,8 +211567,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211353,8 +211629,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211415,8 +211691,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -211477,8 +211753,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -237912,74 +238188,6 @@
         "Id": "1",
         "Description": "Transfer from DCU to Mutual One",
         "Amount": 20000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "25",
-            "name": "Uncategorized Expense"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "146",
-      "name": "DCU Business Checking 7418"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "101",
-      "name": "Premium Framing, Inc.",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "7299",
-      "Line1": "Premium Framing, Inc."
-    },
-    "TotalAmt": 52362.42,
-    "PrintStatus": "NotSet",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "36058",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-01-11T09:13:49-08:00",
-      "LastUpdatedTime": "2024-04-30T12:45:38-07:00"
-    },
-    "DocNumber": "8931",
-    "TxnDate": "2024-01-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Transfer from DCU to Mutual One",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Transfer from DCU to Mutual One",
-        "Amount": 52362.42,
         "DetailType": "AccountBasedExpenseLineDetail",
         "AccountBasedExpenseLineDetail": {
           "AccountRef": {
@@ -298464,8 +298672,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298526,8 +298734,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298591,8 +298799,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298652,8 +298860,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298713,8 +298921,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298774,8 +298982,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298835,8 +299043,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298905,8 +299113,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -298968,8 +299176,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299047,8 +299255,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299109,8 +299317,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299175,8 +299383,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299242,8 +299450,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299303,8 +299511,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299364,8 +299572,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299426,8 +299634,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299492,8 +299700,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299554,8 +299762,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299616,8 +299824,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299679,8 +299887,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299741,8 +299949,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299802,8 +300010,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299867,8 +300075,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299929,8 +300137,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -299995,8 +300203,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300061,8 +300269,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300141,8 +300349,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300203,8 +300411,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300266,8 +300474,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300332,8 +300540,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300398,8 +300606,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300464,8 +300672,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300527,8 +300735,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300589,8 +300797,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300652,8 +300860,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300715,8 +300923,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300778,8 +300986,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300840,8 +301048,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300902,8 +301110,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -300965,8 +301173,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301027,8 +301235,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301090,8 +301298,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301156,8 +301364,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301219,8 +301427,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301281,8 +301489,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301363,8 +301571,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301428,8 +301636,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301493,8 +301701,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301558,8 +301766,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301624,8 +301832,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301686,8 +301894,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301748,8 +301956,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301815,8 +302023,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301877,8 +302085,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -301940,8 +302148,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302006,8 +302214,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302069,8 +302277,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302127,8 +302335,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302190,8 +302398,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302252,8 +302460,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302314,8 +302522,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302377,8 +302585,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302443,8 +302651,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302508,8 +302716,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302573,8 +302781,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302638,8 +302846,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302704,8 +302912,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302770,8 +302978,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302832,8 +303040,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302895,8 +303103,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -302961,8 +303169,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303046,8 +303254,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303113,8 +303321,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303201,8 +303409,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303265,8 +303473,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303327,8 +303535,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303390,8 +303598,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303458,8 +303666,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -303543,8 +303751,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304013,8 +304221,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304574,8 +304782,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304640,8 +304848,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304707,8 +304915,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304771,8 +304979,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304833,8 +305041,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304898,8 +305106,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -304964,8 +305172,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305029,8 +305237,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305094,8 +305302,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305155,8 +305363,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305221,8 +305429,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305306,8 +305514,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305391,8 +305599,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305489,8 +305697,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305550,8 +305758,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305611,8 +305819,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305672,8 +305880,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305733,8 +305941,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305794,8 +306002,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -305856,8 +306064,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370042,8 +370250,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370111,8 +370319,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370430,8 +370638,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370492,8 +370700,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370554,8 +370762,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370615,8 +370823,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370676,8 +370884,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370737,8 +370945,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370798,8 +371006,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370854,8 +371062,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370910,8 +371118,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -370971,8 +371179,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371032,8 +371240,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371093,8 +371301,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371154,8 +371362,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371223,8 +371431,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371542,8 +371750,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371603,8 +371811,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371664,8 +371872,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371725,8 +371933,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371786,8 +371994,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371847,8 +372055,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -371920,8 +372128,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372383,8 +372591,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372452,8 +372660,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372515,8 +372723,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372576,8 +372784,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372637,8 +372845,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372698,8 +372906,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372759,8 +372967,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372821,8 +373029,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372883,8 +373091,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -372953,8 +373161,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373017,8 +373225,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373083,8 +373291,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373152,8 +373360,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373223,8 +373431,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373294,8 +373502,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373364,8 +373572,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373494,8 +373702,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373559,8 +373767,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373625,8 +373833,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373688,8 +373896,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373749,8 +373957,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373810,8 +374018,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373871,8 +374079,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -373932,8 +374140,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374002,8 +374210,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374204,8 +374412,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374267,8 +374475,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374332,8 +374540,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374393,8 +374601,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374455,8 +374663,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374530,8 +374738,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374636,8 +374844,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374707,8 +374915,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -374779,8 +374987,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375140,8 +375348,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375201,8 +375409,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375262,8 +375470,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375327,8 +375535,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375392,8 +375600,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375453,8 +375661,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375514,8 +375722,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375575,8 +375783,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375636,8 +375844,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -375710,8 +375918,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -376122,8 +376330,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -376478,8 +376686,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -376535,8 +376743,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -376606,8 +376814,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -377051,8 +377259,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -377940,8 +378148,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378012,8 +378220,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378403,8 +378611,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378477,8 +378685,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378545,8 +378753,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378606,8 +378814,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378663,8 +378871,8 @@
             "Value": "1"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378719,8 +378927,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378776,8 +378984,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378833,8 +379041,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378890,8 +379098,8 @@
             "Value": "1"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -378946,8 +379154,8 @@
             "Value": "1"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379002,8 +379210,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379059,8 +379267,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379116,8 +379324,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379173,8 +379381,8 @@
             "Value": "1"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379233,8 +379441,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379297,8 +379505,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379358,8 +379566,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379420,8 +379628,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379486,8 +379694,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379548,8 +379756,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379611,8 +379819,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379673,8 +379881,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379735,8 +379943,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379801,8 +380009,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379867,8 +380075,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -379933,8 +380141,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -564981,8 +565189,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565043,8 +565251,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565105,8 +565313,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565167,8 +565375,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565348,8 +565556,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565411,8 +565619,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565473,8 +565681,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565535,8 +565743,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565598,8 +565806,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565660,8 +565868,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565723,8 +565931,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565785,8 +565993,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565848,8 +566056,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565911,8 +566119,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -565977,8 +566185,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566040,8 +566248,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566106,8 +566314,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566168,8 +566376,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566234,8 +566442,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566296,8 +566504,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566358,8 +566566,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566420,8 +566628,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566482,8 +566690,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566544,8 +566752,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566610,8 +566818,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566673,8 +566881,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566735,8 +566943,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566797,8 +567005,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566863,8 +567071,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566925,8 +567133,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -566988,8 +567196,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567054,8 +567262,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567116,8 +567324,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567178,8 +567386,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567248,8 +567456,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567337,8 +567545,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567403,8 +567611,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567465,8 +567673,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567527,8 +567735,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567589,8 +567797,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567651,8 +567859,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567717,8 +567925,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567783,8 +567991,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567849,8 +568057,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567915,8 +568123,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -567977,8 +568185,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568039,8 +568247,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568101,8 +568309,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568167,8 +568375,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568233,8 +568441,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568299,8 +568507,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568365,8 +568573,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568431,8 +568639,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568493,8 +568701,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568555,8 +568763,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568617,8 +568825,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568679,8 +568887,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568741,8 +568949,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568810,8 +569018,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568881,8 +569089,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -568952,8 +569160,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569023,8 +569231,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569094,8 +569302,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569182,8 +569390,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569253,8 +569461,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569324,8 +569532,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569395,8 +569603,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569466,8 +569674,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569537,8 +569745,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569608,8 +569816,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569679,8 +569887,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569745,8 +569953,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569814,8 +570022,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569884,8 +570092,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -569955,8 +570163,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570036,8 +570244,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570101,8 +570309,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570239,8 +570447,8 @@
             "Value": "3"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570383,8 +570591,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570449,8 +570657,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570511,8 +570719,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570577,8 +570785,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570639,8 +570847,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570701,8 +570909,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570767,8 +570975,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570833,8 +571041,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570899,8 +571107,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -570965,8 +571173,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571031,8 +571239,8 @@
             "Value": "11"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571093,8 +571301,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571155,8 +571363,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571217,8 +571425,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571279,8 +571487,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571341,8 +571549,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571403,8 +571611,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571465,8 +571673,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571527,8 +571735,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571589,8 +571797,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571651,8 +571859,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },
@@ -571717,8 +571925,8 @@
             "Value": "54"
           },
           "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
+          "typeSubstituted": false,
+          "globalScope": true
         }
       ]
     },

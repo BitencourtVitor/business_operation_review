@@ -1,6 +1,242 @@
 [
   {
     "VendorRef": {
+      "value": "727",
+      "name": "Law Office Of Paul Ross"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 5880,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50628",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:04:08-07:00",
+      "LastUpdatedTime": "2025-09-02T08:04:08-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 5880,
+        "LinkedTxn": [
+          {
+            "TxnId": "50540",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "277",
+      "name": "IPFS"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 5842.24,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50626",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:03:21-07:00",
+      "LastUpdatedTime": "2025-09-02T08:03:21-07:00"
+    },
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 5842.24,
+        "LinkedTxn": [
+          {
+            "TxnId": "50390",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1061",
+      "name": "GM Financial"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 745.98,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50625",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:03:09-07:00",
+      "LastUpdatedTime": "2025-09-02T08:03:09-07:00"
+    },
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 745.98,
+        "LinkedTxn": [
+          {
+            "TxnId": "50508",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1061",
+      "name": "GM Financial"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 577.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50624",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:02:41-07:00",
+      "LastUpdatedTime": "2025-09-02T08:02:41-07:00"
+    },
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 577.4,
+        "LinkedTxn": [
+          {
+            "TxnId": "50388",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "1808",
+      "name": "Ally Financial"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 375.12,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50623",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:51:47-07:00",
+      "LastUpdatedTime": "2025-09-02T07:51:47-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 375.12,
+        "LinkedTxn": [
+          {
+            "TxnId": "50110",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "332",
+      "name": "Neto Construction, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "198",
+        "name": "Mutual One Checking 8972"
+      },
+      "PrintStatus": "NeedToPrint"
+    },
+    "TotalAmt": 5000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50584",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T13:15:51-07:00",
+      "LastUpdatedTime": "2025-08-29T13:15:51-07:00"
+    },
+    "DocNumber": "To print",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "18 Evergreen Rd. Needham - Framing - 2nd Payment",
+    "Line": [
+      {
+        "Amount": 5000,
+        "LinkedTxn": [
+          {
+            "TxnId": "50583",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "2651",
       "name": "Gabriel Lebre"
     },

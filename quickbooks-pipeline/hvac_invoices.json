@@ -6,11 +6,1903 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
-    "Id": "20647",
+    "Id": "20666",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T07:54:01-07:00",
+      "LastUpdatedTime": "2025-08-29T07:54:01-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3867",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2- Owls Nest - Lot 139",
+    "LinkedTxn": [
+      {
+        "TxnId": "19851",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3100,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Condenser/Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000131",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263018 - Chatham"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19851",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1516",
+      "name": "Lot 139 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "20034",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "7 Loons Call",
+      "Line3": "Plymouth, MA 02360",
+      "Line4": "Chatham Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "20035",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 3100,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3100
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20665",
     "SyncToken": "1",
     "MetaData": {
+      "CreateTime": "2025-08-29T07:47:33-07:00",
+      "LastUpdatedTime": "2025-08-29T07:49:29-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3866",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "19850",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14025,
+        "LinkedTxn": [
+          {
+            "TxnId": "19850",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14025,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finished Basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19850",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000131",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263018 - Chatham"
+          },
+          "UnitPrice": 4500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnace/Air Handler",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19850",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Condenser/Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19850",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19850",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 14025,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1515",
+      "name": "Lot 134 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "20032",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "19 Loons Call",
+      "Line3": "Plymouth, MA 02360",
+      "Line4": "Chatham Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "20033",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 14025,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 14025
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19687",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-14T09:57:08-07:00",
+      "LastUpdatedTime": "2025-08-28T14:29:16-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3687",
+    "TxnDate": "2025-07-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Eletronic air cleaner + 36\" Gas Rangetop\nDescription 1: \t36\" Gas Rangetop\nDescription 2: \tD Oven, Hood, MW, DW",
+    "LinkedTxn": [
+      {
+        "TxnId": "18839",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "19688",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "18839",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000256",
+            "name": "Toll Brothers - Wendell Place:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "18839",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000302",
+            "name": "Toll Brothers - Wendell Place:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "PC402 - Eleronic Air Cleaner",
+        "Amount": 1750,
+        "LinkedTxn": [
+          {
+            "TxnId": "18839",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000601",
+            "name": "Toll Brothers - Newbury Glen:Eletronic Air Cleaner"
+          },
+          "UnitPrice": 1750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Electronic Air Cleaner",
+        "Amount": 1750,
+        "LinkedTxn": [
+          {
+            "TxnId": "18839",
+            "TxnType": "Estimate",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000210",
+            "name": "Toll Brothers - Wendell Place:402 - All Plans"
+          },
+          "UnitPrice": 1750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "36\" Gas Rangetop\nDescription 1: \t36\" Gas Rangetop\nDescription 2: \tD Oven, Hood, MW, DW",
+        "Amount": 275,
+        "LinkedTxn": [
+          {
+            "TxnId": "18839",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3775,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1431",
+      "name": "Lot 04 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "18840",
+      "Line1": "Toll Brothers",
+      "Line2": "8 Wendell Place - Westford ",
+      "Line3": "Copley Manchester"
+    },
+    "ShipAddr": {
+      "Id": "18841",
+      "Line1": "Toll Brothers",
+      "Line2": "8 Wendell Place - Westford ",
+      "Line3": "Copley Manchester"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-14",
+    "TotalAmt": 3775,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20662",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T13:59:12-07:00",
+      "LastUpdatedTime": "2025-08-28T14:00:48-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3865",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S4 + Casual dining addition",
+    "LinkedTxn": [
+      {
+        "TxnId": "13452",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20663",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Finishes",
+        "Amount": 2000,
+        "LinkedTxn": [
+          {
+            "TxnId": "13452",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "618",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Casual Dining Addition",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "13452",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "629",
+            "name": "Toll Brothers - The Willows at Boxford:263275 - Hopkinton - Final"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1086",
+      "name": "Lot 58 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "20027",
+      "Line1": "The Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "20028",
+      "Line1": "The Willows at Boxford",
+      "Line2": "71 Ingalls Village Way",
+      "Line3": "Hopkinton Manor"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 2250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19972",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-23T13:31:30-07:00",
+      "LastUpdatedTime": "2025-08-28T14:00:48-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3725",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "13452",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20663",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Condenser",
+        "Amount": 3051,
+        "LinkedTxn": [
+          {
+            "TxnId": "13452",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "615",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Hopkinton Manor"
+          },
+          "UnitPrice": 3051,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "HVAC Finishes",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "13452",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "618",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3051,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1086",
+      "name": "Lot 58 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "19185",
+      "Line1": "The Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "19186",
+      "Line1": "The Willows at Boxford",
+      "Line2": "71 Ingalls Village Way",
+      "Line3": "Hopkinton Manor"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-23",
+    "TotalAmt": 3051,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20660",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T13:50:00-07:00",
+      "LastUpdatedTime": "2025-08-28T13:53:00-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3864",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S4",
+    "LinkedTxn": [
+      {
+        "TxnId": "13451",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20661",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Finishes",
+        "Amount": 2000,
+        "LinkedTxn": [
+          {
+            "TxnId": "13451",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "618",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1085",
+      "name": "Lot 57 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "20023",
+      "Line1": "The Willows at Boxford",
+      "Line2": "73 Ingalls Village Way",
+      "Line3": "Hopkinton Manor - 6C0-03"
+    },
+    "ShipAddr": {
+      "Id": "20024",
+      "Line1": "The Willows at Boxford",
+      "Line2": "73 Ingalls Village Way",
+      "Line3": "Hopkinton Manor"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 2000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20658",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T13:12:22-07:00",
+      "LastUpdatedTime": "2025-08-28T13:12:43-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3863",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S4",
+    "LinkedTxn": [
+      {
+        "TxnId": "18847",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20659",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "18847",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000302",
+            "name": "Toll Brothers - Wendell Place:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1418",
+      "name": "Lot 23 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "20014",
+      "Line1": "Toll Brothers",
+      "Line2": "5 Wendell Place ",
+      "Line3": "Copley Manchester"
+    },
+    "ShipAddr": {
+      "Id": "20015",
+      "Line1": "Toll Brothers",
+      "Line2": "5 Wendell Place ",
+      "Line3": "Copley Manchester"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 3000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20657",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T12:40:45-07:00",
+      "LastUpdatedTime": "2025-08-28T12:43:00-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3862",
+    "TxnDate": "2025-07-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "15840",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Condenser/Compressor",
+        "Amount": 3300,
+        "LinkedTxn": [
+          {
+            "TxnId": "15840",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3300,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1279",
+      "name": "Lot 138 - Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "20011",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "9 Loons Call",
+      "Line3": "Chatham Modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "20012",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-07-07",
+    "TotalAmt": 3300,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3300
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20656",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T12:32:42-07:00",
+      "LastUpdatedTime": "2025-08-28T12:32:53-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3861",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "13449",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Condenser",
+        "Amount": 3051,
+        "LinkedTxn": [
+          {
+            "TxnId": "13449",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "615",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Hopkinton Manor"
+          },
+          "UnitPrice": 3051,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "HVAC Finishes",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "13449",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "618",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3051,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "664",
+      "name": "Lot 12 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "20008",
+      "Line1": "The Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "20009",
+      "Line1": "The Willows at Boxford",
+      "Line2": "8 Hope Lane",
+      "Line3": "Hopkinton Manor"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-15",
+    "TotalAmt": 3051,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3051
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20655",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T12:30:45-07:00",
+      "LastUpdatedTime": "2025-08-28T12:30:56-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3860",
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "13450",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Condenser",
+        "Amount": 3051,
+        "LinkedTxn": [
+          {
+            "TxnId": "13450",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "613",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Norwell Manor"
+          },
+          "UnitPrice": 3051,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "HVAC Finishes",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "13450",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "617",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Norwell Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3051,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1087",
+      "name": "Lot 11 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "20005",
+      "Line1": "The Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "20006",
+      "Line1": "The Willows at Boxford",
+      "Line2": "Norwell Manor",
+      "Line3": "6 hope lane"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-15",
+    "TotalAmt": 3051,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 3051
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20653",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-28T12:15:26-07:00",
+      "LastUpdatedTime": "2025-08-28T12:19:48-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3859",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1+S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "19150",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20654",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 18000,
+        "LinkedTxn": [
+          {
+            "TxnId": "19150",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000248",
+            "name": "Toll Brothers - Wendell Place:Rough Ductwork - Dickinson"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 5500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19150",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000200",
+            "name": "Toll Brothers - Wendell Place:Air Handler - Dickinson"
+          },
+          "UnitPrice": 5500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19150",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000301",
+            "name": "Toll Brothers - Wendell Place:Compressor - Dickinson"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19150",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000303",
+            "name": "Toll Brothers - Wendell Place:Final HVAC - Dickinson"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1466",
+      "name": "Lot 15 - Wendell Place"
+    },
+    "BillAddr": {
+      "Id": "20002",
+      "Line1": "Wendell Place",
+      "Line2": "7 Lady Constance Way",
+      "Line3": "Westford, MA 01886",
+      "Line4": "Dickinson Manchester"
+    },
+    "ShipAddr": {
+      "Id": "20003",
+      "Line1": "Wendell Place",
+      "Line2": "7 Lady Constance Way",
+      "Line3": "Westford, MA 01886",
+      "Line4": "Dickinson Manchester"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 23500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20651",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-28T12:11:42-07:00",
+      "LastUpdatedTime": "2025-08-28T12:12:29-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3858",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S4+263145",
+    "LinkedTxn": [
+      {
+        "TxnId": "12328",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20652",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HVAC Finishes",
+        "Amount": 2000,
+        "LinkedTxn": [
+          {
+            "TxnId": "12328",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "619",
+            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Dover Manor"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Extended Great Room Depth 4'",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "12328",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "626",
+            "name": "Toll Brothers - The Willows at Boxford:263145 - Dover"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1052",
+      "name": "Lot 14 - Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "19997",
+      "Line1": "Lot 14 - The Willows at Boxford",
+      "Line2": "12 Hope Lane",
+      "Line3": "Dover Manor"
+    },
+    "ShipAddr": {
+      "Id": "19998",
+      "Line1": "The Willows at Boxford"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 2250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20647",
+    "SyncToken": "4",
+    "MetaData": {
       "CreateTime": "2025-08-27T11:20:49-07:00",
-      "LastUpdatedTime": "2025-08-28T11:51:21-07:00"
+      "LastUpdatedTime": "2025-08-28T12:08:08-07:00"
     },
     "CustomField": [
       {
@@ -20,7 +1912,7 @@
       }
     ],
     "DocNumber": "3855",
-    "TxnDate": "2025-08-27",
+    "TxnDate": "2025-08-18",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
@@ -30,6 +1922,10 @@
       {
         "TxnId": "17919",
         "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20650",
+        "TxnType": "Payment"
       }
     ],
     "Line": [
@@ -157,12 +2053,207 @@
       "value": "1",
       "name": "Due on receipt"
     },
-    "DueDate": "2025-08-27",
+    "DueDate": "2025-08-18",
     "TotalAmt": 5500,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
-    "Balance": 5500
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20414",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-14T10:00:31-07:00",
+      "LastUpdatedTime": "2025-08-28T12:08:08-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "3824",
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "17919",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "20650",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 19000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000192",
+            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Williamstown"
+          },
+          "UnitPrice": 19000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000203",
+            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Williamstown"
+          },
+          "UnitPrice": 5500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000213",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17919",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000243",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 19000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "1369",
+      "name": "Lot 11 - Lakemont At Hudson"
+    },
+    "BillAddr": {
+      "Id": "19708",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Shoreline Drive ",
+      "Line3": "Williamstown modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "19709",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Shoreline Drive ",
+      "Line3": "Williamstown modern Craftsman"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-12",
+    "TotalAmt": 19000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0
   },
   {
     "AllowIPNPayment": false,
@@ -12024,197 +14115,6 @@
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
     "Balance": 13250
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20414",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-14T10:00:31-07:00",
-      "LastUpdatedTime": "2025-08-14T10:00:31-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3824",
-    "TxnDate": "2025-08-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S1",
-    "LinkedTxn": [
-      {
-        "TxnId": "17919",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 19000,
-        "LinkedTxn": [
-          {
-            "TxnId": "17919",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000192",
-            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Williamstown"
-          },
-          "UnitPrice": 19000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17919",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000203",
-            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Williamstown"
-          },
-          "UnitPrice": 5500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17919",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000213",
-            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17919",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000243",
-            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 19000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1369",
-      "name": "Lot 11 - Lakemont At Hudson"
-    },
-    "BillAddr": {
-      "Id": "19708",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "8 Shoreline Drive ",
-      "Line3": "Williamstown modern Craftsman"
-    },
-    "ShipAddr": {
-      "Id": "19709",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "8 Shoreline Drive ",
-      "Line3": "Williamstown modern Craftsman"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-12",
-    "TotalAmt": 19000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 19000
   },
   {
     "AllowIPNPayment": false,
@@ -26748,143 +28648,6 @@
       "DeliveryType": "Email",
       "DeliveryTime": "2025-07-23T07:57:24-07:00"
     }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19972",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-23T13:31:30-07:00",
-      "LastUpdatedTime": "2025-07-23T13:31:30-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3725",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S3",
-    "LinkedTxn": [
-      {
-        "TxnId": "13452",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "HVAC Condenser",
-        "Amount": 3051,
-        "LinkedTxn": [
-          {
-            "TxnId": "13452",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "615",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Condenser - Hopkinton Manor"
-          },
-          "UnitPrice": 3051,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "HVAC Finishes",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "13452",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "618",
-            "name": "Toll Brothers - The Willows at Boxford:Base - Final - Hopkinton Manor"
-          },
-          "UnitPrice": 2000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3051,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1086",
-      "name": "Lot 58 - Willows at Boxford"
-    },
-    "BillAddr": {
-      "Id": "19185",
-      "Line1": "The Willows at Boxford"
-    },
-    "ShipAddr": {
-      "Id": "19186",
-      "Line1": "The Willows at Boxford",
-      "Line2": "71 Ingalls Village Way",
-      "Line3": "Hopkinton Manor"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-23",
-    "TotalAmt": 3051,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 3051
   },
   {
     "AllowIPNPayment": false,
@@ -53205,226 +54968,6 @@
     },
     "DueDate": "2025-07-03",
     "TotalAmt": 24500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 0
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19687",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-14T09:57:08-07:00",
-      "LastUpdatedTime": "2025-07-14T09:58:04-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "3687",
-    "TxnDate": "2025-07-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "18839",
-        "TxnType": "Estimate"
-      },
-      {
-        "TxnId": "19688",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18839",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000256",
-            "name": "Toll Brothers - Wendell Place:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18839",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000302",
-            "name": "Toll Brothers - Wendell Place:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "PC402 - Eleronic Air Cleaner",
-        "Amount": 1750,
-        "LinkedTxn": [
-          {
-            "TxnId": "18839",
-            "TxnType": "Estimate",
-            "TxnLineId": "6"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000601",
-            "name": "Toll Brothers - Newbury Glen:Eletronic Air Cleaner"
-          },
-          "UnitPrice": 1750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Electronic Air Cleaner",
-        "Amount": 1750,
-        "LinkedTxn": [
-          {
-            "TxnId": "18839",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000210",
-            "name": "Toll Brothers - Wendell Place:402 - All Plans"
-          },
-          "UnitPrice": 1750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "36\" Gas Rangetop\nDescription 1: \t36\" Gas Rangetop\nDescription 2: \tD Oven, Hood, MW, DW",
-        "Amount": 275,
-        "LinkedTxn": [
-          {
-            "TxnId": "18839",
-            "TxnType": "Estimate",
-            "TxnLineId": "8"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3775,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "1431",
-      "name": "Lot 04 - Wendell Place"
-    },
-    "BillAddr": {
-      "Id": "18840",
-      "Line1": "Toll Brothers",
-      "Line2": "8 Wendell Place - Westford ",
-      "Line3": "Copley Manchester"
-    },
-    "ShipAddr": {
-      "Id": "18841",
-      "Line1": "Toll Brothers",
-      "Line2": "8 Wendell Place - Westford ",
-      "Line3": "Copley Manchester"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-07-14",
-    "TotalAmt": 3775,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
@@ -116550,13 +118093,6 @@
         "LineNum": 2,
         "Description": "Walkout Basement with Expanded Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "14403",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -132039,25 +133575,13 @@
       "value": "USD",
       "name": "United States Dollar"
     },
-    "LinkedTxn": [
-      {
-        "TxnId": "14403",
-        "TxnType": "Estimate"
-      }
-    ],
+    "LinkedTxn": [],
     "Line": [
       {
         "Id": "1",
         "LineNum": 1,
         "Description": "Walkout Basement with Expanded Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "14403",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -132244,13 +133768,6 @@
         "LineNum": 4,
         "Description": "Walkout Basement with Expanded Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "14403",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -136962,13 +138479,6 @@
         "LineNum": 3,
         "Description": "Walkout Basement with Expanded Great Room",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "14403",
-            "TxnType": "Estimate",
-            "TxnLineId": "7"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -291462,13 +292972,6 @@
         "LineNum": 3,
         "Description": "Walk-out Basement",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "12329",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -293481,13 +294984,6 @@
         "LineNum": 2,
         "Description": "Walk-out Basement",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "12329",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
@@ -374332,13 +375828,6 @@
         "LineNum": 3,
         "Description": "Walk-out Basement",
         "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "10363",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {

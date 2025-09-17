@@ -3,6 +3,1167 @@
     "SalesTermRef": {
       "value": "3"
     },
+    "DueDate": "2025-09-28",
+    "Balance": 10.63,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20692",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:28:11-07:00",
+      "LastUpdatedTime": "2025-09-02T09:28:11-07:00"
+    },
+    "DocNumber": "S6713733.005",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713733.005",
+        "Amount": 10.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1451",
+            "name": "Toll Brothers:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10.63
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 7.89,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20691",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:25:52-07:00",
+      "LastUpdatedTime": "2025-09-02T09:25:52-07:00"
+    },
+    "DocNumber": "S6713743.003",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713743.003",
+        "Amount": 7.89,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1424",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7.89
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 221.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20690",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:22:03-07:00",
+      "LastUpdatedTime": "2025-09-02T09:22:03-07:00"
+    },
+    "DocNumber": "S6716179.001",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6717818.001",
+        "Amount": 221.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 221.94
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 732.22,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20689",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:20:23-07:00",
+      "LastUpdatedTime": "2025-09-02T09:20:23-07:00"
+    },
+    "DocNumber": "S6717818.001",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6717818.001",
+        "Amount": 732.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 732.22
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 142.23,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20686",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:12:05-07:00",
+      "LastUpdatedTime": "2025-09-02T09:17:05-07:00"
+    },
+    "DocNumber": "S6713733.004",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713733.004",
+        "Amount": 142.23,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1451",
+            "name": "Toll Brothers:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 142.23
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 493.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20687",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:13:48-07:00",
+      "LastUpdatedTime": "2025-09-02T09:16:18-07:00"
+    },
+    "DocNumber": "S6713733.003",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713733.003",
+        "Amount": 493.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1451",
+            "name": "Toll Brothers:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 493.5
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 5.68,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20688",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:15:22-07:00",
+      "LastUpdatedTime": "2025-09-02T09:15:22-07:00"
+    },
+    "DocNumber": "S6717826.001",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6717826.001",
+        "Amount": 5.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5.68
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 791.69,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20685",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:15:39-07:00",
+      "LastUpdatedTime": "2025-09-02T08:15:39-07:00"
+    },
+    "DocNumber": "S6713743.001",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713743.001",
+        "Amount": 791.69,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1318",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 10 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 791.69
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 121.21,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20684",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:07:38-07:00",
+      "LastUpdatedTime": "2025-09-02T08:07:38-07:00"
+    },
+    "DocNumber": "S6713743.002",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713743.002",
+        "Amount": 121.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1318",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 10 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 121.21
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 194.82,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20683",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:03:38-07:00",
+      "LastUpdatedTime": "2025-09-02T08:03:38-07:00"
+    },
+    "DocNumber": "S6713755.001",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713755.001",
+        "Amount": 194.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1417",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 194.82
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-02",
+    "Balance": 30.17,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20681",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:01:54-07:00",
+      "LastUpdatedTime": "2025-09-02T08:02:30-07:00"
+    },
+    "DocNumber": "Reimbursement Gui",
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Reimbursement\nEdy's expense\nCHIN S GARDEN",
+        "Amount": 30.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "221",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 30.17
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-02",
+    "Balance": 30.17,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20682",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T08:02:18-07:00",
+      "LastUpdatedTime": "2025-09-02T08:02:18-07:00"
+    },
+    "DocNumber": "Reimbursement Felipe",
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Reimbursement Felipe \nEdy's expense\nCHIN S GARDEN",
+        "Amount": 30.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "221",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 30.17
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 873.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20679",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:53:28-07:00",
+      "LastUpdatedTime": "2025-09-02T07:53:28-07:00"
+    },
+    "DocNumber": "S6715376.001",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6715376.001",
+        "Amount": 873.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 873.92
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-25",
+    "Balance": 239.89,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20678",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:50:34-07:00",
+      "LastUpdatedTime": "2025-09-02T07:50:34-07:00"
+    },
+    "DocNumber": "S6707521.002",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6707521.002",
+        "Amount": 239.89,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1311",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 17 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 239.89
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-25",
+    "Balance": 89.39,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20677",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:45:37-07:00",
+      "LastUpdatedTime": "2025-09-02T07:45:37-07:00"
+    },
+    "DocNumber": "S6708791.006",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6708791.006",
+        "Amount": 89.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1417",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 89.39
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-25",
+    "Balance": 263.3,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20676",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:40:11-07:00",
+      "LastUpdatedTime": "2025-09-02T07:40:11-07:00"
+    },
+    "DocNumber": "S6713733.001",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713733.001",
+        "Amount": 263.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1451",
+            "name": "Toll Brothers:Wendell Place:Lot 14 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 263.3
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 1233.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20675",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:11:39-07:00",
+      "LastUpdatedTime": "2025-09-02T07:11:39-07:00"
+    },
+    "DocNumber": "2727051-00",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2727051-00",
+        "Amount": 1233.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1516",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1233.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 1233.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20674",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:08:49-07:00",
+      "LastUpdatedTime": "2025-09-02T07:08:49-07:00"
+    },
+    "DocNumber": "2727054-00",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2727054-00",
+        "Amount": 1233.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1515",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 134 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1233.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-27",
+    "Balance": 1233.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20673",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:06:31-07:00",
+      "LastUpdatedTime": "2025-09-02T07:06:31-07:00"
+    },
+    "DocNumber": "2727056-00",
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2727056-00",
+        "Amount": 1233.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1545",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 55 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1233.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-19",
+    "Balance": 943,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20672",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:01:40-07:00",
+      "LastUpdatedTime": "2025-09-02T07:01:40-07:00"
+    },
+    "DocNumber": "2724952-00",
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2724952-00",
+        "Amount": 943,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1484",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 943
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-09-28",
+    "Balance": 236.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20671",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T06:43:01-07:00",
+      "LastUpdatedTime": "2025-09-02T06:43:01-07:00"
+    },
+    "DocNumber": "S014705430.001",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S014705430.001",
+        "Amount": 236.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "272",
+      "name": "The Bell Simons Companies"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 236.94
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-08-08",
+    "Balance": 1233.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19729",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-07-15T06:47:42-07:00",
+      "LastUpdatedTime": "2025-08-29T05:43:14-07:00"
+    },
+    "DocNumber": "2707557-00",
+    "TxnDate": "2025-07-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "it was changed, beacuase lot 107 was without concrete.",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2707557-00",
+        "Amount": 1233.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1516",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1233.56
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
     "DueDate": "2025-09-14",
     "Balance": 4260.63,
     "domain": "QBO",
@@ -37946,60 +39107,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 21.22
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2025-08-08",
-    "Balance": 1233.56,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19729",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-15T06:47:42-07:00",
-      "LastUpdatedTime": "2025-07-15T06:47:42-07:00"
-    },
-    "DocNumber": "2707557-00",
-    "TxnDate": "2025-07-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2707557-00",
-        "Amount": 1233.56,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1449",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 107 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "72",
-      "name": "DCNE"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1233.56
   },
   {
     "SalesTermRef": {

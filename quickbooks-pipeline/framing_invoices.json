@@ -3,6 +3,1897 @@
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50389",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-17T02:01:33-07:00",
+      "LastUpdatedTime": "2025-09-02T03:19:02-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8398",
+    "TxnDate": "2025-08-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Vehicle Insurance \n2022 Ford F-250 \nLicense X43182\nVIN 1FTBF2B65NEE96377",
+        "Amount": 372.42,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 372.42,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 372.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1208",
+      "name": "Elite Stoneworks Masonry & Construction"
+    },
+    "BillAddr": {
+      "Id": "9844",
+      "Line1": "41 Perry St.",
+      "City": "Sherborn",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01770"
+    },
+    "ShipAddr": {
+      "Id": "9844",
+      "Line1": "41 Perry St.",
+      "City": "Sherborn",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01770"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-22",
+    "TotalAmt": 372.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "elitestoneworks17@gmail.com"
+    },
+    "Balance": 372.42,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T01:35:08-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49994",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-01T02:46:16-07:00",
+      "LastUpdatedTime": "2025-09-02T01:35:15-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8379",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "SBA Monthly Loan",
+        "Amount": 6360.47,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6360.47,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6360.47,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1071",
+      "name": "Premium Contractors Group, Inc."
+    },
+    "BillAddr": {
+      "Id": "16085",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "ShipAddr": {
+      "Id": "7112",
+      "Line1": "1B Landing Ln",
+      "City": "Hopedale",
+      "Country": "US",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01747"
+    },
+    "SalesTermRef": {
+      "value": "6",
+      "name": "Due in 10 days"
+    },
+    "DueDate": "2025-08-11",
+    "TotalAmt": 6360.47,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 6360.47,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T01:35:11-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "34421",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2023-11-17T12:03:02-08:00",
+      "LastUpdatedTime": "2025-09-01T20:52:45-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "5959",
+    "TxnDate": "2023-11-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "10/17/2023 - Boxford - Willows at Boxford - Lot 24\n\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add \n2. 2 x 6 on top of the 2 x 6 pt the \nfoundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one\n\nWe put plywood on 10’ 8 ½” x 22’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
+    "LinkedTxn": [
+      {
+        "TxnId": "36739",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Boxford - Willows at Boxford - PO 6727",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "10/17/2023 - Boxford - Willows at Boxford - Lot 24\n\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add \n2. 2 x 6 on top of the 2 x 6 pt the \nfoundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one\n\nWe put plywood on 10’ 8 ½” x 22’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
+        "Amount": 540,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 45,
+          "Qty": 12,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 540,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      },
+      {
+        "Amount": 270,
+        "DetailType": "DiscountLineDetail",
+        "DiscountLineDetail": {
+          "DiscountAccountRef": {
+            "value": "210",
+            "name": "Discounts given"
+          }
+        }
+      }
+    ],
+    "CustomerRef": {
+      "value": "2232",
+      "name": "Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "15835",
+      "Line1": "Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "2971"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2023-11-17",
+    "TotalAmt": 270,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "GHANNA@tollbrothers.com, kmorrison@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "34416",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2023-11-17T10:24:35-08:00",
+      "LastUpdatedTime": "2025-09-01T20:52:15-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "5956",
+    "TxnDate": "2023-11-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "10/14/2023 - Boxford - Willows at Boxford - Lot 23\nWe put plywood on 10’ 8 ½” x 25’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n2 guys – 3:00 hours each one\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add 2. 2 x 6 on top of the 2 x 6 pt the foundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
+    "LinkedTxn": [
+      {
+        "TxnId": "36741",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Boxford - Willows at Boxford - PO 6724",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "10/14/2023 - Boxford - Willows at Boxford - Lot 23\nWe put plywood on 10’ 8 ½” x 25’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n2 guys – 3:00 hours each one\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add 2. 2 x 6 on top of the 2 x 6 pt the foundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
+        "Amount": 540,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 45,
+          "Qty": 12,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 540,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      },
+      {
+        "Amount": 270,
+        "DetailType": "DiscountLineDetail",
+        "DiscountLineDetail": {
+          "DiscountAccountRef": {
+            "value": "210",
+            "name": "Discounts given"
+          }
+        }
+      }
+    ],
+    "CustomerRef": {
+      "value": "2232",
+      "name": "Willows at Boxford"
+    },
+    "BillAddr": {
+      "Id": "15836",
+      "Line1": "Willows at Boxford"
+    },
+    "ShipAddr": {
+      "Id": "2971"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2023-11-17",
+    "TotalAmt": 270,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "GHANNA@tollbrothers.com, kmorrison@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "38172",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2024-03-28T05:22:26-07:00",
+      "LastUpdatedTime": "2025-09-01T20:50:37-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "6553",
+    "TxnDate": "2024-03-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Voided - 03/21/24 - Millis - Regency at Glen Ellen - Lot 253 \n\nWe made the 40x40 platform and the garage staircase that gives access into the apartment with 4 steps on the first floor deck",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Millis - Regency at Glen Ellen - PO 6830",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "03/21/24 - Millis - Regency at Glen Ellen - Lot 253 \n\nWe made the 40x40 platform and the garage staircase that gives access into the apartment with 4 steps on the first floor deck",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "35",
+      "name": "Regency at Glen Ellen"
+    },
+    "BillAddr": {
+      "Id": "7438",
+      "Line1": "Regency at Glen Ellen"
+    },
+    "ShipAddr": {
+      "Id": "3010"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-03-28",
+    "TotalAmt": 0,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "mpavia@tollbrothers.com, mparenteau@tollbrothers.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2024-05-09T06:32:08-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "30176",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2023-07-19T12:07:51-07:00",
+      "LastUpdatedTime": "2025-09-01T20:49:04-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "5284",
+    "TxnDate": "2023-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/06/2023 - Millis - Lot 256\nReviewing with Karla if payment was actually made.\nWe put plywood on the 10'5 5/8 x 22' wall in the garage where there's the door that gives acess to the apart for the insulation guys toplace the spray form.\n\n2 guys - 3 hours each one.\n\n\"Field condition for spray foam. Update contract.\" / 07/06/2023 - Millis - Lot 256\n\nWe had to redo the chase because the air conditioning guys put the pipe outside the chase, so we had to wall to cover the pipe and reframing chase first floor.\nWe had to make a 7' wall on the side of the wall that divides the apart and they couldn't cut the gable that rests over the wall on the 2nd floor because the air conditioning guys put the 4\" pipe.\n\n2 guys - 3.5 hours each one\n\n\"PAD wall + move door. Field condition for 8\" duct\"",
+    "LinkedTxn": [
+      {
+        "TxnId": "50383",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Glen Ellen - PO 3689",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "07/06/2023 - Millis - Lot 256\n\nWe put plywood on the 10'5 5/8 x 22' wall in the garage where there's the door that gives acess to the apart for the insulation guys toplace the spray form.\n\n2 guys - 3 hours each one.\n\n\"Field condition for spray foam. Update contract.\"",
+        "Amount": 270,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 45,
+          "Qty": 6,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "07/06/2023 - Millis - Lot 256\n\nWe had to redo the chase because the air conditioning guys put the pipe outside the chase, so we had to wall to cover the pipe and reframing chase first floor.\nWe had to make a 7' wall on the side of the wall that divides the apart and they couldn't cut the gable that rests over the wall on the 2nd floor because the air conditioning guys put the 4\" pipe.\n\n2 guys - 3.5 hours each one\n\n\"PAD wall + move door. Field condition for 8\" duct\"",
+        "Amount": 315,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 45,
+          "Qty": 7,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 585,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      },
+      {
+        "Amount": 315,
+        "DetailType": "DiscountLineDetail",
+        "DiscountLineDetail": {
+          "DiscountAccountRef": {
+            "value": "210",
+            "name": "Discounts given"
+          }
+        }
+      }
+    ],
+    "CustomerRef": {
+      "value": "35",
+      "name": "Regency at Glen Ellen"
+    },
+    "BillAddr": {
+      "Id": "11701",
+      "Line1": "Regency at Glen Ellen"
+    },
+    "ShipAddr": {
+      "Id": "3010"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2023-07-19",
+    "TotalAmt": 270,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "mpavia@tollbrothers.com, mparenteau@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41852",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2024-08-23T12:47:51-07:00",
+      "LastUpdatedTime": "2025-09-01T20:45:56-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "7102",
+    "TxnDate": "2024-08-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Voided - 08/13/2024 - Hopkinton - Edgewood at Hopkinton - Lot 18\nWelds were made on the columns and steel shims under the steel beams",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4476",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "08/13/2024 - Hopkinton - Edgewood at Hopkinton - Lot 18\nWelds were made on the columns and steel shims under the steel beams",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1857",
+      "name": "Edgewood at Hopkinton"
+    },
+    "BillAddr": {
+      "Id": "10132",
+      "Line1": "Edgewood at Hopkinton"
+    },
+    "ShipAddr": {
+      "Id": "7555"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-08-23",
+    "TotalAmt": 0,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "jmcwalter@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41847",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2024-08-23T12:18:22-07:00",
+      "LastUpdatedTime": "2025-09-01T20:45:37-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "7100",
+    "TxnDate": "2024-08-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Voided - 03/15/2024 - Hopkinton - Edgewood at Hopkinton - Lot 01 \nThe steel beam arrived without holes for the bolts. The supervisor asked us to drill 9 holes.\n2 workers - 4 hours each.",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4473",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "03/15/2024 - Hopkinton - Edgewood at Hopkinton - Lot 01 \nThe steel beam arrived without holes for the bolts. The supervisor asked us to drill 9 holes.\n2 workers - 4 hours each.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 3,
+        "Description": "Second part of this PO was deleted from QB because the job that was done was supposed to be made as stated on the contract.",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1857",
+      "name": "Edgewood at Hopkinton"
+    },
+    "BillAddr": {
+      "Id": "9960",
+      "Line1": "Edgewood at Hopkinton"
+    },
+    "ShipAddr": {
+      "Id": "7555"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-08-23",
+    "TotalAmt": 0,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "jmcwalter@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41840",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2024-08-23T11:20:27-07:00",
+      "LastUpdatedTime": "2025-09-01T20:44:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "7098",
+    "TxnDate": "2024-08-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Voided - 03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24\nhe 4 steel beams arrived oversized, so we had to cut them to fit as specified in the plan.\n2 workers - 3 hours each. / 03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24 \nThe garage panel that divides the kitchen was damaged, so we had to redo it.\n2 workers - 4 hours each. / 03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24  \nWe used the lull to move all the extra material around lot 24 and organized it.Machine time for cleanup and organization: 5 hours\n5 x $50 = $350\nTwo workers - 5 hours each. / Machine time for cleanup and organization: 5 hours\n5 x $50 = $350",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "11",
+        "LineNum": 1,
+        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4471",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 2,
+        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24\nhe 4 steel beams arrived oversized, so we had to cut them to fit as specified in the plan.\n2 workers - 3 hours each.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "LineNum": 3,
+        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24 \nThe garage panel that divides the kitchen was damaged, so we had to redo it.\n2 workers - 4 hours each.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "LineNum": 4,
+        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24  \nWe used the lull to move all the extra material around lot 24 and organized it.\nTwo workers - 5 hours each.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "24",
+            "name": "Extra Hours"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "15",
+        "LineNum": 5,
+        "Description": "Machine time for cleanup and organization: 5 hours\n5 x $50 = $350",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "6",
+            "name": "Lull"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1857",
+      "name": "Edgewood at Hopkinton"
+    },
+    "BillAddr": {
+      "Id": "10823",
+      "Line1": "Edgewood at Hopkinton"
+    },
+    "ShipAddr": {
+      "Id": "7555"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2024-08-23",
+    "TotalAmt": 0,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "jmcwalter@tollbrothers.com"
+    },
+    "Balance": 0
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": false,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "6452",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2020-08-18T06:06:49-07:00",
+      "LastUpdatedTime": "2025-09-01T20:41:00-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1907",
+    "TxnDate": "2020-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Voided - Window RO In The Dining Room - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Living Room - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Bedroom #3 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Bedroom #4 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Scituate - Lot 152 - PO 1421",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Window RO In The Dining Room - 6/23/20 - 2 Guys - 1 Hour",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window RO In The Living Room - 6/23/20 - 2 Guys - 1 Hour",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Window RO In The Bedroom #3 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Window RO In The Bedroom #4 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 0,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "537",
+      "name": "Lot 152"
+    },
+    "BillAddr": {
+      "Id": "15827",
+      "Line1": "Lot 152"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2020-08-18",
+    "TotalAmt": 0,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bspaulding@tollbrothers.com, mpavia@tollbrothers.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2021-08-04T09:54:12-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50613",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:50:07-07:00",
+      "LastUpdatedTime": "2025-09-01T10:50:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8432",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Second floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "49733",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,389",
+        "Amount": 12516.95,
+        "LinkedTxn": [
+          {
+            "TxnId": "49733",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
+          },
+          "UnitPrice": 12516.95,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Elevation 3",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49733",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1592",
+            "name": "PH - Highland at Vale:63561 - Jackson"
+          },
+          "UnitPrice": 275,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 12516.95,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3264",
+      "name": "Lot 74 / 29 - Highland at Vale"
+    },
+    "BillAddr": {
+      "Id": "16593",
+      "Line1": "Lot 74 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "17 Mason Way",
+      "Line3": "Jackson"
+    },
+    "ShipAddr": {
+      "Id": "16594",
+      "Line1": "Highland at Vale 7241"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 12516.95,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    },
+    "Balance": 12516.95
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50612",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:49:17-07:00",
+      "LastUpdatedTime": "2025-09-01T10:49:17-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8431",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Second floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "49732",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,389",
+        "Amount": 12516.95,
+        "LinkedTxn": [
+          {
+            "TxnId": "49732",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
+          },
+          "UnitPrice": 12516.95,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Bay Window",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49732",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1597",
+            "name": "PH - Highland at Vale:39000 - Jackson"
+          },
+          "UnitPrice": 2000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Basement - Game Room (Walkout)",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49732",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1588",
+            "name": "PH - Highland at Vale:68559 - Jackson"
+          },
+          "UnitPrice": 8509.5,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Room Bath 4",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49732",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1595",
+            "name": "PH - Highland at Vale:69408 - Jackson"
+          },
+          "UnitPrice": 508.4,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 4",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49732",
+            "TxnType": "Estimate",
+            "TxnLineId": "6"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1593",
+            "name": "PH - Highland at Vale:63562 - Jackson"
+          },
+          "UnitPrice": 550,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 12516.95,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3265",
+      "name": "Lot 75 / 29 - Highland at Vale"
+    },
+    "BillAddr": {
+      "Id": "16591",
+      "Line1": "Lot 75 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "19 Mason Way",
+      "Line3": "Jackson"
+    },
+    "ShipAddr": {
+      "Id": "16592",
+      "Line1": "Highland at Vale 7241"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 12516.95,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    },
+    "Balance": 12516.95
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50611",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:48:13-07:00",
+      "LastUpdatedTime": "2025-09-01T10:48:13-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8430",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Second floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "49247",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,991 sq ft - Rough Carpentry 2",
+        "Amount": 15251.06,
+        "LinkedTxn": [
+          {
+            "TxnId": "49247",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1895",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
+          },
+          "UnitPrice": 15251.06,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Boxed Ceiling @ Owner's Suite",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49247",
+            "TxnType": "Estimate",
+            "TxnLineId": "8"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1893",
+            "name": "PH - Wheelock Farm:69162 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 1000,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Elevation 2",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "49247",
+            "TxnType": "Estimate",
+            "TxnLineId": "9"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1904",
+            "name": "PH - Wheelock Farm:63560 - Hardwick"
+          },
+          "UnitPrice": 3500,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 15251.06,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3250",
+      "name": "Lot 37 - Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "16589",
+      "Line1": "Lot 37 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
+      "Line2": "15 Lloyd Circle",
+      "Line3": "Hardwick V"
+    },
+    "ShipAddr": {
+      "Id": "16590",
+      "Line1": "Wheelock Farm 8856  - Pulte Homes MS - 1074"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-29",
+    "TotalAmt": 15251.06,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    },
+    "Balance": 15251.06
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50595",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T03:06:26-07:00",
+      "LastUpdatedTime": "2025-09-01T03:06:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8429",
+    "TxnDate": "2025-09-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "SBA Monthly Loan",
+        "Amount": 6360.47,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 6360.47,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6360.47,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "1071",
+      "name": "Premium Contractors Group, Inc."
+    },
+    "BillAddr": {
+      "Id": "16085",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "ShipAddr": {
+      "Id": "7112",
+      "Line1": "1B Landing Ln",
+      "City": "Hopedale",
+      "Country": "US",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01747"
+    },
+    "SalesTermRef": {
+      "value": "6",
+      "name": "Due in 10 days"
+    },
+    "DueDate": "2025-09-11",
+    "TotalAmt": 6360.47,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 6360.47,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-01T03:06:26-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50452",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-21T06:51:16-07:00",
+      "LastUpdatedTime": "2025-08-29T07:10:12-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8404",
+    "TxnDate": "2025-08-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Roof shingles and metal roof: 1st item",
+    "LinkedTxn": [
+      {
+        "TxnId": "45266",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "50581",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Roof shingles and metal roof by the plan",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "45266",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "NSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n premium aluminum drip edge to all\n edges of roof deck.\n\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges",
+        "Amount": 25100,
+        "LinkedTxn": [
+          {
+            "TxnId": "45266",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 25100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Install new standing seam metal roof by Contractor\n specs.\n NOTE: Any change on scope or plans subjected to\n change order.\n Material and labor included in this proposal.",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "45266",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 9900,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Roof paper instalation ",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "45266",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "22",
+            "name": "labor"
+          },
+          "UnitPrice": -650,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Roof paper materal 3 roll",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "45266",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "21",
+            "name": "Material"
+          },
+          "UnitPrice": -90,
+          "Qty": 0,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 25100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3278",
+      "name": "41 Johnson Rd., Sterling"
+    },
+    "BillAddr": {
+      "Id": "16444",
+      "Line1": "PJ Keating",
+      "Line2": "998 Reservoir Rd",
+      "Line3": "Lunenburg, MA  01462"
+    },
+    "ShipAddr": {
+      "Id": "16445",
+      "Line1": "Rob Pagani"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-21",
+    "TotalAmt": 25100,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "rapagani@yahoo.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-28T10:03:20-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50340",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-13T09:32:20-07:00",
+      "LastUpdatedTime": "2025-08-29T01:45:24-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "8391",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50220",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "No receipt  - Foundation Building Materials",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {
+          "ServiceDate": "2025-05-30"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 169.15,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "2264",
+      "name": "Premium Foundation, Inc"
+    },
+    "BillAddr": {
+      "Id": "16305",
+      "Line1": "Premium Foundation, Inc"
+    },
+    "ShipAddr": {
+      "Id": "16306",
+      "Line1": "Premium Foundation, Inc"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 169.15,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.foundation@premiumgrpinc.com"
+    },
+    "Balance": 169.15,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-29T01:45:20-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
@@ -443,203 +2334,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-28T10:03:51-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50452",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-21T06:51:16-07:00",
-      "LastUpdatedTime": "2025-08-28T10:03:53-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8404",
-    "TxnDate": "2025-08-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Roof shingles and metal roof: 1st item",
-    "LinkedTxn": [
-      {
-        "TxnId": "45266",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Roof shingles and metal roof by the plan",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "45266",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "NSTALL New ice & water shield on all edges of house\n including valleys and walls connecting to the roof\n premium aluminum drip edge to all\n edges of roof deck.\n\n INSTALL New pipe boot flashing.\n INSTALL New chimney lead flashing.\n INSTALL New starter strip.\n INSTALL New shingles to entire roof deck.\n INSTALL New ridge vent, high performance\n ventilation.\n INSTALL New shadow caps to all ridges",
-        "Amount": 25100,
-        "LinkedTxn": [
-          {
-            "TxnId": "45266",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 25100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Install new standing seam metal roof by Contractor\n specs.\n NOTE: Any change on scope or plans subjected to\n change order.\n Material and labor included in this proposal.",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "45266",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 9900,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Roof paper instalation ",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "45266",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "22",
-            "name": "labor"
-          },
-          "UnitPrice": -650,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Roof paper materal 3 roll",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "45266",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "21",
-            "name": "Material"
-          },
-          "UnitPrice": -90,
-          "Qty": 0,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 25100,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3278",
-      "name": "41 Johnson Rd., Sterling"
-    },
-    "BillAddr": {
-      "Id": "16444",
-      "Line1": "PJ Keating",
-      "Line2": "998 Reservoir Rd",
-      "Line3": "Lunenburg, MA  01462"
-    },
-    "ShipAddr": {
-      "Id": "16445",
-      "Line1": "Rob Pagani"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-21",
-    "TotalAmt": 25100,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "rapagani@yahoo.com"
-    },
-    "Balance": 25100,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-28T10:03:20-07:00"
     }
   },
   {
@@ -6775,174 +8469,6 @@
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": false,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50389",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-17T02:01:33-07:00",
-      "LastUpdatedTime": "2025-08-17T02:01:36-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8398",
-    "TxnDate": "2025-08-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Vehicle Insurance \n2022 Ford F-250 \nLicense X43182\nVIN 1FTBF2B65NEE96377",
-        "Amount": 372.42,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 372.42,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 372.42,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1208",
-      "name": "Elite Stoneworks Masonry & Construction"
-    },
-    "BillAddr": {
-      "Id": "9844",
-      "Line1": "41 Perry St.",
-      "City": "Sherborn",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01770"
-    },
-    "ShipAddr": {
-      "Id": "9844",
-      "Line1": "41 Perry St.",
-      "City": "Sherborn",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01770"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-22",
-    "TotalAmt": 372.42,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "elitestoneworks17@gmail.com"
-    },
-    "Balance": 372.42,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-17T02:01:33-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49994",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T02:46:16-07:00",
-      "LastUpdatedTime": "2025-08-17T01:34:10-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8379",
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "SBA Monthly Loan",
-        "Amount": 6360.47,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 6360.47,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 6360.47,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1071",
-      "name": "Premium Contractors Group, Inc."
-    },
-    "BillAddr": {
-      "Id": "16085",
-      "Line1": "Premium Contractors Group, Inc.",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "ShipAddr": {
-      "Id": "7112",
-      "Line1": "1B Landing Ln",
-      "City": "Hopedale",
-      "Country": "US",
-      "CountrySubDivisionCode": "MA",
-      "PostalCode": "01747"
-    },
-    "SalesTermRef": {
-      "value": "6",
-      "name": "Due in 10 days"
-    },
-    "DueDate": "2025-08-11",
-    "TotalAmt": 6360.47,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "Balance": 6360.47,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-17T01:34:06-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
@@ -7362,122 +8888,6 @@
       "Address": "mpavia@tollbrothers.com, mparenteau@tollbrothers.com"
     },
     "Balance": 0
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": false,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "30176",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2023-07-19T12:07:51-07:00",
-      "LastUpdatedTime": "2025-08-15T08:29:33-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "5284",
-    "TxnDate": "2023-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "07/06/2023 - Millis - Lot 256\nReviewing with Karla if payment was actually made.\nWe put plywood on the 10'5 5/8 x 22' wall in the garage where there's the door that gives acess to the apart for the insulation guys toplace the spray form.\n\n2 guys - 3 hours each one.\n\n\"Field condition for spray foam. Update contract.\" / 07/06/2023 - Millis - Lot 256\n\nWe had to redo the chase because the air conditioning guys put the pipe outside the chase, so we had to wall to cover the pipe and reframing chase first floor.\nWe had to make a 7' wall on the side of the wall that divides the apart and they couldn't cut the gable that rests over the wall on the 2nd floor because the air conditioning guys put the 4\" pipe.\n\n2 guys - 3.5 hours each one\n\n\"PAD wall + move door. Field condition for 8\" duct\"",
-    "LinkedTxn": [
-      {
-        "TxnId": "50383",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Glen Ellen - PO 3689",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "07/06/2023 - Millis - Lot 256\n\nWe put plywood on the 10'5 5/8 x 22' wall in the garage where there's the door that gives acess to the apart for the insulation guys toplace the spray form.\n\n2 guys - 3 hours each one.\n\n\"Field condition for spray foam. Update contract.\"",
-        "Amount": 270,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 6,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "07/06/2023 - Millis - Lot 256\n\nWe had to redo the chase because the air conditioning guys put the pipe outside the chase, so we had to wall to cover the pipe and reframing chase first floor.\nWe had to make a 7' wall on the side of the wall that divides the apart and they couldn't cut the gable that rests over the wall on the 2nd floor because the air conditioning guys put the 4\" pipe.\n\n2 guys - 3.5 hours each one\n\n\"PAD wall + move door. Field condition for 8\" duct\"",
-        "Amount": 315,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 7,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 585,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "35",
-      "name": "Regency at Glen Ellen"
-    },
-    "BillAddr": {
-      "Id": "11701",
-      "Line1": "Regency at Glen Ellen"
-    },
-    "ShipAddr": {
-      "Id": "3010"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2023-07-19",
-    "TotalAmt": 585,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "mpavia@tollbrothers.com, mparenteau@tollbrothers.com"
-    },
-    "Balance": 315
   },
   {
     "AllowIPNPayment": false,
@@ -10281,80 +11691,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-14T05:38:22-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50340",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-13T09:32:20-07:00",
-      "LastUpdatedTime": "2025-08-13T11:34:42-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "8391",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "50220",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "No receipt  - Foundation Building Materials",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {
-          "ServiceDate": "2025-05-30"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 169.15,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2264",
-      "name": "Premium Foundation, Inc"
-    },
-    "BillAddr": {
-      "Id": "16305",
-      "Line1": "Premium Foundation, Inc"
-    },
-    "ShipAddr": {
-      "Id": "16306",
-      "Line1": "Premium Foundation, Inc"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-13",
-    "TotalAmt": 169.15,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.foundation@premiumgrpinc.com"
-    },
-    "Balance": 169.15,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-13T09:33:49-07:00"
     }
   },
   {
@@ -24895,260 +26231,6 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
-    "Id": "41847",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2024-08-23T12:18:22-07:00",
-      "LastUpdatedTime": "2025-07-11T11:50:01-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "7100",
-    "TxnDate": "2024-08-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "03/15/2024 - Hopkinton - Edgewood at Hopkinton - Lot 01 \nThe steel beam arrived without holes for the bolts. The supervisor asked us to drill 9 holes.\n2 workers - 4 hours each.",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4473",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "03/15/2024 - Hopkinton - Edgewood at Hopkinton - Lot 01 \nThe steel beam arrived without holes for the bolts. The supervisor asked us to drill 9 holes.\n2 workers - 4 hours each.",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 50,
-          "Qty": 8,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 3,
-        "Description": "Second part of this PO was deleted from QB because the job that was done was supposed to be made as stated on the contract.",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 400,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1857",
-      "name": "Edgewood at Hopkinton"
-    },
-    "BillAddr": {
-      "Id": "9960",
-      "Line1": "Edgewood at Hopkinton"
-    },
-    "ShipAddr": {
-      "Id": "7555"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-08-23",
-    "TotalAmt": 400,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "jmcwalter@tollbrothers.com"
-    },
-    "Balance": 400
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41840",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2024-08-23T11:20:27-07:00",
-      "LastUpdatedTime": "2025-07-11T11:49:28-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "7098",
-    "TxnDate": "2024-08-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24\nhe 4 steel beams arrived oversized, so we had to cut them to fit as specified in the plan.\n2 workers - 3 hours each. / 03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24 \nThe garage panel that divides the kitchen was damaged, so we had to redo it.\n2 workers - 4 hours each. / 03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24  \nWe used the lull to move all the extra material around lot 24 and organized it.Machine time for cleanup and organization: 5 hours\n5 x $50 = $350\nTwo workers - 5 hours each. / Machine time for cleanup and organization: 5 hours\n5 x $50 = $350",
-    "LinkedTxn": [
-      {
-        "TxnId": "48683",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "11",
-        "LineNum": 1,
-        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4471",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "12",
-        "LineNum": 2,
-        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24\nhe 4 steel beams arrived oversized, so we had to cut them to fit as specified in the plan.\n2 workers - 3 hours each.",
-        "Amount": 270,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 6,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "13",
-        "LineNum": 3,
-        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24 \nThe garage panel that divides the kitchen was damaged, so we had to redo it.\n2 workers - 4 hours each.",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 50,
-          "Qty": 8,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "14",
-        "LineNum": 4,
-        "Description": "03/20/2024 - Hopkinton - Edgewood at Hopkinton - Lot 24  \nWe used the lull to move all the extra material around lot 24 and organized it.\nTwo workers - 5 hours each.",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 50,
-          "Qty": 10,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "15",
-        "LineNum": 5,
-        "Description": "Machine time for cleanup and organization: 5 hours\n5 x $50 = $350",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "6",
-            "name": "Lull"
-          },
-          "UnitPrice": 50,
-          "Qty": 5,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 1420,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1857",
-      "name": "Edgewood at Hopkinton"
-    },
-    "BillAddr": {
-      "Id": "10823",
-      "Line1": "Edgewood at Hopkinton"
-    },
-    "ShipAddr": {
-      "Id": "7555"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-08-23",
-    "TotalAmt": 1420,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "jmcwalter@tollbrothers.com"
-    },
-    "Balance": 664.26
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
     "Id": "42826",
     "SyncToken": "11",
     "MetaData": {
@@ -25307,195 +26389,6 @@
   {
     "AllowIPNPayment": false,
     "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41852",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-08-23T12:47:51-07:00",
-      "LastUpdatedTime": "2025-07-11T11:47:21-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "7102",
-    "TxnDate": "2024-08-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "08/13/2024 - Hopkinton - Edgewood at Hopkinton - Lot 18\nWelds were made on the columns and steel shims under the steel beams",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Hopkinton - Edgewood at Hopkinton - PO 4476",
-        "Amount": 100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "08/13/2024 - Hopkinton - Edgewood at Hopkinton - Lot 18\nWelds were made on the columns and steel shims under the steel beams",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 100,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "1857",
-      "name": "Edgewood at Hopkinton"
-    },
-    "BillAddr": {
-      "Id": "10132",
-      "Line1": "Edgewood at Hopkinton"
-    },
-    "ShipAddr": {
-      "Id": "7555"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-08-23",
-    "TotalAmt": 100,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "jmcwalter@tollbrothers.com"
-    },
-    "Balance": 100
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "38172",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2024-03-28T05:22:26-07:00",
-      "LastUpdatedTime": "2025-07-11T11:44:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "6553",
-    "TxnDate": "2024-03-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "03/21/24 - Millis - Regency at Glen Ellen - Lot 253 \n\nWe made the 40x40 platform and the garage staircase that gives access into the apartment with 4 steps on the first floor deck",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Millis - Regency at Glen Ellen - PO 6830",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "03/21/24 - Millis - Regency at Glen Ellen - Lot 253 \n\nWe made the 40x40 platform and the garage staircase that gives access into the apartment with 4 steps on the first floor deck",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 250,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "35",
-      "name": "Regency at Glen Ellen"
-    },
-    "BillAddr": {
-      "Id": "7438",
-      "Line1": "Regency at Glen Ellen"
-    },
-    "ShipAddr": {
-      "Id": "3010"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2024-03-28",
-    "TotalAmt": 250,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "mpavia@tollbrothers.com, mparenteau@tollbrothers.com"
-    },
-    "Balance": 250,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2024-05-09T06:32:08-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
@@ -25593,200 +26486,6 @@
       "Address": "GHANNA@tollbrothers.com, kmorrison@tollbrothers.com"
     },
     "Balance": 2500
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "34416",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2023-11-17T10:24:35-08:00",
-      "LastUpdatedTime": "2025-07-11T11:41:56-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "5956",
-    "TxnDate": "2023-11-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "10/14/2023 - Boxford - Willows at Boxford - Lot 23\nWe put plywood on 10’ 8 ½” x 25’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n2 guys – 3:00 hours each one\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add 2. 2 x 6 on top of the 2 x 6 pt the foundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
-    "LinkedTxn": [
-      {
-        "TxnId": "36741",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Boxford - Willows at Boxford - PO 6724",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "10/14/2023 - Boxford - Willows at Boxford - Lot 23\nWe put plywood on 10’ 8 ½” x 25’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n2 guys – 3:00 hours each one\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add 2. 2 x 6 on top of the 2 x 6 pt the foundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
-        "Amount": 540,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 12,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 540,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2232",
-      "name": "Willows at Boxford"
-    },
-    "BillAddr": {
-      "Id": "15836",
-      "Line1": "Willows at Boxford"
-    },
-    "ShipAddr": {
-      "Id": "2971"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2023-11-17",
-    "TotalAmt": 540,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "GHANNA@tollbrothers.com, kmorrison@tollbrothers.com"
-    },
-    "Balance": 270
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "34421",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2023-11-17T12:03:02-08:00",
-      "LastUpdatedTime": "2025-07-11T11:40:23-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "5959",
-    "TxnDate": "2023-11-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "10/17/2023 - Boxford - Willows at Boxford - Lot 24\n\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add \n2. 2 x 6 on top of the 2 x 6 pt the \nfoundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one\n\nWe put plywood on 10’ 8 ½” x 22’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
-    "LinkedTxn": [
-      {
-        "TxnId": "36739",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "TB - Boxford - Willows at Boxford - PO 6727",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "10/17/2023 - Boxford - Willows at Boxford - Lot 24\n\nThe garage windows were out of the level of the other windows on the side due to the foundation being low, with the supervisor’s order, we had to add \n2. 2 x 6 on top of the 2 x 6 pt the \nfoundation. So we had to cut 2 plates and raise the head of the 2 garage windows to be able to align with the other windows.\n\n2 guys – 3:00 hours each one\n\nWe put plywood on 10’ 8 ½” x 22’ 2” wall in the garage that borders the primary bedroom for the insulation guys to put the spray foam on.\n\n2 guys – 3:00 hours each one \n\nTotal: 12 hours",
-        "Amount": 540,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "24",
-            "name": "Extra Hours"
-          },
-          "UnitPrice": 45,
-          "Qty": 12,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 540,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "2232",
-      "name": "Willows at Boxford"
-    },
-    "BillAddr": {
-      "Id": "15835",
-      "Line1": "Willows at Boxford"
-    },
-    "ShipAddr": {
-      "Id": "2971"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2023-11-17",
-    "TotalAmt": 540,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "GHANNA@tollbrothers.com, kmorrison@tollbrothers.com"
-    },
-    "Balance": 270
   },
   {
     "AllowIPNPayment": false,
@@ -27613,157 +28312,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2021-11-06T08:20:03-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": false,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "6452",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2020-08-18T06:06:49-07:00",
-      "LastUpdatedTime": "2025-07-11T11:14:52-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1907",
-    "TxnDate": "2020-08-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Window RO In The Dining Room - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Living Room - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Bedroom #3 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour / Window RO In The Bedroom #4 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Scituate - Lot 152 - PO 1421",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Window RO In The Dining Room - 6/23/20 - 2 Guys - 1 Hour",
-        "Amount": 90,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 45,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window RO In The Living Room - 6/23/20 - 2 Guys - 1 Hour",
-        "Amount": 90,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 45,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Window RO In The Bedroom #3 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
-        "Amount": 90,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 45,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Window RO In The Bedroom #4 On the 2nd Floor - 6/23/20 - 2 Guys - 1 Hour",
-        "Amount": 90,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 45,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 360,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "537",
-      "name": "Lot 152"
-    },
-    "BillAddr": {
-      "Id": "15827",
-      "Line1": "Lot 152"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2020-08-18",
-    "TotalAmt": 360,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bspaulding@tollbrothers.com, mpavia@tollbrothers.com"
-    },
-    "Balance": 360,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2021-08-04T09:54:12-07:00"
     }
   },
   {
@@ -38803,15 +39351,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "34427",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "33915",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "35291",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "34427",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -38946,11 +39494,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28084",
+        "TxnId": "27876",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27876",
+        "TxnId": "28084",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -38970,11 +39518,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27998",
+        "TxnId": "28606",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28606",
+        "TxnId": "27998",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -50750,11 +51298,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "30699",
+        "TxnId": "28347",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28347",
+        "TxnId": "30699",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -95335,11 +95883,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "43667",
+        "TxnId": "44115",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "44115",
+        "TxnId": "43667",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -95351,11 +95899,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "43669",
+        "TxnId": "44117",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "44117",
+        "TxnId": "43669",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -95726,19 +96274,19 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "45552",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "43232",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "45073",
+        "TxnId": "45552",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "45553",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "45073",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -132486,11 +133034,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "44546",
+        "TxnId": "42034",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42034",
+        "TxnId": "44546",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -133220,11 +133768,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "42009",
+        "TxnId": "35593",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35593",
+        "TxnId": "42009",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -133236,11 +133784,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "35595",
+        "TxnId": "42011",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42011",
+        "TxnId": "35595",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -158444,11 +158992,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42181",
+        "TxnId": "42661",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42661",
+        "TxnId": "42181",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -158468,11 +159016,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42189",
+        "TxnId": "42669",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42669",
+        "TxnId": "42189",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -158492,11 +159040,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42644",
+        "TxnId": "42164",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "42164",
+        "TxnId": "42644",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -159565,11 +160113,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "40824",
+        "TxnId": "40968",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "40968",
+        "TxnId": "40824",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -171075,11 +171623,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "35917",
+        "TxnId": "33981",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33981",
+        "TxnId": "35917",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -195531,11 +196079,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33985",
+        "TxnId": "33553",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33553",
+        "TxnId": "33985",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -195543,11 +196091,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33987",
+        "TxnId": "33555",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33555",
+        "TxnId": "33987",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -304611,11 +305159,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "36826",
+        "TxnId": "36218",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "36218",
+        "TxnId": "36826",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -306830,11 +307378,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33159",
+        "TxnId": "33575",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "33575",
+        "TxnId": "33159",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -338253,11 +338801,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "31781",
+        "TxnId": "32421",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "32421",
+        "TxnId": "31781",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -380213,11 +380761,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "30530",
+        "TxnId": "28498",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "28498",
+        "TxnId": "30530",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -405363,11 +405911,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27465",
+        "TxnId": "27385",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "27385",
+        "TxnId": "27465",
         "TxnType": "ReimburseCharge"
       },
       {

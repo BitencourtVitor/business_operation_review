@@ -3,6 +3,735 @@
     "SalesTermRef": {
       "value": "1"
     },
+    "DueDate": "2025-08-27",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50540",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-27T07:17:24-07:00",
+      "LastUpdatedTime": "2025-09-02T08:04:08-07:00"
+    },
+    "DocNumber": "Zelada",
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50628",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Defense of Zelada Personal Injury Claims\nTime and Fees for this matter: 16.8 @ $350/hr = $5,880",
+        "Amount": 5880,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "9",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "727",
+      "name": "Law Office Of Paul Ross"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5880
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-28",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50390",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-18T01:41:30-07:00",
+      "LastUpdatedTime": "2025-09-02T08:03:21-07:00"
+    },
+    "TxnDate": "2025-08-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50626",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Insurance: General Liability",
+        "Amount": 5842.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "87",
+            "name": "Insurance:General Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "277",
+      "name": "IPFS"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5842.24
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-01",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50508",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-25T01:47:25-07:00",
+      "LastUpdatedTime": "2025-09-02T08:03:09-07:00"
+    },
+    "TxnDate": "2025-09-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Joe's Truck",
+    "LinkedTxn": [
+      {
+        "TxnId": "50625",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 745.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "4",
+            "name": "Vehicles Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1061",
+      "name": "GM Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 745.98
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-27",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50388",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-17T02:01:33-07:00",
+      "LastUpdatedTime": "2025-09-02T08:02:41-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "50624",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account #211062811844\n2022 Chevrolet Silverado - Premium Home Investiments.\nVIN #3GCPABEK5NG575506\n\nSet up as Auto pay.",
+        "Amount": 577.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "4",
+            "name": "Vehicles Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1061",
+      "name": "GM Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 577.4
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-26",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50110",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-06T01:41:43-07:00",
+      "LastUpdatedTime": "2025-09-02T07:51:47-07:00"
+    },
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2022 GMC Sierra - Vin# 06592",
+    "LinkedTxn": [
+      {
+        "TxnId": "50623",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2022 GMC Sierra - Vin# 06592",
+        "Amount": 375.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "2022 GMC Sierra"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1808",
+      "name": "Ally Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 375.12
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-07",
+    "Balance": 1266.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50622",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T01:42:22-07:00",
+      "LastUpdatedTime": "2025-09-02T01:42:22-07:00"
+    },
+    "TxnDate": "2025-09-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account 1005165794\n2024 BMW X5 xDrive40i",
+        "Amount": 1266.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "205",
+            "name": "2024 BMW X5 x Drive40i"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2827",
+      "name": "BMW"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1266.8
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-01",
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50594",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T03:06:26-07:00",
+      "LastUpdatedTime": "2025-09-01T03:06:26-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Credit Card payment - Paula, Clayton and Rodrigo's Credit card",
+        "Amount": 1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "67",
+      "name": "American Express"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-01",
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50593",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T03:06:26-07:00",
+      "LastUpdatedTime": "2025-09-01T03:06:26-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "805",
+      "name": "Home Depot CC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-01",
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50592",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T03:06:25-07:00",
+      "LastUpdatedTime": "2025-09-01T03:06:25-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "19",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1520",
+      "name": "Comcast Business"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-01",
+    "Balance": 7500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50591",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T03:06:24-07:00",
+      "LastUpdatedTime": "2025-09-01T03:06:24-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rent 1B Landing Ln - January 2022",
+        "Amount": 7500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "14",
+            "name": "Rent & Lease"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "360",
+      "name": "Hopedale Airport Industrial Park, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7500
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-10",
+    "Balance": 2489.38,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50590",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-31T01:53:43-07:00",
+      "LastUpdatedTime": "2025-08-31T01:53:43-07:00"
+    },
+    "TxnDate": "2025-09-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "NJN - D69102",
+        "Amount": 2489.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "88",
+            "name": "Insurance:Workmens Comp"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "277",
+      "name": "IPFS"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2489.38
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-06",
+    "Balance": 6398.29,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50589",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-30T01:42:31-07:00",
+      "LastUpdatedTime": "2025-08-30T01:42:31-07:00"
+    },
+    "TxnDate": "2025-09-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Loan 1130",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "UCC Filling #202414861130",
+        "Amount": 6398.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040002",
+            "name": "Loan Mutual One 1130"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "103",
+      "name": "Mutual One Bank"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6398.29
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-08-29",
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50583",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-29T13:15:33-07:00",
+      "LastUpdatedTime": "2025-08-29T13:15:51-07:00"
+    },
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "18 Evergreen Rd - Pending signed contract",
+    "LinkedTxn": [
+      {
+        "TxnId": "50584",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "18 Evergreen Rd. Needham - Framing - 2nd Payment",
+        "Amount": 5000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "332",
+      "name": "Neto Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 5000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-08",
+    "Balance": 361.91,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50578",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T01:47:23-07:00",
+      "LastUpdatedTime": "2025-08-29T01:47:23-07:00"
+    },
+    "TxnDate": "2025-09-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Home Investments.",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Policy Number 1020134518",
+        "Amount": 361.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "326",
+      "name": "Arbella Insurance Group"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 361.91
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
     "DueDate": "2025-08-11",
     "Balance": 160,
     "domain": "QBO",
@@ -1168,56 +1897,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-08-27",
-    "Balance": 5880,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50540",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-27T07:17:24-07:00",
-      "LastUpdatedTime": "2025-08-27T07:17:24-07:00"
-    },
-    "DocNumber": "Zelada",
-    "TxnDate": "2025-08-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Defense of Zelada Personal Injury Claims\nTime and Fees for this matter: 16.8 @ $350/hr = $5,880",
-        "Amount": 5880,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "9",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "727",
-      "name": "Law Office Of Paul Ross"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 5880
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-09-01",
     "Balance": 906.89,
     "domain": "QBO",
@@ -1324,55 +2003,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 297
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-09-01",
-    "Balance": 745.98,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50508",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-25T01:47:25-07:00",
-      "LastUpdatedTime": "2025-08-25T01:47:25-07:00"
-    },
-    "TxnDate": "2025-09-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Joe's Truck",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 745.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "4",
-            "name": "Vehicles Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1061",
-      "name": "GM Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 745.98
   },
   {
     "SalesTermRef": {
@@ -11273,104 +11903,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-08-28",
-    "Balance": 5842.24,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50390",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-18T01:41:30-07:00",
-      "LastUpdatedTime": "2025-08-18T01:41:30-07:00"
-    },
-    "TxnDate": "2025-08-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Insurance: General Liability",
-        "Amount": 5842.24,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "87",
-            "name": "Insurance:General Liability"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "277",
-      "name": "IPFS"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 5842.24
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-27",
-    "Balance": 577.4,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50388",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-17T02:01:33-07:00",
-      "LastUpdatedTime": "2025-08-17T02:01:33-07:00"
-    },
-    "TxnDate": "2025-08-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Account #211062811844\n2022 Chevrolet Silverado - Premium Home Investiments.\nVIN #3GCPABEK5NG575506\n\nSet up as Auto pay.",
-        "Amount": 577.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "4",
-            "name": "Vehicles Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1061",
-      "name": "GM Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 577.4
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-09-01",
     "Balance": 425.59,
     "domain": "QBO",
@@ -12049,54 +12581,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2655.32
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-31",
-    "Balance": 745.98,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50310",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-11T01:46:35-07:00",
-      "LastUpdatedTime": "2025-08-11T01:46:35-07:00"
-    },
-    "TxnDate": "2025-08-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 745.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "4",
-            "name": "Vehicles Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1061",
-      "name": "GM Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 745.98
   },
   {
     "SalesTermRef": {
@@ -23718,56 +24202,6 @@
         "TxnType": "BillPaymentCheck"
       }
     ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2022 GMC Sierra - Vin# 06592",
-        "Amount": 375.12,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "191",
-            "name": "2022 GMC Sierra"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1808",
-      "name": "Ally Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 375.12
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-08-26",
-    "Balance": 375.12,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50110",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T01:41:43-07:00",
-      "LastUpdatedTime": "2025-08-06T01:41:43-07:00"
-    },
-    "TxnDate": "2025-08-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2022 GMC Sierra - Vin# 06592",
     "Line": [
       {
         "Id": "1",
