@@ -632,7 +632,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "959",
-            "name": "Callaham, Inc.",
+            "name": "Callahan, Inc.",
             "type": "CUSTOMER"
           },
           "AccountRef": {

@@ -6,6 +6,1861 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC",
+      "type": "Vendor"
+    },
+    "TotalAmt": 6640,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19670",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-14T07:01:19-07:00",
+      "LastUpdatedTime": "2025-09-02T10:43:43-07:00"
+    },
+    "DocNumber": "06/22 - 07/05",
+    "TxnDate": "2025-07-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/22/2025 - 07/05/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "06/22/2025 - 07/05/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 35.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1151",
+            "name": "Lot 01 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 54.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1151",
+            "name": "Lot 01 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 40.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1300",
+            "name": "Lot 09 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 70.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "979",
+            "name": "Lot 243 - Glen Ellen"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 57.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "943",
+            "name": "Lot 246 - Glen Ellen"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 86.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "845",
+            "name": "Lot 296 - Glen Ellen"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 840,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 85.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1489",
+            "name": "1 Worcester Road, Framingham, MA (Service)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 76.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1275",
+            "name": "116 Chestnut Hill Rd"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 143.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "962",
+            "name": "135 Grill"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 263.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "137a Eastern Av., Worcester"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 17.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1237",
+            "name": "15 Mass Ave Walpole"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "15",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 64.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1479",
+            "name": "17 Brook Street, Sherborn"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "16",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 184.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1530",
+            "name": "Lot 249 - Glen Ellen (Service)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "17",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 135,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "187",
+            "name": "Lot 04 - Milton - Wentworth Farms"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "18",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 22.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "19",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 124.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1332",
+            "name": "Dhruv Patel"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "20",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 154.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1477",
+            "name": "Lot 41 - 7 Tupello Lane, Millis (Service)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "21",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 29.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "433",
+            "name": "9 Linden Street Framingham MA"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "22",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 4000.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "23",
+        "Description": "06/22/2025 - 07/05/2025",
+        "Amount": 154.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC",
+      "type": "Vendor"
+    },
+    "TotalAmt": 7020,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19362",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-25T06:32:32-07:00",
+      "LastUpdatedTime": "2025-09-02T08:31:16-07:00"
+    },
+    "DocNumber": "06/08/25 - 06/21/25",
+    "TxnDate": "2025-06-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "06/08/2025 - 06/21/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "06/08/2025 - 06/21/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 620.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "820",
+            "name": "110 Main Street Saco, ME (Estimativa)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 524.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1275",
+            "name": "116 Chestnut Hill Rd"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 80.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1136",
+            "name": "141 Phoebe St., Methuen (Contract)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 236.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "187",
+            "name": "Lot 04 - Milton - Wentworth Farms"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 158.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "650",
+            "name": "23 Douglas Street Uxbridge, MA"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 139.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1188",
+            "name": "3 Cubs Path, Hopkinton MA 01748"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 86.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1094",
+            "name": "7 Dove Lane, Methuen"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 17.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1356",
+            "name": "71 Vernon Street, Middleborough, MA 02346, USA (Finished Basement)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 3174.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 274.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 54.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "181",
+            "name": "Millis Lot 220"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 21.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1469",
+            "name": "09 Plimpton Farm Road, Millis"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "15",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 87.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "870",
+            "name": "15 Diane Terrace"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "16",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 190.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1428",
+            "name": "46 Barnes Boulevard, Hudson (Contract)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "17",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 114,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1253",
+            "name": "50 Balacing Rock Rd, Canton (Service)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "18",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 10.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "986",
+            "name": "Building 1 - Winslow Point - Pulte Homes - 8177 / 8178"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "19",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 211.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "671",
+            "name": "Building 2 - Winslow Point - Pulte Homes - 8177 / 8178"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "20",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 162,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1020",
+            "name": "Lot 53 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "21",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 139.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1041",
+            "name": "Lot 59 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "22",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 191.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "788",
+            "name": "Newbury Glen Hopkinton"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "23",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 264.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1111",
+            "name": "Lot 02 - Enclave at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "24",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 78.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1191",
+            "name": "Lot 34 - Enclave at Hudson (Service)"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "25",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 71.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "991",
+            "name": "Lot 52 - Enclave at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "26",
+        "Description": "06/08/2025 - 06/21/2025",
+        "Amount": 111.47,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1151",
+            "name": "Lot 01 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "168",
+      "name": "Dunkin Donuts",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 4.43,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20680",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-02T07:53:47-07:00",
+      "LastUpdatedTime": "2025-09-02T07:53:47-07:00"
+    },
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "DUNKIN #XXXXX8 Q35 3WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "DUNKIN #XXXXX8 Q35 3WORCESTER MA XXXX3025",
+        "Amount": 4.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "49",
+            "name": "Meals & Entertainment"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "1350",
+      "name": "WANDERSON CONSTRUCTION INC",
+      "type": "Vendor"
+    },
+    "TotalAmt": 9415,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20315",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-06T14:56:15-07:00",
+      "LastUpdatedTime": "2025-09-02T05:51:25-07:00"
+    },
+    "DocNumber": "07/20/25 - 08/02/25",
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor 07/20/2025 - 08/02/2025-  WIRE TO Wandersondo Construction Inc BK AMER NYC",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor 07/20/2025 - 08/02/2025-  WIRE TO Wandersondo Construction Inc BK AMER NYC",
+        "Amount": 9415,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "86",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1553.35,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20484",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-19T06:01:30-07:00",
+      "LastUpdatedTime": "2025-08-28T13:23:16-07:00"
+    },
+    "DocNumber": "07/20/25 - 08/02/25",
+    "TxnDate": "2025-08-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/20/2025 - 08/02/2025 - Check 10148",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/20/2025 - 08/02/2025 - Check 10148",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "07/20/2025 - 08/02/2025",
+        "Amount": 1553.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2208.08,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20483",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-19T05:59:25-07:00",
+      "LastUpdatedTime": "2025-08-28T13:22:19-07:00"
+    },
+    "DocNumber": "07/20/25 - 08/02/25",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "Payroll 07/20/2025 - 08/02/2025",
+        "Amount": 2208.08,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1824.17,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20540",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-26T05:45:00-07:00",
+      "LastUpdatedTime": "2025-08-28T13:21:49-07:00"
+    },
+    "DocNumber": "08/03/25 - 08/16/25",
+    "TxnDate": "2025-08-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "08/03/2025 - 08/16/2025 - Check 10151",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "08/03/2025 - 08/16/2025 - Check 10151",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "7",
+            "name": "Accounts Payable (A/P)"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "08/03/2025 - 08/16/2025",
+        "Amount": 1824.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1628.17,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20541",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-26T05:46:50-07:00",
+      "LastUpdatedTime": "2025-08-28T13:21:14-07:00"
+    },
+    "DocNumber": "08/03/25 - 08/03/25",
+    "TxnDate": "2025-08-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "08/03/2025 - 08/03/2025 - Check 10150",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "08/03/2025 - 08/03/2025 - Check 10150",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "08/03/2025 - 08/03/2025",
+        "Amount": 1628.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1788.63,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20145",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-01T07:36:01-07:00",
+      "LastUpdatedTime": "2025-08-28T13:17:36-07:00"
+    },
+    "DocNumber": "07/07/25 - 07/19/25",
+    "TxnDate": "2025-07-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/07/2025 - 07/19/2025 - Check 10146",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/07/2025 - 07/19/2025 - Check 10146",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "07/07/2025 - 07/19/2025",
+        "Amount": 1788.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2206.15,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20144",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-01T07:35:30-07:00",
+      "LastUpdatedTime": "2025-08-28T13:16:29-07:00"
+    },
+    "DocNumber": "07/06/2025 - 07/19/20",
+    "TxnDate": "2025-07-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/06/2025 - 07/19/2025 - Check 10147",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/06/2025 - 07/19/2025-  Check 10147",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "07/06/2025 - 07/19/2025",
+        "Amount": 2206.15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 287,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20146",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-01T07:36:37-07:00",
+      "LastUpdatedTime": "2025-08-28T13:11:35-07:00"
+    },
+    "DocNumber": "07/06/2025 - 07/19/20",
+    "TxnDate": "2025-07-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "07/06/2025 - 07/19/2025 - ADP Tax RO ADP Tax ID NBR: L6N4W 2665897VV",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "07/06/2025 - 07/19/2025 - ADP Tax RO ADP Tax ID NBR: L6N4W 2665897VV",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "07/06/2025 - 07/19/2025",
+        "Amount": 287,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
       "value": "31",
       "name": "ADP",
       "type": "Vendor"
@@ -4611,140 +6466,6 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1628.17,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20541",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-26T05:46:50-07:00",
-      "LastUpdatedTime": "2025-08-26T05:46:50-07:00"
-    },
-    "TxnDate": "2025-08-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "08/03/2025 - 08/03/2025 - Check 10150",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "08/03/2025 - 08/03/2025 - Check 10150",
-        "Amount": 1628.17,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1824.17,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20540",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-26T05:45:00-07:00",
-      "LastUpdatedTime": "2025-08-26T05:45:00-07:00"
-    },
-    "TxnDate": "2025-08-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "08/03/2025 - 08/16/2025 - Check 10151",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "08/03/2025 - 08/16/2025 - Check 10151",
-        "Amount": 1824.17,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "7",
-            "name": "Accounts Payable (A/P)"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
     "PaymentType": "Check",
     "EntityRef": {
       "value": "920",
@@ -4996,140 +6717,6 @@
           "AccountRef": {
             "value": "94",
             "name": "Bank Charges & Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1553.35,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20484",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-19T06:01:30-07:00",
-      "LastUpdatedTime": "2025-08-19T06:01:30-07:00"
-    },
-    "TxnDate": "2025-08-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "07/20/2025 - 08/02/2025 - Check 10148",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "07/20/2025 - 08/02/2025 - Check 10148",
-        "Amount": 1553.35,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 2208.08,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20483",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-19T05:59:25-07:00",
-      "LastUpdatedTime": "2025-08-19T05:59:25-07:00"
-    },
-    "TxnDate": "2025-08-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Payroll 07/20/2025 - 08/02/2025 - Check 10149",
-        "Amount": 2208.08,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {
@@ -5990,73 +7577,6 @@
           "AccountRef": {
             "value": "94",
             "name": "Bank Charges & Fees"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
-      "type": "Vendor"
-    },
-    "TotalAmt": 9415,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20315",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-06T14:56:15-07:00",
-      "LastUpdatedTime": "2025-08-06T14:56:15-07:00"
-    },
-    "TxnDate": "2025-08-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Labor 07/20/2025 - 08/02/2025-  WIRE TO Wandersondo Construction Inc BK AMER NYC",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Labor 07/20/2025 - 08/02/2025-  WIRE TO Wandersondo Construction Inc BK AMER NYC",
-        "Amount": 9415,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Labor"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {
@@ -8436,207 +9956,6 @@
       "name": "Mutual One Checking (8980)"
     },
     "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 287,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20146",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T07:36:37-07:00",
-      "LastUpdatedTime": "2025-08-01T07:36:37-07:00"
-    },
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "07/06/2025 - 07/19/2025 - ADP Tax RO ADP Tax ID NBR: L6N4W 2665897VV",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "07/06/2025 - 07/19/2025 - ADP Tax RO ADP Tax ID NBR: L6N4W 2665897VV",
-        "Amount": 287,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1788.63,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20145",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T07:36:01-07:00",
-      "LastUpdatedTime": "2025-08-01T07:36:01-07:00"
-    },
-    "TxnDate": "2025-07-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "07/07/2025 - 07/19/2025 - Check 10146",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "07/07/2025 - 07/19/2025 - Check 10146",
-        "Amount": 1788.63,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 2206.15,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20144",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T07:35:30-07:00",
-      "LastUpdatedTime": "2025-08-01T07:35:30-07:00"
-    },
-    "TxnDate": "2025-07-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "07/06/2025 - 07/19/2025 - Check 10147",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "07/06/2025 - 07/19/2025 - Check 10147",
-        "Amount": 2206.15,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
     "TotalAmt": 1057.56,
     "PurchaseEx": {
       "any": [
@@ -10010,137 +11329,6 @@
             "AssociatedValues": []
           }
         ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
-      "type": "Vendor"
-    },
-    "TotalAmt": 6640,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19670",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-14T07:01:19-07:00",
-      "LastUpdatedTime": "2025-07-29T13:58:19-07:00"
-    },
-    "DocNumber": "06/22 - 07/05",
-    "TxnDate": "2025-07-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "06/22/2025 - 07/05/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "06/22/2025 - 07/05/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
-        "Amount": 6640,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "1350",
-      "name": "WANDERSON CONSTRUCTION INC",
-      "type": "Vendor"
-    },
-    "TotalAmt": 7020,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19362",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-25T06:32:32-07:00",
-      "LastUpdatedTime": "2025-07-29T13:57:42-07:00"
-    },
-    "DocNumber": "06/08 - 06/21",
-    "TxnDate": "2025-06-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "06/08/2025 - 06/21/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "06/08/2025 - 06/21/2025 - WIRE TO Wandersondo Construction Inc BK AMER NYC",
-        "Amount": 7020,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "86",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
       }
     ]
   },

@@ -15,6 +15,7 @@ import ServiceRequests from './ServiceRequests';
 import AccountingIndicators from './AccountingIndicators';
 import ProjectMonitoring from './ProjectMonitoring';
 import FuelControl from './FuelControl';
+import WorkforceForecast from './WorkforceForecast';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -263,6 +264,7 @@ export default function Dashboard() {
     'IT Projects': 'bi bi-braces-asterisk',
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
+    'Forecast': 'bi bi-graph-up',
   };
 
   // Função para obter ícone da tela
@@ -307,7 +309,8 @@ export default function Dashboard() {
       'Takeoff Works',
       'Service Requests',
       'Project Monitoring',
-      'IT Projects'
+      'IT Projects',
+      'Forecast'
     ];
 
     return telas.sort((a, b) => {
@@ -463,6 +466,8 @@ export default function Dashboard() {
         return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+      case 'Forecast':
+        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
              case 'Fuel Control':
          // Verificar permissão antes de mostrar Fuel Control
          if (!temPermissaoAccounting && !isAdminSetorComPermissao) {

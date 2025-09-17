@@ -2,6 +2,1097 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "50620",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-01T11:35:12-07:00",
+      "LastUpdatedTime": "2025-09-01T11:40:26-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3010",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2051 sf",
+        "Amount": 20766,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000344",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Copley Modern Craftsman"
+          },
+          "UnitPrice": 20766,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2160 sf",
+        "Amount": 11182,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000376",
+            "name": "TB - Lakemont At Hudson:Base Second Draw - Copley Modern Craftsman"
+          },
+          "UnitPrice": 11182,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000359",
+            "name": "TB - Lakemont At Hudson:015 - All Plans"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001542",
+            "name": "TB - Lakemont At Hudson:020400 - All Plans"
+          },
+          "UnitPrice": -500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "2-Car Front Entry Garage",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000996",
+            "name": "TB - Lakemont At Hudson:263289 Copley Modern Craftsman"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 31848,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3321",
+      "name": "Lot 21 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "16609",
+      "Line1": "Lot 21 - Lakemont at Hudson",
+      "Line2": "14 Old County Road",
+      "Line3": "Copley Modern Craftsman"
+    },
+    "TotalAmt": 31848,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50615",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:56:51-07:00",
+      "LastUpdatedTime": "2025-09-01T11:06:27-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3008",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Elevation 4",
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3195",
+            "name": "PH - Riverview THs:63562 - Southbrook"
+          },
+          "UnitPrice": 2500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23975,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3316",
+      "name": "Lot 05 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "16603",
+      "Line1": "Lot 05 - Riverview THs - 9042",
+      "Line2": "38 East Point Drive",
+      "Line3": "Southbrook"
+    },
+    "TotalAmt": 23975,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50616",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:58:49-07:00",
+      "LastUpdatedTime": "2025-09-01T11:05:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3009",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Elevation 3",
+        "Amount": 1350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3194",
+            "name": "PH - Riverview THs:63561 - Southbrook"
+          },
+          "UnitPrice": 1350,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 22825,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3317",
+      "name": "Lot 06 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "16598",
+      "Line1": "Lot 06 - Riverview THs - 9042",
+      "Line2": "40 East Point Drive",
+      "Line3": "Southbrook"
+    },
+    "TotalAmt": 22825,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50614",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-01T10:54:31-07:00",
+      "LastUpdatedTime": "2025-09-01T10:54:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3007",
+    "TxnDate": "2025-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Box Ceiling @ Owner's Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3197",
+            "name": "PH - Riverview THs:69162 - Southbrook"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Privacy Fence",
+        "Amount": 300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3206",
+            "name": "PH - Riverview THs - Deck:20034 - Southbrook"
+          },
+          "UnitPrice": 300,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 2",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3193",
+            "name": "PH - Riverview THs:63560 - Southbrook"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23675,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3315",
+      "name": "Lot 04 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "16595",
+      "Line1": "Lot 04 - Riverview THs - 9042",
+      "Line2": "36 East Point Drive",
+      "Line3": "Southbrook"
+    },
+    "TotalAmt": 23675,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49733",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-10T09:22:32-07:00",
+      "LastUpdatedTime": "2025-09-01T10:49:47-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2987",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49894",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "49962",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50613",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,389",
+        "Amount": 8336.7,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1583",
+            "name": "PH - Highland at Vale:Base First Draw - Jackson"
+          },
+          "UnitPrice": 8336.7,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2,389",
+        "Amount": 12516.95,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
+          },
+          "UnitPrice": 12516.95,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Bay Window",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1597",
+            "name": "PH - Highland at Vale:39000 - Jackson"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Basement - Game Room (Walkout)",
+        "Amount": 8509.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1588",
+            "name": "PH - Highland at Vale:68559 - Jackson"
+          },
+          "UnitPrice": 8509.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Elevation 3",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1592",
+            "name": "PH - Highland at Vale:63561 - Jackson"
+          },
+          "UnitPrice": 275,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Room Bath 4",
+        "Amount": 502.4,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1595",
+            "name": "PH - Highland at Vale:69408 - Jackson"
+          },
+          "UnitPrice": 502.4,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 32140.55,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3264",
+      "name": "Lot 74 / 29 - Highland at Vale"
+    },
+    "BillAddr": {
+      "Id": "16013",
+      "Line1": "Lot 74 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "17 Mason Way",
+      "Line3": "Jackson"
+    },
+    "TotalAmt": 32140.55,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49732",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-07-10T09:16:02-07:00",
+      "LastUpdatedTime": "2025-09-01T10:48:51-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2986",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49975",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50612",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,389",
+        "Amount": 8336.7,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1583",
+            "name": "PH - Highland at Vale:Base First Draw - Jackson"
+          },
+          "UnitPrice": 8336.7,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2,389",
+        "Amount": 12516.95,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3198",
+            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
+          },
+          "UnitPrice": 12516.95,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Bay Window",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1597",
+            "name": "PH - Highland at Vale:39000 - Jackson"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Basement - Game Room (Walkout)",
+        "Amount": 8509.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1588",
+            "name": "PH - Highland at Vale:68559 - Jackson"
+          },
+          "UnitPrice": 8509.5,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Room Bath 4",
+        "Amount": 508.4,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1595",
+            "name": "PH - Highland at Vale:69408 - Jackson"
+          },
+          "UnitPrice": 508.4,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Elevation 4",
+        "Amount": 550,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1593",
+            "name": "PH - Highland at Vale:63562 - Jackson"
+          },
+          "UnitPrice": 550,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 32421.55,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3265",
+      "name": "Lot 75 / 29 - Highland at Vale"
+    },
+    "BillAddr": {
+      "Id": "15765",
+      "Line1": "Lot 75 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
+      "Line2": "19 Mason Way",
+      "Line3": "Jackson"
+    },
+    "TotalAmt": 32421.55,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49247",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-06-19T04:20:15-07:00",
+      "LastUpdatedTime": "2025-09-01T10:47:50-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2973",
+    "TxnDate": "2025-06-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "49893",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "50611",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,028 sq ft - Rough Carpentry 1",
+        "Amount": 15534.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1894",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 15534.48,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,991 sq ft - Rough Carpentry 2",
+        "Amount": 15251.06,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1895",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
+          },
+          "UnitPrice": 15251.06,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window @ Cafe Option",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1907",
+            "name": "PH - Wheelock Farm:13935 - Continental / Hardwick"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Window Option @ Living Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1908",
+            "name": "PH - Wheelock Farm:13942 - Hardwick / Wellington"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Fireplace Gas Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1891",
+            "name": "PH - Wheelock Farm:21023 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 900,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Window(s) Option @ Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1909",
+            "name": "PH - Wheelock Farm:65368 - All Plans"
+          },
+          "UnitPrice": 450,
+          "Qty": 2,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Basement - Daylight Unfinished",
+        "Amount": 2250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1870",
+            "name": "PH - Wheelock Farm:68553 - All Plans"
+          },
+          "UnitPrice": 2250,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Boxed Ceiling @ Owner's Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1893",
+            "name": "PH - Wheelock Farm:69162 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 1000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Elevation 2",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1904",
+            "name": "PH - Wheelock Farm:63560 - Hardwick"
+          },
+          "UnitPrice": 3500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 41135.54,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "3250",
+      "name": "Lot 37 - Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "16010",
+      "Line1": "Lot 37 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
+      "Line2": "15 Lloyd Circle",
+      "Line3": "Hardwick V"
+    },
+    "TotalAmt": 41135.54,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50586",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-08-29T13:47:13-07:00",
+      "LastUpdatedTime": "2025-08-29T13:47:13-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3006",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame addition on 18 Yale rd",
+        "Amount": 11000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 11000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "labor and nails to Frame addition and exterior decks",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 11000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "CustomerRef": {
+      "value": "611",
+      "name": "Conneely Contracting, Inc."
+    },
+    "TotalAmt": 11000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "eric@conneelycontracting.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "43532",
     "SyncToken": "19",
     "MetaData": {
@@ -6782,168 +7873,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "49732",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-07-10T09:16:02-07:00",
-      "LastUpdatedTime": "2025-07-28T17:12:18-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2986",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49975",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,389",
-        "Amount": 8336.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1583",
-            "name": "PH - Highland at Vale:Base First Draw - Jackson"
-          },
-          "UnitPrice": 8336.7,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2,389",
-        "Amount": 12516.95,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3198",
-            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
-          },
-          "UnitPrice": 12516.95,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Bay Window",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1597",
-            "name": "PH - Highland at Vale:39000 - Jackson"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Basement - Game Room (Walkout)",
-        "Amount": 8509.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1588",
-            "name": "PH - Highland at Vale:68559 - Jackson"
-          },
-          "UnitPrice": 8509.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Room Bath 4",
-        "Amount": 508.4,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1595",
-            "name": "PH - Highland at Vale:69408 - Jackson"
-          },
-          "UnitPrice": 508.4,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Elevation 4",
-        "Amount": 550,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1593",
-            "name": "PH - Highland at Vale:63562 - Jackson"
-          },
-          "UnitPrice": 550,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 32421.55,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3265",
-      "name": "Lot 75 / 29 - Highland at Vale"
-    },
-    "BillAddr": {
-      "Id": "15765",
-      "Line1": "Lot 75 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
-      "Line2": "19 Mason Way",
-      "Line3": "Jackson"
-    },
-    "TotalAmt": 32421.55,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "49813",
     "SyncToken": "2",
     "MetaData": {
@@ -7042,172 +7971,6 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49733",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-07-10T09:22:32-07:00",
-      "LastUpdatedTime": "2025-07-25T06:43:27-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2987",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49894",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "49962",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,389",
-        "Amount": 8336.7,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1583",
-            "name": "PH - Highland at Vale:Base First Draw - Jackson"
-          },
-          "UnitPrice": 8336.7,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2,389",
-        "Amount": 12516.95,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3198",
-            "name": "PH - Highland at Vale:Base Second Draw - Jackson"
-          },
-          "UnitPrice": 12516.95,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Bay Window",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1597",
-            "name": "PH - Highland at Vale:39000 - Jackson"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Basement - Game Room (Walkout)",
-        "Amount": 8509.5,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1588",
-            "name": "PH - Highland at Vale:68559 - Jackson"
-          },
-          "UnitPrice": 8509.5,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Elevation 3",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1592",
-            "name": "PH - Highland at Vale:63561 - Jackson"
-          },
-          "UnitPrice": 275,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Room Bath 4",
-        "Amount": 502.4,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1595",
-            "name": "PH - Highland at Vale:69408 - Jackson"
-          },
-          "UnitPrice": 502.4,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 32140.55,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3264",
-      "name": "Lot 74 / 29 - Highland at Vale"
-    },
-    "BillAddr": {
-      "Id": "16013",
-      "Line1": "Lot 74 / 29 - Highland at Vale 7241 - Pulte Homes MS - 1074",
-      "Line2": "17 Mason Way",
-      "Line3": "Jackson"
-    },
-    "TotalAmt": 32140.55,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
   },
   {
     "domain": "QBO",
@@ -8171,225 +8934,6 @@
       "Line3": "Wheaton"
     },
     "TotalAmt": 21397.8,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49247",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-06-19T04:20:15-07:00",
-      "LastUpdatedTime": "2025-07-21T08:33:54-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2973",
-    "TxnDate": "2025-06-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "49893",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,028 sq ft - Rough Carpentry 1",
-        "Amount": 15534.48,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1894",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
-          },
-          "UnitPrice": 15534.48,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1,991 sq ft - Rough Carpentry 2",
-        "Amount": 15251.06,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1895",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
-          },
-          "UnitPrice": 15251.06,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window @ Cafe Option",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1907",
-            "name": "PH - Wheelock Farm:13935 - Continental / Hardwick"
-          },
-          "UnitPrice": 450,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Window Option @ Living Room",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1908",
-            "name": "PH - Wheelock Farm:13942 - Hardwick / Wellington"
-          },
-          "UnitPrice": 450,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Fireplace Gas Gathering Room",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1891",
-            "name": "PH - Wheelock Farm:21023 - Continental / Hardwick / Newberry / Wellington"
-          },
-          "UnitPrice": 900,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Window(s) Option @ Gathering Room",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1909",
-            "name": "PH - Wheelock Farm:65368 - All Plans"
-          },
-          "UnitPrice": 450,
-          "Qty": 2,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Basement - Daylight Unfinished",
-        "Amount": 2250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1870",
-            "name": "PH - Wheelock Farm:68553 - All Plans"
-          },
-          "UnitPrice": 2250,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Boxed Ceiling @ Owner's Suite",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1893",
-            "name": "PH - Wheelock Farm:69162 - Continental / Hardwick / Newberry / Wellington"
-          },
-          "UnitPrice": 1000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Elevation 2",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1904",
-            "name": "PH - Wheelock Farm:63560 - Hardwick"
-          },
-          "UnitPrice": 3500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 41135.54,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "CustomerRef": {
-      "value": "3250",
-      "name": "Lot 37 - Wheelock Farm"
-    },
-    "BillAddr": {
-      "Id": "16010",
-      "Line1": "Lot 37 - Wheelock Farm 8856  - Pulte Homes MS - 1074",
-      "Line2": "15 Lloyd Circle",
-      "Line3": "Hardwick V"
-    },
-    "TotalAmt": 41135.54,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",

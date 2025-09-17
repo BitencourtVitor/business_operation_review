@@ -4,6 +4,607 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17022",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:41:42-07:00",
+      "LastUpdatedTime": "2025-09-02T05:39:47-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1991",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change Order - Tile",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 2 - Left Unit \nHerringbone tile pattern ",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "677",
+      "name": "Building 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9760",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9761",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 2000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "saulnier04@yahoo.com"
+    },
+    "Balance": 2000,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T05:39:40-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17026",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:20:19-07:00",
+      "LastUpdatedTime": "2025-09-02T05:39:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1992",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile",
+    "LinkedTxn": [
+      {
+        "TxnId": "17025",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 2 - Right Unit - Includes basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17025",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to prep all bathrooms for tile installation. ",
+        "Amount": 3750,
+        "LinkedTxn": [
+          {
+            "TxnId": "17025",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 3750,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "677",
+      "name": "Building 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9766",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9767",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 3750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "saulnier04@yahoo.com,julie.thompson@gloverproperty.com"
+    },
+    "Balance": 3750,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T05:39:39-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17021",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-13T05:38:22-07:00",
+      "LastUpdatedTime": "2025-09-02T05:39:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1990",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Left Unit: Tile",
+    "LinkedTxn": [
+      {
+        "TxnId": "17020",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 2 - Left Unit - Includes basement",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17020",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
+        "Amount": 7500,
+        "LinkedTxn": [
+          {
+            "TxnId": "17020",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "57",
+            "name": "Tile"
+          },
+          "UnitPrice": 7500,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 7500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "677",
+      "name": "Building 2 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9758",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9759",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 7500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "saulnier04@yahoo.com,julie.thompson@gloverproperty.com"
+    },
+    "Balance": 7500,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T05:39:39-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17016",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-13T04:07:54-07:00",
+      "LastUpdatedTime": "2025-09-02T05:39:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1989",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 1- Right unit - Intall hardwood floor",
+    "LinkedTxn": [
+      {
+        "TxnId": "17015",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 1 - Right Unit\n\nInstall hardwoord floor",
+        "Amount": 9100,
+        "LinkedTxn": [
+          {
+            "TxnId": "17015",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 9100,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 9100,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "2"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "2"
+            },
+            "PercentBased": true,
+            "TaxPercent": 0,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "641",
+      "name": "Building 1 - Saco Riverside"
+    },
+    "BillAddr": {
+      "Id": "9750",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "ShipAddr": {
+      "Id": "9751",
+      "Line1": "Saco Riverside, LLC",
+      "Line2": "110 Main St",
+      "Line3": "Saco, Maine"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-13",
+    "TotalAmt": 9100,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "julie.thompson@gloverproperty.com,saulnier04@yahoo.com"
+    },
+    "Balance": 9100,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-02T05:39:39-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16958",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-08-06T11:35:54-07:00",
+      "LastUpdatedTime": "2025-08-30T06:03:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1984",
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order:  Framing and decks ceilings",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Framing and decks ceilings\n07/03/25 - Thursday - 4 laborers - 7 hours each\n07/08/25 - Tuesday - 4 laborers - 8.5 hours each\n07/09/25 - Wednesday - 2 laborers - 4 hours each \n\n70 hours total",
+        "Amount": 3850,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 55,
+          "Qty": 70,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3850,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "837",
+      "name": "20 Fish Lane, Windham, New Hampshire"
+    },
+    "BillAddr": {
+      "Id": "9668",
+      "Line1": "Vinny DiPierro",
+      "Line2": "DiPierro & Brown Construction"
+    },
+    "ShipAddr": {
+      "Id": "9669",
+      "Line1": "Vinny DiPierro",
+      "Line2": "DiPierro & Brown Construction"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-08-06",
+    "TotalAmt": 3850,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NeedToPrint",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "AP@dbbostongc.com"
+    },
+    "Balance": 3850,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-08-30T06:03:02-07:00"
+    }
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
     "Id": "17033",
@@ -1126,107 +1727,6 @@
       "Address": "regina.hills@liveatinland.com"
     },
     "Balance": 0
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16958",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-08-06T11:35:54-07:00",
-      "LastUpdatedTime": "2025-08-26T05:48:41-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1984",
-    "TxnDate": "2025-08-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change order:  Framing and decks ceilings",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Framing and decks ceilings\n07/03/25 - Thursday - 4 laborers - 7 hours each\n07/08/25 - Tuesday - 4 laborers - 8.5 hours each\n07/09/25 - Wednesday - 2 laborers - 4 hours each \n\n70 hours total",
-        "Amount": 3850,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 55,
-          "Qty": 70,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3850,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "837",
-      "name": "20 Fish Lane, Windham, New Hampshire"
-    },
-    "BillAddr": {
-      "Id": "9668",
-      "Line1": "Vinny DiPierro",
-      "Line2": "DiPierro & Brown Construction"
-    },
-    "ShipAddr": {
-      "Id": "9669",
-      "Line1": "Vinny DiPierro",
-      "Line2": "DiPierro & Brown Construction"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-06",
-    "TotalAmt": 3850,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NeedToPrint",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "AP@dbbostongc.com"
-    },
-    "Balance": 3850,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-26T05:48:35-07:00"
-    }
   },
   {
     "AllowIPNPayment": false,
@@ -3340,506 +3840,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-11T14:19:32-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17021",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-13T05:38:22-07:00",
-      "LastUpdatedTime": "2025-08-25T05:11:36-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1990",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Left Unit: Tile",
-    "LinkedTxn": [
-      {
-        "TxnId": "17020",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 2 - Left Unit - Includes basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17020",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to install all Tile, Grout, sub floor, Schluter, Thresholds, Wall/Floor prep as necessary, Back splashes and all other incidental items to make this item of work complete.",
-        "Amount": 7500,
-        "LinkedTxn": [
-          {
-            "TxnId": "17020",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 7500,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 7500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "677",
-      "name": "Building 2 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "9758",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "9759",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-13",
-    "TotalAmt": 7500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "saulnier04@yahoo.com,julie.thompson@gloverproperty.com"
-    },
-    "Balance": 7500,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-25T05:11:30-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17016",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-13T04:07:54-07:00",
-      "LastUpdatedTime": "2025-08-25T05:11:36-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1989",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Building 1- Right unit - Intall hardwood floor",
-    "LinkedTxn": [
-      {
-        "TxnId": "17015",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 1 - Right Unit\n\nInstall hardwoord floor",
-        "Amount": 9100,
-        "LinkedTxn": [
-          {
-            "TxnId": "17015",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 9100,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 9100,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "641",
-      "name": "Building 1 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "9750",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "9751",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-13",
-    "TotalAmt": 9100,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "julie.thompson@gloverproperty.com,saulnier04@yahoo.com"
-    },
-    "Balance": 9100,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-25T05:11:29-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17026",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-13T06:20:19-07:00",
-      "LastUpdatedTime": "2025-08-25T05:11:35-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1992",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Left Unit: Tile",
-    "LinkedTxn": [
-      {
-        "TxnId": "17025",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 2 - Right Unit - Includes basement",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17025",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnish All necessary Labor to prep all bathrooms for tile installation. ",
-        "Amount": 3750,
-        "LinkedTxn": [
-          {
-            "TxnId": "17025",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "57",
-            "name": "Tile"
-          },
-          "UnitPrice": 3750,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "677",
-      "name": "Building 2 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "9766",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "9767",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-13",
-    "TotalAmt": 3750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "saulnier04@yahoo.com,julie.thompson@gloverproperty.com"
-    },
-    "Balance": 3750,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-25T05:11:29-07:00"
-    }
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17022",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-13T05:41:42-07:00",
-      "LastUpdatedTime": "2025-08-25T05:11:35-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1991",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change Order - Tile",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building 2 - Left Unit \nHerringbone tile pattern ",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 2000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "2"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "2"
-            },
-            "PercentBased": true,
-            "TaxPercent": 0,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "677",
-      "name": "Building 2 - Saco Riverside"
-    },
-    "BillAddr": {
-      "Id": "9760",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "ShipAddr": {
-      "Id": "9761",
-      "Line1": "Saco Riverside, LLC",
-      "Line2": "110 Main St",
-      "Line3": "Saco, Maine"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-08-13",
-    "TotalAmt": 2000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "saulnier04@yahoo.com"
-    },
-    "Balance": 2000,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-08-25T05:11:29-07:00"
     }
   },
   {
@@ -9237,11 +9237,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "7017",
+        "TxnId": "6761",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "6761",
+        "TxnId": "7017",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16214,11 +16214,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15955",
+        "TxnId": "15827",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15827",
+        "TxnId": "15955",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16254,11 +16254,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15978",
+        "TxnId": "14890",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14890",
+        "TxnId": "15978",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16658,11 +16658,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14786",
+        "TxnId": "15810",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15810",
+        "TxnId": "14786",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16718,11 +16718,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14993",
+        "TxnId": "15505",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15505",
+        "TxnId": "14993",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16782,11 +16782,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15535",
+        "TxnId": "15855",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15855",
+        "TxnId": "15535",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17312,11 +17312,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14985",
+        "TxnId": "14665",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14665",
+        "TxnId": "14985",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17356,11 +17356,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15521",
+        "TxnId": "14945",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14945",
+        "TxnId": "15521",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17368,11 +17368,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15779",
+        "TxnId": "13923",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13923",
+        "TxnId": "15331",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17380,7 +17380,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15331",
+        "TxnId": "15779",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17400,11 +17400,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15595",
+        "TxnId": "15787",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15787",
+        "TxnId": "15595",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17420,11 +17420,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15539",
+        "TxnId": "14835",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14835",
+        "TxnId": "15539",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17432,11 +17432,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14709",
+        "TxnId": "15541",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15541",
+        "TxnId": "14709",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -17448,11 +17448,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14520",
+        "TxnId": "14840",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14840",
+        "TxnId": "14520",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -18254,11 +18254,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14216",
+        "TxnId": "14248",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14248",
+        "TxnId": "14216",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -28651,11 +28651,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5460",
+        "TxnId": "5268",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5268",
+        "TxnId": "5460",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31148,11 +31148,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15317",
+        "TxnId": "13509",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13509",
+        "TxnId": "15317",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -31474,11 +31474,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11523",
+        "TxnId": "11395",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11395",
+        "TxnId": "11523",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31812,11 +31812,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11271",
+        "TxnId": "11399",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11399",
+        "TxnId": "11271",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31908,15 +31908,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11190",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "11446",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11383",
+        "TxnId": "11190",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31924,7 +31920,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11192",
+        "TxnId": "11383",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31932,7 +31928,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11385",
+        "TxnId": "11192",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -31940,15 +31936,19 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "11385",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "11194",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11516",
+        "TxnId": "11196",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11196",
+        "TxnId": "11516",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -35869,11 +35869,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8862",
+        "TxnId": "10142",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10142",
+        "TxnId": "8862",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -36749,15 +36749,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14446",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "12974",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "13198",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "14446",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -36809,11 +36809,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13342",
+        "TxnId": "13630",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13630",
+        "TxnId": "13342",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -39832,11 +39832,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "13728",
+        "TxnId": "14048",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14048",
+        "TxnId": "13728",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -39848,11 +39848,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13722",
+        "TxnId": "13866",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13866",
+        "TxnId": "13722",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58498,11 +58498,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11106",
+        "TxnId": "12674",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12674",
+        "TxnId": "11106",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58514,11 +58514,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11109",
+        "TxnId": "12677",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12677",
+        "TxnId": "11109",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61591,11 +61591,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12092",
+        "TxnId": "10028",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10028",
+        "TxnId": "12092",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -118928,15 +118928,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8442",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "8458",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8702",
+        "TxnId": "8442",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "8446",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -118944,7 +118944,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8446",
+        "TxnId": "8702",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -137560,11 +137560,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5466",
+        "TxnId": "4810",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "4810",
+        "TxnId": "5466",
         "TxnType": "ReimburseCharge"
       },
       {
