@@ -86,7 +86,7 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
 
         // Extrair meses únicos
         const uniqueMonths = [...new Set((projectsData || [])
-          .map(p => new Date(p.previous_start_date).toLocaleString('pt-BR', { month: 'long' }))
+          .map(p => new Date(p.previous_start_date).toLocaleString('en-US', { month: 'long' }))
           .filter(month => month))].sort();
         setMonths(uniqueMonths);
 
@@ -119,7 +119,7 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
 
     const filteredProjects = workforceProjects.filter(project => {
       const projectYear = new Date(project.previous_start_date).getFullYear().toString();
-      const projectMonth = new Date(project.previous_start_date).toLocaleString('pt-BR', { month: 'long' });
+      const projectMonth = new Date(project.previous_start_date).toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
@@ -134,7 +134,7 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
 
     filteredProjects.forEach(project => {
       const startDate = new Date(project.previous_start_date);
-      const month = startDate.toLocaleString('pt-BR', { month: 'long' });
+      const month = startDate.toLocaleString('en-US', { month: 'long' });
       const year = startDate.getFullYear();
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
@@ -178,8 +178,8 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
       const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
       const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
       
-      periodStart = minStartDate.toLocaleDateString('pt-BR');
-      periodEnd = maxEndDate.toLocaleDateString('pt-BR');
+      periodStart = minStartDate.toLocaleDateString('en-US');
+      periodEnd = maxEndDate.toLocaleDateString('en-US');
     }
 
     return {

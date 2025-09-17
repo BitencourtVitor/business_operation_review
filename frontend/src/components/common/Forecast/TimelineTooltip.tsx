@@ -84,7 +84,7 @@ export default function TimelineTooltip({
               color: 'var(--color-text-secondary)', 
               fontSize: 13 
             }}>
-              Obras: {data.count}
+              Works: {data.count}
             </p>
           </div>
           <button
@@ -171,13 +171,13 @@ export default function TimelineTooltip({
                     color: 'var(--color-text-secondary)',
                     marginBottom: 2
                   }}>
-                    <strong>Job Site:</strong> {project.job_site || 'Não informado'}
+                    <strong>Job Site:</strong> {project.job_site || 'Not informed'}
                   </div>
                   <div style={{
                     fontSize: 12,
                     color: 'var(--color-text-secondary)'
                   }}>
-                    <strong>Lote:</strong> {project.lote_building || 'Não informado'}
+                    <strong>Lot:</strong> {project.lote_building || 'Not informed'}
                   </div>
                 </div>
                 {project.workforce && (
@@ -215,7 +215,7 @@ export default function TimelineTooltip({
                     textTransform: 'uppercase',
                     letterSpacing: 0.5
                   }}>
-                    Data de Início
+                    Start Date
                   </div>
                   <div style={{
                     fontSize: 13,
@@ -223,8 +223,8 @@ export default function TimelineTooltip({
                     color: project.previous_start_date ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                   }}>
                     {project.previous_start_date 
-                      ? new Date(project.previous_start_date).toLocaleDateString('pt-BR')
-                      : 'Não definida'
+                      ? new Date(project.previous_start_date).toLocaleDateString('en-US')
+                      : 'Not defined'
                     }
                   </div>
                 </div>
@@ -237,7 +237,7 @@ export default function TimelineTooltip({
                     textTransform: 'uppercase',
                     letterSpacing: 0.5
                   }}>
-                    Data de Fim
+                    End Date
                   </div>
                   <div style={{
                     fontSize: 13,
@@ -245,8 +245,8 @@ export default function TimelineTooltip({
                     color: project.previous_end_date ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                   }}>
                     {project.previous_end_date 
-                      ? new Date(project.previous_end_date).toLocaleDateString('pt-BR')
-                      : 'Não definida'
+                      ? new Date(project.previous_end_date).toLocaleDateString('en-US')
+                      : 'Not defined'
                     }
                   </div>
                 </div>
@@ -270,7 +270,7 @@ export default function TimelineTooltip({
                     textTransform: 'uppercase',
                     letterSpacing: 0.5
                   }}>
-                    Observações
+                    Observations
                   </div>
                   <div style={{ lineHeight: 1.4 }}>
                     {project.observacoes}

@@ -64,15 +64,15 @@ export default function TimelineGantt({
         const date = new Date(year, month - 1, day);
         return {
           label: day.toString(),
-          fullLabel: date.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric' }),
+          fullLabel: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
           date: date.toISOString().split('T')[0]
         };
       });
     } else {
       // Mostrar meses do ano selecionado
       const months = [
-        'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-        'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
       ];
       
       return months.map((month, index) => ({
