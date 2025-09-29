@@ -45,6 +45,9 @@ export default function Dashboard() {
   const [showProjectMonitoringSubmenu, setShowProjectMonitoringSubmenu] = useState(false);
   const [isCollapsingProjectMonitoringSubmenu, setIsCollapsingProjectMonitoringSubmenu] = useState(false);
   const [selectedProjectMonitoringType, setSelectedProjectMonitoringType] = useState<string>('HVAC');
+  const [showForecastSubmenu, setShowForecastSubmenu] = useState(false);
+  const [isCollapsingForecastSubmenu, setIsCollapsingForecastSubmenu] = useState(false);
+  const [selectedForecastType, setSelectedForecastType] = useState<string>('Framing');
 
   // Buscar dados do usuário e telas
   useEffect(() => {
@@ -201,6 +204,18 @@ export default function Dashboard() {
       setShowCompanySubmenu(false);
       setIsCollapsingSubmenu(false);
       setShowAccountingContent(false);
+    } else if (tela?.descricao === 'Forecast') {
+      // Se for Forecast, mostrar submenu de tipos
+      setSelectedForecastType('Framing'); // Sempre resetar para Framing
+      setShowForecastSubmenu(true);
+      setIsCollapsingForecastSubmenu(false);
+      setTelaId(newTelaId);
+      // Fechar outros submenus se estiverem abertos
+      setShowCompanySubmenu(false);
+      setIsCollapsingSubmenu(false);
+      setShowProjectMonitoringSubmenu(false);
+      setIsCollapsingProjectMonitoringSubmenu(false);
+      setShowAccountingContent(false);
     } else {
       // Se estamos saindo do Accounting Indicators, fazer animação de saída
       if (currentTela?.descricao === 'Accounting Indicators' && showCompanySubmenu) {
@@ -220,11 +235,21 @@ export default function Dashboard() {
           setIsCollapsingProjectMonitoringSubmenu(false);
           setTelaId(newTelaId);
         }, 300);
+      } else if (currentTela?.descricao === 'Forecast' && showForecastSubmenu) {
+        // Se estamos saindo do Forecast, fazer animação de saída
+        setIsCollapsingForecastSubmenu(true);
+        setTimeout(() => {
+          setShowForecastSubmenu(false);
+          setIsCollapsingForecastSubmenu(false);
+          setTelaId(newTelaId);
+        }, 300);
       } else {
         setShowCompanySubmenu(false);
         setIsCollapsingSubmenu(false);
         setShowProjectMonitoringSubmenu(false);
         setIsCollapsingProjectMonitoringSubmenu(false);
+        setShowForecastSubmenu(false);
+        setIsCollapsingForecastSubmenu(false);
         setTelaId(newTelaId);
         setShowAccountingContent(false);
       }
@@ -251,6 +276,12 @@ export default function Dashboard() {
     setSelectedProjectMonitoringType(type);
     // Manter o submenu visível quando selecionar um tipo
     // O renderMainContent vai mostrar ProjectMonitoring com o tipo selecionado
+  };
+
+  const handleSelectForecastType = (type: string) => {
+    setSelectedForecastType(type);
+    // Manter o submenu visível quando selecionar um tipo
+    // O renderMainContent vai mostrar WorkforceForecast com o tipo selecionado
   };
 
 
@@ -467,7 +498,7 @@ export default function Dashboard() {
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Forecast':
-        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} selectedType={selectedForecastType} />;
              case 'Fuel Control':
          // Verificar permissão antes de mostrar Fuel Control
          if (!temPermissaoAccounting && !isAdminSetorComPermissao) {
@@ -662,14 +693,14 @@ export default function Dashboard() {
             {ordenarTelas(filtrarTelasPorPermissao(telas)).map(tela => (
               <div key={tela.id} style={{ width: '100%' }}>
                                  <button
-                  className={`btn-sidebar d-flex align-items-center justify-content-start w-100${(tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring')) ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
+                  className={`btn-sidebar d-flex align-items-center justify-content-start w-100${(tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring') || tela.descricao === 'Forecast') ? '' : ' mb-2'}${telaId === tela.id ? ' btn-sidebar-ativo' : ''}`}
                   style={{ 
                     gap: 10, 
                     padding: '8px 12px', 
                     borderRadius: 8, 
                     fontSize: 14,
                     cursor: telaId === tela.id ? 'default' : 'pointer',
-                    marginBottom: (tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring')) && telaId === tela.id ? 0 : '0.5rem'
+                    marginBottom: (tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring') || tela.descricao === 'Forecast') && telaId === tela.id ? 0 : '0.5rem'
                   }}
                   onClick={() => {
                     if (telaId !== tela.id) {
@@ -852,6 +883,100 @@ export default function Dashboard() {
                           // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
                           onMouseUp={e => {
                             if (!isDisabled && selectedProjectMonitoringType !== type) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                            }
+                          }}
+                        >
+                           <img 
+                             src={empresaIcones[type] || ''} 
+                             alt={type} 
+                             style={{ 
+                               width: 16, 
+                               height: 16, 
+                               objectFit: 'contain',
+                               marginRight: 8,
+                               opacity: isDisabled ? 0.5 : 1
+                             }} 
+                           />
+                          {type}{isDisabled ? ' (Em breve)' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Submenu de tipos para Forecast */}
+                {tela.descricao === 'Forecast' && (showForecastSubmenu || isCollapsingForecastSubmenu) && telaId === tela.id && (
+                  <div style={{ 
+                    padding: '2px 0',
+                    marginLeft: '10px',
+                    borderLeft: '1px solid var(--color-border-divider)',
+                    marginBottom: '.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    animation: isCollapsingForecastSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
+                    overflow: 'hidden'
+                  }}>
+                    {['Framing'].map(type => {
+                      const isDisabled = false; // Por enquanto apenas Framing está disponível
+                      return (
+                        <button
+                          key={type}
+                          className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                          style={{ 
+                            gap: 8, 
+                            padding: '6px 10px', 
+                            borderRadius: 0, 
+                            fontSize: 12,
+                            // ===== ESTADO ATIVO (SELECIONADO) =====
+                            borderLeft: selectedForecastType === type ? '3px solid var(--color-brand-blue)' : 'none',
+                            color: isDisabled ? 'var(--color-text-secondary)' : (selectedForecastType === type ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
+                            fontWeight: selectedForecastType === type ? 700 : 400,
+                            transition: 'all 0.2s ease',
+                            cursor: isDisabled ? 'not-allowed' : (selectedForecastType === type ? 'default' : 'pointer'),
+                            outline: 'none',
+                            opacity: isDisabled ? 0.5 : 1
+                          }}
+                          onClick={() => {
+                            if (!isDisabled && selectedForecastType !== type) {
+                              handleSelectForecastType(type);
+                            }
+                          }}
+                          
+                          // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                          onMouseOver={e => {
+                            if (!isDisabled) {
+                              e.currentTarget.style.background = 'transparent';
+                              if (selectedForecastType !== type) {
+                                 e.currentTarget.style.color = 'var(--color-text-primary)';
+                                 e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                                 e.currentTarget.style.backdropFilter = 'blur(4px)';
+                                 e.currentTarget.style.borderRight = 'none';
+                               }
+                            }
+                          }}
+                          
+                          // ===== MOUSE LEAVE (SAINDO COM O MOUSE) =====
+                          onMouseLeave={e => {
+                            if (!isDisabled && selectedForecastType !== type) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--color-text-secondary)';
+                            }
+                          }}
+                          
+                          // ===== MOUSE DOWN (CLICANDO) =====
+                          onMouseDown={e => {
+                            if (!isDisabled && selectedForecastType !== type) {
+                              e.currentTarget.style.background = 'var(--color-background-secondary)';
+                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                            }
+                          }}
+                          
+                          // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                          onMouseUp={e => {
+                            if (!isDisabled && selectedForecastType !== type) {
                               e.currentTarget.style.background = 'transparent';
                               e.currentTarget.style.color = 'var(--color-text-primary)';
                             }

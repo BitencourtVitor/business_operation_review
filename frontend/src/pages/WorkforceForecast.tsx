@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
 import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
 import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 interface WorkforceProject {
   id: number;
@@ -34,12 +35,18 @@ interface WorkforceForecastProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
+  selectedType?: string;
 }
 
-export default function WorkforceForecast({ }: WorkforceForecastProps) {
+export default function WorkforceForecast({ selectedType = 'Framing' }: WorkforceForecastProps) {
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Mapeamento de ícones das empresas
+  const empresaIcones: { [empresa: string]: string } = {
+    'Framing': sublogoFraming,
+  };
   
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -235,8 +242,22 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
     <div id="content" style={{ height: '100%', minHeight: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
       {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
-          Forecast
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <img 
+            src={empresaIcones[selectedType] || ''} 
+            alt={selectedType} 
+            style={{ 
+              width: 24, 
+              height: 24, 
+              objectFit: 'contain'
+            }}
+          />
+          <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>
+            {selectedType}
+          </span>
+          <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+            Forecast
+          </span>
         </h1>
         
         {/* Filtros */}
