@@ -47,6 +47,7 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
   const [selectedClient, setSelectedClient] = useState<string[]>([]);
   const [selectedJobSite, setSelectedJobSite] = useState<string[]>([]);
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
+  const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
@@ -268,6 +269,8 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
           selectedMonth={selectedMonth}
           groupBy={groupBy}
           onGroupByChange={setGroupBy}
+          sortByDate={sortByDate}
+          onSortByDateChange={setSortByDate}
         />
       </div>
     </div>
