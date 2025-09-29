@@ -30,6 +30,8 @@ interface TimelinePlannerProps {
   selectedMonth: string;
   groupBy: 'cliente' | 'job_site';
   onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
+  sortByDate: 'off' | 'asc' | 'desc' | null;
+  onSortByDateChange: (sortByDate: 'off' | 'asc' | 'desc' | null) => void;
 }
 
 export default function TimelinePlanner({ 
@@ -37,7 +39,9 @@ export default function TimelinePlanner({
   selectedYear, 
   selectedMonth, 
   groupBy, 
-  onGroupByChange 
+  onGroupByChange,
+  sortByDate,
+  onSortByDateChange
 }: TimelinePlannerProps) {
   const [draggedProject, setDraggedProject] = useState<WorkforceProject | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -154,7 +158,7 @@ export default function TimelinePlanner({
   const getProjectsForPeriod = (groupName: string, timeColumn: { month?: number; date?: string }) => {
     const groupProjects = groupedData.find(g => g.groupName === groupName)?.projects || [];
     
-    return groupProjects.filter(project => {
+    let filteredProjects = groupProjects.filter(project => {
       if (!project.previous_start_date) return false;
       
       if (showDays) {
@@ -174,6 +178,22 @@ export default function TimelinePlanner({
         return projectMonth === timeColumn.month;
       }
     });
+
+    // Aplicar ordenação por data se não estiver desligada
+    if (sortByDate && sortByDate !== 'off') {
+      filteredProjects = filteredProjects.sort((a, b) => {
+        const dateA = new Date(a.previous_start_date || '1900-01-01');
+        const dateB = new Date(b.previous_start_date || '1900-01-01');
+        
+        if (sortByDate === 'asc') {
+          return dateA.getTime() - dateB.getTime();
+        } else {
+          return dateB.getTime() - dateA.getTime();
+        }
+      });
+    }
+
+    return filteredProjects;
   };
 
   // Funções de drag and drop
@@ -241,48 +261,74 @@ export default function TimelinePlanner({
               <i className="bi bi-calendar3 me-2" style={{ color: 'var(--color-accent-primary)' }} />
               Timeline
             </h5>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
-              <button 
-                onClick={() => onGroupByChange('cliente')} 
-                style={{ 
-                  background: groupBy === 'cliente' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-                  color: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)', 
-                  border: groupBy === 'cliente' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)', 
-                  borderRadius: 15, 
-                  padding: '4px 16px', 
-                  fontWeight: 500, 
-                  fontSize: 14, 
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  height: 26,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                Cliente
-              </button>
-              <button 
-                onClick={() => onGroupByChange('job_site')} 
-                style={{ 
-                  background: groupBy === 'job_site' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-                  color: groupBy === 'job_site' ? '#fd7e14' : 'var(--color-text-primary)', 
-                  border: groupBy === 'job_site' ? '1.5px solid #fd7e14' : '1.5px solid var(--color-border-divider)', 
-                  borderRadius: 15, 
-                  padding: '4px 16px', 
-                  fontWeight: 500, 
-                  fontSize: 14, 
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  height: 26,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                Job Site
-              </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
+                <button 
+                  onClick={() => onGroupByChange('cliente')} 
+                  style={{ 
+                    background: groupBy === 'cliente' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+                    color: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)', 
+                    border: groupBy === 'cliente' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)', 
+                    borderRadius: 15, 
+                    padding: '4px 16px', 
+                    fontWeight: 500, 
+                    fontSize: 14, 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: 26,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  Cliente
+                </button>
+                <button 
+                  onClick={() => onGroupByChange('job_site')} 
+                  style={{ 
+                    background: groupBy === 'job_site' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
+                    color: groupBy === 'job_site' ? '#fd7e14' : 'var(--color-text-primary)', 
+                    border: groupBy === 'job_site' ? '1.5px solid #fd7e14' : '1.5px solid var(--color-border-divider)', 
+                    borderRadius: 15, 
+                    padding: '4px 16px', 
+                    fontWeight: 500, 
+                    fontSize: 14, 
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: 26,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  Job Site
+                </button>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by Start Date</span>
+                <button 
+                  onClick={() => onSortByDateChange(sortByDate === 'asc' ? 'desc' : sortByDate === 'desc' ? null : 'asc')} 
+                  style={{ 
+                    background: sortByDate ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                    color: sortByDate ? '#fff' : 'var(--color-text-secondary)', 
+                    border: '1px solid var(--color-border-divider)', 
+                    borderRadius: 15, 
+                    padding: '4px 10px', 
+                    fontSize: 14, 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                    height: 26,
+                    fontWeight: 500
+                  }}
+                >
+                  {sortByDate === 'asc' ? 'ASC' : sortByDate === 'desc' ? 'DESC' : 'OFF'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
