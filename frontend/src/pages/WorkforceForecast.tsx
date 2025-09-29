@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 // Componentes modulares
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
 import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
-import TimelineGantt from '../components/common/Forecast/TimelineGantt';
+import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
 
 interface WorkforceProject {
   id: number;
@@ -260,8 +260,8 @@ export default function WorkforceForecast({ }: WorkforceForecastProps) {
         {/* Métricas */}
         <ForecastMetrics stats={stats} />
         
-        {/* Timeline Gantt */}
-        <TimelineGantt 
+        {/* Timeline Planner */}
+        <TimelinePlanner 
           forecastData={forecastData}
           workforceProjects={workforceProjects}
           selectedYear={selectedYear}
