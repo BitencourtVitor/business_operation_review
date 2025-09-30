@@ -2,9 +2,15 @@ import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ProjectMonitoringHvacData } from '../../../hooks/useProjectMonitoringHvacData';
 import CloseButton from '../../../utils/CloseButton';
+import { getISOWeek } from '../../../utils/weekUtils';
 
 interface ProjectMonitoringCarouselProps {
   filteredData: ProjectMonitoringHvacData[];
+  allData: ProjectMonitoringHvacData[];
+  groupBy: 'status' | 'city_jobsite' | 'stage';
+  selectedYear: string;
+  selectedMonth: string;
+  selectedWeek: string;
 }
 
 // Cores customizáveis por status de progresso
@@ -27,7 +33,14 @@ const getProjectStatus = (project: ProjectMonitoringHvacData): string => {
   return 'Not Started';
 };
 
-export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonitoringCarouselProps) {
+export default function ProjectMonitoringCarousel({ 
+  filteredData, 
+  allData, 
+  groupBy, 
+  selectedYear, 
+  selectedMonth, 
+  selectedWeek 
+}: ProjectMonitoringCarouselProps) {
   const [selected, setSelected] = useState<ProjectMonitoringHvacData | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [statusOrder, setStatusOrder] = useState<string[]>(['Completed', 'In Progress', 'Not Started']);
@@ -119,17 +132,60 @@ export default function ProjectMonitoringCarousel({ filteredData }: ProjectMonit
     setSearchText('');
   };
 
+  // Filtrar dados baseado no groupBy
+  const dataForCarousel = React.useMemo(() => {
+    if (groupBy === 'stage') {
+      // Para stage, usar allData e filtrar por datas dos estágios
+      return allData.filter(project => {
+        // Verificar se algum estágio foi concluído no período
+        const stages = ['s1', 's2', 's3', 's4'] as const;
+        return stages.some(stage => {
+          const stageDateField = `${stage}_date` as keyof ProjectMonitoringHvacData;
+          const stageDate = project[stageDateField] as string | null;
+          
+          if (!stageDate) return false;
+          
+          const stageCompletionDate = new Date(stageDate);
+          
+          // Se há filtro de ano, verificar se o estágio foi concluído nesse ano
+          if (selectedYear) {
+            const year = parseInt(selectedYear);
+            if (stageCompletionDate.getFullYear() !== year) return false;
+          }
+          
+          // Se há filtro de mês, verificar se o estágio foi concluído nesse mês
+          if (selectedMonth) {
+            const month = parseInt(selectedMonth);
+            if (stageCompletionDate.getMonth() + 1 !== month) return false;
+          }
+          
+          // Se há filtro de semana, verificar se o estágio foi concluído nessa semana
+          if (selectedWeek) {
+            const week = parseInt(selectedWeek);
+            const stageWeek = getISOWeek(stageCompletionDate);
+            if (stageWeek !== week) return false;
+          }
+          
+          return true;
+        });
+      });
+    } else {
+      // Para status e city_jobsite, usar filteredData
+      return filteredData;
+    }
+  }, [groupBy, allData, filteredData, selectedYear, selectedMonth, selectedWeek]);
+
   // Filtrar dados conforme texto digitado em job_site, city e lot_number
   const filteredDataRaw = React.useMemo(() => {
-    if (!searchText.trim()) return filteredData;
+    if (!searchText.trim()) return dataForCarousel;
     const lower = searchText.toLowerCase();
-    return filteredData.filter(row => 
+    return dataForCarousel.filter(row => 
       (row.job_site || '').toLowerCase().includes(lower) ||
       (row.city || '').toLowerCase().includes(lower) ||
       (row.lot_number || '').toLowerCase().includes(lower) ||
       `lot ${row.lot_number || ''}`.toLowerCase().includes(lower)
     );
-  }, [filteredData, searchText]);
+  }, [dataForCarousel, searchText]);
 
   // Filtrar dados baseado nos controles de status
   const displayData = React.useMemo(() => {

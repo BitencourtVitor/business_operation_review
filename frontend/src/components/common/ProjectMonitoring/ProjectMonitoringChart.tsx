@@ -13,6 +13,7 @@ import {
 import { createPortal } from 'react-dom';
 import type { ProjectMonitoringHvacData } from '../../../hooks/useProjectMonitoringHvacData';
 import { ProjectMonitoringPieChart } from './ProjectMonitoringPieChart';
+import { getISOWeek } from '../../../utils/weekUtils';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement);
 
@@ -132,21 +133,25 @@ const ProjectMonitoringTooltipExternal = React.memo(function ProjectMonitoringTo
 
 interface ProjectMonitoringChartProps {
   filteredData: ProjectMonitoringHvacData[];
+  allData: ProjectMonitoringHvacData[];
   selectedYear: string;
   selectedMonth: string;
   selectedWeek: string;
+  groupBy: 'status' | 'city_jobsite' | 'stage';
+  setGroupBy: (groupBy: 'status' | 'city_jobsite' | 'stage') => void;
 }
 
 export function ProjectMonitoringChart({ 
   filteredData, 
+  allData,
   selectedYear, 
   selectedMonth,
-  selectedWeek
+  selectedWeek,
+  groupBy,
+  setGroupBy
 }: ProjectMonitoringChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<ProjectMonitoringTooltipExternalProps>>(null);
-  // Estado para controlar o tipo de agrupamento
-  const [groupBy, setGroupBy] = useState<'status' | 'city_jobsite'>('status');
   // Estado para controlar grupos expandidos/retraídos
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
 
@@ -204,6 +209,99 @@ export function ProjectMonitoringChart({
       }
       return newSet;
     });
+  };
+
+  // Função para verificar se um estágio foi concluído no período observado
+  const isStageCompletedInPeriod = (project: ProjectMonitoringHvacData, stage: 's1' | 's2' | 's3' | 's4'): boolean => {
+    const stageDateField = `${stage}_date` as keyof ProjectMonitoringHvacData;
+    const stageDate = project[stageDateField] as string | null;
+    
+    if (!stageDate) return false;
+    
+    const stageCompletionDate = new Date(stageDate);
+    
+    // Se há filtro de ano, verificar se o estágio foi concluído nesse ano
+    if (selectedYear) {
+      const year = parseInt(selectedYear);
+      if (stageCompletionDate.getFullYear() !== year) return false;
+    }
+    
+    // Se há filtro de mês, verificar se o estágio foi concluído nesse mês
+    if (selectedMonth) {
+      const month = parseInt(selectedMonth);
+      if (stageCompletionDate.getMonth() + 1 !== month) return false;
+    }
+    
+    // Se há filtro de semana, verificar se o estágio foi concluído nessa semana
+    if (selectedWeek) {
+      const week = parseInt(selectedWeek);
+      const stageWeek = getISOWeek(stageCompletionDate);
+      if (stageWeek !== week) return false;
+    }
+    
+    return true;
+  };
+
+  // Função para obter a data relevante baseada no percentual de conclusão (mesma lógica da página)
+  const getRelevantDate = (row: ProjectMonitoringHvacData): string | null => {
+    if (!row.start_date || !row.finish_date) {
+      return null;
+    }
+    
+    // Calcular status baseado nos stages (mesma lógica usada em outros lugares)
+    const stages = [
+      row.s1_rough,
+      row.s2_machines, 
+      row.s3_condenser,
+      row.s4_finish
+    ];
+
+    // Se não há stages definidos, considerar como não iniciado
+    if (stages.every(stage => !stage)) {
+      return row.start_date; // Data de início para projetos não iniciados
+    }
+
+    const completedCount = stages.filter(stage => stage === 'Completed').length;
+    const noStartedCount = stages.filter(stage => stage === 'Not Started' || stage === 'No started').length;
+
+    // Se todas as 4 colunas são completed, o projeto está completo
+    if (completedCount === 4) {
+      return row.finish_date; // Data de fim para projetos concluídos
+    } else if (noStartedCount === 4) {
+      // Se todas as 4 colunas são no started, o projeto não foi iniciado
+      return row.start_date; // Data de início para projetos não iniciados
+    } else {
+      // Qualquer outra combinação = projeto em progresso
+      return row.start_date; // Data de início para projetos em andamento
+    }
+  };
+
+  // Função para verificar se um projeto foi concluído no período observado
+  const isProjectCompletedInPeriod = (project: ProjectMonitoringHvacData): boolean => {
+    if (!project.finish_date) return false;
+    
+    const finishDate = new Date(project.finish_date);
+    
+    // Se há filtro de ano, verificar se o projeto foi concluído nesse ano
+    if (selectedYear) {
+      const year = parseInt(selectedYear);
+      if (finishDate.getFullYear() !== year) return false;
+    }
+    
+    // Se há filtro de mês, verificar se o projeto foi concluído nesse mês
+    if (selectedMonth) {
+      const month = parseInt(selectedMonth);
+      if (finishDate.getMonth() + 1 !== month) return false;
+    }
+    
+    // Se há filtro de semana, verificar se o projeto foi concluído nessa semana
+    if (selectedWeek) {
+      const week = parseInt(selectedWeek);
+      const finishWeek = getISOWeek(finishDate);
+      if (finishWeek !== week) return false;
+    }
+    
+    return true;
   };
 
      // Preparar dados do gráfico de pizza
@@ -302,7 +400,7 @@ export function ProjectMonitoringChart({
            default: return '#6c757d';
          }
        });
-     } else {
+     } else if (groupBy === 'city_jobsite') {
        // Agrupar por cidade • jobsite
        const cityJobsiteCounts: Record<string, number> = {};
        const cityJobsiteDays: Record<string, number[]> = {};
@@ -360,6 +458,112 @@ export function ProjectMonitoringChart({
        backgroundColor = sortedGroups.map((_, index) => colors[index % colors.length]);
      }
      
+     if (groupBy === 'stage') {
+       // Agrupar por estágio - usar todos os dados, não apenas os filtrados
+       const stageCounts = {
+         'Stage 1 - Rough': 0,
+         'Stage 2 - Machines': 0,
+         'Stage 3 - Condenser': 0,
+         'Stage 4 - Finish': 0
+       };
+
+       const stageDays = {
+         'Stage 1 - Rough': [] as number[],
+         'Stage 2 - Machines': [] as number[],
+         'Stage 3 - Condenser': [] as number[],
+         'Stage 4 - Finish': [] as number[]
+       };
+
+       allData.forEach(row => {
+         // Verificar cada estágio - a filtragem por período já é feita dentro de isStageCompletedInPeriod
+         if (isStageCompletedInPeriod(row, 's1')) {
+           stageCounts['Stage 1 - Rough']++;
+           // Calcular dias do estágio 1: s1_date - start_date
+           if (row.s1_date && row.start_date) {
+             const s1Date = new Date(row.s1_date);
+             const startDate = new Date(row.start_date);
+             const days = Math.ceil((s1Date.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+             if (days > 0) stageDays['Stage 1 - Rough'].push(days);
+           }
+         }
+         
+         if (isStageCompletedInPeriod(row, 's2')) {
+           stageCounts['Stage 2 - Machines']++;
+           // Calcular dias do estágio 2: s2_date - s1_date
+           if (row.s2_date && row.s1_date) {
+             const s2Date = new Date(row.s2_date);
+             const s1Date = new Date(row.s1_date);
+             const days = Math.ceil((s2Date.getTime() - s1Date.getTime()) / (1000 * 60 * 60 * 24));
+             if (days > 0) stageDays['Stage 2 - Machines'].push(days);
+           }
+         }
+         
+         if (isStageCompletedInPeriod(row, 's3')) {
+           stageCounts['Stage 3 - Condenser']++;
+           // Calcular dias do estágio 3: s3_date - s2_date
+           if (row.s3_date && row.s2_date) {
+             const s3Date = new Date(row.s3_date);
+             const s2Date = new Date(row.s2_date);
+             const days = Math.ceil((s3Date.getTime() - s2Date.getTime()) / (1000 * 60 * 60 * 24));
+             if (days > 0) stageDays['Stage 3 - Condenser'].push(days);
+           }
+         }
+         
+         if (isStageCompletedInPeriod(row, 's4')) {
+           stageCounts['Stage 4 - Finish']++;
+           // Calcular dias do estágio 4: s4_date - s3_date
+           if (row.s4_date && row.s3_date) {
+             const s4Date = new Date(row.s4_date);
+             const s3Date = new Date(row.s3_date);
+             const days = Math.ceil((s4Date.getTime() - s3Date.getTime()) / (1000 * 60 * 60 * 24));
+             if (days > 0) stageDays['Stage 4 - Finish'].push(days);
+           }
+         }
+       });
+
+       // Calcular médias de dias por estágio
+       Object.keys(stageDays).forEach(stage => {
+         const days = stageDays[stage as keyof typeof stageDays];
+         if (days.length > 0) {
+           statusAverages[stage] = Math.round(days.reduce((sum, day) => sum + day, 0) / days.length);
+         } else {
+           statusAverages[stage] = 0;
+         }
+       });
+
+       // Filtrar apenas estágios com dados
+       if (stageCounts['Stage 1 - Rough'] > 0) {
+         labels.push('Stage 1 - Rough');
+         data.push(stageCounts['Stage 1 - Rough']);
+       }
+
+       if (stageCounts['Stage 2 - Machines'] > 0) {
+         labels.push('Stage 2 - Machines');
+         data.push(stageCounts['Stage 2 - Machines']);
+       }
+
+       if (stageCounts['Stage 3 - Condenser'] > 0) {
+         labels.push('Stage 3 - Condenser');
+         data.push(stageCounts['Stage 3 - Condenser']);
+       }
+
+       if (stageCounts['Stage 4 - Finish'] > 0) {
+         labels.push('Stage 4 - Finish');
+         data.push(stageCounts['Stage 4 - Finish']);
+       }
+
+       // Cores para cada estágio
+       backgroundColor = labels.map(label => {
+         switch (label) {
+           case 'Stage 1 - Rough': return '#17a2b8';
+           case 'Stage 2 - Machines': return '#6f42c1';
+           case 'Stage 3 - Condenser': return '#fd7e14';
+           case 'Stage 4 - Finish': return '#28a745';
+           default: return '#6c757d';
+         }
+       });
+     }
+     
      const borderColor = backgroundColor.map(color => color + '80');
 
     const chartData = {
@@ -410,7 +614,7 @@ export function ProjectMonitoringChart({
     const hasData = data.length > 0 && data.some(value => value > 0);
 
                    return { chartData, chartOptions, hasData, statusAverages };
-    }, [filteredData, selectedYear, selectedMonth, selectedWeek, groupBy]);
+    }, [filteredData, allData, selectedYear, selectedMonth, selectedWeek, groupBy]);
 
   return (
     <>
@@ -487,6 +691,39 @@ export function ProjectMonitoringChart({
               }}
             >
               City • Jobsite
+            </button>
+            <button
+              type="button"
+              onClick={() => setGroupBy('stage')}
+              style={{
+                background: groupBy === 'stage' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: groupBy === 'stage' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: groupBy === 'stage' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                if (groupBy !== 'stage') {
+                  e.currentTarget.style.background = 'var(--color-background-primary)';
+                  e.currentTarget.style.borderColor = 'var(--color-brand-blue)';
+                  e.currentTarget.style.color = 'var(--color-brand-blue)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = groupBy === 'stage' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)';
+                e.currentTarget.style.borderColor = groupBy === 'stage' ? 'var(--color-brand-blue)' : 'var(--color-border-divider)';
+                e.currentTarget.style.color = groupBy === 'stage' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)';
+              }}
+            >
+              Stage
             </button>
           </div>
        </div>
@@ -635,7 +872,130 @@ export function ProjectMonitoringChart({
                            </div>
                          );
                       });
-                    } else {
+                    } else if (groupBy === 'stage') {
+                      // Agrupar works por estágio
+                      const groupedWorks: Record<string, ProjectMonitoringHvacData[]> = {
+                        'Stage 1 - Rough': [],
+                        'Stage 2 - Machines': [],
+                        'Stage 3 - Condenser': [],
+                        'Stage 4 - Finish': []
+                      };
+                      
+                      // Organizar works por estágio - usar todos os dados, não apenas os filtrados
+                      allData.forEach(project => {
+                        if (isStageCompletedInPeriod(project, 's1')) {
+                          groupedWorks['Stage 1 - Rough'].push(project);
+                        }
+                        if (isStageCompletedInPeriod(project, 's2')) {
+                          groupedWorks['Stage 2 - Machines'].push(project);
+                        }
+                        if (isStageCompletedInPeriod(project, 's3')) {
+                          groupedWorks['Stage 3 - Condenser'].push(project);
+                        }
+                        if (isStageCompletedInPeriod(project, 's4')) {
+                          groupedWorks['Stage 4 - Finish'].push(project);
+                        }
+                      });
+                      
+                      // Ordem dos estágios para exibição
+                      const stageOrder = ['Stage 1 - Rough', 'Stage 2 - Machines', 'Stage 3 - Condenser', 'Stage 4 - Finish'];
+                      
+                      return stageOrder.map(stage => {
+                        const works = groupedWorks[stage];
+                        if (works.length === 0) return null;
+                        
+                        const stageColor = (() => {
+                          switch (stage) {
+                            case 'Stage 1 - Rough': return '#17a2b8';
+                            case 'Stage 2 - Machines': return '#6f42c1';
+                            case 'Stage 3 - Condenser': return '#fd7e14';
+                            case 'Stage 4 - Finish': return '#28a745';
+                            default: return '#6c757d';
+                          }
+                        })();
+                        
+                        const isExpanded = expandedGroups.has(stage);
+                         
+                         return (
+                           <div key={stage}>
+                             {/* Header do grupo */}
+                             <div 
+                               style={{ 
+                                 display: 'flex', 
+                                 alignItems: 'center', 
+                                 gap: 8,
+                                 padding: '8px 0',
+                                 borderBottom: '1px solid var(--color-border-divider)',
+                                 marginBottom: 4,
+                                 cursor: 'pointer',
+                                 userSelect: 'none'
+                               }}
+                               onClick={() => toggleGroupExpansion(stage)}
+                             >
+                               <i 
+                                 className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`}
+                                 style={{ 
+                                   fontSize: 12, 
+                                   color: 'var(--color-text-secondary)',
+                                   transition: 'transform 0.2s ease'
+                                 }}
+                               />
+                               <span style={{ 
+                                 display: 'inline-block', 
+                                 width: 12, 
+                                 height: 12, 
+                                 borderRadius: 6, 
+                                 background: stageColor,
+                                 flexShrink: 0
+                               }} />
+                               <span style={{ 
+                                 color: 'var(--color-text-primary)', 
+                                 fontSize: 14,
+                                 fontWeight: 600,
+                                 textTransform: 'uppercase',
+                                 flex: 1
+                               }}>
+                                 {stage} ({works.length})
+                               </span>
+                             </div>
+                             
+                             {/* Works do grupo - apenas lista simples sem agrupamento por city/jobsite */}
+                             {isExpanded && works.map((project, index) => (
+                               <div 
+                                 key={`${stage}-${index}`}
+                                 style={{ 
+                                   display: 'flex', 
+                                   alignItems: 'center', 
+                                   gap: 8,
+                                   padding: '4px 0 4px 18px',
+                                   borderBottom: index < works.length - 1 ? '1px solid var(--color-border-divider)' : 'none'
+                                 }}
+                               >
+                                 <span style={{ 
+                                   display: 'inline-block', 
+                                   width: 8, 
+                                   height: 8, 
+                                   borderRadius: 4, 
+                                   background: stageColor,
+                                   opacity: 0.7,
+                                   flexShrink: 0
+                                 }} />
+                                 <span style={{ 
+                                   color: 'var(--color-text-primary)', 
+                                   fontSize: 13,
+                                   lineHeight: 1.3,
+                                   overflow: 'hidden',
+                                   textOverflow: 'ellipsis',
+                                   whiteSpace: 'nowrap'
+                                 }}>
+                                   {getProjectTitle(project)}
+                                 </span>
+                               </div>
+                             ))}
+                           </div>
+                         );
+                      });
+                    } else if (groupBy === 'city_jobsite') {
                       // Agrupar works por cidade • jobsite
                       const groupedWorks: Record<string, ProjectMonitoringHvacData[]> = {};
                       
@@ -791,7 +1151,7 @@ export function ProjectMonitoringChart({
                      fontWeight: 500
                    }}>
                      <span></span> {/* Coluna da cor */}
-                     <span>{groupBy === 'status' ? 'Status' : 'City • Jobsite'}</span>
+                     <span>{groupBy === 'status' ? 'Status' : groupBy === 'city_jobsite' ? 'City • Jobsite' : 'Stage'}</span>
                      <span style={{ textAlign: 'right' }}>Count</span>
                     <span 
                       style={{ 

@@ -99,6 +99,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
   const [selectedProject, setSelectedProject] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string[]>(['completed', 'in_progress', 'no_started']);
   const [selectedTeam, setSelectedTeam] = useState<string[]>([]);
+  const [groupBy, setGroupBy] = useState<'status' | 'city_jobsite' | 'stage'>('status');
+  const [dateType, setDateType] = useState<'start' | 'finish'>('start');
 
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
@@ -178,37 +180,12 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     }
   }, [projectMonitoringDataFromHook]);
 
-  // Função para obter a data relevante baseada no percentual de conclusão
+  // Função para obter a data relevante baseada no dateType selecionado
   const getRelevantDate = (row: ProjectMonitoringHvacData): string | null => {
-    if (!row.start_date || !row.finish_date) {
-      return null;
-    }
-    
-    // Calcular status baseado nos stages (mesma lógica usada em outros lugares)
-    const stages = [
-      row.s1_rough,
-      row.s2_machines, 
-      row.s3_condenser,
-      row.s4_finish
-    ];
-
-    // Se não há stages definidos, considerar como não iniciado
-    if (stages.every(stage => !stage)) {
-      return row.start_date; // Data de início para projetos não iniciados
-    }
-
-    const completedCount = stages.filter(stage => stage === 'Completed').length;
-    const noStartedCount = stages.filter(stage => stage === 'Not Started' || stage === 'No started').length;
-
-    // Se todas as 4 colunas são completed, o projeto está completo
-    if (completedCount === 4) {
-      return row.finish_date; // Data de fim para projetos concluídos
-    } else if (noStartedCount === 4) {
-      // Se todas as 4 colunas são no started, o projeto não foi iniciado
-      return row.start_date; // Data de início para projetos não iniciados
+    if (dateType === 'start') {
+      return row.start_date || null;
     } else {
-      // Qualquer outra combinação = projeto em progresso
-      return row.start_date; // Data de início para projetos em andamento
+      return row.finish_date || null;
     }
   };
 
@@ -376,7 +353,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     if (selectedTeam.length > 0) filtered = filtered.filter(d => d.team && selectedTeam.includes(d.team));
     
     return filtered;
-  }, [projectMonitoringData, selectedYear, selectedMonth, selectedWeek, selectedProject, selectedStatus, selectedTeam]);
+  }, [projectMonitoringData, selectedYear, selectedMonth, selectedWeek, selectedProject, selectedStatus, selectedTeam, dateType]);
 
   // Funções para modais
   const handleSave = async () => {
@@ -467,6 +444,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
           setSelectedTeam={setSelectedTeam}
           selectedStatus={selectedStatus}
           setSelectedStatus={setSelectedStatus}
+          dateType={dateType}
+          setDateType={setDateType}
           years={years}
           months={months}
           projects={projects}
@@ -485,15 +464,25 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
             {/* Gráfico */}
             <ProjectMonitoringChart
               filteredData={filteredData}
+              allData={projectMonitoringData}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
               selectedWeek={selectedWeek}
+              groupBy={groupBy}
+              setGroupBy={setGroupBy}
             />
             {/* Métricas */}
             <ProjectMonitoringMetrics allData={filteredData} />
           </div>
           {/* Carrossel de Cards */}
-          <ProjectMonitoringCarousel filteredData={filteredData} />
+          <ProjectMonitoringCarousel 
+            filteredData={filteredData} 
+            allData={projectMonitoringData}
+            groupBy={groupBy}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            selectedWeek={selectedWeek}
+          />
         </div>
         <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}
