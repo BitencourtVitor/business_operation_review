@@ -79,6 +79,7 @@ export default function MobileForecastMetrics({
     borderRadius: 8,
     padding: '12px 16px',
     width: '100%',
+    maxWidth: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -87,11 +88,16 @@ export default function MobileForecastMetrics({
     color: 'var(--color-text-primary)',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    marginBottom: '10px'
+    marginBottom: '10px',
+    boxSizing: 'border-box'
   };
 
   return (
-    <div>
+    <div style={{
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }}>
       {/* Botão de resumo */}
       <button
         style={summaryButtonStyle}

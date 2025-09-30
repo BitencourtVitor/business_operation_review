@@ -116,7 +116,10 @@ export default function MonthlySummary({
       background: 'var(--color-background-secondary)',
       border: '1px solid var(--color-border-divider)',
       borderRadius: 8,
-      padding: '16px'
+      padding: '16px',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
     }}>
       {/* Header */}
       <div style={{

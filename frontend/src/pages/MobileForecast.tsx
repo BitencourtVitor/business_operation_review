@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 
 // Componentes modulares
+import MobileForecastLoading from '../components/common/Forecast/MobileForecastLoading';
 import MobileForecastFilters from '../components/common/Forecast/MobileForecastFilters';
 import MobileForecastMetrics from '../components/common/Forecast/MobileForecastMetrics';
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
@@ -36,6 +37,7 @@ export default function MobileForecast() {
   const [error, setError] = useState<string | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<string>('Framing');
   const [isCompanyMenuOpen, setIsCompanyMenuOpen] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -79,56 +81,59 @@ export default function MobileForecast() {
     };
   }, [isCompanyMenuOpen]);
 
-  // Buscar dados do workforce
+  // Função para buscar dados do workforce
+  const fetchWorkforceData = async () => {
+    try {
+      setLoading(true);
+      
+      // Buscar projetos
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('workforce_projects')
+        .select('*')
+        .order('previous_start_date', { ascending: true });
+
+      if (projectsError) throw projectsError;
+
+      setWorkforceProjects(projectsData || []);
+
+      // Extrair anos únicos
+      const uniqueYears = [...new Set((projectsData || [])
+        .map(p => new Date(p.previous_start_date).getFullYear().toString())
+        .filter(year => year !== 'NaN'))].sort((a, b) => b.localeCompare(a));
+      setYears(uniqueYears);
+
+      // Extrair meses únicos
+      const uniqueMonths = [...new Set((projectsData || [])
+        .map(p => new Date(p.previous_start_date).toLocaleString('en-US', { month: 'long' }))
+        .filter(month => month))].sort();
+      setMonths(uniqueMonths);
+
+      // Extrair clientes únicos
+      const uniqueClients = [...new Set((projectsData || [])
+        .map(p => p.cliente)
+        .filter(cliente => cliente))].sort();
+      setClients(uniqueClients);
+
+      // Extrair job sites únicos
+      const uniqueJobSites = [...new Set((projectsData || [])
+        .map(p => p.job_site)
+        .filter(jobSite => jobSite))].sort();
+      setJobSites(uniqueJobSites);
+
+    } catch (err) {
+      console.error('Erro ao buscar dados do workforce:', err);
+      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Buscar dados após o loading inicial
   useEffect(() => {
-    const fetchWorkforceData = async () => {
-      try {
-        setLoading(true);
-        
-        // Buscar projetos
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('workforce_projects')
-          .select('*')
-          .order('previous_start_date', { ascending: true });
-
-        if (projectsError) throw projectsError;
-
-        setWorkforceProjects(projectsData || []);
-
-        // Extrair anos únicos
-        const uniqueYears = [...new Set((projectsData || [])
-          .map(p => new Date(p.previous_start_date).getFullYear().toString())
-          .filter(year => year !== 'NaN'))].sort((a, b) => b.localeCompare(a));
-        setYears(uniqueYears);
-
-        // Extrair meses únicos
-        const uniqueMonths = [...new Set((projectsData || [])
-          .map(p => new Date(p.previous_start_date).toLocaleString('en-US', { month: 'long' }))
-          .filter(month => month))].sort();
-        setMonths(uniqueMonths);
-
-        // Extrair clientes únicos
-        const uniqueClients = [...new Set((projectsData || [])
-          .map(p => p.cliente)
-          .filter(cliente => cliente))].sort();
-        setClients(uniqueClients);
-
-        // Extrair job sites únicos
-        const uniqueJobSites = [...new Set((projectsData || [])
-          .map(p => p.job_site)
-          .filter(jobSite => jobSite))].sort();
-        setJobSites(uniqueJobSites);
-
-      } catch (err) {
-        console.error('Erro ao buscar dados do workforce:', err);
-        setError(err instanceof Error ? err.message : 'Erro desconhecido');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWorkforceData();
-  }, []);
+    if (!isInitialLoading) {
+      fetchWorkforceData();
+    }
+  }, [isInitialLoading]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -208,6 +213,11 @@ export default function MobileForecast() {
     };
   }, [forecastData]);
 
+  // Mostrar loading inicial se ainda estiver carregando
+  if (isInitialLoading) {
+    return <MobileForecastLoading onComplete={() => setIsInitialLoading(false)} />;
+  }
+
   if (loading) {
     return (
       <div style={{
@@ -265,7 +275,9 @@ export default function MobileForecast() {
     <div style={{ 
       minHeight: '100vh', 
       background: 'var(--color-background-primary)',
-      padding: '10px'
+      padding: '10px',
+      maxWidth: '100vw',
+      overflowX: 'hidden'
     }}>
       {/* Header mobile */}
       <div style={{ 
@@ -410,50 +422,57 @@ export default function MobileForecast() {
         </p>
       </div>
 
-      {/* Filtros mobile */}
-      <div style={{ marginBottom: '20px' }}>
-        <MobileForecastFilters
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-          selectedClient={selectedClient}
-          selectedJobSite={selectedJobSite}
-          years={years}
-          months={months}
-          clients={clients}
-          jobSites={jobSites}
-          onYearChange={setSelectedYear}
-          onMonthChange={setSelectedMonth}
-          onClientChange={setSelectedClient}
-          onJobSiteChange={setSelectedJobSite}
-        />
-      </div>
+      {/* Container principal com largura controlada */}
+      <div style={{ 
+        maxWidth: '100%',
+        width: '100%',
+        margin: '0 auto'
+      }}>
+        {/* Filtros mobile */}
+        <div style={{ marginBottom: '20px', width: '100%' }}>
+          <MobileForecastFilters
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            selectedClient={selectedClient}
+            selectedJobSite={selectedJobSite}
+            years={years}
+            months={months}
+            clients={clients}
+            jobSites={jobSites}
+            onYearChange={setSelectedYear}
+            onMonthChange={setSelectedMonth}
+            onClientChange={setSelectedClient}
+            onJobSiteChange={setSelectedJobSite}
+          />
+        </div>
 
-      {/* Métricas mobile */}
-      <div style={{ marginBottom: '20px' }}>
-        <MobileForecastMetrics 
-          stats={stats} 
-          workforceProjects={workforceProjects}
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-          selectedClient={selectedClient}
-          selectedJobSite={selectedJobSite}
-          groupBy={groupBy}
-          onGroupByChange={setGroupBy}
-        />
-      </div>
-      
-      {/* Timeline Planner mobile */}
-      <div style={{ flex: 1 }}>
-        <MobileTimelinePlanner 
-          forecastData={forecastData}
-          workforceProjects={workforceProjects}
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-          groupBy={groupBy}
-          onGroupByChange={setGroupBy}
-          sortByDate={sortByDate}
-          onSortByDateChange={setSortByDate}
-        />
+        {/* Métricas mobile */}
+        <div style={{ marginBottom: '20px', width: '100%' }}>
+          <MobileForecastMetrics 
+            stats={stats} 
+            workforceProjects={workforceProjects}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            selectedClient={selectedClient}
+            selectedJobSite={selectedJobSite}
+            groupBy={groupBy}
+            onGroupByChange={setGroupBy}
+          />
+        </div>
+        
+        {/* Timeline Planner mobile */}
+        <div style={{ flex: 1, width: '100%' }}>
+          <MobileTimelinePlanner 
+            forecastData={forecastData}
+            workforceProjects={workforceProjects}
+            selectedYear={selectedYear}
+            selectedMonth={selectedMonth}
+            groupBy={groupBy}
+            onGroupByChange={setGroupBy}
+            sortByDate={sortByDate}
+            onSortByDateChange={setSortByDate}
+          />
+        </div>
       </div>
     </div>
   );
