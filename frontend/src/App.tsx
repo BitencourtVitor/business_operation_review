@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import InitialLoading from './pages/InitialLoading'
 import WorkforceForecast from './pages/WorkforceForecast'
+import MobileForecast from './pages/MobileForecast'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import { DataCacheProvider } from './contexts/DataCacheContext'
 import { FuelDataProvider } from './contexts/FuelDataContext'
@@ -17,7 +18,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
+            <Route path="/forecast" element={<MobileForecast />} />
+            <Route path="/workforce-forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/initial-loading" replace />} />
           </Routes>
         </Router>
