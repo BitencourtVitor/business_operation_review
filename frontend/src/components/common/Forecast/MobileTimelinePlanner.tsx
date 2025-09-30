@@ -138,7 +138,12 @@ export default function MobileTimelinePlanner({
   }
 
   return (
-    <div style={{ padding: '0 5px' }}>
+    <div style={{ 
+      padding: '0 5px',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }}>
       {groupedProjects.map(([month, projects]) => (
         <div key={month} style={{ marginBottom: '25px' }}>
           {/* Container do mês */}
@@ -147,7 +152,10 @@ export default function MobileTimelinePlanner({
             border: '1px solid var(--color-border-divider)',
             borderRadius: '12px',
             padding: '16px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
           }}>
             {/* Cabeçalho do mês */}
             <div style={{
@@ -177,7 +185,10 @@ export default function MobileTimelinePlanner({
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '12px'
+              gap: '12px',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
             }}>
               {projects.map((project) => {
                 const status = getProjectStatus(project);
@@ -193,7 +204,10 @@ export default function MobileTimelinePlanner({
                       padding: '16px',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
-                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                      width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box'
                     }}
                     onClick={() => setSelectedProject(project)}
                     onMouseEnter={(e) => {

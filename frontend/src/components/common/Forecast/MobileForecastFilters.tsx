@@ -50,6 +50,7 @@ export default function MobileForecastFilters({
     borderRadius: 8,
     padding: '12px 16px',
     width: '100%',
+    maxWidth: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -57,7 +58,8 @@ export default function MobileForecastFilters({
     fontWeight: 500,
     color: 'var(--color-text-primary)',
     cursor: 'pointer',
-    transition: 'all 0.3s'
+    transition: 'all 0.3s',
+    boxSizing: 'border-box'
   };
 
   const activeFiltersCount = [
@@ -68,7 +70,12 @@ export default function MobileForecastFilters({
   ].filter(Boolean).length;
 
   return (
-    <div style={{ marginBottom: '15px' }}>
+    <div style={{ 
+      marginBottom: '15px',
+      width: '100%',
+      maxWidth: '100%',
+      boxSizing: 'border-box'
+    }}>
       {/* Botão de toggle dos filtros */}
       <button
         style={filterButtonStyle}
