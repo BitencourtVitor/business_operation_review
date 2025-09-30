@@ -17,6 +17,8 @@ interface ProjectMonitoringFiltersProps {
   setSelectedTeam: (teams: string[]) => void;
   selectedStatus: string[];
   setSelectedStatus: (status: string[]) => void;
+  dateType: 'start' | 'finish';
+  setDateType: (dateType: 'start' | 'finish') => void;
   years: string[];
   months: string[];
   projects: string[];
@@ -40,6 +42,8 @@ export default function ProjectMonitoringFilters({
   setSelectedTeam,
   selectedStatus,
   setSelectedStatus,
+  dateType,
+  setDateType,
   years,
   months,
   projects,
@@ -49,7 +53,6 @@ export default function ProjectMonitoringFilters({
   cityJobsiteDropdownWidth,
   teamDropdownWidth
 }: ProjectMonitoringFiltersProps) {
-  const [dateType, setDateType] = useState<'start' | 'finish'>('start');
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
   // Estilo para selects customizados
