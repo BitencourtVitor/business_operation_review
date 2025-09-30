@@ -567,9 +567,10 @@ export default function TimelinePlanner({
                                 <div style={{ 
                                   fontSize: 12, 
                                   opacity: 0.9,
-                                  marginBottom: 4
+                                  marginBottom: 4,
+                                  fontWeight: 'bold'
                                 }}>
-                                  Lot/Building {project.lote_building}
+                                  Lot {project.lote_building}
                                 </div>
                                 <div style={{ 
                                   fontSize: 11, 
