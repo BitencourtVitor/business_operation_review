@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface WorkforceProject {
   id: number;
@@ -43,6 +44,7 @@ export default function TimelinePlanner({
   sortByDate,
   onSortByDateChange
 }: TimelinePlannerProps) {
+  const navigate = useNavigate();
   const [draggedProject, setDraggedProject] = useState<WorkforceProject | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDraggingTimeline, setIsDraggingTimeline] = useState(false);
@@ -329,6 +331,39 @@ export default function TimelinePlanner({
                   {sortByDate === 'asc' ? 'ASC' : sortByDate === 'desc' ? 'DESC' : 'OFF'}
                 </button>
               </div>
+
+              {/* Botão para versão mobile */}
+              <button
+                onClick={() => navigate('/forecast')}
+                style={{
+                  background: 'var(--color-background-primary)',
+                  border: '1px solid var(--color-border-divider)',
+                  borderRadius: 25,
+                  padding: '6px 12px',
+                  height: 38,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  color: 'var(--color-text-primary)',
+                  fontSize: 14,
+                  fontWeight: 500
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--color-accent-primary)';
+                  e.currentTarget.style.color = 'white';
+                  e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--color-background-primary)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
+                  e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                }}
+              >
+                <i className="bi bi-phone" style={{ fontSize: 16 }} />
+                Mobile View
+              </button>
             </div>
           </div>
         </div>
