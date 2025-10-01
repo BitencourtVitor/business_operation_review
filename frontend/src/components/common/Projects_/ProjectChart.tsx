@@ -774,20 +774,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         );
         
         if (dadosDoMes.length > 0) {
-          // Encontrar o último dia do mês com dados
-          const ultimoDia = Math.max(...dadosDoMes.map(row => Number(row.date_field!.split('-')[2])));
+          // Para cada transação no mês, pegar o valor mais recente (não apenas do último dia)
+          const receivablesDoMes = dadosDoMes.filter(row => row.type === 'receivables');
+          const payablesDoMes = dadosDoMes.filter(row => row.type === 'payables');
           
-          // Pegar apenas os dados do último dia
-          const dadosUltimoDia = dadosDoMes.filter(row => 
-            Number(row.date_field!.split('-')[2]) === ultimoDia
-          );
-          
-          // Para cada transação no último dia, pegar o valor mais recente
-          const receivablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'receivables');
-          const payablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'payables');
-          
-          // Processar receivables do último dia
-          receivablesUltimoDia.forEach(row => {
+          // Processar receivables do mês - pegar o valor mais recente de cada transação
+          receivablesDoMes.forEach(row => {
             const transaction = row.inv_num;
             if (transaction) {
               const key = `${mes}-${transaction}`;
@@ -798,8 +790,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
             }
           });
           
-          // Processar payables do último dia
-          payablesUltimoDia.forEach(row => {
+          // Processar payables do mês - pegar o valor mais recente de cada transação
+          payablesDoMes.forEach(row => {
             const transaction = row.bill_num;
             if (transaction) {
               const key = `${mes}-${transaction}`;
@@ -872,32 +864,36 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
             row.date_field.startsWith(`${year}-${month}-`)
           );
 
-          // Agrupar por conta e pegar o MIN(open_balance) por conta
-          const receivablesByAccount = new Map<string, number>();
-          const payablesByAccount = new Map<string, number>();
+          // Agrupar por transação e pegar o valor mais recente (mesma lógica do gráfico mensal)
+          const receivablesByTransaction: Record<string, { value: number; date: string }> = {};
+          const payablesByTransaction: Record<string, { value: number; date: string }> = {};
 
           monthYearData.forEach(row => {
             if (row.open_balance > 0) {
               if (row.type === 'receivables' && row.inv_num) {
-                // Para receivables, usar inv_num como chave da conta
-                const currentMin = receivablesByAccount.get(row.inv_num) || Infinity;
-                receivablesByAccount.set(row.inv_num, Math.min(currentMin, row.open_balance));
+                // Para receivables, usar inv_num como chave da transação
+                const transaction = row.inv_num;
+                const currentDate = row.date_field!;
+                if (!receivablesByTransaction[transaction] || currentDate > receivablesByTransaction[transaction].date) {
+                  receivablesByTransaction[transaction] = { value: row.open_balance, date: currentDate };
+                }
               } else if (row.type === 'payables' && row.bill_num) {
-                // Para payables, usar bill_num como chave da conta
-                const currentMin = payablesByAccount.get(row.bill_num) || Infinity;
-                payablesByAccount.set(row.bill_num, Math.min(currentMin, row.open_balance));
+                // Para payables, usar bill_num como chave da transação
+                const transaction = row.bill_num;
+                const currentDate = row.date_field!;
+                if (!payablesByTransaction[transaction] || currentDate > payablesByTransaction[transaction].date) {
+                  payablesByTransaction[transaction] = { value: row.open_balance, date: currentDate };
+                }
               }
             }
           });
 
-          // Somar os mínimos de cada conta
-          const periodOutstandingReceivables = Array.from(receivablesByAccount.values())
-            .filter(value => value !== Infinity)
-            .reduce((sum, value) => sum + value, 0);
+          // Somar os valores mais recentes de cada transação
+          const periodOutstandingReceivables = Object.values(receivablesByTransaction)
+            .reduce((sum, val) => sum + val.value, 0);
 
-          const periodOutstandingPayables = Array.from(payablesByAccount.values())
-            .filter(value => value !== Infinity)
-            .reduce((sum, value) => sum + value, 0);
+          const periodOutstandingPayables = Object.values(payablesByTransaction)
+            .reduce((sum, val) => sum + val.value, 0);
 
 
 

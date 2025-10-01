@@ -358,7 +358,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Receivables - ${aging}`,
@@ -372,7 +372,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (separateAging && selectedGroup === 'payables') {
@@ -394,7 +394,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Payables - ${aging}`,
@@ -408,7 +408,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (separateAging && selectedGroup === 'all') {
@@ -432,7 +432,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(receivablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Receivables - ${aging}`,
@@ -446,7 +446,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
         payablesAgingIntervals.forEach((aging, index) => {
@@ -464,7 +464,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(payablesByDayAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Payables - ${aging}`,
@@ -478,7 +478,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (selectedGroup !== 'payables') {
@@ -486,7 +486,7 @@ export function AccountingChart({
         const receivablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
           const value = receivablesSumByDay[dia] || 0;
-          receivablesData.push(value > 0 ? value : null); // null se não há dados
+          receivablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
         
         chartDatasets.push({
@@ -501,7 +501,7 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
-          spanGaps: false, // não conectar pontos quando há gaps
+          spanGaps: true, // conectar pontos mesmo quando há gaps
         });
       }
       
@@ -517,7 +517,7 @@ export function AccountingChart({
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
           const value = payablesSumByDay[dia] || 0;
-          payablesData.push(value > 0 ? value : null); // null se não há dados
+          payablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
         
         // Log dos dados do dataset
@@ -538,7 +538,7 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
-          spanGaps: false, // não conectar pontos quando há gaps
+          spanGaps: true, // conectar pontos mesmo quando há gaps
         });
         
         // Log de confirmação
@@ -569,7 +569,7 @@ export function AccountingChart({
       
       const mesesOrdenados = Array.from(mesesComDados).sort((a, b) => Number(a) - Number(b));
       
-      // Para cada mês, encontrar o último dia com dados
+      // Para cada mês, pegar o valor mais recente de cada transação
       mesesOrdenados.forEach(mes => {
         const dadosDoMes = filteredData.filter(row => 
           row.date_field && 
@@ -578,20 +578,12 @@ export function AccountingChart({
         );
         
         if (dadosDoMes.length > 0) {
-          // Encontrar o último dia do mês com dados
-          const ultimoDia = Math.max(...dadosDoMes.map(row => Number(row.date_field!.split('-')[2])));
+          // Para cada transação no mês, pegar o valor mais recente (não apenas do último dia)
+          const receivablesDoMes = dadosDoMes.filter(row => row.type === 'receivables');
+          const payablesDoMes = dadosDoMes.filter(row => row.type === 'payables');
           
-          // Pegar apenas os dados do último dia
-          const dadosUltimoDia = dadosDoMes.filter(row => 
-            Number(row.date_field!.split('-')[2]) === ultimoDia
-          );
-          
-          // Para cada transação no último dia, pegar o valor mais recente
-          const receivablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'receivables');
-          const payablesUltimoDia = dadosUltimoDia.filter(row => row.type === 'payables');
-          
-          // Processar receivables do último dia
-          receivablesUltimoDia.forEach(row => {
+          // Processar receivables do mês - pegar o valor mais recente de cada transação
+          receivablesDoMes.forEach(row => {
             const transaction = row.inv_num;
             if (transaction) {
               const key = `${mes}-${transaction}`;
@@ -602,8 +594,8 @@ export function AccountingChart({
             }
           });
           
-          // Processar payables do último dia
-          payablesUltimoDia.forEach(row => {
+          // Processar payables do mês - pegar o valor mais recente de cada transação
+          payablesDoMes.forEach(row => {
             const transaction = row.bill_num;
             if (transaction) {
               const key = `${mes}-${transaction}`;
@@ -647,15 +639,9 @@ export function AccountingChart({
               d.open_balance > 0
             );
             if (dadosDoMes.length > 0) {
-              // Encontrar o último dia do mês com dados
-              const ultimoDia = Math.max(...dadosDoMes.map(d => Number(d.date_field!.split('-')[2])));
-              // Pegar apenas os dados do último dia
-              const dadosUltimoDia = dadosDoMes.filter(d => 
-                Number(d.date_field!.split('-')[2]) === ultimoDia
-              );
-              // Para cada transação no último dia, pegar o valor mais recente
+              // Para cada transação no mês, pegar o valor mais recente (não apenas do último dia)
               const receivablesByMonthAndAging: Record<string, { value: number; date: string }> = {};
-              dadosUltimoDia.forEach(d => {
+              dadosDoMes.forEach(d => {
                 const transaction = d.inv_num;
                 if (transaction) {
                   const key = `${mes}-${transaction}`;
@@ -666,9 +652,9 @@ export function AccountingChart({
                 }
               });
               const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
-              data.push(value > 0 ? value : null);
+              data.push(value > 0 ? value : 0);
             } else {
-              data.push(null);
+              data.push(0);
             }
           });
           chartDatasets.push({
@@ -683,7 +669,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (separateAging && selectedGroup === 'payables') {
@@ -705,7 +691,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Payables - ${aging}`,
@@ -719,7 +705,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (separateAging && selectedGroup === 'all') {
@@ -743,7 +729,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(receivablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Receivables - ${aging}`,
@@ -757,7 +743,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
         payablesAgingIntervals.forEach((aging, index) => {
@@ -775,7 +761,7 @@ export function AccountingChart({
                 }
               });
             const value = Object.values(payablesByMonthAndAging).reduce((sum, val) => sum + val.value, 0);
-            data.push(value > 0 ? value : null);
+            data.push(value > 0 ? value : 0);
           });
           chartDatasets.push({
             label: `Payables - ${aging}`,
@@ -789,7 +775,7 @@ export function AccountingChart({
             borderWidth: 3,
             fill: false,
             tension: 0.25,
-            spanGaps: false,
+            spanGaps: true,
           });
         });
       } else if (selectedGroup !== 'payables') {
@@ -797,7 +783,7 @@ export function AccountingChart({
         const receivablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
           const value = receivablesSumByMonth[mes] || 0;
-          receivablesData.push(value > 0 ? value : null); // null se não há dados
+          receivablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
         
         chartDatasets.push({
@@ -812,7 +798,7 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
-          spanGaps: false, // não conectar pontos quando há gaps
+          spanGaps: true, // conectar pontos mesmo quando há gaps
         });
       }
       
@@ -828,7 +814,7 @@ export function AccountingChart({
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
           const value = payablesSumByMonth[mes] || 0;
-          payablesData.push(value > 0 ? value : null); // null se não há dados
+          payablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
         
         // Log dos dados do dataset
@@ -849,7 +835,7 @@ export function AccountingChart({
           borderWidth: 3,
           fill: false,
           tension: 0.25,
-          spanGaps: false, // não conectar pontos quando há gaps
+          spanGaps: true, // conectar pontos mesmo quando há gaps
         });
         
         // Log de confirmação
@@ -980,7 +966,7 @@ export function AccountingChart({
 
     // Verificar se há dados válidos
     const hasData = chartDatasets.length > 0 && chartDatasets.some(dataset => 
-      dataset.data.some(value => value !== null && value > 0)
+      dataset.data.some(value => value > 0)
     );
 
     return { chartData, chartOptions, hasData };

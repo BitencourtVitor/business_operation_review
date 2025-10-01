@@ -4,6 +4,1077 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "TotalAmt": 3481.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17461",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-29T11:21:11-07:00",
+      "LastUpdatedTime": "2025-09-29T11:21:11-07:00"
+    },
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 1870",
+        "Amount": 5622,
+        "LinkedTxn": [
+          {
+            "TxnId": "17460",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11604"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cleaning floors (attached)",
+        "Amount": -250,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11604"
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Doors (attached)",
+        "Amount": -640,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11604"
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Door/window (attached)",
+        "Amount": -650,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11604"
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Another vendor",
+        "Amount": -600.75,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11604"
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2412.13,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17459",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-29T11:13:51-07:00",
+      "LastUpdatedTime": "2025-09-29T11:13:51-07:00"
+    },
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoices 1937 + 1976",
+        "Amount": 5415.87,
+        "LinkedTxn": [
+          {
+            "TxnId": "17458",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11610"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "LCS backcharge (attached)",
+        "Amount": -3003.74,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "638",
+            "name": "Saco Riverside, LLC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11610"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 8079,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17456",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-29T11:05:19-07:00",
+      "LastUpdatedTime": "2025-09-29T11:05:19-07:00"
+    },
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 1975",
+        "Amount": 9375,
+        "LinkedTxn": [
+          {
+            "TxnId": "17455",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11613"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Drywall backcharge (attached)",
+        "Amount": -1296,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11613"
+        },
+        "ProjectRef": {
+          "value": "363781166"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 5839,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17454",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-29T11:01:04-07:00",
+      "LastUpdatedTime": "2025-09-29T11:01:04-07:00"
+    },
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 1973",
+        "Amount": 9375,
+        "LinkedTxn": [
+          {
+            "TxnId": "17453",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11612"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Drywall backcharge (attached)",
+        "Amount": -1296,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11612"
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "CBC backcharge (attached)",
+        "Amount": -1280,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11612"
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "CBC backcharge (attached)",
+        "Amount": -960,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11612"
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 8079,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17452",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-29T10:52:47-07:00",
+      "LastUpdatedTime": "2025-09-29T10:54:00-07:00"
+    },
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 1974",
+        "Amount": 9375,
+        "LinkedTxn": [
+          {
+            "TxnId": "17451",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11614"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Drywall backcharge (attached)",
+        "Amount": -1296,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "678",
+            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "11614"
+        },
+        "ProjectRef": {
+          "value": "363780868"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 609,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17386",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-23T07:03:25-07:00",
+      "LastUpdatedTime": "2025-09-23T07:03:25-07:00"
+    },
+    "TxnDate": "2025-09-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "HVAC",
+        "Amount": 609,
+        "LinkedTxn": [
+          {
+            "TxnId": "17385",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "283039"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "TotalAmt": 3767.89,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17284",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T18:05:32-07:00",
+      "LastUpdatedTime": "2025-09-11T18:05:32-07:00"
+    },
+    "TxnDate": "2025-08-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "INTUIT * 800-446-8848 Intuit Ent ID NBR: 9776037",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "INTUIT * 800-446-8848 Intuit Ent ID NBR: 9776037",
+        "Amount": 3767.89,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "595",
+            "name": "Intuit",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 9374.62,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17275",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:50:11-07:00",
+      "LastUpdatedTime": "2025-09-11T17:50:11-07:00"
+    },
+    "TxnDate": "2025-09-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "WIRE IN PREMIUM FOUNDATION INC 211391825",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN PREMIUM FOUNDATION INC 211391825",
+        "Amount": 9374.62,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "321",
+            "name": "Premium Foundation",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "152",
+            "name": "Loan to Group IN"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 5498.91,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17270",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:49:36-07:00",
+      "LastUpdatedTime": "2025-09-11T17:49:36-07:00"
+    },
+    "TxnDate": "2025-09-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 5498.91,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "142",
+            "name": "Premium Framing",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2286.58,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17269",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:48:56-07:00",
+      "LastUpdatedTime": "2025-09-11T17:48:56-07:00"
+    },
+    "TxnDate": "2025-08-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2286.58,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17268",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:48:32-07:00",
+      "LastUpdatedTime": "2025-09-11T17:48:32-07:00"
+    },
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 4573.16,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 3665.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17267",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:48:20-07:00",
+      "LastUpdatedTime": "2025-09-11T17:48:20-07:00"
+    },
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 3665.94,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "142",
+            "name": "Premium Framing",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17266",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:47:53-07:00",
+      "LastUpdatedTime": "2025-09-11T17:47:53-07:00"
+    },
+    "TxnDate": "2025-08-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 4573.16,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 20000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17259",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:40:10-07:00",
+      "LastUpdatedTime": "2025-09-11T17:40:10-07:00"
+    },
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 1834",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 1834",
+        "Amount": 20000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 22200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17242",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:35:05-07:00",
+      "LastUpdatedTime": "2025-09-11T17:35:05-07:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Funds for RBI and Martin Design payment",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Funds for RBI and Martin Design payment",
+        "Amount": 22200,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "842",
+            "name": "Fisher Lane, LLC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "161",
+            "name": "SALES"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 25000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17241",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:34:07-07:00",
+      "LastUpdatedTime": "2025-09-11T17:34:07-07:00"
+    },
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 30000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17240",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "1024"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": -5000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "340",
+            "name": "Guilherme Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "68",
+            "name": "Owner's Pay & Personal Expenses:Guilherme Costa"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 70000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17239",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:32:31-07:00",
+      "LastUpdatedTime": "2025-09-11T17:32:31-07:00"
+    },
+    "TxnDate": "2025-08-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 1137",
+        "Amount": 70000,
+        "LinkedTxn": [
+          {
+            "TxnId": "16810",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "1024"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 22400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17238",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-11T17:25:26-07:00",
+      "LastUpdatedTime": "2025-09-11T17:25:26-07:00"
+    },
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoices (full): 1969, 1971, 1977, 1982\nInvoices (partial): 1984",
+        "Amount": 22400,
+        "LinkedTxn": [
+          {
+            "TxnId": "17214",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "6436"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "TotalAmt": 2680,
     "domain": "QBO",
     "sparse": false,
@@ -35,7 +1106,8 @@
           "CheckNum": "281540"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -74,7 +1146,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -112,7 +1185,8 @@
           "CheckNum": "281410"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -150,7 +1224,8 @@
           "CheckNum": "281230"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -189,7 +1264,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -228,7 +1304,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -275,7 +1352,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -322,7 +1400,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -369,7 +1448,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -459,7 +1539,8 @@
           "CheckNum": "9"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -506,7 +1587,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -553,7 +1635,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -600,7 +1683,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -647,7 +1731,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -694,7 +1779,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -733,7 +1819,8 @@
           "CheckNum": "6414"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -769,7 +1856,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -808,7 +1896,8 @@
           "CheckNum": "7426"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -863,7 +1952,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -918,7 +2008,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -962,7 +2053,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1004,7 +2096,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1043,7 +2136,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1114,7 +2208,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1153,7 +2248,8 @@
           "CheckNum": "2288"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1190,7 +2286,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1227,7 +2324,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1283,7 +2381,8 @@
           "CheckNum": "6"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1321,7 +2420,8 @@
           "CheckNum": "0060"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1358,7 +2458,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1400,7 +2501,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1437,7 +2539,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1474,7 +2577,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1511,7 +2615,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1548,7 +2653,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1590,7 +2696,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1635,7 +2742,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1673,7 +2781,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1708,7 +2817,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1750,7 +2860,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1792,7 +2903,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1831,7 +2943,8 @@
           "CheckNum": "2219"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1886,7 +2999,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1925,7 +3039,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -1995,7 +3110,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2032,7 +3148,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2071,7 +3188,8 @@
           "CheckNum": "6375"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2110,7 +3228,8 @@
           "CheckNum": "1029"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2197,7 +3316,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2243,7 +3363,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2280,7 +3401,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2353,7 +3475,8 @@
           "CheckNum": "11249"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2395,7 +3518,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2434,7 +3558,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2471,7 +3596,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2508,7 +3634,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2545,7 +3672,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2582,7 +3710,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2619,7 +3748,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2656,7 +3786,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2693,7 +3824,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2730,7 +3862,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2769,7 +3902,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2807,7 +3941,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2849,7 +3984,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2888,7 +4024,8 @@
           "CheckNum": "11143"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2927,7 +4064,8 @@
           "CheckNum": "11137"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -2966,7 +4104,8 @@
           "CheckNum": "11136"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3005,7 +4144,8 @@
           "CheckNum": "11140"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3044,7 +4184,8 @@
           "CheckNum": "11138"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3083,7 +4224,8 @@
           "CheckNum": "11139"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3122,7 +4264,8 @@
           "CheckNum": "11142"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3159,7 +4302,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3201,7 +4345,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3243,7 +4388,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3285,7 +4431,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3451,7 +4598,8 @@
           "CheckNum": "10959"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3488,7 +4636,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3525,7 +4674,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3562,7 +4712,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3599,7 +4750,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3636,7 +4788,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3673,7 +4826,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3710,7 +4864,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3747,7 +4902,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3784,7 +4940,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3826,7 +4983,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3865,7 +5023,8 @@
           "CheckNum": "6353"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3905,9 +5064,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3946,7 +5109,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -3985,7 +5149,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4031,7 +5196,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4070,7 +5236,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4109,7 +5276,8 @@
           "CheckNum": "9001"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4148,7 +5316,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4203,7 +5372,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4242,7 +5412,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4282,9 +5453,13 @@
             "name": "Legal & Professional Services"
           }
         },
+        "ProjectRef": {
+          "value": "397368435"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4326,7 +5501,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4368,7 +5544,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4406,7 +5583,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4477,6 +5655,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       },
       {
@@ -4495,6 +5676,9 @@
             "value": "10",
             "name": "Legal & Professional Services"
           }
+        },
+        "ProjectRef": {
+          "value": "33142387"
         },
         "CustomExtensions": []
       },
@@ -4515,6 +5699,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       },
       {
@@ -4533,6 +5720,9 @@
             "value": "29",
             "name": "Sales of Product Income"
           }
+        },
+        "ProjectRef": {
+          "value": "33142387"
         },
         "CustomExtensions": []
       },
@@ -4553,6 +5743,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       },
       {
@@ -4571,6 +5764,9 @@
             "value": "73",
             "name": "Loan Payment"
           }
+        },
+        "ProjectRef": {
+          "value": "33142387"
         },
         "CustomExtensions": []
       },
@@ -4591,6 +5787,9 @@
             "name": "Taxes & Licenses"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       },
       {
@@ -4609,6 +5808,9 @@
             "value": "29",
             "name": "Sales of Product Income"
           }
+        },
+        "ProjectRef": {
+          "value": "33142387"
         },
         "CustomExtensions": []
       },
@@ -4636,7 +5838,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4676,9 +5879,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4716,9 +5923,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4758,9 +5969,13 @@
             "name": "Bank Charges & Fees"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4800,9 +6015,13 @@
             "name": "Insurance"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4839,7 +6058,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4876,7 +6096,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4913,7 +6134,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -4957,6 +6179,9 @@
             "name": "Check"
           }
         },
+        "ProjectRef": {
+          "value": "356991881"
+        },
         "CustomExtensions": []
       },
       {
@@ -4979,6 +6204,9 @@
             "value": "2",
             "name": "Check"
           }
+        },
+        "ProjectRef": {
+          "value": "356991881"
         },
         "CustomExtensions": []
       },
@@ -5003,6 +6231,9 @@
             "name": "Check"
           }
         },
+        "ProjectRef": {
+          "value": "356991881"
+        },
         "CustomExtensions": []
       },
       {
@@ -5025,6 +6256,9 @@
             "value": "2",
             "name": "Check"
           }
+        },
+        "ProjectRef": {
+          "value": "356991881"
         },
         "CustomExtensions": []
       },
@@ -5049,9 +6283,13 @@
             "name": "Check"
           }
         },
+        "ProjectRef": {
+          "value": "356991881"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5119,7 +6357,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5158,7 +6397,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5198,9 +6438,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5242,7 +6486,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5282,7 +6527,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5322,9 +6568,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5364,9 +6614,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5406,9 +6660,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5448,9 +6706,13 @@
             "name": "Sub-Contractors"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5490,9 +6752,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5534,7 +6800,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5576,7 +6843,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5618,7 +6886,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5660,7 +6929,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5702,7 +6972,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5742,9 +7013,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5784,9 +7059,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5828,7 +7107,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5868,7 +7148,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5905,7 +7186,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5945,9 +7227,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -5989,7 +7275,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6029,9 +7316,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6075,9 +7366,13 @@
             "name": "Check"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6117,9 +7412,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6161,7 +7460,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6203,7 +7503,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6243,9 +7544,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "32871210"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6285,9 +7590,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6326,9 +7635,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "32436870"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6367,9 +7680,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6409,9 +7726,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6450,6 +7771,9 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "32436870"
+        },
         "CustomExtensions": []
       },
       {
@@ -6468,6 +7792,9 @@
             "value": "26",
             "name": "Services"
           }
+        },
+        "ProjectRef": {
+          "value": "32871210"
         },
         "CustomExtensions": []
       },
@@ -6488,9 +7815,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "55913996"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6530,9 +7861,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "55913996"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6574,7 +7909,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6629,7 +7965,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6669,9 +8006,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "32871210"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6711,9 +8052,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6753,9 +8098,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6795,9 +8144,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6837,9 +8190,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6879,9 +8236,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6923,7 +8284,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -6963,6 +8325,9 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "32871210"
+        },
         "CustomExtensions": []
       },
       {
@@ -6984,7 +8349,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7023,9 +8389,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7065,9 +8435,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7109,7 +8483,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7152,7 +8527,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7192,9 +8568,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7237,7 +8617,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7277,9 +8658,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7319,9 +8704,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7364,7 +8753,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7407,7 +8797,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7450,7 +8841,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7492,7 +8884,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7534,7 +8927,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7576,7 +8970,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7616,9 +9011,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7661,7 +9060,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7704,7 +9104,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7744,6 +9145,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       },
       {
@@ -7763,9 +9167,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7805,9 +9213,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "34421844"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7847,9 +9259,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7892,9 +9308,13 @@
             "name": "Check"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7937,7 +9357,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -7980,7 +9401,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8023,7 +9445,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8066,7 +9489,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8106,9 +9530,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8148,9 +9576,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8308,7 +9740,8 @@
           "CheckNum": "10915"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8350,7 +9783,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8392,7 +9826,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8434,7 +9869,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8476,7 +9912,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8518,7 +9955,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8560,7 +9998,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8600,9 +10039,13 @@
             "name": "Legal & Professional Services"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8644,7 +10087,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8686,7 +10130,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8723,7 +10168,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8780,7 +10226,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -8972,7 +10419,8 @@
           "CheckNum": "10742"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9012,7 +10460,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9049,7 +10498,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9086,7 +10536,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9125,7 +10576,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9180,7 +10632,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9220,9 +10673,13 @@
             "name": "Equipment Rental"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9261,7 +10718,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9298,7 +10756,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9335,7 +10794,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9372,7 +10832,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9409,7 +10870,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9446,7 +10908,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9483,7 +10946,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9520,7 +10984,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9560,9 +11025,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9602,9 +11071,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9644,9 +11117,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9686,9 +11163,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9730,7 +11211,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9767,7 +11249,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9804,7 +11287,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9841,7 +11325,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9879,7 +11364,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9921,7 +11407,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -9963,7 +11450,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10005,7 +11493,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10047,7 +11536,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10086,7 +11576,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10126,9 +11617,13 @@
             "name": "Bank Charges & Fees"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10165,7 +11660,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10205,9 +11701,13 @@
             "name": "165 Baxter Neck Mechanics Loan"
           }
         },
+        "ProjectRef": {
+          "value": "53028002"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10245,7 +11745,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10283,7 +11784,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10356,7 +11858,8 @@
           "CheckNum": "10770"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10411,7 +11914,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10465,7 +11969,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10507,7 +12012,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10578,7 +12084,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10616,7 +12123,8 @@
           "CheckNum": "1042"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10684,7 +12192,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10739,7 +12248,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10794,7 +12304,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10849,7 +12360,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10887,7 +12399,8 @@
           "CheckNum": "1003"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10929,7 +12442,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -10971,7 +12485,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11010,7 +12525,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11049,7 +12565,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11104,7 +12621,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11159,7 +12677,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11214,7 +12733,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11256,7 +12776,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11311,7 +12832,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11350,7 +12872,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11421,7 +12944,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11460,7 +12984,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11499,7 +13024,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11538,7 +13064,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11580,7 +13107,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11619,7 +13147,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11661,7 +13190,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11764,7 +13294,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11806,7 +13337,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11845,7 +13377,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11884,7 +13417,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11923,7 +13457,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -11965,7 +13500,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12004,7 +13540,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12043,7 +13580,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12085,7 +13623,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12124,7 +13663,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12179,7 +13719,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12221,7 +13762,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12263,7 +13805,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12334,7 +13877,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12373,7 +13917,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12417,9 +13962,13 @@
           },
           "CheckNum": "2115"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12461,7 +14010,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12508,7 +14058,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12681,7 +14232,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12723,7 +14275,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12823,7 +14376,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12893,7 +14447,8 @@
           "CheckNum": "81074026"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12935,7 +14490,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -12977,7 +14533,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13019,7 +14576,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13061,7 +14619,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13100,7 +14659,8 @@
           "CheckNum": "10383"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13139,7 +14699,8 @@
           "CheckNum": "10384"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13178,7 +14739,8 @@
           "CheckNum": "10379"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13217,7 +14779,8 @@
           "CheckNum": "10380"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13256,7 +14819,8 @@
           "CheckNum": "10382"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13298,7 +14862,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13337,7 +14902,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13376,7 +14942,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13483,7 +15050,8 @@
           "CheckNum": "10368"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13525,7 +15093,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13596,7 +15165,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13635,7 +15205,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13674,7 +15245,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13716,7 +15288,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13755,7 +15328,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -13828,7 +15402,8 @@
           "CheckNum": "10311"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14092,6 +15667,9 @@
           },
           "CheckNum": "10309"
         },
+        "ProjectRef": {
+          "value": "347135234"
+        },
         "CustomExtensions": []
       },
       {
@@ -14115,6 +15693,9 @@
             "name": "Check"
           },
           "CheckNum": "10307"
+        },
+        "ProjectRef": {
+          "value": "363780539"
         },
         "CustomExtensions": []
       },
@@ -14140,9 +15721,13 @@
           },
           "CheckNum": "10306"
         },
+        "ProjectRef": {
+          "value": "348713612"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14249,7 +15834,8 @@
           "CheckNum": "10299"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14339,7 +15925,8 @@
           "CheckNum": "6029"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14514,7 +16101,8 @@
           "CheckNum": "10337"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14556,7 +16144,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14611,7 +16200,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14701,7 +16291,8 @@
           "CheckNum": "10290"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14743,7 +16334,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14785,7 +16377,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14827,7 +16420,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14869,7 +16463,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14924,7 +16519,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -14966,7 +16562,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15008,7 +16605,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15050,7 +16648,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15088,7 +16687,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15130,7 +16730,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15172,7 +16773,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15211,7 +16813,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15249,7 +16852,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15320,7 +16924,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15375,7 +16980,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15414,7 +17020,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15504,7 +17111,8 @@
           "CheckNum": "2374"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15543,7 +17151,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15585,7 +17194,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15627,7 +17237,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15669,7 +17280,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15711,7 +17323,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15751,9 +17364,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "251026952"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15795,7 +17412,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15837,7 +17455,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15879,7 +17498,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15918,7 +17538,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -15989,7 +17610,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16027,7 +17649,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16084,7 +17707,8 @@
           "CheckNum": "10210"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16123,7 +17747,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16165,7 +17790,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16205,9 +17831,13 @@
             "name": "Deposit"
           }
         },
+        "ProjectRef": {
+          "value": "52045806"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16249,7 +17879,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16305,7 +17936,8 @@
           "CheckNum": "1394"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16344,7 +17976,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16383,7 +18016,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16422,7 +18056,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16464,7 +18099,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16506,7 +18142,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16548,7 +18185,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16590,7 +18228,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16627,7 +18266,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16669,7 +18309,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16711,7 +18352,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16753,7 +18395,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16798,7 +18441,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16837,7 +18481,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16879,7 +18524,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16918,7 +18564,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -16957,7 +18604,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17064,7 +18712,8 @@
           "CheckNum": "25001748"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17103,7 +18752,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17145,7 +18795,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17184,7 +18835,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17239,7 +18891,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17278,7 +18931,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17325,7 +18979,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17569,7 +19224,8 @@
           "CheckNum": "Pulte Homes"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17761,7 +19417,8 @@
           "CheckNum": "Pulte Homes"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17800,7 +19457,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17902,7 +19560,8 @@
           "CheckNum": "81074067"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17944,7 +19603,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -17986,7 +19646,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18028,7 +19689,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18066,7 +19728,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18108,7 +19771,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18155,7 +19819,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18202,7 +19867,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18244,7 +19910,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18291,7 +19958,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18333,7 +20001,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18375,7 +20044,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18412,7 +20082,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18454,7 +20125,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18496,7 +20168,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18533,7 +20206,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18575,7 +20249,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18617,7 +20292,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18659,7 +20335,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18696,7 +20373,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18738,7 +20416,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18780,7 +20459,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18822,7 +20502,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18864,7 +20545,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18906,7 +20588,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18948,7 +20631,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -18990,7 +20674,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19032,7 +20717,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19074,7 +20760,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19116,7 +20803,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19158,7 +20846,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19200,7 +20889,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19242,7 +20932,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19284,7 +20975,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19326,7 +21018,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19368,7 +21061,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19410,7 +21104,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19452,7 +21147,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19494,7 +21190,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19551,7 +21248,8 @@
           "CheckNum": "1204"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19593,7 +21291,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19635,7 +21334,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19677,7 +21377,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19719,7 +21420,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -19764,6 +21466,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -19787,6 +21492,9 @@
             "name": "Check"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -19812,6 +21520,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -19835,6 +21546,9 @@
             "name": "Check"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -19860,6 +21574,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -19883,6 +21600,9 @@
             "name": "Check"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -19908,6 +21628,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -19931,6 +21654,9 @@
             "name": "Check"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -19956,6 +21682,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -19979,6 +21708,9 @@
             "name": "Check"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -20004,6 +21736,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -20028,6 +21763,9 @@
           },
           "CheckNum": "95275"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       },
       {
@@ -20047,6 +21785,9 @@
             "name": "Taxes & Licenses"
           },
           "CheckNum": "95275"
+        },
+        "ProjectRef": {
+          "value": "32436856"
         },
         "CustomExtensions": []
       },
@@ -20072,9 +21813,13 @@
           },
           "CheckNum": "16632"
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20116,7 +21861,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20158,7 +21904,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20200,7 +21947,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20242,7 +21990,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20284,7 +22033,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20326,7 +22076,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20368,7 +22119,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20410,7 +22162,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20452,7 +22205,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20494,7 +22248,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20536,7 +22291,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20578,7 +22334,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20620,7 +22377,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20662,7 +22420,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20704,7 +22463,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20746,7 +22506,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20788,7 +22549,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20830,7 +22592,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20872,7 +22635,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20909,7 +22673,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20951,7 +22716,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -20993,7 +22759,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21035,7 +22802,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21077,7 +22845,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21119,7 +22888,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21161,7 +22931,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21203,7 +22974,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21265,7 +23037,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21307,7 +23080,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21344,7 +23118,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21381,7 +23156,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21418,7 +23194,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21455,7 +23232,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21497,7 +23275,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21539,7 +23318,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21581,7 +23361,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21623,7 +23404,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21670,7 +23452,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21712,7 +23495,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21752,9 +23536,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21794,9 +23582,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21836,9 +23628,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21877,7 +23673,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21919,7 +23716,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -21961,7 +23759,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22007,7 +23806,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22052,9 +23852,13 @@
           },
           "CheckNum": "5503"
         },
+        "ProjectRef": {
+          "value": "83615725"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22101,7 +23905,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22191,7 +23996,8 @@
           "CheckNum": "1189"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22230,7 +24036,8 @@
           }
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22267,7 +24074,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22304,7 +24112,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22367,7 +24176,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22406,7 +24216,8 @@
           "CheckNum": "10176"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22448,7 +24259,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22504,7 +24316,8 @@
           "CheckNum": "572"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22558,7 +24371,8 @@
           "CheckNum": "796"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22598,9 +24412,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22640,9 +24458,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22680,9 +24502,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22722,9 +24548,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22764,9 +24594,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22806,9 +24640,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22848,9 +24686,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22890,9 +24732,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22932,9 +24778,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -22973,7 +24823,8 @@
           "CheckNum": "9146"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23013,9 +24864,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23053,7 +24908,8 @@
           "CheckNum": "10134"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23093,9 +24949,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "79173952"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23135,9 +24995,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23177,9 +25041,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23219,9 +25087,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23261,9 +25133,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23303,9 +25179,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23345,9 +25225,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23386,9 +25270,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23427,9 +25315,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23469,6 +25361,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -23487,6 +25382,9 @@
             "value": "18",
             "name": "Taxes & Licenses"
           }
+        },
+        "ProjectRef": {
+          "value": "55921256"
         },
         "CustomExtensions": []
       },
@@ -23507,6 +25405,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -23525,6 +25426,9 @@
             "value": "10",
             "name": "Legal & Professional Services"
           }
+        },
+        "ProjectRef": {
+          "value": "55921256"
         },
         "CustomExtensions": []
       },
@@ -23545,6 +25449,9 @@
             "name": "Loan Payment"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -23563,6 +25470,9 @@
             "value": "10",
             "name": "Legal & Professional Services"
           }
+        },
+        "ProjectRef": {
+          "value": "55921256"
         },
         "CustomExtensions": []
       },
@@ -23583,6 +25493,9 @@
             "name": "Taxes & Licenses"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -23601,6 +25514,9 @@
             "value": "29",
             "name": "Sales of Product Income"
           }
+        },
+        "ProjectRef": {
+          "value": "55921256"
         },
         "CustomExtensions": []
       },
@@ -23621,6 +25537,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -23639,6 +25558,9 @@
             "value": "29",
             "name": "Sales of Product Income"
           }
+        },
+        "ProjectRef": {
+          "value": "55921256"
         },
         "CustomExtensions": []
       },
@@ -23659,9 +25581,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23701,6 +25627,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       },
       {
@@ -23719,6 +25648,9 @@
             "value": "29",
             "name": "Sales of Product Income"
           }
+        },
+        "ProjectRef": {
+          "value": "40267609"
         },
         "CustomExtensions": []
       },
@@ -23739,6 +25671,9 @@
             "name": "Legal & Professional Services"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       },
       {
@@ -23757,6 +25692,9 @@
             "value": "73",
             "name": "Loan Payment"
           }
+        },
+        "ProjectRef": {
+          "value": "40267609"
         },
         "CustomExtensions": []
       },
@@ -23777,6 +25715,9 @@
             "name": "Taxes & Licenses"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       },
       {
@@ -23795,6 +25736,9 @@
             "value": "10",
             "name": "Legal & Professional Services"
           }
+        },
+        "ProjectRef": {
+          "value": "40267609"
         },
         "CustomExtensions": []
       },
@@ -23815,6 +25759,9 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       },
       {
@@ -23833,6 +25780,9 @@
             "value": "18",
             "name": "Taxes & Licenses"
           }
+        },
+        "ProjectRef": {
+          "value": "40267609"
         },
         "CustomExtensions": []
       },
@@ -23853,9 +25803,13 @@
             "name": "Uncategorized Expense"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23893,7 +25847,8 @@
           "CheckNum": "10120"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23933,9 +25888,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -23975,9 +25934,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24015,7 +25978,8 @@
           "CheckNum": "1035"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24055,9 +26019,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24097,9 +26065,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24159,9 +26131,13 @@
           },
           "CheckNum": "16005"
         },
+        "ProjectRef": {
+          "value": "79173952"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24201,9 +26177,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "32436856"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24243,9 +26223,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24285,9 +26269,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24327,9 +26315,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24369,9 +26361,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24411,9 +26407,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24453,9 +26453,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24495,9 +26499,13 @@
             "name": "Job Supplies"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24537,9 +26545,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24579,9 +26591,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24621,9 +26637,13 @@
             "name": "Refund Product Returned (deleted)"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24663,9 +26683,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24705,9 +26729,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24747,9 +26775,13 @@
             "name": "Services"
           }
         },
+        "ProjectRef": {
+          "value": "52063982"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24789,9 +26821,13 @@
             "name": "Loan Advance"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24847,7 +26883,8 @@
           "CheckNum": "2057"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24934,7 +26971,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -24970,7 +27008,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25012,7 +27051,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25068,7 +27108,8 @@
           "CheckNum": "10149"
         }
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25110,7 +27151,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25152,7 +27194,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25229,9 +27272,13 @@
           },
           "CheckNum": "063576"
         },
+        "ProjectRef": {
+          "value": "33142387"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25316,9 +27363,13 @@
           },
           "CheckNum": "63495"
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25358,6 +27409,9 @@
             "name": "Loan Payment"
           }
         },
+        "ProjectRef": {
+          "value": "55921256"
+        },
         "CustomExtensions": []
       },
       {
@@ -25377,9 +27431,13 @@
             "name": "Loan Payment"
           }
         },
+        "ProjectRef": {
+          "value": "40267609"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25421,7 +27479,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25463,7 +27522,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25505,7 +27565,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25547,7 +27608,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25589,7 +27651,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25631,7 +27694,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25673,7 +27737,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25715,7 +27780,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25757,7 +27823,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25789,7 +27856,8 @@
           }
         ]
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25843,9 +27911,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25899,9 +27971,13 @@
             "name": "Sales of Product Income"
           }
         },
+        "ProjectRef": {
+          "value": "52044246"
+        },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25943,7 +28019,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -25985,7 +28062,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -26027,7 +28105,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -26064,7 +28143,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -26101,7 +28181,8 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   },
   {
     "DepositToAccountRef": {
@@ -26143,6 +28224,7 @@
         },
         "CustomExtensions": []
       }
-    ]
+    ],
+    "TxnTaxDetail": {}
   }
 ]
