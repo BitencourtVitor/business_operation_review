@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDate } from '../../../utils/formatters';
 
 interface ForecastData {
   cliente: string;
@@ -80,7 +81,7 @@ export default function ForecastTable({ forecastData }: ForecastTableProps) {
                         </span>
                       </td>
                       <td style={{ color: 'var(--color-text-secondary)', fontSize: 13, padding: '12px' }}>
-                        {new Date(item.startDate).toLocaleDateString('pt-BR')} - {new Date(item.endDate).toLocaleDateString('pt-BR')}
+                        {formatDate(item.startDate)} - {formatDate(item.endDate)}
                       </td>
                     </tr>
                   ))}

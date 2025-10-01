@@ -1,9 +1,11 @@
 import React, { useState, useMemo } from 'react';
+import { formatDateUS } from '../../../utils/formatters';
 
 interface WorkforceProject {
   id: number;
   cliente: string;
   job_site: string;
+  type: string | null;
   lote_building: number;
   workforce: string;
   previous_start_date: string;
@@ -89,11 +91,7 @@ export default function MobileTimelinePlanner({
   }, [workforceProjects, selectedYear, selectedMonth]);
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
+    return formatDateUS(dateString);
   };
 
   const getProjectStatus = (project: WorkforceProject) => {
@@ -286,7 +284,7 @@ export default function MobileTimelinePlanner({
                           fontWeight: 'bold',
                           color: 'var(--color-text-primary)'
                         }}>
-                          Lot {project.lote_building}
+                          {project.type || 'Lot'} {project.lote_building}
                         </span>
                       </div>
 
@@ -447,7 +445,7 @@ export default function MobileTimelinePlanner({
                   marginBottom: '4px',
                   display: 'block'
                 }}>
-                  Lot
+                  {selectedProject.type || 'Lot'}
                 </label>
                 <p style={{
                   margin: 0,
@@ -455,7 +453,7 @@ export default function MobileTimelinePlanner({
                   color: 'var(--color-text-primary)',
                   fontWeight: 'bold'
                 }}>
-                  {selectedProject.lote_building}
+                  {selectedProject.type || 'Lot'} {selectedProject.lote_building}
                 </p>
               </div>
 

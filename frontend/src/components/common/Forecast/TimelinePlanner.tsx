@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatDateShort } from '../../../utils/formatters';
 
 interface WorkforceProject {
   id: number;
   cliente: string;
   job_site: string;
+  type: string | null;
   lote_building: number;
   workforce: string;
   previous_start_date: string;
@@ -605,7 +607,7 @@ export default function TimelinePlanner({
                                   marginBottom: 4,
                                   fontWeight: 'bold'
                                 }}>
-                                  Lot {project.lote_building}
+                                  {project.type || 'Lot'} {project.lote_building}
                                 </div>
                                 <div style={{ 
                                   fontSize: 11, 
@@ -621,7 +623,7 @@ export default function TimelinePlanner({
                                     fontSize: 11, 
                                     opacity: 0.7
                                   }}>
-                                    Start: {new Date(project.previous_start_date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' })} | End: {new Date(project.previous_end_date).toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' })}
+                                    Start: {formatDateShort(project.previous_start_date)} | End: {formatDateShort(project.previous_end_date)}
                                   </div>
                                 )}
                                 </div>
