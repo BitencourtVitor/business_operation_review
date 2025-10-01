@@ -36,48 +36,42 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
     try {
       setSamsaraProgress(0);
       
-      // Primeiro contar quantos registros existem
+      // Primeiro, contar o total de registros
       const { count, error: countError } = await supabase
         .from('samsara_events')
         .select('*', { count: 'exact', head: true });
 
       if (countError) throw countError;
       
-      if (count && count > 1000) {
-        // Se tem mais de 1000, buscar em lotes
-        let allData: SamsaraEvent[] = [];
-        const batchSize = 1000;
-        const totalBatches = Math.ceil(count / batchSize);
-        
-        for (let offset = 0; offset < count; offset += batchSize) {
-          const { data, error } = await supabase
-            .from('samsara_events')
-            .select('*')
-            .order('event_date', { ascending: false })
-            .range(offset, offset + batchSize - 1);
-            
-          if (error) throw error;
-          if (data) {
-            allData = [...allData, ...data];
-            const currentBatch = Math.min(Math.floor(offset / batchSize) + 1, totalBatches);
-            const percent = Math.min(100, Math.round((currentBatch / totalBatches) * 100));
-            setSamsaraProgress(percent);
-          }
-        }
-        
-        setSamsaraProgress(100);
-        setSamsaraEvents(allData);
-      } else {
-        // Se tem 1000 ou menos, buscar direto
+      // Buscar TODOS os dados em lotes maiores para melhor performance
+      let allData: SamsaraEvent[] = [];
+      let from = 0;
+      const batchSize = 2000; // Aumentado para 2000
+      const totalRecords = count || 0;
+      
+      while (from < totalRecords) {
         const { data, error } = await supabase
           .from('samsara_events')
           .select('*')
-          .order('event_date', { ascending: false });
-
+          .order('event_date', { ascending: false })
+          .range(from, from + batchSize - 1);
+          
         if (error) throw error;
-        setSamsaraProgress(100);
-        setSamsaraEvents(data || []);
+        
+        if (data && data.length > 0) {
+          allData = [...allData, ...data];
+          from += batchSize;
+          
+          // Atualizar progresso
+          const progress = Math.round((allData.length / totalRecords) * 100);
+          setSamsaraProgress(progress);
+        } else {
+          break;
+        }
       }
+      
+      setSamsaraProgress(100);
+      setSamsaraEvents(allData);
     } catch (error) {
       console.error('Erro ao carregar eventos Samsara:', error);
       setError('Erro ao carregar eventos Samsara');
@@ -88,49 +82,44 @@ export const FuelDataProvider: React.FC<FuelDataProviderProps> = ({ children }) 
     try {
       setWexProgress(0);
       
-      // Primeiro contar quantos registros existem
+      // Primeiro, contar o total de registros
       const { count, error: countError } = await supabase
         .from('wex_transactions')
         .select('*', { count: 'exact', head: true });
 
       if (countError) throw countError;
       
-      if (count && count > 1000) {
-        // Se tem mais de 1000, buscar em lotes
-        let allData: WexTransaction[] = [];
-        const batchSize = 1000;
-        const totalBatches = Math.ceil(count / batchSize);
-        
-        for (let offset = 0; offset < count; offset += batchSize) {
-          const { data, error } = await supabase
-            .from('wex_transactions')
-            .select('*')
-            .order('transaction_date', { ascending: false })
-            .range(offset, offset + batchSize - 1);
-            
-          if (error) throw error;
-          if (data) {
-            allData = [...allData, ...data];
-            const currentBatch = Math.min(Math.floor(offset / batchSize) + 1, totalBatches);
-            const percent = Math.min(100, Math.round((currentBatch / totalBatches) * 100));
-            setWexProgress(percent);
-          }
-        }
-        
-        setWexProgress(100);
-        setWexTransactions(allData);
-      } else {
-        // Se tem 1000 ou menos, buscar direto
+      // Buscar TODOS os dados em lotes maiores para melhor performance
+      let allData: WexTransaction[] = [];
+      let from = 0;
+      const batchSize = 2000; // Aumentado para 2000
+      const totalRecords = count || 0;
+      
+      while (from < totalRecords) {
         const { data, error } = await supabase
           .from('wex_transactions')
           .select('*')
-          .order('transaction_date', { ascending: false });
-
+          .order('transaction_date', { ascending: false })
+          .range(from, from + batchSize - 1);
+          
         if (error) throw error;
-        setWexProgress(100);
-        setWexTransactions(data || []);
+        
+        if (data && data.length > 0) {
+          allData = [...allData, ...data];
+          from += batchSize;
+          
+          // Atualizar progresso
+          const progress = Math.round((allData.length / totalRecords) * 100);
+          setWexProgress(progress);
+        } else {
+          break;
+        }
       }
+      
+      setWexProgress(100);
+      setWexTransactions(allData);
     } catch (err) {
+      console.error('Erro ao carregar transações WEX:', err);
       setError('Erro ao carregar transações WEX');
     }
   };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
+import { FuelDataProvider } from '../contexts/FuelDataContext';
 import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
@@ -598,9 +599,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)' }}>
-      {/* Header */}
-      <header
+    <FuelDataProvider>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)' }}>
+        {/* Header */}
+        <header
         style={{
           width: '100%',
           height: 64,
@@ -1020,6 +1022,7 @@ export default function Dashboard() {
       >
         {renderMainContent()}
       </main>
-    </div>
+      </div>
+    </FuelDataProvider>
   );
 } 

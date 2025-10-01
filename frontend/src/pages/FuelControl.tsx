@@ -38,6 +38,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     }
   }, [telaIdFromProps, telaId]);
 
+
   const {
     employeeNames: driverNames,
     loading: fuelDataLoading,
@@ -75,14 +76,14 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     if (selectedYear) {
       filteredSamsara = filteredSamsara.filter(event => {
         if (!event.event_date) return false;
-        const eventYear = event.event_date.split('-')[0];
-        return eventYear === selectedYear;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        return event.event_date >= `${selectedYear}-01-01` && event.event_date < `${Number(selectedYear) + 1}-01-01`;
       });
 
       filteredWex = filteredWex.filter(transaction => {
         if (!transaction.transaction_date) return false;
-        const transactionYear = transaction.transaction_date.split('-')[0];
-        return transactionYear === selectedYear;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        return transaction.transaction_date >= `${selectedYear}-01-01` && transaction.transaction_date < `${Number(selectedYear) + 1}-01-01`;
       });
     }
 
@@ -90,14 +91,20 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     if (selectedMonth) {
       filteredSamsara = filteredSamsara.filter(event => {
         if (!event.event_date) return false;
-        const eventMonth = event.event_date.split('-')[1];
-        return eventMonth === selectedMonth;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        const monthStart = `${selectedYear}-${selectedMonth}-01`;
+        const nextMonth = String(Number(selectedMonth) + 1).padStart(2, '0');
+        const monthEnd = nextMonth === '13' ? `${Number(selectedYear) + 1}-01-01` : `${selectedYear}-${nextMonth}-01`;
+        return event.event_date >= monthStart && event.event_date < monthEnd;
       });
 
       filteredWex = filteredWex.filter(transaction => {
         if (!transaction.transaction_date) return false;
-        const transactionMonth = transaction.transaction_date.split('-')[1];
-        return transactionMonth === selectedMonth;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        const monthStart = `${selectedYear}-${selectedMonth}-01`;
+        const nextMonth = String(Number(selectedMonth) + 1).padStart(2, '0');
+        const monthEnd = nextMonth === '13' ? `${Number(selectedYear) + 1}-01-01` : `${selectedYear}-${nextMonth}-01`;
+        return transaction.transaction_date >= monthStart && transaction.transaction_date < monthEnd;
       });
     }
 
@@ -116,14 +123,14 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     if (selectedYear) {
       filteredSamsara = filteredSamsara.filter(event => {
         if (!event.event_date) return false;
-        const eventYear = event.event_date.split('-')[0];
-        return eventYear === selectedYear;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        return event.event_date >= `${selectedYear}-01-01` && event.event_date < `${Number(selectedYear) + 1}-01-01`;
       });
 
       filteredWex = filteredWex.filter(transaction => {
         if (!transaction.transaction_date) return false;
-        const transactionYear = transaction.transaction_date.split('-')[0];
-        return transactionYear === selectedYear;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        return transaction.transaction_date >= `${selectedYear}-01-01` && transaction.transaction_date < `${Number(selectedYear) + 1}-01-01`;
       });
     }
 
@@ -131,14 +138,20 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
     if (selectedMonth) {
       filteredSamsara = filteredSamsara.filter(event => {
         if (!event.event_date) return false;
-        const eventMonth = event.event_date.split('-')[1];
-        return eventMonth === selectedMonth;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        const monthStart = `${selectedYear}-${selectedMonth}-01`;
+        const nextMonth = String(Number(selectedMonth) + 1).padStart(2, '0');
+        const monthEnd = nextMonth === '13' ? `${Number(selectedYear) + 1}-01-01` : `${selectedYear}-${nextMonth}-01`;
+        return event.event_date >= monthStart && event.event_date < monthEnd;
       });
 
       filteredWex = filteredWex.filter(transaction => {
         if (!transaction.transaction_date) return false;
-        const transactionMonth = transaction.transaction_date.split('-')[1];
-        return transactionMonth === selectedMonth;
+        // Usar comparação direta de datas para melhor performance e confiabilidade
+        const monthStart = `${selectedYear}-${selectedMonth}-01`;
+        const nextMonth = String(Number(selectedMonth) + 1).padStart(2, '0');
+        const monthEnd = nextMonth === '13' ? `${Number(selectedYear) + 1}-01-01` : `${selectedYear}-${nextMonth}-01`;
+        return transaction.transaction_date >= monthStart && transaction.transaction_date < monthEnd;
       });
     }
 
@@ -163,25 +176,53 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
 
   // Carregar anos e meses disponíveis + drivers disponíveis a partir dos dados reais
   useEffect(() => {
+    console.log('🔍 FuelControl: useEffect executado');
+    console.log('🔍 FuelControl: samsaraEvents:', samsaraEvents?.length || 0);
+    console.log('🔍 FuelControl: wexTransactions:', wexTransactions?.length || 0);
+    
     // Só prosseguir quando houver algum dado carregado
     if ((samsaraEvents && samsaraEvents.length > 0) || (wexTransactions && wexTransactions.length > 0)) {
-      // Extrair anos únicos dos dados reais
-      const samsaraYears = [...new Set(samsaraEvents.map(event => 
-        event.event_date?.split('-')[0]
-      ).filter(Boolean))];
+      console.log(`Samsara: ${samsaraEvents?.length || 0} registros`);
+      console.log(`WEX: ${wexTransactions?.length || 0} registros`);
       
-      const wexYears = [...new Set(wexTransactions.map(transaction => 
-        transaction.transaction_date?.split('-')[0]
-      ).filter(Boolean))];
+      // Verificar dados de setembro 2025
+      const samsaraSeptember2025 = samsaraEvents?.filter(event => {
+        if (!event.event_date) return false;
+        // Usar comparação direta de datas como no debugFuelData.ts
+        return event.event_date >= '2025-09-01' && event.event_date < '2025-10-01';
+      }) || [];
+      
+      const wexSeptember2025 = wexTransactions?.filter(transaction => {
+        if (!transaction.transaction_date) return false;
+        // Usar comparação direta de datas como no debugFuelData.ts
+        return transaction.transaction_date >= '2025-09-01' && transaction.transaction_date < '2025-10-01';
+      }) || [];
+      
+      // Extrair anos únicos dos dados reais usando comparação direta
+      const samsaraYears = [...new Set(samsaraEvents.map(event => {
+        if (!event.event_date) return null;
+        // Extrair ano usando substring para melhor performance
+        return event.event_date.substring(0, 4);
+      }).filter(Boolean))];
+      
+      const wexYears = [...new Set(wexTransactions.map(transaction => {
+        if (!transaction.transaction_date) return null;
+        // Extrair ano usando substring para melhor performance
+        return transaction.transaction_date.substring(0, 4);
+      }).filter(Boolean))];
       
       // Combinar e ordenar anos únicos
       const allYears = [...new Set([...samsaraYears, ...wexYears])]
         .sort((a, b) => Number(b) - Number(a));
+      
       setYears(allYears);
 
       // Definir ano padrão apenas uma vez (primeiro carregamento)
       if (!hasSetDefaultYearRef.current && allYears.length > 0 && !selectedYear) {
-        setSelectedYear(allYears[0]);
+        // Priorizar 2025 se existir dados de setembro, caso contrário usar o primeiro ano
+        const hasSeptember2025Data = (samsaraSeptember2025.length > 0 || wexSeptember2025.length > 0);
+        const defaultYear = (allYears.includes('2025') && hasSeptember2025Data) ? '2025' : allYears[0];
+        setSelectedYear(defaultYear);
         hasSetDefaultYearRef.current = true;
       }
 
@@ -199,11 +240,6 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
       if (availableDriverNames.length > 0 && selectedDrivers.length === 0) {
         setSelectedDrivers([]); // Array vazio = nenhum motorista selecionado
       }
-      
-      // Log para debug
-      
-      
-      
     }
   }, [samsaraEvents, wexTransactions, normalizeDriverName, driverNames]);
 
