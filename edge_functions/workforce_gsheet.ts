@@ -138,6 +138,7 @@ async function processProjectsData(csvData: any[]) {
     // Normalizar strings
     const cliente = normalizeUtf8String(row['Cliente (GC)']);
     const jobSite = normalizeUtf8String(row['Job Site']);
+    const type = normalizeUtf8String(row['Type']);
     const workforce = normalizeUtf8String(row['Workforce']);
     const observacoes = normalizeUtf8String(row['Obs']);
     
@@ -153,6 +154,7 @@ async function processProjectsData(csvData: any[]) {
     return {
       cliente,
       job_site: jobSite,
+      type: type || null,
       lote_building: loteBuilding,
       workforce,
       previous_start_date: previousStartDate,

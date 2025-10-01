@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
+import { formatDateUS } from '../utils/formatters';
 
 // Componentes modulares
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
@@ -11,6 +12,7 @@ interface WorkforceProject {
   id: number;
   cliente: string;
   job_site: string;
+  type: string | null;
   lote_building: number;
   workforce: string;
   previous_start_date: string;
@@ -53,6 +55,7 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedClient, setSelectedClient] = useState<string[]>([]);
   const [selectedJobSite, setSelectedJobSite] = useState<string[]>([]);
+  const [selectedProjectType, setSelectedProjectType] = useState<string>('all'); // 'all', 'Lot', 'Building'
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
@@ -61,6 +64,7 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
   const [months, setMonths] = useState<string[]>([]);
   const [clients, setClients] = useState<string[]>([]);
   const [jobSites, setJobSites] = useState<string[]>([]);
+  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
 
   // Buscar dados do workforce
   useEffect(() => {
@@ -110,6 +114,12 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
           .filter(jobSite => jobSite))].sort();
         setJobSites(uniqueJobSites);
 
+        // Extrair tipos únicos
+        const uniqueTypes = [...new Set((projectsData || [])
+          .map(p => p.type)
+          .filter(type => type))].sort();
+        setAvailableTypes(uniqueTypes);
+
       } catch (err) {
         console.error('Erro ao buscar dados do workforce:', err);
         setError(err instanceof Error ? err.message : 'Erro desconhecido');
@@ -133,8 +143,9 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
       const clientMatch = selectedClient.length === 0 || selectedClient.includes(project.cliente);
       const jobSiteMatch = selectedJobSite.length === 0 || selectedJobSite.includes(project.job_site);
+      const typeMatch = selectedProjectType === 'all' || project.type === selectedProjectType;
 
-      return yearMatch && monthMatch && clientMatch && jobSiteMatch;
+      return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch;
     });
 
     // Agrupar por cliente, job_site e mês
@@ -167,7 +178,7 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
       if (a.month !== b.month) return a.month.localeCompare(b.month);
       return a.cliente.localeCompare(b.cliente);
     });
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite]);
+  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
@@ -186,8 +197,8 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
       const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
       const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
       
-      periodStart = minStartDate.toLocaleDateString('en-US');
-      periodEnd = maxEndDate.toLocaleDateString('en-US');
+      periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
+      periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
     }
 
     return {
@@ -266,14 +277,17 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
           selectedMonth={selectedMonth}
           selectedClient={selectedClient}
           selectedJobSite={selectedJobSite}
+          selectedType={selectedProjectType}
           years={years}
           months={months}
           clients={clients}
           jobSites={jobSites}
+          availableTypes={availableTypes}
           onYearChange={setSelectedYear}
           onMonthChange={setSelectedMonth}
           onClientChange={setSelectedClient}
           onJobSiteChange={setSelectedJobSite}
+          onTypeChange={setSelectedProjectType}
         />
       </div>
 

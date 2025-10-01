@@ -6,14 +6,17 @@ interface ForecastFiltersProps {
   selectedMonth: string;
   selectedClient: string[];
   selectedJobSite: string[];
+  selectedType: string;
   years: string[];
   months: string[];
   clients: string[];
   jobSites: string[];
+  availableTypes: string[];
   onYearChange: (year: string) => void;
   onMonthChange: (month: string) => void;
   onClientChange: (clients: string[]) => void;
   onJobSiteChange: (jobSites: string[]) => void;
+  onTypeChange: (type: string) => void;
 }
 
 export default function ForecastFilters({
@@ -21,14 +24,17 @@ export default function ForecastFilters({
   selectedMonth,
   selectedClient,
   selectedJobSite,
+  selectedType,
   years,
   months,
   clients,
   jobSites,
+  availableTypes,
   onYearChange,
   onMonthChange,
   onClientChange,
-  onJobSiteChange
+  onJobSiteChange,
+  onTypeChange
 }: ForecastFiltersProps) {
   // Estilo para selects customizados
   const selectStyle: React.CSSProperties = {
@@ -107,6 +113,21 @@ export default function ForecastFilters({
             dropdownTitle="Job Site"
           />
         </div>
+      </div>
+
+      {/* Type Filter */}
+      <div className="input-group" style={{ minWidth: 140, maxWidth: 140, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 18, display: 'flex' }}>
+        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+          <i className="bi bi-tags" style={{ fontSize: 17 }} />
+        </span>
+        <select 
+          value={selectedType} 
+          onChange={e => onTypeChange(e.target.value)} 
+          style={{ ...selectStyle, border: 'none', borderRadius: 0, height: 38, width: 92, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', borderTopRightRadius: 8, borderBottomRightRadius: 8 }}
+        >
+          <option value="all">All Types</option>
+          {availableTypes.map(type => <option key={type} value={type}>{type}</option>)}
+        </select>
       </div>
     </div>
   );

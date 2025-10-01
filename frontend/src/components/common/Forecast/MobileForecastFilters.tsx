@@ -6,14 +6,17 @@ interface MobileForecastFiltersProps {
   selectedMonth: string;
   selectedClient: string[];
   selectedJobSite: string[];
+  selectedType: string;
   years: string[];
   months: string[];
   clients: string[];
   jobSites: string[];
+  availableTypes: string[];
   onYearChange: (year: string) => void;
   onMonthChange: (month: string) => void;
   onClientChange: (clients: string[]) => void;
   onJobSiteChange: (jobSites: string[]) => void;
+  onTypeChange: (type: string) => void;
 }
 
 export default function MobileForecastFilters({
@@ -21,14 +24,17 @@ export default function MobileForecastFilters({
   selectedMonth,
   selectedClient,
   selectedJobSite,
+  selectedType,
   years,
   months,
   clients,
   jobSites,
+  availableTypes,
   onYearChange,
   onMonthChange,
   onClientChange,
-  onJobSiteChange
+  onJobSiteChange,
+  onTypeChange
 }: MobileForecastFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -66,7 +72,8 @@ export default function MobileForecastFilters({
     selectedYear,
     selectedMonth,
     ...selectedClient,
-    ...selectedJobSite
+    ...selectedJobSite,
+    selectedType !== 'all' ? selectedType : null
   ].filter(Boolean).length;
 
   return (
@@ -201,6 +208,28 @@ export default function MobileForecastFilters({
             />
           </div>
 
+          {/* Filtro de Tipo */}
+          <div>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'var(--color-text-secondary)',
+              marginBottom: '8px'
+            }}>
+              <i className="bi bi-tags me-2" style={{ color: 'var(--color-accent-primary)' }} />
+              Type
+            </label>
+            <select 
+              value={selectedType} 
+              onChange={e => onTypeChange(e.target.value)} 
+              style={selectStyle}
+            >
+              <option value="all">All Types</option>
+              {availableTypes.map(type => <option key={type} value={type}>{type}</option>)}
+            </select>
+          </div>
+
           {/* Botão para limpar filtros */}
           {activeFiltersCount > 0 && (
             <button
@@ -220,6 +249,7 @@ export default function MobileForecastFilters({
                 onMonthChange('');
                 onClientChange([]);
                 onJobSiteChange([]);
+                onTypeChange('all');
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = 'var(--color-background-primary)';

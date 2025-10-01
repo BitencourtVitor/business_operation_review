@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateUS } from '../../../utils/formatters';
 
 interface TimelineTooltipProps {
   isVisible: boolean;
@@ -223,7 +224,7 @@ export default function TimelineTooltip({
                     color: project.previous_start_date ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                   }}>
                     {project.previous_start_date 
-                      ? new Date(project.previous_start_date).toLocaleDateString('en-US')
+                      ? formatDateUS(project.previous_start_date)
                       : 'Not defined'
                     }
                   </div>
@@ -245,7 +246,7 @@ export default function TimelineTooltip({
                     color: project.previous_end_date ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
                   }}>
                     {project.previous_end_date 
-                      ? new Date(project.previous_end_date).toLocaleDateString('en-US')
+                      ? formatDateUS(project.previous_end_date)
                       : 'Not defined'
                     }
                   </div>
