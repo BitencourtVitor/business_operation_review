@@ -84,7 +84,7 @@ function parseDateUS(str) {
       return null;
     }
     
-    return date.toISOString();
+    return date.toISOString().split('T')[0]; // Retorna apenas a parte da data (YYYY-MM-DD)
   } catch (error) {
     console.warn(`Erro ao fazer parse da data ${str}:`, error);
     return null;

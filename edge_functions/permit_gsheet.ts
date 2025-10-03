@@ -113,9 +113,8 @@ function parseDateUS(str: string) {
   if (!str) return null;
   try {
     const [month, day, year] = str.split('/');
-    // Criar data no fuso horário local para evitar problemas de timezone
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-    return date;
+    // Retornar como string no formato YYYY-MM-DD para evitar problemas de timezone
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   } catch (error) {
     console.error(`Erro ao fazer parse da data: ${str}`, error);
     return null;
