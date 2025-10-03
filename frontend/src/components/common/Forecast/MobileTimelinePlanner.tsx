@@ -94,28 +94,62 @@ export default function MobileTimelinePlanner({
     return formatDateUS(dateString);
   };
 
-  const getProjectStatus = (project: WorkforceProject) => {
+  // Função para determinar status da obra baseado nas datas
+  const getProjectStatus = (project: WorkforceProject): 'not-started' | 'in-progress' | 'completed' | 'no-end-date' => {
     const today = new Date();
-    const startDate = new Date(project.previous_start_date);
-    const endDate = new Date(project.previous_end_date);
-    
-    if (today < startDate) return 'upcoming';
-    if (today >= startDate && today <= endDate) return 'current';
-    return 'completed';
+    const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
+    const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
+
+    // Se não tem data de início, considerar como não iniciada
+    if (!startDate) {
+      return 'not-started';
+    }
+
+    // Se não tem data final, considerar como sem data final
+    if (!endDate) {
+      return 'no-end-date';
+    }
+
+    // Se já passou da data final, está finalizada
+    if (today > endDate) {
+      return 'completed';
+    }
+
+    // Se está entre as datas de início e fim, está em andamento
+    if (today >= startDate && today <= endDate) {
+      return 'in-progress';
+    }
+
+    // Se ainda não chegou na data de início, não iniciada
+    return 'not-started';
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'upcoming': return '#6c757d';
-      case 'current': return '#28a745';
-      default: return '#6c757d';
+  // Cores para cada status
+  const PROJECT_STATUS_COLORS = {
+    'not-started': {
+      primary: '#6c757d', // Cinza
+      hover: '#5a6268'     // Cinza mais escuro
+    },
+    'in-progress': {
+      primary: '#28a745',  // Verde
+      hover: '#218838'     // Verde mais escuro
+    },
+    'completed': {
+      primary: '#5a9fd4',  // Azul mais claro baseado no primary
+      hover: '#4a8bc4'     // Azul mais escuro para hover
+    },
+    'no-end-date': {
+      primary: '#ffc107',  // Amarelo
+      hover: '#e0a800'     // Amarelo mais escuro
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'upcoming': return 'Upcoming';
-      case 'current': return 'In Progress';
+      case 'not-started': return 'Not Started';
+      case 'in-progress': return 'In Progress';
+      case 'completed': return 'Completed';
+      case 'no-end-date': return 'No End Date';
       default: return 'N/A';
     }
   };
@@ -190,14 +224,14 @@ export default function MobileTimelinePlanner({
             }}>
               {projects.map((project) => {
                 const status = getProjectStatus(project);
-                const statusColor = getStatusColor(status);
+                const statusColors = PROJECT_STATUS_COLORS[status];
                 
                 return (
                   <div
                     key={project.id}
                     style={{
-                      background: 'var(--color-background-primary)',
-                      border: '1px solid var(--color-border-divider)',
+                      background: statusColors.primary,
+                      border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: '8px',
                       padding: '16px',
                       cursor: 'pointer',
@@ -205,16 +239,17 @@ export default function MobileTimelinePlanner({
                       boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                       width: '100%',
                       maxWidth: '100%',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      color: 'white'
                     }}
                     onClick={() => setSelectedProject(project)}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--color-background-secondary)';
+                      e.currentTarget.style.background = statusColors.hover;
                       e.currentTarget.style.transform = 'translateY(-2px)';
                       e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--color-background-primary)';
+                      e.currentTarget.style.background = statusColors.primary;
                       e.currentTarget.style.transform = 'translateY(0)';
                       e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                     }}
@@ -231,7 +266,7 @@ export default function MobileTimelinePlanner({
                           margin: 0,
                           fontSize: '16px',
                           fontWeight: 600,
-                          color: 'var(--color-text-primary)',
+                          color: 'white',
                           lineHeight: 1.3
                         }}>
                           {project.cliente}
@@ -239,28 +274,26 @@ export default function MobileTimelinePlanner({
                         <p style={{
                           margin: '2px 0 0 0',
                           fontSize: '14px',
-                          color: 'var(--color-text-secondary)',
+                          color: 'rgba(255,255,255,0.8)',
                           lineHeight: 1.3
                         }}>
                           {project.job_site}
                         </p>
                       </div>
                       
-                      {/* Status badge - apenas para upcoming */}
-                      {status === 'upcoming' && (
-                        <div style={{
-                          background: statusColor,
-                          color: 'white',
-                          padding: '4px 8px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: 500,
-                          whiteSpace: 'nowrap',
-                          marginLeft: '8px'
-                        }}>
-                          {getStatusText(status)}
-                        </div>
-                      )}
+                      {/* Status badge */}
+                      <div style={{
+                        background: 'rgba(255,255,255,0.2)',
+                        color: 'white',
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        whiteSpace: 'nowrap',
+                        marginLeft: '8px'
+                      }}>
+                        {getStatusText(status)}
+                      </div>
                     </div>
 
                     {/* Detalhes do projeto */}
@@ -276,13 +309,13 @@ export default function MobileTimelinePlanner({
                         gap: '8px'
                       }}>
                         <i className="bi bi-geo-alt" style={{ 
-                          color: 'var(--color-accent-primary)', 
+                          color: 'rgba(255,255,255,0.8)', 
                           fontSize: '14px' 
                         }} />
                         <span style={{
                           fontSize: '14px',
                           fontWeight: 'bold',
-                          color: 'var(--color-text-primary)'
+                          color: 'white'
                         }}>
                           {project.type || 'Lot'} {project.lote_building}
                         </span>
@@ -295,12 +328,12 @@ export default function MobileTimelinePlanner({
                         gap: '8px'
                       }}>
                         <i className="bi bi-calendar-range" style={{ 
-                          color: 'var(--color-text-secondary)', 
+                          color: 'rgba(255,255,255,0.8)', 
                           fontSize: '14px' 
                         }} />
                         <span style={{
                           fontSize: '14px',
-                          color: 'var(--color-text-secondary)'
+                          color: 'rgba(255,255,255,0.8)'
                         }}>
                           {formatDate(project.previous_start_date)} - {formatDate(project.previous_end_date)}
                         </span>
@@ -313,12 +346,12 @@ export default function MobileTimelinePlanner({
                         gap: '8px'
                       }}>
                         <i className="bi bi-people" style={{ 
-                          color: 'var(--color-text-secondary)', 
+                          color: 'rgba(255,255,255,0.8)', 
                           fontSize: '14px' 
                         }} />
                         <span style={{
                           fontSize: '14px',
-                          color: project.workforce ? 'var(--color-text-primary)' : '#ffcc00',
+                          color: project.workforce ? 'white' : '#ffcc00',
                           fontWeight: project.workforce ? 'normal' : 'bold'
                         }}>
                           {project.workforce || 'No team assigned'}

@@ -2,6 +2,56 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
 
+// Função para determinar status da obra baseado nas datas
+const getProjectStatus = (project: WorkforceProject): 'not-started' | 'in-progress' | 'completed' | 'no-end-date' => {
+  const today = new Date();
+  const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
+  const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
+
+  // Se não tem data de início, considerar como não iniciada
+  if (!startDate) {
+    return 'not-started';
+  }
+
+  // Se não tem data final, considerar como sem data final
+  if (!endDate) {
+    return 'no-end-date';
+  }
+
+  // Se já passou da data final, está finalizada
+  if (today > endDate) {
+    return 'completed';
+  }
+
+  // Se está entre as datas de início e fim, está em andamento
+  if (today >= startDate && today <= endDate) {
+    return 'in-progress';
+  }
+
+  // Se ainda não chegou na data de início, não iniciada
+  return 'not-started';
+};
+
+// Cores para cada status
+const PROJECT_STATUS_COLORS = {
+  'not-started': {
+    primary: '#6c757d', // Cinza
+    hover: '#5a6268'     // Cinza mais escuro
+  },
+  'in-progress': {
+    primary: '#28a745',  // Verde
+    hover: '#218838'     // Verde mais escuro
+  },
+  'completed': {
+    primary: '#5a9fd4',  // Azul mais claro baseado no primary
+    hover: '#4a8bc4'     // Azul mais escuro para hover
+  },
+  'no-end-date': {
+    primary: '#ffc107',  // Amarelo
+    hover: '#e0a800'     // Amarelo mais escuro
+  }
+};
+
 interface WorkforceProject {
   id: number;
   cliente: string;
@@ -555,12 +605,16 @@ export default function TimelinePlanner({
                               onDrop={(e) => handleDrop(e, group.groupName, col)}
                               onDragOver={handleDragOver}
                             >
-                              {projects.map((project, projectIndex) => (
+                              {projects.map((project, projectIndex) => {
+                                const projectStatus = getProjectStatus(project);
+                                const statusColors = PROJECT_STATUS_COLORS[projectStatus];
+                                
+                                return (
                                 <div
                                   key={project.id}
                                   draggable
                                 style={{
-                                  background: 'var(--color-accent-primary)',
+                                  background: statusColors.primary,
                                   borderRadius: 6,
                                   padding: '10px',
                                   marginBottom: projectIndex < projects.length - 1 ? 8 : 0,
@@ -582,14 +636,14 @@ export default function TimelinePlanner({
                                   onDragEnd={handleDragEnd}
                                   onMouseEnter={(e) => {
                                     if (!draggedProject) {
-                                      e.currentTarget.style.background = 'var(--color-accent-secondary)';
+                                      e.currentTarget.style.background = statusColors.hover;
                                       e.currentTarget.style.transform = 'scale(1.02)';
                                       e.currentTarget.style.cursor = 'grab';
                                     }
                                   }}
                                   onMouseLeave={(e) => {
                                     if (!draggedProject) {
-                                      e.currentTarget.style.background = 'var(--color-accent-primary)';
+                                      e.currentTarget.style.background = statusColors.primary;
                                       e.currentTarget.style.transform = 'scale(1)';
                                     }
                                   }}
@@ -627,7 +681,8 @@ export default function TimelinePlanner({
                                   </div>
                                 )}
                                 </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           );
                         })}
