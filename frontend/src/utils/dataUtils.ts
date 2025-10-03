@@ -136,4 +136,12 @@ export function addCurrentMonthNameIfMissing(months: string[], selectedYear: str
   }
   
   return months;
+}
+
+/**
+ * Gera todos os meses do ano (01-12)
+ * @returns Array com todos os meses do ano em formato MM
+ */
+export function getAllMonths(): string[] {
+  return Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 } 
