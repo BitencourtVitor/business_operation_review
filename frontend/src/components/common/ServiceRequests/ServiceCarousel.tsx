@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ServiceRequestRow } from '../../../types/service';
 import CloseButton from '../../../utils/CloseButton';
+import { formatDateUS, formatDateUSShort, calculateDaysDifference } from '../../../utils/dateUtils';
 
 interface ServiceCarouselProps {
   filteredData: ServiceRequestRow[];
@@ -21,29 +22,22 @@ const formatDate = (date?: string | null) => {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
 };
 
-// Função para formatar datas no formato americano (MM/DD/YYYY)
-const formatDateUS = (date?: string | null) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
-};
-
 // Função para calcular tempo de resolução considerando todas as condições
 const calculateResolutionTimeAdvanced = (service: ServiceRequestRow): { days: number; isOnTime: boolean; startDate: string; endDate: string; reason: string } => {
   if (!service.date_received) return { days: 0, isOnTime: false, startDate: '', endDate: '', reason: 'No start date' };
   
-  let startDate: Date;
-  let endDate: Date;
+  let startDate: string;
+  let endDate: string;
   let reason: string;
   
   // Determinar data de início
   if (service.resident_available_date && service.resident_available_date !== '') {
     // Se morador não estava disponível, conta a partir da disponibilidade do morador
-    startDate = new Date(service.resident_available_date);
+    startDate = service.resident_available_date;
     reason = 'From resident availability';
   } else {
     // Conta a partir da data de recebimento
-    startDate = new Date(service.date_received);
+    startDate = service.date_received;
     reason = 'From request date';
   }
   
@@ -52,30 +46,34 @@ const calculateResolutionTimeAdvanced = (service: ServiceRequestRow): { days: nu
     // Se há visitas adicionais, usar a data da última visita
     if (Array.isArray(service.additional_visits) && service.additional_visits.length > 0) {
       // Pegar a data mais recente das visitas adicionais
-      const visitDates = service.additional_visits.map(date => new Date(date)).filter(date => !isNaN(date.getTime()));
-      if (visitDates.length > 0) {
-        endDate = new Date(Math.max(...visitDates.map(date => date.getTime())));
+      const validVisitDates = service.additional_visits
+        .filter(date => date && date !== '')
+        .sort()
+        .reverse();
+      
+      if (validVisitDates.length > 0) {
+        endDate = validVisitDates[0];
       } else {
-        endDate = new Date(service.date_completed);
+        endDate = service.date_completed;
       }
     } else {
       // Se não há visitas adicionais, usar a data de completude
-      endDate = new Date(service.date_completed);
+      endDate = service.date_completed;
     }
   } else {
-    // Para requests em andamento: tempo entre hoje e data de início
-    endDate = new Date();
+    // Para requests em andamento: usar data atual no formato YYYY-MM-DD
+    const today = new Date();
+    endDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   }
   
-  const diffTime = endDate.getTime() - startDate.getTime();
-  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const days = calculateDaysDifference(startDate, endDate);
   const isOnTime = days <= 14;
   
   return {
     days,
     isOnTime,
-    startDate: startDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
-    endDate: endDate.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }),
+    startDate: formatDateUS(startDate),
+    endDate: formatDateUS(endDate),
     reason
   };
 };
@@ -783,8 +781,8 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                     {service.city || 'N/A'} • {service.job_site || 'N/A'}
                   </div>
                   <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)', justifyContent: 'center' }}>
-                    <span title="Received Date">Rec: {formatDate(service.date_received)}</span>
-                    <span title="Completed Date">Com: {formatDate(service.date_completed)}</span>
+                    <span title="Received Date">Rec: {formatDateUSShort(service.date_received)}</span>
+                    <span title="Completed Date">Com: {formatDateUSShort(service.date_completed)}</span>
                   </div>
                   {/* Tempo de Resolução */}
                   {service.date_received && (

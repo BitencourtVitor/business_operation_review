@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import type { ProjectMonitoringHvacData } from '../../../hooks/useProjectMonitoringHvacData';
 import CloseButton from '../../../utils/CloseButton';
+import { formatDateUSShort, formatDateUS } from '../../../utils/dateUtils';
 import { getISOWeek } from '../../../utils/weekUtils';
 
 interface ProjectMonitoringCarouselProps {
@@ -18,12 +19,6 @@ const PROGRESS_STATUS = {
   'Completed': { color: '#28a745', icon: 'bi-check-circle-fill' },
   'In Progress': { color: '#ffc107', icon: 'bi-clock-fill' },
   'Not Started': { color: '#dc3545', icon: 'bi-x-circle-fill' },
-};
-
-const formatDate = (date?: string | null) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' });
 };
 
 // Função para determinar status do projeto baseado no percentual
@@ -653,8 +648,8 @@ export default function ProjectMonitoringCarousel({
                     {project.city || 'N/A'}
                   </div>
                   <div style={{ display: 'flex', gap: 8, fontSize: 13, color: 'var(--color-text-secondary)', justifyContent: 'center' }}>
-                    <span title="Start Date">Start: {formatDate(project.start_date)}</span>
-                    <span title="Finish Date">End: {formatDate(project.finish_date)}</span>
+                    <span title="Start Date">Start: {formatDateUSShort(project.start_date)}</span>
+                    <span title="Finish Date">End: {formatDateUSShort(project.finish_date)}</span>
                   </div>
                   {/* Team e Progress */}
                   <div style={{ 
@@ -838,7 +833,7 @@ export default function ProjectMonitoringCarousel({
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.start_date ? new Date(selected.start_date).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' }) : 'N/A'}
+                            {selected.start_date ? formatDateUS(selected.start_date) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -869,7 +864,7 @@ export default function ProjectMonitoringCarousel({
                             fontSize: 14,
                             fontWeight: 500
                           }}>
-                            {selected.finish_date ? new Date(selected.finish_date).toLocaleDateString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit' }) : 'N/A'}
+                            {selected.finish_date ? formatDateUS(selected.finish_date) : 'N/A'}
                           </span>
                         </div>
                       </div>
@@ -933,7 +928,7 @@ export default function ProjectMonitoringCarousel({
                               fontWeight: 500
                             }}>
                               {selected.s1_rough && selected.s1_rough.toLowerCase().includes('completed') && selected.s1_date 
-                                ? `Completed - ${new Date(selected.s1_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                ? `Completed - ${formatDateUS(selected.s1_date)}`
                                 : (selected.s1_rough || 'Not Started')
                               }
                               {selected.s1_rough && selected.s1_rough.toLowerCase().includes('completed') && selected.s1_date && selected.start_date && (
@@ -1003,7 +998,7 @@ export default function ProjectMonitoringCarousel({
                               fontWeight: 500
                             }}>
                               {selected.s2_machines && selected.s2_machines.toLowerCase().includes('completed') && selected.s2_date 
-                                ? `Completed - ${new Date(selected.s2_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                ? `Completed - ${formatDateUS(selected.s2_date)}`
                                 : (selected.s2_machines || 'Not Started')
                               }
                               {selected.s2_machines && selected.s2_machines.toLowerCase().includes('completed') && selected.s2_date && selected.s1_date && (
@@ -1073,7 +1068,7 @@ export default function ProjectMonitoringCarousel({
                               fontWeight: 500
                             }}>
                               {selected.s3_condenser && selected.s3_condenser.toLowerCase().includes('completed') && selected.s3_date 
-                                ? `Completed - ${new Date(selected.s3_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                ? `Completed - ${formatDateUS(selected.s3_date)}`
                                 : (selected.s3_condenser || 'Not Started')
                               }
                               {selected.s3_condenser && selected.s3_condenser.toLowerCase().includes('completed') && selected.s3_date && selected.s2_date && (
@@ -1143,7 +1138,7 @@ export default function ProjectMonitoringCarousel({
                               fontWeight: 500
                             }}>
                               {selected.s4_finish && selected.s4_finish.toLowerCase().includes('completed') && selected.s4_date 
-                                ? `Completed - ${new Date(selected.s4_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}`
+                                ? `Completed - ${formatDateUS(selected.s4_date)}`
                                 : (selected.s4_finish || 'Not Started')
                               }
                               {selected.s4_finish && selected.s4_finish.toLowerCase().includes('completed') && selected.s4_date && selected.s3_date && (
@@ -1236,7 +1231,7 @@ export default function ProjectMonitoringCarousel({
                             fontWeight: 600, 
                             fontSize: 14 
                           }}>
-                            {new Date(selected.last_update).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit' })}
+                            {formatDateUSShort(selected.last_update)}
                           </span>
                         </div>
                         <div style={{ 
