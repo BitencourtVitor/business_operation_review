@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
-import { addCurrentMonthIfMissing } from '../utils/dataUtils';
+import { addCurrentMonthIfMissing, getAllMonths } from '../utils/dataUtils';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import DestaqueModal from '../components/modals/DestaqueModal';
@@ -172,26 +172,11 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
       if (selectedMonth) setSelectedMonth('');
       return;
     }
-    const meses = [
-      ...new Set(
-        takeoffData
-          .filter(d => {
-            const relevantDate = getRelevantDate(d);
-            return relevantDate && 
-                   typeof relevantDate === 'string' && 
-                   relevantDate.split('-')[0] === selectedYear;
-          })
-          .map(d => {
-            const relevantDate = getRelevantDate(d);
-            return relevantDate && typeof relevantDate === 'string' ? relevantDate.split('-')[1] : undefined;
-          })
-          .filter((v): v is string => !!v)
-      ),
-    ].sort((a, b) => Number(a) - Number(b));
-    const mesesComAtual = addCurrentMonthIfMissing(meses, selectedYear);
-    setMonths(mesesComAtual);
-    if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
-  }, [selectedYear, takeoffData]);
+    // Sempre mostrar todos os meses do ano, não apenas aqueles com dados
+    const todosOsMeses = getAllMonths();
+    setMonths(todosOsMeses);
+    if (selectedMonth && !todosOsMeses.includes(selectedMonth)) setSelectedMonth('');
+  }, [selectedYear]);
 
   // Função para determinar o status baseado nas datas
   const getProjectStatus = (row: TakeoffRow): string => {
