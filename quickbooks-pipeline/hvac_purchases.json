@@ -6,6 +6,771 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
+      "value": "156",
+      "name": "Mutualmart",
+      "type": "Vendor"
+    },
+    "TotalAmt": 470.35,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21561",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:20:18-07:00",
+      "LastUpdatedTime": "2025-10-06T07:20:18-07:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Edy's License - MAConsumerHIC XXXXXXXX89514 MAConsumer",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Edy's License - MAConsumerHIC XXXXXXXX89514 MAConsumer",
+        "Amount": 470.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "76",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 11898.49,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21560",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:18:28-07:00",
+      "LastUpdatedTime": "2025-10-06T07:18:28-07:00"
+    },
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "09/14/2025 - 09/27/2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 100320A01",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "09/14/2025 - 09/27/2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 100320A01",
+        "Amount": 11898.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 28851.4,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21559",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:17:58-07:00",
+      "LastUpdatedTime": "2025-10-06T07:17:58-07:00"
+    },
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "09/14/2025 - 09/27/2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX1083N4W",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "09/14/2025 - 09/27/2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX1083N4W",
+        "Amount": 28851.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "532",
+      "name": "MutualOne Bank",
+      "type": "Vendor"
+    },
+    "TotalAmt": 8.13,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21555",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:15:38-07:00",
+      "LastUpdatedTime": "2025-10-06T07:15:38-07:00"
+    },
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Service Charge Assessed",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Service Charge Assessed",
+        "Amount": 8.13,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "94",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "TotalAmt": 185.94,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21554",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:15:17-07:00",
+      "LastUpdatedTime": "2025-10-06T07:15:17-07:00"
+    },
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "INTUIT * 800-446-8848 TSheets ID NBR: 6784943",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT * 800-446-8848 TSheets ID NBR: 6784943",
+        "Amount": 185.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 264.5,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21553",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:15:10-07:00",
+      "LastUpdatedTime": "2025-10-06T07:15:10-07:00"
+    },
+    "TxnDate": "2025-09-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll Plus - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX7636N4W",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payroll Plus - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX7636N4W",
+        "Amount": 264.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 10962.37,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20875",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-10T06:10:36-07:00",
+      "LastUpdatedTime": "2025-10-06T07:14:42-07:00"
+    },
+    "DocNumber": "08/17/25 - 08/30/25",
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "08/17/2025 - 08/30/2025 - ADP Tax LK ADP Tax ID NBR: L6N4W 090518A01",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "08/17/2025 - 08/30/2025 - ADP Tax LK ADP Tax ID NBR: L6N4W 090518A01",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "08/17/2025 - 08/30/2025",
+        "Amount": 3090.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Employer Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "3",
+        "Description": "08/17/2025 - 08/30/2025",
+        "Amount": 7871.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "162",
+            "name": "Federal Taxes Paid"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1222",
+      "name": "Premium Foundation, Inc",
+      "type": "Vendor"
+    },
+    "TotalAmt": 322.98,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21517",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T08:58:54-07:00",
+      "LastUpdatedTime": "2025-10-03T08:59:48-07:00"
+    },
+    "DocNumber": "1600",
+    "TxnDate": "2025-10-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "09.14.2025 - 09.27.2025",
+        "Amount": 322.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613345566"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1322",
+      "name": "EPL Construction, INC",
+      "type": "Vendor"
+    },
+    "TotalAmt": 4123.71,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21492",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-01T14:04:48-07:00",
+      "LastUpdatedTime": "2025-10-01T14:05:16-07:00"
+    },
+    "DocNumber": "1599",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CL 7",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Chauncy lake 7 - Labor",
+        "Amount": 4123.71,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "19",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1137",
+      "name": "Town of Hopkinton",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11970"
+    },
+    "TotalAmt": 150,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21490",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-01T11:03:39-07:00",
+      "LastUpdatedTime": "2025-10-01T11:04:11-07:00"
+    },
+    "DocNumber": "1597",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 01 Newbury Glen\nLot 06 Newbury Glen\nLot 08 Newbury Glen",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Lot 01 Newbury",
+        "Amount": 50,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1519",
+            "name": "Lot 01 - Newbury Glenn"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "623345112"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Lot 06 - Newbury",
+        "Amount": 50,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1456",
+            "name": "Lot 06 - Newbury Glenn"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600091269"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Lot 08 - Newbury",
+        "Amount": 50,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1520",
+            "name": "Lot 08 - Newbury Glenn"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "623354400"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
       "value": "17",
       "name": "QuickBooks Payments",
       "type": "Vendor"
@@ -14806,118 +15571,6 @@
         },
         "ProjectRef": {
           "value": "664248232"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "231",
-      "name": "Mutual One Checking (8980)"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "31",
-      "name": "ADP",
-      "type": "Vendor"
-    },
-    "TotalAmt": 10962.37,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20875",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-10T06:10:36-07:00",
-      "LastUpdatedTime": "2025-09-22T06:27:24-07:00"
-    },
-    "DocNumber": "08/17/25 - 08/30/25",
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "08/17/2025 - 08/30/2025 - ADP Tax LK ADP Tax ID NBR: L6N4W 090518A01",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "08/17/2025 - 08/30/2025 - ADP Tax LK ADP Tax ID NBR: L6N4W 090518A01",
-        "Amount": 0,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "57",
-            "name": "Payroll"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      },
-      {
-        "Id": "2",
-        "Description": "08/17/2025 - 08/30/2025",
-        "Amount": 3090.65,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040005",
-            "name": "Employer Liability"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      },
-      {
-        "Id": "3",
-        "Description": "08/17/2025 - 08/30/2025",
-        "Amount": 7871.72,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "76",
-            "name": "Taxes & Licenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
         },
         "CustomExtensions": [
           {
@@ -66833,7 +67486,7 @@
     "SyncToken": "2",
     "MetaData": {
       "CreateTime": "2025-05-22T10:52:32-07:00",
-      "LastUpdatedTime": "2025-09-30T10:57:24-07:00"
+      "LastUpdatedTime": "2025-10-03T15:47:24-07:00"
     },
     "TxnDate": "2025-05-12",
     "CurrencyRef": {
@@ -74410,7 +75063,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-05-15T14:22:12-07:00",
-      "LastUpdatedTime": "2025-09-30T10:22:55-07:00"
+      "LastUpdatedTime": "2025-10-03T15:48:29-07:00"
     },
     "TxnDate": "2025-05-09",
     "CurrencyRef": {
@@ -91932,7 +92585,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-04-17T07:34:55-07:00",
-      "LastUpdatedTime": "2025-09-30T06:43:47-07:00"
+      "LastUpdatedTime": "2025-10-03T15:49:59-07:00"
     },
     "TxnDate": "2025-03-20",
     "CurrencyRef": {
@@ -94276,7 +94929,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2024-12-23T11:04:10-08:00",
-      "LastUpdatedTime": "2025-09-30T06:23:00-07:00"
+      "LastUpdatedTime": "2025-10-03T15:52:09-07:00"
     },
     "TxnDate": "2024-12-17",
     "CurrencyRef": {
@@ -99908,7 +100561,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-03-17T15:19:27-07:00",
-      "LastUpdatedTime": "2025-09-30T06:25:33-07:00"
+      "LastUpdatedTime": "2025-10-03T15:51:54-07:00"
     },
     "TxnDate": "2025-01-03",
     "CurrencyRef": {
@@ -103458,7 +104111,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-03-16T10:43:20-07:00",
-      "LastUpdatedTime": "2025-09-30T06:24:05-07:00"
+      "LastUpdatedTime": "2025-10-03T15:52:01-07:00"
     },
     "TxnDate": "2024-12-18",
     "CurrencyRef": {
@@ -150639,7 +151292,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2024-12-23T11:13:41-08:00",
-      "LastUpdatedTime": "2025-09-30T06:20:24-07:00"
+      "LastUpdatedTime": "2025-10-03T15:52:22-07:00"
     },
     "TxnDate": "2024-12-13",
     "CurrencyRef": {
@@ -151002,7 +151655,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2024-12-23T11:11:15-08:00",
-      "LastUpdatedTime": "2025-09-30T06:19:06-07:00"
+      "LastUpdatedTime": "2025-10-03T15:52:29-07:00"
     },
     "TxnDate": "2024-12-13",
     "CurrencyRef": {
@@ -151470,7 +152123,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2024-12-23T11:00:19-08:00",
-      "LastUpdatedTime": "2025-09-30T06:12:33-07:00"
+      "LastUpdatedTime": "2025-10-03T15:55:42-07:00"
     },
     "TxnDate": "2024-12-17",
     "CurrencyRef": {

@@ -1,6 +1,230 @@
 [
   {
     "VendorRef": {
+      "value": "1354",
+      "name": "IPFS Insurance"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 1582.55,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21558",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:16:56-07:00",
+      "LastUpdatedTime": "2025-10-06T07:16:56-07:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1582.55,
+        "LinkedTxn": [
+          {
+            "TxnId": "20889",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "17",
+      "name": "QuickBooks Payments"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 4493.29,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21557",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:16:50-07:00",
+      "LastUpdatedTime": "2025-10-06T07:16:50-07:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 4493.29,
+        "LinkedTxn": [
+          {
+            "TxnId": "21091",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "524",
+      "name": "IPFS Corporation"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "NotSet"
+    },
+    "TotalAmt": 3634.49,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21556",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:16:13-07:00",
+      "LastUpdatedTime": "2025-10-06T07:16:13-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 3634.49,
+        "LinkedTxn": [
+          {
+            "TxnId": "20890",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "973",
+      "name": "Top Vent HVAC, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 4600,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21518",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T10:10:22-07:00",
+      "LastUpdatedTime": "2025-10-03T10:10:57-07:00"
+    },
+    "DocNumber": "1601",
+    "TxnDate": "2025-10-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "21222",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "21224",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 3200,
+        "LinkedTxn": [
+          {
+            "TxnId": "21226",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "481",
+      "name": "Saulo’s Plumbing and HVAC"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "231",
+        "name": "Mutual One Checking (8980)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 1487.51,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21491",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-01T11:28:28-07:00",
+      "LastUpdatedTime": "2025-10-01T11:29:10-07:00"
+    },
+    "DocNumber": "1598",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1009.38,
+        "LinkedTxn": [
+          {
+            "TxnId": "21288",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 478.13,
+        "LinkedTxn": [
+          {
+            "TxnId": "21289",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "8",
       "name": "Premium Framing, Inc."
     },
@@ -981,55 +1205,6 @@
         "LinkedTxn": [
           {
             "TxnId": "19546",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
-      "value": "481",
-      "name": "Saulo’s Plumbing and HVAC"
-    },
-    "PayType": "Check",
-    "CheckPayment": {
-      "BankAccountRef": {
-        "value": "231",
-        "name": "Mutual One Checking (8980)"
-      },
-      "PrintStatus": "NeedToPrint"
-    },
-    "TotalAmt": 1487.51,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21467",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-30T07:14:55-07:00",
-      "LastUpdatedTime": "2025-09-30T07:14:55-07:00"
-    },
-    "DocNumber": "To print",
-    "TxnDate": "2025-09-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 1009.38,
-        "LinkedTxn": [
-          {
-            "TxnId": "21288",
-            "TxnType": "Bill"
-          }
-        ]
-      },
-      {
-        "Amount": 478.13,
-        "LinkedTxn": [
-          {
-            "TxnId": "21289",
             "TxnType": "Bill"
           }
         ]

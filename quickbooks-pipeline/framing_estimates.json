@@ -1,5 +1,269 @@
 [
   {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50586",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-29T13:47:13-07:00",
+      "LastUpdatedTime": "2025-10-02T10:17:01-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3006",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "51247",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "51408",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame addition on 18 Yale rd",
+        "Amount": 11000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Frame"
+          },
+          "UnitPrice": 11000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "labor and nails to Frame addition and exterior decks",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 11000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "653271006"
+    },
+    "CustomerRef": {
+      "value": "3324",
+      "name": "18 Yale Rd, Arlington"
+    },
+    "BillAddr": {
+      "Id": "16661",
+      "Line1": "2 Oldham Road",
+      "City": "Arlington",
+      "Country": "United States",
+      "CountrySubDivisionCode": "Massachusetts",
+      "PostalCode": "02474"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 11000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "eric@conneelycontracting.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51406",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-02T07:45:47-07:00",
+      "LastUpdatedTime": "2025-10-02T07:52:40-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3025",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,815 sqft - Rough Carpentry - First Draw",
+        "Amount": 15427,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3255",
+            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Sutton Modern Craftsman"
+          },
+          "UnitPrice": 15427,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "378 sqft - Rough Carpentry - Second Draw",
+        "Amount": 7877,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001741",
+            "name": "TB - Willis Brook at Lynnfield:Base Second Draw - Sutton"
+          },
+          "UnitPrice": 7877,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Walkout Basement",
+        "Amount": 5400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3207",
+            "name": "TB - Willis Brook at Lynnfield:017 - All Plans"
+          },
+          "UnitPrice": 5400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "QMI Cost Savings",
+        "Amount": -300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3208",
+            "name": "TB - Willis Brook at Lynnfield:020400 - All Plans"
+          },
+          "UnitPrice": -300,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Linear Frplc-42\" Cosmo/Rave Great Room, replaces",
+        "Amount": 800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3211",
+            "name": "TB - Willis Brook at Lynnfield:106158 - All Plans"
+          },
+          "UnitPrice": 800,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 29204,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "674736628"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3348",
+      "name": "Lot 05 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "17356",
+      "Line1": "Lot 05 - Willis Brook at Lynnfield",
+      "Line2": "10 Stableford Court",
+      "Line3": "Sutton Modern Craftsman"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 29204,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
     "AcceptedDate": "2025-09-24",
     "domain": "QBO",
     "sparse": false,
@@ -9005,91 +9269,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-08-04T08:20:03-07:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50586",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-29T13:47:13-07:00",
-      "LastUpdatedTime": "2025-09-04T06:10:54-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3006",
-    "TxnDate": "2025-08-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "51247",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Frame addition on 18 Yale rd",
-        "Amount": 11000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Frame"
-          },
-          "UnitPrice": 11000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "labor and nails to Frame addition and exterior decks",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 11000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "653271006"
-    },
-    "CustomerRef": {
-      "value": "3324",
-      "name": "18 Yale Rd, Arlington"
-    },
-    "BillAddr": {
-      "Id": "16661",
-      "Line1": "2 Oldham Road",
-      "City": "Arlington",
-      "Country": "United States",
-      "CountrySubDivisionCode": "Massachusetts",
-      "PostalCode": "02474"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 11000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "eric@conneelycontracting.com"
     }
   },
   {

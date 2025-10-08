@@ -3,6 +3,1356 @@
     "SalesTermRef": {
       "value": "1"
     },
+    "DueDate": "2025-10-08",
+    "VendorAddr": {
+      "Id": "3771"
+    },
+    "Balance": 1000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17493",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-04T01:48:38-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-04T01:48:38-07:00"
+    },
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Payroll Week - Felipe",
+        "Amount": 1000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "25"
+    },
+    "VendorRef": {
+      "value": "229",
+      "name": "Felipe Drumond"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-08",
+    "VendorAddr": {
+      "Id": "379"
+    },
+    "Balance": 3000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17492",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-04T01:48:38-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-04T01:48:38-07:00"
+    },
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Payroll Week - Guilherme",
+        "Amount": 3000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "19"
+    },
+    "VendorRef": {
+      "value": "340",
+      "name": "Guilherme Costa"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3000
+  },
+  {
+    "DueDate": "2025-08-14",
+    "VendorAddr": {
+      "Id": "9831",
+      "Line1": "RBI Construction Group, Inc.",
+      "Line2": "186 Main St",
+      "Line3": "Marlborough, MA  01752"
+    },
+    "Balance": 16500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17083",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-21T07:43:46-07:00",
+      "LastModifiedByRef": {
+        "value": "9130355420157126"
+      },
+      "LastUpdatedTime": "2025-10-03T13:30:40-07:00"
+    },
+    "DocNumber": "30 Pleasant Foundatio",
+    "TxnDate": "2025-08-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
+    "LinkedTxn": [
+      {
+        "TxnId": "17490",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "17107",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "30 Pleasant Park Foundation",
+        "Amount": 38000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "105",
+            "name": "Sub-Contractors:FOUNDATION"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "964",
+      "name": "RBI Construction Group, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 38000
+  },
+  {
+    "DueDate": "2025-10-31",
+    "VendorAddr": {
+      "Id": "183"
+    },
+    "Balance": 690.12,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17489",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T12:11:49-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T12:11:49-07:00"
+    },
+    "DocNumber": "0132336454",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Universal Hidden Deck Fastening\nSystem Stainless steel hidden deck\nscrews and clips Black (200 SF)\n4 in. x 4 in. x 8 ft.#2Ground Contact\nSouthern Yellow Pine PressureTreated Wood Timber\nLedgerLOK Flat Head 5 in.\nStructural Wood Screw (50 Pack)\nCollated Cortex Hidden Fastening\nSystem for Veranda Trim - 2 inch\nCortex screws and plugs - Smooth\n(250 LF)\n2 in. x 10 in. x 16 ft. 1 Ground\nContact Pressure-Treated Southern\nYellow Pine Lumber\nOutside Delivery",
+        "Amount": 690.12,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "133",
+            "name": "Job Supplies:Deck and Porch Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "31",
+      "name": "Home Depot"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 690.12
+  },
+  {
+    "DueDate": "2025-08-01",
+    "VendorAddr": {
+      "Id": "10229",
+      "Line1": "Town of Barnstable"
+    },
+    "Balance": 988.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17488",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-02T12:08:13-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T12:08:56-07:00"
+    },
+    "DocNumber": "22442 1st Quarter",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "1st Quarter. - #22442 - Taxes & Licenses 165 BAXTERS NECK ROAD",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1st Quarter. - FY26 Preliminary Real Estate Tax | Special Assessments",
+        "Amount": 988.94,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "18",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "311",
+      "name": "Town of Barnstable"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 988.94
+  },
+  {
+    "DueDate": "2025-11-03",
+    "VendorAddr": {
+      "Id": "10228",
+      "Line1": "Town of Barnstable"
+    },
+    "Balance": 988.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16632",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-26T10:54:03-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T12:08:29-07:00"
+    },
+    "DocNumber": "22442 2nd quarter",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2nd Quarter - #22442 - Taxes & Licenses 165 BAXTERS NECK ROAD",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2nd Quarter - FY26 Preliminary Real Estate Tax | Special Assessments",
+        "Amount": 988.94,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "18",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "311",
+      "name": "Town of Barnstable"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 988.94
+  },
+  {
+    "DueDate": "2025-11-03",
+    "Balance": 32.96,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17486",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:58:22-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:58:22-07:00"
+    },
+    "DocNumber": "22443",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2nd Quarter Payment FY26 Preliminary Real Estate Tax | Special Assessments",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2nd Quarter Payment FY26 Preliminary Real Estate Tax | Special Assessments",
+        "Amount": 32.96,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "79",
+            "name": "Taxes & Licenses:State Taxes"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "311",
+      "name": "Town of Barnstable"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 32.96
+  },
+  {
+    "DueDate": "2025-08-01",
+    "VendorAddr": {
+      "Id": "9423",
+      "Line1": "Town of Barnstable"
+    },
+    "Balance": 32.96,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16631",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-26T10:50:41-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:57:42-07:00"
+    },
+    "DocNumber": "22443 1st",
+    "TxnDate": "2025-07-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#22443 - Taxes & Licenses - 165 Baxter Neck Rd, Barnstable",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1st Quarter Paymentv FY26 Preliminary Real Estate Tax | Special Assessments",
+        "Amount": 32.96,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "18",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "311",
+      "name": "Town of Barnstable"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 32.96
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-23",
+    "VendorAddr": {
+      "Id": "10224",
+      "Line1": "Premium HVAC, Inc.",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, MA  01747 USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17484",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:55:26-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356047773536"
+      },
+      "LastUpdatedTime": "2025-10-02T11:56:56-07:00"
+    },
+    "DocNumber": "Cirrus Contract",
+    "TxnDate": "2025-09-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Cirrus Apartments",
+    "LinkedTxn": [
+      {
+        "TxnId": "17485",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Cirrus Contract \ninvoices - 2004 - 2005 - 2006",
+        "Amount": 3300,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "960",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "151",
+            "name": "Loan to Group OUT"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "188",
+      "name": "Premium HVAC, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3300
+  },
+  {
+    "DueDate": "2025-10-01",
+    "VendorAddr": {
+      "Id": "10222",
+      "Line1": "Green Eagle",
+      "Line2": "122 Green Street",
+      "Line3": "Fairhaven, MA  02719"
+    },
+    "Balance": 550,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17482",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:48:42-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:48:42-07:00"
+    },
+    "DocNumber": "14699",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "build together and install Thermador columns\ninstall dishwasher\ninstall beverage fridge",
+        "Amount": 550,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "120",
+            "name": "Sub-Contractors:Appliances Installations"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "387",
+      "name": "Green Eagle"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 550
+  },
+  {
+    "DueDate": "2025-10-01",
+    "VendorAddr": {
+      "Id": "10221",
+      "Line1": "Premium Tax Group, Inc.",
+      "Line2": "20 Homer Avenue",
+      "Line3": "Ashland, MA  01721"
+    },
+    "Balance": 300,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17479",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:45:15-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:45:15-07:00"
+    },
+    "DocNumber": "16745",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2025 Monthly Fee - September",
+        "Amount": 300,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "129",
+      "name": "Premium Tax Group, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 300
+  },
+  {
+    "DueDate": "2025-10-31",
+    "VendorAddr": {
+      "Id": "10220",
+      "Line1": "Daryl Avery Swanson",
+      "Line2": "New England Paradigm",
+      "Line3": "Attn: Daryl Avery Swanson         ",
+      "Line4": "24 Windsor Street",
+      "Line5": "Chelmsford, MA  01824"
+    },
+    "Balance": 53.6,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17478",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:42:26-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:42:26-07:00"
+    },
+    "DocNumber": "2231",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Google Domain",
+        "Amount": 53.6,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "New England Paradigm"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 53.6
+  },
+  {
+    "DueDate": "2025-10-11",
+    "VendorAddr": {
+      "Id": "10219",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 6360.47,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17477",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:39:42-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:39:42-07:00"
+    },
+    "DocNumber": "8559",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "SBA Monthly Loan",
+        "Amount": 6360.47,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6360.47
+  },
+  {
+    "DueDate": "2025-09-30",
+    "VendorAddr": {
+      "Id": "10218",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 12.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17476",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:38:14-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:38:14-07:00"
+    },
+    "DocNumber": "2509-212838",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HILLMAN FASTENER",
+        "Amount": 12.5,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 12.5
+  },
+  {
+    "DueDate": "2025-09-29",
+    "VendorAddr": {
+      "Id": "10217",
+      "Line1": "Flow Business and Financial Managment LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, MA  02038 USA"
+    },
+    "Balance": 650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17475",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:36:41-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:36:41-07:00"
+    },
+    "DocNumber": "1128",
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "WeeklyAccounting Services\n09/22/2025 - 09/26/2025",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WeeklyAccounting Services\n09/22/2025 - 09/26/2025",
+        "Amount": 650,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "910",
+      "name": "Flow Business and Financial Managment LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 650
+  },
+  {
+    "DueDate": "2025-09-29",
+    "VendorAddr": {
+      "Id": "10216",
+      "Line1": "Flow Business and Financial Managment LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, MA  02038 USA"
+    },
+    "Balance": 100,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17474",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:35:56-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:35:56-07:00"
+    },
+    "DocNumber": "1127",
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fisher Lane, LLC\nWeekly Accounting Services\n09/22/2025 - 09/26/2025",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Fisher Lane, LLC\nWeekly Accounting Services\n09/22/2025 - 09/26/2025",
+        "Amount": 100,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "910",
+      "name": "Flow Business and Financial Managment LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "DueDate": "2025-10-22",
+    "VendorAddr": {
+      "Id": "4317"
+    },
+    "Balance": 6,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17473",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:34:00-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:34:00-07:00"
+    },
+    "DocNumber": "117736495",
+    "TxnDate": "2025-09-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Massachusetts toll road",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "You are receiving this invoice as the registered owner or the lessee of a vehicle that traveled on a Massachusetts toll road. Non-payment will\nresult in additional fees.\nLicense Plate: Y22355\nLicense PlateState: MA\nInvoice Number: 117736495",
+        "Amount": 6,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "173",
+            "name": "Vehicles:Tolls"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "428",
+      "name": "Commonwealth of Massachusetts"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6
+  },
+  {
+    "DueDate": "2025-09-27",
+    "VendorAddr": {
+      "Id": "10076"
+    },
+    "Balance": 6233.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17472",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:24:46-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T11:24:46-07:00"
+    },
+    "DocNumber": "NJN-D74476 September",
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "NJN-D74476",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account Number NJN-D74476",
+        "Amount": 6233.25,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "172",
+            "name": "Vehicles:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "392",
+      "name": "IPFS"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6233.25
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-10-26",
+    "VendorAddr": {
+      "Id": "10215",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 43.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17471",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T10:23:35-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T10:23:35-07:00"
+    },
+    "DocNumber": "2509-211213",
+    "TxnDate": "2025-09-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "EA 9394500900 12 OZ.GOOF OFF HARDWOOD CLEANER Y 9.7900 EA 9.79\n1 EA 5111503683 3M 2090 2\"PAINTERS TAPE Y 9.9900 EA 9.99\n1 EA 7535306045 FROG TAPE 2\" X 60 YDS. Y 12.9900 EA 12.99\n1 EA 9432500035 1 LB NEW WHITE RAGS Y 5.9900 EA 5.99",
+        "Amount": 43.8,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 43.8
+  },
+  {
+    "DueDate": "2025-07-03",
+    "VendorAddr": {
+      "Id": "10182",
+      "Line1": "Pina Sanitation LLC",
+      "Line2": "53 Bowdoin Rd",
+      "Line3": "Mashpee, MA  02649 USA"
+    },
+    "Balance": 880,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17428",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-25T10:08:03-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T10:20:28-07:00"
+    },
+    "DocNumber": "I45883",
+    "TxnDate": "2025-06-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Darrin Alves:69 Central Ave, Falmouth",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "30 YARD ROLL OFF",
+        "Amount": 880,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "865",
+            "name": "Darrin Alves:69 Central Ave, Falmouth"
+          },
+          "AccountRef": {
+            "value": "83",
+            "name": "Equipment Rental:Dumpster Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502698502"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "916",
+      "name": "Pina Sanitation LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 880
+  },
+  {
+    "DueDate": "2025-10-02",
+    "VendorAddr": {
+      "Id": "10210",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 43.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17468",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T09:09:48-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T09:09:48-07:00"
+    },
+    "DocNumber": "2510-214461",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Purchase Agent: CHRIS PLOSZAY\n1X4X16'F/J PRIMED PINE\nTREATED/END SEALING & NAIL\nSEALING MUST BE DONE IMMEDIATELY\nFJPP1416 Y 25.9507 PC 25.95\n1 EA 3900309964 3/8\" VINYL PADS Y 2.8900 EA 2.89\n1 PK 3900309562 CLEAR VINYL BUMPERS 1/2IN Y 2.5900 PK 2.59\n1 EA 3861332819 MAGNETIC DOOR STOP SN",
+        "Amount": 43.8,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 43.8
+  },
+  {
+    "DueDate": "2025-10-07",
+    "VendorAddr": {
+      "Id": "10183",
+      "Line1": "Pina Sanitation LLC",
+      "Line2": "53 Bowdoin Rd",
+      "Line3": "Mashpee, MA  02649 USA"
+    },
+    "Balance": 880,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17427",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-25T10:06:16-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-02T09:07:14-07:00"
+    },
+    "DocNumber": "I51393",
+    "TxnDate": "2025-09-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA\n S5306",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "30 YARD ROLL OFF",
+        "Amount": 880,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "83",
+            "name": "Equipment Rental:Dumpster Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "916",
+      "name": "Pina Sanitation LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 880
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
     "DueDate": "2025-10-01",
     "VendorAddr": {
       "Id": "9452",
@@ -846,129 +2196,6 @@
     "TotalAmt": 1650
   },
   {
-    "DueDate": "2025-10-07",
-    "VendorAddr": {
-      "Id": "10183",
-      "Line1": "Pina Sanitation LLC",
-      "Line2": "53 Bowdoin Rd",
-      "Line3": "Mashpee, MA  02649 USA"
-    },
-    "Balance": 880,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17427",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-25T10:06:16-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-25T14:18:09-07:00"
-    },
-    "DocNumber": "I51393",
-    "TxnDate": "2025-09-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "No P.O - Requested 9/25/25",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "30 YARD ROLL OFF",
-        "Amount": 880,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "83",
-            "name": "Equipment Rental:Dumpster Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "916",
-      "name": "Pina Sanitation LLC"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 880
-  },
-  {
-    "DueDate": "2025-06-19",
-    "VendorAddr": {
-      "Id": "10182",
-      "Line1": "Pina Sanitation LLC",
-      "Line2": "53 Bowdoin Rd",
-      "Line3": "Mashpee, MA  02649 USA"
-    },
-    "Balance": 880,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17428",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-25T10:08:03-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-25T14:16:14-07:00"
-    },
-    "DocNumber": "I45883",
-    "TxnDate": "2025-06-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Darrin Alves:69 Central Ave, Falmouth",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "30 YARD ROLL OFF",
-        "Amount": 880,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "865",
-            "name": "Darrin Alves:69 Central Ave, Falmouth"
-          },
-          "AccountRef": {
-            "value": "83",
-            "name": "Equipment Rental:Dumpster Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502698502"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "916",
-      "name": "Pina Sanitation LLC"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 880
-  },
-  {
     "DueDate": "2025-09-05",
     "VendorAddr": {
       "Id": "10181",
@@ -1162,71 +2389,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 352.39
-  },
-  {
-    "DueDate": "2025-09-04",
-    "VendorAddr": {
-      "Id": "10178",
-      "Line1": "Monolith Group, Inc",
-      "Line2": "400 Franklin St. Ste. 302 Braintree, MA 02184 617-314-4177",
-      "Line3": "Braintree, MA  02184"
-    },
-    "Balance": 2500,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17424",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-25T09:45:21-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-25T14:14:24-07:00"
-    },
-    "DocNumber": "25212",
-    "TxnDate": "2025-09-04",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "30 Pleasant Park Dr, Mashpee, MA – Retaining Wall Design\nSite visit\n• Retaining Wall Design",
-        "Amount": 2500,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "10",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "977",
-      "name": "Monolith Group, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2500
   },
   {
     "DueDate": "2025-09-22",
@@ -19055,77 +20217,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 163.73
-  },
-  {
-    "DueDate": "2025-08-14",
-    "VendorAddr": {
-      "Id": "9831",
-      "Line1": "RBI Construction Group, Inc.",
-      "Line2": "186 Main St",
-      "Line3": "Marlborough, MA  01752"
-    },
-    "Balance": 28000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17083",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-21T07:43:46-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-08-27T08:06:37-07:00"
-    },
-    "DocNumber": "30 Pleasant Foundatio",
-    "TxnDate": "2025-08-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
-    "LinkedTxn": [
-      {
-        "TxnId": "17107",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "30 Pleasant Park Foundation",
-        "Amount": 38000,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "105",
-            "name": "Sub-Contractors:FOUNDATION"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "964",
-      "name": "RBI Construction Group, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 38000
   },
   {
     "SalesTermRef": {
@@ -38293,128 +39384,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 512
-  },
-  {
-    "DueDate": "2025-10-01",
-    "Balance": 988.94,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16632",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-26T10:54:03-07:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-26T10:54:03-07:00"
-    },
-    "DocNumber": "22442",
-    "TxnDate": "2025-10-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#22442 - Taxes & Licenses 165 BAXTERS NECK ROAD",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FY26 Preliminary Real Estate Tax | Special Assessments",
-        "Amount": 988.94,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "18",
-            "name": "Taxes & Licenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "311",
-      "name": "Town of Barnstable"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 988.94
-  },
-  {
-    "DueDate": "2025-10-01",
-    "VendorAddr": {
-      "Id": "9423",
-      "Line1": "Town of Barnstable"
-    },
-    "Balance": 32.96,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16631",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-06-26T10:50:41-07:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-26T10:52:12-07:00"
-    },
-    "DocNumber": "22443",
-    "TxnDate": "2025-07-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "#22443 - Taxes & Licenses - 165 Baxter Neck Rd, Barnstable",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FY26 Preliminary Real Estate Tax | Special Assessments",
-        "Amount": 32.96,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "18",
-            "name": "Taxes & Licenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "311",
-      "name": "Town of Barnstable"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 32.96
   },
   {
     "DueDate": "2025-06-19",

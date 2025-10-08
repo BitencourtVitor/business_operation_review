@@ -1,6 +1,87 @@
 [
   {
     "VendorRef": {
+      "value": "964",
+      "name": "RBI Construction Group, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 11500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17490",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T13:30:40-07:00",
+      "LastUpdatedTime": "2025-10-03T13:33:00-07:00"
+    },
+    "DocNumber": "1864",
+    "TxnDate": "2025-10-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "30 Pleasant Park Foundation",
+    "Line": [
+      {
+        "Amount": 11500,
+        "LinkedTxn": [
+          {
+            "TxnId": "17083",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "188",
+      "name": "Premium HVAC, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 3300,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17485",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:56:56-07:00",
+      "LastUpdatedTime": "2025-10-02T11:57:30-07:00"
+    },
+    "DocNumber": "1863",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 3300,
+        "LinkedTxn": [
+          {
+            "TxnId": "17484",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "980",
       "name": "Krish Gupta"
     },

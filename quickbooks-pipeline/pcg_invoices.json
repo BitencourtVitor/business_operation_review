@@ -7,6 +7,1048 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
+    "Id": "17330",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-18T06:37:22-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-04T06:25:47-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2012",
+    "TxnDate": "2025-09-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Retaining wall\nUpdate topo survey with post construction fill\nPrepare plan showing proposed retaining wall",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Retaining wall\nUpdate topo survey with post construction fill\nPrepare plan showing proposed retaining wall",
+        "Amount": 750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 750,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "10022",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "10023",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-09-18",
+    "TotalAmt": 750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "Balance": 750,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-04T06:25:40-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17469",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T09:23:15-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356456305886"
+      },
+      "LastUpdatedTime": "2025-10-02T20:19:30-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2020",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame and finish Back deck ",
+        "Amount": 20000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Credit for landing and stairs ",
+        "Amount": -1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Extra Plugs",
+        "Amount": 163.75,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Extra Pvc to wrap beams",
+        "Amount": 200.28,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Lumber bough to frame fire place ",
+        "Amount": 352.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Fire place frame labor ",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Permit fee",
+        "Amount": 200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 19916.51,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "10211",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "ShipAddr": {
+      "Id": "10212",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-02",
+    "TotalAmt": 19916.51,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 19916.51,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-02T20:19:24-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17197",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-05T08:37:27-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356047773536"
+      },
+      "LastUpdatedTime": "2025-10-02T11:47:24-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2007",
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17481",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\nApartment 4306\n\nNo hot water in the house",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-27",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "To uninstall the old water heater and install a new water heater.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-27",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "HVAC Labor",
+        "Amount": 1150,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-27",
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 1150,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Materials\nWater heating ",
+        "Amount": 2713.2,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "32",
+            "name": "Material"
+          },
+          "UnitPrice": 2713.2,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3863.2,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9946",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "Apartment 4306"
+    },
+    "ShipAddr": {
+      "Id": "9947",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "9948",
+      "Line1": "1B Landing Ln ",
+      "Line2": "Hopedale, MA 01747-1587"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-09-05",
+    "TotalAmt": 3863.2,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17196",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-05T08:29:32-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356047773536"
+      },
+      "LastUpdatedTime": "2025-10-02T11:46:05-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2006",
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17480",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\n\nApartment 4306",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-26",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Emergency Call on 08/26/2025 \nLabor: $90/Hour\n2 Technicians - 2.5 hours each. ",
+        "Amount": 450,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-26",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 90,
+          "Qty": 5,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 450,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9944",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "Apartment 4306"
+    },
+    "ShipAddr": {
+      "Id": "9945",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-09-05",
+    "TotalAmt": 450,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17195",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-05T08:19:29-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356047773536"
+      },
+      "LastUpdatedTime": "2025-10-02T11:46:05-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2005",
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17480",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\nApartment 3112\n\nThe air conditioner has stopped. When the thermostat states it should be running there is no sound or \nairflow.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-26",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "The air conditioning system was reported blowing hot air. Upon inspection, we found that \nthe thermostat was not set up correctly. The thermostat was reprogrammed and adjusted, \nand the system is now operating properly.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-26",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "HVAC Labor - $90/Hour\n2 Technicians - 1 hour each ",
+        "Amount": 180,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 90,
+          "Qty": 2,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 180,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9942",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "Apartment 3112"
+    },
+    "ShipAddr": {
+      "Id": "9943",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-09-05",
+    "TotalAmt": 180,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17194",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-05T08:10:02-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356047773536"
+      },
+      "LastUpdatedTime": "2025-10-02T11:46:05-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2004",
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17480",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\n\nApartment 1212 - Compressor Replacment\n",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Material - Compressor",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 1200,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Freon Charge -  5LB",
+        "Amount": 350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 350,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "HVAC Technician ",
+        "Amount": 1150,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 1150,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2700,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "9949",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "Apartment 1212"
+    },
+    "ShipAddr": {
+      "Id": "9950",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-09-05",
+    "TotalAmt": 2700,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
     "Id": "13246",
     "SyncToken": "8",
     "MetaData": {
@@ -157,11 +1199,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16806",
+        "TxnId": "16998",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16998",
+        "TxnId": "16806",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -169,15 +1211,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16712",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "17000",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17001",
+        "TxnId": "16712",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -185,15 +1223,19 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "17001",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "16940",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17039",
+        "TxnId": "16527",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16527",
+        "TxnId": "17039",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -209,11 +1251,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17042",
+        "TxnId": "16498",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16498",
+        "TxnId": "17042",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -1595,6 +2637,10 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "14305",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "14945",
         "TxnType": "ReimburseCharge"
       },
@@ -1603,15 +2649,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14305",
+        "TxnId": "15523",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "13923",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "15523",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -1659,11 +2701,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15539",
+        "TxnId": "14835",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14835",
+        "TxnId": "15539",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -1683,15 +2725,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14840",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "14520",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "14648",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "14840",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -5012,122 +6054,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2024-03-05T08:47:40-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17330",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-18T06:37:22-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-09-30T07:00:20-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2012",
-    "TxnDate": "2025-09-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Retaining wall\nUpdate topo survey with post construction fill\nPrepare plan showing proposed retaining wall",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Retaining wall\nUpdate topo survey with post construction fill\nPrepare plan showing proposed retaining wall",
-        "Amount": 750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 750,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "10022",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "10023",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-09-18",
-    "TotalAmt": 750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "Balance": 750,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-09-30T07:00:13-07:00"
     },
     "TaxExemptionRef": {}
   },
@@ -12226,11 +13152,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15772",
+        "TxnId": "14988",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14988",
+        "TxnId": "15772",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -14619,664 +15545,6 @@
       "Address": "regina.hills@liveatinland.com"
     },
     "Balance": 299,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17194",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-05T08:10:02-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356047773536"
-      },
-      "LastUpdatedTime": "2025-09-05T09:16:54-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2004",
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\n\nApartment 1212 - Compressor Replacment\n",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Material - Compressor",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 1200,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Freon Charge -  5LB",
-        "Amount": 350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 350,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "HVAC Technician ",
-        "Amount": 1150,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "225",
-            "name": "HVAC Labor"
-          },
-          "UnitPrice": 1150,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 2700,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "960",
-      "name": "Cirrus Apartments"
-    },
-    "BillAddr": {
-      "Id": "9949",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
-      "Line3": "Apartment 1212"
-    },
-    "ShipAddr": {
-      "Id": "9950",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-09-05",
-    "TotalAmt": 2700,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
-    },
-    "Balance": 2700,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17196",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-05T08:29:32-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356047773536"
-      },
-      "LastUpdatedTime": "2025-09-05T09:16:52-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2006",
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\n\nApartment 4306",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-26",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Emergency Call on 08/26/2025 \nLabor: $90/Hour\n2 Technicians - 2.5 hours each. ",
-        "Amount": 450,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-26",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 90,
-          "Qty": 5,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 450,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "960",
-      "name": "Cirrus Apartments"
-    },
-    "BillAddr": {
-      "Id": "9944",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
-      "Line3": "Apartment 4306"
-    },
-    "ShipAddr": {
-      "Id": "9945",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-09-05",
-    "TotalAmt": 450,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
-    },
-    "Balance": 450,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17197",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-05T08:37:27-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356047773536"
-      },
-      "LastUpdatedTime": "2025-09-05T08:37:27-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2007",
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\nApartment 4306\n\nNo hot water in the house",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-27",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "To uninstall the old water heater and install a new water heater.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-27",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "HVAC Labor",
-        "Amount": 1150,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-27",
-          "ItemRef": {
-            "value": "225",
-            "name": "HVAC Labor"
-          },
-          "UnitPrice": 1150,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Materials\nWater heating ",
-        "Amount": 2713.2,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "32",
-            "name": "Material"
-          },
-          "UnitPrice": 2713.2,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3863.2,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "960",
-      "name": "Cirrus Apartments"
-    },
-    "BillAddr": {
-      "Id": "9946",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
-      "Line3": "Apartment 4306"
-    },
-    "ShipAddr": {
-      "Id": "9947",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "9948",
-      "Line1": "1B Landing Ln ",
-      "Line2": "Hopedale, MA 01747-1587"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-09-05",
-    "TotalAmt": 3863.2,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
-    },
-    "Balance": 3863.2,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17195",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-05T08:19:29-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356047773536"
-      },
-      "LastUpdatedTime": "2025-09-05T08:20:28-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2005",
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "10 Cirrus Dr. Ashland, MA  01721 USA\nApartment 3112\n\nThe air conditioner has stopped. When the thermostat states it should be running there is no sound or \nairflow.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-26",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "The air conditioning system was reported blowing hot air. Upon inspection, we found that \nthe thermostat was not set up correctly. The thermostat was reprogrammed and adjusted, \nand the system is now operating properly.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-26",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "HVAC Labor - $90/Hour\n2 Technicians - 1 hour each ",
-        "Amount": 180,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "225",
-            "name": "HVAC Labor"
-          },
-          "UnitPrice": 90,
-          "Qty": 2,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 180,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "960",
-      "name": "Cirrus Apartments"
-    },
-    "BillAddr": {
-      "Id": "9942",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
-      "Line3": "Apartment 3112"
-    },
-    "ShipAddr": {
-      "Id": "9943",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-09-05",
-    "TotalAmt": 180,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
-    },
-    "Balance": 180,
     "TaxExemptionRef": {}
   },
   {
@@ -31404,11 +31672,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15827",
+        "TxnId": "15955",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15955",
+        "TxnId": "15827",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -32502,11 +32770,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15810",
+        "TxnId": "14786",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14786",
+        "TxnId": "15810",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -32558,11 +32826,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15505",
+        "TxnId": "14993",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14993",
+        "TxnId": "15505",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -32598,11 +32866,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14813",
+        "TxnId": "14941",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14941",
+        "TxnId": "14813",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -34110,11 +34378,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15957",
+        "TxnId": "15653",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15653",
+        "TxnId": "15957",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -34604,11 +34872,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14211",
+        "TxnId": "14259",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14259",
+        "TxnId": "14211",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -34616,11 +34884,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14216",
+        "TxnId": "14248",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14248",
+        "TxnId": "14216",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -50439,11 +50707,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15317",
+        "TxnId": "13509",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13509",
+        "TxnId": "15317",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -51087,11 +51355,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11523",
+        "TxnId": "11395",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11395",
+        "TxnId": "11523",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51781,15 +52049,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "11456",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "11200",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11458",
+        "TxnId": "11456",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51797,7 +52061,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11204",
+        "TxnId": "11458",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51805,15 +52069,19 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "11204",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "11397",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11206",
+        "TxnId": "11462",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11462",
+        "TxnId": "11206",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51897,11 +52165,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11442",
+        "TxnId": "11186",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11186",
+        "TxnId": "11442",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51913,15 +52181,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11446",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "11190",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11255",
+        "TxnId": "11446",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51929,7 +52193,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11192",
+        "TxnId": "11255",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51937,11 +52201,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11257",
+        "TxnId": "11192",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "11385",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "11257",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -51953,11 +52221,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11196",
+        "TxnId": "11516",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11516",
+        "TxnId": "11196",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58152,11 +58420,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "7694",
+        "TxnId": "8846",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8846",
+        "TxnId": "7694",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58176,11 +58444,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8857",
+        "TxnId": "10009",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10009",
+        "TxnId": "8857",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58188,11 +58456,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8859",
+        "TxnId": "10139",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10139",
+        "TxnId": "8859",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -58292,11 +58560,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10075",
+        "TxnId": "9819",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "9819",
+        "TxnId": "10075",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -60516,15 +60784,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13198",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "14446",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "12974",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "13198",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -60548,11 +60816,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12982",
+        "TxnId": "13558",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13558",
+        "TxnId": "12982",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -60576,11 +60844,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13342",
+        "TxnId": "13630",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13630",
+        "TxnId": "13342",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -85629,11 +85897,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12682",
+        "TxnId": "11114",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11114",
+        "TxnId": "12682",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -157447,15 +157715,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8458",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "8442",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8446",
+        "TxnId": "8458",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -157464,6 +157728,10 @@
       },
       {
         "TxnId": "8670",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "8446",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -171695,11 +171963,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5610",
+        "TxnId": "6890",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "6890",
+        "TxnId": "5610",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -184922,11 +185190,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5388",
+        "TxnId": "5324",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5324",
+        "TxnId": "5388",
         "TxnType": "ReimburseCharge"
       },
       {
