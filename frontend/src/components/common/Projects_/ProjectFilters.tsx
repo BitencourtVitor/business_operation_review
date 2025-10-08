@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../../../supabaseClient';
 import MultiSelectDropdown from '../MultiSelectDropdown';
 import Tooltip from '../../tooltips/MetricTooltip';
 
@@ -12,9 +12,6 @@ interface ProjectFiltersProps {
   setSelectedGroup: (group: 'all' | 'receivable' | 'payable') => void;
 }
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
 
 const ProjectFilters: React.FC<ProjectFiltersProps> = ({ selectedYear, setSelectedYear, selectedMonth, setSelectedMonth, selectedGroup, setSelectedGroup }) => {
   const [years, setYears] = useState<string[]>([]);

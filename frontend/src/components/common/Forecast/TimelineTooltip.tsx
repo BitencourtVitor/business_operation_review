@@ -253,10 +253,10 @@ export default function TimelineTooltip({
                 </div>
               </div>
 
-              {/* Observations */}
+              {/* Observations (expand spacing as requested) */}
               {project.observacoes && project.observacoes.trim() && (
                 <div style={{
-                  padding: '10px',
+                  padding: '12px',
                   background: 'var(--color-background-primary)',
                   borderRadius: 8,
                   border: '1px solid var(--color-border-divider)',
@@ -265,7 +265,7 @@ export default function TimelineTooltip({
                 }}>
                   <div style={{ 
                     fontWeight: 600, 
-                    marginBottom: 6, 
+                    marginBottom: 8, 
                     color: 'var(--color-text-primary)',
                     fontSize: 11,
                     textTransform: 'uppercase',
@@ -273,7 +273,7 @@ export default function TimelineTooltip({
                   }}>
                     Observations
                   </div>
-                  <div style={{ lineHeight: 1.4 }}>
+                  <div style={{ lineHeight: 1.5 }}>
                     {project.observacoes}
                   </div>
                 </div>
