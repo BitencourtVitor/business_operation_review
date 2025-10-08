@@ -1,6 +1,295 @@
 [
   {
     "VendorAddr": {
+      "Id": "20928",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 10.33,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21525",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T11:57:28-07:00",
+      "LastUpdatedTime": "2025-10-03T11:57:28-07:00"
+    },
+    "DocNumber": "S3392402.002",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3392402.002",
+        "Amount": 10.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1493",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 69 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613915107"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10.33
+  },
+  {
+    "VendorAddr": {
+      "Id": "20926",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 10.33,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21523",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T11:38:50-07:00",
+      "LastUpdatedTime": "2025-10-03T11:38:50-07:00"
+    },
+    "DocNumber": "S3392403.002",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3392403.002",
+        "Amount": 10.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1523",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 71 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "626091201"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10.33
+  },
+  {
+    "VendorAddr": {
+      "Id": "20923",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 10.33,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21521",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T11:28:52-07:00",
+      "LastUpdatedTime": "2025-10-03T11:28:52-07:00"
+    },
+    "DocNumber": "S3392404.002",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3392404.002",
+        "Amount": 10.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1434",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "592592866"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10.33
+  },
+  {
+    "VendorAddr": {
+      "Id": "20910",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 154.96,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21509",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T13:35:48-07:00",
+      "LastUpdatedTime": "2025-10-02T13:35:48-07:00"
+    },
+    "DocNumber": "S3391016.005",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3391016.005",
+        "Amount": 154.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1372",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564589364"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 154.96
+  },
+  {
+    "VendorAddr": {
+      "Id": "20902",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 360.11,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21501",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T13:03:08-07:00",
+      "LastUpdatedTime": "2025-10-02T13:03:08-07:00"
+    },
+    "DocNumber": "S3392005.001",
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "RETURNS",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3392005.001",
+        "Amount": 360.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 360.11
+  },
+  {
+    "VendorAddr": {
       "Id": "20724",
       "Line1": "The Portland Group",
       "Line2": "PO BOX 583",

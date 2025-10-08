@@ -1,6 +1,502 @@
 [
   {
     "VendorAddr": {
+      "Id": "17260",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51337",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-30T07:33:42-07:00",
+      "LastUpdatedTime": "2025-10-03T13:35:03-07:00"
+    },
+    "DocNumber": "BC - 178975",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Redo door casing resulting from flared jam and no shims\n\nBack Charge from Toll Brothers\nTotal: $100.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "51447",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Redo door casing resulting from flared jam and no shims\n\nBack Charge from Toll Brothers\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3099",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "503379060"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
+      "Id": "17258",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51335",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-30T07:31:53-07:00",
+      "LastUpdatedTime": "2025-10-03T13:35:03-07:00"
+    },
+    "DocNumber": "BC - 177896",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT\nDUE TO SPRAY FOAM INSTALLATION AND ACCESS. WORK DONE AT COST\n\nBack Charge #177896 from Toll Brothers\nTotal: $100.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "51447",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT\nDUE TO SPRAY FOAM INSTALLATION AND ACCESS. WORK DONE AT COST\n\nBack Charge #177896 from Toll Brothers\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3099",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "503379060"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
+      "Id": "16007",
+      "Line1": "Kaio Genelhu",
+      "Line2": "Patriots Construction Services, Inc.",
+      "Line3": "15 Wesson St.",
+      "Line4": "North Grafton, Massachusetts",
+      "Line5": "01536 United States"
+    },
+    "Balance": 7635,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49891",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-07-21T08:29:15-07:00",
+      "LastUpdatedTime": "2025-10-03T13:31:02-07:00"
+    },
+    "DocNumber": "0006",
+    "TxnDate": "2025-07-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 03 - Wendell Place\nInstalled sliding and garage door, added pins on basement PTs e reenforced the installed one. Moved wall of 1st and 2nd, reinstalled the stair to level it. Braced joists and moved LVL of the basement stair opening. Shimmed stairs wall and beam of front post. Redone unleveled walls and built the drop ceiling. Repaired plywood, floor and tapes that was done incorrectly.\n\n7/11 - 2 labor x 2h = 4h\n7/10 - 3 Labors x 10h = 30h\n7/8 - 3 labors x 9h = 27h\n7/7 - 3 labors x 11h = 33h\n7/3 - 3 labors x 11.5h = 34.5h \n7/2 - 3 labors x 11h = 34.5h \n6/30 - 3 Labors x 11h = 33h\n6/27 - 3 labors x 9h = 27h\n6/26 - 3 labors x 10.5h = 31.5h\n\nTotal: 254.5h x $30/h = $7,635.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installed sliding and garage door, added pins on basement PTs e reenforced the installed one. Moved wall of 1st and 2nd, reinstalled the stair to level it. Braced joists and moved LVL of the basement stair opening. Shimmed stairs wall and beam of front post. Redone unleveled walls and built the drop ceiling. Repaired plywood, floor and tapes that was done incorrectly.\n\n7/11 - 2 labor x 2h = 4h\n7/10 - 3 Labors x 10h = 30h\n7/8 - 3 labors x 9h = 27h\n7/7 - 3 labors x 11h = 33h\n7/3 - 3 labors x 11.5h = 34.5h \n7/2 - 3 labors x 11h = 34.5h \n6/30 - 3 Labors x 11h = 33h\n6/27 - 3 labors x 9h = 27h\n6/26 - 3 labors x 10.5h = 31.5h\n\nTotal: 254.5h x $30/h = $7,635.00",
+        "Amount": 7635,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "560351632"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2643",
+      "name": "Patriots Construction Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7635
+  },
+  {
+    "VendorAddr": {
+      "Id": "15490",
+      "Line1": "Kaio Genelhu",
+      "Line2": "Patriots Construction Services, Inc.",
+      "Line3": "15 Wesson St.",
+      "Line4": "North Grafton, Massachusetts",
+      "Line5": "01536 United States"
+    },
+    "Balance": 1600,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49325",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-24T14:06:17-07:00",
+      "LastUpdatedTime": "2025-10-03T13:31:02-07:00"
+    },
+    "DocNumber": "BC - Lot 3 - WP",
+    "TxnDate": "2025-06-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lote 3 westford\n2 pessoas trabalhou 3 dias \nRemoveu e reinstalou as janelas, valor 1.600\nExecutado pelo W Silva",
+        "Amount": 1600,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "560351632"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2643",
+      "name": "Patriots Construction Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1600
+  },
+  {
+    "VendorAddr": {
+      "Id": "15215",
+      "Line1": "Kaio Genelhu",
+      "Line2": "Patriots Construction Services, Inc.",
+      "Line3": "15 Wesson St.",
+      "Line4": "North Grafton, Massachusetts",
+      "Line5": "01536 United States"
+    },
+    "Balance": 200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49070",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-06-11T09:57:21-07:00",
+      "LastUpdatedTime": "2025-10-03T13:31:02-07:00"
+    },
+    "DocNumber": "S.V.R",
+    "TxnDate": "2025-06-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "No Hard Hat, No Rope line, no Harness. Unattended Fork lift with worker on men Basket\nmenbasket raised without Safety pins MAJOR SAFETY\nBoth workers listed in Default",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "No Hard Hat, No Rope line, no Harness. Unattended Fork lift with worker on men Basket\nmenbasket raised without Safety pins MAJOR SAFETY\nBoth workers listed in Default",
+        "Amount": 200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2643",
+      "name": "Patriots Construction Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 200
+  },
+  {
+    "VendorAddr": {
+      "Id": "15171",
+      "Line1": "Kaio Genelhu",
+      "Line2": "Patriots Construction Services, Inc.",
+      "Line3": "15 Wesson St.",
+      "Line4": "North Grafton, Massachusetts",
+      "Line5": "01536 United States"
+    },
+    "Balance": 150,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "49024",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-06-10T10:23:35-07:00",
+      "LastUpdatedTime": "2025-10-03T13:31:02-07:00"
+    },
+    "DocNumber": "Safe Work P. Lot 03",
+    "TxnDate": "2025-05-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "3rd offence - Action required - Wendell Place Lot  03",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Worker without Rope Line on Roof top",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3195",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "560351632"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2643",
+      "name": "Patriots Construction Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 150
+  },
+  {
+    "VendorAddr": {
+      "Id": "17350",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 100,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51403",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T07:21:47-07:00",
+      "LastUpdatedTime": "2025-10-02T07:21:47-07:00"
+    },
+    "DocNumber": "BC - 177897",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 12 - Newbury Glen\nFLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3190",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 12 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "555812265"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
+      "Id": "17349",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 100,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51402",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T07:19:40-07:00",
+      "LastUpdatedTime": "2025-10-02T07:19:40-07:00"
+    },
+    "DocNumber": "BC - 177891",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 13 - Newbury Glen\n\nZip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Zip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3215",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 13 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "573054843"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
       "Id": "17262",
       "Line1": "Fabian Cabrera",
       "Line2": "Abad Construction, Inc.",
@@ -60,128 +556,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1200
-  },
-  {
-    "VendorAddr": {
-      "Id": "17260",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 100,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51337",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-30T07:33:42-07:00",
-      "LastUpdatedTime": "2025-09-30T07:33:42-07:00"
-    },
-    "DocNumber": "BC - 178975",
-    "TxnDate": "2025-09-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Redo door casing resulting from flared jam and no shims\n\nBack Charge from Toll Brothers\nTotal: $100.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Redo door casing resulting from flared jam and no shims\n\nBack Charge from Toll Brothers\nTotal: $100.00",
-        "Amount": 100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3099",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "503379060"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 100
-  },
-  {
-    "VendorAddr": {
-      "Id": "17258",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 100,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51335",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-30T07:31:53-07:00",
-      "LastUpdatedTime": "2025-09-30T07:31:53-07:00"
-    },
-    "DocNumber": "BC - 177896",
-    "TxnDate": "2025-09-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT\nDUE TO SPRAY FOAM INSTALLATION AND ACCESS. WORK DONE AT COST\n\nBack Charge #177896 from Toll Brothers\nTotal: $100.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT\nDUE TO SPRAY FOAM INSTALLATION AND ACCESS. WORK DONE AT COST\n\nBack Charge #177896 from Toll Brothers\nTotal: $100.00",
-        "Amount": 100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3099",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "503379060"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 100
   },
   {
     "VendorAddr": {
@@ -2321,68 +2695,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "16007",
-      "Line1": "Kaio Genelhu",
-      "Line2": "Patriots Construction Services, Inc.",
-      "Line3": "15 Wesson St.",
-      "Line4": "North Grafton, Massachusetts",
-      "Line5": "01536 United States"
-    },
-    "Balance": 7635,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49891",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-07-21T08:29:15-07:00",
-      "LastUpdatedTime": "2025-07-21T08:29:15-07:00"
-    },
-    "DocNumber": "0006",
-    "TxnDate": "2025-07-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 03 - Wendell Place\nInstalled sliding and garage door, added pins on basement PTs e reenforced the installed one. Moved wall of 1st and 2nd, reinstalled the stair to level it. Braced joists and moved LVL of the basement stair opening. Shimmed stairs wall and beam of front post. Redone unleveled walls and built the drop ceiling. Repaired plywood, floor and tapes that was done incorrectly.\n\n7/11 - 2 labor x 2h = 4h\n7/10 - 3 Labors x 10h = 30h\n7/8 - 3 labors x 9h = 27h\n7/7 - 3 labors x 11h = 33h\n7/3 - 3 labors x 11.5h = 34.5h \n7/2 - 3 labors x 11h = 34.5h \n6/30 - 3 Labors x 11h = 33h\n6/27 - 3 labors x 9h = 27h\n6/26 - 3 labors x 10.5h = 31.5h\n\nTotal: 254.5h x $30/h = $7,635.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Installed sliding and garage door, added pins on basement PTs e reenforced the installed one. Moved wall of 1st and 2nd, reinstalled the stair to level it. Braced joists and moved LVL of the basement stair opening. Shimmed stairs wall and beam of front post. Redone unleveled walls and built the drop ceiling. Repaired plywood, floor and tapes that was done incorrectly.\n\n7/11 - 2 labor x 2h = 4h\n7/10 - 3 Labors x 10h = 30h\n7/8 - 3 labors x 9h = 27h\n7/7 - 3 labors x 11h = 33h\n7/3 - 3 labors x 11.5h = 34.5h \n7/2 - 3 labors x 11h = 34.5h \n6/30 - 3 Labors x 11h = 33h\n6/27 - 3 labors x 9h = 27h\n6/26 - 3 labors x 10.5h = 31.5h\n\nTotal: 254.5h x $30/h = $7,635.00",
-        "Amount": 7635,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3195",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "560351632"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2643",
-      "name": "Patriots Construction Services, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 7635
-  },
-  {
-    "VendorAddr": {
       "Id": "15949",
       "Line1": "Reginaldo Santana",
       "Line2": "Santana Construction Services, Inc.",
@@ -2498,61 +2810,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 180
-  },
-  {
-    "VendorAddr": {
-      "Id": "15215",
-      "Line1": "Kaio Genelhu",
-      "Line2": "Patriots Construction Services, Inc.",
-      "Line3": "15 Wesson St.",
-      "Line4": "North Grafton, Massachusetts",
-      "Line5": "01536 United States"
-    },
-    "Balance": 200,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49070",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-06-11T09:57:21-07:00",
-      "LastUpdatedTime": "2025-07-17T14:30:28-07:00"
-    },
-    "DocNumber": "S.V.R",
-    "TxnDate": "2025-06-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "No Hard Hat, No Rope line, no Harness. Unattended Fork lift with worker on men Basket\nmenbasket raised without Safety pins MAJOR SAFETY\nBoth workers listed in Default",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "No Hard Hat, No Rope line, no Harness. Unattended Fork lift with worker on men Basket\nmenbasket raised without Safety pins MAJOR SAFETY\nBoth workers listed in Default",
-        "Amount": 200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2643",
-      "name": "Patriots Construction Services, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 200
   },
   {
     "VendorAddr": {
@@ -3438,67 +3695,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 20
-  },
-  {
-    "VendorAddr": {
-      "Id": "15490",
-      "Line1": "Kaio Genelhu",
-      "Line2": "Patriots Construction Services, Inc.",
-      "Line3": "15 Wesson St.",
-      "Line4": "North Grafton, Massachusetts",
-      "Line5": "01536 United States"
-    },
-    "Balance": 1600,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49325",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-24T14:06:17-07:00",
-      "LastUpdatedTime": "2025-06-24T14:06:17-07:00"
-    },
-    "DocNumber": "BC - Lot 3 - WP",
-    "TxnDate": "2025-06-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Lote 3 westford\n2 pessoas trabalhou 3 dias \nRemoveu e reinstalou as janelas, valor 1.600\nExecutado pelo W Silva",
-        "Amount": 1600,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3195",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "560351632"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2643",
-      "name": "Patriots Construction Services, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1600
   },
   {
     "VendorAddr": {
@@ -5097,68 +5293,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 832.78
-  },
-  {
-    "VendorAddr": {
-      "Id": "15171",
-      "Line1": "Kaio Genelhu",
-      "Line2": "Patriots Construction Services, Inc.",
-      "Line3": "15 Wesson St.",
-      "Line4": "North Grafton, Massachusetts",
-      "Line5": "01536 United States"
-    },
-    "Balance": 150,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "49024",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-06-10T10:23:35-07:00",
-      "LastUpdatedTime": "2025-06-10T10:23:35-07:00"
-    },
-    "DocNumber": "Safe Work P. Lot 03",
-    "TxnDate": "2025-05-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "3rd offence - Action required - Wendell Place Lot  03",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Worker without Rope Line on Roof top",
-        "Amount": 150,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3195",
-            "name": "Toll Brothers, Inc.:Wendell Place:Lot 03 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "560351632"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2643",
-      "name": "Patriots Construction Services, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 150
   },
   {
     "VendorAddr": {

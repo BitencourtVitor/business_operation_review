@@ -2,11 +2,749 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "21552",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T07:11:59-07:00",
+      "LastUpdatedTime": "2025-10-06T07:11:59-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1905",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14.03,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14.025,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3.1,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser/Compressor",
+        "Amount": 3.3,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3.3,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23.43,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "678397928"
+    },
+    "CustomerRef": {
+      "value": "1606",
+      "name": "Lot 122- Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "7682"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 23.43,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21551",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T06:57:10-07:00",
+      "LastUpdatedTime": "2025-10-06T06:57:10-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1904",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1092",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Manchester"
+          },
+          "UnitPrice": 12800,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1128",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263432 - Final - Westford"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1143",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Manchester"
+          },
+          "UnitPrice": 4650,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Condenser",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1161",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Manchester"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Final H.V.A.C.",
+        "Amount": 2100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1179",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Manchester"
+          },
+          "UnitPrice": 2100,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 27150,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "676167929"
+    },
+    "CustomerRef": {
+      "value": "1605",
+      "name": "Lot 40- Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "7682"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 27150,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21549",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T15:53:54-07:00",
+      "LastUpdatedTime": "2025-10-03T15:53:54-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1903",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Base house - Riverview",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "21602 - HVAC - Rough - All In - Riverview East Point",
+        "Amount": 24222.74,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1543",
+            "name": "Pulte Home - Riverview East Point:21602 - HVAC - Rough - All In - Riverview East Point"
+          },
+          "UnitPrice": 24222.74,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "21604 - HVAC - Final - All In - Riverview East Point",
+        "Amount": 6065.68,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1544",
+            "name": "Pulte Home - Riverview East Point:21604 - HVAC - Final - All In - Riverview East Point"
+          },
+          "UnitPrice": 6065.68,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 30288.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "664250085"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1576",
+      "name": "Riverview East Point - Lot 06"
+    },
+    "BillAddr": {
+      "Id": "17861"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 30288.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "doug.mclay@pultegroup.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21548",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T15:52:56-07:00",
+      "LastUpdatedTime": "2025-10-03T15:52:56-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1902",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Base house - Riverview",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "21602 - HVAC - Rough - All In - Riverview East Point",
+        "Amount": 24222.74,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1543",
+            "name": "Pulte Home - Riverview East Point:21602 - HVAC - Rough - All In - Riverview East Point"
+          },
+          "UnitPrice": 24222.74,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "21604 - HVAC - Final - All In - Riverview East Point",
+        "Amount": 6065.68,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1544",
+            "name": "Pulte Home - Riverview East Point:21604 - HVAC - Final - All In - Riverview East Point"
+          },
+          "UnitPrice": 6065.68,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 30288.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "664249788"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1575",
+      "name": "Riverview East Point - Lot 05"
+    },
+    "BillAddr": {
+      "Id": "17861"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 30288.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "doug.mclay@pultegroup.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21547",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-03T15:51:49-07:00",
+      "LastUpdatedTime": "2025-10-03T15:52:16-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1901",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Base house - Riverview",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "21602 - HVAC - Rough - All In - Riverview East Point",
+        "Amount": 24222.74,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1543",
+            "name": "Pulte Home - Riverview East Point:21602 - HVAC - Rough - All In - Riverview East Point"
+          },
+          "UnitPrice": 24222.74,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "21604 - HVAC - Final - All In - Riverview East Point",
+        "Amount": 6065.68,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1544",
+            "name": "Pulte Home - Riverview East Point:21604 - HVAC - Final - All In - Riverview East Point"
+          },
+          "UnitPrice": 6065.68,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 30288.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "664248232"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1571",
+      "name": "Riverview East Point - Lot 01"
+    },
+    "BillAddr": {
+      "Id": "20948",
+      "Line1": "Pulte Homes - Riverview at East Point - 9041"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 30288.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "doug.mclay@pultegroup.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "21475",
-    "SyncToken": "3",
+    "SyncToken": "4",
     "MetaData": {
       "CreateTime": "2025-09-30T09:48:57-07:00",
-      "LastUpdatedTime": "2025-09-30T09:49:29-07:00"
+      "LastUpdatedTime": "2025-10-03T15:50:20-07:00"
     },
     "CustomField": [
       {
@@ -113,17 +851,16 @@
       ]
     },
     "ProjectRef": {
-      "value": "664248232"
+      "value": "664249551"
     },
     "TotalCostAmount": 0,
     "HomeTotalCostAmount": 0,
     "CustomerRef": {
-      "value": "1571",
-      "name": "Riverview East Point - Lot 01"
+      "value": "1574",
+      "name": "Riverview East Point - Lot 04"
     },
     "BillAddr": {
-      "Id": "20889",
-      "Line1": "Pulte Homes - Riverview at East Point - 9041"
+      "Id": "17861"
     },
     "FreeFormAddress": false,
     "TotalAmt": 30288.42,
@@ -133,6 +870,1229 @@
     "BillEmail": {
       "Address": "doug.mclay@pultegroup.com"
     },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21546",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T15:49:29-07:00",
+      "LastUpdatedTime": "2025-10-03T15:49:29-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1900",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Base house - Riverview",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "21602 - HVAC - Rough - All In - Riverview East Point",
+        "Amount": 24222.74,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1543",
+            "name": "Pulte Home - Riverview East Point:21602 - HVAC - Rough - All In - Riverview East Point"
+          },
+          "UnitPrice": 24222.74,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "21604 - HVAC - Final - All In - Riverview East Point",
+        "Amount": 6065.68,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1544",
+            "name": "Pulte Home - Riverview East Point:21604 - HVAC - Final - All In - Riverview East Point"
+          },
+          "UnitPrice": 6065.68,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 30288.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "664249212"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1573",
+      "name": "Riverview East Point - Lot 03"
+    },
+    "BillAddr": {
+      "Id": "17861"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 30288.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "doug.mclay@pultegroup.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21545",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T15:42:07-07:00",
+      "LastUpdatedTime": "2025-10-03T15:42:07-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1899",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Base house - Riverview",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "21602 - HVAC - Rough - All In - Riverview East Point",
+        "Amount": 24222.74,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1543",
+            "name": "Pulte Home - Riverview East Point:21602 - HVAC - Rough - All In - Riverview East Point"
+          },
+          "UnitPrice": 24222.74,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "21604 - HVAC - Final - All In - Riverview East Point",
+        "Amount": 6065.68,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "ItemRef": {
+            "value": "1544",
+            "name": "Pulte Home - Riverview East Point:21604 - HVAC - Final - All In - Riverview East Point"
+          },
+          "UnitPrice": 6065.68,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "228",
+            "name": "Pulte Homes - HVAC"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 30288.42,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "664249011"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1572",
+      "name": "Riverview East Point - Lot 02"
+    },
+    "BillAddr": {
+      "Id": "17861"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 30288.42,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "doug.mclay@pultegroup.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21499",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T12:19:50-07:00",
+      "LastUpdatedTime": "2025-10-02T12:19:50-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1898",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14025,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14025,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23725,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "675060419"
+    },
+    "CustomerRef": {
+      "value": "1604",
+      "name": "Lot 121- Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "7682"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 23725,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21498",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:50:40-07:00",
+      "LastUpdatedTime": "2025-10-02T11:50:40-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1897",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough",
+        "Amount": 14025,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000111",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Chatham"
+          },
+          "UnitPrice": 14025,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace/Air Handler",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Chatham"
+          },
+          "UnitPrice": 3100,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser/Compressor",
+        "Amount": 3300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000132",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Chatham"
+          },
+          "UnitPrice": 3300,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000171",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Chatham"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23425,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "674937755"
+    },
+    "CustomerRef": {
+      "value": "1603",
+      "name": "Lot 108- Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "7682"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 23425,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21495",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T09:24:25-07:00",
+      "LastUpdatedTime": "2025-10-02T09:24:25-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1896",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 13800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000541",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Rough Ductwork - Sutton"
+          },
+          "UnitPrice": 13800,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler - Sutton - Willis Brook",
+        "Amount": 3.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000545",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Air Handler - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3.5,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor - Sutton - Willis Brook",
+        "Amount": 3800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000524",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3800,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC - Sutton - Willis Brook",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000581",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Sutton - Willis Brook"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 20603.5,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "674799361"
+    },
+    "CustomerRef": {
+      "value": "1601",
+      "name": "Lot 04-  Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "16268"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 20603.5,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21494",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T08:37:42-07:00",
+      "LastUpdatedTime": "2025-10-02T08:37:42-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1895",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 13500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000521",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Rough Ductwork - Westford"
+          },
+          "UnitPrice": 13500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air handler - Westford - Willis Brook",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000546",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Air handler - Westford - Willis Brook"
+          },
+          "UnitPrice": 3500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor - Westford - Willis Brook",
+        "Amount": 3800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000562",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Compressor - Westford - Willis Brook"
+          },
+          "UnitPrice": 3800,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC - Westford - Willis Brook",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000573",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Final HVAC - Westford - Willis Brook"
+          },
+          "UnitPrice": 3000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23800,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "674799361"
+    },
+    "CustomerRef": {
+      "value": "1601",
+      "name": "Lot 04-  Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "16268"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 23800,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17927",
+    "SyncToken": "12",
+    "MetaData": {
+      "CreateTime": "2025-04-25T07:17:04-07:00",
+      "LastUpdatedTime": "2025-10-02T06:43:54-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "1785",
+    "TxnDate": "2025-04-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "18488",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "20760",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "20999",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "21001",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "21493",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 12800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1090",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Eastern"
+          },
+          "UnitPrice": 12800,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Furnace",
+        "Amount": 4650,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1141",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Eastern"
+          },
+          "UnitPrice": 4650,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Condenser",
+        "Amount": 3100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1159",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Eastern"
+          },
+          "UnitPrice": 3100,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final H.V.A.C.",
+        "Amount": 2100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1177",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Eastern"
+          },
+          "UnitPrice": 2100,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Finished Walkout Basement",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1115",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263432 - Rough - Westford"
+          },
+          "UnitPrice": 4500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Full Bath - Finished Lower Level",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1221",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "36\" Gas Cooktop\nDescription 1: \t36\" Gas Cooktop\nDescription 2: \tCombo Oven, Hood, DW\n ",
+        "Amount": 275,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "15",
+            "name": "Description"
+          },
+          "UnitPrice": 275,
+          "UnitCostPrice": 275,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 275,
+        "HomeCostAmount": 275,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 27925,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "564938450"
+    },
+    "TotalCostAmount": 275,
+    "HomeTotalCostAmount": 275,
+    "CustomerRef": {
+      "value": "1375",
+      "name": "Lot 62 - The Pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "16613",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "10 Chimney Swift",
+      "Line3": "Westford Eastern Shore"
+    },
+    "ShipAddr": {
+      "Id": "16614",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "10 Chimney Swift",
+      "Line3": "Westford Eastern Shore"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 27925,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
     "TaxExemptionRef": {}
   },
   {
@@ -3625,6 +5585,10 @@
       },
       {
         "TxnId": "21424",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "21515",
         "TxnType": "Invoice"
       }
     ],
@@ -14336,291 +16300,6 @@
     },
     "FreeFormAddress": false,
     "TotalAmt": 25700,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17927",
-    "SyncToken": "11",
-    "MetaData": {
-      "CreateTime": "2025-04-25T07:17:04-07:00",
-      "LastUpdatedTime": "2025-09-17T13:47:15-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "1785",
-    "TxnDate": "2025-04-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "18488",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20760",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "20999",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "21001",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 12800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1090",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Rough - Westford Eastern"
-          },
-          "UnitPrice": 12800,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Furnace",
-        "Amount": 4650,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1141",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Furnace - Westford Eastern"
-          },
-          "UnitPrice": 4650,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Condenser",
-        "Amount": 3100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1159",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Westford Eastern"
-          },
-          "UnitPrice": 3100,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final H.V.A.C.",
-        "Amount": 2100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1177",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Westford Eastern"
-          },
-          "UnitPrice": 2100,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Finished Walkout Basement",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1115",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:263432 - Rough - Westford"
-          },
-          "UnitPrice": 4500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Full Bath - Finished Lower Level",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1221",
-            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:383 - All Plans"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "36\" Gas Cooktop\nDescription 1: \t36\" Gas Cooktop\nDescription 2: \tCombo Oven, Hood, DW\n ",
-        "Amount": 275,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "15",
-            "name": "Description"
-          },
-          "UnitPrice": 275,
-          "UnitCostPrice": 275,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "5",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 275,
-        "HomeCostAmount": 275,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 27925,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "564938450"
-    },
-    "TotalCostAmount": 275,
-    "HomeTotalCostAmount": 275,
-    "CustomerRef": {
-      "value": "1375",
-      "name": "Lot 62 - The Pinehills Owls Nest"
-    },
-    "BillAddr": {
-      "Id": "16613",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "10 Chimney Swift",
-      "Line3": "Westford Eastern Shore"
-    },
-    "ShipAddr": {
-      "Id": "16614",
-      "Line1": "The Pinehills Owls Nest",
-      "Line2": "10 Chimney Swift",
-      "Line3": "Westford Eastern Shore"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 27925,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
@@ -39168,6 +40847,10 @@
       },
       {
         "TxnId": "18856",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "21516",
         "TxnType": "Invoice"
       }
     ],

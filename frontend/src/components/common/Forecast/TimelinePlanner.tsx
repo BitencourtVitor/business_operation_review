@@ -196,11 +196,11 @@ export default function TimelinePlanner({
     });
     
     if (maxCardsInColumn === 0) {
-      return 100; // Altura mínima quando não há projetos
+      return 140; // Altura mínima quando não há projetos
     }
     
-    // Altura simples: cada card 100px + 8px de margin + 8px de padding top
-    const cardHeight = 100;
+    // Altura simples: cada card 140px + 8px de margin + 8px de padding top
+    const cardHeight = 140;
     const cardMargin = 8;
     const topPadding = 8;
     const totalHeight = maxCardsInColumn * (cardHeight + cardMargin) + topPadding;
@@ -624,7 +624,7 @@ export default function TimelinePlanner({
                                   transition: 'all 0.2s ease',
                                   border: '1px solid rgba(255,255,255,0.2)',
                                   userSelect: 'none',
-                                  height: 100,
+                                  height: 140,
                                   flexShrink: 0,
                                   display: 'flex',
                                   flexDirection: 'column',

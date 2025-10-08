@@ -4,6 +4,46 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "TotalAmt": 3330,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17483",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-02T11:51:53-07:00",
+      "LastUpdatedTime": "2025-10-02T11:51:53-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "invoices 2004 - 2005 - 2006",
+        "Amount": 3330,
+        "LinkedTxn": [
+          {
+            "TxnId": "17480",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "284161"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "TotalAmt": 3481.25,
     "domain": "QBO",
     "sparse": false,

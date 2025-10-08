@@ -711,7 +711,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-09-15T10:16:36-07:00",
-      "LastUpdatedTime": "2025-09-18T06:03:07-07:00"
+      "LastUpdatedTime": "2025-10-03T01:51:47-07:00"
     },
     "DocNumber": "2456",
     "TxnDate": "2025-09-09",
@@ -855,7 +855,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-09-11T10:55:05-07:00",
-      "LastUpdatedTime": "2025-09-17T11:40:15-07:00"
+      "LastUpdatedTime": "2025-10-03T01:50:32-07:00"
     },
     "TxnDate": "2025-08-25",
     "CurrencyRef": {
@@ -938,7 +938,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-09-11T10:48:59-07:00",
-      "LastUpdatedTime": "2025-09-17T11:40:15-07:00"
+      "LastUpdatedTime": "2025-10-03T01:50:32-07:00"
     },
     "TxnDate": "2025-08-19",
     "CurrencyRef": {
@@ -1021,7 +1021,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-08-07T12:06:29-07:00",
-      "LastUpdatedTime": "2025-09-17T11:40:15-07:00"
+      "LastUpdatedTime": "2025-10-03T01:50:32-07:00"
     },
     "TxnDate": "2025-07-29",
     "CurrencyRef": {
@@ -8075,7 +8075,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-09-11T12:05:53-07:00",
-      "LastUpdatedTime": "2025-09-18T06:03:02-07:00"
+      "LastUpdatedTime": "2025-10-03T01:52:46-07:00"
     },
     "TxnDate": "2025-09-02",
     "CurrencyRef": {
@@ -8656,7 +8656,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-09-11T11:33:26-07:00",
-      "LastUpdatedTime": "2025-09-18T06:03:02-07:00"
+      "LastUpdatedTime": "2025-10-03T01:52:46-07:00"
     },
     "TxnDate": "2025-09-02",
     "CurrencyRef": {
@@ -8740,7 +8740,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-09-11T11:30:27-07:00",
-      "LastUpdatedTime": "2025-09-18T06:03:02-07:00"
+      "LastUpdatedTime": "2025-10-03T01:52:46-07:00"
     },
     "TxnDate": "2025-09-02",
     "CurrencyRef": {
@@ -10781,7 +10781,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-09-11T10:08:58-07:00",
-      "LastUpdatedTime": "2025-09-11T10:08:58-07:00"
+      "LastUpdatedTime": "2025-10-02T07:18:40-07:00"
     },
     "TxnDate": "2025-08-28",
     "CurrencyRef": {
@@ -10815,7 +10815,7 @@
             "value": "13",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -65034,7 +65034,7 @@
             "value": "5",
             "name": "Bank Charges & Fees"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
