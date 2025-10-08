@@ -59,8 +59,13 @@ export default function MobileTimelinePlanner({
       const end = new Date(project.previous_end_date);
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
 
-      const projectYear = start.getFullYear().toString();
-      const projectMonth = start.toLocaleString('en-US', { month: 'long' });
+      // Parse date string directly to avoid timezone issues
+      const dateParts = project.previous_start_date.split('-');
+      if (dateParts.length !== 3) return false;
+      
+      const projectYear = dateParts[0];
+      const projectMonthNum = parseInt(dateParts[1]);
+      const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;

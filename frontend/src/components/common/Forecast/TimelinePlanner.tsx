@@ -231,9 +231,12 @@ export default function TimelinePlanner({
       if (showDays) {
         return timeColumn.date ? project.previous_start_date.startsWith(timeColumn.date) : false;
       } else {
-        const projectDate = new Date(project.previous_start_date);
-        const projectMonth = projectDate.getMonth() + 1;
-        const projectYear = projectDate.getFullYear();
+        // Parse date string directly to avoid timezone issues
+        const dateParts = project.previous_start_date.split('-');
+        if (dateParts.length !== 3) return false;
+        
+        const projectYear = parseInt(dateParts[0]);
+        const projectMonth = parseInt(dateParts[1]);
         
         // Se há filtro de ano, verificar se o projeto está no ano correto
         if (selectedYear && selectedYear !== '') {
