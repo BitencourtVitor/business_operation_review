@@ -136,8 +136,14 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
     if (!workforceProjects.length) return [];
 
     const filteredProjects = workforceProjects.filter(project => {
-      const projectYear = new Date(project.previous_start_date).getFullYear().toString();
-      const projectMonth = new Date(project.previous_start_date).toLocaleString('en-US', { month: 'long' });
+      // Exigir datas válidas de início e fim
+      if (!project.previous_start_date || !project.previous_end_date) return false;
+      const start = new Date(project.previous_start_date);
+      const end = new Date(project.previous_end_date);
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
+
+      const projectYear = start.getFullYear().toString();
+      const projectMonth = start.toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;

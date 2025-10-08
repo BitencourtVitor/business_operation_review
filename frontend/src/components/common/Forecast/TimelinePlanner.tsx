@@ -167,7 +167,15 @@ export default function TimelinePlanner({
   const groupedData = useMemo(() => {
     const groups: { [key: string]: WorkforceProject[] } = {};
     
-    workforceProjects.forEach(project => {
+    // Considerar apenas projetos com datas válidas de início e fim
+    const validProjects = workforceProjects.filter(p => {
+      if (!p.previous_start_date || !p.previous_end_date) return false;
+      const s = new Date(p.previous_start_date);
+      const e = new Date(p.previous_end_date);
+      return !isNaN(s.getTime()) && !isNaN(e.getTime());
+    });
+
+    validProjects.forEach(project => {
       const groupKey = groupBy === 'cliente' ? project.cliente : project.job_site;
       if (!groups[groupKey]) {
         groups[groupKey] = [];
@@ -186,26 +194,27 @@ export default function TimelinePlanner({
   }, [workforceProjects, groupBy]);
 
   // Calcular altura total de projetos para cada grupo
+  const getCardHeight = (project: WorkforceProject) => {
+    const baseHeight = 140;
+    const hasObservation = !!(project.observacoes && project.observacoes.trim());
+    return hasObservation ? baseHeight + 40 : baseHeight; // adiciona espaço extra quando há observação
+  };
+
   const getGroupHeight = (groupName: string) => {
-    let maxCardsInColumn = 0;
-    
-    // Encontrar o número máximo de cards em qualquer coluna para este grupo
+    let maxColumnHeight = 0;
+
     timeColumns.forEach(col => {
       const projects = getProjectsForPeriod(groupName, col);
-      maxCardsInColumn = Math.max(maxCardsInColumn, projects.length);
+      const cardMargin = 8;
+      const topPadding = 8;
+      const columnHeight = topPadding + projects.reduce((sum, p) => sum + getCardHeight(p) + cardMargin, 0);
+      if (columnHeight > maxColumnHeight) {
+        maxColumnHeight = columnHeight;
+      }
     });
-    
-    if (maxCardsInColumn === 0) {
-      return 140; // Altura mínima quando não há projetos
-    }
-    
-    // Altura simples: cada card 140px + 8px de margin + 8px de padding top
-    const cardHeight = 140;
-    const cardMargin = 8;
-    const topPadding = 8;
-    const totalHeight = maxCardsInColumn * (cardHeight + cardMargin) + topPadding;
-    
-    return totalHeight;
+
+    // Altura mínima quando não há projetos
+    return maxColumnHeight === 0 ? 140 : maxColumnHeight;
   };
 
   // Obter projetos para um grupo e período específico
@@ -213,7 +222,11 @@ export default function TimelinePlanner({
     const groupProjects = groupedData.find(g => g.groupName === groupName)?.projects || [];
     
     let filteredProjects = groupProjects.filter(project => {
-      if (!project.previous_start_date) return false;
+      // Exigir datas válidas de início e fim
+      if (!project.previous_start_date || !project.previous_end_date) return false;
+      const s = new Date(project.previous_start_date);
+      const e = new Date(project.previous_end_date);
+      if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
       
       if (showDays) {
         return timeColumn.date ? project.previous_start_date.startsWith(timeColumn.date) : false;
@@ -624,7 +637,7 @@ export default function TimelinePlanner({
                                   transition: 'all 0.2s ease',
                                   border: '1px solid rgba(255,255,255,0.2)',
                                   userSelect: 'none',
-                                  height: 140,
+                                  height: getCardHeight(project),
                                   flexShrink: 0,
                                   display: 'flex',
                                   flexDirection: 'column',
@@ -678,6 +691,24 @@ export default function TimelinePlanner({
                                     opacity: 0.7
                                   }}>
                                     Start: {formatDateShort(project.previous_start_date)} | End: {formatDateShort(project.previous_end_date)}
+                                  </div>
+                                )}
+
+                                {/* Observação (quando existir) */}
+                                {project.observacoes && project.observacoes.trim() && (
+                                  <div style={{
+                                    marginTop: 6,
+                                    padding: '6px 8px',
+                                    background: 'rgba(0,0,0,0.15)',
+                                    borderRadius: 6,
+                                    color: 'rgba(255,255,255,0.95)',
+                                    fontSize: 11,
+                                    lineHeight: 1.3,
+                                    maxHeight: 40,
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis'
+                                  }}>
+                                    {project.observacoes}
                                   </div>
                                 )}
                                 </div>

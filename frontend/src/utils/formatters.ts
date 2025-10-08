@@ -18,10 +18,18 @@ export function formatDate(date: string): string {
   return localDate.toLocaleDateString('pt-BR');
 }
 
-export function formatDateUS(date: string): string {
+export function formatDateUS(date: string | null | undefined): string {
+  if (!date || typeof date !== 'string') return '-';
   // Evita problemas de timezone criando a data localmente
-  const [year, month, day] = date.split('-');
-  const localDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  const parts = date.split('-');
+  if (parts.length < 3) return '-';
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = parseInt(yearStr);
+  const month = parseInt(monthStr);
+  const day = parseInt(dayStr);
+  if (Number.isNaN(year) || Number.isNaN(month) || Number.isNaN(day)) return '-';
+  const localDate = new Date(year, month - 1, day);
+  if (isNaN(localDate.getTime())) return '-';
   return localDate.toLocaleDateString('en-US', {
     day: '2-digit',
     month: '2-digit',
