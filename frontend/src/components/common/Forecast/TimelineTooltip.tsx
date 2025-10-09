@@ -1,4 +1,5 @@
 import React from 'react';
+import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import { formatDateUS } from '../../../utils/formatters';
 
 interface TimelineTooltipProps {
@@ -181,21 +182,47 @@ export default function TimelineTooltip({
                     <strong>Lot:</strong> {project.lote_building || 'Not informed'}
                   </div>
                 </div>
-                {project.workforce && (
-                  <div style={{
-                    background: '#28a745',
-                    color: 'white',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: '6px 10px',
-                    borderRadius: 12,
-                    minWidth: 30,
-                    textAlign: 'center',
-                    marginLeft: 8
-                  }}>
-                    {project.workforce}
-                  </div>
-                )}
+                <div style={{ display: 'flex', gap: '8px', marginLeft: 8 }}>
+                  {project.workforce && (
+                    <div style={{
+                      background: '#28a745',
+                      color: 'white',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: '6px 10px',
+                      borderRadius: 12,
+                      minWidth: 30,
+                      textAlign: 'center'
+                    }}>
+                      {project.workforce}
+                    </div>
+                  )}
+                  {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                    <div style={{
+                      background: '#17a2b8',
+                      color: 'white',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      padding: '6px 8px',
+                      borderRadius: 12,
+                      minWidth: 30,
+                      textAlign: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <img 
+                        src={iconForecastHvac} 
+                        alt="HVAC" 
+                        style={{ 
+                          width: '16px', 
+                          height: '16px',
+                          objectFit: 'contain'
+                        }} 
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Project Details */}
