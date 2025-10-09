@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
+import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 
 interface WorkforceProject {
   id: number;
@@ -8,6 +9,7 @@ interface WorkforceProject {
   type: string | null;
   lote_building: number;
   workforce: string;
+  hvac: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -272,24 +274,57 @@ export default function MobileTimelinePlanner({
                       alignItems: 'flex-start',
                       marginBottom: '12px'
                     }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h4 style={{
-                          margin: 0,
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          color: 'white',
-                          lineHeight: 1.3
-                        }}>
-                          {project.cliente}
-                        </h4>
-                        <p style={{
-                          margin: '2px 0 0 0',
-                          fontSize: '14px',
-                          color: 'rgba(255,255,255,0.8)',
-                          lineHeight: 1.3
-                        }}>
-                          {project.job_site}
-                        </p>
+                      <div style={{ 
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '10px',
+                        flex: 1, 
+                        minWidth: 0 
+                      }}>
+                        {/* Ícone HVAC */}
+                        {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                          <div style={{
+                            flexShrink: 0,
+                            marginTop: '2px'
+                          }}>
+                            <img 
+                              src={iconForecastHvac} 
+                              alt="HVAC" 
+                              style={{ 
+                                width: '20px', 
+                                height: '20px',
+                                objectFit: 'contain'
+                              }} 
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Informações do projeto */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <h4 style={{
+                            margin: 0,
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            color: 'white',
+                            lineHeight: 1.3,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {project.cliente}
+                          </h4>
+                          <p style={{
+                            margin: '2px 0 0 0',
+                            fontSize: '14px',
+                            color: 'rgba(255,255,255,0.8)',
+                            lineHeight: 1.3,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {project.job_site}
+                          </p>
+                        </div>
                       </div>
                       
                       {/* Status badge */}
@@ -368,6 +403,7 @@ export default function MobileTimelinePlanner({
                           {project.workforce || 'No team assigned'}
                         </span>
                       </div>
+
 
                       {/* Observação (quando existir) */}
                       {project.observacoes && project.observacoes.trim() && (
@@ -557,6 +593,43 @@ export default function MobileTimelinePlanner({
                   {selectedProject.workforce || 'No team assigned'}
                 </p>
               </div>
+
+              {selectedProject.hvac && selectedProject.hvac.toUpperCase() === 'YES' && (
+                <div>
+                  <label style={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    color: 'var(--color-text-secondary)',
+                    marginBottom: '4px',
+                    display: 'block'
+                  }}>
+                    HVAC
+                  </label>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <img 
+                      src={iconForecastHvac} 
+                      alt="HVAC" 
+                      style={{ 
+                        width: '24px', 
+                        height: '24px',
+                        objectFit: 'contain'
+                      }} 
+                    />
+                    <p style={{
+                      margin: 0,
+                      fontSize: '16px',
+                      color: 'var(--color-text-primary)',
+                      fontWeight: '500'
+                    }}>
+                      HVAC Required
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {selectedProject.observacoes && (
                 <div>

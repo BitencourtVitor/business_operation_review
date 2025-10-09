@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
+import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 
 // Função para determinar status da obra baseado nas datas
 const getProjectStatus = (project: WorkforceProject): 'not-started' | 'in-progress' | 'completed' | 'no-end-date' => {
@@ -59,6 +60,7 @@ interface WorkforceProject {
   type: string | null;
   lote_building: number;
   workforce: string;
+  hvac: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -197,7 +199,13 @@ export default function TimelinePlanner({
   const getCardHeight = (project: WorkforceProject) => {
     const baseHeight = 140;
     const hasObservation = !!(project.observacoes && project.observacoes.trim());
-    return hasObservation ? baseHeight + 40 : baseHeight; // adiciona espaço extra quando há observação
+    const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
+    
+    let extraHeight = 0;
+    if (hasObservation) extraHeight += 40;
+    if (hasHvac) extraHeight += 25; // espaço para o ícone HVAC
+    
+    return baseHeight + extraHeight;
   };
 
   const getGroupHeight = (groupName: string) => {
@@ -665,6 +673,7 @@ export default function TimelinePlanner({
                                   }}
                                 >
                                 <div style={{ 
+                                  color: 'white', 
                                   fontWeight: 600, 
                                   marginBottom: 4,
                                   fontSize: 12
@@ -688,6 +697,24 @@ export default function TimelinePlanner({
                                 }}>
                                   {project.workforce || 'No team assigned'}
                                 </div>
+                                {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                                  <div style={{ 
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginBottom: 4
+                                  }}>
+                                    <img 
+                                      src={iconForecastHvac} 
+                                      alt="HVAC" 
+                                      style={{ 
+                                        width: '18px', 
+                                        height: '18px',
+                                        objectFit: 'contain'
+                                      }} 
+                                    />
+                                  </div>
+                                )}
                                 {project.previous_start_date && project.previous_end_date && (
                                   <div style={{ 
                                     fontSize: 11, 

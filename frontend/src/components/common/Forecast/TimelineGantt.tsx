@@ -7,6 +7,7 @@ interface WorkforceProject {
   job_site: string;
   lote_building: number;
   workforce: string;
+  hvac: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -172,6 +173,7 @@ export default function TimelineGantt({
         job_site: p.job_site,
         lote_building: p.lote_building,
         workforce: p.workforce,
+        hvac: p.hvac,
         previous_start_date: p.previous_start_date,
         previous_end_date: p.previous_end_date,
         observacoes: p.observacoes

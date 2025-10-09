@@ -16,6 +16,7 @@ interface WorkforceProject {
   type: string | null;
   lote_building: number;
   workforce: string;
+  hvac: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;

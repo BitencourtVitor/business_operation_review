@@ -140,6 +140,7 @@ async function processProjectsData(csvData: any[]) {
     const jobSite = normalizeUtf8String(row['Job Site']);
     const type = normalizeUtf8String(row['Type']);
     const workforce = normalizeUtf8String(row['Workforce']);
+    const hvac = normalizeUtf8String(row['HVAC']);
     const observacoes = normalizeUtf8String(row['Obs']);
     
     // Converter lote/building para número (permitir vazio)
@@ -157,6 +158,7 @@ async function processProjectsData(csvData: any[]) {
       type: type || null,
       lote_building: loteBuilding,
       workforce,
+      hvac: hvac || null,
       previous_start_date: previousStartDate,
       previous_end_date: previousEndDate,
       observacoes: observacoes || null,
