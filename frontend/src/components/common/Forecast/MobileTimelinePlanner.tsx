@@ -10,6 +10,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  status?: string | null;
+  address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -107,62 +109,42 @@ export default function MobileTimelinePlanner({
     return formatDateUS(dateString);
   };
 
-  // Função para determinar status da obra baseado nas datas
-  const getProjectStatus = (project: WorkforceProject): 'not-started' | 'in-progress' | 'completed' | 'no-end-date' => {
-    const today = new Date();
-    const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
-    const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
-
-    // Se não tem data de início, considerar como não iniciada
-    if (!startDate) {
-      return 'not-started';
-    }
-
-    // Se não tem data final, considerar como sem data final
-    if (!endDate) {
-      return 'no-end-date';
-    }
-
-    // Se já passou da data final, está finalizada
-    if (today > endDate) {
-      return 'completed';
-    }
-
-    // Se está entre as datas de início e fim, está em andamento
-    if (today >= startDate && today <= endDate) {
-      return 'in-progress';
-    }
-
-    // Se ainda não chegou na data de início, não iniciada
+  // Status somente pelo campo status (apenas 'open' ou 'not-started')
+  const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => {
+    const normalizedStatus = (project.status || '').toLowerCase().trim();
+    if (normalizedStatus === 'open') return 'open';
+    // 'closed' já é filtrado fora na busca; qualquer outro vira 'not-started'
     return 'not-started';
   };
 
-  // Cores para cada status
+  // Atraso: somente quando status é 'not started' e data de início já passou
+  // Retorna tipo de atraso: 'start' (não iniciou) ou 'end' (passou do fim mas segue open)
+  const getOverdueType = (project: WorkforceProject): 'start' | 'end' | null => {
+    const normalizedStatus = (project.status || '').toLowerCase().trim();
+    const today = new Date();
+    const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
+    const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
+    if (normalizedStatus === 'not started' && startDate && today > startDate) return 'start';
+    if (normalizedStatus === 'open' && endDate && today > endDate) return 'end';
+    return null;
+  };
+
+  // Cores para cada status principal
   const PROJECT_STATUS_COLORS = {
     'not-started': {
       primary: '#6c757d', // Cinza
       hover: '#5a6268'     // Cinza mais escuro
     },
-    'in-progress': {
+    'open': {
       primary: '#28a745',  // Verde
       hover: '#218838'     // Verde mais escuro
-    },
-    'completed': {
-      primary: '#5a9fd4',  // Azul mais claro baseado no primary
-      hover: '#4a8bc4'     // Azul mais escuro para hover
-    },
-    'no-end-date': {
-      primary: '#ffc107',  // Amarelo
-      hover: '#e0a800'     // Amarelo mais escuro
     }
-  };
+  } as const;
 
   const getStatusText = (status: string) => {
     switch (status) {
       case 'not-started': return 'Not Started';
-      case 'in-progress': return 'In Progress';
-      case 'completed': return 'Completed';
-      case 'no-end-date': return 'No End Date';
+      case 'open': return 'Open';
       default: return 'N/A';
     }
   };
@@ -237,13 +219,16 @@ export default function MobileTimelinePlanner({
             }}>
               {projects.map((project) => {
                 const status = getProjectStatus(project);
-                const statusColors = PROJECT_STATUS_COLORS[status];
+                const overdue = !!getOverdueType(project);
+                const statusColors = PROJECT_STATUS_COLORS[status as keyof typeof PROJECT_STATUS_COLORS] || PROJECT_STATUS_COLORS['not-started'];
+                const overdueColors = { primary: '#e04b4b', hover: '#c73f3f' }; // vermelho mais marcante
+                const cardColors = overdue ? overdueColors : statusColors;
                 
                 return (
                   <div
                     key={project.id}
                     style={{
-                      background: statusColors.primary,
+                      background: cardColors.primary,
                       border: '1px solid rgba(255,255,255,0.2)',
                       borderRadius: '8px',
                       padding: '16px',
@@ -257,12 +242,12 @@ export default function MobileTimelinePlanner({
                     }}
                     onClick={() => setSelectedProject(project)}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = statusColors.hover;
+                      e.currentTarget.style.background = cardColors.hover;
                       e.currentTarget.style.transform = 'translateY(-2px)';
                       e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = statusColors.primary;
+                      e.currentTarget.style.background = cardColors.primary;
                       e.currentTarget.style.transform = 'translateY(0)';
                       e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
                     }}
@@ -281,26 +266,8 @@ export default function MobileTimelinePlanner({
                         flex: 1, 
                         minWidth: 0 
                       }}>
-                        {/* Ícone HVAC */}
-                        {project.hvac && project.hvac.toUpperCase() === 'YES' && (
-                          <div style={{
-                            flexShrink: 0,
-                            marginTop: '2px'
-                          }}>
-                            <img 
-                              src={iconForecastHvac} 
-                              alt="HVAC" 
-                              style={{ 
-                                width: '20px', 
-                                height: '20px',
-                                objectFit: 'contain'
-                              }} 
-                            />
-                          </div>
-                        )}
-                        
-                        {/* Informações do projeto */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        {/* Informações do projeto (alinhadas à esquerda) */}
+                        <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                           <h4 style={{
                             margin: 0,
                             fontSize: '16px',
@@ -324,21 +291,46 @@ export default function MobileTimelinePlanner({
                           }}>
                             {project.job_site}
                           </p>
+                          {/* Endereço removido do header: será exibido apenas nos detalhes abaixo */}
                         </div>
                       </div>
-                      
-                      {/* Status badge */}
-                      <div style={{
-                        background: 'rgba(255,255,255,0.2)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        whiteSpace: 'nowrap',
-                        marginLeft: '8px'
-                      }}>
-                        {getStatusText(status)}
+
+                      {/* Coluna direita: status em cima e ícone HVAC abaixo */}
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginLeft: 8 }}>
+                        {/* Status badge */}
+                        <div style={{
+                          background: overdue ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255,255,255,0.2)',
+                          color: 'white',
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}>
+                          {overdue && (
+                            <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 12 }} />
+                          )}
+                          {overdue ? 'Overdue' : getStatusText(status)}
+                        </div>
+
+                        {/* Ícone HVAC abaixo do status, alinhado à direita */}
+                        {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                          <div style={{ flexShrink: 0 }}>
+                            <img 
+                              src={iconForecastHvac} 
+                              alt="HVAC" 
+                              style={{ 
+                                width: '20px', 
+                                height: '20px',
+                                objectFit: 'contain',
+                                opacity: 0.95
+                              }} 
+                            />
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -348,6 +340,29 @@ export default function MobileTimelinePlanner({
                       flexDirection: 'column',
                       gap: '8px'
                     }}>
+                      {/* Address (quando existir) */}
+                      {project.address && project.address.trim() && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <i className="bi bi-geo-alt-fill" style={{ 
+                            color: 'rgba(255,255,255,0.9)', 
+                            fontSize: '14px' 
+                          }} />
+                          <span style={{
+                            fontSize: '14px',
+                            color: 'rgba(255,255,255,0.95)',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {project.address}
+                          </span>
+                        </div>
+                      )}
+
                       {/* Lot */}
                       <div style={{
                         display: 'flex',

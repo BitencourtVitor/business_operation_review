@@ -7,6 +7,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  status?: string | null;
+  address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
