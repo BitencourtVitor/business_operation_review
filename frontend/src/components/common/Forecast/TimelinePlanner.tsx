@@ -3,55 +3,42 @@ import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 
-// Função para determinar status da obra baseado nas datas
-const getProjectStatus = (project: WorkforceProject): 'not-started' | 'in-progress' | 'completed' | 'no-end-date' => {
+// Status a partir da coluna status; atraso independente
+const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => {
+  const normalizedStatus = (project.status || '').toLowerCase().trim();
+  if (normalizedStatus === 'open') return 'open';
+  return 'not-started';
+};
+
+// Tipo de atraso: 'start' quando não iniciou após a data de início;
+// 'end' quando passou da data de fim mas segue aberto
+const getOverdueType = (project: WorkforceProject): 'start' | 'end' | null => {
+  const normalizedStatus = (project.status || '').toLowerCase().trim();
   const today = new Date();
   const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
   const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
 
-  // Se não tem data de início, considerar como não iniciada
-  if (!startDate) {
-    return 'not-started';
+  if (normalizedStatus === 'not started' && startDate && today > startDate) {
+    return 'start';
   }
-
-  // Se não tem data final, considerar como sem data final
-  if (!endDate) {
-    return 'no-end-date';
+  if (normalizedStatus === 'open' && endDate && today > endDate) {
+    return 'end';
   }
-
-  // Se já passou da data final, está finalizada
-  if (today > endDate) {
-    return 'completed';
-  }
-
-  // Se está entre as datas de início e fim, está em andamento
-  if (today >= startDate && today <= endDate) {
-    return 'in-progress';
-  }
-
-  // Se ainda não chegou na data de início, não iniciada
-  return 'not-started';
+  return null;
 };
 
-// Cores para cada status
+// Cores para status e atraso
 const PROJECT_STATUS_COLORS = {
   'not-started': {
-    primary: '#6c757d', // Cinza
-    hover: '#5a6268'     // Cinza mais escuro
+    primary: '#6c757d',
+    hover: '#5a6268'
   },
-  'in-progress': {
-    primary: '#28a745',  // Verde
-    hover: '#218838'     // Verde mais escuro
-  },
-  'completed': {
-    primary: '#5a9fd4',  // Azul mais claro baseado no primary
-    hover: '#4a8bc4'     // Azul mais escuro para hover
-  },
-  'no-end-date': {
-    primary: '#ffc107',  // Amarelo
-    hover: '#e0a800'     // Amarelo mais escuro
+  'open': {
+    primary: '#28a745',
+    hover: '#218838'
   }
-};
+} as const;
+const OVERDUE_COLORS = { primary: '#e04b4b', hover: '#c73f3f' } as const;
 
 interface WorkforceProject {
   id: number;
@@ -61,6 +48,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  status?: string | null;
+  address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -98,11 +87,18 @@ export default function TimelinePlanner({
   sortByDate,
   onSortByDateChange
 }: TimelinePlannerProps) {
+  const getShortJobSite = (value?: string) => {
+    if (!value) return '';
+    const idx = value.indexOf(',');
+    return (idx === -1 ? value : value.slice(0, idx)).trim();
+  };
   const navigate = useNavigate();
   const [draggedProject, setDraggedProject] = useState<WorkforceProject | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDraggingTimeline, setIsDraggingTimeline] = useState(false);
   const [timelineDragStart, setTimelineDragStart] = useState({ x: 0, scrollLeft: 0 });
+  const [jobTooltip, setJobTooltip] = useState<{ visible: boolean; x: number; y: number; content: string; align: 'left' | 'right' }>({ visible: false, x: 0, y: 0, content: '', align: 'right' });
+  const [statusTooltip, setStatusTooltip] = useState<{ visible: boolean; x: number; y: number; content: string; align: 'left' | 'right' }>({ visible: false, x: 0, y: 0, content: '', align: 'right' });
   
   // Determinar se deve mostrar dias ou meses
   const showDays = selectedMonth && selectedMonth !== '';
@@ -122,7 +118,7 @@ export default function TimelinePlanner({
           label: day.toString(),
           fullLabel: date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
           date: date.toISOString().split('T')[0],
-          width: 120 // Largura fixa para dias
+          width: 144 // +20% largura para dias
         };
       });
     } else {
@@ -151,7 +147,7 @@ export default function TimelinePlanner({
             label: months[monthIndex - 1].substring(0, 3),
             fullLabel: months[monthIndex - 1],
             month: monthIndex,
-            width: 200 // Largura maior para meses
+            width: 240 // +20% largura para meses
           }));
       } else {
         // Se há filtro de ano, mostrar todos os meses do ano
@@ -159,7 +155,7 @@ export default function TimelinePlanner({
           label: month.substring(0, 3),
           fullLabel: month,
           month: index + 1,
-          width: 200 // Largura maior para meses
+          width: 240 // +20% largura para meses
         }));
       }
     }
@@ -197,15 +193,17 @@ export default function TimelinePlanner({
 
   // Calcular altura total de projetos para cada grupo
   const getCardHeight = (project: WorkforceProject) => {
-    const baseHeight = 140;
     const hasObservation = !!(project.observacoes && project.observacoes.trim());
     const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
-    
-    let extraHeight = 0;
-    if (hasObservation) extraHeight += 40;
-    if (hasHvac) extraHeight += 25; // espaço para o ícone HVAC
-    
-    return baseHeight + extraHeight;
+    const hasTeam = !!(project.workforce && project.workforce.trim());
+    const hasDates = !!(project.previous_start_date && project.previous_end_date);
+
+    let height = 144; // header + job + lot
+    if (hasTeam) height += 16;
+    if (hasDates) height += 16;
+    if (hasHvac) height += 16; // espaço para HVAC na coluna direita
+    if (hasObservation) height += 36;
+    return height;
   };
 
   const getGroupHeight = (groupName: string) => {
@@ -327,6 +325,39 @@ export default function TimelinePlanner({
 
   const handleTimelineMouseLeave = () => {
     setIsDraggingTimeline(false);
+  };
+
+  // Tooltip personalizado para Job Site (mostra endereço completo)
+  const handleJobSiteMouseEnter = (e: React.MouseEvent, project: WorkforceProject) => {
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const tooltipWidth = 320;
+    const padding = 12;
+    const preferRight = rect.right + tooltipWidth + padding < window.innerWidth;
+    const x = preferRight ? rect.right + padding : rect.left - tooltipWidth - padding;
+    const y = Math.max(8, rect.top + window.scrollY - 6);
+    const content = (project.address && project.address.trim()) ? project.address : project.job_site;
+    setJobTooltip({ visible: true, x, y, content, align: preferRight ? 'right' : 'left' });
+  };
+
+  const handleJobSiteMouseLeave = () => {
+    setJobTooltip(prev => ({ ...prev, visible: false }));
+  };
+
+  // Tooltip para Status
+  const handleStatusMouseEnter = (e: React.MouseEvent, label: string) => {
+    const target = e.currentTarget as HTMLElement;
+    const rect = target.getBoundingClientRect();
+    const tooltipWidth = 200;
+    const padding = 12;
+    const preferRight = rect.right + tooltipWidth + padding < window.innerWidth;
+    const x = preferRight ? rect.right + padding : rect.left - tooltipWidth - padding;
+    const y = Math.max(8, rect.top + window.scrollY - 6);
+    setStatusTooltip({ visible: true, x, y, content: label, align: preferRight ? 'right' : 'left' });
+  };
+
+  const handleStatusMouseLeave = () => {
+    setStatusTooltip(prev => ({ ...prev, visible: false }));
   };
 
 
@@ -631,112 +662,148 @@ export default function TimelinePlanner({
                             >
                               {projects.map((project, projectIndex) => {
                                 const projectStatus = getProjectStatus(project);
-                                const statusColors = PROJECT_STATUS_COLORS[projectStatus];
+                                const overdueType = getOverdueType(project);
+                                const overdue = !!overdueType;
+                                const baseColors = PROJECT_STATUS_COLORS[projectStatus as keyof typeof PROJECT_STATUS_COLORS];
+                                const cardColors = overdue ? OVERDUE_COLORS : baseColors;
                                 
                                 return (
                                 <div
                                   key={project.id}
                                   draggable
                                 style={{
-                                  background: statusColors.primary,
-                                  borderRadius: 6,
-                                  padding: '10px',
-                                  marginBottom: projectIndex < projects.length - 1 ? 8 : 0,
+                                  background: cardColors.primary,
+                                  borderRadius: 8,
+                                  padding: '10px 12px',
+                                  marginBottom: projectIndex < projects.length - 1 ? 10 : 0,
                                   color: 'white',
                                   fontSize: 12,
                                   cursor: 'grab',
                                   transition: 'all 0.2s ease',
                                   border: '1px solid rgba(255,255,255,0.2)',
                                   userSelect: 'none',
-                                  height: getCardHeight(project),
+                                  height: 'auto',
                                   flexShrink: 0,
                                   display: 'flex',
                                   flexDirection: 'column',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                  textAlign: 'center'
+                                  alignItems: 'stretch',
+                                  textAlign: 'left',
+                                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
                                 }}
                                   onDragStart={(e) => handleDragStart(e, project)}
                                   onDragEnd={handleDragEnd}
                                   onMouseEnter={(e) => {
                                     if (!draggedProject) {
-                                      e.currentTarget.style.background = statusColors.hover;
+                                      e.currentTarget.style.background = cardColors.hover;
                                       e.currentTarget.style.transform = 'scale(1.02)';
                                       e.currentTarget.style.cursor = 'grab';
                                     }
                                   }}
                                   onMouseLeave={(e) => {
                                     if (!draggedProject) {
-                                      e.currentTarget.style.background = statusColors.primary;
+                                      e.currentTarget.style.background = cardColors.primary;
                                       e.currentTarget.style.transform = 'scale(1)';
                                     }
                                   }}
                                 >
-                                <div style={{ 
-                                  color: 'white', 
-                                  fontWeight: 600, 
-                                  marginBottom: 4,
-                                  fontSize: 12
-                                }}>
-                                  {project.cliente} • {project.job_site}
-                                </div>
-                                <div style={{ 
-                                  fontSize: 12, 
-                                  opacity: 0.9,
-                                  marginBottom: 4,
-                                  fontWeight: 'bold'
-                                }}>
-                                  {project.type || 'Lot'} {project.lote_building}
-                                </div>
-                                <div style={{ 
-                                  fontSize: 11, 
-                                  opacity: 0.8,
-                                  marginBottom: 4,
-                                  fontWeight: project.workforce ? 'normal' : 'bold',
-                                  color: project.workforce ? 'inherit' : '#ffcc00'
-                                }}>
-                                  {project.workforce || 'No team assigned'}
-                                </div>
-                                {project.hvac && project.hvac.toUpperCase() === 'YES' && (
-                                  <div style={{ 
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginBottom: 4
-                                  }}>
-                                    <img 
-                                      src={iconForecastHvac} 
-                                      alt="HVAC" 
-                                      style={{ 
-                                        width: '18px', 
-                                        height: '18px',
-                                        objectFit: 'contain'
-                                      }} 
-                                    />
+                                {/* Layout em duas colunas: esquerda (info) e direita (status + HVAC) */}
+                                <div style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                                  {/* Coluna esquerda - informações */}
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    {/* Título */}
+                                    <div style={{ color: 'white', fontWeight: 700, marginTop: 2, marginBottom: 2, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {project.cliente}
+                                    </div>
+                                    {/* Job site com tooltip de endereço completo e quebra de linha */}
+                                    <div 
+                                      style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}
+                                      onMouseEnter={(e) => handleJobSiteMouseEnter(e, project)}
+                                      onMouseLeave={handleJobSiteMouseLeave}
+                                    >
+                                      <i className="bi bi-geo-alt" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>{getShortJobSite(project.job_site)}</span>
+                                    </div>
+                                    {/* Lote com ícone */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, opacity: 0.9, marginTop: 4, marginBottom: 4, fontWeight: 'bold' }}>
+                                      <i className="bi bi-building" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                      <span>{project.type || 'Lot'} {project.lote_building}</span>
+                                    </div>
+                                    {/* Equipe com ícone */}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                      <span style={{ 
+                                        fontSize: 11, 
+                                        opacity: 0.8,
+                                        marginBottom: 4,
+                                        fontWeight: project.workforce ? 'normal' : 'bold',
+                                        color: project.workforce ? 'inherit' : '#ffcc00'
+                                      }}>
+                                        {project.workforce || 'No team assigned'}
+                                      </span>
+                                    </div>
+                                    {/* Datas */}
+                                    {project.previous_start_date && project.previous_end_date && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                        <i className="bi bi-calendar-range" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                        <span style={{ fontSize: 11, opacity: 0.9 }}>
+                                          {formatDateShort(project.previous_start_date)} - {formatDateShort(project.previous_end_date)}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                                {project.previous_start_date && project.previous_end_date && (
-                                  <div style={{ 
-                                    fontSize: 11, 
-                                    opacity: 0.7
-                                  }}>
-                                    Start: {formatDateShort(project.previous_start_date)} | End: {formatDateShort(project.previous_end_date)}
-                                  </div>
-                                )}
 
-                                {/* Observação (quando existir) */}
+                                  {/* Coluna direita - status e HVAC (itens alinhados à direita) */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 48, flexShrink: 0 }}>
+                                    <div 
+                                      onMouseEnter={(e) => handleStatusMouseEnter(e, overdue ? 'Overdue' : (projectStatus === 'open' ? 'Open' : 'Not Started'))}
+                                      onMouseLeave={handleStatusMouseLeave}
+                                      style={{
+                                      background: 'rgba(255,255,255,0.2)',
+                                      color: 'white',
+                                      borderRadius: 12,
+                                      fontSize: 12,
+                                      fontWeight: 700,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      width: 32,
+                                      height: 32
+                                    }}>
+                                      {overdue ? (
+                                        <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
+                                      ) : projectStatus === 'open' ? (
+                                        <i className="bi bi-play-fill" style={{ fontSize: 16 }} />
+                                      ) : (
+                                        <span style={{ fontSize: 11 }}>N/S</span>
+                                      )}
+                                    </div>
+                                    {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                                      <div style={{
+                                        width: 32,
+                                        height: 32,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                      }}>
+                                        <img 
+                                          src={iconForecastHvac} 
+                                          alt="HVAC" 
+                                          style={{ width: 18, height: 18, objectFit: 'contain', opacity: 0.95 }} 
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                {/* Observação em largura total, fora das duas colunas */}
                                 {project.observacoes && project.observacoes.trim() && (
                                   <div style={{
-                                    marginTop: 6,
+                                    marginTop: 8,
                                     padding: '6px 8px',
                                     background: 'rgba(0,0,0,0.15)',
                                     borderRadius: 6,
                                     color: 'rgba(255,255,255,0.95)',
                                     fontSize: 11,
-                                    lineHeight: 1.3,
-                                    maxHeight: 40,
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
+                                    lineHeight: 1.3
                                   }}>
                                     {project.observacoes}
                                   </div>
@@ -757,6 +824,57 @@ export default function TimelinePlanner({
           )}
         </div>
       </div>
+      {/* Tooltip de Job Site (endereço completo) */}
+      {jobTooltip.visible && (
+        <div
+          style={{
+            position: 'fixed',
+            top: jobTooltip.y,
+            left: jobTooltip.x,
+            zIndex: 2000,
+            background: 'var(--color-background-primary)',
+            color: 'var(--color-text-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 8,
+            padding: '10px 12px',
+            width: 320,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+            transition: 'opacity 0.5s ease',
+            opacity: 1
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <i className="bi bi-geo" style={{ color: 'var(--color-accent-primary)' }} />
+            <span style={{ fontSize: 13, fontWeight: 600 }}>Full Address</span>
+          </div>
+          <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.35 }}>
+            {jobTooltip.content}
+          </div>
+        </div>
+      )}
+      {/* Tooltip de Status */}
+      {statusTooltip.visible && (
+        <div
+          style={{
+            position: 'fixed',
+            top: statusTooltip.y,
+            left: statusTooltip.x,
+            zIndex: 2000,
+            background: 'var(--color-background-primary)',
+            color: 'var(--color-text-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 8,
+            padding: '8px 10px',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
+            transition: 'opacity 0.5s ease',
+            opacity: 1,
+            fontSize: 13,
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {statusTooltip.content}
+        </div>
+      )}
     </div>
   );
 }

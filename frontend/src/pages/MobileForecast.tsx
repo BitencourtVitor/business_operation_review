@@ -17,6 +17,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  status?: string | null;
+  address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -99,7 +101,8 @@ export default function MobileForecast() {
 
       if (projectsError) throw projectsError;
 
-      setWorkforceProjects(projectsData || []);
+      const filtered = (projectsData || []).filter((p: any) => (p.status || '').toLowerCase() !== 'closed');
+      setWorkforceProjects(filtered);
 
       // Extrair anos únicos
       const uniqueYears = [...new Set((projectsData || [])
@@ -146,11 +149,14 @@ export default function MobileForecast() {
     }
   }, [isInitialLoading]);
 
-  // Processar dados para o forecast
-  const forecastData = useMemo(() => {
-    if (!workforceProjects.length) return [];
+  // Lista de projetos visíveis de acordo com filtros selecionados
+  const visibleProjects = useMemo(() => {
+    if (!workforceProjects.length) return [] as typeof workforceProjects;
 
-    const filteredProjects = workforceProjects.filter(project => {
+    const selectedClientSet = new Set(selectedClient.map(c => c.trim().toLowerCase()))
+    const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
+
+    return workforceProjects.filter(project => {
       // Excluir cards quando as datas forem nulas/indefinidas/inválidas
       if (!project.previous_start_date || !project.previous_end_date) return false;
       const start = new Date(project.previous_start_date);
@@ -167,17 +173,24 @@ export default function MobileForecast() {
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
-      const clientMatch = selectedClient.length === 0 || selectedClient.includes(project.cliente);
-      const jobSiteMatch = selectedJobSite.length === 0 || selectedJobSite.includes(project.job_site);
+      const clientNorm = (project.cliente || '').trim().toLowerCase();
+      const jobSiteNorm = (project.job_site || '').trim().toLowerCase();
+      const clientMatch = selectedClientSet.size === 0 || selectedClientSet.has(clientNorm);
+      const jobSiteMatch = selectedJobSiteSet.size === 0 || selectedJobSiteSet.has(jobSiteNorm);
       const typeMatch = selectedType === 'all' || project.type === selectedType;
-
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch;
     });
+
+  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType]);
+
+  // Processar dados para o forecast
+  const forecastData = useMemo(() => {
+    if (!visibleProjects.length) return [];
 
     // Agrupar por cliente, job_site e mês
     const groupedData: { [key: string]: ForecastData } = {};
 
-    filteredProjects.forEach(project => {
+    visibleProjects.forEach(project => {
       const startDate = new Date(project.previous_start_date);
       const month = startDate.toLocaleString('en-US', { month: 'long' });
       const year = startDate.getFullYear();
@@ -204,7 +217,7 @@ export default function MobileForecast() {
       if (a.month !== b.month) return a.month.localeCompare(b.month);
       return a.cliente.localeCompare(b.cliente);
     });
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType]);
+  }, [visibleProjects]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
@@ -490,7 +503,7 @@ export default function MobileForecast() {
         <div style={{ flex: 1, width: '100%' }}>
           <MobileTimelinePlanner 
             forecastData={forecastData}
-            workforceProjects={workforceProjects}
+            workforceProjects={visibleProjects}
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             groupBy={groupBy}

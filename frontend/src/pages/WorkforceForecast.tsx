@@ -16,6 +16,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  status?: string | null;
+  address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
   observacoes: string;
@@ -89,7 +91,8 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
 
         if (groupsError) throw groupsError;
 
-        setWorkforceProjects(projectsData || []);
+        const filtered = (projectsData || []).filter((p: any) => (p.status || '').toLowerCase() !== 'closed');
+        setWorkforceProjects(filtered);
 
         // Extrair anos únicos
         const uniqueYears = [...new Set((projectsData || [])
