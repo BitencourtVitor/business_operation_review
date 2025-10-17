@@ -465,209 +465,127 @@ export default function MobileTimelinePlanner({
         >
           <div style={{
             background: 'var(--color-background-primary)',
-            borderRadius: '12px',
-            padding: '24px',
-            maxWidth: '400px',
+            borderRadius: '16px',
+            padding: '18px',
+            maxWidth: '420px',
             width: '100%',
-            maxHeight: '80vh',
-            overflow: 'auto'
+            maxHeight: '82vh',
+            overflow: 'auto',
+            border: '1px solid var(--color-border-divider)',
+            boxShadow: '0 12px 28px rgba(0,0,0,0.25)'
           }}
           onClick={(e) => e.stopPropagation()}
           >
-            {/* Header do modal */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px'
-            }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: 600,
-                color: 'var(--color-text-primary)'
-              }}>
-                Project Details
-              </h3>
+            {/* Header do modal moderno */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                  <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {selectedProject.cliente}
+                  </h3>
+                  {(() => {
+                    const st = getProjectStatus(selectedProject);
+                    const overdue = !!getOverdueType(selectedProject);
+                    return (
+                      <span style={{
+                        background: overdue ? 'rgba(224,75,75,0.15)' : 'var(--color-background-secondary)',
+                        color: overdue ? '#e04b4b' : 'var(--color-text-secondary)',
+                        border: overdue ? '1px solid #e04b4b' : '1px solid var(--color-border-divider)',
+                        padding: '2px 8px',
+                        borderRadius: 999,
+                        fontWeight: 700,
+                        fontSize: 12
+                      }}>
+                        {overdue ? 'Overdue' : (st === 'open' ? 'Open' : 'Not Started')}
+                      </span>
+                    );
+                  })()}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 13, overflow: 'hidden' }}>
+                  <i className="bi bi-geo-alt" />
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedProject.job_site}</span>
+                </div>
+                {selectedProject.address && selectedProject.address.trim() && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-text-secondary)', fontSize: 13, overflow: 'hidden' }}>
+                    <i className="bi bi-geo-alt-fill" />
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedProject.address}</span>
+                  </div>
+                )}
+              </div>
               <button
                 style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
+                  background: 'var(--color-background-secondary)',
+                  border: '1px solid var(--color-border-divider)',
                   color: 'var(--color-text-secondary)',
                   cursor: 'pointer',
-                  padding: '0',
-                  width: '32px',
-                  height: '32px',
+                  padding: 8,
+                  width: 36,
+                  height: 36,
+                  borderRadius: 10,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}
                 onClick={() => setSelectedProject(null)}
               >
-                <i className="bi bi-x" />
+                <i className="bi bi-x" style={{ fontSize: 20 }} />
               </button>
             </div>
 
-            {/* Conteúdo do modal */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
-                  marginBottom: '4px',
-                  display: 'block'
-                }}>
-                  Client
-                </label>
-                <p style={{
-                  margin: 0,
-                  fontSize: '16px',
-                  color: 'var(--color-text-primary)',
-                  fontWeight: 500
-                }}>
-                  {selectedProject.cliente}
-                </p>
+            {/* Chips informativos */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                borderRadius: 24, padding: '6px 10px', fontSize: 12, color: 'var(--color-text-primary)'
+              }}>
+                <i className="bi bi-building" />
+                <span>{selectedProject.type || 'Lot'} {selectedProject.lote_building}</span>
               </div>
-
-              <div>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
-                  marginBottom: '4px',
-                  display: 'block'
-                }}>
-                  Work Location
-                </label>
-                <p style={{
-                  margin: 0,
-                  fontSize: '16px',
-                  color: 'var(--color-text-primary)'
-                }}>
-                  {selectedProject.job_site}
-                </p>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                borderRadius: 24, padding: '6px 10px', fontSize: 12, color: 'var(--color-text-primary)'
+              }}>
+                <i className="bi bi-calendar-range" />
+                <span>{formatDate(selectedProject.previous_start_date)} - {formatDate(selectedProject.previous_end_date)}</span>
               </div>
-
-              <div>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
-                  marginBottom: '4px',
-                  display: 'block'
-                }}>
-                  {selectedProject.type || 'Lot'}
-                </label>
-                <p style={{
-                  margin: 0,
-                  fontSize: '16px',
-                  color: 'var(--color-text-primary)',
-                  fontWeight: 'bold'
-                }}>
-                  {selectedProject.type || 'Lot'} {selectedProject.lote_building}
-                </p>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                borderRadius: 24, padding: '6px 10px', fontSize: 12,
+                color: selectedProject.workforce ? 'var(--color-text-primary)' : '#ffcc00',
+                fontWeight: selectedProject.workforce ? 500 : 700
+              }}>
+                <i className="bi bi-people" />
+                <span>{selectedProject.workforce || 'No team assigned'}</span>
               </div>
-
-              <div>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
-                  marginBottom: '4px',
-                  display: 'block'
-                }}>
-                  Period
-                </label>
-                <p style={{
-                  margin: 0,
-                  fontSize: '16px',
-                  color: 'var(--color-text-primary)'
-                }}>
-                  {formatDate(selectedProject.previous_start_date)} - {formatDate(selectedProject.previous_end_date)}
-                </p>
-              </div>
-
-              <div>
-                <label style={{
-                  fontSize: '14px',
-                  fontWeight: 500,
-                  color: 'var(--color-text-secondary)',
-                  marginBottom: '4px',
-                  display: 'block'
-                }}>
-                  Team
-                </label>
-                <p style={{
-                  margin: 0,
-                  fontSize: '16px',
-                  color: selectedProject.workforce ? 'var(--color-text-primary)' : '#ffcc00',
-                  fontWeight: selectedProject.workforce ? 'normal' : 'bold'
-                }}>
-                  {selectedProject.workforce || 'No team assigned'}
-                </p>
-              </div>
-
               {selectedProject.hvac && selectedProject.hvac.toUpperCase() === 'YES' && (
-                <div>
-                  <label style={{
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: 'var(--color-text-secondary)',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    HVAC
-                  </label>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <img 
-                      src={iconForecastHvac} 
-                      alt="HVAC" 
-                      style={{ 
-                        width: '24px', 
-                        height: '24px',
-                        objectFit: 'contain'
-                      }} 
-                    />
-                    <p style={{
-                      margin: 0,
-                      fontSize: '16px',
-                      color: 'var(--color-text-primary)',
-                      fontWeight: '500'
-                    }}>
-                      HVAC Required
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {selectedProject.observacoes && (
-                <div>
-                  <label style={{
-                    fontSize: '14px',
-                    fontWeight: 500,
-                    color: 'var(--color-text-secondary)',
-                    marginBottom: '4px',
-                    display: 'block'
-                  }}>
-                    Notes
-                  </label>
-                  <p style={{
-                    margin: 0,
-                    fontSize: '16px',
-                    color: 'var(--color-text-primary)',
-                    lineHeight: 1.4
-                  }}>
-                    {selectedProject.observacoes}
-                  </p>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                  borderRadius: 24, padding: '4px 8px', fontSize: 12, color: 'var(--color-text-primary)'
+                }}>
+                  <img src={iconForecastHvac} alt="HVAC" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                  <span>HVAC</span>
                 </div>
               )}
             </div>
+
+            {/* Observações */}
+            {selectedProject.observacoes && selectedProject.observacoes.trim() && (
+              <div style={{
+                background: 'var(--color-background-secondary)',
+                border: '1px solid var(--color-border-divider)',
+                borderRadius: 10,
+                padding: '10px 12px',
+                color: 'var(--color-text-primary)',
+                fontSize: 13,
+                lineHeight: 1.35
+              }}>
+                {selectedProject.observacoes}
+              </div>
+            )}
           </div>
         </div>
       )}
