@@ -93,15 +93,10 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
 
         const filtered = (projectsData || []).filter((p: any) => {
           const s = (p.status || '').toLowerCase().trim();
-          if (s === 'running' || s === 'closed') return true;
+          // Apenas projetos com status 'not started' são exibidos
           if (s === 'not started') {
             const start = p.previous_start_date ? new Date(p.previous_start_date) : null;
             return !!(start && !isNaN(start.getTime()));
-          }
-          if (s === 'open') {
-            const end = p.previous_end_date ? new Date(p.previous_end_date) : null;
-            const today = new Date();
-            return !!(end && !isNaN(end.getTime()) && today > end); // overdue
           }
           return false;
         });
