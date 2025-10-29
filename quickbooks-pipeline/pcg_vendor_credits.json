@@ -1,6 +1,129 @@
 [
   {
     "VendorAddr": {
+      "Id": "10443",
+      "Line1": "Ferguson",
+      "Line2": "PO BOX 417592",
+      "Line3": "BOSTON, MA  02241-7592"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17763",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-16T11:51:15-07:00",
+      "LastUpdatedTime": "2025-10-24T11:39:17-07:00"
+    },
+    "DocNumber": "CM931359",
+    "TxnDate": "2025-10-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#6293719 - Felipe  Drumond:22 Flynn Ave",
+    "LinkedTxn": [
+      {
+        "TxnId": "17882",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "CCY 1.75 2HDL SHWR SYS W/ RI VLV/ Customer: 352857",
+        "Amount": 526.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "184",
+            "name": "Felipe  Drumond:22 Flynn Ave"
+          },
+          "AccountRef": {
+            "value": "69",
+            "name": "Owner's Pay & Personal Expenses:Felipe Drumond"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 526.21
+  },
+  {
+    "VendorAddr": {
+      "Id": "10243",
+      "Line1": "Braun Construction, Inc.",
+      "Line2": "38 Pine Grove Avenue",
+      "Line3": "Hyannis, MA  02601"
+    },
+    "Balance": 2800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17501",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-08T06:58:09-07:00",
+      "LastUpdatedTime": "2025-10-08T06:58:09-07:00"
+    },
+    "DocNumber": "249",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Exterior painting\n Prep and painting; facial, corner boards, trims, windows' trims, doors'trims, softer's\nand re-caulk all place that needs.",
+        "Amount": 2800,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "609",
+            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
+          },
+          "AccountRef": {
+            "value": "114",
+            "name": "Sub-Contractors:PAINTING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "314692141"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "162",
+      "name": "Braun Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2800
+  },
+  {
+    "VendorAddr": {
       "Id": "10167",
       "Line1": "RBI Construction Group, Inc.",
       "Line2": "186 Main St",

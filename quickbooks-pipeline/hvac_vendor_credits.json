@@ -1,19 +1,984 @@
 [
   {
     "VendorAddr": {
+      "Id": "21583",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 227.68,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22191",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T06:37:33-07:00",
+      "LastUpdatedTime": "2025-10-29T06:37:33-07:00"
+    },
+    "DocNumber": "S3399145.001",
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3399145.001",
+        "Amount": 227.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 227.68
+  },
+  {
+    "VendorAddr": {
+      "Id": "21579",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 316.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22186",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T06:24:26-07:00",
+      "LastUpdatedTime": "2025-10-29T06:24:26-07:00"
+    },
+    "DocNumber": "S3398263.001",
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "returns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3398263.001",
+        "Amount": 316.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 316.16
+  },
+  {
+    "VendorAddr": {
+      "Id": "21307",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 106.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21916",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-16T13:37:20-07:00",
+      "LastUpdatedTime": "2025-10-16T13:37:20-07:00"
+    },
+    "DocNumber": "S6713755.004",
+    "TxnDate": "2025-10-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713755.004",
+        "Amount": 106.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1423",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 13 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "590270090"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 106.5
+  },
+  {
+    "VendorAddr": {
+      "Id": "21302",
+      "Line1": "Johnstone Supply, Inc.",
+      "Line2": "4 Quinsigamond Avenue",
+      "Line3": "Worcester, MA  01608"
+    },
+    "Balance": 60.21,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21909",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-16T10:08:18-07:00",
+      "LastUpdatedTime": "2025-10-16T10:08:18-07:00"
+    },
+    "DocNumber": "S102389685.001",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S102389685.001",
+        "Amount": 60.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "12",
+      "name": "Johnstone Supply, Inc."
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 60.21
+  },
+  {
+    "VendorAddr": {
+      "Id": "21289",
+      "Line1": "S.G. Torrice Company / Ferguson",
+      "Line2": "Ferguson Enterprises LLC #1196",
+      "Line3": "PO Box 417592",
+      "Line4": "Boston, MA 02241-7592",
+      "Line5": "Boston, MA  01752 USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21867",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-16T06:49:48-07:00",
+      "LastUpdatedTime": "2025-10-16T06:50:57-07:00"
+    },
+    "DocNumber": "6140212",
+    "TxnDate": "2024-12-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21868",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "6140212",
+        "Amount": 108.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "847",
+            "name": "Pulte Homes:Pulte Homes - Chauncy Lake - 6546:Building 4 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "349425592"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "69",
+      "name": "S.G. Torrice Company / Ferguson"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 108.12
+  },
+  {
+    "VendorAddr": {
+      "Id": "21286",
+      "Line1": "S.G. Torrice Company / Ferguson",
+      "Line2": "Ferguson Enterprises LLC #1196",
+      "Line3": "PO Box 417592",
+      "Line4": "Boston, MA 02241-7592",
+      "Line5": "Boston, MA  01752 USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21864",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-16T06:38:52-07:00",
+      "LastUpdatedTime": "2025-10-16T06:40:56-07:00"
+    },
+    "DocNumber": "6124631",
+    "TxnDate": "2024-11-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21865",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "6124631",
+        "Amount": 200.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "647",
+            "name": "Edgar Lopes Cupertino:234 Church Street, Northborough, MA"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "263875687"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "69",
+      "name": "S.G. Torrice Company / Ferguson"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 200.65
+  },
+  {
+    "VendorAddr": {
+      "Id": "21240",
+      "Line1": "DCNE",
+      "Line2": "P.O. BOX 397",
+      "Line3": "Malden, MA  02148"
+    },
+    "Balance": 1200.63,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21833",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-15T10:01:10-07:00",
+      "LastUpdatedTime": "2025-10-15T10:01:10-07:00"
+    },
+    "DocNumber": "2739953-00",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2739953-00",
+        "Amount": 1200.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1423",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 13 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "Job Supplies:HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "590270090"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "72",
+      "name": "DCNE"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1200.63
+  },
+  {
+    "VendorAddr": {
+      "Id": "21229",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 335.82,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21822",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-15T09:32:35-07:00",
+      "LastUpdatedTime": "2025-10-15T09:32:35-07:00"
+    },
+    "DocNumber": "S3391033.006",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3391033.006",
+        "Amount": 335.82,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 335.82
+  },
+  {
+    "VendorAddr": {
+      "Id": "21228",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 111.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21821",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-15T09:31:21-07:00",
+      "LastUpdatedTime": "2025-10-15T09:31:21-07:00"
+    },
+    "DocNumber": "S3391033.007",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3391033.007",
+        "Amount": 111.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 111.94
+  },
+  {
+    "VendorAddr": {
+      "Id": "21227",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 154.37,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21820",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-15T09:30:04-07:00",
+      "LastUpdatedTime": "2025-10-15T09:30:04-07:00"
+    },
+    "DocNumber": "S3391033.008",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3391033.008",
+        "Amount": 154.37,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 154.37
+  },
+  {
+    "VendorAddr": {
+      "Id": "21128",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 309.81,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21754",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-14T07:24:19-07:00",
+      "LastUpdatedTime": "2025-10-14T07:24:19-07:00"
+    },
+    "DocNumber": "S3395173.001",
+    "TxnDate": "2025-10-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3395173.001",
+        "Amount": 51.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "S3395173.001",
+        "Amount": 51.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1572",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 02"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249011"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "S3395173.001",
+        "Amount": 51.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1573",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 03"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249212"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "S3395173.001",
+        "Amount": 51.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "S3395173.001",
+        "Amount": 51.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1575",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 05"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249788"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "S3395173.001",
+        "Amount": 51.66,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1576",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 06"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664250085"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 309.81
+  },
+  {
+    "VendorAddr": {
+      "Id": "21045",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21639",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-08T06:57:04-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3389074.001",
+    "TxnDate": "2025-09-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3389074.001",
+        "Amount": 107.47,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1572",
+            "name": "Pulte Homes:Pulte Homes - Riverview at East Point - 9041:Riverview East Point - Lot 02"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249011"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 107.47
+  },
+  {
+    "VendorAddr": {
+      "Id": "21041",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21633",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-07T10:36:17-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3393385.001",
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returns",
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3393385.001",
+        "Amount": 168.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 168.97
+  },
+  {
+    "VendorAddr": {
+      "Id": "20985",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21590",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-06T11:42:15-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3391016.002",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3391016.002",
+        "Amount": 144.09,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1372",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564589364"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 144.09
+  },
+  {
+    "VendorAddr": {
       "Id": "20928",
       "Line1": "Delta T",
       "Line2": "PO Box 6070",
       "Line3": "Manchester, NH  03108"
     },
-    "Balance": 10.33,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "21525",
-    "SyncToken": "0",
+    "SyncToken": "3",
     "MetaData": {
       "CreateTime": "2025-10-03T11:57:28-07:00",
-      "LastUpdatedTime": "2025-10-03T11:57:28-07:00"
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
     },
     "DocNumber": "S3392402.002",
     "TxnDate": "2025-10-02",
@@ -21,6 +986,12 @@
       "value": "USD",
       "name": "United States Dollar"
     },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -65,14 +1036,14 @@
       "Line2": "PO Box 6070",
       "Line3": "Manchester, NH  03108"
     },
-    "Balance": 10.33,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "21523",
-    "SyncToken": "0",
+    "SyncToken": "3",
     "MetaData": {
       "CreateTime": "2025-10-03T11:38:50-07:00",
-      "LastUpdatedTime": "2025-10-03T11:38:50-07:00"
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
     },
     "DocNumber": "S3392403.002",
     "TxnDate": "2025-10-02",
@@ -80,6 +1051,12 @@
       "value": "USD",
       "name": "United States Dollar"
     },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -124,14 +1101,14 @@
       "Line2": "PO Box 6070",
       "Line3": "Manchester, NH  03108"
     },
-    "Balance": 10.33,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "21521",
-    "SyncToken": "0",
+    "SyncToken": "3",
     "MetaData": {
       "CreateTime": "2025-10-03T11:28:52-07:00",
-      "LastUpdatedTime": "2025-10-03T11:28:52-07:00"
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
     },
     "DocNumber": "S3392404.002",
     "TxnDate": "2025-10-02",
@@ -139,6 +1116,12 @@
       "value": "USD",
       "name": "United States Dollar"
     },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -183,14 +1166,14 @@
       "Line2": "PO Box 6070",
       "Line3": "Manchester, NH  03108"
     },
-    "Balance": 154.96,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "21509",
-    "SyncToken": "0",
+    "SyncToken": "3",
     "MetaData": {
       "CreateTime": "2025-10-02T13:35:48-07:00",
-      "LastUpdatedTime": "2025-10-02T13:35:48-07:00"
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
     },
     "DocNumber": "S3391016.005",
     "TxnDate": "2025-10-01",
@@ -198,6 +1181,12 @@
       "value": "USD",
       "name": "United States Dollar"
     },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -242,14 +1231,14 @@
       "Line2": "PO Box 6070",
       "Line3": "Manchester, NH  03108"
     },
-    "Balance": 360.11,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "21501",
-    "SyncToken": "0",
+    "SyncToken": "3",
     "MetaData": {
       "CreateTime": "2025-10-02T13:03:08-07:00",
-      "LastUpdatedTime": "2025-10-02T13:03:08-07:00"
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
     },
     "DocNumber": "S3392005.001",
     "TxnDate": "2025-10-01",
@@ -258,6 +1247,12 @@
       "name": "United States Dollar"
     },
     "PrivateNote": "RETURNS",
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -287,6 +1282,491 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 360.11
+  },
+  {
+    "VendorAddr": {
+      "Id": "21044",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20943",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-09-16T10:48:25-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "$S3388029.001",
+    "TxnDate": "2025-09-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3388029.001",
+        "Amount": 167.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 167.35
+  },
+  {
+    "VendorAddr": {
+      "Id": "21079",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20355",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-08-11T11:52:42-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3340479.001",
+    "TxnDate": "2025-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3340479.001",
+        "Amount": 185.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1237",
+            "name": "David DeSimone:15 Mass Ave Walpole"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "503459088"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 185.39
+  },
+  {
+    "VendorAddr": {
+      "Id": "19102",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19877",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-21T11:24:29-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3372829.001",
+    "TxnDate": "2025-07-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3372829.001",
+        "Amount": 110.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 110.72
+  },
+  {
+    "VendorAddr": {
+      "Id": "19101",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19727",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-15T06:43:55-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3369607.001",
+    "TxnDate": "2025-07-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3369607.001",
+        "Amount": 76.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 76.62
+  },
+  {
+    "VendorAddr": {
+      "Id": "18815",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19579",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-07T07:01:04-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3368067.002",
+    "TxnDate": "2025-07-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3368067.002",
+        "Amount": 104.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1279",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 138 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "519984016"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 104.9
+  },
+  {
+    "VendorAddr": {
+      "Id": "18814",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19578",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-07T06:59:30-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3368063.002",
+    "TxnDate": "2025-07-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3368063.002",
+        "Amount": 14.01,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1276",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 36 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "519978368"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 14.01
+  },
+  {
+    "VendorAddr": {
+      "Id": "18813",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19552",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-03T11:39:33-07:00",
+      "LastUpdatedTime": "2025-10-10T08:26:37-07:00"
+    },
+    "DocNumber": "S3368022.001",
+    "TxnDate": "2025-07-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "21684",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3368022.001",
+        "Amount": 98.41,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "786",
+            "name": "Toll Brothers:Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 98.41
+  },
+  {
+    "VendorAddr": {
+      "Id": "21063",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 412.98,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21661",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-09T10:27:58-07:00",
+      "LastUpdatedTime": "2025-10-09T10:27:58-07:00"
+    },
+    "DocNumber": "S3394396.001",
+    "TxnDate": "2025-10-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "returns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3394396.001",
+        "Amount": 412.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 412.98
   },
   {
     "VendorAddr": {
@@ -525,59 +2005,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 902.33
-  },
-  {
-    "VendorAddr": {
-      "Id": "20483",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 167.35,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20943",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-16T10:48:25-07:00",
-      "LastUpdatedTime": "2025-09-16T10:48:25-07:00"
-    },
-    "DocNumber": "$215.02",
-    "TxnDate": "2025-09-15",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3388029.001",
-        "Amount": 167.35,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 167.35
   },
   {
     "VendorAddr": {
@@ -1197,65 +2624,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 200
-  },
-  {
-    "VendorAddr": {
-      "Id": "19631",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 181.9,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20355",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-11T11:52:42-07:00",
-      "LastUpdatedTime": "2025-08-11T11:52:42-07:00"
-    },
-    "DocNumber": "S3340479.001",
-    "TxnDate": "2025-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3340479.001",
-        "Amount": 181.9,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1237",
-            "name": "David DeSimone:15 Mass Ave Walpole"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "503459088"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 181.9
   },
   {
     "Balance": 48.73,
@@ -2199,110 +3567,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "19102",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 110.72,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19877",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-21T11:24:29-07:00",
-      "LastUpdatedTime": "2025-07-22T07:00:17-07:00"
-    },
-    "DocNumber": "S3372829.001",
-    "TxnDate": "2025-07-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3372829.001",
-        "Amount": 110.72,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 110.72
-  },
-  {
-    "VendorAddr": {
-      "Id": "19101",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 76.62,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19727",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-15T06:43:55-07:00",
-      "LastUpdatedTime": "2025-07-22T06:58:48-07:00"
-    },
-    "DocNumber": "S3369607.001",
-    "TxnDate": "2025-07-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3369607.001",
-        "Amount": 76.62,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 76.62
-  },
-  {
-    "VendorAddr": {
       "Id": "18460",
       "Line1": "Edmilson Junior",
       "Line2": "J.A HVAC INC.",
@@ -2420,180 +3684,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 136.44
-  },
-  {
-    "VendorAddr": {
-      "Id": "18815",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 104.9,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19579",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-07T07:01:04-07:00",
-      "LastUpdatedTime": "2025-07-11T11:07:06-07:00"
-    },
-    "DocNumber": "S3368067.002",
-    "TxnDate": "2025-07-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3368067.002",
-        "Amount": 104.9,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1279",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 138 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "519984016"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 104.9
-  },
-  {
-    "VendorAddr": {
-      "Id": "18814",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 14.01,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19578",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-07T06:59:30-07:00",
-      "LastUpdatedTime": "2025-07-11T11:05:29-07:00"
-    },
-    "DocNumber": "S3368063.002",
-    "TxnDate": "2025-07-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3368063.002",
-        "Amount": 14.01,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1276",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 36 - Pinehills Owls Nest"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "519978368"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 14.01
-  },
-  {
-    "VendorAddr": {
-      "Id": "18813",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 98.41,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19552",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-07-03T11:39:33-07:00",
-      "LastUpdatedTime": "2025-07-11T11:04:19-07:00"
-    },
-    "DocNumber": "S3368022.001",
-    "TxnDate": "2025-07-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3368022.001",
-        "Amount": 98.41,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "786",
-            "name": "Toll Brothers:Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 98.41
   },
   {
     "Balance": 11679.28,
