@@ -37,11 +37,26 @@ async function prepareDataFile() {
 }
 
 async function saveBillsBatch(batch, append = false) {
-  if (append && await fileExists(DATA_FILE)) {
-    const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
-    await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
-  } else {
-    await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+  const maxRetries = 5;
+  const baseDelay = 1000;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (append && await fileExists(DATA_FILE)) {
+        const prev = JSON.parse(await fs.readFile(DATA_FILE, 'utf-8'));
+        await fs.writeFile(DATA_FILE, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+      } else {
+        await fs.writeFile(DATA_FILE, JSON.stringify(batch, null, 2), 'utf-8');
+      }
+      return;
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error;
+      }
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`⚠️  Erro ao salvar arquivo (tentativa ${attempt}/${maxRetries}). Aguardando ${delay}ms antes de tentar novamente...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 }
 

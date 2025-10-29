@@ -2,34 +2,49 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "17487",
-    "SyncToken": "6",
+    "Id": "13648",
+    "SyncToken": "11",
     "MetaData": {
-      "CreateTime": "2025-10-02T12:06:12-07:00",
-      "LastUpdatedTime": "2025-10-06T11:11:23-07:00"
+      "CreateTime": "2024-11-23T13:04:01-08:00",
+      "LastUpdatedTime": "2025-10-17T06:02:57-07:00"
     },
     "CustomField": [],
-    "DocNumber": "1330",
-    "TxnDate": "2025-10-02",
+    "DocNumber": "1279",
+    "TxnDate": "2024-11-23",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
-    "TxnStatus": "Pending",
+    "PrivateNote": "Interior Renovation and half bath addition.\nPayment plan attached.",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13924",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15139",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17777",
+        "TxnType": "Invoice"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "Hers report ",
-        "Amount": 3000,
+        "Description": "Interior Renovation and half bath addition.\nWork to be done as per plan.\nAll permit fees and Drawing are included \nScope of work \n- Provide Dumpsters and Porta potty \n- Demo and dispose \n- Bath addition to be on sono tubes \n- Provide all Frame labor and material\n- Provide all plumbing rough material and labor \n- Plumbing finishes allowance $3,000\n- Provide electrical labor and rough material outlets and switches up to cod. Includes 30 4\" recessed lights \n- Electrical allowance $3,000\n- Hvac use existing \n- Provide insulation labor and material to meet code \n- Provide Blueboard and plaster labor and material\n- Interior trim, provide labor and material \nInstall all doors, trim windows and doors, install all baseboards, shelf and pole included on closets, install vanities and cabinets.  (any custom work will be charged extra)\n- Cabinets and vanities allowance 8k\n- Contertops $95/sq\n- Appliances to be provided by owners \n- Door, cabinets Hardware to be provided by owners\n- Tile labor and rough material included\n- Tile allowance $6/sq \n- Vinyl Floor allowance $4/sq\n- Paint \n- Final clean up\n- Fire place Allowance $3,500\n\nAny unseen damages will be charged as a change order.",
+        "Amount": 215000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
             "value": "1",
             "name": "Services"
           },
-          "UnitPrice": 3000,
-          "UnitCostPrice": 0,
+          "UnitPrice": 215000,
+          "Qty": 1,
           "ItemAccountRef": {
             "value": "26",
             "name": "Services"
@@ -39,228 +54,10 @@
           },
           "TaxClassificationRef": {}
         },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
         "CustomExtensions": []
       },
       {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Add 2 windows to kitchen eating area \nLabor and material included",
-        "Amount": 1874.25,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 1874.25,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Add tempered window primary bath \nLabor and material included ",
-        "Amount": 832.78,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 832.78,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Pad all exterior walls to meet new code \nLabor and material included ",
-        "Amount": 7000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 7000,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Spray foam ",
-        "Amount": 0,
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Living room floor sag \nSister joists with 2x4 to align floor and replacement subfloor.\nLabor and material included ",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 4500,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Primary bath, bedroom, office floor sag \nSister joists with 2x4 and replacement of subfloor.\nLabor and material included ",
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 4000,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Add car charger to meet energy code\n\nFixture not included  ",
-        "Amount": 1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 1500,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Upgrade electric pannel to 200amps ",
-        "Amount": 5200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 5200,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 10,
-        "Description": "Half Bath Material saved",
-        "Amount": -4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": -4000,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 23907.03,
+        "Amount": 215000,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -288,1004 +85,32 @@
     "ProjectRef": {
       "value": "541155823"
     },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
     "CustomerRef": {
       "value": "904",
       "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
     },
     "BillAddr": {
-      "Id": "10230",
+      "Id": "10456",
       "Line1": "Lorri McBride",
       "Line2": "53 Bluff Ave",
       "Line3": "Mashpee, MA"
     },
     "ShipAddr": {
-      "Id": "10231",
+      "Id": "10457",
       "Line1": "Lorri McBride",
       "Line2": "53 Bluff Ave",
       "Line3": "Mashpee, MA"
     },
     "FreeFormAddress": true,
-    "TotalAmt": 23907.03,
+    "TotalAmt": 215000,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "EmailSent",
     "BillEmail": {
-      "Address": "lmcbride841@gmail.com, dcmlawyer@aol.com"
-    },
-    "BillEmailBcc": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
+      "Address": "lmcbride841@gmail.com"
     },
     "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-06T11:10:54-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17491",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-03T14:51:42-07:00",
-      "LastUpdatedTime": "2025-10-03T14:52:35-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1331",
-    "TxnDate": "2025-10-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Trees Removal \nRemoval of 15 trees and disposal ",
-        "Amount": 6800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Stump removal \nPulling 15 stumps with excavator and\nproperly disposing all debris. Clearing\nfront bed area and properly disposing\nall debris. Back filling wall with 60\nyards of clean fill.\nLabor/machinery/disposal",
-        "Amount": 7200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Retaining wall engineering ",
-        "Amount": 750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 14750,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "723",
-      "name": "Victoria and Brandon Forney"
-    },
-    "BillAddr": {
-      "Id": "10233",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "10234",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 14750,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "BillEmailBcc": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-03T14:51:52-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17470",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-02T09:37:50-07:00",
-      "LastUpdatedTime": "2025-10-02T09:39:03-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1329",
-    "TxnDate": "2025-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Material and labor \nInstall slat panels\nBuild 5 shelves \nFillers above cabinets \nCrown across\nPaint to match fillers, crown and slat panel \nStain shelves ",
-        "Amount": 2800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 2800,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "10213",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "10214",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 2800,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "BillEmailBcc": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-02T09:38:06-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "14368",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-01-22T12:34:00-08:00",
-      "LastUpdatedTime": "2025-10-01T13:28:51-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1295",
-    "TxnDate": "2025-01-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Garage with in-law",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Provide labor and material to turn Garage with in-law as per plans",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Scope of work\n\nExcavation and foundation\n-In can of ledge, hammering, and hauling will be charged separately.\n\nFraming  \n-Labor and material to perform work as per plan.\n\nWindows and exterior doors \nLabor and material\n-Harvey windows \n-Entry door ($500) Allowance \n\nSiding\nLabor and material \n-Vinyl siding certainteed .042 thick main st in stock colors \n\nRoof shingles \nLabor and material \n-Timberline GAF\n\nGarage doors \n-Coplay  (4,000) allowance \n\nPlumbing \nLabor and material \n-Toilet \n-Tub \n-Vanity \n-Kitchen sink \n-DW \n-Water for fridge \n-Gas furnace \n\nElectrical \nLabor and material \n-Electrical to meet code \n-20 recessed lights \n-Electrical washer and dryer \n\nHvac \nLabor and material \n- Carier forced air handler and a/c condenser \n\nInsulation\nInsulation to meet code \n\nSheetrock\nLabor and material \n-Drywall and tape \n\nInterior Trim\nLabor and material \nFlat stock \n-Baseboards \n-Windows and door casings \n-Install Cabinets and vanities",
-        "Amount": 220000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Paint\nLabor and material \n-Ben moore paint up to 3 colors \n\nAllowances \n-Appliances $3,000\n-Cabinets and vanities $3,500\n-Plumbing fixtures $1,000\n-Electrical Fixtures $800\n-Tile $3,00 sq \n-Vinyl flooring $4,00sq\n\nElectric dryer and stove \nHot water boiler",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 220000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "447541647"
-    },
-    "CustomerRef": {
-      "value": "811",
-      "name": "85 Joyce Rd., Framingham"
-    },
-    "BillAddr": {
-      "Id": "7501",
-      "Line1": "Jennifer and Laura Clark",
-      "Line2": "Jennifer and Laura Clark",
-      "Line3": "85 Joyce Rd",
-      "Line4": "Framingham United States"
-    },
-    "ShipAddr": {
-      "Id": "7502",
-      "Line1": "Jennifer and Laura Clark",
-      "Line2": "Jennifer and Laura Clark",
-      "Line3": "85 Joyce Rd",
-      "Line4": "Framingham United States"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 220000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "jenleon.129@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-01-29T13:28:53-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17465",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-30T12:44:41-07:00",
-      "LastUpdatedTime": "2025-09-30T13:25:34-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1328",
-    "TxnDate": "2025-09-30",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Provide labor to perform framing work as per attached plan.\n",
-        "Amount": 34598,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Install Windows and exterior doors \n",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Demo not included ",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 34598,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "981",
-      "name": "USA Contractors"
-    },
-    "BillAddr": {
-      "Id": "10203"
-    },
-    "ShipAddr": {
-      "Id": "10204",
-      "Line1": "USA Contractors"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 34598,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "ranyerdejesus10@gmail.com"
-    },
-    "BillEmailBcc": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-09-30T12:44:51-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17208",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-09-09T15:48:18-07:00",
-      "LastUpdatedTime": "2025-09-26T10:51:43-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1326",
-    "TxnDate": "2025-09-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "4 Brassie Way \nMashpee",
-        "Amount": 248798.45,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 248798.45,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Worked to be performed as per scope and plans attached with this estimate. (additional notes done to this estimates about scope.",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "All work shall be complete as per building code. \n",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Allowances:\nLight Fixtures- $700\nHardwood Flooring - $4/sq\nTile - $4/sq\nFireplace Stone and hearth - $500\nBath Vanity and Countertop- $600\nGas Fireplace- $3500\nPlumbing fixtures- 2000\nRecessed Light- 15\nDouble door- $2000",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Pods or containers to be arranged by owner, Premium will be providing dumpsters and porta potty. \n",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "If furniture or personal belongings need to be moved, stored that will be owners responsibility. ",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "We will need to revise this estimate after we check electrical panel, and hvac machines.",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Wall and roof sheathing will be Zip \nsubfloor will be advancetech ",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Storage room with 5/8 sheetrock ",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 248798.45,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "969",
-      "name": "Lewis Cohn"
-    },
-    "BillAddr": {
-      "Id": "10012",
-      "Line1": "Lewis Cohn",
-      "Line2": "7 Lillian Way",
-      "Line3": "Wayland, MA  01778"
-    },
-    "ShipAddr": {
-      "Id": "10013",
-      "Line1": "Lewis Cohn",
-      "Line2": "7 Lillian Way",
-      "Line3": "Wayland, MA  01778"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 248798.45,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "lewisjcohn@gmail.com"
-    },
-    "BillEmailCc": {
-      "Address": "diego@premiumgrpinc.com"
-    },
-    "BillEmailBcc": {
-      "Address": "accounting.pcg@premiumgrpinc.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-09-26T10:51:40-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17382",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-09-23T06:26:44-07:00",
-      "LastUpdatedTime": "2025-09-24T09:48:25-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1327",
-    "TxnDate": "2025-09-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Building",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 3500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Amount": 4000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "17",
-            "name": "Plumbing"
-          },
-          "UnitPrice": 4000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Amount": 2500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "11",
-            "name": "Electrical"
-          },
-          "UnitPrice": 2500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 10000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "667489076"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "975",
-      "name": "22 Flynn Ave, Marlborough, MA"
-    },
-    "BillAddr": {
-      "Id": "10127",
-      "Line1": "Edivaldo  Drumond",
-      "Line2": "22 Flynn Ave, Marlborough"
-    },
-    "ShipAddr": {
-      "Id": "10128",
-      "Line1": "Edivaldo Drumond"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 10000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "felipe@premiumcontractors.group"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17206",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-09-09T10:10:44-07:00",
-      "LastUpdatedTime": "2025-09-23T07:51:02-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1325",
-    "TxnDate": "2025-09-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "17388",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "10 Cirrus Dr.\nAshland, MA, MA 01721\nUnit - 1101\n\nTo uninstall the old water heater and install a new water heater.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-09",
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "HVAC Labor",
-        "Amount": 1150,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-09",
-          "ItemRef": {
-            "value": "225",
-            "name": "HVAC Labor"
-          },
-          "UnitPrice": 1150,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Materials\nWater heating ",
-        "Amount": 2713.2,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-09",
-          "ItemRef": {
-            "value": "32",
-            "name": "Material"
-          },
-          "UnitPrice": 2713.2,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 3863.2,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "960",
-      "name": "Cirrus Apartments"
-    },
-    "BillAddr": {
-      "Id": "10105",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
-      "Line3": "1101"
-    },
-    "ShipAddr": {
-      "Id": "10106",
-      "Line1": "Cirrus Apartments",
-      "Line2": "10 Cirrus Dr.",
-      "Line3": "Ashland, MA  01721 USA"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 3863.2,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "regina.hills@liveatinland.com"
+      "DeliveryType": "Email"
     },
     "TaxExemptionRef": {}
   },
@@ -1293,10 +118,10 @@
     "domain": "QBO",
     "sparse": false,
     "Id": "17045",
-    "SyncToken": "6",
+    "SyncToken": "8",
     "MetaData": {
       "CreateTime": "2025-08-14T17:38:25-07:00",
-      "LastUpdatedTime": "2025-09-23T06:35:59-07:00"
+      "LastUpdatedTime": "2025-10-16T06:53:28-07:00"
     },
     "CustomField": [],
     "DocNumber": "1322",
@@ -1314,6 +139,10 @@
       },
       {
         "TxnId": "17371",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17704",
         "TxnType": "Invoice"
       }
     ],
@@ -2075,15 +904,15 @@
         "CustomExtensions": []
       },
       {
-        "Id": "30",
+        "Id": "32",
         "LineNum": 29,
         "Description": "Change order #2 (attached)",
         "Amount": 17000,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1",
-            "name": "Services"
+            "value": "221",
+            "name": "Change Order"
           },
           "UnitPrice": 17000,
           "UnitCostPrice": 0,
@@ -2102,15 +931,15 @@
         "CustomExtensions": []
       },
       {
-        "Id": "31",
+        "Id": "33",
         "LineNum": 30,
-        "Description": "Change order #3",
+        "Description": "Change order #3 (attached)",
         "Amount": -10500,
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
           "ItemRef": {
-            "value": "1",
-            "name": "Services"
+            "value": "221",
+            "name": "Change Order"
           },
           "UnitPrice": -10500,
           "UnitCostPrice": 0,
@@ -2129,7 +958,34 @@
         "CustomExtensions": []
       },
       {
-        "Amount": 1021418,
+        "Id": "34",
+        "LineNum": 31,
+        "Description": "Change order #4 (attached)",
+        "Amount": 3107.16,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 3107.16,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1024525.16,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -2176,10 +1032,3253 @@
       "Line3": "Bridgewater, MA - 02324"
     },
     "FreeFormAddress": true,
-    "TotalAmt": 1021418,
+    "TotalAmt": 1024525.16,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "AcceptedDate": "2025-10-14",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17667",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-11T07:31:39-07:00",
+      "LastUpdatedTime": "2025-10-16T06:10:26-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1332",
+    "TxnDate": "2025-10-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17702",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Add tempered window by stair case \nRemove existing window and patch siding ",
+        "Amount": 1789.38,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "77",
+            "name": "Windows and Exterior Doors"
+          },
+          "UnitPrice": 1789.38,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "29",
+            "name": "Sales of Product Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Optional \nBasement slab \nRemove material \nPour new 4\" slab ",
+        "Amount": 8500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8500,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Optional \n-Gas line for generator ",
+        "Amount": 3200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Optional \n-Gas line for exterior grill ",
+        "Amount": 1900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Raise Master ceiling, office and bedroom ceilings\nAdd new subfloor on kitchen area \nDemo, labor and material ",
+        "Amount": 9200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Spray foam\nClose Cell Spray Foam On Vaulted ceiling \nClose Cell R15 Fill cavity with Spray Open Ro \nR-30 wall insulation using a combination of closed-cell and open-cell spray foam 2x6 wall \nInstall Fiberglass R-30 Crawl space ceiling \nAir seal for draft stop around windows and doors \nFire Block Top and bottom plates wires, plumbing \n\n",
+        "Amount": 17534.36,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "Deduction from original quote estimate ",
+        "Amount": -4832,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": -4832,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 37291.74,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "541155823"
+    },
+    "CustomerRef": {
+      "value": "904",
+      "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
+    },
+    "BillAddr": {
+      "Id": "10365",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "ShipAddr": {
+      "Id": "10366",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 37291.74,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "lmcbride841@gmail.com, dcmlawyer@aol.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-12T08:26:52-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17668",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-10-12T08:37:24-07:00",
+      "LastUpdatedTime": "2025-10-13T12:26:06-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1333",
+    "TxnDate": "2025-10-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Hyannis Phase 2 \nCost of labor to fabricate panels,\nAll lumber material and fasteners by others.\nTransportation not included ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Building T01\n2 Buildings ",
+        "Amount": 420456,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3,
+          "Qty": 140152,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Building T02\n3 Buildings ",
+        "Amount": 596988,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3,
+          "Qty": 198996,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Club House ",
+        "Amount": 21300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3,
+          "Qty": 7100,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Garage A,B,C,D,E,F,G,H",
+        "Amount": 41937,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3,
+          "Qty": 13979,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1080681,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "994",
+      "name": "Builders First Source"
+    },
+    "BillAddr": {
+      "Id": "10374"
+    },
+    "ShipAddr": {
+      "Id": "10375",
+      "Line1": "Builders First Source"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 1080681,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "michael.tomaso@bldr.com"
+    },
+    "BillEmailCc": {
+      "Address": "crystal.sharbuno@bldr.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-13T12:25:55-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AcceptedDate": "2025-10-06",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17487",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-10-02T12:06:12-07:00",
+      "LastUpdatedTime": "2025-10-13T09:00:25-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1330",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17669",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Hers report ",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3000,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Add 2 windows to kitchen eating area \nLabor and material included",
+        "Amount": 1874.25,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 1874.25,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Add tempered window primary bath \nLabor and material included ",
+        "Amount": 832.78,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 832.78,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Pad all exterior walls to meet new code \nLabor and material included ",
+        "Amount": 7000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 7000,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Spray foam ",
+        "Amount": 0,
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Living room floor sag \nSister joists with 2x4 to align floor and replacement subfloor.\nLabor and material included ",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 4500,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Primary bath, bedroom, office floor sag \nSister joists with 2x4 and replacement of subfloor.\nLabor and material included ",
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 4000,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Add car charger to meet energy code\n\nFixture not included  ",
+        "Amount": 1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 1500,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Upgrade electric pannel to 200amps ",
+        "Amount": 5200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 5200,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Description": "Half Bath Material saved",
+        "Amount": -4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": -4000,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 23907.03,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "541155823"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "904",
+      "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
+    },
+    "BillAddr": {
+      "Id": "10230",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "ShipAddr": {
+      "Id": "10231",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 23907.03,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "lmcbride841@gmail.com, dcmlawyer@aol.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-06T11:10:54-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14150",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-01-07T15:19:23-08:00",
+      "LastUpdatedTime": "2025-10-09T15:11:09-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1293",
+    "TxnDate": "2025-01-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order Electrical First floor and basement",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "14492",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FIRST FLOOR",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "LIFT CIRCUIT \n30 AMP 240 VOLTS LIFT CIRCUIT",
+        "Amount": 580,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 580,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "SECURITY CAMERAS\nCAT6 IP SECURITY CAMERAS RUN\nWIRES ONLY",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 200,
+          "Qty": 6,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "CAT6 WIRE EXTRA RUN",
+        "Amount": 1600,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 200,
+          "Qty": 8,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "TOWER WARMER \n20 AMP 120 VOLTS DEDICATED\nCIRCUIT",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 400,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "UPPERCABINET LIGHTS\nLOW VOLTAGE UPER CABINET\nLIGHTS",
+        "Amount": 1400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 700,
+          "Qty": 2,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "PICTURE LIGHTS PICTURE LIGHT",
+        "Amount": 600,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 150,
+          "Qty": 4,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "UNDERCABINET RECEPTACLE",
+        "Amount": 350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 50,
+          "Qty": 7,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "BASEMNT",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "4\" RECESSED \nLIGHT ULTRA THIN LED 3CCT\n3000K/4000K/5000K SELECTABLE\nDIMMABLE\nOVER ALLOWANCE ON BASEMENT \n(30)",
+        "Amount": 3000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 250,
+          "Qty": 12,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Miscellaneous \nPRICE DIFERENCE FROM EACH\nRECESSED LIGHT\n60 AT 1ST FLOOR\n30 AT 2ND FLOOR",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 50,
+          "Qty": 90,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "POOL TABLE ROOM 1 SINGLE POLE SWITCH, CEILING\nPENDENT LIGHT",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 250,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "Change Order",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "Change Order",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 13880,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "7549",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "7550",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 13880,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-01-07T15:19:35-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "10727",
+    "SyncToken": "16",
+    "MetaData": {
+      "CreateTime": "2024-06-10T13:46:12-07:00",
+      "LastUpdatedTime": "2025-10-09T15:10:27-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1225",
+    "TxnDate": "2024-06-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Change order Basement",
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "14495",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15053",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17032",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17601",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "9",
+        "LineNum": 1,
+        "Description": "Finish Basement as per plan\n-Scope of work\n-Frame \n-Electrical\n-Hvac \n-Plumbing \n-Insulation\n-Sheetrock and plaster \n-Finishes to match first floor \n-Adding grill gas line to patio\n-Adding Generator gas line for future Generator\n-Add extra tank for navien water heater \n-Floor Allowance $6/sq (vinyl or lvp recommended)\n-Tile Allowance ($9/sq)\n-Plumbing Fixtures allowance ($1000)\n-Electrical Fixtures Allowance ($800)\n-30 Recessed light \n-Shower Glass door \n-Counter top ($95/sq)\n-Cabinet allowance for bar area ($8k)",
+        "Amount": 210000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 210000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 2,
+        "Description": "8' Slider upgrade \nNo charge",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 210000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "3703"
+    },
+    "ShipAddr": {
+      "Id": "5335",
+      "Line1": "Premium Contractors Group, Inc."
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 210000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "12702",
+    "SyncToken": "27",
+    "MetaData": {
+      "CreateTime": "2024-10-02T10:45:34-07:00",
+      "LastUpdatedTime": "2025-10-09T15:07:11-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1264",
+    "TxnDate": "2024-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Based on Draw Schedule (attached)",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "12706",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13264",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13422",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13423",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13802",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14055",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14514",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14699",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15052",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15340",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15402",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15625",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15983",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "16615",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17034",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17600",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "4",
+        "LineNum": 1,
+        "Description": "Foundation",
+        "Amount": 75000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3",
+            "name": "Foundation"
+          },
+          "UnitPrice": 75000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 2,
+        "Description": "Framing \nSheating\nRoof boarding\nDoor frames & windows\nInterior partitions\nRoof shingling\nExterior siding installed",
+        "Amount": 250000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "4",
+            "name": "Framing"
+          },
+          "UnitPrice": 250000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 3,
+        "Description": "Chimney & Fireplace\nRough plumbing\nRough electrical\nRough heating",
+        "Amount": 120000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "69",
+            "name": "Fireplace"
+          },
+          "UnitPrice": 120000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 4,
+        "Description": "Sewer\nWater\nInsulation\nPlaster/drywall/paneling",
+        "Amount": 80000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "17",
+            "name": "Plumbing"
+          },
+          "UnitPrice": 80000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 5,
+        "Description": "Finish heat\nStanding finish\nInterior floors",
+        "Amount": 75000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 75000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 6,
+        "Description": "Kitchen cabinets\nCounter tops\nFinish floors\nCellar\nBath(s)\nHardwood/carpet \nKitchen appliances\nFinish plumbing\nInterior paint\nFinish electrical",
+        "Amount": 217000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 217000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "LineNum": 7,
+        "Description": "Deposit on Escrow account",
+        "Amount": 40000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 40000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 8,
+        "Description": "Exterior paint\nLandscaping\nDrives/walks/steps\nCompletion & occupancy permit",
+        "Amount": 210000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 210000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 9,
+        "Description": "Punchlist completed",
+        "Amount": 65000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 65000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1132000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "6165",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "6166",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "12 Virginia Dr",
+      "Line3": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "6167",
+      "Line1": "1B Landing Ln ",
+      "Line2": "Hopedale, MA 01747"
+    },
+    "TotalAmt": 1132000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15798",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-04-24T13:05:24-07:00",
+      "LastUpdatedTime": "2025-10-09T15:03:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1308",
+    "TxnDate": "2025-04-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Closets",
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Closets ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Rear Bedroom closet ",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 1200,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Front bedroom Closet",
+        "Amount": 1950,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 1950,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Master Bedroom ",
+        "Amount": 8900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8900,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Master bedroom \nRegular closet credit ",
+        "Amount": -4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": -4500,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Amount": 0,
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Discount ",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": -500,
+          "UnitCostPrice": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 7050,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "8756",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "8757",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 7050,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-04-28T09:21:03-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17470",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-02T09:37:50-07:00",
+      "LastUpdatedTime": "2025-10-09T15:02:53-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1329",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Cabinet fillers",
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17599",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Material and labor \nInstall slat panels\nBuild 5 shelves \nFillers above cabinets \nCrown across\nPaint to match fillers, crown and slat panel \nStain shelves ",
+        "Amount": 2800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2800,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "10312",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "10313",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 2800,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-02T09:38:06-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16378",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-06-04T09:51:55-07:00",
+      "LastUpdatedTime": "2025-10-09T15:01:35-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1310",
+    "TxnDate": "2025-06-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Stamped concret patio + Side Driveway",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "16651",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Stamped concret patio\n4\" pour with wirer and fiber mash\n \nWill send  samples on design attached. \n\nCant warranty settlement cracks.\n\n445sq total \nPrice is already deducting original quote\n",
+        "Amount": 11393,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 2,
+        "Description": "Side Driveway \n\nRoughly 90' of Cobble stone edging \n3/4 crushed native as shoen on drawing \n",
+        "Amount": 6800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 18193,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "356991881"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "658",
+      "name": "51 West Way, Mashpee, MA"
+    },
+    "BillAddr": {
+      "Id": "9137",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "9138",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 18193,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-06-10T13:36:00-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13047",
+    "SyncToken": "11",
+    "MetaData": {
+      "CreateTime": "2024-10-19T07:44:35-07:00",
+      "LastUpdatedTime": "2025-10-07T05:34:45-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1270",
+    "TxnDate": "2024-10-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "6 units\n1 st Floor deck  10k\n1 st floor walls 10k\n2nd floor deck 10k\n2nd floor walls 10k\n3rd floor deck 10k\n3rd floor walls 10k\nRoof 13k\nPt Decks 6.350k\nWindows doors 13k\nPunch 2.5k\nStairs 2.5k\n\n5 Units\n1 st Floor deck  8k\n1 st floor walls 8k\n2nd floor deck 8k\n2nd floor walls 8k\n3rd floor deck 8k\n3rd floor walls 8k\nRoof 12k\nPt Decks 6k\nWindows doors 12k\nPunch 2k\nStairs 2k",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "14571",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15213",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15217",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15646",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame\nLabor to Frame 11 units \nInstall windows and doors",
+        "Amount": 179350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 9.5909091,
+          "Qty": 18700,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Labor to finish decks",
+        "Amount": 72750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25,
+          "Qty": 2910,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Labor to trim and install hardie plank",
+        "Amount": 62900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 425,
+          "Qty": 148,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Works includes labor only.\nHeavy machinery and fasteners  to be provided by GC",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 5,
+        "Description": "Invoices created not attached to this estimate:\nInvoice 1832 - U$16,000.00\nInvoice 1831 - U$40,000.00",
+        "Amount": -56000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": -56000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "Invoices created not attached to this estimate:\nInvoice 1881 - U$29,500.00",
+        "Amount": -29500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": -29500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 229500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "467040882"
+    },
+    "CustomerRef": {
+      "value": "836",
+      "name": "14, 16-18 North End Blvd, Salisbury"
+    },
+    "CustomerMemo": {
+      "value": "14,16-18 North End Blvd Salisbury"
+    },
+    "BillAddr": {
+      "Id": "7510",
+      "Line1": "Vinny DiPierro",
+      "Line2": "DiPierro & Brown Construction"
+    },
+    "ShipAddr": {
+      "Id": "7511",
+      "Line1": "Vinny DiPierro",
+      "Line2": "DiPierro & Brown Construction"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 229500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "Vincent@dbbostongc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17491",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-03T14:51:42-07:00",
+      "LastUpdatedTime": "2025-10-03T14:52:35-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1331",
+    "TxnDate": "2025-10-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Trees Removal \nRemoval of 15 trees and disposal ",
+        "Amount": 6800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Stump removal \nPulling 15 stumps with excavator and\nproperly disposing all debris. Clearing\nfront bed area and properly disposing\nall debris. Back filling wall with 60\nyards of clean fill.\nLabor/machinery/disposal",
+        "Amount": 7200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Retaining wall engineering ",
+        "Amount": 750,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 14750,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "723",
+      "name": "Victoria and Brandon Forney"
+    },
+    "BillAddr": {
+      "Id": "10233",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "ShipAddr": {
+      "Id": "10234",
+      "Line1": "Victoria and Brandon Forney",
+      "Line2": "Victoria and Brandon Forney",
+      "Line3": "12 Virginia Dr",
+      "Line4": "Pembroke, MAss"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 14750,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "bforney@wthight.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-03T14:51:52-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14368",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-01-22T12:34:00-08:00",
+      "LastUpdatedTime": "2025-10-01T13:28:51-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1295",
+    "TxnDate": "2025-01-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Garage with in-law",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Provide labor and material to turn Garage with in-law as per plans",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Scope of work\n\nExcavation and foundation\n-In can of ledge, hammering, and hauling will be charged separately.\n\nFraming  \n-Labor and material to perform work as per plan.\n\nWindows and exterior doors \nLabor and material\n-Harvey windows \n-Entry door ($500) Allowance \n\nSiding\nLabor and material \n-Vinyl siding certainteed .042 thick main st in stock colors \n\nRoof shingles \nLabor and material \n-Timberline GAF\n\nGarage doors \n-Coplay  (4,000) allowance \n\nPlumbing \nLabor and material \n-Toilet \n-Tub \n-Vanity \n-Kitchen sink \n-DW \n-Water for fridge \n-Gas furnace \n\nElectrical \nLabor and material \n-Electrical to meet code \n-20 recessed lights \n-Electrical washer and dryer \n\nHvac \nLabor and material \n- Carier forced air handler and a/c condenser \n\nInsulation\nInsulation to meet code \n\nSheetrock\nLabor and material \n-Drywall and tape \n\nInterior Trim\nLabor and material \nFlat stock \n-Baseboards \n-Windows and door casings \n-Install Cabinets and vanities",
+        "Amount": 220000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Paint\nLabor and material \n-Ben moore paint up to 3 colors \n\nAllowances \n-Appliances $3,000\n-Cabinets and vanities $3,500\n-Plumbing fixtures $1,000\n-Electrical Fixtures $800\n-Tile $3,00 sq \n-Vinyl flooring $4,00sq\n\nElectric dryer and stove \nHot water boiler",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 220000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "447541647"
+    },
+    "CustomerRef": {
+      "value": "811",
+      "name": "85 Joyce Rd., Framingham"
+    },
+    "BillAddr": {
+      "Id": "7501",
+      "Line1": "Jennifer and Laura Clark",
+      "Line2": "Jennifer and Laura Clark",
+      "Line3": "85 Joyce Rd",
+      "Line4": "Framingham United States"
+    },
+    "ShipAddr": {
+      "Id": "7502",
+      "Line1": "Jennifer and Laura Clark",
+      "Line2": "Jennifer and Laura Clark",
+      "Line3": "85 Joyce Rd",
+      "Line4": "Framingham United States"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 220000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "jenleon.129@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-01-29T13:28:53-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17465",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-09-30T12:44:41-07:00",
+      "LastUpdatedTime": "2025-09-30T13:25:34-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1328",
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Provide labor to perform framing work as per attached plan.\n",
+        "Amount": 34598,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Install Windows and exterior doors \n",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Demo not included ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 34598,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "981",
+      "name": "USA Contractors"
+    },
+    "BillAddr": {
+      "Id": "10203"
+    },
+    "ShipAddr": {
+      "Id": "10204",
+      "Line1": "USA Contractors"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 34598,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "ranyerdejesus10@gmail.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-30T12:44:51-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17208",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-09-09T15:48:18-07:00",
+      "LastUpdatedTime": "2025-09-26T10:51:43-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1326",
+    "TxnDate": "2025-09-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "4 Brassie Way \nMashpee",
+        "Amount": 248798.45,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 248798.45,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Worked to be performed as per scope and plans attached with this estimate. (additional notes done to this estimates about scope.",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "All work shall be complete as per building code. \n",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Allowances:\nLight Fixtures- $700\nHardwood Flooring - $4/sq\nTile - $4/sq\nFireplace Stone and hearth - $500\nBath Vanity and Countertop- $600\nGas Fireplace- $3500\nPlumbing fixtures- 2000\nRecessed Light- 15\nDouble door- $2000",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Pods or containers to be arranged by owner, Premium will be providing dumpsters and porta potty. \n",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "If furniture or personal belongings need to be moved, stored that will be owners responsibility. ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "We will need to revise this estimate after we check electrical panel, and hvac machines.",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Wall and roof sheathing will be Zip \nsubfloor will be advancetech ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Storage room with 5/8 sheetrock ",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 248798.45,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "969",
+      "name": "Lewis Cohn"
+    },
+    "BillAddr": {
+      "Id": "10012",
+      "Line1": "Lewis Cohn",
+      "Line2": "7 Lillian Way",
+      "Line3": "Wayland, MA  01778"
+    },
+    "ShipAddr": {
+      "Id": "10013",
+      "Line1": "Lewis Cohn",
+      "Line2": "7 Lillian Way",
+      "Line3": "Wayland, MA  01778"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 248798.45,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "lewisjcohn@gmail.com"
+    },
+    "BillEmailCc": {
+      "Address": "diego@premiumgrpinc.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-09-26T10:51:40-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17382",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-23T06:26:44-07:00",
+      "LastUpdatedTime": "2025-09-24T09:48:25-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1327",
+    "TxnDate": "2025-09-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 3500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": 4000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "17",
+            "name": "Plumbing"
+          },
+          "UnitPrice": 4000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Amount": 2500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "11",
+            "name": "Electrical"
+          },
+          "UnitPrice": 2500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 10000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "667489076"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "975",
+      "name": "22 Flynn Ave, Marlborough, MA"
+    },
+    "BillAddr": {
+      "Id": "10127",
+      "Line1": "Edivaldo  Drumond",
+      "Line2": "22 Flynn Ave, Marlborough"
+    },
+    "ShipAddr": {
+      "Id": "10128",
+      "Line1": "Edivaldo Drumond"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 10000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "felipe@premiumcontractors.group"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17206",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-09T10:10:44-07:00",
+      "LastUpdatedTime": "2025-09-23T07:51:02-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1325",
+    "TxnDate": "2025-09-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "17388",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "10 Cirrus Dr.\nAshland, MA, MA 01721\nUnit - 1101\n\nTo uninstall the old water heater and install a new water heater.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-09",
+          "ItemRef": {
+            "value": "34",
+            "name": "Description"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "HVAC Labor",
+        "Amount": 1150,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-09",
+          "ItemRef": {
+            "value": "225",
+            "name": "HVAC Labor"
+          },
+          "UnitPrice": 1150,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Materials\nWater heating ",
+        "Amount": 2713.2,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-09",
+          "ItemRef": {
+            "value": "32",
+            "name": "Material"
+          },
+          "UnitPrice": 2713.2,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3863.2,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "960",
+      "name": "Cirrus Apartments"
+    },
+    "BillAddr": {
+      "Id": "10105",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr. Ashland, MA  01721 USA",
+      "Line3": "1101"
+    },
+    "ShipAddr": {
+      "Id": "10106",
+      "Line1": "Cirrus Apartments",
+      "Line2": "10 Cirrus Dr.",
+      "Line3": "Ashland, MA  01721 USA"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 3863.2,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "regina.hills@liveatinland.com"
+    },
     "TaxExemptionRef": {}
   },
   {
@@ -2459,121 +4558,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-04-28T09:21:54-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "10727",
-    "SyncToken": "13",
-    "MetaData": {
-      "CreateTime": "2024-06-10T13:46:12-07:00",
-      "LastUpdatedTime": "2025-09-13T07:05:34-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1225",
-    "TxnDate": "2024-06-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change order Basement",
-    "TxnStatus": "Converted",
-    "LinkedTxn": [
-      {
-        "TxnId": "14495",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15053",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "17032",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "9",
-        "LineNum": 1,
-        "Description": "Finish Basement as per plan\n-Scope of work\n-Frame \n-Electrical\n-Hvac \n-Plumbing \n-Insulation\n-Sheetrock and plaster \n-Finishes to match first floor \n-Adding grill gas line to patio\n-Adding Generator gas line for future Generator\n-Add extra tank for navien water heater \n-Floor Allowance $6/sq (vinyl or lvp recommended)\n-Tile Allowance ($9/sq)\n-Plumbing Fixtures allowance ($1000)\n-Electrical Fixtures Allowance ($800)\n-30 Recessed light \n-Shower Glass door \n-Counter top ($95/sq)\n-Cabinet allowance for bar area ($8k)",
-        "Amount": 210000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 210000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 2,
-        "Description": "8' Slider upgrade \nNo charge",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 210000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "3703"
-    },
-    "ShipAddr": {
-      "Id": "5335",
-      "Line1": "Premium Contractors Group, Inc."
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 210000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
     },
     "TaxExemptionRef": {}
   },
@@ -4393,392 +6377,6 @@
     "EmailStatus": "NotSet",
     "BillEmail": {
       "Address": "regina.hills@liveatinland.com"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "12702",
-    "SyncToken": "26",
-    "MetaData": {
-      "CreateTime": "2024-10-02T10:45:34-07:00",
-      "LastUpdatedTime": "2025-08-14T08:19:32-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1264",
-    "TxnDate": "2024-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Based on Draw Schedule (attached)",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "12706",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13264",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13422",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13423",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13802",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14055",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14514",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14699",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15052",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15340",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15402",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15625",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15983",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "16615",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "17034",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "4",
-        "LineNum": 1,
-        "Description": "Foundation",
-        "Amount": 75000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3",
-            "name": "Foundation"
-          },
-          "UnitPrice": 75000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 2,
-        "Description": "Framing \nSheating\nRoof boarding\nDoor frames & windows\nInterior partitions\nRoof shingling\nExterior siding installed",
-        "Amount": 250000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "4",
-            "name": "Framing"
-          },
-          "UnitPrice": 250000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 3,
-        "Description": "Chimney & Fireplace\nRough plumbing\nRough electrical\nRough heating",
-        "Amount": 120000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "69",
-            "name": "Fireplace"
-          },
-          "UnitPrice": 120000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 4,
-        "Description": "Sewer\nWater\nInsulation\nPlaster/drywall/paneling",
-        "Amount": 80000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "17",
-            "name": "Plumbing"
-          },
-          "UnitPrice": 80000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 5,
-        "Description": "Finish heat\nStanding finish\nInterior floors",
-        "Amount": 75000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 75000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 6,
-        "Description": "Kitchen cabinets\nCounter tops\nFinish floors\nCellar\nBath(s)\nHardwood/carpet \nKitchen appliances\nFinish plumbing\nInterior paint\nFinish electrical",
-        "Amount": 217000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 217000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "13",
-        "LineNum": 7,
-        "Description": "Deposit on Escrow account",
-        "Amount": 40000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 40000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 8,
-        "Description": "Exterior paint\nLandscaping\nDrives/walks/steps\nCompletion & occupancy permit",
-        "Amount": 210000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 210000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "12",
-        "LineNum": 9,
-        "Description": "Punchlist completed",
-        "Amount": 65000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": 65000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 1132000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "6165",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "6166",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "12 Virginia Dr",
-      "Line3": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "6167",
-      "Line1": "1B Landing Ln ",
-      "Line2": "Hopedale, MA 01747"
-    },
-    "TotalAmt": 1132000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
     },
     "TaxExemptionRef": {}
   },
@@ -7538,141 +9136,6 @@
     "TaxExemptionRef": {}
   },
   {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16378",
-    "SyncToken": "7",
-    "MetaData": {
-      "CreateTime": "2025-06-04T09:51:55-07:00",
-      "LastUpdatedTime": "2025-07-10T07:48:41-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1310",
-    "TxnDate": "2025-06-04",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "16651",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Stamped concret patio\n4\" pour with wirer and fiber mash\n \nWill send  samples on design attached. \n\nCant warranty settlement cracks.\n\n445sq total \nPrice is already deducting original quote\n",
-        "Amount": 11393,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 2,
-        "Description": "Side Driveway \n\nRoughly 90' of Cobble stone edging \n3/4 crushed native as shoen on drawing \n",
-        "Amount": 6800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 18193,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "9137",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "9138",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 18193,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-06-10T13:36:00-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
     "AcceptedDate": "2025-05-06",
     "domain": "QBO",
     "sparse": false,
@@ -9134,538 +10597,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "13648",
-    "SyncToken": "9",
-    "MetaData": {
-      "CreateTime": "2024-11-23T13:04:01-08:00",
-      "LastUpdatedTime": "2025-05-08T09:02:43-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1279",
-    "TxnDate": "2024-11-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13924",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15139",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Interior Renovation and half bath addition.\nWork to be done as per plan.\nAll permit fees and Drawing are included \nScope of work \n- Provide Dumpsters and Porta potty \n- Demo and dispose \n- Bath addition to be on sono tubes \n- Provide all Frame labor and material\n- Provide all plumbing rough material and labor \n- Plumbing finishes allowance $3,000\n- Provide electrical labor and rough material outlets and switches up to cod. Includes 30 4\" recessed lights \n- Electrical allowance $3,000\n- Hvac use existing \n- Provide insulation labor and material to meet code \n- Provide Blueboard and plaster labor and material\n- Interior trim, provide labor and material \nInstall all doors, trim windows and doors, install all baseboards, shelf and pole included on closets, install vanities and cabinets.  (any custom work will be charged extra)\n- Cabinets and vanities allowance 8k\n- Contertops $95/sq\n- Appliances to be provided by owners \n- Door, cabinets Hardware to be provided by owners\n- Tile labor and rough material included\n- Tile allowance $6/sq \n- Vinyl Floor allowance $4/sq\n- Paint \n- Final clean up\n- Fire place Allowance $3,500\n\nAny unseen damages will be charged as a change order.",
-        "Amount": 215000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 215000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 215000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "541155823"
-    },
-    "CustomerRef": {
-      "value": "904",
-      "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
-    },
-    "BillAddr": {
-      "Id": "8916",
-      "Line1": "Lorri McBride",
-      "Line2": "53 Bluff Ave",
-      "Line3": "Mashpee, MA"
-    },
-    "ShipAddr": {
-      "Id": "8917",
-      "Line1": "Lorri McBride",
-      "Line2": "53 Bluff Ave",
-      "Line3": "Mashpee, MA"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 215000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "lmcbride841@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "14150",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-01-07T15:19:23-08:00",
-      "LastUpdatedTime": "2025-05-08T06:33:49-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1293",
-    "TxnDate": "2025-01-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Change order Electrical First floor and basement",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "14492",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FIRST FLOOR",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "LIFT CIRCUIT \n30 AMP 240 VOLTS LIFT CIRCUIT",
-        "Amount": 580,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 580,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "SECURITY CAMERAS\nCAT6 IP SECURITY CAMERAS RUN\nWIRES ONLY",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 200,
-          "Qty": 6,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "CAT6 WIRE EXTRA RUN",
-        "Amount": 1600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 200,
-          "Qty": 8,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "TOWER WARMER \n20 AMP 120 VOLTS DEDICATED\nCIRCUIT",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 400,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "UPPERCABINET LIGHTS\nLOW VOLTAGE UPER CABINET\nLIGHTS",
-        "Amount": 1400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 700,
-          "Qty": 2,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "PICTURE LIGHTS PICTURE LIGHT",
-        "Amount": 600,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 150,
-          "Qty": 4,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "UNDERCABINET RECEPTACLE",
-        "Amount": 350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 50,
-          "Qty": 7,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "BASEMNT",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "4\" RECESSED \nLIGHT ULTRA THIN LED 3CCT\n3000K/4000K/5000K SELECTABLE\nDIMMABLE\nOVER ALLOWANCE ON BASEMENT \n(30)",
-        "Amount": 3000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 250,
-          "Qty": 12,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Miscellaneous \nPRICE DIFERENCE FROM EACH\nRECESSED LIGHT\n60 AT 1ST FLOOR\n30 AT 2ND FLOOR",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 50,
-          "Qty": 90,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "POOL TABLE ROOM 1 SINGLE POLE SWITCH, CEILING\nPENDENT LIGHT",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 250,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Description": "Change Order",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "14",
-        "LineNum": 14,
-        "Description": "Change Order",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "221",
-            "name": "Change Order"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 13880,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "7549",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "7550",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 13880,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-01-07T15:19:35-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "14149",
     "SyncToken": "1",
     "MetaData": {
@@ -10032,238 +10963,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-01-09T11:09:09-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15798",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-04-24T13:05:24-07:00",
-      "LastUpdatedTime": "2025-04-28T09:21:07-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1308",
-    "TxnDate": "2025-04-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Closets ",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Rear Bedroom closet ",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 1200,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Front bedroom Closet",
-        "Amount": 1950,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 1950,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Master Bedroom ",
-        "Amount": 8900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 8900,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Master bedroom \nRegular closet credit ",
-        "Amount": -4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": -4500,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Amount": 0,
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Discount ",
-        "Amount": -500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": -500,
-          "UnitCostPrice": 0,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 7050,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "356991881"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "658",
-      "name": "51 West Way, Mashpee, MA"
-    },
-    "BillAddr": {
-      "Id": "8756",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "ShipAddr": {
-      "Id": "8757",
-      "Line1": "Victoria and Brandon Forney",
-      "Line2": "Victoria and Brandon Forney",
-      "Line3": "12 Virginia Dr",
-      "Line4": "Pembroke, MAss"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 7050,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "bforney@wthight.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-04-28T09:21:03-07:00"
     },
     "TaxExemptionRef": {}
   },
@@ -11560,230 +12259,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-01-07T07:40:21-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13047",
-    "SyncToken": "10",
-    "MetaData": {
-      "CreateTime": "2024-10-19T07:44:35-07:00",
-      "LastUpdatedTime": "2025-04-08T11:27:40-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1270",
-    "TxnDate": "2024-10-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "6 units\n1 st Floor deck  10k\n1 st floor walls 10k\n2nd floor deck 10k\n2nd floor walls 10k\n3rd floor deck 10k\n3rd floor walls 10k\nRoof 13k\nPt Decks 6.350k\nWindows doors 13k\nPunch 2.5k\nStairs 2.5k\n\n5 Units\n1 st Floor deck  8k\n1 st floor walls 8k\n2nd floor deck 8k\n2nd floor walls 8k\n3rd floor deck 8k\n3rd floor walls 8k\nRoof 12k\nPt Decks 6k\nWindows doors 12k\nPunch 2k\nStairs 2k",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "14571",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15213",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15217",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15646",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Frame\nLabor to Frame 11 units \nInstall windows and doors",
-        "Amount": 179350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 9.5909091,
-          "Qty": 18700,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Labor to finish decks",
-        "Amount": 72750,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 25,
-          "Qty": 2910,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Labor to trim and install hardie plank",
-        "Amount": 62900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 425,
-          "Qty": 148,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Works includes labor only.\nHeavy machinery and fasteners  to be provided by GC",
-        "DetailType": "DescriptionOnly",
-        "DescriptionLineDetail": {},
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 5,
-        "Description": "Invoices created not attached to this estimate:\nInvoice 1832 - U$16,000.00\nInvoice 1831 - U$40,000.00",
-        "Amount": -56000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": -56000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "Invoices created not attached to this estimate:\nInvoice 1881 - U$29,500.00",
-        "Amount": -29500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "34",
-            "name": "Description"
-          },
-          "UnitPrice": -29500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 229500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "467040882"
-    },
-    "CustomerRef": {
-      "value": "836",
-      "name": "14, 16-18 North End Blvd, Salisbury"
-    },
-    "CustomerMemo": {
-      "value": "14,16-18 North End Blvd Salisbury"
-    },
-    "BillAddr": {
-      "Id": "7510",
-      "Line1": "Vinny DiPierro",
-      "Line2": "DiPierro & Brown Construction"
-    },
-    "ShipAddr": {
-      "Id": "7511",
-      "Line1": "Vinny DiPierro",
-      "Line2": "DiPierro & Brown Construction"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 229500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "Vincent@dbbostongc.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
     },
     "TaxExemptionRef": {}
   },

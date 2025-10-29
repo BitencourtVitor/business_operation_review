@@ -1,17 +1,3053 @@
 [
   {
     "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52167",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:59:30-07:00",
+      "LastUpdatedTime": "2025-10-28T14:59:30-07:00"
+    },
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA DIGITAL CU",
+        "Amount": 10000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1248",
+            "name": "Estevao Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 20000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52166",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:58:57-07:00",
+      "LastUpdatedTime": "2025-10-28T14:58:57-07:00"
+    },
+    "TxnDate": "2025-10-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 20000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1248",
+            "name": "Estevao Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "196",
+            "name": "Loan To Group IN"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 2309.45,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52164",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:45:11-07:00",
+      "LastUpdatedTime": "2025-10-28T14:45:11-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2309.45,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2263",
+            "name": "Premium HVAC Inc",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 2372.15,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52163",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:43:17-07:00",
+      "LastUpdatedTime": "2025-10-28T14:43:17-07:00"
+    },
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2372.15,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2263",
+            "name": "Premium HVAC Inc",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "50",
+            "name": "Payroll"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 1000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52162",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:38:39-07:00",
+      "LastUpdatedTime": "2025-10-28T14:38:39-07:00"
+    },
+    "TxnDate": "2025-10-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "54 Howard loan funds",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "54 Howard loan funds",
+        "Amount": 1000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3080",
+            "name": "Elson Tavares Siqueira",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "24",
+            "name": "Uncategorized Income"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 38578,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52155",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-28T14:27:28-07:00",
+      "LastUpdatedTime": "2025-10-28T14:27:28-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 38578,
+        "LinkedTxn": [
+          {
+            "TxnId": "52154",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
       "value": "158",
       "name": "DCU Business Checking 0257"
     },
-    "TotalAmt": 83235,
+    "TotalAmt": 66380.5,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52099",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-27T09:09:37-07:00",
+      "LastUpdatedTime": "2025-10-27T09:09:37-07:00"
+    },
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Second floor + optionals 017, 020400",
+        "Amount": 10457,
+        "LinkedTxn": [
+          {
+            "TxnId": "52087",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 15427,
+        "LinkedTxn": [
+          {
+            "TxnId": "52088",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "PO 982902",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "52090",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "PO 983187",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "52092",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "Second floor + optionals 263049, 020400",
+        "Amount": 10433,
+        "LinkedTxn": [
+          {
+            "TxnId": "52093",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "Deck + optional 017",
+        "Amount": 15600,
+        "LinkedTxn": [
+          {
+            "TxnId": "52094",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "PO 981830",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "52095",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 13363.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "52097",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "443524"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 17697.27,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52018",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-23T08:54:59-07:00",
+      "LastUpdatedTime": "2025-10-23T08:54:59-07:00"
+    },
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Deck + Optionals 63560 + 68553",
+        "Amount": 3710,
+        "LinkedTxn": [
+          {
+            "TxnId": "52013",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2671"
+        }
+      },
+      {
+        "Description": "Second floor + optionals 63560 + 69162",
+        "Amount": 13791.95,
+        "LinkedTxn": [
+          {
+            "TxnId": "52014",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2671"
+        }
+      },
+      {
+        "Description": "optional 20034",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "52017",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2671"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-11344650 - waiting for Pulte's return",
+        "Amount": -70.13,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2671"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "BC-INV-11344693 - waiting for Pulte's return",
+        "Amount": -34.55,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2671"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 858.58,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51968",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-22T08:19:51-07:00",
+      "LastUpdatedTime": "2025-10-22T08:19:51-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Refund\nPolicy number: 1020092573 - Commerical Auto",
+        "Amount": 858.58,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "326",
+            "name": "Arbella Insurance Group",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "5020069182"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 8750,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51937",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-20T12:21:00-07:00",
+      "LastUpdatedTime": "2025-10-20T12:21:00-07:00"
+    },
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "PO 977069",
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "51918",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 977075",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "51920",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 977070",
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "51921",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 977077",
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "51923",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 1950,
+        "LinkedTxn": [
+          {
+            "TxnId": "51925",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 978494",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "51926",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 973480",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "51928",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 978495",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "51930",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 979126",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "51932",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 2200,
+        "LinkedTxn": [
+          {
+            "TxnId": "51934",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Description": "PO 959338",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51936",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "441000"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge Number: 181777 - Return trip to site view and install fireplace. Fireplace framed incorrectly for cosmo, should be caliber",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3245",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 107 - Owls Nest Regency",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "441000"
+        },
+        "ProjectRef": {
+          "value": "599827694"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 600,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51916",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-20T11:23:40-07:00",
+      "LastUpdatedTime": "2025-10-20T11:23:40-07:00"
+    },
+    "TxnDate": "2025-05-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "51915",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 432035.78,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "44954",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-01-16T08:53:13-08:00",
+      "LastUpdatedTime": "2025-10-18T07:27:04-07:00"
+    },
+    "TxnDate": "2025-01-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Lot 66 H@V - Base + Optional 39000",
+        "Amount": 9265.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "44910",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Bld 2 ML - 5th Floor",
+        "Amount": 117494,
+        "LinkedTxn": [
+          {
+            "TxnId": "44915",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 67 H@V - First Payment - Base",
+        "Amount": 7465.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "44918",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 3 WP - First Payment - Base + Optional 39000 +",
+        "Amount": 10390.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "44924",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 1 WP- Base + optional 39000+68555+63560",
+        "Amount": 10390.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "44926",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "CL bld 5 - Units 1st Floor 101,102 and 113.",
+        "Amount": 6402,
+        "LinkedTxn": [
+          {
+            "TxnId": "44928",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 4 WP - Last Payment.",
+        "Amount": 11676.31,
+        "LinkedTxn": [
+          {
+            "TxnId": "44930",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 5 WP - Last Payment.",
+        "Amount": 11676.31,
+        "LinkedTxn": [
+          {
+            "TxnId": "44932",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 2 Winslow point - First Payment",
+        "Amount": 13779,
+        "LinkedTxn": [
+          {
+            "TxnId": "44934",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 16 - First Payment.",
+        "Amount": 18588.56,
+        "LinkedTxn": [
+          {
+            "TxnId": "44936",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Lot 26 Wheelock Farm - First Payment.",
+        "Amount": 17328.56,
+        "LinkedTxn": [
+          {
+            "TxnId": "44938",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 225,
+        "LinkedTxn": [
+          {
+            "TxnId": "44939",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 7500,
+        "LinkedTxn": [
+          {
+            "TxnId": "44940",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 1800,
+        "LinkedTxn": [
+          {
+            "TxnId": "44941",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 7500,
+        "LinkedTxn": [
+          {
+            "TxnId": "44942",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 95.37,
+        "LinkedTxn": [
+          {
+            "TxnId": "44943",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 17500,
+        "LinkedTxn": [
+          {
+            "TxnId": "44944",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 17500,
+        "LinkedTxn": [
+          {
+            "TxnId": "44945",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 1710,
+        "LinkedTxn": [
+          {
+            "TxnId": "44946",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "44947",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 405,
+        "LinkedTxn": [
+          {
+            "TxnId": "44948",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 7500,
+        "LinkedTxn": [
+          {
+            "TxnId": "44949",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 4627.22,
+        "LinkedTxn": [
+          {
+            "TxnId": "44950",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Amount": 810,
+        "LinkedTxn": [
+          {
+            "TxnId": "44951",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "Bld 1 Winslow Point - Change of Order.",
+        "Amount": 17766.68,
+        "LinkedTxn": [
+          {
+            "TxnId": "44953",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Description": "20826 - Party Wall - Labor",
+        "Amount": 113295,
+        "LinkedTxn": [
+          {
+            "TxnId": "50966",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "1063"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC # 10622264The following amount is to re-address sub floor squeaks after sub floor squeaks were not addressed the first time. This will be back charged to Premium Framing as they failed to address sub floor squeaks during first appointment. They have been notified via email of this B/C and it has been tracked to D365 WO #NE1995184. TAP Invoice #12399290-W060\n\nLot 2 Highland at vale\n\nBC is not added at the lot because project don't want to reopen.",
+        "Amount": -220,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2152",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "1063"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "BC # - 10577402 - Master bath wall framed incorrectly. Reinstall baseboard, shoe, & paint. Notified Gil and Josimar via email 12/19.",
+        "Amount": -240,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2655",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "1063"
+        },
+        "ProjectRef": {
+          "value": "287588764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "BC #10612860",
+        "Amount": -100,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2834",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "1063"
+        },
+        "ProjectRef": {
+          "value": "371740480"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "BC #10612861",
+        "Amount": -100,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2834",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "1063"
+        },
+        "ProjectRef": {
+          "value": "371740480"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "extra amount paid by Pulte on Bld WP",
+        "Amount": -266.67,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2903",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "1063"
+        },
+        "ProjectRef": {
+          "value": "408265746"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 380520.54,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51823",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-16T09:29:18-07:00",
+      "LastUpdatedTime": "2025-10-16T10:50:02-07:00"
+    },
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "20832 - Rough Carpentry 1",
+        "Amount": 106497.3,
+        "LinkedTxn": [
+          {
+            "TxnId": "51809",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "First floor + Optional 69162",
+        "Amount": 11157.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "51810",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Optional 61526",
+        "Amount": 450,
+        "LinkedTxn": [
+          {
+            "TxnId": "51811",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 10157.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "51812",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Deck + Optional 68555",
+        "Amount": 4759,
+        "LinkedTxn": [
+          {
+            "TxnId": "51813",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 63560",
+        "Amount": 12217.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "51814",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 63560",
+        "Amount": 13817.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "51815",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "20845 - Party Wall 3",
+        "Amount": 114059.56,
+        "LinkedTxn": [
+          {
+            "TxnId": "51816",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Units: 201 - 213 / 301 - 312",
+        "Amount": 53350,
+        "LinkedTxn": [
+          {
+            "TxnId": "51818",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Invoices 7944 + 7945 + 7948",
+        "Amount": 1993.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "51819",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Invoice 8544",
+        "Amount": 1425,
+        "LinkedTxn": [
+          {
+            "TxnId": "51820",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Invoices 8545 + 8546",
+        "Amount": 1700,
+        "LinkedTxn": [
+          {
+            "TxnId": "51821",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Invoice 8565",
+        "Amount": 930,
+        "LinkedTxn": [
+          {
+            "TxnId": "51822",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 63560",
+        "Amount": 17631.18,
+        "LinkedTxn": [
+          {
+            "TxnId": "51824",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "First and second floor + Optional 63561",
+        "Amount": 22825,
+        "LinkedTxn": [
+          {
+            "TxnId": "51825",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Deck + Optional 68559",
+        "Amount": 3775,
+        "LinkedTxn": [
+          {
+            "TxnId": "51826",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      },
+      {
+        "Description": "Deck + Optional 68559",
+        "Amount": 3775,
+        "LinkedTxn": [
+          {
+            "TxnId": "51827",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2606"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 35097,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51773",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-15T07:39:58-07:00",
+      "LastUpdatedTime": "2025-10-15T07:41:05-07:00"
+    },
+    "TxnDate": "2025-10-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "PO 960775",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51749",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 967454",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51750",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 16426,
+        "LinkedTxn": [
+          {
+            "TxnId": "51751",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 967455",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51752",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 973466",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "51753",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 973479",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "51754",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "Second floor + Optionals 015 + 263275",
+        "Amount": 13682,
+        "LinkedTxn": [
+          {
+            "TxnId": "51756",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 957527",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51758",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 967456",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51759",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 967453",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51760",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 957499",
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "51762",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 940742",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51763",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 967457",
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51764",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 20766,
+        "LinkedTxn": [
+          {
+            "TxnId": "51766",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 965136",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51767",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 959187",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "51769",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 959336",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "51770",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 965373",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "51771",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Description": "PO 959337",
+        "Amount": 2800,
+        "LinkedTxn": [
+          {
+            "TxnId": "51772",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "438532"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Deck Install\nDeck: U$3,700.00\nOptional 017: U$14,000.00",
+        "Amount": -17700,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3274",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 101 - Deck - Owls Nest Regency",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "617816294"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Back Charge Number: 178318 - PO amount for the 660 sq ft of hardwood which was already ordered. MATERIAL ONLY NOT LABOR. Labor to be invoiced separately. this is to be back charged to Premium Framing for incorrect installation of structural steel beam.",
+        "Amount": -5364,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3061",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 21 - Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "483768057"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Deck Footings\nFootings: U$1,000.00\nOptional 017: U$2,500.00",
+        "Amount": -3500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3274",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest:Lot 101 - Deck - Owls Nest Regency",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "617816294"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Back Charge Number: 180940 - drywall and paint repairs following structural repair work from framers.",
+        "Amount": -2800,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3061",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 21 - Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "483768057"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Model rebates",
+        "Amount": -800,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3249",
+            "name": "Toll Brothers, Inc.:Willis Brook at Lynnfield:Lot 01 - Willis Brook at Lynnfield",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "600581950"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Back Charge Number: 179424 - labor to reinstall hardwood on second floor that was demoed to repair framing issue.",
+        "Amount": -775,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3061",
+            "name": "Toll Brothers, Inc.:Wendell Place:Lot 21 - Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "483768057"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Back Charge Number: 181234 - 3785- Drywall bow by stairs repair from framing issue.",
+        "Amount": -450,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2948",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 60 - Willows at Boxford",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "420006887"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Back Charge Number: 181629 - Ceiling opened up twice to fix floor squeak. Work noted reinstall drywall,tape, 1 coat of dura bond 9/22 and 9/23",
+        "Amount": -400,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3138",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 11 - Newbury Glen",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "531514375"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Back Charge Number: 177987 - Flooring needed for squeaking sub floor warranty submission. / supply wood flooring for warranty repair",
+        "Amount": -198,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3002",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 02 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "444540146"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Back Charge Number: 181664 - Baluster plugs had to be reinstalled due to stair landing having to be corrected and an extra trip had to be made for the cable rail because the painter failed to meet the deadline agreed upon to get them done in the first trip / Install main stair baluster plugs and cable rail on rear stair",
+        "Amount": -100,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3084",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "496357793"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Back Charge Number: 181663 - Trim needed to be reinstalled after main stair was moved by framers / Re do trim around main stairs",
+        "Amount": -90,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3178",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 17 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "438532"
+        },
+        "ProjectRef": {
+          "value": "554130169"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 1650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51711",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-08T11:40:55-07:00",
+      "LastUpdatedTime": "2025-10-08T11:40:55-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 8533",
+        "Amount": 1650,
+        "LinkedTxn": [
+          {
+            "TxnId": "51696",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2225"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 113013.31,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50782",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-09T05:26:04-07:00",
+      "LastUpdatedTime": "2025-10-08T10:35:13-07:00"
+    },
+    "TxnDate": "2025-09-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Second floor + Optionals 263018 + 383 + 036415",
+        "Amount": 16467,
+        "LinkedTxn": [
+          {
+            "TxnId": "50739",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 938767",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "50741",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 941258",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "50743",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940737",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "50744",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940738",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "50745",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 946144",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "50746",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940739",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "50747",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 882481",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "50748",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "Second floor + Optionals 017 + 383 + 036415 + 263049 + 263432",
+        "Amount": 19274,
+        "LinkedTxn": [
+          {
+            "TxnId": "50750",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940740",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "50751",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 946741",
+        "Amount": 400,
+        "LinkedTxn": [
+          {
+            "TxnId": "50752",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940741",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "50753",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 945783",
+        "Amount": 350,
+        "LinkedTxn": [
+          {
+            "TxnId": "50754",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 939951",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "50756",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 939953",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "50758",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 940743",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "50760",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "Second floor + Optional 020400",
+        "Amount": 10682,
+        "LinkedTxn": [
+          {
+            "TxnId": "50762",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 939949",
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "50764",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 939950",
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "50766",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 943016",
+        "Amount": 750,
+        "LinkedTxn": [
+          {
+            "TxnId": "50768",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "First floor",
+        "Amount": 11584,
+        "LinkedTxn": [
+          {
+            "TxnId": "50770",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 937511",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "50772",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "Deck + Optionals 017 + 263316",
+        "Amount": 16500,
+        "LinkedTxn": [
+          {
+            "TxnId": "50774",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 943576",
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "50776",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 942505",
+        "Amount": 3400,
+        "LinkedTxn": [
+          {
+            "TxnId": "50777",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "Second floor + Optionals 263432 + 106158 + 036008 + 263061 + 020400 + 383 + 017",
+        "Amount": 24763.5,
+        "LinkedTxn": [
+          {
+            "TxnId": "50779",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "PO 943005",
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "50781",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Description": "Invoice 5996",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "51698",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "426410"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge Number: 179129 - Basement stairs were adjusted to comply with code after all finishes were complete",
+        "Amount": -100,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3062",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 03 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "426410"
+        },
+        "ProjectRef": {
+          "value": "483796600"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Back Charge Number: 178825 - Main stair platform was installed too high and was corrected after all finishes were complete (Reinstall trim on main stair)",
+        "Amount": -200,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3084",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "462410"
+        },
+        "ProjectRef": {
+          "value": "496357793"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Back Charge Number: 178867 - Completed stair trim was removed to correct height and pitch of steps (Prep, prime, and paint trim at main stair)",
+        "Amount": -475,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3084",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "426410"
+        },
+        "ProjectRef": {
+          "value": "496357793"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Back Charge Number: 176328 - Wrong size dimension beam ordered",
+        "Amount": -632.19,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2948",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 60 - Willows at Boxford",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "426410"
+        },
+        "ProjectRef": {
+          "value": "420006887"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 94385,
     "domain": "QBO",
     "sparse": false,
     "Id": "51320",
-    "SyncToken": "0",
+    "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-09-30T06:14:35-07:00",
-      "LastUpdatedTime": "2025-09-30T06:14:35-07:00"
+      "LastUpdatedTime": "2025-10-08T10:25:41-07:00"
     },
     "TxnDate": "2025-09-26",
     "CurrencyRef": {
@@ -241,6 +3277,23 @@
         }
       },
       {
+        "Description": "Invoice 8428",
+        "Amount": 11150,
+        "LinkedTxn": [
+          {
+            "TxnId": "51697",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "433741"
+        }
+      },
+      {
         "Id": "1",
         "LineNum": 1,
         "Description": "3878 - Waiting for Karla's return regarding what this payment was for, since it did not match anything we have in QB.",
@@ -290,6 +3343,699 @@
           "value": "496357793"
         },
         "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 9500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51585",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T11:04:39-07:00",
+      "LastUpdatedTime": "2025-10-07T11:04:39-07:00"
+    },
+    "TxnDate": "2025-10-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WEBBANK/INTUIT GPWEB LOAN ID NBR: 1783769",
+        "Amount": 9500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3106",
+            "name": "Intuit",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 4366.68,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51580",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T10:55:59-07:00",
+      "LastUpdatedTime": "2025-10-07T10:55:59-07:00"
+    },
+    "TxnDate": "2025-09-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 4366.68,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1580",
+            "name": "Premium Contractors Group, Inc",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "196",
+            "name": "Loan To Group IN"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51548",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T08:14:33-07:00",
+      "LastUpdatedTime": "2025-10-07T08:14:33-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 2493",
+        "Amount": 10000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 0.31,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51531",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T07:52:20-07:00",
+      "LastUpdatedTime": "2025-10-07T07:52:20-07:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "ACCOUNTANTSWORLD ACCTVERIFY ID NBR: 155299261",
+        "Amount": 0.31,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3349",
+            "name": "Accountants World",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51526",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:31:44-07:00",
+      "LastUpdatedTime": "2025-10-07T06:31:44-07:00"
+    },
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 10000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1248",
+            "name": "Estevao Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 15000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51525",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:30:46-07:00",
+      "LastUpdatedTime": "2025-10-07T06:30:46-07:00"
+    },
+    "TxnDate": "2025-09-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 15000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1248",
+            "name": "Estevao Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 50000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51524",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:29:18-07:00",
+      "LastUpdatedTime": "2025-10-07T06:29:18-07:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 50000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1248",
+            "name": "Estevao Costa",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 11000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51521",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:14:19-07:00",
+      "LastUpdatedTime": "2025-10-07T06:14:19-07:00"
+    },
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoices 8553 + 8568",
+        "Amount": 11000,
+        "LinkedTxn": [
+          {
+            "TxnId": "51423",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2227"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 26015,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51520",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:14:05-07:00",
+      "LastUpdatedTime": "2025-10-07T06:14:05-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoices 7790 + 8332 + 8443 + 8445 (remaining amounts)",
+        "Amount": 26015,
+        "LinkedTxn": [
+          {
+            "TxnId": "51387",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "1006"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 5050,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51519",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:14:01-07:00",
+      "LastUpdatedTime": "2025-10-07T06:14:01-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 8444",
+        "Amount": 5050,
+        "LinkedTxn": [
+          {
+            "TxnId": "51388",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2133003"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 1400.82,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51510",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:09:46-07:00",
+      "LastUpdatedTime": "2025-10-07T06:09:46-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10316",
+        "Amount": 1400.82,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 2404.72,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51498",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-07T06:08:01-07:00",
+      "LastUpdatedTime": "2025-10-07T06:08:01-07:00"
+    },
+    "TxnDate": "2025-10-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10306",
+        "Amount": 2404.72,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51459",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T13:07:41-07:00",
+      "LastUpdatedTime": "2025-10-06T13:07:41-07:00"
+    },
+    "TxnDate": "2025-09-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 10000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2308",
+            "name": "Estevao M Costa",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 11000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51456",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T13:05:17-07:00",
+      "LastUpdatedTime": "2025-10-06T13:05:17-07:00"
+    },
+    "TxnDate": "2025-09-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "CELTIC BANK 93700952 ID NBR: 93700952",
+        "Amount": 11000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3255",
+            "name": "Celtic Bank",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040011",
+            "name": "Celtic Bank Credit Line"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 26015,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51453",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T13:00:57-07:00",
+      "LastUpdatedTime": "2025-10-06T13:00:57-07:00"
+    },
+    "TxnDate": "2025-09-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "50% of invoices: 7790 + 8332 + 8443 + 8445",
+        "Amount": 26015,
+        "LinkedTxn": [
+          {
+            "TxnId": "51245",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "1126"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "77",
+      "name": "DCU Primary Savings"
+    },
+    "TotalAmt": 0.04,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51452",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-06T12:59:20-07:00",
+      "LastUpdatedTime": "2025-10-06T12:59:20-07:00"
+    },
+    "TxnDate": "2025-09-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "DIVIDEND",
+        "Amount": 0.04,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "421",
+            "name": "DCU",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "91",
+            "name": "Interest Income"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
       }
     ]
   },
@@ -1057,7 +4803,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3224",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 70 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 70 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1084,7 +4830,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3226",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 71 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 71 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1111,7 +4857,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3243",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 72 / 28 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 72 / 28 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1138,7 +4884,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3244",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 73 / 28 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 73 / 28 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1165,7 +4911,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3264",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 74 / 29 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 74 / 29 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1192,7 +4938,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3265",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 75 / 29 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 75 / 29 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1841,588 +5587,6 @@
   },
   {
     "DepositToAccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "TotalAmt": 432035.78,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "44954",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-01-16T08:53:13-08:00",
-      "LastUpdatedTime": "2025-09-12T06:25:27-07:00"
-    },
-    "TxnDate": "2025-01-16",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Lot 66 H@V - Base + Optional 39000",
-        "Amount": 9265.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "44910",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Bld 2 ML - 5th Floor",
-        "Amount": 117494,
-        "LinkedTxn": [
-          {
-            "TxnId": "44915",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 67 H@V - First Payment - Base",
-        "Amount": 7465.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "44918",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 3 WP - First Payment - Base + Optional 39000 +",
-        "Amount": 10390.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "44924",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 1 WP- Base + optional 39000+68555+63560",
-        "Amount": 10390.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "44926",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "CL bld 5 - Units 1st Floor 101,102 and 113.",
-        "Amount": 6402,
-        "LinkedTxn": [
-          {
-            "TxnId": "44928",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 4 WP - Last Payment.",
-        "Amount": 11676.31,
-        "LinkedTxn": [
-          {
-            "TxnId": "44930",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 5 WP - Last Payment.",
-        "Amount": 11676.31,
-        "LinkedTxn": [
-          {
-            "TxnId": "44932",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 2 Winslow point - First Payment",
-        "Amount": 13779,
-        "LinkedTxn": [
-          {
-            "TxnId": "44934",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 16 - First Payment.",
-        "Amount": 18588.56,
-        "LinkedTxn": [
-          {
-            "TxnId": "44936",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Lot 26 Wheelock Farm - First Payment.",
-        "Amount": 17328.56,
-        "LinkedTxn": [
-          {
-            "TxnId": "44938",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 225,
-        "LinkedTxn": [
-          {
-            "TxnId": "44939",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 7500,
-        "LinkedTxn": [
-          {
-            "TxnId": "44940",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 1800,
-        "LinkedTxn": [
-          {
-            "TxnId": "44941",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 7500,
-        "LinkedTxn": [
-          {
-            "TxnId": "44942",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 95.37,
-        "LinkedTxn": [
-          {
-            "TxnId": "44943",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 17500,
-        "LinkedTxn": [
-          {
-            "TxnId": "44944",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 17500,
-        "LinkedTxn": [
-          {
-            "TxnId": "44945",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 1710,
-        "LinkedTxn": [
-          {
-            "TxnId": "44946",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "44947",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 405,
-        "LinkedTxn": [
-          {
-            "TxnId": "44948",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 7500,
-        "LinkedTxn": [
-          {
-            "TxnId": "44949",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 4627.22,
-        "LinkedTxn": [
-          {
-            "TxnId": "44950",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Amount": 810,
-        "LinkedTxn": [
-          {
-            "TxnId": "44951",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "Bld 1 Winslow Point - Change of Order.",
-        "Amount": 17766.68,
-        "LinkedTxn": [
-          {
-            "TxnId": "44953",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Description": "20826 - Party Wall - Labor",
-        "Amount": 113295,
-        "LinkedTxn": [
-          {
-            "TxnId": "50966",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "1063"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "BC # 10622264The following amount is to re-address sub floor squeaks after sub floor squeaks were not addressed the first time. This will be back charged to Premium Framing as they failed to address sub floor squeaks during first appointment. They have been notified via email of this B/C and it has been tracked to D365 WO #NE1995184. TAP Invoice #12399290-W060\n\nLot 2 Highland at vale\n\nBC is not added at the lot because project don't want to reopen.",
-        "Amount": -220,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "1063"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "BC # - 10577402 - Master bath wall framed incorrectly. Reinstall baseboard, shoe, & paint. Notified Gil and Josimar via email 12/19.",
-        "Amount": -240,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2655",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "1063"
-        },
-        "ProjectRef": {
-          "value": "287588764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "BC #10612860",
-        "Amount": -100,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "1063"
-        },
-        "ProjectRef": {
-          "value": "371740480"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "BC #10612861",
-        "Amount": -100,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "1063"
-        },
-        "ProjectRef": {
-          "value": "371740480"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "extra amount paid by Pulte on Bld WP",
-        "Amount": -266.67,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2903",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "1063"
-        },
-        "ProjectRef": {
-          "value": "408265746"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
       "value": "199",
       "name": "Mutual One Savings 1501"
     },
@@ -2510,595 +5674,6 @@
             "AssociatedValues": []
           }
         ]
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "158",
-      "name": "DCU Business Checking 0257"
-    },
-    "TotalAmt": 112713.31,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50782",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-09T05:26:04-07:00",
-      "LastUpdatedTime": "2025-09-09T05:26:04-07:00"
-    },
-    "TxnDate": "2025-09-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Second floor + Optionals 263018 + 383 + 036415",
-        "Amount": 16467,
-        "LinkedTxn": [
-          {
-            "TxnId": "50739",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 938767",
-        "Amount": 800,
-        "LinkedTxn": [
-          {
-            "TxnId": "50741",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 941258",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "50743",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940737",
-        "Amount": 500,
-        "LinkedTxn": [
-          {
-            "TxnId": "50744",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940738",
-        "Amount": 750,
-        "LinkedTxn": [
-          {
-            "TxnId": "50745",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 946144",
-        "Amount": 250,
-        "LinkedTxn": [
-          {
-            "TxnId": "50746",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940739",
-        "Amount": 500,
-        "LinkedTxn": [
-          {
-            "TxnId": "50747",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 882481",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "50748",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "Second floor + Optionals 017 + 383 + 036415 + 263049 + 263432",
-        "Amount": 19274,
-        "LinkedTxn": [
-          {
-            "TxnId": "50750",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940740",
-        "Amount": 750,
-        "LinkedTxn": [
-          {
-            "TxnId": "50751",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 946741",
-        "Amount": 400,
-        "LinkedTxn": [
-          {
-            "TxnId": "50752",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940741",
-        "Amount": 500,
-        "LinkedTxn": [
-          {
-            "TxnId": "50753",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 945783",
-        "Amount": 350,
-        "LinkedTxn": [
-          {
-            "TxnId": "50754",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 939951",
-        "Amount": 750,
-        "LinkedTxn": [
-          {
-            "TxnId": "50756",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 939953",
-        "Amount": 500,
-        "LinkedTxn": [
-          {
-            "TxnId": "50758",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 940743",
-        "Amount": 750,
-        "LinkedTxn": [
-          {
-            "TxnId": "50760",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "Second floor + Optional 020400",
-        "Amount": 10682,
-        "LinkedTxn": [
-          {
-            "TxnId": "50762",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 939949",
-        "Amount": 1000,
-        "LinkedTxn": [
-          {
-            "TxnId": "50764",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 939950",
-        "Amount": 1000,
-        "LinkedTxn": [
-          {
-            "TxnId": "50766",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 943016",
-        "Amount": 750,
-        "LinkedTxn": [
-          {
-            "TxnId": "50768",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "First floor",
-        "Amount": 11584,
-        "LinkedTxn": [
-          {
-            "TxnId": "50770",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 937511",
-        "Amount": 250,
-        "LinkedTxn": [
-          {
-            "TxnId": "50772",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "Deck + Optionals 017 + 263316",
-        "Amount": 16500,
-        "LinkedTxn": [
-          {
-            "TxnId": "50774",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 943576",
-        "Amount": 1000,
-        "LinkedTxn": [
-          {
-            "TxnId": "50776",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 942505",
-        "Amount": 3400,
-        "LinkedTxn": [
-          {
-            "TxnId": "50777",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "Second floor + Optionals 263432 + 106158 + 036008 + 263061 + 020400 + 383 + 017",
-        "Amount": 24763.5,
-        "LinkedTxn": [
-          {
-            "TxnId": "50779",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Description": "PO 943005",
-        "Amount": 250,
-        "LinkedTxn": [
-          {
-            "TxnId": "50781",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "426410"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Back Charge Number: 179129 - Basement stairs were adjusted to comply with code after all finishes were complete",
-        "Amount": -100,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "3062",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 03 - Lakemont at Hudson",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "426410"
-        },
-        "ProjectRef": {
-          "value": "483796600"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Back Charge Number: 178825 - Main stair platform was installed too high and was corrected after all finishes were complete (Reinstall trim on main stair)",
-        "Amount": -200,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "3084",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "462410"
-        },
-        "ProjectRef": {
-          "value": "496357793"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Back Charge Number: 178867 - Completed stair trim was removed to correct height and pitch of steps (Prep, prime, and paint trim at main stair)",
-        "Amount": -475,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "3084",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 09 - Lakemont at Hudson",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "426410"
-        },
-        "ProjectRef": {
-          "value": "496357793"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Back Charge Number: 176328 - Wrong size dimension beam ordered",
-        "Amount": -632.19,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2948",
-            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 60 - Willows at Boxford",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "426410"
-        },
-        "ProjectRef": {
-          "value": "420006887"
-        },
-        "CustomExtensions": []
       }
     ]
   },
@@ -3206,7 +5781,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3224",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 70 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 70 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3233,7 +5808,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3226",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 71 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 71 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3260,7 +5835,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3226",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 71 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 71 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3287,7 +5862,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3224",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 70 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 70 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3338,7 +5913,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3265",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 75 / 29 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 75 / 29 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3365,7 +5940,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3265",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 75 / 29 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 75 / 29 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -5009,7 +7584,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "3224",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 70 / 27 - Highland at Vale",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 70 / 27 - Highland at Vale",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -6484,47 +9059,6 @@
           "AccountRef": {
             "value": "16",
             "name": "Job Supplies"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "TotalAmt": 600,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50179",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-07T10:26:11-07:00",
-      "LastUpdatedTime": "2025-08-07T10:26:11-07:00"
-    },
-    "TxnDate": "2025-05-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Remote Deposit Scanned Checks",
-        "Amount": 600,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "AccountRef": {
-            "value": "24",
-            "name": "Uncategorized Income"
           }
         },
         "CustomExtensions": [
@@ -12945,7 +15479,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14476,7 +17010,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14503,7 +17037,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14530,7 +17064,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14557,7 +17091,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14584,7 +17118,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14611,7 +17145,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -25916,7 +28450,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2932",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 58 - Highland at Vale - Pulte Holmes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 58 - Highland at Vale - Pulte Holmes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -25943,7 +28477,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2899",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 55 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 55 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -26539,7 +29073,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -29141,7 +31675,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2612",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 15 / 6 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 15 / 6 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -29168,7 +31702,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2300",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -30102,7 +32636,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -31697,7 +34231,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2549",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Building 2 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 2 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -47414,7 +49948,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -47438,7 +49972,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -47462,7 +49996,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -48495,7 +51029,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2540",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 25 / 10 - Deck - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 25 / 10 - Deck - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -48549,7 +51083,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2300",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50092,7 +52626,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50119,7 +52653,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2314",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 46 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 46 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50146,7 +52680,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50173,7 +52707,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50200,7 +52734,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2314",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 46 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 46 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50227,7 +52761,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -50254,7 +52788,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -52349,7 +54883,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -52373,7 +54907,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -52397,7 +54931,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53448,7 +55982,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53472,7 +56006,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2441",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 17 / 7 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 17 / 7 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53526,7 +56060,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2302",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 6 / 2 - Highland at Vale  - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 6 / 2 - Highland at Vale  - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53553,7 +56087,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53577,7 +56111,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2436",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 7 / 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 7 / 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53794,7 +56328,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2300",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53821,7 +56355,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -53845,7 +56379,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54087,7 +56621,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2436",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 7 / 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 7 / 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54113,7 +56647,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2378",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 9 / 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 9 / 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54139,7 +56673,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2378",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 9 / 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 9 / 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54758,7 +57292,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54782,7 +57316,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54830,7 +57364,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2564",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 30 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 30 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54857,7 +57391,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2562",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 29 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 29 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54962,7 +57496,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2543",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 26 / 10 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 26 / 10 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -54989,7 +57523,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2441",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 17 / 7 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 17 / 7 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -55016,7 +57550,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2397",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 8 / 3 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 8 / 3 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -55094,7 +57628,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2510",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 27 - Highland at Vale - Pulte Homes -  7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 27 - Highland at Vale - Pulte Homes -  7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -58043,7 +60577,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -58067,7 +60601,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -58639,7 +61173,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -64693,7 +67227,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -64717,7 +67251,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -64741,7 +67275,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -64765,7 +67299,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -64789,7 +67323,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -69715,7 +72249,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -69739,7 +72273,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -69763,7 +72297,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -69787,7 +72321,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -69811,7 +72345,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2188",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 24 / 9 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 24 / 9 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -70285,7 +72819,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2331",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 43 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 43 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73231,7 +75765,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2327",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73257,7 +75791,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2364",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 42 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 42 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73283,7 +75817,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2331",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 43 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 43 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73309,7 +75843,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2332",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 44 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 44 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73335,7 +75869,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -73410,7 +75944,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2236",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 48 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 48 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -75875,7 +78409,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -75898,7 +78432,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -75921,7 +78455,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -75944,7 +78478,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2152",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -78126,7 +80660,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1732",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 94 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 94 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -78147,7 +80681,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1732",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 94 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 94 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82560,7 +85094,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2327",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82586,7 +85120,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2188",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 24 / 9 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 24 / 9 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82612,7 +85146,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2187",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 23 / 9 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 23 / 9 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82716,7 +85250,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2331",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 43 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 43 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82742,7 +85276,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2238",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 50 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 50 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82768,7 +85302,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2332",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 44 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 44 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82794,7 +85328,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82820,7 +85354,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2315",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 47 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 47 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82846,7 +85380,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2327",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 41 - Upton Ridge  - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82872,7 +85406,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2332",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 44 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 44 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82898,7 +85432,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2313",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 45 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82924,7 +85458,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2332",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 44 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 44 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -82950,7 +85484,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2331",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 43 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 43 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83028,7 +85562,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2191",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 3 / 1 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 3 / 1 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83054,7 +85588,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2189",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 1 / 1 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 1 / 1 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83080,7 +85614,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2190",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 2 / 1 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 2 / 1 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83106,7 +85640,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2191",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 3 / 1 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 3 / 1 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83132,7 +85666,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2300",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 4 / 2 - Highland at Vale - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -83158,7 +85692,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2302",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7241:Lot 6 / 2 - Highland at Vale  - Pulte Homes - 7241",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 6 / 2 - Highland at Vale  - Pulte Homes - 7241",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -84403,7 +86937,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "11",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -97236,7 +99770,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1950",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 29 - Deck - Upton Ridge 5964 - Pulte Homes MS - 1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 29 - Deck - Upton Ridge 5964 - Pulte Homes MS - 1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -99584,7 +102118,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2068",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 52 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 52 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -99605,7 +102139,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2066",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 51 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 51 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -99626,7 +102160,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "2067",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 53 - Upton Ridge - Pulte Homes - 5964",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 53 - Upton Ridge - Pulte Homes - 5964",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -115830,7 +118364,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1389",
-            "name": "Pulte Homes, Inc.:Upton Ridge 5964 - Pulte Homes MS-1074:Lot 83 - Upton Ridge 5964 - Pulte Homes MS-1074",
+            "name": "Pulte Homes, Inc.:Upton Ridge 5964:Lot 83 - Upton Ridge 5964 - Pulte Homes MS-1074",
             "type": "CUSTOMER"
           },
           "AccountRef": {

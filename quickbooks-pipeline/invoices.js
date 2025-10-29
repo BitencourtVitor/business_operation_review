@@ -32,11 +32,26 @@ async function backupAndDeleteOldJson() {
 }
 
 async function saveInvoicesBatch(batch, append = false) {
-  if (append && await fileExists(RAW_JSON)) {
-    const prev = JSON.parse(await fs.readFile(RAW_JSON, 'utf-8'));
-    await fs.writeFile(RAW_JSON, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
-  } else {
-    await fs.writeFile(RAW_JSON, JSON.stringify(batch, null, 2), 'utf-8');
+  const maxRetries = 5;
+  const baseDelay = 1000; // 1 segundo
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      if (append && await fileExists(RAW_JSON)) {
+        const prev = JSON.parse(await fs.readFile(RAW_JSON, 'utf-8'));
+        await fs.writeFile(RAW_JSON, JSON.stringify([...prev, ...batch], null, 2), 'utf-8');
+      } else {
+        await fs.writeFile(RAW_JSON, JSON.stringify(batch, null, 2), 'utf-8');
+      }
+      return; // Sucesso - sai da função
+    } catch (error) {
+      if (attempt === maxRetries) {
+        throw error; // Última tentativa falhou, propaga o erro
+      }
+      const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff
+      console.log(`⚠️  Erro ao salvar arquivo (tentativa ${attempt}/${maxRetries}). Aguardando ${delay}ms antes de tentar novamente...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
   }
 }
 
