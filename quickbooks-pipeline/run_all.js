@@ -15,7 +15,7 @@ const scripts = [
   'deposit.js',
 ];
 
-const companies = ['hvac', 'framing', 'pcg'];
+const companies = ['hvac', 'pcg', 'framing'];
 
 for (const company of companies) {
   console.log(`\n🏢 ==========================================`);
