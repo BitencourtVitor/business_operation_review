@@ -28,11 +28,6 @@ export default function ServiceMetrics({ allData, selectedYear, selectedMonth }:
       }, 0) / completedRequests.length
     : 0;
 
-  // Calcular total ganho/embolsado (apenas service requests não-warranty)
-  const totalEarned = allData
-    .filter(item => item.warranty === false && item.cost) // Apenas não-warranty com custo
-    .reduce((total, item) => total + (item.cost || 0), 0);
-
   // Função para calcular dias úteis em um mês (excluindo sábados e domingos)
   const getWorkingDaysInMonth = (year: number, month: number): number => {
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -151,15 +146,6 @@ export default function ServiceMetrics({ allData, selectedYear, selectedMonth }:
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Avg Resolution Time</span>
             <span style={{ color: 'var(--color-accent-primary)', fontWeight: 400, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
               {Math.round(avgResolutionTime)}d
-            </span>
-          </div>
-        </MetricTooltip>
-        {/* Total Ganho/Emsolsado */}
-        <MetricTooltip title="Total Ganho/Emsolsado" content="Valor total ganho com service requests não-warranty no período.">
-          <div style={{ background: 'var(--color-background-primary)', padding: '8px 18px', minWidth: 140, display: 'flex', flexDirection: 'column', borderLeft: '1px solid var(--color-border-divider)' }}>
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 400, marginBottom: 2 }}>Total Earned</span>
-            <span style={{ color: '#28a745', fontWeight: 600, fontSize: 18, letterSpacing: 0.5, textAlign: 'center' }}>
-              ${totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
           </div>
         </MetricTooltip>

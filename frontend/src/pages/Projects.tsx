@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 import ProjectFilters from '../components/common/Projects_/ProjectFilters';
 import ProjectChart from '../components/common/Projects_/ProjectChart';
 import AcceptedEstimatesCarousel from '../components/common/Projects_/AcceptedEstimatesCarousel';
@@ -16,6 +17,8 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
   const [selectedYear, setSelectedYear] = useState('2025');
   const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<'all' | 'receivable' | 'payable'>('all');
+  const [selectedJobsites, setSelectedJobsites] = useState<string[]>([]);
+  const [customerNames, setCustomerNames] = useState<string[]>([]);
 
   // Mapeamento de ícones das empresas
   const empresaIcones: { [empresa: string]: string } = {
@@ -23,6 +26,101 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
     'Framing': sublogoFraming,
     'PCG': sublogoPcg,
   };
+
+  // Determinar tabela de estimates baseado na empresa
+  const estimatesTable = selectedCompany === 'HVAC' ? 'hvac_estimates' 
+    : selectedCompany === 'Framing' ? 'framing_estimates'
+    : 'pcg_estimates';
+
+  // Buscar customer_names dos estimates
+  useEffect(() => {
+    async function fetchCustomerNames() {
+      const { data, error } = await supabase
+        .from(estimatesTable)
+        .select('customer_name')
+        .not('customer_name', 'is', null);
+      
+      if (error) {
+        console.error('Erro ao buscar customer_names:', error);
+        return;
+      }
+      
+      const uniqueNames = Array.from(new Set((data || []).map((row: { customer_name: string }) => row.customer_name).filter(Boolean)));
+      setCustomerNames(uniqueNames);
+    }
+    
+    fetchCustomerNames();
+  }, [estimatesTable, selectedCompany]);
+
+  // Função para extrair jobsite do customer_name
+  const extractJobsite = React.useCallback((customerName: string | null | undefined): string => {
+    if (!customerName || customerName.trim() === '') {
+      return 'Outros';
+    }
+    
+    // Procurar pelo primeiro hífen " - " ou "-" (com ou sem espaços)
+    // Primeiro tenta encontrar " - " (com espaços)
+    let hyphenIndex = customerName.indexOf(' - ');
+    if (hyphenIndex !== -1) {
+      const jobsite = customerName.substring(hyphenIndex + 3).trim();
+      return jobsite.length > 0 ? jobsite : 'Outros';
+    }
+    
+    // Tenta encontrar " -" (espaço antes do hífen)
+    hyphenIndex = customerName.indexOf(' -');
+    if (hyphenIndex !== -1) {
+      const jobsite = customerName.substring(hyphenIndex + 2).trim();
+      return jobsite.length > 0 ? jobsite : 'Outros';
+    }
+    
+    // Tenta encontrar "- " (espaço depois do hífen)
+    hyphenIndex = customerName.indexOf('- ');
+    if (hyphenIndex !== -1) {
+      const jobsite = customerName.substring(hyphenIndex + 2).trim();
+      return jobsite.length > 0 ? jobsite : 'Outros';
+    }
+    
+    // Tenta encontrar "-" (sem espaços)
+    hyphenIndex = customerName.indexOf('-');
+    if (hyphenIndex !== -1) {
+      const jobsite = customerName.substring(hyphenIndex + 1).trim();
+      return jobsite.length > 0 ? jobsite : 'Outros';
+    }
+    
+    // Se não encontrou o padrão, retornar "Outros"
+    return 'Outros';
+  }, []);
+
+  // Calcular lista de jobsites disponíveis
+  const availableJobsites = useMemo(() => {
+    if (customerNames.length === 0) {
+      return [];
+    }
+    
+    const jobsitesSet = new Set<string>();
+    
+    customerNames.forEach(customerName => {
+      const jobsite = extractJobsite(customerName);
+      jobsitesSet.add(jobsite);
+    });
+    
+    const jobsites = Array.from(jobsitesSet).sort();
+    // Garantir que "Outros" fique no final
+    const outrosIndex = jobsites.indexOf('Outros');
+    if (outrosIndex !== -1) {
+      jobsites.splice(outrosIndex, 1);
+      jobsites.push('Outros');
+    }
+    
+    return jobsites;
+  }, [customerNames, extractJobsite]);
+
+  // Inicializar jobsites quando disponíveis
+  useEffect(() => {
+    if (availableJobsites.length > 0 && selectedJobsites.length === 0) {
+      setSelectedJobsites(availableJobsites);
+    }
+  }, [availableJobsites]);
 
   // Remover o useEffect que definia o ano atual, pois agora queremos 2025 fixo
   // useEffect(() => {
@@ -66,6 +164,9 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
           setSelectedMonth={setSelectedMonth}
           selectedGroup={selectedGroup}
           setSelectedGroup={setSelectedGroup}
+          selectedJobsites={selectedJobsites}
+          setSelectedJobsites={setSelectedJobsites}
+          jobsites={availableJobsites}
         />
       </div>
       
@@ -78,6 +179,9 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
             selectedMonth={selectedMonth} 
             selectedGroup={selectedGroup} 
             selectedCompany={selectedCompany}
+            selectedJobsites={selectedJobsites}
+            availableJobsites={availableJobsites}
+            extractJobsite={extractJobsite}
             onNavigateToAccounting={handleNavigateToAccounting}
           />
         </div>
@@ -88,6 +192,9 @@ export default function Projects({ selectedCompany = 'HVAC', onShowAccountingCon
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             selectedCompany={selectedCompany}
+            selectedJobsites={selectedJobsites}
+            availableJobsites={availableJobsites}
+            extractJobsite={extractJobsite}
           />
         </div>
       </div>

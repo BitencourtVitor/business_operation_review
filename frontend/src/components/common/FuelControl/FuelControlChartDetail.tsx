@@ -155,6 +155,7 @@ interface FuelControlChartDetailProps {
   selectedMonth: string;
   selectedDrivers: string[];
   driverNames: EmployeeName[];
+  financialPass: boolean;
 }
 
 const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
@@ -163,7 +164,8 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
   selectedYear,
   selectedMonth,
   selectedDrivers,
-  driverNames
+  driverNames,
+  financialPass
 }) => {
   // Função para normalizar nomes de motoristas
   const normalizeName = React.useCallback((name: string): string => {
@@ -942,44 +944,46 @@ const FuelControlChartDetail: React.FC<FuelControlChartDetailProps> = ({
             <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
           </h5>
           <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
-            {driverConsumptionData ? (
-              <Line data={driverConsumptionData} options={commonChartOptions} />
-            ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  textAlign: 'center',
-                  padding: '16px'
-                }}>
+            {financialPass ? (
+              driverConsumptionData ? (
+                <Line data={driverConsumptionData} options={commonChartOptions} />
+              ) : (
+                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <div style={{ 
-                    fontSize: 36, 
-                    color: 'var(--color-text-secondary)',
-                    opacity: 0.5,
-                    marginBottom: 12
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'center', 
+                    textAlign: 'center',
+                    padding: '16px'
                   }}>
-                    <i className="bi bi-people"></i>
-                  </div>
-                  <div style={{ 
-                    fontSize: 16, 
-                    fontWeight: 500, 
-                    color: 'var(--color-text-secondary)',
-                    marginBottom: 4
-                  }}>
-                    Sem dados por motorista
-                  </div>
-                  <div style={{ 
-                    fontSize: 12, 
-                    color: 'var(--color-text-secondary)',
-                    opacity: 0.8,
-                    maxWidth: 200
-                  }}>
-                    Nenhuma transação WEX encontrada
+                    <div style={{ 
+                      fontSize: 36, 
+                      color: 'var(--color-text-secondary)',
+                      opacity: 0.5,
+                      marginBottom: 12
+                    }}>
+                      <i className="bi bi-people"></i>
+                    </div>
+                    <div style={{ 
+                      fontSize: 16, 
+                      fontWeight: 500, 
+                      color: 'var(--color-text-secondary)',
+                      marginBottom: 4
+                    }}>
+                      Sem dados por motorista
+                    </div>
+                    <div style={{ 
+                      fontSize: 12, 
+                      color: 'var(--color-text-secondary)',
+                      opacity: 0.8,
+                      maxWidth: 200
+                    }}>
+                      Nenhuma transação WEX encontrada
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )
+            ) : null}
           </div>
         </div>
       </div>

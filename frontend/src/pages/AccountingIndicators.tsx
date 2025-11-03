@@ -669,25 +669,25 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
           </span>
         </h1>
                  <AccountingFilters
-           selectedYear={selectedYear}
-           setSelectedYear={setSelectedYear}
-           selectedMonth={selectedMonth}
-           setSelectedMonth={setSelectedMonth}
-           selectedGroup={selectedGroup}
-           setSelectedGroup={setSelectedGroup}
-           separateAging={separateAging}
-           setSeparateAging={setSeparateAging}
-           selectedAging={selectedAging}
-           setSelectedAging={setSelectedAging}
-           selectedReceivablesCategories={selectedReceivablesCategories}
-           setSelectedReceivablesCategories={setSelectedReceivablesCategories}
-           selectedPayablesCategories={selectedPayablesCategories}
-           setSelectedPayablesCategories={setSelectedPayablesCategories}
-           years={years}
-           months={months}
-           agingIntervals={agingIntervals}
-           receivablesCategories={receivablesCategories}
-           payablesCategories={payablesCategories}
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          selectedGroup={selectedGroup}
+          setSelectedGroup={setSelectedGroup}
+          separateAging={separateAging}
+          setSeparateAging={setSeparateAging}
+          selectedAging={selectedAging}
+          setSelectedAging={setSelectedAging}
+          selectedReceivablesCategories={selectedReceivablesCategories}
+          setSelectedReceivablesCategories={setSelectedReceivablesCategories}
+          selectedPayablesCategories={selectedPayablesCategories}
+          setSelectedPayablesCategories={setSelectedPayablesCategories}
+          years={years}
+          months={months}
+          agingIntervals={agingIntervals}
+          receivablesCategories={receivablesCategories}
+          payablesCategories={payablesCategories}
            forceSeparateAging={forceSeparateAging}
            onUserSelectAllMonth={setUserSelectedAllMonth}
          />

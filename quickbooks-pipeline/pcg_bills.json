@@ -1,5 +1,1567 @@
 [
   {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-11-05",
+    "VendorAddr": {
+      "Id": "3771"
+    },
+    "Balance": 1000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18032",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T03:07:26-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T03:07:26-07:00"
+    },
+    "TxnDate": "2025-11-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Payroll Week - Felipe",
+        "Amount": 1000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "25"
+    },
+    "VendorRef": {
+      "value": "229",
+      "name": "Felipe Drumond"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-11-01",
+    "VendorAddr": {
+      "Id": "9452",
+      "Line1": "HOPEDALE MINI-STORAGE, INC.",
+      "Line2": "4 Business Way, Hopedale, ",
+      "Line3": "MA 01747"
+    },
+    "Balance": 175,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18031",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T03:07:26-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T03:07:26-07:00"
+    },
+    "TxnDate": "2025-11-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Rcc Bill",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rent Mini Storage #76",
+        "Amount": 175,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "15",
+            "name": "Rent & Lease"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "28"
+    },
+    "VendorRef": {
+      "value": "934",
+      "name": "Hopedale Mini-Storage, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 175
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-11-05",
+    "VendorAddr": {
+      "Id": "379"
+    },
+    "Balance": 3000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18030",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T03:07:26-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T03:07:26-07:00"
+    },
+    "TxnDate": "2025-11-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Payroll Week - Guilherme",
+        "Amount": 3000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "19"
+    },
+    "VendorRef": {
+      "value": "340",
+      "name": "Guilherme Costa"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3000
+  },
+  {
+    "DueDate": "2025-08-20",
+    "VendorAddr": {
+      "Id": "10184",
+      "Line1": "Premium Tax Group, Inc.",
+      "Line2": "20 Homer Avenue",
+      "Line3": "Ashland, MA  01721"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17426",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-25T09:53:54-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-31T10:54:29-07:00"
+    },
+    "DocNumber": "16538",
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2024 Corporation Tax /  2024 Income Tax (Felipe)",
+    "LinkedTxn": [
+      {
+        "TxnId": "18027",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2024 Corporation Tax",
+        "Amount": 1450,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2024 Income Tax (Felipe)",
+        "Amount": 200,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "129",
+      "name": "Premium Tax Group, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1650
+  },
+  {
+    "DueDate": "2025-10-18",
+    "VendorAddr": {
+      "Id": "10598",
+      "Line1": "IPFS CORPORATION",
+      "Line2": "P.O ВOX 32144",
+      "Line3": "NEW YORK, NY 10087-2144"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17729",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-16T10:21:45-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-31T10:44:15-07:00"
+    },
+    "DocNumber": "NJN-D80033",
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "payment #4",
+    "LinkedTxn": [
+      {
+        "TxnId": "18026",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "payment #4",
+        "Amount": 2712.54,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "178",
+            "name": "Insurance:General Liability"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "392",
+      "name": "IPFS"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2712.54
+  },
+  {
+    "DueDate": "2025-09-22",
+    "VendorAddr": {
+      "Id": "10493",
+      "Line1": "Flow Business and Financial Management, LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, MA  02038 USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17834",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-20T10:49:41-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-31T10:41:55-07:00"
+    },
+    "DocNumber": "1123",
+    "TxnDate": "2025-09-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Weekly Accounting Services\n09/15/2025 - 09/19/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "18025",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Weekly Accounting Services\n09/15/2025 - 09/19/2025",
+        "Amount": 650,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "910",
+      "name": "Flow Business and Financial Management, LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 650
+  },
+  {
+    "DueDate": "2025-11-15",
+    "VendorAddr": {
+      "Id": "10584",
+      "Line1": "Italo",
+      "Line2": "IMA Electric Inc.",
+      "Line3": "29 Beach St. #2",
+      "Line4": "Milford, MA  01757"
+    },
+    "Balance": 1720,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18011",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-30T08:08:31-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T08:08:42-07:00"
+    },
+    "DocNumber": "1593",
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WELL PUMP,  OUTDOOD RECEPTACLE, MICROWAVE, BATHROOM TOILET RECEPTACLES, KITCHEN",
+        "Amount": 1720,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "96",
+            "name": "Sub-Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "39",
+      "name": "IMA Electric Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1720
+  },
+  {
+    "DueDate": "2025-10-23",
+    "VendorAddr": {
+      "Id": "10582",
+      "Line1": "Young's Landscaping Contractors",
+      "Line2": "35 Spinnaker Drive West",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 1375,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18010",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T08:05:23-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T08:05:23-07:00"
+    },
+    "DocNumber": "3728",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Shower Stall\nShower stall installation and lightpost",
+        "Amount": 1375,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "122",
+            "name": "Sub-Contractors:Landscaping"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "103",
+      "name": "Young's Landscaping Contractors"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1375
+  },
+  {
+    "DueDate": "2025-10-27",
+    "VendorAddr": {
+      "Id": "10577",
+      "Line1": "Flow Business and Financial Management, LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, MA  02038 USA"
+    },
+    "Balance": 650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18007",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:39:00-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:39:00-07:00"
+    },
+    "DocNumber": "1142",
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Weekly Accounting Services\n10/20/2025 - 10/24/2025",
+        "Amount": 650,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "910",
+      "name": "Flow Business and Financial Management, LLC"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 650
+  },
+  {
+    "DueDate": "2025-10-14",
+    "VendorAddr": {
+      "Id": "10576",
+      "Line1": "Quench USA, Inc",
+      "Line2": "630 Allendale Road",
+      "Line3": "Suite 200",
+      "Line4": "King of Prussia, PA  19406"
+    },
+    "Balance": 315.56,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18006",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:37:49-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:37:49-07:00"
+    },
+    "DocNumber": "INV09555330",
+    "TxnDate": "2025-09-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "#INV09555330 - Water for the office",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Q1077838_D64638 6S2444464 - Water for the office",
+        "Amount": 315.56,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "971",
+      "name": "Quench USA, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 315.56
+  },
+  {
+    "DueDate": "2025-10-28",
+    "VendorAddr": {
+      "Id": "10575",
+      "Line1": "Falmouth Ready Mix, Inc.",
+      "Line2": "475 Thomas B. Landers Road",
+      "Line3": "East Falmouth, MA  02536"
+    },
+    "Balance": 8650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18005",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:34:13-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:34:13-07:00"
+    },
+    "DocNumber": "58802",
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "(10/24/25 - RETAINING WALL)\nSlip #84489, 84490, 84491,\n84492 & 84493\n3000 lb. 3/4 Concrete\nFuel / Energy Surcharge\nSales Tax",
+        "Amount": 8650,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Job Supplies:Concrete and Foundation"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "115",
+      "name": "Falmouth Ready Mix, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 8650
+  },
+  {
+    "DueDate": "2025-08-08",
+    "VendorAddr": {
+      "Id": "9994",
+      "Line1": "Falmouth Ready Mix, Inc.",
+      "Line2": "475 Thomas B. Landers Road",
+      "Line3": "East Falmouth, MA  02536"
+    },
+    "Balance": 2505.03,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17080",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-21T07:04:08-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:33:08-07:00"
+    },
+    "DocNumber": "58389",
+    "TxnDate": "2025-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "58389",
+        "Amount": 2505.03,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "1150040005",
+            "name": "Job Supplies:Concrete and Foundation"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "115",
+      "name": "Falmouth Ready Mix, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2505.03
+  },
+  {
+    "DueDate": "2025-10-29",
+    "VendorAddr": {
+      "Id": "10574",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 272,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18004",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:30:02-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:30:02-07:00"
+    },
+    "DocNumber": "2510-228312",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1X12X18' PVC/ TRIMBOARD\n***BE SURE TO READ THE\nINSTALLATION GUIDELINES***",
+        "Amount": 272,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 272
+  },
+  {
+    "DueDate": "2025-10-29",
+    "VendorAddr": {
+      "Id": "10573",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 6700,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18003",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:28:28-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:28:50-07:00"
+    },
+    "DocNumber": "8642",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 10/23/25\nNo attachment available",
+        "Amount": 6700,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "151",
+            "name": "Loan to Group OUT"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6700
+  },
+  {
+    "DueDate": "2025-10-29",
+    "VendorAddr": {
+      "Id": "10571",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 833,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18002",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:27:21-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:27:21-07:00"
+    },
+    "DocNumber": "8643",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Microsoft\nParent account expense\nNo attachment available\n476.00\nMicrosoft\nParent account expense\nNo attachment available",
+        "Amount": 833,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "151",
+            "name": "Loan to Group OUT"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 833
+  },
+  {
+    "DueDate": "2025-12-02",
+    "VendorAddr": {
+      "Id": "10570",
+      "Line1": "Architectural Fireplaces of New England, Inc.",
+      "Line2": "4 Washington Street",
+      "Line3": "Auburn, MA  01501"
+    },
+    "Balance": 4600,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18001",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:24:15-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:24:15-07:00"
+    },
+    "DocNumber": "4600.00",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Heat & Glo COSMO36-IFT-B – 36” Direct Vent Gas Fireplace with IntelliFire Touch Ignition System\nInstalled - with Direct Vent Kit",
+        "Amount": 4600,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "64",
+      "name": "Architectural Fireplaces of New England, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4600
+  },
+  {
+    "DueDate": "2025-10-29",
+    "VendorAddr": {
+      "Id": "10569",
+      "Line1": "Central Steel Supply Company",
+      "Line2": "PO Box 75149",
+      "Line3": "Chigaco, IL  60675-5149 USA"
+    },
+    "Balance": 1223.49,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18000",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-30T07:20:49-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455379374613"
+      },
+      "LastUpdatedTime": "2025-10-30T07:21:50-07:00"
+    },
+    "DocNumber": "202676",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "30 PLEASANT PARK DR\nMASHPEE, MA 02649-3065",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "HR REROD 1 GR 60",
+        "Amount": 1223.49,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "204",
+      "name": "Central Steel Supply Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1223.49
+  },
+  {
+    "DueDate": "2024-10-16",
+    "VendorAddr": {
+      "Id": "9317",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15130",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-02-27T05:35:34-08:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7344 - JB",
+    "TxnDate": "2024-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Job supplies for 155 Eliot Street – PCG.",
+    "LinkedTxn": [
+      {
+        "TxnId": "17498",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 148.35,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "508",
+            "name": "Luis Alvarez:155 Eliot St, Ashland, MA"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "251026187"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 148.35
+  },
+  {
+    "DueDate": "2024-08-26",
+    "VendorAddr": {
+      "Id": "8251",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15129",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-02-27T05:22:42-08:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7135 - JS",
+    "TxnDate": "2024-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Job site supplies including bolts, anchors, lumber, power drill, and other construction tools.",
+    "LinkedTxn": [
+      {
+        "TxnId": "17498",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Various materials and tools purchased for construction purposes—includes heavy-duty drill, wedge anchors, bolts, drill bit, and dimensional lumber. Suitable for structural, fastening, and drilling tasks.",
+        "Amount": 365.06,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "690",
+            "name": "Sandra Almeida:595 Winter St, Walpole, MA 02081"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "367220418"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 365.06
+  },
+  {
+    "DueDate": "2024-08-26",
+    "VendorAddr": {
+      "Id": "9316",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15128",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-02-27T05:20:32-08:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7132 - JB",
+    "TxnDate": "2024-08-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Construction materials - 30 Springdale Ave",
+    "LinkedTxn": [
+      {
+        "TxnId": "17498",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Assorted construction supplies for structural and finishing work. Includes ratchet tie-downs for securing loads, black matte spray paint with primer, aluminum trim coil for exterior detailing, and high-strength laminated veneer lumber (LVL) for framing or load-bearing applications.",
+        "Amount": 1063.37,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "631",
+            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "343563365"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1063.37
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-09-01",
+    "VendorAddr": {
+      "Id": "7986",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "14560",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-02-05T12:53:11-08:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7708 - OE",
+    "TxnDate": "2024-09-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Office operational expenses and adjustments, including rent, consulting, and accounting services.",
+    "LinkedTxn": [
+      {
+        "TxnId": "17498",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "15168",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "10768",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "7708",
+        "Amount": 9437.65,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Billed through Intercompany transactions",
+        "Amount": -3118.77,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6318.88
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2024-11-02",
+    "VendorAddr": {
+      "Id": "7367",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 1544.48,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "12873",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2024-10-09T10:46:01-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7303 - C",
+    "TxnDate": "2024-10-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor performed between 08/12/2024 and 09/08/2024 at 30 Springdale, Dover",
+    "LinkedTxn": [
+      {
+        "TxnId": "17498",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "14164",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Labor 8/26/2024 - 9/8/2024",
+        "Amount": 2335.26,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "631",
+            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
+          },
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "343563365"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Labor 8/12/24 - 8/25/24",
+        "Amount": 1861.95,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "631",
+            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
+          },
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "343563365"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 4197.21
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-08-23",
+    "VendorAddr": {
+      "Id": "5835",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 7400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "12153",
+    "SyncToken": "11",
+    "MetaData": {
+      "CreateTime": "2024-08-26T05:54:05-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
+    },
+    "DocNumber": "7095 - C",
+    "TxnDate": "2024-08-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Framing at 165 Baxter Neck",
+    "LinkedTxn": [
+      {
+        "TxnId": "16612",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "16423",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "13073",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "7095",
+        "Amount": 49000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 49000
+  },
+  {
     "DueDate": "2024-06-21",
     "VendorAddr": {
       "Id": "9314",
@@ -56,92 +1618,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 235.54
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-08-23",
-    "VendorAddr": {
-      "Id": "5835",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 1040.1,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "12153",
-    "SyncToken": "10",
-    "MetaData": {
-      "CreateTime": "2024-08-26T05:54:05-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-10-28T14:42:31-07:00"
-    },
-    "DocNumber": "7095 - C",
-    "TxnDate": "2024-08-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Framing at 165 Baxter Neck",
-    "LinkedTxn": [
-      {
-        "TxnId": "17498",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "16612",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "16423",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "13073",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "7095",
-        "Amount": 49000,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 49000
   },
   {
     "DueDate": "2025-09-15",
@@ -2638,7 +4114,7 @@
             "value": "181",
             "name": "Payment Processing Fee"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -4051,64 +5527,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 175.06
-  },
-  {
-    "DueDate": "2025-09-22",
-    "VendorAddr": {
-      "Id": "10493",
-      "Line1": "Flow Business and Financial Management, LLC",
-      "Line2": "22 Lewis St",
-      "Line3": "Franklin, MA  02038 USA"
-    },
-    "Balance": 650,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17834",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-20T10:49:41-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356620591066"
-      },
-      "LastUpdatedTime": "2025-10-20T10:49:41-07:00"
-    },
-    "DocNumber": "1123",
-    "TxnDate": "2025-09-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Weekly Accounting Services\n09/15/2025 - 09/19/2025",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Weekly Accounting Services\n09/15/2025 - 09/19/2025",
-        "Amount": 650,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "10",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "910",
-      "name": "Flow Business and Financial Management, LLC"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 650
   },
   {
     "SalesTermRef": {
@@ -7395,62 +8813,6 @@
     "TotalAmt": 458.28
   },
   {
-    "DueDate": "2025-10-18",
-    "VendorAddr": {
-      "Id": "10423",
-      "Line1": "IPFS"
-    },
-    "Balance": 2712.54,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17729",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-16T10:21:45-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-10-16T11:24:09-07:00"
-    },
-    "DocNumber": "NJN-D80033",
-    "TxnDate": "2025-09-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "payment #4",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "payment #4",
-        "Amount": 2712.54,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "178",
-            "name": "Insurance:General Liability"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "392",
-      "name": "IPFS"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2712.54
-  },
-  {
     "DueDate": "2025-09-10",
     "VendorAddr": {
       "Id": "10440",
@@ -8219,7 +9581,7 @@
       "LastModifiedByRef": {
         "value": "9130355420157126"
       },
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
     },
     "DocNumber": "120",
     "TxnDate": "2025-08-11",
@@ -8462,134 +9824,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1154
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2025-01-10",
-    "VendorAddr": {
-      "Id": "7195",
-      "Line1": "ETS Equipment Rental",
-      "Line2": "11 Airport Road",
-      "Line3": "Hopedale, MA  01747"
-    },
-    "Balance": 234.81,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13937",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-12-17T09:54:43-08:00",
-      "LastModifiedByRef": {
-        "value": "9341455379374613"
-      },
-      "LastUpdatedTime": "2025-10-10T05:53:02-07:00"
-    },
-    "DocNumber": "15641-0003",
-    "TxnDate": "2024-12-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "5 Claflin Ave, Hopkinton, MA",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "15641-0003",
-        "Amount": 234.81,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "609",
-            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
-          },
-          "AccountRef": {
-            "value": "46",
-            "name": "Equipment Rental"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "314692141"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "122",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 234.81
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-12-21",
-    "VendorAddr": {
-      "Id": "6916",
-      "Line1": "ETS Equipment Rental",
-      "Line2": "11 Airport Road",
-      "Line3": "Hopedale, MA  01747"
-    },
-    "Balance": 89.25,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13671",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-11-26T05:25:01-08:00",
-      "LastModifiedByRef": {
-        "value": "9341455379374613"
-      },
-      "LastUpdatedTime": "2025-10-10T05:53:02-07:00"
-    },
-    "DocNumber": "15710-0002",
-    "TxnDate": "2024-11-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "15710-0002",
-        "Amount": 89.25,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "21",
-            "name": "Ask My Accountant"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "122",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 89.25
   },
   {
     "DueDate": "2025-10-20",
@@ -11955,96 +13189,6 @@
     "TotalAmt": 880
   },
   {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-09-01",
-    "VendorAddr": {
-      "Id": "7986",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 4656.3,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "14560",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-02-05T12:53:11-08:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-30T09:48:39-07:00"
-    },
-    "DocNumber": "7708 - OE",
-    "TxnDate": "2024-09-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Office operational expenses and adjustments, including rent, consulting, and accounting services.",
-    "LinkedTxn": [
-      {
-        "TxnId": "15168",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "10768",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "7708",
-        "Amount": 9437.65,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040001",
-            "name": "Office expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Billed through Intercompany transactions",
-        "Amount": -3118.77,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040001",
-            "name": "Office expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 6318.88
-  },
-  {
     "DueDate": "2024-04-10",
     "VendorAddr": {
       "Id": "9313",
@@ -12394,83 +13538,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 150
-  },
-  {
-    "DueDate": "2025-08-20",
-    "VendorAddr": {
-      "Id": "10184",
-      "Line1": "Premium Tax Group, Inc.",
-      "Line2": "20 Homer Avenue",
-      "Line3": "Ashland, MA  01721"
-    },
-    "Balance": 1650,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17426",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-09-25T09:53:54-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-25T14:20:22-07:00"
-    },
-    "DocNumber": "16538",
-    "TxnDate": "2025-08-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2024 Corporation Tax /  2024 Income Tax (Felipe)",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2024 Corporation Tax",
-        "Amount": 1450,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "10",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2024 Income Tax (Felipe)",
-        "Amount": 200,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "10",
-            "name": "Legal & Professional Services"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "129",
-      "name": "Premium Tax Group, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1650
   },
   {
     "DueDate": "2025-09-05",
@@ -20451,71 +21518,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 55000
-  },
-  {
-    "DueDate": "2025-08-08",
-    "VendorAddr": {
-      "Id": "9994",
-      "Line1": "Falmouth Ready Mix, Inc.",
-      "Line2": "475 Thomas B. Landers Road",
-      "Line3": "East Falmouth, MA  02536"
-    },
-    "Balance": 2505.03,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17080",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-21T07:04:08-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-09-13T06:19:45-07:00"
-    },
-    "DocNumber": "58389",
-    "TxnDate": "2025-08-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "58389",
-        "Amount": 2505.03,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "658",
-            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
-          },
-          "AccountRef": {
-            "value": "1150040005",
-            "name": "Job Supplies:Concrete and Foundation"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "356991881"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "115",
-      "name": "Falmouth Ready Mix, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2505.03
   },
   {
     "DueDate": "2025-08-04",
@@ -50690,106 +51692,6 @@
   },
   {
     "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-11-02",
-    "VendorAddr": {
-      "Id": "7367",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 1671.3,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "12873",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2024-10-09T10:46:01-07:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-19T11:38:57-07:00"
-    },
-    "DocNumber": "7303 - C",
-    "TxnDate": "2024-10-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Labor performed between 08/12/2024 and 09/08/2024 at 30 Springdale, Dover",
-    "LinkedTxn": [
-      {
-        "TxnId": "14164",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Labor 8/26/2024 - 9/8/2024",
-        "Amount": 2335.26,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "631",
-            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "343563365"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Labor 8/12/24 - 8/25/24",
-        "Amount": 1861.95,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "631",
-            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "343563365"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 4197.21
-  },
-  {
-    "SalesTermRef": {
       "value": "1"
     },
     "DueDate": "2024-11-01",
@@ -50848,70 +51750,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 9437.65
-  },
-  {
-    "DueDate": "2024-10-16",
-    "VendorAddr": {
-      "Id": "9317",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 148.35,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15130",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-02-27T05:35:34-08:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-19T11:37:40-07:00"
-    },
-    "DocNumber": "7344 - JB",
-    "TxnDate": "2024-10-16",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Job supplies for 155 Eliot Street – PCG.",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 148.35,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "508",
-            "name": "Luis Alvarez:155 Eliot St, Ashland, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "251026187"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 148.35
   },
   {
     "SalesTermRef": {
@@ -50973,136 +51811,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 9437.65
-  },
-  {
-    "DueDate": "2024-08-26",
-    "VendorAddr": {
-      "Id": "9316",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 1063.37,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15128",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-02-27T05:20:32-08:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-19T11:35:38-07:00"
-    },
-    "DocNumber": "7132 - JB",
-    "TxnDate": "2024-08-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Construction materials - 30 Springdale Ave",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Assorted construction supplies for structural and finishing work. Includes ratchet tie-downs for securing loads, black matte spray paint with primer, aluminum trim coil for exterior detailing, and high-strength laminated veneer lumber (LVL) for framing or load-bearing applications.",
-        "Amount": 1063.37,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "631",
-            "name": "Dover Professional Building, LLC:30 Springdale Ave., Dover"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "343563365"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1063.37
-  },
-  {
-    "DueDate": "2024-08-26",
-    "VendorAddr": {
-      "Id": "8251",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 365.06,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15129",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-02-27T05:22:42-08:00",
-      "LastModifiedByRef": {
-        "value": "9341454707209810"
-      },
-      "LastUpdatedTime": "2025-06-19T11:34:43-07:00"
-    },
-    "DocNumber": "7135 - JS",
-    "TxnDate": "2024-08-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Job site supplies including bolts, anchors, lumber, power drill, and other construction tools.",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Various materials and tools purchased for construction purposes—includes heavy-duty drill, wedge anchors, bolts, drill bit, and dimensional lumber. Suitable for structural, fastening, and drilling tasks.",
-        "Amount": 365.06,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "690",
-            "name": "Sandra Almeida:595 Winter St, Walpole, MA 02081"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "367220418"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 365.06
   },
   {
     "SalesTermRef": {

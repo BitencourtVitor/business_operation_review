@@ -1,6 +1,218 @@
 [
   {
     "VendorAddr": {
+      "Id": "21731",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 412.98,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22353",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-03T09:34:43-08:00",
+      "LastUpdatedTime": "2025-11-03T09:34:43-08:00"
+    },
+    "DocNumber": "S3394395.001",
+    "TxnDate": "2025-10-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returns",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3394395.001",
+        "Amount": 412.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 412.98
+  },
+  {
+    "VendorAddr": {
+      "Id": "21716",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 221.94,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22338",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-03T08:33:30-08:00",
+      "LastUpdatedTime": "2025-11-03T08:33:30-08:00"
+    },
+    "DocNumber": "S3399547.001",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3399547.001",
+        "Amount": 221.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 221.94
+  },
+  {
+    "VendorAddr": {
+      "Id": "21697",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 466.76,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22324",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-03T06:14:12-08:00",
+      "LastUpdatedTime": "2025-11-03T06:14:12-08:00"
+    },
+    "DocNumber": "S3393839.002",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Aspen Blower Motor",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3393839.002",
+        "Amount": 466.76,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 466.76
+  },
+  {
+    "VendorAddr": {
+      "Id": "21688",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 530.43,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22315",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-03T05:52:50-08:00",
+      "LastUpdatedTime": "2025-11-03T05:52:50-08:00"
+    },
+    "DocNumber": "S3400310.001",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3400310.001",
+        "Amount": 530.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 530.43
+  },
+  {
+    "VendorAddr": {
       "Id": "21583",
       "Line1": "Delta T",
       "Line2": "PO Box 6070",

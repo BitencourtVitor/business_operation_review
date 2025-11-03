@@ -1,6 +1,2875 @@
 [
   {
     "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "5",
+      "name": "Edy Silva",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "3"
+    },
+    "TotalAmt": 6500,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22282",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T13:22:37-07:00",
+      "LastUpdatedTime": "2025-10-31T13:23:57-07:00"
+    },
+    "DocNumber": "1623",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payout - 10.31.2025 - Monthly",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payout - 10.31.2025 - Monthly",
+        "Amount": 6500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 10129.79,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22280",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T05:26:59-07:00",
+      "LastUpdatedTime": "2025-10-31T05:26:59-07:00"
+    },
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "10.12.2025 - 10.25.2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 103122A01",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "10.12.2025 - 10.25.2025 - ADP Tax AA ADP Tax ID NBR: L6N4W 103122A01",
+        "Amount": 10129.79,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 25694.78,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22279",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T05:26:42-07:00",
+      "LastUpdatedTime": "2025-10-31T05:26:42-07:00"
+    },
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "10.12.2025 - 10.25.2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX6407N4W",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "10.12.2025 - 10.25.2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX6407N4W",
+        "Amount": 25694.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "545",
+      "name": "Adobe",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 24.43,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22276",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T14:14:19-07:00",
+      "LastUpdatedTime": "2025-10-30T14:14:19-07:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "ILLUSTRATOR Adobe SySAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "ILLUSTRATOR Adobe SySAN JOSE CA XXXX3009",
+        "Amount": 24.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 48.3,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22275",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T14:11:53-07:00",
+      "LastUpdatedTime": "2025-10-30T14:11:53-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT SEEKONK MA XXXX1078",
+        "Amount": 48.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1440",
+            "name": "Building 1 - Riverview at East Point - Pulte Homes - 9041"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "594226234"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 163.66,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22274",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T13:56:45-07:00",
+      "LastUpdatedTime": "2025-10-30T13:56:45-07:00"
+    },
+    "TxnDate": "2025-10-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT PROVIDENCE RI XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1572",
+            "name": "Riverview East Point - Lot 02"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249011"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1573",
+            "name": "Riverview East Point - Lot 03"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249212"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1575",
+            "name": "Riverview East Point - Lot 05"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249788"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1576",
+            "name": "Riverview East Point - Lot 06"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664250085"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "84",
+      "name": "Supply House",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 835.67,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22273",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T12:07:23-07:00",
+      "LastUpdatedTime": "2025-10-30T12:07:23-07:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "SUPPLYHOUSE.COM MELVILLE NY XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "SUPPLYHOUSE.COM MELVILLE NY XXXX3009",
+        "Amount": 835.67,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1364",
+            "name": "Lot 135 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564322546"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "956",
+      "name": "Azul",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 448.24,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22258",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:16:12-07:00",
+      "LastUpdatedTime": "2025-10-29T13:16:12-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AZUL LINHAS A REAS BARUERI/SP BR XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AZUL LINHAS A REAS BARUERI/SP BR XXXX3025",
+        "Amount": 448.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1594",
+      "name": "CB Bakery Worcester",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 19.69,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22257",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:15:27-07:00",
+      "LastUpdatedTime": "2025-10-29T13:15:27-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CB BAKERY WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "CB BAKERY WORCESTER MA XXXX3025",
+        "Amount": 19.69,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1570",
+      "name": "Big Boi Meat Market",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 31.32,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22256",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:15:05-07:00",
+      "LastUpdatedTime": "2025-10-29T13:15:05-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "BIGBOIMEATMARKET 288WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "BIGBOIMEATMARKET 288WORCESTER MA XXXX3025",
+        "Amount": 31.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1659",
+      "name": "Olive Garden",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 138.91,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22255",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:14:56-07:00",
+      "LastUpdatedTime": "2025-10-29T13:14:56-07:00"
+    },
+    "TxnDate": "2025-10-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE OLIVE GARDEN MARLBOROUGH MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE OLIVE GARDEN MARLBOROUGH MA XXXX3025",
+        "Amount": 138.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1637",
+      "name": "Uber Eats",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 47.67,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22254",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:14:41-07:00",
+      "LastUpdatedTime": "2025-10-29T13:14:41-07:00"
+    },
+    "TxnDate": "2025-10-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "UBER EATS help.uber.com CA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "UBER EATS help.uber.com CA XXXX3025",
+        "Amount": 47.67,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1637",
+      "name": "Uber Eats",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 57.2,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22253",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:14:30-07:00",
+      "LastUpdatedTime": "2025-10-29T13:14:30-07:00"
+    },
+    "TxnDate": "2025-10-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "UBER EATS help.uber.com CA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "UBER EATS help.uber.com CA XXXX3025",
+        "Amount": 57.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1637",
+      "name": "Uber Eats",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 57.22,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22252",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:14:18-07:00",
+      "LastUpdatedTime": "2025-10-29T13:14:18-07:00"
+    },
+    "TxnDate": "2025-10-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "UBER EATS help.uber.com CA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "UBER EATS help.uber.com CA XXXX3025",
+        "Amount": 57.22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "813",
+      "name": "Domino's Pizza",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 30.48,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22251",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:14:01-07:00",
+      "LastUpdatedTime": "2025-10-29T13:14:01-07:00"
+    },
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "DOMINO'S XXXX XX0003WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "DOMINO'S XXXX XX0003WORCESTER MA XXXX3025",
+        "Amount": 30.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "141",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 14.99,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22250",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:13:50-07:00",
+      "LastUpdatedTime": "2025-10-29T13:13:50-07:00"
+    },
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Amazon Prime Amazon.com WA XXXX2035",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Amazon Prime Amazon.com WA XXXX2035",
+        "Amount": 14.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1614",
+      "name": "Longhorn Stk",
+      "type": "Customer"
+    },
+    "Credit": false,
+    "TotalAmt": 98.23,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22249",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:13:42-07:00",
+      "LastUpdatedTime": "2025-10-29T13:13:42-07:00"
+    },
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LONGHORN STEAK X1252MILLBURY MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "LONGHORN STEAK X1252MILLBURY MA XXXX3025",
+        "Amount": 98.23,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1614",
+            "name": "Longhorn Stk"
+          },
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 146.52,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22248",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:13:22-07:00",
+      "LastUpdatedTime": "2025-10-29T13:13:22-07:00"
+    },
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT BELLINGHAM MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX3025",
+        "Amount": 146.52,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1310",
+      "name": "Market Basket",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 180.12,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22247",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:12:56-07:00",
+      "LastUpdatedTime": "2025-10-29T13:12:56-07:00"
+    },
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "MARKET BASKET XX0935SHREWSBURY MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "MARKET BASKET XX0935SHREWSBURY MA XXXX3025",
+        "Amount": 180.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1594",
+      "name": "CB Bakery Worcester",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 17.73,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22246",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:12:44-07:00",
+      "LastUpdatedTime": "2025-10-29T13:12:44-07:00"
+    },
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CB BAKERY WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "CB BAKERY WORCESTER MA XXXX3025",
+        "Amount": 17.73,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 37.03,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22245",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:12:27-07:00",
+      "LastUpdatedTime": "2025-10-29T13:12:27-07:00"
+    },
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT BELLINGHAM MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX3025",
+        "Amount": 37.03,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1617",
+      "name": "Chipotle",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 42.21,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22244",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:12:06-07:00",
+      "LastUpdatedTime": "2025-10-29T13:12:06-07:00"
+    },
+    "TxnDate": "2025-10-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "CHIPOTLE XXXX 1108 WESTBOROUGH MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "CHIPOTLE XXXX 1108 WESTBOROUGH MA XXXX3025",
+        "Amount": 42.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "25",
+      "name": "Gulf",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 10,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22243",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:11:58-07:00",
+      "LastUpdatedTime": "2025-10-29T13:11:58-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "GULF YATCO XXXXX0000WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "GULF YATCO XXXXX0000WORCESTER MA XXXX3025",
+        "Amount": 10,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "168",
+      "name": "Dunkin Donuts",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 2.88,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22242",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:11:40-07:00",
+      "LastUpdatedTime": "2025-10-29T13:11:40-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "DUNKIN #XXXXX8 Q35 3WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "DUNKIN #XXXXX8 Q35 3WORCESTER MA XXXX3025",
+        "Amount": 2.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1662",
+      "name": "Salgabom Snacks",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 41.72,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22241",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:11:27-07:00",
+      "LastUpdatedTime": "2025-10-29T13:11:27-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "SALGABOM SNACKS 0000WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "SALGABOM SNACKS 0000WORCESTER MA XXXX3025",
+        "Amount": 41.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1570",
+      "name": "Big Boi Meat Market",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 5.73,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22240",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:10:27-07:00",
+      "LastUpdatedTime": "2025-10-29T13:10:27-07:00"
+    },
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "BIGBOIMEATMARKET 288WORCESTER MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "BIGBOIMEATMARKET 288WORCESTER MA XXXX3025",
+        "Amount": 5.73,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1661",
+      "name": "Imperial Buffet",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 164.15,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22239",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T13:10:13-07:00",
+      "LastUpdatedTime": "2025-10-29T13:10:13-07:00"
+    },
+    "TxnDate": "2025-10-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "IMPERIAL BUFFET. 000SHREWSBURY MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "IMPERIAL BUFFET. 000SHREWSBURY MA XXXX3025",
+        "Amount": 164.15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "165",
+            "name": "Edy Silva"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22236",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:23:36-07:00",
+      "LastUpdatedTime": "2025-10-29T12:23:36-07:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1613",
+            "name": "Lot 59 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "684028782"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "779",
+      "name": "Town of Hudson",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 223.45,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22235",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:22:30-07:00",
+      "LastUpdatedTime": "2025-10-29T12:22:30-07:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "TOWN OF HUDSON, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "TOWN OF HUDSON, MA SAN JOSE CA XXXX3009",
+        "Amount": 223.45,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1459",
+            "name": "Lot 21 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600176232"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 26.07,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22234",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:20:34-07:00",
+      "LastUpdatedTime": "2025-10-29T12:20:56-07:00"
+    },
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT PROVIDENCE RI XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT PROVIDENCE RI XXXX3025",
+        "Amount": 26.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "169",
+      "name": "Registry of Motor Vehicle RMV",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 640,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22233",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:11:36-07:00",
+      "LastUpdatedTime": "2025-10-29T12:11:36-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "RMV E-SERVICES XXXXXXXX-XXX-8000 MA XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "RMV E-SERVICES XXXXXXXX-XXX-8000 MA XXXX1078",
+        "Amount": 640,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "76",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 28.65,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22232",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:08:05-07:00",
+      "LastUpdatedTime": "2025-10-29T12:08:05-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT SEEKONK MA XXXX1078",
+        "Amount": 28.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "779",
+      "name": "Town of Hudson",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 223.45,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22231",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T12:05:43-07:00",
+      "LastUpdatedTime": "2025-10-29T12:05:43-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "TOWN OF HUDSON, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "TOWN OF HUDSON, MA SAN JOSE CA XXXX3009",
+        "Amount": 223.45,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1610",
+            "name": "Lot 18- Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "679143542"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "23",
+      "name": "AT&T",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 449.72,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22208",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:59:10-07:00",
+      "LastUpdatedTime": "2025-10-29T09:59:10-07:00"
+    },
+    "TxnDate": "2025-10-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AT&T XXX-XXX-2020 TX XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AT&T XXX-XXX-2020 TX XXXX3025",
+        "Amount": 449.72,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "80",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22207",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:58:43-07:00",
+      "LastUpdatedTime": "2025-10-29T09:58:43-07:00"
+    },
+    "TxnDate": "2025-10-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1606",
+            "name": "Lot 122- Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "678397928"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22206",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:56:47-07:00",
+      "LastUpdatedTime": "2025-10-29T09:56:47-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1612",
+            "name": "Lot 41 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "681889644"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22205",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:55:01-07:00",
+      "LastUpdatedTime": "2025-10-29T09:55:01-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1564",
+            "name": "Lot 70 - Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "658756317"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22203",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:52:49-07:00",
+      "LastUpdatedTime": "2025-10-29T09:52:49-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1603",
+            "name": "Lot 108- Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "674937755"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "612",
+      "name": "Town of Plymouth",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 103.98,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22202",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:51:35-07:00",
+      "LastUpdatedTime": "2025-10-29T09:51:35-07:00"
+    },
+    "TxnDate": "2025-10-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PLYMOUTH, MA SAN JOSE CA XXXX3009",
+        "Amount": 103.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1604",
+            "name": "Lot 121- Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "158",
+            "name": "Permit Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "675060419"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "545",
+      "name": "Adobe",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 24.43,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22201",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:49:32-07:00",
+      "LastUpdatedTime": "2025-10-29T09:49:32-07:00"
+    },
+    "TxnDate": "2025-10-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "ADOBE Adobe Systems SAN JOSE CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "ADOBE Adobe Systems SAN JOSE CA XXXX3009",
+        "Amount": 24.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 35.67,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22200",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:48:40-07:00",
+      "LastUpdatedTime": "2025-10-29T09:48:40-07:00"
+    },
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT HYANNIS MA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT HYANNIS MA XXXX3009",
+        "Amount": 35.67,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1176",
+            "name": "51 West Way Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "470617202"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "18",
+      "name": "Intuit",
+      "type": "Vendor"
+    },
+    "TotalAmt": 185.94,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22199",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:40:41-07:00",
+      "LastUpdatedTime": "2025-10-29T09:40:41-07:00"
+    },
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "INTUIT * 800-446-8848 TSheets ID NBR: 8069852",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT * 800-446-8848 TSheets ID NBR: 8069852",
+        "Amount": 185.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "157",
       "name": "Amex Platinum"
     },

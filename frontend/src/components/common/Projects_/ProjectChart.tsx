@@ -27,6 +27,9 @@ interface ProjectChartProps {
   selectedMonth: string;
   selectedGroup: 'all' | 'receivable' | 'payable';
   selectedCompany?: string;
+  selectedJobsites?: string[];
+  availableJobsites?: string[];
+  extractJobsite?: (customerName: string | null | undefined) => string;
   onNavigateToAccounting?: () => void;
 }
 
@@ -39,6 +42,7 @@ interface ChartDataItem {
 interface CarouselDataItem {
   estimate_id: string;
   customer_id: string;
+  project_name?: string;
   estimate_date?: string;
 }
 
@@ -144,7 +148,7 @@ async function fetchInvoicesTotal(estimateId: string, company: string = 'HVAC'):
   return invoicesTotal + backChargesTotal;
 }
 
-const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup, selectedCompany = 'HVAC', onNavigateToAccounting }) => {
+const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth, selectedGroup, selectedCompany = 'HVAC', selectedJobsites = [], availableJobsites = [], extractJobsite, onNavigateToAccounting }) => {
   const chartRef = useRef<ChartJSInstance<'line'> | null>(null);
   const [tooltip, setTooltip] = useState<TooltipModel<'line'> | null>(null);
   const [showMetrics, setShowMetrics] = useState(false);
@@ -153,7 +157,11 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const carouselDataCache = React.useRef<{ [key: string]: unknown }>({});
 
   // CONSULTA 1: SQL para "What I Received" e "What I Paid" - ATIVADO
-  const cacheKey = `${selectedYear || 'all'}-${selectedMonth || 'all'}-${selectedGroup}`;
+  // Incluir jobsites no cacheKey para invalidar cache quando jobsites mudarem
+  const jobsitesKey = selectedJobsites.length > 0 && availableJobsites.length > 0 && selectedJobsites.length < availableJobsites.length
+    ? `-jobsites-${selectedJobsites.sort().join(',')}`
+    : '';
+  const cacheKey = `${selectedYear || 'all'}-${selectedMonth || 'all'}-${selectedGroup}${jobsitesKey}`;
   const [localChartData, setLocalChartData] = useState<ChartDataItem[] | null>(null);
   const [localCarouselData, setLocalCarouselData] = useState<CarouselDataItem[] | null>(null);
   const { data: chartDataFromSQL, loading: sqlLoading } = useProjectChartData({
@@ -184,8 +192,15 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   // Cache carousel data
   useEffect(() => {
     if (carouselData && carouselData.length > 0) {
-      carouselDataCache.current[cacheKey] = carouselData;
-      setLocalCarouselData(carouselData);
+      // Converter ProjectCarouselData para CarouselDataItem incluindo project_name
+      const convertedData: CarouselDataItem[] = carouselData.map(item => ({
+        estimate_id: item.estimate_id,
+        customer_id: item.customer_id,
+        project_name: item.project_name,
+        estimate_date: item.estimate_date
+      }));
+      carouselDataCache.current[cacheKey] = convertedData;
+      setLocalCarouselData(convertedData);
     } else if (carouselDataCache.current[cacheKey]) {
       setLocalCarouselData(carouselDataCache.current[cacheKey] as CarouselDataItem[]);
     } else {
@@ -205,7 +220,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   //   onlyAccepted: true
   // });
 
-  // Filtrar dados do carrossel baseado nos filtros de ano/mês (mesma lógica do carrossel)
+  // Filtrar dados do carrossel baseado nos filtros de ano/mês e jobsite (mesma lógica do carrossel)
   const filteredCarouselData = useMemo(() => {
     if (!localCarouselData) return [];
 
@@ -233,6 +248,17 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       });
     }
 
+    // Filtro por jobsite - só aplicar se houver seleção parcial (não todos selecionados)
+    // project_name já contém o customer_name completo (vem do SQL como e.customer_name AS project_name)
+    if (extractJobsite && selectedJobsites.length > 0 && availableJobsites.length > 0 && selectedJobsites.length < availableJobsites.length) {
+      filtered = filtered.filter(estimate => {
+        const customerName = estimate.project_name; // project_name já é o customer_name completo
+        if (!customerName) return true; // Se não tiver customer_name, manter
+        const jobsite = extractJobsite(customerName);
+        return selectedJobsites.includes(jobsite);
+      });
+    }
+
     // Filtrar para customerIds únicos (mesma lógica do carrossel)
     const seen = new Set();
     filtered = filtered.filter(item => {
@@ -243,7 +269,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     });
 
     return filtered;
-  }, [localCarouselData, selectedYear, selectedMonth]);
+  }, [localCarouselData, selectedYear, selectedMonth, selectedJobsites, availableJobsites, extractJobsite]);
 
 
 
@@ -252,15 +278,21 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
   const [invoicesTotals, setInvoicesTotals] = useState<{ [estimateId: string]: number }>({});
   const [detailsLoading, setDetailsLoading] = useState(false);
 
-  // Forçar recálculo quando filtros mudarem
+  // Forçar recálculo quando filtros mudarem (incluindo jobsites)
   useEffect(() => {
     setExpensesTotals({});
     setInvoicesTotals({});
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, selectedJobsites]);
 
-  // Calcular totais detalhados quando carouselData mudar
+  // Calcular totais detalhados quando filteredCarouselData mudar (incluindo quando jobsites filtram)
   useEffect(() => {
-    if (!filteredCarouselData || filteredCarouselData.length === 0) return;
+    if (!filteredCarouselData || filteredCarouselData.length === 0) {
+      // Se não há dados filtrados, limpar os totais
+      setExpensesTotals({});
+      setInvoicesTotals({});
+      setDetailsLoading(false);
+      return;
+    }
     
     let cancelled = false;
     async function fetchAll() {
@@ -331,31 +363,13 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
      return filtered;
    }, [accountingData, selectedYear, selectedMonth, selectedGroup]);
 
-  // Calcular métricas usando dados do gráfico de linhas (TOTAIS REAIS EXIBIDOS)
-  const metrics = useMemo(() => {
-    // Se não há dados do gráfico, retornar zeros
-    if (!localChartData || localChartData.length === 0) {
-      return {
-        totalReceived: 0,
-        totalSpent: 0,
-        profitProjects: 0,
-        lossProjects: 0,
-        averageProfitMargin: 0,
-        averageLossMargin: 0
-      };
-    }
+  // Verificar se há filtro de jobsite ativo (seleção parcial)
+  const hasJobsiteFilter = extractJobsite && selectedJobsites.length > 0 && availableJobsites.length > 0 && selectedJobsites.length < availableJobsites.length;
 
-    // Calcular totais dos dados SQL (What I Received e What I Paid)
+  // Calcular métricas
+  const metrics = useMemo(() => {
     let totalReceived = 0;
     let totalSpent = 0;
-
-    // Somar todos os valores dos dados SQL que são exibidos no gráfico
-    localChartData.forEach(item => {
-      totalReceived += item.receivable_amount || 0;
-      totalSpent += item.payable_amount || 0;
-    });
-
-    // Para as métricas de projetos (profit/loss), usar dados do carrossel filtrados
     let profitProjects = 0;
     let lossProjects = 0;
     
@@ -363,12 +377,29 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const profitMargins: number[] = [];
     const lossMargins: number[] = [];
 
+    // Se NÃO há filtro de jobsite (todos selecionados), usar dados agregados do SQL
+    // Isso garante que Total Received e Total Spent correspondam aos dados do gráfico
+    if (!hasJobsiteFilter && localChartData && localChartData.length > 0) {
+      // Usar dados agregados do SQL que já somam todos os payments e bill_payments
+      localChartData.forEach(item => {
+        totalReceived += item.receivable_amount || 0;
+        totalSpent += item.payable_amount || 0;
+      });
+    }
+
+    // Para métricas de projetos (profit/loss) e quando há filtro de jobsite,
+    // usar dados dos projetos filtrados
     if (filteredCarouselData && filteredCarouselData.length > 0) {
-      // Usar os dados já filtrados do carrossel
       filteredCarouselData.forEach(project => {
         // Usar totais detalhados (mesma lógica do carrossel)
         const projectReceived = invoicesTotals[project.estimate_id] ?? 0;
         const projectSpent = expensesTotals[project.estimate_id] ?? 0;
+        
+        // Se há filtro de jobsite, usar os dados calculados para Total Received e Total Spent também
+        if (hasJobsiteFilter) {
+          totalReceived += projectReceived;
+          totalSpent += projectSpent;
+        }
         
         // Profit/Loss do projeto
         const projectProfit = projectReceived - projectSpent;
@@ -409,14 +440,253 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       averageProfitMargin,
       averageLossMargin
     };
-  }, [localChartData, filteredCarouselData, expensesTotals, invoicesTotals]);
+  }, [filteredCarouselData, expensesTotals, invoicesTotals, localChartData, hasJobsiteFilter]);
 
+  // Estado para armazenar dados do gráfico filtrados por transações reais
+  const [filteredChartDataByTransactions, setFilteredChartDataByTransactions] = useState<ChartDataItem[] | null>(null);
 
+  // Buscar transações relacionadas aos projetos filtrados e agregar por período
+  useEffect(() => {
+    if (!filteredCarouselData || filteredCarouselData.length === 0 || !extractJobsite || !selectedJobsites.length || !availableJobsites.length || selectedJobsites.length >= availableJobsites.length) {
+      setFilteredChartDataByTransactions(null);
+      return;
+    }
+
+    let cancelled = false;
+    async function fetchFilteredChartData() {
+      const estimatesTable = selectedCompany === 'HVAC' ? 'hvac_estimates' 
+        : selectedCompany === 'Framing' ? 'framing_estimates'
+        : 'pcg_estimates';
+      
+      const paymentsTable = selectedCompany === 'HVAC' ? 'hvac_payments'
+        : selectedCompany === 'Framing' ? 'framing_payments'
+        : 'pcg_payments';
+      
+      const billPaymentsTable = selectedCompany === 'HVAC' ? 'hvac_bill_payments'
+        : selectedCompany === 'Framing' ? 'framing_bill_payments'
+        : 'pcg_bill_payments';
+      
+      const invoicesTable = selectedCompany === 'HVAC' ? 'hvac_invoices'
+        : selectedCompany === 'Framing' ? 'framing_invoices'
+        : 'pcg_invoices';
+      
+      const paymentLinksTable = selectedCompany === 'HVAC' ? 'hvac_payment_links'
+        : selectedCompany === 'Framing' ? 'framing_payment_links'
+        : 'pcg_payment_links';
+
+      // Coletar customer_ids dos projetos filtrados
+      const customerIds = new Set<string>();
+      const estimateIds = filteredCarouselData.map(p => p.estimate_id).filter(Boolean);
+      
+      // Buscar todos os estimates de uma vez
+      const { data: estimatesData } = await supabase
+        .from(estimatesTable)
+        .select('id, customer_id, customer_name')
+        .in('id', estimateIds);
+      
+      (estimatesData || []).forEach(est => {
+        if (est.customer_id) customerIds.add(est.customer_id);
+      });
+
+      if (customerIds.size === 0) {
+        setFilteredChartDataByTransactions([]);
+        return;
+      }
+
+      // Buscar payments relacionados (através de invoices que têm customer_id dos projetos filtrados)
+      const { data: invoicesData } = await supabase
+        .from(invoicesTable)
+        .select('id, external_id, customer_id, customer_name')
+        .in('customer_id', Array.from(customerIds));
+      
+      const invoiceExternalIds = (invoicesData || []).map(inv => inv.external_id).filter(Boolean);
+      
+      let paymentsData: any[] = [];
+      if (invoiceExternalIds.length > 0) {
+        const { data: paymentLinksData } = await supabase
+          .from(paymentLinksTable)
+          .select('payment_id, txn_id')
+          .in('txn_id', invoiceExternalIds);
+        
+        const paymentIds = (paymentLinksData || []).map(pl => pl.payment_id).filter(Boolean);
+        
+        if (paymentIds.length > 0) {
+          let paymentsQuery = supabase
+            .from(paymentsTable)
+            .select('txn_date, total_amount')
+            .in('id', paymentIds)
+            .not('txn_date', 'is', null)
+            .not('total_amount', 'is', null);
+          
+          // Aplicar filtros de data
+          if (selectedYear) {
+            paymentsQuery = paymentsQuery.gte('txn_date', `${selectedYear}-01-01`)
+              .lt('txn_date', `${parseInt(selectedYear) + 1}-01-01`);
+          }
+          if (selectedMonth) {
+            const monthNum = parseInt(selectedMonth);
+            paymentsQuery = paymentsQuery.gte('txn_date', `${selectedYear || new Date().getFullYear()}-${String(monthNum).padStart(2, '0')}-01`)
+              .lt('txn_date', `${selectedYear || new Date().getFullYear()}-${String(monthNum + 1).padStart(2, '0')}-01`);
+          }
+          
+          const { data: payments } = await paymentsQuery;
+          paymentsData = payments || [];
+        }
+      }
+
+      // Buscar bill_payments relacionados (através de bills que têm customer_id dos projetos filtrados)
+      const billLinesTable = selectedCompany === 'HVAC' ? 'hvac_bill_lines'
+        : selectedCompany === 'Framing' ? 'framing_bill_lines'
+        : 'pcg_bill_lines';
+      
+      const billsTable = selectedCompany === 'HVAC' ? 'hvac_bills'
+        : selectedCompany === 'Framing' ? 'framing_bills'
+        : 'pcg_bills';
+      
+      const billPaymentLinksTable = selectedCompany === 'HVAC' ? 'hvac_bill_payment_links'
+        : selectedCompany === 'Framing' ? 'framing_bill_payment_links'
+        : 'pcg_bill_payment_links';
+
+      const { data: billLinesData } = await supabase
+        .from(billLinesTable)
+        .select('bill_id')
+        .in('customer_id', Array.from(customerIds));
+      
+      const billIds = [...new Set((billLinesData || []).map(bl => bl.bill_id).filter(Boolean))];
+      
+      let billPaymentsData: any[] = [];
+      if (billIds.length > 0) {
+        const { data: billsData } = await supabase
+          .from(billsTable)
+          .select('external_id')
+          .in('id', billIds);
+        
+        const billExternalIds = (billsData || []).map(b => b.external_id).filter(Boolean);
+        
+        if (billExternalIds.length > 0) {
+          const { data: billPaymentLinksData } = await supabase
+            .from(billPaymentLinksTable)
+            .select('bill_payment_id')
+            .in('txn_id', billExternalIds);
+          
+          const billPaymentIds = [...new Set((billPaymentLinksData || []).map(bpl => bpl.bill_payment_id).filter(Boolean))];
+          
+          if (billPaymentIds.length > 0) {
+            let billPaymentsQuery = supabase
+              .from(billPaymentsTable)
+              .select('txn_date, total_amount')
+              .in('id', billPaymentIds)
+              .not('txn_date', 'is', null)
+              .not('total_amount', 'is', null);
+            
+            // Aplicar filtros de data
+            if (selectedYear) {
+              billPaymentsQuery = billPaymentsQuery.gte('txn_date', `${selectedYear}-01-01`)
+                .lt('txn_date', `${parseInt(selectedYear) + 1}-01-01`);
+            }
+            if (selectedMonth) {
+              const monthNum = parseInt(selectedMonth);
+              billPaymentsQuery = billPaymentsQuery.gte('txn_date', `${selectedYear || new Date().getFullYear()}-${String(monthNum).padStart(2, '0')}-01`)
+                .lt('txn_date', `${selectedYear || new Date().getFullYear()}-${String(monthNum + 1).padStart(2, '0')}-01`);
+            }
+            
+            const { data: billPayments } = await billPaymentsQuery;
+            billPaymentsData = billPayments || [];
+          }
+        }
+      }
+
+      // Agregar por período (mesma lógica do SQL)
+      const periodMap = new Map<string, { receivable: number; payable: number }>();
+      
+      // Determinar período baseado nos filtros
+      const periodType = selectedYear && selectedMonth ? 'day' : selectedYear ? 'month' : 'month';
+      
+      // Processar payments (receivables)
+      paymentsData.forEach(payment => {
+        if (!payment.txn_date) return;
+        const date = new Date(payment.txn_date);
+        const year = date.getFullYear().toString();
+        const month = String(date.getMonth() + 1);
+        const day = String(date.getDate());
+        
+        let periodKey: string;
+        if (periodType === 'day') {
+          periodKey = `${day}/${month}/${year}`;
+        } else {
+          periodKey = `${month}/${year}`;
+        }
+        
+        if (!periodMap.has(periodKey)) {
+          periodMap.set(periodKey, { receivable: 0, payable: 0 });
+        }
+        const period = periodMap.get(periodKey)!;
+        period.receivable += Number(payment.total_amount || 0);
+      });
+
+      // Processar bill_payments (payables)
+      billPaymentsData.forEach(billPayment => {
+        if (!billPayment.txn_date) return;
+        const date = new Date(billPayment.txn_date);
+        const year = date.getFullYear().toString();
+        const month = String(date.getMonth() + 1);
+        const day = String(date.getDate());
+        
+        let periodKey: string;
+        if (periodType === 'day') {
+          periodKey = `${day}/${month}/${year}`;
+        } else {
+          periodKey = `${month}/${year}`;
+        }
+        
+        if (!periodMap.has(periodKey)) {
+          periodMap.set(periodKey, { receivable: 0, payable: 0 });
+        }
+        const period = periodMap.get(periodKey)!;
+        period.payable += Number(billPayment.total_amount || 0);
+      });
+
+      // Converter para formato ChartDataItem
+      const chartDataItems: ChartDataItem[] = Array.from(periodMap.entries())
+        .map(([period_label, values]) => ({
+          period_label,
+          receivable_amount: values.receivable,
+          payable_amount: values.payable
+        }))
+        .sort((a, b) => {
+          // Ordenar por período
+          const aParts = a.period_label.split('/');
+          const bParts = b.period_label.split('/');
+          if (periodType === 'day') {
+            const aDate = new Date(parseInt(aParts[2]), parseInt(aParts[1]) - 1, parseInt(aParts[0]));
+            const bDate = new Date(parseInt(bParts[2]), parseInt(bParts[1]) - 1, parseInt(bParts[0]));
+            return aDate.getTime() - bDate.getTime();
+          } else {
+            const aNum = parseInt(aParts[1]) * 100 + parseInt(aParts[0]);
+            const bNum = parseInt(bParts[1]) * 100 + parseInt(bParts[0]);
+            return aNum - bNum;
+          }
+        });
+
+      if (!cancelled) {
+        setFilteredChartDataByTransactions(chartDataItems);
+      }
+    }
+
+    fetchFilteredChartData();
+    return () => { cancelled = true; };
+  }, [filteredCarouselData, selectedYear, selectedMonth, selectedCompany, selectedJobsites, availableJobsites, extractJobsite]);
 
      const { chartData, chartOptions, hasData } = useMemo(() => {
      if (isLoading) {
        return { chartData: null, chartOptions: null, hasData: false };
      }
+    
+     // Usar dados filtrados por jobsite se disponíveis, senão usar dados originais
+     const chartDataToUse = filteredChartDataByTransactions || localChartData;
+     
+     // Verificar se há filtro de jobsite ativo (seleção parcial)
+     const hasJobsiteFilter = extractJobsite && selectedJobsites.length > 0 && availableJobsites.length > 0 && selectedJobsites.length < availableJobsites.length;
     
          // Se não há dados JavaScript mas há dados SQL, ainda devemos mostrar o gráfico
      // com as linhas SQL e Outstanding zeradas
@@ -424,13 +694,13 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
                // FILTEREDDATA VAZIO - verificando se há dados SQL
        
        // Se há dados SQL, criar gráfico com Outstanding zerado
-       if (localChartData && localChartData.length > 0) {
+       if (chartDataToUse && chartDataToUse.length > 0) {
          // Há dados SQL - criando gráfico com Outstanding zerado
          
          // Usar apenas dados SQL, com Outstanding zerado
-         const labels = localChartData.map(item => item.period_label);
-         const receivableValues = localChartData.map(item => item.receivable_amount || 0);
-         const payableValues = localChartData.map(item => item.payable_amount || 0);
+         const labels = chartDataToUse.map(item => item.period_label);
+         const receivableValues = chartDataToUse.map(item => item.receivable_amount || 0);
+         const payableValues = chartDataToUse.map(item => item.payable_amount || 0);
          
          // Outstanding zerado
          const pendingReceivableValues = new Array(labels.length).fill(0);
@@ -466,7 +736,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-                       if (selectedCompany === 'HVAC') {
+                       if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
               datasets.push({
                 label: 'Outstanding Receivable',
                 data: pendingReceivableValues,
@@ -513,7 +783,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-                       if (selectedCompany === 'HVAC') {
+                       if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
               datasets.push({
                 label: 'Outstanding Receivable',
                 data: pendingReceivableValues,
@@ -545,7 +815,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
              tension: 0.25,
              spanGaps: false,
            });
-                       if (selectedCompany === 'HVAC') {
+                       if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
               datasets.push({
                 label: 'Outstanding Payable',
                 data: pendingPayableValues,
@@ -704,8 +974,8 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
       const diasValidosSet = new Set<string>();
       
       // 1. Adicionar dias que têm dados SQL (What I Received/What I Paid)
-      if (localChartData && localChartData.length > 0) {
-        localChartData.forEach(item => {
+      if (chartDataToUse && chartDataToUse.length > 0) {
+        chartDataToUse.forEach(item => {
           // SQL retorna formato "31/5/2025" para dias
           const parts = item.period_label.split('/');
           if (parts.length === 3) {
@@ -838,9 +1108,9 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     } else {
       // Gráfico geral (sem filtros de ano/mês) - mostrar mês a mês de todos os anos
       // Usar dados SQL que já vêm agrupados por mês/ano
-      if (localChartData && localChartData.length > 0) {
+      if (chartDataToUse && chartDataToUse.length > 0) {
         // Usar os dados SQL que já vêm no formato "1/2025", "2/2025", etc.
-        chartLabels = localChartData.map(item => item.period_label);
+        chartLabels = chartDataToUse.map(item => item.period_label);
         
         // Outstanding é independente - só mostrar onde há dados reais
         const pendingReceivableValues: number[] = [];
@@ -934,12 +1204,12 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     
     labels.forEach((label, index) => {
       // Encontrar o item correspondente nos dados SQL
-      const sqlItem = localChartData?.find(item => {
+      const sqlItem = chartDataToUse?.find(item => {
         return item.period_label === label;
       });
       
       // Se não encontrar correspondência exata, usar o item do mesmo índice
-      const itemToUse = sqlItem || localChartData?.[index];
+      const itemToUse = sqlItem || chartDataToUse?.[index];
       
       receivableValues.push(itemToUse?.receivable_amount || 0);
       payableValues.push(itemToUse?.payable_amount || 0);
@@ -999,7 +1269,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      if (selectedCompany === 'HVAC') {
+      if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
         datasets.push({
           label: 'Outstanding Receivable',
           data: filteredPendingReceivableValues,
@@ -1046,7 +1316,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      if (selectedCompany === 'HVAC') {
+      if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
         datasets.push({
           label: 'Outstanding Receivable',
           data: filteredPendingReceivableValues,
@@ -1078,7 +1348,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
         tension: 0.25,
         spanGaps: false,
       });
-      if (selectedCompany === 'HVAC') {
+      if (selectedCompany === 'HVAC' && !hasJobsiteFilter) {
         datasets.push({
           label: 'Outstanding Payable',
           data: filteredPendingPayableValues,
@@ -1178,7 +1448,7 @@ const ProjectChart: React.FC<ProjectChartProps> = ({ selectedYear, selectedMonth
     const hasData = filteredLabels.length > 0;
     
     return { chartData, chartOptions, hasData };
-  }, [filteredData, selectedYear, selectedMonth, selectedGroup, isLoading, localChartData]);
+  }, [filteredData, selectedYear, selectedMonth, selectedGroup, isLoading, localChartData, filteredChartDataByTransactions, selectedJobsites, filteredCarouselData]);
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 0 }}>

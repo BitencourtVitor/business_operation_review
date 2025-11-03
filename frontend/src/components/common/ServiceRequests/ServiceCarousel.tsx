@@ -961,15 +961,6 @@ export default function ServiceCarousel({ filteredData, modalWidth = 600 }: Serv
                           <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Lot:</span>
                           <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>{selected.lot || 'N/A'}</span>
                         </div>
-                        {/* Cost */}
-                        {selected.cost !== null && selected.cost !== undefined && selected.cost > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14 }}>Cost:</span>
-                            <span style={{ color: 'var(--color-text-primary)', fontSize: 14, fontWeight: 500 }}>
-                              ${selected.cost.toLocaleString()}
-                            </span>
-                          </div>
-                        )}
                       </div>
                     </div>
                     

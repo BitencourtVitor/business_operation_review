@@ -53,9 +53,10 @@ interface TimesheetAnalysisProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
+  financialPass: boolean;
 }
 
-export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: TimesheetAnalysisProps) {
+export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, financialPass }: TimesheetAnalysisProps) {
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
@@ -317,12 +318,13 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
               filteredData={filteredData}
               selectedYear={selectedYear}
               selectedMonth={selectedMonth}
+              financialPass={financialPass}
             />
             {/* Métricas */}
-            <TimesheetMetrics filteredData={filteredData} />
+            <TimesheetMetrics filteredData={filteredData} financialPass={financialPass} />
           </div>
           {/* Tabela */}
-          <TimesheetTable filteredData={filteredData} years={years} />
+          <TimesheetTable filteredData={filteredData} years={years} financialPass={financialPass} />
         </div>
         <div id="individual_data" style={{ width: '30%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           {/* Partições */}

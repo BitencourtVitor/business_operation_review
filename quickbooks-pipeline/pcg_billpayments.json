@@ -1,6 +1,165 @@
 [
   {
     "VendorRef": {
+      "value": "910",
+      "name": "Flow Business and Financial Management, LLC"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18025",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-31T10:41:55-07:00",
+      "LastUpdatedTime": "2025-11-03T07:50:47-08:00"
+    },
+    "DocNumber": "1902",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 650,
+        "LinkedTxn": [
+          {
+            "TxnId": "17834",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "129",
+      "name": "Premium Tax Group, Inc."
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 1650,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18027",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T10:54:29-07:00",
+      "LastUpdatedTime": "2025-10-31T11:31:41-07:00"
+    },
+    "DocNumber": "1900",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1650,
+        "LinkedTxn": [
+          {
+            "TxnId": "17426",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "392",
+      "name": "IPFS"
+    },
+    "PayType": "Check",
+    "CheckPayment": {
+      "BankAccountRef": {
+        "value": "186",
+        "name": "Mutual One Bank (8998)"
+      },
+      "PrintStatus": "PrintComplete"
+    },
+    "TotalAmt": 2712.54,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18026",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T10:44:15-07:00",
+      "LastUpdatedTime": "2025-10-31T11:31:41-07:00"
+    },
+    "DocNumber": "1899",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 2712.54,
+        "LinkedTxn": [
+          {
+            "TxnId": "17729",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "PayType": "CreditCard",
+    "CreditCardPayment": {
+      "CCAccountRef": {
+        "value": "50",
+        "name": "Amex Gold"
+      }
+    },
+    "TotalAmt": 26924.73,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17883",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-24T12:01:54-07:00",
+      "LastUpdatedTime": "2025-10-30T07:45:23-07:00"
+    },
+    "DocNumber": "paid online",
+    "TxnDate": "2025-10-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 26924.73,
+        "LinkedTxn": [
+          {
+            "TxnId": "16837",
+            "TxnType": "Bill"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "VendorRef": {
       "value": "388",
       "name": "Premium Framing, Inc"
     },
@@ -16,10 +175,10 @@
     "domain": "QBO",
     "sparse": false,
     "Id": "17498",
-    "SyncToken": "1",
+    "SyncToken": "2",
     "MetaData": {
       "CreateTime": "2025-10-08T06:44:09-07:00",
-      "LastUpdatedTime": "2025-10-28T14:42:31-07:00"
+      "LastUpdatedTime": "2025-10-29T08:35:46-07:00"
     },
     "DocNumber": "1871",
     "TxnDate": "2025-10-08",
@@ -27,8 +186,17 @@
       "value": "USD",
       "name": "United States Dollar"
     },
-    "PrivateNote": "Remaining balance Framing 165 Baxter",
+    "PrivateNote": "Invoices: 6269 + 7038 + 7132 + 7135 + 7708 + 7344 + 7303 (partial)",
     "Line": [
+      {
+        "Amount": 4656.3,
+        "LinkedTxn": [
+          {
+            "TxnId": "14560",
+            "TxnType": "Bill"
+          }
+        ]
+      },
       {
         "Amount": 705.1,
         "LinkedTxn": [
@@ -48,10 +216,37 @@
         ]
       },
       {
-        "Amount": 6359.9,
+        "Amount": 1063.37,
         "LinkedTxn": [
           {
-            "TxnId": "12153",
+            "TxnId": "15128",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 365.06,
+        "LinkedTxn": [
+          {
+            "TxnId": "15129",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 126.82,
+        "LinkedTxn": [
+          {
+            "TxnId": "12873",
+            "TxnType": "Bill"
+          }
+        ]
+      },
+      {
+        "Amount": 148.35,
+        "LinkedTxn": [
+          {
+            "TxnId": "15130",
             "TxnType": "Bill"
           }
         ]
@@ -969,45 +1164,6 @@
         "LinkedTxn": [
           {
             "TxnId": "17876",
-            "TxnType": "Bill"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "VendorRef": {
-      "value": "143",
-      "name": "Ferguson"
-    },
-    "PayType": "CreditCard",
-    "CreditCardPayment": {
-      "CCAccountRef": {
-        "value": "50",
-        "name": "Amex Gold"
-      }
-    },
-    "TotalAmt": 26924.73,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17883",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-24T12:01:54-07:00",
-      "LastUpdatedTime": "2025-10-24T12:01:54-07:00"
-    },
-    "DocNumber": "paid online",
-    "TxnDate": "2025-10-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 26924.73,
-        "LinkedTxn": [
-          {
-            "TxnId": "16837",
             "TxnType": "Bill"
           }
         ]

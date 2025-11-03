@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
@@ -39,6 +40,7 @@ export default function Dashboard() {
   const [telas, setTelas] = useState<Tela[]>([]);
   const [permissoes, setPermissoes] = useState<Permissao>({});
   const [usuarioId, setUsuarioId] = useState<string>('');
+  const [financialPass, setFinancialPass] = useState<boolean>(false);
   const [showAccountingContent, setShowAccountingContent] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<string>('HVAC');
   const [showCompanySubmenu, setShowCompanySubmenu] = useState(false);
@@ -49,6 +51,10 @@ export default function Dashboard() {
   const [showForecastSubmenu, setShowForecastSubmenu] = useState(false);
   const [isCollapsingForecastSubmenu, setIsCollapsingForecastSubmenu] = useState(false);
   const [selectedForecastType, setSelectedForecastType] = useState<string>('Framing');
+  const [showFinancialData, setShowFinancialData] = useState<boolean>(true);
+  const [showFinancialTooltip, setShowFinancialTooltip] = useState<boolean>(false);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const financialButtonRef = useRef<HTMLButtonElement>(null);
 
   // Buscar dados do usuário e telas
   useEffect(() => {
@@ -62,16 +68,17 @@ export default function Dashboard() {
         
         setUser(user);
 
-        // Buscar dados do usuário
+        // Buscar dados do usuário incluindo permissão financeira
         const { data: usuario } = await supabase
           .from('usuarios')
-          .select('id, nome_completo')
+          .select('id, nome_completo, financial_pass')
           .eq('email', user.email)
           .single();
 
         if (usuario) {
           setUsuarioId(usuario.id);
           setNomeCompleto(usuario.nome_completo);
+          setFinancialPass(usuario.financial_pass || false);
 
           // Buscar perfil do usuário
           const { data: perfil } = await supabase
@@ -104,16 +111,12 @@ export default function Dashboard() {
           });
           setPermissoes(permissoesObj);
 
-          // Definir tela inicial baseada no role do usuário
+          // Definir tela inicial baseada na permissão financeira do usuário
           if (telasData && telasData.length > 0) {
-            const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
-            const temPermissaoAccounting = rolesComPermissaoAccounting.includes(userRole);
+            const temPermissaoFinanceira = usuario.financial_pass || false;
             
-            // Verificar se é admin_setor com permissão específica para Accounting
-            const isAdminSetorComPermissao = userRole === 'admin_setor' && permissoesObj['46781412-07a6-431a-bd24-ae9f7292b755'];
-            
-            if (temPermissaoAccounting || isAdminSetorComPermissao) {
-              // Usuários com permissão: Accounting Indicators como inicial
+            if (temPermissaoFinanceira) {
+              // Usuários com permissão financeira: Accounting Indicators como inicial
               const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
               if (accountingTela) {
                 setTelaId(accountingTela.id);
@@ -122,7 +125,7 @@ export default function Dashboard() {
                 setTelaId(telasData[0].id);
               }
             } else {
-              // Usuários sem permissão: Timesheet Analysis como inicial
+              // Usuários sem permissão financeira: Timesheet Analysis como inicial
               const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
               if (timesheetTela) {
                 setTelaId(timesheetTela.id);
@@ -164,16 +167,9 @@ export default function Dashboard() {
     const tela = telas.find(t => t.id === newTelaId);
     const currentTela = telas.find(t => t.id === telaId);
     
-    // Verificar permissão para Accounting Indicators
-    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
-    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
-    
-    // Verificar se é admin_setor com permissão específica para Accounting
-    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
-    
-         // Verificar permissão para Accounting Indicators e Fuel Control
-     if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !temPermissaoAccounting && !isAdminSetorComPermissao) {
-       // Usuário sem permissão tentando acessar Accounting Indicators ou Fuel Control
+    // Verificar permissão financeira para Accounting Indicators e Fuel Control
+    if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !financialPass) {
+       // Usuário sem permissão financeira tentando acessar Accounting Indicators ou Fuel Control
        // Redirecionar para Timesheet Analysis
        const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
        if (timesheetTela) {
@@ -314,21 +310,15 @@ export default function Dashboard() {
     'PCG': sublogoPcg,
   };
 
-  // Função para filtrar telas baseado no role do usuário
+  // Função para filtrar telas baseado na permissão financeira do usuário
   const filtrarTelasPorPermissao = (telas: Tela[]): Tela[] => {
-    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
-    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
-    
-    // Verificar se é admin_setor com permissão específica para Accounting
-    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
-    
-    // Se o usuário tem permissão para Accounting, mostrar todas as telas
-    if (temPermissaoAccounting || isAdminSetorComPermissao) {
+    // Se o usuário tem permissão financeira, mostrar todas as telas
+    if (financialPass) {
       return telas;
     }
     
-         // Se não tem permissão, filtrar Accounting Indicators e Fuel Control
-     return telas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
+    // Se não tem permissão financeira, filtrar Accounting Indicators e Fuel Control
+    return telas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
   };
 
   // Função para ordenar telas de acordo com a ordem específica
@@ -443,15 +433,8 @@ export default function Dashboard() {
   const renderMainContent = () => {
     const tela = telas.find(t => t.id === telaId);
     
-    // Verificar permissão para Accounting Indicators
-    const rolesComPermissaoAccounting = ['owner', 'gestor', 'dev'];
-    const temPermissaoAccounting = rolesComPermissaoAccounting.includes(role);
-    
-    // Verificar se é admin_setor com permissão específica para Accounting
-    const isAdminSetorComPermissao = role === 'admin_setor' && permissoes['46781412-07a6-431a-bd24-ae9f7292b755'];
-    
-         // Se o usuário não tem permissão para Accounting ou Fuel Control e está tentando acessar, redirecionar
-     if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !temPermissaoAccounting && !isAdminSetorComPermissao) {
+    // Se o usuário não tem permissão financeira para Accounting ou Fuel Control e está tentando acessar, redirecionar
+    if ((tela?.descricao === 'Accounting Indicators' || tela?.descricao === 'Fuel Control') && !financialPass) {
        const timesheetTela = telas.find(t => t.descricao === 'Timesheet Analysis');
        if (timesheetTela) {
          setTelaId(timesheetTela.id);
@@ -467,8 +450,8 @@ export default function Dashboard() {
 
     // Se showAccountingContent for true, mostrar AccountingIndicators independente da tela
     if (showAccountingContent) {
-      // Verificar permissão antes de mostrar AccountingIndicators
-      if (!temPermissaoAccounting && !isAdminSetorComPermissao) {
+      // Verificar permissão financeira antes de mostrar AccountingIndicators
+      if (!financialPass) {
         return null;
       }
       
@@ -486,7 +469,7 @@ export default function Dashboard() {
 
     switch (tela.descricao) {
       case 'Timesheet Analysis':
-        return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
       case 'Accounting Indicators':
         return <Projects 
           selectedCompany={selectedCompany}
@@ -497,17 +480,18 @@ export default function Dashboard() {
       case 'Takeoff Works':
         return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Service Requests':
-        return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
       case 'Forecast':
         return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} selectedType={selectedForecastType} />;
-             case 'Fuel Control':
-         // Verificar permissão antes de mostrar Fuel Control
-         if (!temPermissaoAccounting && !isAdminSetorComPermissao) {
-           return null;
-         }
-         return <FuelControl 
-           telaId={telaId}
-         />;
+      case 'Fuel Control':
+        // Verificar permissão financeira antes de mostrar Fuel Control
+        if (!financialPass) {
+          return null;
+        }
+        return <FuelControl 
+          telaId={telaId}
+          financialPass={financialPass && showFinancialData}
+        />;
       case 'IT Projects':
         return (
           <div className="container-fluid">
@@ -644,6 +628,68 @@ export default function Dashboard() {
             {nomeCompleto || user.email}
           </span>
           {renderRoleBadge()}
+          {/* Botão de controle de exibição de dados financeiros - apenas para usuários com permissão */}
+          {financialPass && (
+            <>
+              <button
+                ref={financialButtonRef}
+                type="button"
+                onClick={() => setShowFinancialData(!showFinancialData)}
+                onMouseEnter={() => {
+                  setShowFinancialTooltip(true);
+                  if (financialButtonRef.current) {
+                    const rect = financialButtonRef.current.getBoundingClientRect();
+                    setTooltipPosition({
+                      top: rect.bottom + 8,
+                      left: rect.left + rect.width / 2
+                    });
+                  }
+                }}
+                onMouseLeave={() => {
+                  setShowFinancialTooltip(false);
+                  setTooltipPosition(null);
+                }}
+                className="btn-secondary-custom d-flex align-items-center justify-content-center"
+                style={{ 
+                  width: 42, 
+                  height: 38, 
+                  fontSize: 16, 
+                  marginBottom: 0, 
+                  marginTop: 0
+                }}
+              >
+                <i 
+                  className={`bi ${showFinancialData ? 'bi-eye-fill' : 'bi-eye-slash-fill'}`}
+                  style={{ 
+                    color: showFinancialData ? 'var(--color-accent-primary)' : 'inherit'
+                  }}
+                />
+              </button>
+              {/* Tooltip Personalizado com posicionamento dinâmico - renderizado via Portal */}
+              {showFinancialTooltip && tooltipPosition && ReactDOM.createPortal(
+                <div style={{
+                  position: 'fixed',
+                  top: `${tooltipPosition.top}px`,
+                  left: `${tooltipPosition.left}px`,
+                  transform: 'translateX(-50%)',
+                  background: 'var(--color-background-secondary)',
+                  color: 'var(--color-text-primary)',
+                  border: '1.5px solid var(--color-border-divider)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap',
+                  zIndex: 99999,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  pointerEvents: 'none'
+                }}>
+                  {showFinancialData ? 'Ocultar dados financeiros' : 'Exibir dados financeiros'}
+                </div>,
+                document.body
+              )}
+            </>
+          )}
           <button
             type="button"
             onClick={handleThemeToggle}

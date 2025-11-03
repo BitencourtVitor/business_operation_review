@@ -4,6 +4,843 @@
       "value": "198",
       "name": "Mutual One Checking 8972"
     },
+    "TotalAmt": 15900,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52311",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T17:48:36-07:00",
+      "LastUpdatedTime": "2025-10-31T17:48:36-07:00"
+    },
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 556-717",
+        "Amount": 15900,
+        "LinkedTxn": [
+          {
+            "TxnId": "52300",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "7"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 126498.6,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52301",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-31T05:01:04-07:00",
+      "LastUpdatedTime": "2025-10-31T05:05:38-07:00"
+    },
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Waiting for more information about back charge (BC-INV-12048392)",
+    "Line": [
+      {
+        "Description": "Optional 20034",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "52267",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Invoice 8646 - Base Deck",
+        "Amount": 2760,
+        "LinkedTxn": [
+          {
+            "TxnId": "52282",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Invoice 8647 -  Base, Basement Game Room",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "52284",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "20832 - Rough Carpentry 1",
+        "Amount": 122433.6,
+        "LinkedTxn": [
+          {
+            "TxnId": "52297",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Invoice 8621 - Rough Lumber #1 20803",
+        "Amount": 700,
+        "LinkedTxn": [
+          {
+            "TxnId": "52298",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Cons Losses, Re - Invoice 8618 (paid)",
+        "Amount": 150,
+        "LinkedTxn": [
+          {
+            "TxnId": "52299",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-12048392",
+        "Amount": -645,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2711"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 72887.55,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "36062",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2024-01-11T09:26:05-08:00",
+      "LastUpdatedTime": "2025-10-29T12:21:37-07:00"
+    },
+    "TxnDate": "2024-01-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 18505.74,
+        "LinkedTxn": [
+          {
+            "TxnId": "36059",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "995098"
+        }
+      },
+      {
+        "Amount": 1500,
+        "LinkedTxn": [
+          {
+            "TxnId": "36060",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11527870"
+        }
+      },
+      {
+        "Amount": 519.39,
+        "LinkedTxn": [
+          {
+            "TxnId": "36061",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "11527869"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Transfer from DCU to Mutual One",
+        "Amount": 52362.42,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "101",
+            "name": "Premium Framing, Inc.",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "146",
+            "name": "DCU Business Checking 7418"
+          },
+          "PaymentMethodRef": {
+            "value": "2",
+            "name": "Check"
+          },
+          "CheckNum": "8931"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 112567,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50384",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-15T08:48:08-07:00",
+      "LastUpdatedTime": "2025-10-29T12:11:57-07:00"
+    },
+    "TxnDate": "2023-08-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 14183,
+        "LinkedTxn": [
+          {
+            "TxnId": "31578",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 14504,
+        "LinkedTxn": [
+          {
+            "TxnId": "31580",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 13356,
+        "LinkedTxn": [
+          {
+            "TxnId": "31582",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 10495,
+        "LinkedTxn": [
+          {
+            "TxnId": "31584",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 19100,
+        "LinkedTxn": [
+          {
+            "TxnId": "31592",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 13888,
+        "LinkedTxn": [
+          {
+            "TxnId": "31594",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 10483,
+        "LinkedTxn": [
+          {
+            "TxnId": "31596",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Amount": 9956,
+        "LinkedTxn": [
+          {
+            "TxnId": "31598",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      },
+      {
+        "Description": "Invoice 5026: Welding - Lot 01, 02, 03, 186, 187, 188, 189, 254, 255, 256, 257, 277, 278, 279",
+        "Amount": 3500,
+        "LinkedTxn": [
+          {
+            "TxnId": "31572",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5351 - Lot 253",
+        "Amount": 450,
+        "LinkedTxn": [
+          {
+            "TxnId": "31573",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5352 - Lot 253",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31574",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5191",
+        "Amount": 72,
+        "LinkedTxn": [
+          {
+            "TxnId": "31575",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5194",
+        "Amount": 810,
+        "LinkedTxn": [
+          {
+            "TxnId": "31576",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5335 - Lot 254",
+        "Amount": 180,
+        "LinkedTxn": [
+          {
+            "TxnId": "31585",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5267 - Lot 254",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31586",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5286 - Lot 255",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31587",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5338 - Lot 300",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31588",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5337 - Lot 299",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31589",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5336 - Lot 298",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "31590",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Description": "Invoice 5284 - Lot 256 (partial)",
+        "Amount": 270,
+        "LinkedTxn": [
+          {
+            "TxnId": "50383",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "207569"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Invoice 69691: Trip charge to Arc Fire. Back charge fo Premium Framing for not being ready.",
+        "Amount": -300,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2383",
+            "name": "Toll Brothers, Inc.:Edgewood at Hopkinton:Lot 27 - Edgewood at Hopkinton",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "207569"
+        },
+        "ProjectRef": {
+          "value": "209995737"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 11000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52226",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:30:03-07:00",
+      "LastUpdatedTime": "2025-10-29T10:30:03-07:00"
+    },
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN ESTEVAO L COSTA 211391825",
+        "Amount": 11000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2308",
+            "name": "Estevao M Costa",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 5803.37,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52214",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:05:45-07:00",
+      "LastUpdatedTime": "2025-10-29T10:05:45-07:00"
+    },
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 2520",
+        "Amount": 5803.37,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 7454,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52197",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:49:57-07:00",
+      "LastUpdatedTime": "2025-10-29T09:49:57-07:00"
+    },
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Paid invoices: 6269, 7038, 7132, 7135, 7708, 7303, 7344. \nAmount applied to match opne invoices in PCG, does not match attachment",
+        "Amount": 7454,
+        "LinkedTxn": [
+          {
+            "TxnId": "52187",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "1871"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 13010.66,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52191",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:00:10-07:00",
+      "LastUpdatedTime": "2025-10-29T09:00:10-07:00"
+    },
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice 8424",
+        "Amount": 6810.66,
+        "LinkedTxn": [
+          {
+            "TxnId": "52189",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2186"
+        }
+      },
+      {
+        "Description": "Invoice 8334",
+        "Amount": 6200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52190",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "2186"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
     "TotalAmt": 10000,
     "domain": "QBO",
     "sparse": false,
@@ -7337,100 +8174,6 @@
       "value": "198",
       "name": "Mutual One Checking 8972"
     },
-    "TotalAmt": 72887.55,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "36062",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2024-01-11T09:26:05-08:00",
-      "LastUpdatedTime": "2025-09-02T09:33:15-07:00"
-    },
-    "TxnDate": "2024-01-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 18505.74,
-        "LinkedTxn": [
-          {
-            "TxnId": "36059",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "995098"
-        }
-      },
-      {
-        "Amount": 1500,
-        "LinkedTxn": [
-          {
-            "TxnId": "36060",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "11527870"
-        }
-      },
-      {
-        "Amount": 519.39,
-        "LinkedTxn": [
-          {
-            "TxnId": "36061",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "11527869"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Transfer from DCU to Mutual One",
-        "Amount": 52362.42,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "101",
-            "name": "Premium Framing, Inc.",
-            "type": "VENDOR"
-          },
-          "AccountRef": {
-            "value": "146",
-            "name": "DCU Business Checking 7418"
-          },
-          "PaymentMethodRef": {
-            "value": "2",
-            "name": "Check"
-          },
-          "CheckNum": "8931"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
     "TotalAmt": 23850,
     "domain": "QBO",
     "sparse": false,
@@ -8040,379 +8783,6 @@
           },
           "CheckNum": "2177"
         }
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "158",
-      "name": "DCU Business Checking 0257"
-    },
-    "TotalAmt": 112567,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50384",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-15T08:48:08-07:00",
-      "LastUpdatedTime": "2025-08-15T08:48:08-07:00"
-    },
-    "TxnDate": "2023-08-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 14183,
-        "LinkedTxn": [
-          {
-            "TxnId": "31578",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 14504,
-        "LinkedTxn": [
-          {
-            "TxnId": "31580",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 13356,
-        "LinkedTxn": [
-          {
-            "TxnId": "31582",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 10495,
-        "LinkedTxn": [
-          {
-            "TxnId": "31584",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 19100,
-        "LinkedTxn": [
-          {
-            "TxnId": "31592",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 13888,
-        "LinkedTxn": [
-          {
-            "TxnId": "31594",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 10483,
-        "LinkedTxn": [
-          {
-            "TxnId": "31596",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Amount": 9956,
-        "LinkedTxn": [
-          {
-            "TxnId": "31598",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          }
-        }
-      },
-      {
-        "Description": "Invoice 5026: Welding - Lot 01, 02, 03, 186, 187, 188, 189, 254, 255, 256, 257, 277, 278, 279",
-        "Amount": 3500,
-        "LinkedTxn": [
-          {
-            "TxnId": "31572",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5351 - Lot 253",
-        "Amount": 450,
-        "LinkedTxn": [
-          {
-            "TxnId": "31573",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5352 - Lot 253",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31574",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5191",
-        "Amount": 72,
-        "LinkedTxn": [
-          {
-            "TxnId": "31575",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5194",
-        "Amount": 810,
-        "LinkedTxn": [
-          {
-            "TxnId": "31576",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5335 - Lot 254",
-        "Amount": 180,
-        "LinkedTxn": [
-          {
-            "TxnId": "31585",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5267 - Lot 254",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31586",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5286 - Lot 255",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31587",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5338 - Lot 300",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31588",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5337 - Lot 299",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31589",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5336 - Lot 298",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "31590",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Description": "Invoice 5284 - Lot 256 (partial)",
-        "Amount": 270,
-        "LinkedTxn": [
-          {
-            "TxnId": "50383",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "207569"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Invoice 69691: Trip charge to Arc Fire. Back charge fo Premium Framing for not being ready.",
-        "Amount": -300,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "2383",
-            "name": "Toll Brothers, Inc.:Edgewood at Hopkinton:Lot 27 - Edgewood at Hopkinton",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "207569"
-        },
-        "ProjectRef": {
-          "value": "209995737"
-        },
-        "CustomExtensions": []
       }
     ]
   },

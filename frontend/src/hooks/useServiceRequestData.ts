@@ -58,7 +58,6 @@ export function useServiceRequestData() {
         additional_visits: Array.isArray(row.additional_visits) ? row.additional_visits.map((date: unknown) => date?.toString() || '') : [],
         issue: normalizeUtf8String(row.issue),
         warranty: Boolean(row.warranty),
-        cost: Number(row.cost) || 0,
         tech: normalizeUtf8String(row.tech),
         created_at: row.created_at?.toString() || ''
       }));

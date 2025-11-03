@@ -1,6 +1,608 @@
 [
   {
     "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 398,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50281",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:05:23-07:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "17369-0003",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 398,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 398
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 2000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50280",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:04:58-07:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "17369-0002",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 2000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2000
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 125.98,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50279",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:02:07-07:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "10311-0028",
+    "TxnDate": "2025-01-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 125.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 125.98
+  },
+  {
+    "VendorAddr": {
+      "Id": "13486",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 978,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47279",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-04-09T13:42:54-07:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "14242-0005",
+    "TxnDate": "2024-09-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
+        "Amount": 978,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2906",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "408984366"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 978
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 1931.43,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47278",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-04-09T13:24:10-07:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "13470-0008",
+    "TxnDate": "2024-07-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13470-0008",
+        "Amount": 1931.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2851",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "375289538"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1931.43
+  },
+  {
+    "VendorAddr": {
+      "Id": "11580",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 106.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "44677",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2024-12-27T13:46:22-08:00",
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "10108-0032",
+    "TxnDate": "2024-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 TRUSSES EXTENTION 100.00 100.00 100.00 100.00-\nT10 Make: TRUSS EXT Model: * Ser #: *\n\nCredit That We have with Them",
+        "Amount": 106.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 106.25
+  },
+  {
+    "VendorAddr": {
+      "Id": "16958",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 1749.32,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51040",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-16T10:39:19-07:00",
+      "LastUpdatedTime": "2025-10-29T10:32:51-07:00"
+    },
+    "DocNumber": "131357469",
+    "TxnDate": "2025-08-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "131357469",
+        "Amount": 1749.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1749.32
+  },
+  {
+    "VendorAddr": {
+      "Id": "16253",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 3385.92,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50044",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:38:41-07:00",
+      "LastUpdatedTime": "2025-10-29T10:32:51-07:00"
+    },
+    "DocNumber": "130803049",
+    "TxnDate": "2025-07-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1/2 in. x 4 ft. x 12 ft. UltraLight\nImperial Gypsum Base\n\n5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 3385.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3385.92
+  },
+  {
+    "VendorAddr": {
+      "Id": "16147",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 768.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50043",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:37:42-07:00",
+      "LastUpdatedTime": "2025-10-29T10:32:51-07:00"
+    },
+    "DocNumber": "130601732",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 768.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 768.4
+  },
+  {
+    "VendorAddr": {
+      "Id": "16152",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 481.53,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50042",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-04T12:36:35-07:00",
+      "LastUpdatedTime": "2025-10-29T10:32:51-07:00"
+    },
+    "DocNumber": "130291223",
+    "TxnDate": "2025-07-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return - 22 Flynn Ave., Marlborough",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Premium Black Mini Ledger\nPanel 4.5 in. x 16 in. Splitface\nSlate Wall Tile (5 sq. ft./Case)",
+        "Amount": 481.53,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2337",
+            "name": "Felipe Drumond:22 Flynn Ave, Marlborough"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "191723992"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 481.53
+  },
+  {
+    "Balance": 1180.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51836",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-17T09:00:42-07:00",
+      "LastUpdatedTime": "2025-10-29T10:21:57-07:00"
+    },
+    "DocNumber": "1,180.40",
+    "TxnDate": "2025-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "09/12/25 - FLOOR AND DECOR 305 305\nBELLINGHAM MA\n877-675-0002",
+        "Amount": 1180.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "1150040004",
+            "name": "Quickbooks Credit Line"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1180.4
+  },
+  {
+    "VendorAddr": {
       "Id": "17041",
       "Line1": "Kaio Genelhu",
       "Line2": "Patriots Construction Services, Inc.",
@@ -3888,682 +4490,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 210.42
-  },
-  {
-    "VendorAddr": {
-      "Id": "16958",
-      "Line1": "Home Depot Credit Services",
-      "Line2": "Dept. 32-2649395757",
-      "Line3": "PO Box 78047",
-      "Line4": "Phoenix, AZ  85062"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51040",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-16T10:39:19-07:00",
-      "LastUpdatedTime": "2025-10-17T13:03:40-07:00"
-    },
-    "DocNumber": "131357469",
-    "TxnDate": "2025-08-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
-    "LinkedTxn": [
-      {
-        "TxnId": "51857",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "131357469",
-        "Amount": 1749.32,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1749.32
-  },
-  {
-    "VendorAddr": {
-      "Id": "16253",
-      "Line1": "Home Depot Credit Services",
-      "Line2": "Dept. 32-2649395757",
-      "Line3": "PO Box 78047",
-      "Line4": "Phoenix, AZ  85062"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50044",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-04T12:38:41-07:00",
-      "LastUpdatedTime": "2025-10-17T13:03:40-07:00"
-    },
-    "DocNumber": "130803049",
-    "TxnDate": "2025-07-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return",
-    "LinkedTxn": [
-      {
-        "TxnId": "51857",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1/2 in. x 4 ft. x 12 ft. UltraLight\nImperial Gypsum Base\n\n5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
-        "Amount": 3385.92,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3385.92
-  },
-  {
-    "VendorAddr": {
-      "Id": "16147",
-      "Line1": "Home Depot Credit Services",
-      "Line2": "Dept. 32-2649395757",
-      "Line3": "PO Box 78047",
-      "Line4": "Phoenix, AZ  85062"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50043",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-04T12:37:42-07:00",
-      "LastUpdatedTime": "2025-10-17T13:03:40-07:00"
-    },
-    "DocNumber": "130601732",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return",
-    "LinkedTxn": [
-      {
-        "TxnId": "51857",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
-        "Amount": 768.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 768.4
-  },
-  {
-    "VendorAddr": {
-      "Id": "16152",
-      "Line1": "Home Depot Credit Services",
-      "Line2": "Dept. 32-2649395757",
-      "Line3": "PO Box 78047",
-      "Line4": "Phoenix, AZ  85062"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50042",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-04T12:36:35-07:00",
-      "LastUpdatedTime": "2025-10-17T13:03:40-07:00"
-    },
-    "DocNumber": "130291223",
-    "TxnDate": "2025-07-03",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return - 22 Flynn Ave., Marlborough",
-    "LinkedTxn": [
-      {
-        "TxnId": "51857",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Premium Black Mini Ledger\nPanel 4.5 in. x 16 in. Splitface\nSlate Wall Tile (5 sq. ft./Case)",
-        "Amount": 481.53,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2337",
-            "name": "Felipe Drumond:22 Flynn Ave, Marlborough"
-          },
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "191723992"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 481.53
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50281",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:05:23-07:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "17369-0003",
-    "TxnDate": "2025-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 398,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 398
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50280",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:04:58-07:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "17369-0002",
-    "TxnDate": "2025-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      },
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      },
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 2000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2000
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50279",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:02:07-07:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "10311-0028",
-    "TxnDate": "2025-01-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 125.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 125.98
-  },
-  {
-    "VendorAddr": {
-      "Id": "13486",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47279",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:42:54-07:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "14242-0005",
-    "TxnDate": "2024-09-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
-        "Amount": 978,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2906",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "408984366"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 978
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47278",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:24:10-07:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "13470-0008",
-    "TxnDate": "2024-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "13470-0008",
-        "Amount": 1931.43,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2851",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "375289538"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1931.43
-  },
-  {
-    "VendorAddr": {
-      "Id": "11580",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "44677",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2024-12-27T13:46:22-08:00",
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "10108-0032",
-    "TxnDate": "2024-09-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 TRUSSES EXTENTION 100.00 100.00 100.00 100.00-\nT10 Make: TRUSS EXT Model: * Ser #: *\n\nCredit That We have with Them",
-        "Amount": 106.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 106.25
-  },
-  {
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51836",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-17T09:00:42-07:00",
-      "LastUpdatedTime": "2025-10-17T11:02:35-07:00"
-    },
-    "DocNumber": "1,180.40",
-    "TxnDate": "2025-09-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
-    "LinkedTxn": [
-      {
-        "TxnId": "51846",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "09/12/25 - FLOOR AND DECOR 305 305\nBELLINGHAM MA\n877-675-0002",
-        "Amount": 1180.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "1150040004",
-            "name": "Quickbooks Credit Line"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1248",
-      "name": "Estevao Costa"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1180.4
   },
   {
     "VendorAddr": {

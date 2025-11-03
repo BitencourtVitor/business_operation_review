@@ -41,17 +41,15 @@ serve(async (req) => {
     // Processar cada usuário
     for (const usuario of usuarios || []) {
       try {
-        // Tentar criar usuário diretamente - se já existir, vai dar erro
+        // Criar usuário com os dados da tabela
         const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
           email: usuario.email,
-          password: usuario.senha_hash || 'teste159357',
+          password: usuario.senha_hash,
           email_confirm: true,
           user_metadata: {
-            name: usuario.nome_completo || '',
-            full_name: usuario.nome_completo || '',
-            nome_completo: usuario.nome_completo || '',
-            source: 'sync_from_usuarios_table',
-            email_verified: true
+            name: usuario.nome_completo,
+            full_name: usuario.nome_completo,
+            nome_completo: usuario.nome_completo
           }
         });
         

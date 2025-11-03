@@ -15,6 +15,7 @@ interface FuelControlTableProps {
     vehicle_min_consumption: number | null;
     vehicle_max_consumption: number | null;
   }>;
+  financialPass: boolean;
 }
 
 interface FuelDriverData {
@@ -31,7 +32,7 @@ interface FuelDriverData {
   idle_fuel_percentage: number;
 }
 
-export default function FuelControlTable({ filteredSamsara, filteredWex, selectedDrivers, driverNames }: FuelControlTableProps) {
+export default function FuelControlTable({ filteredSamsara, filteredWex, selectedDrivers, driverNames, financialPass }: FuelControlTableProps) {
   // Estados para ordenação da tabela
   const [sortBy, setSortBy] = React.useState<'driver' | 'vehicle' | 'estimated_performance' | 'performance' | 'total_distance' | 'total_consumption' | 'idle_fuel_consumption' | 'idle_fuel_percentage' | 'idle_time' | 'wex_supplied' | 'wex_value'>('driver');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
@@ -375,7 +376,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                    <option value="idle_fuel_percentage">Idle %</option>
                    <option value="idle_time">Idle Time (hours)</option>
                    <option value="wex_supplied">WEX Supplied (gal)</option>
-                   <option value="wex_value">WEX Value ($)</option>
+                   {financialPass && <option value="wex_value">WEX Value ($)</option>}
                  </select>
                 <i
                   className="bi bi-chevron-down"
@@ -426,7 +427,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle %</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Idle Time</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Supplied (gal)</th>
-                <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>
+                {financialPass && <th style={{ padding: '8px', border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>WEX Value ($)</th>}
               </tr>
             </thead>
             <tbody>
@@ -463,7 +464,7 @@ export default function FuelControlTable({ filteredSamsara, filteredWex, selecte
                   </td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#ff6b35', textAlign: 'right' }}>{formatIdleTime(data.idle_time_hours)}h</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#2E6BE6', textAlign: 'right' }}>{data.wex_supplied.toFixed(1)}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                  {financialPass && <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{data.wex_value.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>}
                 </tr>
               ))}
                              {/* Interface de "sem dados" quando não há dados para exibir */}

@@ -110,14 +110,52 @@ async function fetchCsvToJson(url: string, name: string) {
 
 // Funções de parse otimizadas
 function parseDateUS(str: string) {
-  if (!str) return null;
+  if (!str || str.trim() === '') return null;
+  
   try {
-    const [month, day, year] = str.split('/');
+    const parts = str.split('/');
+    if (parts.length !== 3) return null;
+    
+    const [monthStr, dayStr, yearStr] = parts;
+    const month = parseInt(monthStr, 10);
+    const day = parseInt(dayStr, 10);
+    const year = parseInt(yearStr, 10);
+    
+    // Validar se os valores parseados são números válidos
+    if (isNaN(month) || isNaN(day) || isNaN(year)) {
+      console.warn(`Data inválida (NaN detectado): ${str}`);
+      return null;
+    }
+    
+    // Validar ranges básicos
+    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) {
+      console.warn(`Data fora do range válido: ${str}`);
+      return null;
+    }
+    
     // Adicionar 1 dia para corrigir problema de timezone
-    const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const date = new Date(year, month - 1, day);
+    
+    // Verificar se a data é válida
+    if (isNaN(date.getTime())) {
+      console.warn(`Data inválida após criação: ${str}`);
+      return null;
+    }
+    
     date.setDate(date.getDate() + 1); // Adicionar 1 dia
+    
     // Retornar como string no formato YYYY-MM-DD
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const resultYear = date.getFullYear();
+    const resultMonth = date.getMonth() + 1;
+    const resultDay = date.getDate();
+    
+    // Verificar se o resultado é válido
+    if (isNaN(resultYear) || isNaN(resultMonth) || isNaN(resultDay)) {
+      console.warn(`Resultado inválido ao formatar data: ${str}`);
+      return null;
+    }
+    
+    return `${resultYear}-${String(resultMonth).padStart(2, '0')}-${String(resultDay).padStart(2, '0')}`;
   } catch (error) {
     console.error(`Erro ao fazer parse da data: ${str}`, error);
     return null;
@@ -295,7 +333,6 @@ serve(async (req) => {
       additional_visits: getField(row, "ADDITIONAL VISITS") ? getField(row, "ADDITIONAL VISITS").split(',').map(date => parseDateUS(date.trim())).filter(date => date) : null,
       issue: getField(row, "ISSUE"),
       warranty: parseBooleanValue(getField(row, "WARRANTY")),
-      cost: parseNumericValue(getField(row, "COST"), 0),
       tech: getField(row, "TECH")
     }));
     
