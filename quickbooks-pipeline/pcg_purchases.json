@@ -1,6 +1,424 @@
 [
   {
     "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1004",
+      "name": "Mont Bross",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "10601",
+      "Line1": "MONTBROS BUILDERS INC",
+      "Line2": "37 VERNON ST",
+      "Line3": "WEYMOUTH, MA 02189"
+    },
+    "TotalAmt": 3300,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18028",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T11:27:07-07:00",
+      "LastUpdatedTime": "2025-10-31T11:31:41-07:00"
+    },
+    "DocNumber": "1901",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "No invoice provided",
+    "Line": [
+      {
+        "Id": "1",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "51 West Way, Mashpee, MA"
+          },
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "16",
+            "name": "Interior Trim"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Amount": 0,
+        "DetailType": "ItemBasedExpenseLineDetail",
+        "ItemBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "BillableStatus": "NotBillable",
+          "ItemRef": {
+            "value": "16",
+            "name": "Interior Trim"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Laundry Back Splash",
+        "Amount": 500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "140",
+            "name": "Interior Trim"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Kitchen Back Splash",
+        "Amount": 2800,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "140",
+            "name": "Interior Trim"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "501",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 20,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18020",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T18:15:21-07:00",
+      "LastUpdatedTime": "2025-10-30T18:15:21-07:00"
+    },
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 20,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "93",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "907",
+      "name": "EPL Construction",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1950.01,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18015",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T14:27:22-07:00",
+      "LastUpdatedTime": "2025-11-03T06:42:08-08:00"
+    },
+    "DocNumber": "1897",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Rendering 30 Pleasant",
+    "LinkedTxn": [
+      {
+        "TxnId": "18016",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "18017",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Rendering Basement and Pool House.\nRendering Main House.",
+        "Amount": 1923.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "18016",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Fee",
+        "Amount": 26.31,
+        "LinkedTxn": [
+          {
+            "TxnId": "18017",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1003",
+      "name": "Town of Holliston",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "10588",
+      "Line1": "Town of Holliston",
+      "Line2": "Town of Holliston"
+    },
+    "TotalAmt": 50,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18013",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-30T09:17:42-07:00",
+      "LastUpdatedTime": "2025-11-01T10:44:07-07:00"
+    },
+    "DocNumber": "1896",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Premium Contractors Group, Inc.:230 Winter St., Holliston",
+    "LinkedTxn": [
+      {
+        "TxnId": "18014",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "town of holliston",
+        "Amount": 50,
+        "LinkedTxn": [
+          {
+            "TxnId": "18014",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "840",
+            "name": "230 Winter St., Holliston"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "470556804"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "50",
       "name": "Amex Gold"
     },
@@ -97,7 +515,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:18:24-07:00",
-      "LastUpdatedTime": "2025-10-28T11:18:24-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-09-24",
     "CurrencyRef": {
@@ -132,7 +550,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -181,7 +599,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:18:13-07:00",
-      "LastUpdatedTime": "2025-10-28T11:18:13-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-09-18",
     "CurrencyRef": {
@@ -216,7 +634,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -265,7 +683,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:18:03-07:00",
-      "LastUpdatedTime": "2025-10-28T11:18:03-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-29",
     "CurrencyRef": {
@@ -300,7 +718,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -349,7 +767,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:54-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:54-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-27",
     "CurrencyRef": {
@@ -384,7 +802,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -433,7 +851,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:44-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:44-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-26",
     "CurrencyRef": {
@@ -468,7 +886,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -517,7 +935,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:35-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:35-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-19",
     "CurrencyRef": {
@@ -552,7 +970,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -601,7 +1019,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:25-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:25-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-14",
     "CurrencyRef": {
@@ -636,7 +1054,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -685,7 +1103,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:16-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:16-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-08-14",
     "CurrencyRef": {
@@ -720,7 +1138,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -769,7 +1187,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:17:07-07:00",
-      "LastUpdatedTime": "2025-10-28T11:17:07-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-07-26",
     "CurrencyRef": {
@@ -804,7 +1222,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -853,7 +1271,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-28T11:16:47-07:00",
-      "LastUpdatedTime": "2025-10-28T11:16:47-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
     },
     "TxnDate": "2025-07-15",
     "CurrencyRef": {
@@ -888,7 +1306,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3214,7 +3632,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-27T14:31:38-07:00",
-      "LastUpdatedTime": "2025-10-27T14:31:38-07:00"
+      "LastUpdatedTime": "2025-11-03T06:36:36-08:00"
     },
     "TxnDate": "2025-10-09",
     "CurrencyRef": {
@@ -3249,7 +3667,7 @@
             "value": "136",
             "name": "Landscaping Materials"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3301,7 +3719,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-27T14:31:11-07:00",
-      "LastUpdatedTime": "2025-10-27T14:31:11-07:00"
+      "LastUpdatedTime": "2025-11-03T06:36:36-08:00"
     },
     "TxnDate": "2025-10-09",
     "CurrencyRef": {
@@ -3336,7 +3754,7 @@
             "value": "136",
             "name": "Landscaping Materials"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3728,7 +4146,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-27T14:07:01-07:00",
-      "LastUpdatedTime": "2025-10-27T14:08:53-07:00"
+      "LastUpdatedTime": "2025-11-03T06:47:16-08:00"
     },
     "TxnDate": "2025-10-21",
     "CurrencyRef": {
@@ -4443,7 +4861,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-27T13:12:00-07:00",
-      "LastUpdatedTime": "2025-10-27T13:12:00-07:00"
+      "LastUpdatedTime": "2025-11-01T10:43:47-07:00"
     },
     "TxnDate": "2025-10-03",
     "CurrencyRef": {
@@ -4478,7 +4896,7 @@
             "value": "151",
             "name": "Loan to Group OUT"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -4651,7 +5069,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-10-18T04:49:05-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:31-07:00"
     },
     "TxnDate": "2025-09-27",
     "CurrencyRef": {
@@ -5390,7 +5808,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-18T04:51:13-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:18-07:00"
     },
     "TxnDate": "2025-10-02",
     "CurrencyRef": {
@@ -5554,7 +5972,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-18T04:44:59-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:39-07:00"
     },
     "TxnDate": "2025-09-10",
     "CurrencyRef": {
@@ -5638,7 +6056,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-18T04:43:27-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:43-07:00"
     },
     "TxnDate": "2025-08-19",
     "CurrencyRef": {
@@ -5870,7 +6288,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-18T04:37:50-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:20-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:23-07:00"
     },
     "TxnDate": "2025-10-02",
     "CurrencyRef": {
@@ -6029,7 +6447,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-17T15:24:19-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:13-07:00"
     },
     "TxnDate": "2025-10-03",
     "CurrencyRef": {
@@ -6263,7 +6681,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-17T15:23:01-07:00",
-      "LastUpdatedTime": "2025-10-28T07:37:13-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:10-07:00"
     },
     "TxnDate": "2025-09-25",
     "CurrencyRef": {
@@ -6347,7 +6765,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-17T15:22:11-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:22-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:48-07:00"
     },
     "TxnDate": "2025-08-15",
     "CurrencyRef": {
@@ -6431,7 +6849,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-17T15:21:19-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:15-07:00"
     },
     "TxnDate": "2025-10-03",
     "CurrencyRef": {
@@ -7819,7 +8237,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-16T10:36:40-07:00",
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:38-08:00"
     },
     "TxnDate": "2025-10-09",
     "CurrencyRef": {
@@ -10547,7 +10965,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-09T16:01:27-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:21-07:00"
+      "LastUpdatedTime": "2025-11-01T06:21:12-07:00"
     },
     "TxnDate": "2025-09-18",
     "CurrencyRef": {
@@ -10630,7 +11048,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-10-09T16:01:05-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:21-07:00"
+      "LastUpdatedTime": "2025-11-01T06:21:12-07:00"
     },
     "TxnDate": "2025-10-06",
     "CurrencyRef": {
@@ -15072,7 +15490,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-09-12T09:09:51-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:21-07:00"
+      "LastUpdatedTime": "2025-11-01T06:21:12-07:00"
     },
     "TxnDate": "2025-07-11",
     "CurrencyRef": {
@@ -24010,7 +24428,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-08-04T11:58:30-07:00",
-      "LastUpdatedTime": "2025-10-28T06:38:21-07:00"
+      "LastUpdatedTime": "2025-11-01T06:21:12-07:00"
     },
     "TxnDate": "2025-07-09",
     "CurrencyRef": {
@@ -28385,7 +28803,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-06-27T08:28:54-07:00",
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
     },
     "DocNumber": "1767",
     "TxnDate": "2025-07-03",
@@ -31558,7 +31976,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-06-24T12:39:26-07:00",
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
     },
     "TxnDate": "2025-06-09",
     "CurrencyRef": {
@@ -31636,7 +32054,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-06-24T12:41:38-07:00",
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
     },
     "TxnDate": "2025-06-09",
     "CurrencyRef": {
@@ -32480,7 +32898,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-06-23T12:56:27-07:00",
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
     },
     "DocNumber": "Cash",
     "TxnDate": "2025-06-23",

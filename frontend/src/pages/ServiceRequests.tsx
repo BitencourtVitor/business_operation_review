@@ -70,9 +70,10 @@ interface ServiceRequestsProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
+  financialPass: boolean;
 }
 
-export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: ServiceRequestsProps) {
+export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, financialPass }: ServiceRequestsProps) {
   const [telaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);

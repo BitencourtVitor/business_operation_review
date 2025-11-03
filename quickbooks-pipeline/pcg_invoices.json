@@ -4,17 +4,511 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17922",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-27T14:08:36-07:00",
+      "LastModifiedByRef": {
+        "value": "9130355420157126"
+      },
+      "LastUpdatedTime": "2025-11-03T06:47:16-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2069",
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17921",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17923",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Central Steel SupplyMarlborough MA XXXX5014",
+        "Amount": 6660.12,
+        "LinkedTxn": [
+          {
+            "TxnId": "17921",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-21",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 6660.12,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6660.12,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "484682130"
+    },
+    "CustomerRef": {
+      "value": "855",
+      "name": "30 Pleasant Park Dr., Mashpee"
+    },
+    "BillAddr": {
+      "Id": "6788"
+    },
+    "ShipAddr": {
+      "Id": "10552",
+      "Line1": "Fisher Lane, LLC"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-17",
+    "TotalAmt": 6660.12,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.fisher@premiumgrpinc.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-27T14:08:44-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18018",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T14:27:50-07:00",
+      "LastModifiedByRef": {
+        "value": "9130355420157126"
+      },
+      "LastUpdatedTime": "2025-11-03T06:42:08-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2091",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "18016",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "18017",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rendering Basement and Pool House.\nRendering Main House.",
+        "Amount": 1923.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "18016",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-30",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 1923.7,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Fee",
+        "Amount": 26.31,
+        "LinkedTxn": [
+          {
+            "TxnId": "18017",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-30",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 26.31,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1950.01,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "484682130"
+    },
+    "CustomerRef": {
+      "value": "855",
+      "name": "30 Pleasant Park Dr., Mashpee"
+    },
+    "BillAddr": {
+      "Id": "6788"
+    },
+    "ShipAddr": {
+      "Id": "10589",
+      "Line1": "Fisher Lane, LLC"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-30",
+    "TotalAmt": 1950.01,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.fisher@premiumgrpinc.com"
+    },
+    "Balance": 1950.01,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-31T03:48:34-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18024",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T07:42:55-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-11-03T06:36:36-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2095",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17937",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17871",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17935",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "IN *ALL CAPE RECYCLIEAST FALMOUTH MA XXXX5014\nReceipt attached\nJob Supplies: Landscaping materials\n30 Pleasant Park Dr., Mashpee",
+        "Amount": 418,
+        "LinkedTxn": [
+          {
+            "TxnId": "17937",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-09",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 418,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "IN *ALL CAPE RECYCLIEAST FALMOUTH MA XXXX5014\nReceipt attached\nJob Supplies: Landscaping materials\n30 Pleasant Park Dr., Mashpee",
+        "Amount": 418,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-09",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 418,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Credit card fee from payment made towards these invoices. \nReceipt attached. \nPayment processing fee.\n30 Pleasant Park Dr., Mashpee",
+        "Amount": 801.65,
+        "LinkedTxn": [
+          {
+            "TxnId": "17871",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-01",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 801.65,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1637.65,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "484682130"
+    },
+    "CustomerRef": {
+      "value": "855",
+      "name": "30 Pleasant Park Dr., Mashpee"
+    },
+    "BillAddr": {
+      "Id": "10595",
+      "Line1": "Fisher Lane, LLC"
+    },
+    "ShipAddr": {
+      "Id": "10596",
+      "Line1": "Fisher Lane, LLC"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-31",
+    "TotalAmt": 1637.65,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.fisher@premiumgrpinc.com"
+    },
+    "Balance": 1637.65,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-01T10:44:30-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
     "Id": "17776",
-    "SyncToken": "4",
+    "SyncToken": "5",
     "MetaData": {
       "CreateTime": "2025-10-17T05:58:44-07:00",
       "LastModifiedByRef": {
         "value": "0"
       },
-      "LastUpdatedTime": "2025-10-29T06:23:37-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:40-08:00"
     },
     "CustomField": [],
     "DocNumber": "2055",
@@ -25,15 +519,15 @@
     },
     "LinkedTxn": [
       {
+        "TxnId": "16528",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "17040",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "16576",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16528",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -536,7 +1030,594 @@
     "Balance": 2756.68,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-29T06:23:32-07:00"
+      "DeliveryTime": "2025-11-02T03:47:35-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17773",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-17T05:51:55-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2052",
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "16832",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16577",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16530",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16890",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16654",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16542",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16655",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16511",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16543",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Uber Foundation - Rodrigo trip to Westford to pick up truck",
+        "Amount": 48.97,
+        "LinkedTxn": [
+          {
+            "TxnId": "16832",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-01",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 48.97,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Quickbooks Enterprise first monthly fee",
+        "Amount": 186.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "16530",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-05-16",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 186.92,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "AMEX EPAYMENT ER AM ACH PMT ID NBR: W6334",
+        "Amount": 1600,
+        "LinkedTxn": [
+          {
+            "TxnId": "16542",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-09",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 1600,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "AMEX EPAYMENT ER AM ACH PMT ID NBR: W3140",
+        "Amount": 2500,
+        "LinkedTxn": [
+          {
+            "TxnId": "16543",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-09",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 2500,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Quickbooks Enterprise implementation fee",
+        "Amount": 366.17,
+        "LinkedTxn": [
+          {
+            "TxnId": "16577",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-16",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 366.17,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Loan 06/23/2025",
+        "Amount": 9000,
+        "LinkedTxn": [
+          {
+            "TxnId": "16511",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-23",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 9000,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Loan Foundation\n10k - Rosemberg\n10k - Celio",
+        "Amount": 20000,
+        "LinkedTxn": [
+          {
+            "TxnId": "16654",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-03",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 20000,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Bank charges and fees",
+        "Amount": 618.54,
+        "LinkedTxn": [
+          {
+            "TxnId": "16655",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-03",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 618.54,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Quickbooks Enterprise Monthly fee",
+        "Amount": 372.55,
+        "LinkedTxn": [
+          {
+            "TxnId": "16890",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-15",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 372.55,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 34693.15,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "321",
+      "name": "Premium Foundation"
+    },
+    "BillAddr": {
+      "Id": "10448",
+      "Line1": "Premium Foundation"
+    },
+    "ShipAddr": {
+      "Id": "10449",
+      "Line1": "Premium Foundation"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-17",
+    "TotalAmt": 34693.15,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.foundation@premiumgrpinc.com"
+    },
+    "Balance": 34693.15,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-02T03:47:34-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17673",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-13T13:18:25-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-02T04:47:39-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2043",
+    "TxnDate": "2025-10-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17670",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17672",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "30 Pleasant Park Foundation",
+        "Amount": 15000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17670",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-14",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 15000,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Stamped Drawings – 30 Pleasant Dr, Mashpee\nNOT BILLABLE TO FISCHER, ALREADY PAID",
+        "Amount": 7200,
+        "LinkedTxn": [
+          {
+            "TxnId": "17672",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-11",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 7200,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 22200,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "842",
+      "name": "Fisher Lane, LLC"
+    },
+    "BillAddr": {
+      "Id": "6788"
+    },
+    "ShipAddr": {
+      "Id": "10379",
+      "Line1": "Fisher Lane, LLC"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-13",
+    "TotalAmt": 22200,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.fisher@premiumgrpinc.com"
+    },
+    "Balance": 22200,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-02T03:47:34-08:00"
     },
     "TaxExemptionRef": {}
   },
@@ -549,13 +1630,13 @@
     "domain": "QBO",
     "sparse": false,
     "Id": "17775",
-    "SyncToken": "5",
+    "SyncToken": "6",
     "MetaData": {
       "CreateTime": "2025-10-17T05:54:17-07:00",
       "LastModifiedByRef": {
         "value": "0"
       },
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-02T04:47:38-08:00"
     },
     "CustomField": [],
     "DocNumber": "2054",
@@ -1377,7 +2458,7 @@
     "Balance": 21928.81,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-29T06:23:31-07:00"
+      "DeliveryTime": "2025-11-02T03:47:34-08:00"
     },
     "TaxExemptionRef": {}
   },
@@ -1389,57 +2470,225 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
-    "Id": "17773",
-    "SyncToken": "2",
+    "Id": "18029",
+    "SyncToken": "0",
     "MetaData": {
-      "CreateTime": "2025-10-17T05:51:55-07:00",
+      "CreateTime": "2025-10-31T12:18:36-07:00",
       "LastModifiedByRef": {
-        "value": "0"
+        "value": "9130356620591066"
       },
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-01T11:23:19-07:00"
     },
     "CustomField": [],
-    "DocNumber": "2052",
-    "TxnDate": "2025-10-17",
+    "DocNumber": "2096",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "6.5%  of Estimate 1148",
+    "LinkedTxn": [
+      {
+        "TxnId": "8673",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5 Claflin Ave. \n6.5% of estimate 1148",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Addition at Galt Residence \nAs Per plan Dated OCT 30 23 \nQuote includes all fases of construction and permits.\n200 Series Windows",
+        "Amount": 24225,
+        "LinkedTxn": [
+          {
+            "TxnId": "8673",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 375000,
+          "Qty": 0.0646,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "___Included Services___\n\n\n  - Foundation and Excavation     (Labor and Material)\n  - Framing    (Labor and Material)\n  - Roofing       (Labor and Material)\n  - Siding      (Labor and Material)\n  - HVAC      (Labor and MAterial)\n  - Plumbing      (Labor and Rough Material)\n  - Electrical     (Labor and Rough Material)\n  -Insulation     (Labor and Material)\n   -Plastering    (Labor and Material)\n   -Interior Trim to match existing (Labor and Material) \n  - Tile, hardwood (Labor Only)",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "8673",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Excluding \nAllowances \nTo be provided By owner \nAppliances \nCabinets and Vanities\nPlumb fixtures \nElectrical fixtures \nGarage door \nGranit/Quartz \nTile \nCarpet \nHardwood \n\nExisting Hot water system we have to make sure that it produces enough for the whole house.\n\nIf Bedroom is left to finish afterwards 10% will be deducted.",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "8673",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 0,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 24225,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "5959",
+      "Line1": "5 Claflin Ave",
+      "City": "Hopkinton",
+      "CountrySubDivisionCode": "MA"
+    },
+    "ShipAddr": {
+      "Id": "10603",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "10604",
+      "Line1": "1B Landing Ln, Hopedale, MA, 01747, USA"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-31",
+    "TotalAmt": 24225,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "Balance": 24225,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-01T11:23:14-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18023",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T07:38:57-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-11-01T10:44:07-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2094",
+    "TxnDate": "2025-10-31",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
     "LinkedTxn": [
       {
-        "TxnId": "16832",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16577",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16530",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16890",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16542",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16654",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16543",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16655",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16511",
+        "TxnId": "18014",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -1447,21 +2696,183 @@
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "Uber Foundation - Rodrigo trip to Westford to pick up truck",
-        "Amount": 48.97,
+        "Description": "Check made to 'Town of Holliston\"\nReceipt available\nPO: 230 Winter St., Holliston",
+        "Amount": 50,
         "LinkedTxn": [
           {
-            "TxnId": "16832",
+            "TxnId": "18014",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-01",
+          "ServiceDate": "2025-10-30",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 48.97,
+            "Value": 50,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 50,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "470556804"
+    },
+    "CustomerRef": {
+      "value": "840",
+      "name": "230 Winter St., Holliston"
+    },
+    "BillAddr": {
+      "Id": "10593",
+      "Line1": "Premium Contractors Group, Inc."
+    },
+    "ShipAddr": {
+      "Id": "10594",
+      "Line1": "Premium Contractors Group, Inc."
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-31",
+    "TotalAmt": 50,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.pcg@premiumgrpinc.com"
+    },
+    "Balance": 50,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-01T10:44:02-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18022",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T07:36:52-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-11-01T10:43:54-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2093",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17985",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17987",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17989",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17991",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17975",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17977",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17993",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17979",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17981",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17983",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "ONE WAY DUMPSTER 924ASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 925,
+        "LinkedTxn": [
+          {
+            "TxnId": "17993",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-24",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 925,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1481,21 +2892,21 @@
       {
         "Id": "2",
         "LineNum": 2,
-        "Description": "Quickbooks Enterprise first monthly fee",
-        "Amount": 186.92,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 925,
         "LinkedTxn": [
           {
-            "TxnId": "16530",
+            "TxnId": "17975",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-05-16",
+          "ServiceDate": "2025-07-15",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 186.92,
+            "Value": 925,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1515,21 +2926,21 @@
       {
         "Id": "3",
         "LineNum": 3,
-        "Description": "AMEX EPAYMENT ER AM ACH PMT ID NBR: W6334",
-        "Amount": 1600,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 160,
         "LinkedTxn": [
           {
-            "TxnId": "16542",
+            "TxnId": "17977",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-09",
+          "ServiceDate": "2025-07-26",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 1600,
+            "Value": 160,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1549,21 +2960,21 @@
       {
         "Id": "4",
         "LineNum": 4,
-        "Description": "AMEX EPAYMENT ER AM ACH PMT ID NBR: W3140",
-        "Amount": 2500,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 247,
         "LinkedTxn": [
           {
-            "TxnId": "16543",
+            "TxnId": "17979",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-09",
+          "ServiceDate": "2025-08-14",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 2500,
+            "Value": 247,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1583,21 +2994,21 @@
       {
         "Id": "5",
         "LineNum": 5,
-        "Description": "Quickbooks Enterprise implementation fee",
-        "Amount": 366.17,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 925,
         "LinkedTxn": [
           {
-            "TxnId": "16577",
+            "TxnId": "17981",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-16",
+          "ServiceDate": "2025-08-14",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 366.17,
+            "Value": 925,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1617,21 +3028,21 @@
       {
         "Id": "6",
         "LineNum": 6,
-        "Description": "Loan 06/23/2025",
-        "Amount": 9000,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 1120,
         "LinkedTxn": [
           {
-            "TxnId": "16511",
+            "TxnId": "17983",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-23",
+          "ServiceDate": "2025-08-19",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 9000,
+            "Value": 1120,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1651,21 +3062,21 @@
       {
         "Id": "7",
         "LineNum": 7,
-        "Description": "Loan Foundation\n10k - Rosemberg\n10k - Celio",
-        "Amount": 20000,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 160,
         "LinkedTxn": [
           {
-            "TxnId": "16654",
+            "TxnId": "17985",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-03",
+          "ServiceDate": "2025-08-26",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 20000,
+            "Value": 160,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1685,21 +3096,21 @@
       {
         "Id": "8",
         "LineNum": 8,
-        "Description": "Bank charges and fees",
-        "Amount": 618.54,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 750,
         "LinkedTxn": [
           {
-            "TxnId": "16655",
+            "TxnId": "17987",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-03",
+          "ServiceDate": "2025-08-27",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 618.54,
+            "Value": 750,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1719,21 +3130,21 @@
       {
         "Id": "9",
         "LineNum": 9,
-        "Description": "Quickbooks Enterprise Monthly fee",
-        "Amount": 372.55,
+        "Description": "ONE WAY DUMPSTER, INASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 925,
         "LinkedTxn": [
           {
-            "TxnId": "16890",
+            "TxnId": "17989",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-15",
+          "ServiceDate": "2025-08-29",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 372.55,
+            "Value": 925,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1751,7 +3162,160 @@
         "CustomExtensions": []
       },
       {
-        "Amount": 34693.15,
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "ONE WAY DUMPSTER 924ASHLAND MA XXXX5014 - 65 Mill St - No Receipt",
+        "Amount": 182.4,
+        "LinkedTxn": [
+          {
+            "TxnId": "17991",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-18",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 182.4,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6319.4,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10592",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-31",
+    "TotalAmt": 6319.4,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 6319.4,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-01T10:43:50-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18021",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T07:35:57-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356620591066"
+      },
+      "LastUpdatedTime": "2025-11-01T10:43:47-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2092",
+    "TxnDate": "2025-10-31",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17887",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "No attachment available\nLoan to group\nWIRE TO Premium Foundation Inc DIGITAL CU",
+        "Amount": 15000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17887",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-03",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 15000,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 15000,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -1781,11 +3345,11 @@
       "name": "Premium Foundation"
     },
     "BillAddr": {
-      "Id": "10448",
+      "Id": "10590",
       "Line1": "Premium Foundation"
     },
     "ShipAddr": {
-      "Id": "10449",
+      "Id": "10591",
       "Line1": "Premium Foundation"
     },
     "FreeFormAddress": true,
@@ -1793,18 +3357,18 @@
       "value": "1",
       "name": "Due on receipt"
     },
-    "DueDate": "2025-10-17",
-    "TotalAmt": 34693.15,
+    "DueDate": "2025-10-31",
+    "TotalAmt": 15000,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "EmailSent",
     "BillEmail": {
       "Address": "accounting.foundation@premiumgrpinc.com"
     },
-    "Balance": 34693.15,
+    "Balance": 15000,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-29T06:23:31-07:00"
+      "DeliveryTime": "2025-11-01T10:43:42-07:00"
     },
     "TaxExemptionRef": {}
   },
@@ -1816,29 +3380,49 @@
     "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
-    "Id": "17673",
-    "SyncToken": "4",
+    "Id": "17705",
+    "SyncToken": "3",
     "MetaData": {
-      "CreateTime": "2025-10-13T13:18:25-07:00",
+      "CreateTime": "2025-10-16T08:29:40-07:00",
       "LastModifiedByRef": {
         "value": "0"
       },
-      "LastUpdatedTime": "2025-10-29T06:23:36-07:00"
+      "LastUpdatedTime": "2025-11-01T06:21:12-07:00"
     },
     "CustomField": [],
-    "DocNumber": "2043",
-    "TxnDate": "2025-10-13",
+    "DocNumber": "2049",
+    "TxnDate": "2025-10-16",
     "CurrencyRef": {
       "value": "USD",
       "name": "United States Dollar"
     },
     "LinkedTxn": [
       {
-        "TxnId": "17670",
+        "TxnId": "17616",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17672",
+        "TxnId": "16529",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16578",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16914",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17305",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "16891",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "17614",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -1846,21 +3430,21 @@
       {
         "Id": "1",
         "LineNum": 1,
-        "Description": "30 Pleasant Park Foundation",
-        "Amount": 15000,
+        "Description": "Internet Transfer to x7004 CK - cover balance",
+        "Amount": 163.04,
         "LinkedTxn": [
           {
-            "TxnId": "17670",
+            "TxnId": "17614",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-14",
+          "ServiceDate": "2025-10-06",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 15000,
+            "Value": 163.04,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1880,21 +3464,21 @@
       {
         "Id": "2",
         "LineNum": 2,
-        "Description": "Stamped Drawings – 30 Pleasant Dr, Mashpee\nNOT BILLABLE TO FISCHER, ALREADY PAID",
-        "Amount": 7200,
+        "Description": "Internet Transfer to x7004 CK - Loan to pay IAF",
+        "Amount": 6522,
         "LinkedTxn": [
           {
-            "TxnId": "17672",
+            "TxnId": "17616",
             "TxnType": "ReimburseCharge",
             "TxnLineId": "1"
           }
         ],
         "DetailType": "SalesItemLineDetail",
         "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-11",
+          "ServiceDate": "2025-09-18",
           "MarkupInfo": {
             "PercentBased": false,
-            "Value": 7200,
+            "Value": 6522,
             "MarkUpIncomeAccountRef": {
               "value": "27",
               "name": "Billable Expense Income"
@@ -1912,7 +3496,177 @@
         "CustomExtensions": []
       },
       {
-        "Amount": 22200,
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Quickbooks Enterprise Monthly fee",
+        "Amount": 372.55,
+        "LinkedTxn": [
+          {
+            "TxnId": "16891",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-15",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 372.55,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "ELECTRIC SUPPLY CENT(XXX)XXX-7700 MA XXXX5014 - 5 Mason Way, Woburn",
+        "Amount": 157.97,
+        "LinkedTxn": [
+          {
+            "TxnId": "17305",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-11",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 157.97,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "BUILD.COM CHICO CA XXXX1007 - HV - Lot 70",
+        "Amount": -205.01,
+        "LinkedTxn": [
+          {
+            "TxnId": "16914",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-07-09",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": -205.01,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Quickbooks Enterprise implementation fee",
+        "Amount": 366.17,
+        "LinkedTxn": [
+          {
+            "TxnId": "16578",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-06-16",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 366.17,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Quickbooks Enterprise first monthly fee",
+        "Amount": 186.92,
+        "LinkedTxn": [
+          {
+            "TxnId": "16529",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-05-16",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 186.92,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 7563.64,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -1938,33 +3692,34 @@
       ]
     },
     "CustomerRef": {
-      "value": "842",
-      "name": "Fisher Lane, LLC"
+      "value": "514",
+      "name": "Premium Electrical"
     },
     "BillAddr": {
-      "Id": "6788"
+      "Id": "10410",
+      "Line1": "Premium Electrical"
     },
     "ShipAddr": {
-      "Id": "10379",
-      "Line1": "Fisher Lane, LLC"
+      "Id": "10411",
+      "Line1": "Premium Electrical"
     },
     "FreeFormAddress": true,
     "SalesTermRef": {
       "value": "1",
       "name": "Due on receipt"
     },
-    "DueDate": "2025-10-13",
-    "TotalAmt": 22200,
+    "DueDate": "2025-10-16",
+    "TotalAmt": 7563.64,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "EmailSent",
     "BillEmail": {
-      "Address": "accounting.fisher@premiumgrpinc.com"
+      "Address": "accounting.electrical@premiumgrpinc.com"
     },
-    "Balance": 22200,
+    "Balance": 7563.64,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-29T06:23:31-07:00"
+      "DeliveryTime": "2025-11-01T06:21:06-07:00"
     },
     "TaxExemptionRef": {}
   },
@@ -1973,7 +3728,959 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Viewed",
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17846",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:14:25-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:48-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2065",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17804",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Home Depot\nLot 07 - Wendell Place\n\n\nTHE HOME DEPOT BELLINGHAM MA XXXX1023 - Lot 7 wendell place",
+        "Amount": 12.76,
+        "LinkedTxn": [
+          {
+            "TxnId": "17804",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-15",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 12.76,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 12.76,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10506",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 12.76,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 12.76,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:44-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17845",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:13:05-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:43-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2064",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17820",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "South Gardner Community Health & Urgent Care Center\nNo receipt available\nMedical expenses\n\nXX4 TIMPANY BLVD 575GARDNER MA XXXX3001 - Medical expenses",
+        "Amount": 103.68,
+        "LinkedTxn": [
+          {
+            "TxnId": "17820",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-08-19",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 103.68,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 103.68,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10505",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 103.68,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 103.68,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:39-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17843",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:10:14-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:39-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2063",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17822",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Hopkinton Lumber\nNo PO\nNo receipt available\nNote: Probably Guilherme's purchase\nXX MAIN ST XXXXX7950HOPKINTON MA XXXX3001 - No P.O, probably Gui bought",
+        "Amount": 97.12,
+        "LinkedTxn": [
+          {
+            "TxnId": "17822",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-10",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 97.12,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 97.12,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10504",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 97.12,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 97.12,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:35-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17842",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:08:49-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:31-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2062",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17826",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Hopkinton Lumber\nNo receipt\nPO: Newbury Glen\n\nHOPKINTON LUMBER CO HOPKINTON MA XXXX3001 - No receipt, Newbury Glen",
+        "Amount": 73.26,
+        "LinkedTxn": [
+          {
+            "TxnId": "17826",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-09-27",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 73.26,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 73.26,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10503",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 73.26,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 73.26,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:27-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17841",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:06:26-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:23-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2061",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17816",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Harbor Freight\nCar oil \nHARBOR FREIGHT TOOLSNATICK MA XXXX5014 - Car oil",
+        "Amount": 28.67,
+        "LinkedTxn": [
+          {
+            "TxnId": "17816",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-02",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 28.67,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 28.67,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10501",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 28.67,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 28.67,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:19-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17840",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:05:02-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:18-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2060",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17828",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Vendetti Motors\nJosimar's truck\nNo attachment available\nVENDETTI MOTORS, INCFRANKLIN MA XXXX3001 - Joe's truck",
+        "Amount": 1221.36,
+        "LinkedTxn": [
+          {
+            "TxnId": "17828",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-02",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 1221.36,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1221.36,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10500",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 1221.36,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 1221.36,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:15-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17839",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:03:40-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:15-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2059",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17802",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Fort Equipment Services\nIN *FORT EQUIPMENT SMARLBOROUGH MA XXXX3011",
+        "Amount": 1614.03,
+        "LinkedTxn": [
+          {
+            "TxnId": "17802",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-03",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 1614.03,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1614.03,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10499",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 1614.03,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 1614.03,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:11-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17838",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T09:02:55-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T22:17:13-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2058",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17810",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Fort Equipment Services\nIN *FORT EQUIPMENT SMARLBOROUGH MA XXXX3011",
+        "Amount": 659.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "17810",
+            "TxnType": "ReimburseCharge",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-10-03",
+          "MarkupInfo": {
+            "PercentBased": false,
+            "Value": 659.9,
+            "MarkUpIncomeAccountRef": {
+              "value": "27",
+              "name": "Billable Expense Income"
+            }
+          },
+          "ItemAccountRef": {
+            "value": "27",
+            "name": "Billable Expense Income"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 659.9,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "CustomerRef": {
+      "value": "142",
+      "name": "Premium Framing"
+    },
+    "BillAddr": {
+      "Id": "10498",
+      "Line1": "Premium Framing"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-23",
+    "TotalAmt": 659.9,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "accounting.framing@premiumgrpinc.com"
+    },
+    "Balance": 659.9,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T22:17:09-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Sent",
     "domain": "QBO",
     "sparse": false,
     "Id": "17837",
@@ -1983,7 +4690,7 @@
       "LastModifiedByRef": {
         "value": "0"
       },
-      "LastUpdatedTime": "2025-10-28T07:37:13-07:00"
+      "LastUpdatedTime": "2025-10-30T22:17:10-07:00"
     },
     "CustomField": [],
     "DocNumber": "2057",
@@ -2087,8 +4794,370 @@
     "Balance": 115.89,
     "DeliveryInfo": {
       "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
+      "DeliveryTime": "2025-10-30T22:17:05-07:00"
     },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Paid",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17469",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-10-02T09:23:15-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-29T17:43:53-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2020",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Deck",
+    "LinkedTxn": [
+      {
+        "TxnId": "17999",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame and finish Back deck ",
+        "Amount": 15000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Credit for landing and stairs ",
+        "Amount": -1500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Extra Plugs",
+        "Amount": 163.75,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Extra Pvc to wrap beams",
+        "Amount": 200.28,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Lumber bough to frame fire place ",
+        "Amount": 352.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Fire place frame labor ",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Permit fee",
+        "Amount": 200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 14916.51,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "10320",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "ShipAddr": {
+      "Id": "10321",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-02",
+    "TotalAmt": 14916.51,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "Balance": 0,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-29T17:30:55-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": false,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17998",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-10-29T17:42:10-07:00",
+      "LastModifiedByRef": {
+        "value": "9341454103950935"
+      },
+      "LastUpdatedTime": "2025-10-29T17:43:44-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "2070",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remaining from invoice (2020) Deck Framing",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Frame and finish Back deck ",
+        "Amount": 5000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 5000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 5000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "10566",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "ShipAddr": {
+      "Id": "10567",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-29",
+    "TotalAmt": 5000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "Balance": 5000,
     "TaxExemptionRef": {}
   },
   {
@@ -3561,1309 +6630,6 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": false,
     "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17846",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:14:25-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:22-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2065",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17804",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Home Depot\nLot 07 - Wendell Place\n\n\nTHE HOME DEPOT BELLINGHAM MA XXXX1023 - Lot 7 wendell place",
-        "Amount": 12.76,
-        "LinkedTxn": [
-          {
-            "TxnId": "17804",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-15",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 12.76,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 12.76,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10506",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 12.76,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 12.76,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:18-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17705",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-16T08:29:40-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:21-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2049",
-    "TxnDate": "2025-10-16",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17616",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16529",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16578",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16914",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "17305",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "16891",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "17614",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Internet Transfer to x7004 CK - cover balance",
-        "Amount": 163.04,
-        "LinkedTxn": [
-          {
-            "TxnId": "17614",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-06",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 163.04,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Internet Transfer to x7004 CK - Loan to pay IAF",
-        "Amount": 6522,
-        "LinkedTxn": [
-          {
-            "TxnId": "17616",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-18",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 6522,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Quickbooks Enterprise Monthly fee",
-        "Amount": 372.55,
-        "LinkedTxn": [
-          {
-            "TxnId": "16891",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-15",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 372.55,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "ELECTRIC SUPPLY CENT(XXX)XXX-7700 MA XXXX5014 - 5 Mason Way, Woburn",
-        "Amount": 157.97,
-        "LinkedTxn": [
-          {
-            "TxnId": "17305",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-11",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 157.97,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "BUILD.COM CHICO CA XXXX1007 - HV - Lot 70",
-        "Amount": -205.01,
-        "LinkedTxn": [
-          {
-            "TxnId": "16914",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-07-09",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": -205.01,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Quickbooks Enterprise implementation fee",
-        "Amount": 366.17,
-        "LinkedTxn": [
-          {
-            "TxnId": "16578",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-06-16",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 366.17,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Quickbooks Enterprise first monthly fee",
-        "Amount": 186.92,
-        "LinkedTxn": [
-          {
-            "TxnId": "16529",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-05-16",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 186.92,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 7563.64,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "514",
-      "name": "Premium Electrical"
-    },
-    "BillAddr": {
-      "Id": "10410",
-      "Line1": "Premium Electrical"
-    },
-    "ShipAddr": {
-      "Id": "10411",
-      "Line1": "Premium Electrical"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-16",
-    "TotalAmt": 7563.64,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.electrical@premiumgrpinc.com"
-    },
-    "Balance": 7563.64,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17841",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:06:26-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:20-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2061",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17816",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Harbor Freight\nCar oil \nHARBOR FREIGHT TOOLSNATICK MA XXXX5014 - Car oil",
-        "Amount": 28.67,
-        "LinkedTxn": [
-          {
-            "TxnId": "17816",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-02",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 28.67,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 28.67,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10501",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 28.67,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 28.67,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:16-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17845",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:13:05-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2064",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17820",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "South Gardner Community Health & Urgent Care Center\nNo receipt available\nMedical expenses\n\nXX4 TIMPANY BLVD 575GARDNER MA XXXX3001 - Medical expenses",
-        "Amount": 103.68,
-        "LinkedTxn": [
-          {
-            "TxnId": "17820",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-08-19",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 103.68,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 103.68,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10505",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 103.68,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 103.68,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17843",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:10:14-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2063",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17822",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Hopkinton Lumber\nNo PO\nNo receipt available\nNote: Probably Guilherme's purchase\nXX MAIN ST XXXXX7950HOPKINTON MA XXXX3001 - No P.O, probably Gui bought",
-        "Amount": 97.12,
-        "LinkedTxn": [
-          {
-            "TxnId": "17822",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-10",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 97.12,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 97.12,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10504",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 97.12,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 97.12,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17842",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:08:49-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2062",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17826",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Hopkinton Lumber\nNo receipt\nPO: Newbury Glen\n\nHOPKINTON LUMBER CO HOPKINTON MA XXXX3001 - No receipt, Newbury Glen",
-        "Amount": 73.26,
-        "LinkedTxn": [
-          {
-            "TxnId": "17826",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-09-27",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 73.26,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 73.26,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10503",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 73.26,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 73.26,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17840",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:05:02-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2060",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17828",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Vendetti Motors\nJosimar's truck\nNo attachment available\nVENDETTI MOTORS, INCFRANKLIN MA XXXX3001 - Joe's truck",
-        "Amount": 1221.36,
-        "LinkedTxn": [
-          {
-            "TxnId": "17828",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-02",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 1221.36,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 1221.36,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10500",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 1221.36,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 1221.36,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17839",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:03:40-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2059",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17802",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Fort Equipment Services\nIN *FORT EQUIPMENT SMARLBOROUGH MA XXXX3011",
-        "Amount": 1614.03,
-        "LinkedTxn": [
-          {
-            "TxnId": "17802",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-03",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 1614.03,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 1614.03,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10499",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 1614.03,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 1614.03,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:14-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17838",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-23T09:02:55-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-28T06:38:19-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2058",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17810",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Fort Equipment Services\nIN *FORT EQUIPMENT SMARLBOROUGH MA XXXX3011",
-        "Amount": 659.9,
-        "LinkedTxn": [
-          {
-            "TxnId": "17810",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-03",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 659.9,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 659.9,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "CustomerRef": {
-      "value": "142",
-      "name": "Premium Framing"
-    },
-    "BillAddr": {
-      "Id": "10498",
-      "Line1": "Premium Framing"
-    },
-    "FreeFormAddress": false,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-23",
-    "TotalAmt": 659.9,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.framing@premiumgrpinc.com"
-    },
-    "Balance": 659.9,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-28T06:38:15-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
     "Id": "17961",
@@ -4981,135 +6747,6 @@
       "Address": "accounting.fisher@premiumgrpinc.com"
     },
     "Balance": 0,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17922",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-27T14:08:36-07:00",
-      "LastModifiedByRef": {
-        "value": "9130355420157126"
-      },
-      "LastUpdatedTime": "2025-10-27T14:08:53-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2069",
-    "TxnDate": "2025-10-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "17921",
-        "TxnType": "ReimburseCharge"
-      },
-      {
-        "TxnId": "17923",
-        "TxnType": "Payment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Central Steel SupplyMarlborough MA XXXX5014",
-        "Amount": 6660.12,
-        "LinkedTxn": [
-          {
-            "TxnId": "17921",
-            "TxnType": "ReimburseCharge",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ServiceDate": "2025-10-21",
-          "MarkupInfo": {
-            "PercentBased": false,
-            "Value": 6660.12,
-            "MarkUpIncomeAccountRef": {
-              "value": "27",
-              "name": "Billable Expense Income"
-            }
-          },
-          "ItemAccountRef": {
-            "value": "27",
-            "name": "Billable Expense Income"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 6660.12,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "484682130"
-    },
-    "CustomerRef": {
-      "value": "855",
-      "name": "30 Pleasant Park Dr., Mashpee"
-    },
-    "BillAddr": {
-      "Id": "6788"
-    },
-    "ShipAddr": {
-      "Id": "10552",
-      "Line1": "Fisher Lane, LLC"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-17",
-    "TotalAmt": 6660.12,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "accounting.fisher@premiumgrpinc.com"
-    },
-    "Balance": 0,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-27T14:08:44-07:00"
-    },
     "TaxExemptionRef": {}
   },
   {
@@ -6101,252 +7738,6 @@
       "Address": "accounting.fisher@premiumgrpinc.com"
     },
     "Balance": 0,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": false,
-    "AllowOnlineACHPayment": true,
-    "EInvoiceStatus": "Sent",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17469",
-    "SyncToken": "6",
-    "MetaData": {
-      "CreateTime": "2025-10-02T09:23:15-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-26T05:37:58-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "2020",
-    "TxnDate": "2025-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Deck",
-    "LinkedTxn": [],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Frame and finish Back deck ",
-        "Amount": 20000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Credit for landing and stairs ",
-        "Amount": -1500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Extra Plugs",
-        "Amount": 163.75,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Extra Pvc to wrap beams",
-        "Amount": 200.28,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Lumber bough to frame fire place ",
-        "Amount": 352.48,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Fire place frame labor ",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Permit fee",
-        "Amount": 200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 19916.51,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "314692141"
-    },
-    "CustomerRef": {
-      "value": "609",
-      "name": "5 Claflin Ave, Hopkinton, MA"
-    },
-    "BillAddr": {
-      "Id": "10320",
-      "Line1": "Tommy Galt.",
-      "Line2": "5 Claflin Ave",
-      "Line3": "Hopkinton, MA"
-    },
-    "ShipAddr": {
-      "Id": "10321",
-      "Line1": "Tommy Galt.",
-      "Line2": "5 Claflin Ave",
-      "Line3": "Hopkinton, MA"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-02",
-    "TotalAmt": 19916.51,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "tommy.galt@gmail.com"
-    },
-    "Balance": 19916.51,
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-10-26T05:37:51-07:00"
-    },
     "TaxExemptionRef": {}
   },
   {
@@ -15101,11 +16492,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17065",
+        "TxnId": "17001",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17001",
+        "TxnId": "17065",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -15113,11 +16504,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "16527",
+        "TxnId": "17039",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "17039",
+        "TxnId": "16527",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16475,11 +17866,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14985",
+        "TxnId": "14665",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14665",
+        "TxnId": "14985",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16531,11 +17922,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15331",
+        "TxnId": "13923",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15779",
+        "TxnId": "15331",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16543,7 +17934,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13923",
+        "TxnId": "15779",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16583,11 +17974,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14835",
+        "TxnId": "15539",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15539",
+        "TxnId": "14835",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -16607,6 +17998,10 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "14840",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "14648",
         "TxnType": "ReimburseCharge"
       },
@@ -16615,19 +18010,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14840",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "15801",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14651",
+        "TxnId": "14843",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14843",
+        "TxnId": "14651",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -18501,11 +19892,11 @@
     "PrivateNote": "Voided",
     "LinkedTxn": [
       {
-        "TxnId": "13728",
+        "TxnId": "14048",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14048",
+        "TxnId": "13728",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -18517,11 +19908,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13722",
+        "TxnId": "13866",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13866",
+        "TxnId": "13722",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -24539,15 +25930,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15770",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "14650",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15772",
+        "TxnId": "15770",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -24555,11 +25942,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14990",
+        "TxnId": "15772",
         "TxnType": "ReimburseCharge"
       },
       {
         "TxnId": "15774",
+        "TxnType": "ReimburseCharge"
+      },
+      {
+        "TxnId": "14990",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -31900,11 +33291,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "7017",
+        "TxnId": "6761",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "6761",
+        "TxnId": "7017",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -41572,11 +42963,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14890",
+        "TxnId": "15978",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15978",
+        "TxnId": "14890",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -42630,11 +44021,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14786",
+        "TxnId": "15810",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15810",
+        "TxnId": "14786",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -42686,11 +44077,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14993",
+        "TxnId": "15505",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15505",
+        "TxnId": "14993",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -42754,11 +44145,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15855",
+        "TxnId": "15535",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15535",
+        "TxnId": "15855",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -44238,11 +45629,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15653",
+        "TxnId": "15957",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15957",
+        "TxnId": "15653",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -44744,11 +46135,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14216",
+        "TxnId": "14248",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14248",
+        "TxnId": "14216",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -57193,11 +58584,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5460",
+        "TxnId": "5268",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5268",
+        "TxnId": "5460",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -59153,11 +60544,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "15282",
+        "TxnId": "15266",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15266",
+        "TxnId": "15282",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -60254,11 +61645,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "15317",
+        "TxnId": "13509",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13509",
+        "TxnId": "15317",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -61596,11 +62987,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "11200",
+        "TxnId": "11456",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11456",
+        "TxnId": "11200",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61612,11 +63003,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11204",
+        "TxnId": "11460",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11460",
+        "TxnId": "11204",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61624,11 +63015,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11206",
+        "TxnId": "11462",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11462",
+        "TxnId": "11206",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61712,15 +63103,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11186",
-        "TxnType": "ReimburseCharge"
-      },
-      {
         "TxnId": "11442",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11188",
+        "TxnId": "11186",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61728,7 +63115,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11446",
+        "TxnId": "11188",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61736,7 +63123,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11383",
+        "TxnId": "11446",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61744,7 +63131,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11448",
+        "TxnId": "11383",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61752,7 +63139,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11385",
+        "TxnId": "11448",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61760,11 +63147,15 @@
         "TxnType": "ReimburseCharge"
       },
       {
+        "TxnId": "11385",
+        "TxnType": "ReimburseCharge"
+      },
+      {
         "TxnId": "11194",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11196",
+        "TxnId": "11452",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -61772,7 +63163,7 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11452",
+        "TxnId": "11196",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -67859,11 +69250,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10009",
+        "TxnId": "8857",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8857",
+        "TxnId": "10009",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -67871,11 +69262,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8859",
+        "TxnId": "10139",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10139",
+        "TxnId": "8859",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -67887,11 +69278,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10142",
+        "TxnId": "8862",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "8862",
+        "TxnId": "10142",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -67975,11 +69366,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "10075",
+        "TxnId": "9819",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "9819",
+        "TxnId": "10075",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -70199,11 +71590,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14446",
+        "TxnId": "12974",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12974",
+        "TxnId": "14446",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -70215,11 +71606,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "14448",
+        "TxnId": "12976",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12976",
+        "TxnId": "14448",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -70231,11 +71622,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12982",
+        "TxnId": "13558",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13558",
+        "TxnId": "12982",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -70259,11 +71650,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13342",
+        "TxnId": "13630",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "13630",
+        "TxnId": "13342",
         "TxnType": "ReimburseCharge"
       }
     ],
@@ -95288,11 +96679,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11109",
+        "TxnId": "12677",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12677",
+        "TxnId": "11109",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -95312,11 +96703,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "11114",
+        "TxnId": "12682",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "12682",
+        "TxnId": "11114",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -145331,11 +146722,11 @@
     },
     "LinkedTxn": [
       {
-        "TxnId": "9668",
+        "TxnId": "9620",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "9620",
+        "TxnId": "9668",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -181378,11 +182769,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "6890",
+        "TxnId": "5610",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5610",
+        "TxnId": "6890",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -192098,11 +193489,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5466",
+        "TxnId": "4810",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "4810",
+        "TxnId": "5466",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -197189,11 +198580,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5262",
+        "TxnId": "5278",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "5278",
+        "TxnId": "5262",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -199392,11 +200783,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "4572",
+        "TxnId": "4812",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "4812",
+        "TxnId": "4572",
         "TxnType": "ReimburseCharge"
       },
       {
@@ -203171,11 +204562,11 @@
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "3798",
+        "TxnId": "3830",
         "TxnType": "ReimburseCharge"
       },
       {
-        "TxnId": "3830",
+        "TxnId": "3798",
         "TxnType": "ReimburseCharge"
       },
       {

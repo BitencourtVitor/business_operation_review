@@ -10,9 +10,10 @@ import React from 'react';
 
 interface FuelControlProps {
   telaId: string;
+  financialPass: boolean;
 }
 
-export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProps) {
+export default function FuelControl({ telaId: telaIdFromProps, financialPass }: FuelControlProps) {
   const [telaId, setTelaId] = useState<string>(telaIdFromProps);
 
   // Estados para filtros
@@ -333,25 +334,27 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
              if (isDetailView) {
                return (
                  <FuelControlChartDetail 
-                   filteredWex={filteredData?.filteredWex || []}
-                   filteredSamsara={filteredData?.filteredSamsara || []}
-                   selectedYear={selectedYear}
-                   selectedMonth={selectedMonth}
-                   selectedDrivers={selectedDrivers}
-                   driverNames={driverNames || []}
-                 />
+                  filteredWex={filteredData?.filteredWex || []}
+                  filteredSamsara={filteredData?.filteredSamsara || []}
+                  selectedYear={selectedYear}
+                  selectedMonth={selectedMonth}
+                  selectedDrivers={selectedDrivers}
+                  driverNames={driverNames || []}
+                  financialPass={financialPass}
+                />
                );
              }
              
              return (
-               <FuelControlChart 
-                 filteredWex={filteredData?.filteredWex || []}
-                 selectedYear={selectedYear}
-                 selectedMonth={selectedMonth}
-                 selectedDrivers={selectedDrivers}
-                 driverNames={driverNames || []}
-               />
-             );
+              <FuelControlChart 
+                filteredWex={filteredData?.filteredWex || []}
+                selectedYear={selectedYear}
+                selectedMonth={selectedMonth}
+                selectedDrivers={selectedDrivers}
+                driverNames={driverNames || []}
+                financialPass={financialPass}
+              />
+            );
            })()}
          </div>
         
@@ -365,6 +368,7 @@ export default function FuelControl({ telaId: telaIdFromProps }: FuelControlProp
                 filteredWex={filteredData?.filteredWex || []}
                 selectedDrivers={selectedDrivers}
                 driverNames={driverNames || []}
+                financialPass={financialPass}
               />
             );
           })()}

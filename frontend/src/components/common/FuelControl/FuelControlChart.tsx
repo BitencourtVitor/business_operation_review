@@ -152,6 +152,7 @@ interface FuelControlChartProps {
   selectedMonth: string;
   selectedDrivers: string[];
   driverNames: Array<{ id: number; normalized_name: string; wex_name: string | null; samsara_name: string | null }>;
+  financialPass: boolean;
 }
 
 export function FuelControlChart({
@@ -159,7 +160,8 @@ export function FuelControlChart({
   selectedYear = '',
   selectedMonth = '',
   selectedDrivers = [],
-  driverNames = []
+  driverNames = [],
+  financialPass
 }: FuelControlChartProps) {
 
   // Função para normalizar nomes de motoristas
@@ -223,7 +225,7 @@ export function FuelControlChart({
           return selectedYear ? month : monthKey;
         }),
         datasets: [
-          {
+          ...(financialPass ? [{
             label: 'Total Cost ($)',
             data: fullMonths.map(monthKey => {
               const monthData = monthlyData.get(monthKey) || { cost: 0 };
@@ -237,7 +239,7 @@ export function FuelControlChart({
             fill: false,
             tension: 0.25,
             yAxisID: 'y',
-          },
+          }] : []),
           {
             label: 'Total Gallons',
             data: fullMonths.map(monthKey => {
@@ -251,7 +253,7 @@ export function FuelControlChart({
             borderWidth: 2,
             fill: false,
             tension: 0.25,
-            yAxisID: 'y1',
+            yAxisID: financialPass ? 'y1' : 'y',
           }
         ]
       };
@@ -292,7 +294,7 @@ export function FuelControlChart({
           return day;
         }),
         datasets: [
-          {
+          ...(financialPass ? [{
             label: 'Total Cost ($)',
             data: sortedDates.map(date => {
               const dayData = dailyData.get(date)!;
@@ -306,7 +308,7 @@ export function FuelControlChart({
             fill: false,
             tension: 0.25,
             yAxisID: 'y',
-          },
+          }] : []),
           {
             label: 'Total Gallons',
             data: sortedDates.map(date => {
@@ -320,12 +322,12 @@ export function FuelControlChart({
             borderWidth: 2,
             fill: false,
             tension: 0.25,
-            yAxisID: 'y1',
+            yAxisID: financialPass ? 'y1' : 'y',
           }
         ]
       };
     }
-  }, [filteredWex, selectedMonth, selectedYear, selectedDrivers, normalizeName]);
+  }, [filteredWex, selectedMonth, selectedYear, selectedDrivers, normalizeName, financialPass]);
 
   // Opções para o primeiro gráfico
   const totalCostVsGallonsOptions = useMemo(() => {
@@ -356,40 +358,58 @@ export function FuelControlChart({
             maxTicksLimit: selectedMonth ? 15 : 12,
           }
         },
-                 y: {
-           type: 'linear' as const,
-           display: true,
-           position: 'left' as const,
-           grid: { color: borderDivider },
-           ticks: { color: '#6c757d' },
-           beginAtZero: false,
-           title: {
-             display: true,
-             text: 'Cost ($)',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 },
-           },
-         },
-         y1: {
-           type: 'linear' as const,
-           display: true,
-           position: 'right' as const,
-           grid: { drawOnChartArea: false },
-           ticks: { color: '#6c757d' },
-           beginAtZero: false,
-           title: {
-             display: true,
-             text: 'Gallons',
-             color: '#6c757d',
-             font: { weight: 600, size: 12 },
-             padding: { top: 10, bottom: 10 },
-           },
-         },
+        ...(financialPass ? {
+          y: {
+            type: 'linear' as const,
+            display: true,
+            position: 'left' as const,
+            grid: { color: borderDivider },
+            ticks: { color: '#6c757d' },
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Cost ($)',
+              color: '#6c757d',
+              font: { weight: 600, size: 12 },
+              padding: { top: 10, bottom: 10 },
+            },
+          },
+          y1: {
+            type: 'linear' as const,
+            display: true,
+            position: 'right' as const,
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#6c757d' },
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Gallons',
+              color: '#6c757d',
+              font: { weight: 600, size: 12 },
+              padding: { top: 10, bottom: 10 },
+            },
+          },
+        } : {
+          y: {
+            type: 'linear' as const,
+            display: true,
+            position: 'left' as const,
+            grid: { color: borderDivider },
+            ticks: { color: '#6c757d' },
+            beginAtZero: false,
+            title: {
+              display: true,
+              text: 'Gallons',
+              color: '#6c757d',
+              font: { weight: 600, size: 12 },
+              padding: { top: 10, bottom: 10 },
+            },
+          },
+        }),
       },
       layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
     };
-  }, [selectedYear, selectedMonth]);
+  }, [selectedYear, selectedMonth, financialPass]);
 
      // Dados para o segundo gráfico: Custo por motorista
    const driverCostData = useMemo(() => {
@@ -644,7 +664,7 @@ export function FuelControlChart({
         }}>
                       <h5 className='mx-3 my-1 d-flex justify-content-between align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 400, minHeight: 30 }}>
             <div style={{ display: 'flex', gap: 6}}>
-              <span style={{ fontWeight: 600}}>WEX</span><span>Cost vs Gallons</span>
+              <span style={{ fontWeight: 600}}>WEX</span><span>{financialPass ? 'Cost vs Gallons' : 'Gallons'}</span>
             </div>
             <img src={wexLogo} alt="WEX Logo" style={{ height: '25px', width: 'auto' }} />
           </h5>
@@ -691,7 +711,8 @@ export function FuelControlChart({
         </div>
 
         {/* Segundo gráfico: Custo por Motorista - 50% da largura */}
-        <div style={{ 
+        {financialPass ? (
+          <div style={{ 
           flex: 1, 
           minWidth: 0,
           background: 'var(--color-background-primary)',
@@ -746,6 +767,15 @@ export function FuelControlChart({
             )}
           </div>
         </div>
+        ) : (
+          <div style={{ 
+          flex: 1,
+          minWidth: 0,
+          height: '100%', 
+          background: 'var(--color-background-primary)',
+          padding: '6px'
+        }} />
+        )}
       </div>
     </>
   );

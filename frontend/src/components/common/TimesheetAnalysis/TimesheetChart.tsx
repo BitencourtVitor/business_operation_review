@@ -25,9 +25,10 @@ interface TimesheetTooltipExternalProps {
   month: string;
   canvas?: HTMLCanvasElement | null;
   data: TimesheetRow[];
+  financialPass: boolean;
 }
 
-const TimesheetTooltipExternal = React.memo(function TimesheetTooltipExternal({ tooltip, chartLabels, chartDatasets, year, month, canvas, data }: TimesheetTooltipExternalProps) {
+const TimesheetTooltipExternal = React.memo(function TimesheetTooltipExternal({ tooltip, chartLabels, chartDatasets, year, month, canvas, data, financialPass }: TimesheetTooltipExternalProps) {
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const [realWidth, setRealWidth] = React.useState<number>(320);
 
@@ -134,14 +135,18 @@ const TimesheetTooltipExternal = React.memo(function TimesheetTooltipExternal({ 
           <span style={{ color: 'var(--color-text-secondary)' }}>Contagem de Erros</span>
           <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{count}</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Valor Adicionado</span>
-          <span style={{ color: '#1bbf5c', fontWeight: 500 }}>{added.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Valor Removido</span>
-          <span style={{ color: '#dc3545', fontWeight: 500 }}>{removed.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
-        </div>
+        {financialPass && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Valor Adicionado</span>
+            <span style={{ color: '#1bbf5c', fontWeight: 500 }}>{added.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+          </div>
+        )}
+        {financialPass && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Valor Removido</span>
+            <span style={{ color: '#dc3545', fontWeight: 500 }}>{removed.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
+          </div>
+        )}
       </div>
     </div>,
     document.body
@@ -152,9 +157,10 @@ interface TimesheetChartProps {
   filteredData: TimesheetRow[];
   selectedYear: string;
   selectedMonth: string;
+  financialPass: boolean;
 }
 
-export function TimesheetChart({ filteredData, selectedYear, selectedMonth }: TimesheetChartProps) {
+export function TimesheetChart({ filteredData, selectedYear, selectedMonth, financialPass }: TimesheetChartProps) {
   // Estado para tooltip externo
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<TimesheetTooltipExternalProps>>(null);
 
@@ -244,6 +250,7 @@ export function TimesheetChart({ filteredData, selectedYear, selectedMonth }: Ti
                 month: selectedMonth,
                 canvas: (context.chart && (context.chart as { canvas?: HTMLCanvasElement }).canvas) ? (context.chart as { canvas: HTMLCanvasElement }).canvas : undefined,
                 data: filteredData as TimesheetRow[],
+                financialPass,
               });
             }
           }
@@ -315,6 +322,7 @@ export function TimesheetChart({ filteredData, selectedYear, selectedMonth }: Ti
           month={externalTooltip.month || ''}
           canvas={externalTooltip.canvas}
           data={externalTooltip.data || []}
+          financialPass={financialPass}
         />
       )}
     </>

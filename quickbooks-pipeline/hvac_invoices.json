@@ -6,6 +6,2071 @@
     "AllowOnlineACHPayment": true,
     "domain": "QBO",
     "sparse": false,
+    "Id": "22366",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-03T11:55:20-08:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:56:01-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4062",
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17916",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22367",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Final HVAC",
+        "Amount": 3225,
+        "LinkedTxn": [
+          {
+            "TxnId": "17916",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1176",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Winchester Manchester"
+          },
+          "UnitPrice": 3225,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 3225,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "564504804"
+    },
+    "CustomerRef": {
+      "value": "1366",
+      "name": "Lot 77 - The pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "21746",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "25 Kestrel Heights",
+      "Line3": "Winchester Manchester"
+    },
+    "ShipAddr": {
+      "Id": "21747",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-27",
+    "TotalAmt": 3225,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22364",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-11-03T11:48:08-08:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:50:36-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4061",
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "19139",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22365",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19139",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "542209125"
+    },
+    "CustomerRef": {
+      "value": "1327",
+      "name": "Lot 17 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "21743",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "21744",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "9 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-27",
+    "TotalAmt": 6500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22035",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T08:11:53-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:44:57-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4026",
+    "TxnDate": "2025-10-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "17923",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22363",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "17923",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000235",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17923",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000237",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "564597783"
+    },
+    "CustomerRef": {
+      "value": "1373",
+      "name": "Lot 16 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "21437",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "1 Shoreline Drive ",
+      "Line3": "Copley Modern farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "21438",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "1 Shoreline Drive ",
+      "Line3": "Copley Modern farmhouse"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "21439",
+      "Line1": "1B Landing Ln ",
+      "Line2": "Hopedale, MA 01747-1587"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-21",
+    "TotalAmt": 6500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22033",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T08:06:04-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:42:52-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4024",
+    "TxnDate": "2025-10-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "19137",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22362",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19137",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19137",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000454",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "542207423"
+    },
+    "CustomerRef": {
+      "value": "1323",
+      "name": "Lot 16 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "21432",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "7 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Craftsman"
+    },
+    "ShipAddr": {
+      "Id": "21433",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "7 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Craftsman"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "21434",
+      "Line1": "1B Landing Ln ",
+      "Line2": "Hopedale, MA 01747"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-21",
+    "TotalAmt": 6500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22360",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-03T11:39:39-08:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:40:17-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4060",
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "19129",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22361",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Air Handler",
+        "Amount": 6951,
+        "LinkedTxn": [
+          {
+            "TxnId": "19129",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000441",
+            "name": "Toll Brothers - Newbury Glen:Air Handler - Williamstown"
+          },
+          "UnitPrice": 6951,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19129",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000415",
+            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19129",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000454",
+            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6951,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "542208064"
+    },
+    "CustomerRef": {
+      "value": "1325",
+      "name": "lot 14 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "21738",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "3 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "21739",
+      "Line1": "Newbury Glen Hopkinton",
+      "Line2": "3 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748",
+      "Line4": "Williamstown Modern Farmhouse"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-27",
+    "TotalAmt": 6951,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22034",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-23T08:09:30-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:34:57-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4025",
+    "TxnDate": "2025-10-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "18976",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22359",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Air Handler",
+        "Amount": 5500,
+        "LinkedTxn": [
+          {
+            "TxnId": "18976",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000234",
+            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Dickinson"
+          },
+          "UnitPrice": 5500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "18976",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000242",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Dickinson"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "18976",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000244",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Dickinson"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "PC383 - Full Bath - All Plans - Lakemont at Hudson",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000506",
+            "name": "Toll Brothers - Willis Brook At Lynfield:Full Bath - All Plans - Willis"
+          },
+          "UnitPrice": 500,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 5500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "590270090"
+    },
+    "CustomerRef": {
+      "value": "1423",
+      "name": "Lot 13 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "21435",
+      "Line1": "Toll Brothers",
+      "Line2": "Lot 13",
+      "Line3": "7 Shoreline Drive",
+      "Line4": "Dickinson South Shore"
+    },
+    "ShipAddr": {
+      "Id": "21436",
+      "Line1": "Toll Brothers",
+      "Line2": "Lot 13",
+      "Line3": "7 Shoreline Drive",
+      "Line4": "Dickinson South Shore"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-21",
+    "TotalAmt": 5500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22156",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-28T08:37:16-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T11:18:42-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4051",
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S1",
+    "LinkedTxn": [
+      {
+        "TxnId": "19141",
+        "TxnType": "Estimate"
+      },
+      {
+        "TxnId": "22358",
+        "TxnType": "Payment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Ductwork",
+        "Amount": 18500,
+        "LinkedTxn": [
+          {
+            "TxnId": "19141",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000211",
+            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Copley"
+          },
+          "UnitPrice": 18500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Air Handler",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19141",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000193",
+            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Copley"
+          },
+          "UnitPrice": 5500,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Compressor",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19141",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000235",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
+          },
+          "UnitPrice": 6500,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "19141",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000237",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 18500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "600158116"
+    },
+    "CustomerRef": {
+      "value": "1458",
+      "name": "Lot 04 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "21545",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Town Line Rd",
+      "Line3": "Hudson, MA 01749",
+      "Line4": "Copley South Shore"
+    },
+    "ShipAddr": {
+      "Id": "21546",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "8 Town Line Rd",
+      "Line3": "Hudson, MA 01749",
+      "Line4": "Copley South Shore"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-24",
+    "TotalAmt": 18500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 0,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22332",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-03T06:59:54-08:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-11-03T07:08:20-08:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4059",
+    "TxnDate": "2025-11-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 499,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1247",
+            "name": "Contracted Customers:Maintenance - Units < 5 years"
+          },
+          "UnitPrice": 499,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 499,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "287429319"
+    },
+    "CustomerRef": {
+      "value": "698",
+      "name": "14 Diane Terrace, Scituate, MA (Seaside at Scituate)"
+    },
+    "BillAddr": {
+      "Id": "21707",
+      "Line1": "Leslie Andresen",
+      "Line2": "14 Diane Terrace (Seaside at Scituate)",
+      "Line3": "Scituate, Massachussets"
+    },
+    "FreeFormAddress": false,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-11-04",
+    "TotalAmt": 499,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "Leslie.Andresen@gd-ms.com"
+    },
+    "BillEmailBcc": {
+      "Address": "accounting.hvac@premiumgrpinc.com"
+    },
+    "Balance": 499,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-03T07:05:21-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22278",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T02:22:42-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-31T02:22:42-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4058",
+    "TxnDate": "2025-11-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Maintnance plan \nContract untill July 2026",
+    "LinkedTxn": [],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Christine Duci\n02 Hope Lane, Boxford, MA",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1253",
+            "name": "Maintenance - Units < 5 years"
+          },
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Maintenance plan\n Monthly Subscription XX of 10 \n(MONTH) - 2025",
+        "Amount": 56,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1247",
+            "name": "Contracted Customers:Maintenance - Units < 5 years"
+          },
+          "UnitPrice": 56,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 56,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "RecurDataRef": {
+      "value": "29"
+    },
+    "CustomerRef": {
+      "value": "1585",
+      "name": "Christine Duci"
+    },
+    "BillAddr": {
+      "Id": "21106",
+      "Line1": "Christine Duci",
+      "Line2": "02 Hope Lane",
+      "Line3": "Boxford, MA  01921"
+    },
+    "ShipAddr": {
+      "Id": "20628",
+      "Line1": "02 Hope Lane",
+      "City": "Boxford",
+      "CountrySubDivisionCode": "MA",
+      "PostalCode": "01921"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-11-01",
+    "TotalAmt": 56,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "cristina56@aol.com"
+    },
+    "Balance": 56,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "EInvoiceStatus": "Viewed",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22271",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T11:16:06-07:00",
+      "LastModifiedByRef": {
+        "value": "9130356056143556"
+      },
+      "LastUpdatedTime": "2025-10-30T11:24:51-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType",
+        "StringValue": "(1)OUTDOOR UNIT OPTION"
+      }
+    ],
+    "DocNumber": "4057",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "17935",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "LG system configuration:\n\nLine Item #1 – Equipment\nFurnish and deliver the following LG multi-zone HVAC equipment for a three-floor configuration, consisting of one outdoor unit and three indoor ducted air handler (1 IDU) per floor:\n\nSupply of a complete LG 3:1 multi-zone ducted HVAC system, including:\n• (1) LG KUMXB481A – 48,000 BTU R32 Multi-Zone Inverter Heat Pump (supports up to 8 indoor units; -4°F rated; 208V)\n• (1) LG PMBD3630ZR – 3-Port Branch Distribution Box\n• (1) LG KNMLB241A – 24,000 BTU Ducted Multi-Zone Air Handler, Multi-Positional (Airflow: H/M/L – 800/700/580 CFM; accepts 18x20x1 filter)\n• (1) LG KNMLB181A – 18,000 BTU Ducted Multi-Zone Air Handler, Multi-Positional (Airflow: H/M/L – 600/510/440 CFM; accepts 18x20x1 filter)\n• (1) LG PREMTBVC2 – Wired Programmable Remote Controller with Humidity Sensor\n\nAll equipment utilizes R32 refrigerant and is compatible exclusively with Airzone zoning controls.\n\n",
+        "Amount": 4803.69,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "Estimate",
+            "TxnLineId": "1"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-24",
+          "ItemRef": {
+            "value": "1042",
+            "name": "Equipment"
+          },
+          "UnitPrice": 12009.225,
+          "Qty": 0.4000002,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "PANASONIC FV-10VEC2 COLD \nCLIMATE ERV 100 CFM MAX",
+        "Amount": 476.34,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "Estimate",
+            "TxnLineId": "2"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-24",
+          "ItemRef": {
+            "value": "1061",
+            "name": "Additional Option"
+          },
+          "UnitPrice": 1190.835,
+          "Qty": 0.4000017,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "This line item includes all necessary licensing, permit acquisition, and administrative coordination required for the installation of the LG multi-zone ducted HVAC system. Services provided under this scope include:\n\nSubmission and processing of all required mechanical permits in accordance with local jurisdictional codes and regulations\n\nCoordination with municipal authorities and building departments to ensure timely approval and compliance\n\nCoverage of any associated permit fees, contractor license requirements, and inspection scheduling\n\nIncludes the preparation and submission of the Manual J (Load Calculation), Manual S (Equipment Selection), and Manual D (Duct Design) Reports as required for code compliance and permitting approval\n\nAll documentation will be prepared in accordance with local code enforcement and HVAC design standards to ensure project compliance and avoid delays in installation.",
+        "Amount": 1200,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-24",
+          "ItemRef": {
+            "value": "1314",
+            "name": "Contracted Customers:Licensing/ Permitting"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0.4,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Includes all labor necessary for the complete installation of the LG multi-zone ducted HVAC system across three floors. Scope of work covers the following:\n\nInstallation and secure mounting of one (1) LG KUMXB601A 60K BTU Multi-Zone Inverter Heat Pump (5 Ton)\n\nInstallation of one (1) LG PMBD3630ZR 3-Port Branch Distribution Box, including all necessary indoor refrigerant piping and electrical connections\n\nInstallation of three (3) ducted air handlers:\n\n(1) 24K BTU unit on the First Floor\n\n(1) 18K BTU unit on the Second Floor\n\n(1) 18K BTU unit on the Third Floor\n\nConnection and programming of three (3) LG PREMTBVC2 Wired Remote Controllers with integrated humidity sensors\n\nRouting and connection of refrigerant line sets, low-voltage control wiring, and condensate drainage\n\nCommissioning of the complete system, including pressure testing, evacuation, refrigerant charging (if required), and full operational startup\n\nCoordination with Airzone zoning system components (as applicable)\n\nAll work performed in accordance with LG installation specifications, local building codes, and industry best practices\n\nLabor pricing includes standard installation hours. Overtime, crane services, structural modifications, and final finish work (e.g., drywall/paint) are excluded unless otherwise specified.",
+        "Amount": 5000,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-25",
+          "ItemRef": {
+            "value": "5",
+            "name": "Labor"
+          },
+          "UnitPrice": 12500,
+          "Qty": 0.4,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Includes all sheet metal materials and fabrication required for proper airflow distribution and connection of LG ducted air handlers to the existing or new ductwork. This includes supply and return plenums, transition pieces, take-offs, and necessary fittings to ensure a clean, efficient, and code-compliant installation. All components will be custom-fabricated as needed to accommodate multi-positional configurations and space constraints on each floor.",
+        "Amount": 4800,
+        "LinkedTxn": [
+          {
+            "TxnId": "17935",
+            "TxnType": "Estimate",
+            "TxnLineId": "5"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-04-25",
+          "ItemRef": {
+            "value": "3",
+            "name": "Job Supplies"
+          },
+          "UnitPrice": 12000,
+          "Qty": 0.4,
+          "ItemAccountRef": {
+            "value": "5",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 16280.03,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "563778909"
+    },
+    "CustomerRef": {
+      "value": "1362",
+      "name": "17 Smith Place Cambridge"
+    },
+    "CustomerMemo": {
+      "value": "2nd Payment - Rough installation - Status: Completed"
+    },
+    "BillAddr": {
+      "Id": "21653",
+      "Line1": "Jose Reboucas Jr"
+    },
+    "ShipAddr": {
+      "Id": "21654",
+      "Line1": "Jose Reboucas Jr"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-30",
+    "TotalAmt": 16280.03,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "kcrcustomcarpentry@gmail.com"
+    },
+    "Balance": 16280.03,
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-10-30T11:16:24-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22270",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T10:31:07-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-10-30T10:31:07-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4056",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S3",
+    "LinkedTxn": [
+      {
+        "TxnId": "17916",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Condenser",
+        "Amount": 2250,
+        "LinkedTxn": [
+          {
+            "TxnId": "17916",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1158",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Condenser - Winchester Manchester"
+          },
+          "UnitPrice": 2250,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17916",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1176",
+            "name": "Toll Brothers at The Pinehills - Owls Nest -  Plymouth:Base - Final - Winchester Manchester"
+          },
+          "UnitPrice": 3225,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 2250,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "564504804"
+    },
+    "CustomerRef": {
+      "value": "1366",
+      "name": "Lot 77 - The pinehills Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "21651",
+      "Line1": "The Pinehills Owls Nest",
+      "Line2": "25 Kestrel Heights",
+      "Line3": "Winchester Manchester"
+    },
+    "ShipAddr": {
+      "Id": "21652",
+      "Line1": "The Pinehills Owls Nest"
+    },
+    "FreeFormAddress": true,
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-29",
+    "TotalAmt": 2250,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 2250,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22268",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T08:56:57-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455237590028"
+      },
+      "LastUpdatedTime": "2025-10-30T08:56:57-07:00"
+    },
+    "CustomField": [
+      {
+        "DefinitionId": "1",
+        "Name": "PO",
+        "Type": "StringType"
+      }
+    ],
+    "DocNumber": "4055",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "S2",
+    "LinkedTxn": [
+      {
+        "TxnId": "17921",
+        "TxnType": "Estimate"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Compressor",
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "17921",
+            "TxnType": "Estimate",
+            "TxnLineId": "3"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000242",
+            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Dickinson"
+          },
+          "UnitPrice": 6500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Final HVAC",
+        "Amount": 0,
+        "LinkedTxn": [
+          {
+            "TxnId": "17921",
+            "TxnType": "Estimate",
+            "TxnLineId": "4"
+          }
+        ],
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000244",
+            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Dickinson"
+          },
+          "UnitPrice": 3000,
+          "Qty": 0,
+          "ItemAccountRef": {
+            "value": "226",
+            "name": "Toll Brothers"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 6500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "564589364"
+    },
+    "CustomerRef": {
+      "value": "1372",
+      "name": "Lot 19 - Lakemont at Hudson"
+    },
+    "BillAddr": {
+      "Id": "21648",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "10 Old Country Road",
+      "Line3": "Copley Modern Farmhouse"
+    },
+    "ShipAddr": {
+      "Id": "21649",
+      "Line1": "Lakemont at Hudson",
+      "Line2": "10 Old Country Road",
+      "Line3": "Copley Modern Farmhouse"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "21650",
+      "Line1": "1B Landing Ln ",
+      "Line2": "Hopedale, MA 01747-1587"
+    },
+    "SalesTermRef": {
+      "value": "1",
+      "name": "Due on receipt"
+    },
+    "DueDate": "2025-10-29",
+    "TotalAmt": 6500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "Balance": 6500,
+    "TaxExemptionRef": {}
+  },
+  {
+    "AllowIPNPayment": false,
+    "AllowOnlinePayment": false,
+    "AllowOnlineCreditCardPayment": true,
+    "AllowOnlineACHPayment": true,
+    "domain": "QBO",
+    "sparse": false,
     "Id": "20204",
     "SyncToken": "2",
     "MetaData": {
@@ -1311,227 +3376,6 @@
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
     "Balance": 3500,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22156",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-28T08:37:16-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455237590028"
-      },
-      "LastUpdatedTime": "2025-10-28T08:37:16-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "4051",
-    "TxnDate": "2025-10-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S1",
-    "LinkedTxn": [
-      {
-        "TxnId": "19141",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Ductwork",
-        "Amount": 18500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19141",
-            "TxnType": "Estimate",
-            "TxnLineId": "1"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000211",
-            "name": "Toll Brothers - Lakemont at Hudson:Rough Ductwork - Copley"
-          },
-          "UnitPrice": 18500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Air Handler",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19141",
-            "TxnType": "Estimate",
-            "TxnLineId": "2"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000193",
-            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Copley"
-          },
-          "UnitPrice": 5500,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19141",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000235",
-            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19141",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000237",
-            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 18500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "600158116"
-    },
-    "CustomerRef": {
-      "value": "1458",
-      "name": "Lot 04 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "21545",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "8 Town Line Rd",
-      "Line3": "Hudson, MA 01749",
-      "Line4": "Copley South Shore"
-    },
-    "ShipAddr": {
-      "Id": "21546",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "8 Town Line Rd",
-      "Line3": "Hudson, MA 01749",
-      "Line4": "Copley South Shore"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-24",
-    "TotalAmt": 18500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 18500,
     "TaxExemptionRef": {}
   },
   {
@@ -9014,382 +10858,6 @@
     "AllowOnlinePayment": false,
     "AllowOnlineCreditCardPayment": true,
     "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22035",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-23T08:11:53-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455237590028"
-      },
-      "LastUpdatedTime": "2025-10-23T08:11:53-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "4026",
-    "TxnDate": "2025-10-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S3",
-    "LinkedTxn": [
-      {
-        "TxnId": "17923",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "LinkedTxn": [
-          {
-            "TxnId": "17923",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000235",
-            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Copley"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "17923",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000237",
-            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Copley"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 6500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "564597783"
-    },
-    "CustomerRef": {
-      "value": "1373",
-      "name": "Lot 16 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "21437",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "1 Shoreline Drive ",
-      "Line3": "Copley Modern farmhouse"
-    },
-    "ShipAddr": {
-      "Id": "21438",
-      "Line1": "Lakemont at Hudson",
-      "Line2": "1 Shoreline Drive ",
-      "Line3": "Copley Modern farmhouse"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "21439",
-      "Line1": "1B Landing Ln ",
-      "Line2": "Hopedale, MA 01747-1587"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-21",
-    "TotalAmt": 6500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 6500,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22034",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-23T08:09:30-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455237590028"
-      },
-      "LastUpdatedTime": "2025-10-23T08:09:30-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "4025",
-    "TxnDate": "2025-10-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S2",
-    "LinkedTxn": [
-      {
-        "TxnId": "18976",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Air Handler",
-        "Amount": 5500,
-        "LinkedTxn": [
-          {
-            "TxnId": "18976",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000234",
-            "name": "Toll Brothers - Lakemont at Hudson:Air Handler - Dickinson"
-          },
-          "UnitPrice": 5500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Compressor",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18976",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000242",
-            "name": "Toll Brothers - Lakemont at Hudson:Compressor - Dickinson"
-          },
-          "UnitPrice": 6500,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "18976",
-            "TxnType": "Estimate",
-            "TxnLineId": "5"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000244",
-            "name": "Toll Brothers - Lakemont at Hudson:Final HVAC - Dickinson"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "PC383 - Full Bath - All Plans - Lakemont at Hudson",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000506",
-            "name": "Toll Brothers - Willis Brook At Lynfield:Full Bath - All Plans - Willis"
-          },
-          "UnitPrice": 500,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 5500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "590270090"
-    },
-    "CustomerRef": {
-      "value": "1423",
-      "name": "Lot 13 - Lakemont at Hudson"
-    },
-    "BillAddr": {
-      "Id": "21435",
-      "Line1": "Toll Brothers",
-      "Line2": "Lot 13",
-      "Line3": "7 Shoreline Drive",
-      "Line4": "Dickinson South Shore"
-    },
-    "ShipAddr": {
-      "Id": "21436",
-      "Line1": "Toll Brothers",
-      "Line2": "Lot 13",
-      "Line3": "7 Shoreline Drive",
-      "Line4": "Dickinson South Shore"
-    },
-    "FreeFormAddress": true,
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-21",
-    "TotalAmt": 5500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 5500,
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
     "EInvoiceStatus": "Viewed",
     "domain": "QBO",
     "sparse": false,
@@ -9546,170 +11014,6 @@
       "DeliveryType": "Email",
       "DeliveryTime": "2025-10-23T07:58:59-07:00"
     },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AllowIPNPayment": false,
-    "AllowOnlinePayment": false,
-    "AllowOnlineCreditCardPayment": true,
-    "AllowOnlineACHPayment": true,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22033",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-23T08:06:04-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455237590028"
-      },
-      "LastUpdatedTime": "2025-10-23T08:06:04-07:00"
-    },
-    "CustomField": [
-      {
-        "DefinitionId": "1",
-        "Name": "PO",
-        "Type": "StringType"
-      }
-    ],
-    "DocNumber": "4024",
-    "TxnDate": "2025-10-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "S3",
-    "LinkedTxn": [
-      {
-        "TxnId": "19137",
-        "TxnType": "Estimate"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Compressor",
-        "Amount": 6500,
-        "LinkedTxn": [
-          {
-            "TxnId": "19137",
-            "TxnType": "Estimate",
-            "TxnLineId": "3"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000415",
-            "name": "Toll Brothers - Newbury Glen:Compressor - Williamstown"
-          },
-          "UnitPrice": 6500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Final HVAC",
-        "Amount": 0,
-        "LinkedTxn": [
-          {
-            "TxnId": "19137",
-            "TxnType": "Estimate",
-            "TxnLineId": "4"
-          }
-        ],
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000454",
-            "name": "Toll Brothers - Newbury Glen:Final HVAC - Williamstown"
-          },
-          "UnitPrice": 3000,
-          "Qty": 0,
-          "ItemAccountRef": {
-            "value": "226",
-            "name": "Toll Brothers"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 6500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "542207423"
-    },
-    "CustomerRef": {
-      "value": "1323",
-      "name": "Lot 16 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "21432",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "7 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Craftsman"
-    },
-    "ShipAddr": {
-      "Id": "21433",
-      "Line1": "Newbury Glen Hopkinton",
-      "Line2": "7 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748",
-      "Line4": "Williamstown Modern Craftsman"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "21434",
-      "Line1": "1B Landing Ln ",
-      "Line2": "Hopedale, MA 01747"
-    },
-    "SalesTermRef": {
-      "value": "1",
-      "name": "Due on receipt"
-    },
-    "DueDate": "2025-10-21",
-    "TotalAmt": 6500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "Balance": 6500,
     "TaxExemptionRef": {}
   },
   {

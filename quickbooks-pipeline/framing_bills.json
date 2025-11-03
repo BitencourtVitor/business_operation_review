@@ -3,6 +3,3493 @@
     "SalesTermRef": {
       "value": "1"
     },
+    "DueDate": "2025-11-07",
+    "VendorAddr": {
+      "Id": "7226"
+    },
+    "Balance": 1266.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52339",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-02T01:37:59-08:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-02T01:37:59-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account 1005165794\n2024 BMW X5 xDrive40i",
+        "Amount": 1266.8,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "205",
+            "name": "2024 BMW X5 x Drive40i"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "78"
+    },
+    "VendorRef": {
+      "value": "2827",
+      "name": "BMW"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1266.8
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-12-01",
+    "VendorAddr": {
+      "Id": "5002",
+      "Line1": "American Express"
+    },
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52315",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T04:08:23-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T04:08:23-07:00"
+    },
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Credit Card payment - Paula, Clayton and Rodrigo's Credit card",
+        "Amount": 1,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "6"
+    },
+    "VendorRef": {
+      "value": "67",
+      "name": "American Express"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-12-01",
+    "VendorAddr": {
+      "Id": "16084",
+      "Line1": "Home Depot CC"
+    },
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52314",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T04:08:22-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T04:08:22-07:00"
+    },
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "7"
+    },
+    "VendorRef": {
+      "value": "805",
+      "name": "Home Depot CC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-12-01",
+    "VendorAddr": {
+      "Id": "5505",
+      "Line1": "Comcast Business"
+    },
+    "Balance": 1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52313",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-01T04:08:21-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-11-01T04:08:21-07:00"
+    },
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "19",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "30"
+    },
+    "VendorRef": {
+      "value": "1520",
+      "name": "Comcast Business"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-11-08",
+    "VendorAddr": {
+      "Id": "17949",
+      "Line1": "Arbella Insurance Group",
+      "Line2": "PO Box 55392",
+      "Line3": "Boston, MA  02205"
+    },
+    "Balance": 792.63,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52305",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-31T11:19:57-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-31T11:19:57-07:00"
+    },
+    "DocNumber": "612115512",
+    "TxnDate": "2025-10-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Policy #1020134518\nPolicy term: 11/08/2025 - 11/08/2026",
+        "Amount": 792.63,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "326",
+      "name": "Arbella Insurance Group"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 792.63
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-27",
+    "VendorAddr": {
+      "Id": "17919",
+      "Line1": "Town Of Hopedale",
+      "Line2": "Department 1320",
+      "Line3": "PO Box 986500",
+      "Line4": "Boston, MA  02298"
+    },
+    "Balance": 413.48,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52268",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T12:44:25-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-30T12:44:25-07:00"
+    },
+    "DocNumber": "413.48",
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Property Taxes -  WATER AND SEWER",
+        "Amount": 413.48,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "451",
+      "name": "Town Of Hopedale"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 413.48
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-11-06",
+    "VendorAddr": {
+      "Id": "11260",
+      "Line1": "Mutual One Bank"
+    },
+    "Balance": 6398.29,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52262",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-30T01:42:01-07:00",
+      "LastModifiedByRef": {
+        "value": "0"
+      },
+      "LastUpdatedTime": "2025-10-30T01:42:01-07:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Loan 1130",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "UCC Filling #202414861130",
+        "Amount": 6398.29,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040002",
+            "name": "Loan Mutual One 1130"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "89"
+    },
+    "VendorRef": {
+      "value": "103",
+      "name": "Mutual One Bank"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6398.29
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2025-04-17",
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48169",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-09T12:39:15-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "16347-0007",
+    "TxnDate": "2025-03-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FORKLIFT 6K\nF60043 Make: JLG Model: G642A Ser #: 0160050043\nReason: WRONG EQUIPMENT FOR THE JOB\nFORKLIFT 6K \nF67789 Make: LULL Model: 644E-42 Ser #: 0160017789",
+        "Amount": 71.2,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3099",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "503379060"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 71.2
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-02-11",
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "45579",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-02-12T07:21:59-08:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "10721-0031",
+    "TxnDate": "2025-02-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 TRUSSES EXTENTION 150.00 150.00 150.00 150.00\nT11 Make: TRUSS EXT Model: * Ser #: *",
+        "Amount": 150,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3055",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "481141750"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 150
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2024-09-01",
+    "VendorAddr": {
+      "Id": "12540",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 217.37,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "42179",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2024-09-06T06:03:23-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "14958-0001",
+    "TxnDate": "2024-08-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Switch + labor",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1.00 SWITCH, FNR 4 SPEED EA 267.900 267.90\n1001239793\n1.00 LABOR HR 200.000 200.00",
+        "Amount": 467.9,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2932",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 58 - Highland at Vale - Pulte Holmes - 7241"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "416375400"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 467.9
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2024-09-20",
+    "VendorAddr": {
+      "Id": "12559",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41791",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2024-08-22T08:56:00-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "11479-0018",
+    "TxnDate": "2024-08-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fork extention",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORK EXTENTION \nF10 Make: FORK EXT. Model: * Ser #: *",
+        "Amount": 150,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2951",
+            "name": "Hopedale Airport Industrial Park - 4 Evergreen Lane."
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 150
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2024-09-07",
+    "VendorAddr": {
+      "Id": "9321",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41420",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2024-08-09T08:02:49-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "14649-0003",
+    "TxnDate": "2024-08-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Forklift",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORKLIFT 10K \nF105139 Make: JLG Model: 1055 Ser #: 160115139",
+        "Amount": 3550,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2906",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "408984366"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3550
+  },
+  {
+    "SalesTermRef": {
+      "value": "3"
+    },
+    "DueDate": "2024-08-31",
+    "VendorAddr": {
+      "Id": "9244",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41301",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2024-08-05T08:24:21-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "14824-0001",
+    "TxnDate": "2024-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Forklift",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORKLIFT 6K\nF68586 Make: LULL Model: 644E-32 Ser #: 0160028586",
+        "Amount": 2873,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2715",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "318340087"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2873
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-08-01",
+    "VendorAddr": {
+      "Id": "9219",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 2218.35,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "41206",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2024-08-01T12:06:31-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
+    },
+    "DocNumber": "Loan payroll",
+    "TxnDate": "2024-08-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "labor  6/2/2024 to 6/15/2024",
+    "LinkedTxn": [
+      {
+        "TxnId": "51854",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "42542",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "42543",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "38155",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Payroll Loan",
+        "Amount": 0,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 1280.06,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2560",
+            "name": "Artisan Building Group, Inc:1 Park Dr., Hanover"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "256875678"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 350.56,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2881",
+            "name": "Maria and Chris Kaminski"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 1899.99,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2785",
+            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 40 - Willows at Boxford"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "349552421"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 1059.06,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2740",
+            "name": "C.C.M.S. The Wilshire Flls way:16 Rob Roy Rd, Worcester, MA"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "330304410"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "labor  6/2/2024 to 6/15/2024\n\nvacation",
+        "Amount": 1000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 634.5,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2776",
+            "name": "Premium Contractors Group, Inc.:155 Eliot St, Ashland"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "345589986"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 5785.95,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2797",
+            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 1"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "353106250"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 1709.64,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2847",
+            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 4"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "373625495"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "labor  6/2/2024 to 6/15/2024",
+        "Amount": 1672.34,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2798",
+            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 5"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "353107484"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Premium group",
+        "Amount": 8.88,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "2 Leighton st, Cambridge",
+        "Amount": 426.29,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2263",
+            "name": "Premium HVAC Inc"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Amount": 1916.14,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2167",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Amount": 477.99,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2167",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "15",
+        "LineNum": 15,
+        "Amount": 2371.78,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2492",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 27 - Deck - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "236382188"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "16",
+        "LineNum": 16,
+        "Amount": 3123.38,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2903",
+            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Panels Premium:Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "408265746"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "17",
+        "LineNum": 17,
+        "Amount": 46.8,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "105",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "18",
+        "LineNum": 18,
+        "Amount": 503.44,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2715",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "318340087"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "19",
+        "LineNum": 19,
+        "Amount": 530.7,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2715",
+            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "318340087"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "20",
+        "LineNum": 20,
+        "Amount": 77.78,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "21",
+        "LineNum": 21,
+        "Amount": 895.2,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "22",
+        "LineNum": 22,
+        "Amount": 648.01,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2810",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 15 / 7 - Deck - Cold Brook - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "354692637"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "23",
+        "LineNum": 23,
+        "Amount": 812.9,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2812",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 16 / 7 - Deck - Cold Brook - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "354702070"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "24",
+        "LineNum": 24,
+        "Amount": 74.06,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "25",
+        "LineNum": 25,
+        "Amount": 301,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2249",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 45 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "92233124"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "26",
+        "LineNum": 26,
+        "Amount": 100.08,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2824",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 53 - Deck - Pulte Homes MS-1074 - Cold Brook Preston 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "361764056"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "27",
+        "LineNum": 27,
+        "Amount": 1955.2,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2849",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 55 / 26 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "375280039"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "28",
+        "LineNum": 28,
+        "Amount": 2520.23,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2851",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "375289538"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "29",
+        "LineNum": 29,
+        "Amount": 2392.22,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2852",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Deck - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "375295514"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "30",
+        "LineNum": 30,
+        "Amount": 74.26,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "31",
+        "LineNum": 31,
+        "Amount": 68.12,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "64",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "32",
+        "LineNum": 32,
+        "Amount": 2152.45,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2655",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "287588764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "33",
+        "LineNum": 33,
+        "Amount": 420.76,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2481",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 6 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "231592342"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "34",
+        "LineNum": 34,
+        "Amount": 334.24,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2655",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "287588764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "35",
+        "LineNum": 35,
+        "Amount": 177.32,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2481",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 6 - Chauncy Lake -  Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Panels Premium:Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "231592342"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "36",
+        "LineNum": 36,
+        "Amount": 5799.39,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2655",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "287588764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "37",
+        "LineNum": 37,
+        "Amount": 1362.25,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2896",
+            "name": "78"
+          },
+          "AccountRef": {
+            "value": "142",
+            "name": "Labor:Labor extra hours"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "38",
+        "LineNum": 38,
+        "Amount": 590.64,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2549",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 2 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "249460103"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "39",
+        "LineNum": 39,
+        "Amount": 449.5,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2834",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "371740480"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "40",
+        "LineNum": 40,
+        "Amount": 4382.24,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2834",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "125",
+            "name": "Panels Premium:Labor Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "371740480"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "41",
+        "LineNum": 41,
+        "Amount": 120.12,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2896",
+            "name": "78"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "42",
+        "LineNum": 42,
+        "Amount": 729,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2804",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 48 / 19 - Deck - Highland at Vale - Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "354609173"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "43",
+        "LineNum": 43,
+        "Amount": 1748.34,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2805",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 49 / 19 - Highland at Vale -Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "354614328"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "44",
+        "LineNum": 44,
+        "Amount": 780.46,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2807",
+            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 50 / 19 - Highland at Vale -Pulte Homes - 7241"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "354644614"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "45",
+        "LineNum": 45,
+        "Amount": 136.04,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2801",
+            "name": "Pulte Homes, Inc.:Rookery Lane at Concord - 8616:Lot 1 - Deck - Rookery Lane at Concord - 8616"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "353131764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "46",
+        "LineNum": 46,
+        "Amount": 100.69,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2796",
+            "name": "Pulte Homes, Inc.:Rookery Lane at Concord - 8616:Lot 1 -  Rookery Lane at Concord - 8616"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "353088764"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "47",
+        "LineNum": 47,
+        "Description": "Paid towards supplies - 54 Howard St - Check #1722",
+        "Amount": -20892.92,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "48",
+        "LineNum": 48,
+        "Description": "Paid towards supplies - 54 Howard St - Check #1704",
+        "Amount": -26240.35,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6866.73
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-17",
+    "VendorAddr": {
+      "Id": "17913",
+      "Line1": "Estevao Costa"
+    },
+    "Balance": 21969.01,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51835",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-17T08:57:29-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T12:16:16-07:00"
+    },
+    "TxnDate": "2025-10-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FLOOR AND DECOR 790 WEB 0032\n404-471-1634",
+        "Amount": 4025.77,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "FLOOR AND DECOR 790 WEB 0032\n404-471-1634",
+        "Amount": 2771.81,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "KOOPMAN LUMBER 55",
+        "Amount": 769.83,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "KIMBALL SAND COMPANY INC\n5088831798",
+        "Amount": 662.37,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "KIMBALL SAND COMPANY INC\n5088831798",
+        "Amount": 611.72,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "KIMBALL SAND COMPANY INC BLACKSTONE MA\n5088831798",
+        "Amount": 657.59,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "SP MERLINLAMPS DENVER CO $4,638.00 ♦\n+13025251810",
+        "Amount": 4638,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "AKKERLIGHT.COM HOUSTON TX\n+12817544941",
+        "Amount": 422,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "ALLIED BLDG PROD\n5713233939",
+        "Amount": 3.65,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "THE HOME DEPOT\n800-654-0688",
+        "Amount": 2063.46,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "THE HOME DEPOT\n800-654-0688",
+        "Amount": 4514.48,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "Interest Charge on Pay Over Time Purchases",
+        "Amount": 828.33,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 21969.01
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-06-11",
+    "VendorAddr": {
+      "Id": "17593",
+      "Line1": "BC Crane Corp",
+      "Line2": "158 Charles McComb Blvd",
+      "Line3": "New Bedford, MA  02745"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50960",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-09-12T06:01:24-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T12:13:37-07:00"
+    },
+    "DocNumber": "5278",
+    "TxnDate": "2025-06-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA",
+    "LinkedTxn": [
+      {
+        "TxnId": "51847",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Crane service with operator, counterweight trucking, and related overtime.",
+        "Amount": 9410,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "545340777"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "late fee",
+        "Amount": 329.35,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3163",
+            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
+          },
+          "AccountRef": {
+            "value": "208",
+            "name": "Late Fee Income"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "545340777"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1693",
+      "name": "BC Crane Corp"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 9739.35
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-23",
+    "VendorAddr": {
+      "Id": "17849",
+      "Line1": "Smith Oil Co, Inc."
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52107",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-27T10:17:30-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:50:11-07:00"
+    },
+    "DocNumber": "564754",
+    "TxnDate": "2025-10-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Toll Brothers, Inc.:The Pinehills - Owls Nest",
+    "LinkedTxn": [
+      {
+        "TxnId": "52228",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "DELIVERY FEE \nCOMM. TAX\nULS DIESEL-DYED",
+        "Amount": 672.97,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2832",
+            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest"
+          },
+          "AccountRef": {
+            "value": "90",
+            "name": "Oil Delivery - Machines"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "873",
+      "name": "Smith Oil Co, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 672.97
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-07-17",
+    "VendorAddr": {
+      "Id": "17632",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51895",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-20T09:45:59-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T10:32:51-07:00"
+    },
+    "DocNumber": "0130578376",
+    "TxnDate": "2025-07-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51857",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
+        "Amount": 768.4,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 768.4
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-29",
+    "Balance": 11000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52225",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:29:45-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:29:45-07:00"
+    },
+    "DocNumber": "Loan 10/29",
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 10/29/25",
+        "Amount": 11000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 11000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-09",
+    "Balance": 20000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52224",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:29:17-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:29:17-07:00"
+    },
+    "DocNumber": "Loan 10/09",
+    "TxnDate": "2025-10-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 10/09/25",
+        "Amount": 20000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 20000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-08",
+    "Balance": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52222",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:28:41-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:28:41-07:00"
+    },
+    "DocNumber": "Loan 10/08",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 10/08/25",
+        "Amount": 10000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-29",
+    "Balance": 10000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52221",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:25:52-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:25:52-07:00"
+    },
+    "DocNumber": "Loan 09/29",
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 09/29/25",
+        "Amount": 10000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 10000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-08",
+    "VendorAddr": {
+      "Id": "17592",
+      "Line1": "Estevao Costa"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51843",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-10-17T10:26:57-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:24:30-07:00"
+    },
+    "DocNumber": "337316983",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Foi feito um pagamento de $16,334.10 no Amex do Estevao, dia 10/06/2025",
+    "LinkedTxn": [
+      {
+        "TxnId": "51846",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Service Charge On\nPast Due Amount",
+        "Amount": 226.8,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "EXP UNIV 3/4\" J CHAN METRO GRAY\n1JNU84 48PCS/CTN\nMETROPOLITAN GRAY",
+        "Amount": 103.02,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "434350690"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "OSI CAULKING QUAD MAX 004\n12 TUBES/CTN ARTIC WHITE 004",
+        "Amount": 153.26,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502826133"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "TRI TC24A 24X50 COIL 216\n6SGI24 33 POLY BLACK\nBLACK/WHITE",
+        "Amount": 273.16,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "CER J CHANL 5/8 BLACK\n5031054 48/CTN\nHAR TCH-UP PNT KIT AW HZU\nARTIC WHITE HZU 4670831\nTOUCH-UP PAINT 16OZ\nHARDIE ACCESSORIES 6/PALLET\nSSP SS COIL SIDING NAILS 2-1/4\"\n3600/BOX\nHAR PAN AW SM HZ5 4'X10'\nARCTIC WHITE HZ5 667351\nSMOOTH 4X10X5/16\nHARDIE PANEL 50PC/PALLET",
+        "Amount": 583.94,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502826133"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "surcharge - 09/30/25",
+        "Amount": 475.75,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "HAR PLK AW SM EE HZ5 5.25\"\nARCTIC WHITE HZ5 6671141\nSMOOTH EASED EDGE 5.25X12X5/16\nHARDIE PLANK 324PC/PALLET",
+        "Amount": 51.73,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502826133"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Service Charge On\nPast Due Amount",
+        "Amount": 132.38,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3089",
+            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
+          },
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502826133"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Service Charge On\nPast Due Amount",
+        "Amount": 224.5,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "1418297 5-1/2\"X5-1/2\"X20'\nWLF PVC CASING W/J-CHA 5/4X4X16\nWPVCM-7968 5/4\"X4\"X16'\nPVC CASING WITH J CHANNEL\nTRI PVC TRIMBOARD SM 1X8X18\nACT 3/4\"X7-1/4\"X18'\nWHITE SMOOTH 108PCS/UNIT",
+        "Amount": 14109.56,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2976",
+            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "434350690"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Amount": 0,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 16334.1
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-09-26",
+    "Balance": 15000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52220",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-10-29T10:23:08-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:23:08-07:00"
+    },
+    "DocNumber": "Loan 09/26",
+    "TxnDate": "2025-09-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 09/26/25",
+        "Amount": 15000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 15000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2024-11-12",
+    "Balance": 15000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50863",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-09-11T10:27:38-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T10:21:57-07:00"
+    },
+    "DocNumber": "Loan 65 Mill",
+    "TxnDate": "2024-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Loan 09/09/25 European payment 65 Mill",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Loan 09/09/25 European payment 65 Mill",
+        "Amount": 15000,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "200",
+            "name": "Loan to Others Out"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "1248",
+      "name": "Estevao Costa"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 15000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-27",
+    "VendorAddr": {
+      "Id": "11455",
+      "Line1": "GM Financial"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51832",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-17T01:45:16-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T09:49:50-07:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52196",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Account #211062811844\n2022 Chevrolet Silverado - Premium Home Investiments.\nVIN #3GCPABEK5NG575506\n\nSet up as Auto pay.",
+        "Amount": 577.4,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "4",
+            "name": "Vehicles Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "88"
+    },
+    "VendorRef": {
+      "value": "1061",
+      "name": "GM Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 577.4
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-29",
+    "VendorAddr": {
+      "Id": "17901",
+      "Line1": "Gustavo",
+      "Line2": "BDS Framing Services, Inc.",
+      "Line3": "14 Rolling Green Dr.",
+      "Line4": "Apt C",
+      "Line5": "Milford, Massachusetts  01757 United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52192",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-29T09:03:44-07:00",
+      "LastModifiedByRef": {
+        "value": "9341455310585302"
+      },
+      "LastUpdatedTime": "2025-10-29T09:04:25-07:00"
+    },
+    "TxnDate": "2025-10-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 7 - Chauncy Lake (Pending signed contract)",
+    "LinkedTxn": [
+      {
+        "TxnId": "52193",
+        "TxnType": "BillPaymentCheck"
+      },
+      {
+        "TxnId": "50528",
+        "TxnType": "PurchaseOrder"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Building 7 - Chauncy Lake - 4th floor walls",
+        "Amount": 35000,
+        "LinkedTxn": [
+          {
+            "TxnId": "50528",
+            "TxnType": "PurchaseOrder",
+            "TxnLineId": "7"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3207",
+      "name": "BDS Home Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 35000
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
+    "DueDate": "2025-10-26",
+    "VendorAddr": {
+      "Id": "10290",
+      "Line1": "Ally Financial",
+      "Line2": "Payment Processing Center",
+      "Line3": "PO BOX 9001948",
+      "Line4": "Louisville, KY  40290-1948"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51451",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-06T01:44:18-07:00",
+      "LastModifiedByRef": {
+        "value": "9130351269425556"
+      },
+      "LastUpdatedTime": "2025-10-29T08:52:29-07:00"
+    },
+    "TxnDate": "2025-10-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "2022 GMC Sierra - Vin# 06592",
+    "LinkedTxn": [
+      {
+        "TxnId": "52188",
+        "TxnType": "BillPaymentCheck"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2022 GMC Sierra - Vin# 06592",
+        "Amount": 375.12,
+        "LinkedTxn": [],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "2022 GMC Sierra"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "37"
+    },
+    "VendorRef": {
+      "value": "1808",
+      "name": "Ally Financial"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 375.12
+  },
+  {
+    "SalesTermRef": {
+      "value": "1"
+    },
     "DueDate": "2025-10-18",
     "VendorAddr": {
       "Id": "17897",
@@ -1545,69 +5032,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 12.76
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-10-23",
-    "VendorAddr": {
-      "Id": "17849",
-      "Line1": "Smith Oil Co, Inc."
-    },
-    "Balance": 672.97,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52107",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-27T10:17:30-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-27T10:18:30-07:00"
-    },
-    "DocNumber": "564754",
-    "TxnDate": "2025-10-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Toll Brothers, Inc.:The Pinehills - Owls Nest",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "DELIVERY FEE \nCOMM. TAX\nULS DIESEL-DYED",
-        "Amount": 672.97,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2832",
-            "name": "Toll Brothers, Inc.:The Pinehills - Owls Nest"
-          },
-          "AccountRef": {
-            "value": "90",
-            "name": "Oil Delivery - Machines"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "873",
-      "name": "Smith Oil Co, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 672.97
   },
   {
     "SalesTermRef": {
@@ -11967,78 +15391,6 @@
     },
     "DueDate": "2024-08-31",
     "VendorAddr": {
-      "Id": "9244",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 718.47,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41301",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2024-08-05T08:24:21-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-20T10:46:19-07:00"
-    },
-    "DocNumber": "14824-0001",
-    "TxnDate": "2024-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Forklift",
-    "LinkedTxn": [
-      {
-        "TxnId": "51914",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORKLIFT 6K\nF68586 Make: LULL Model: 644E-32 Ser #: 0160028586",
-        "Amount": 2873,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2715",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "318340087"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2873
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-08-31",
-    "VendorAddr": {
       "Id": "12535",
       "Line1": "ETS Equipment Rental"
     },
@@ -13260,67 +16612,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 3385.92
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-07-17",
-    "VendorAddr": {
-      "Id": "17632",
-      "Line1": "Home Depot Credit Services",
-      "Line2": "Dept. 32-2649395757",
-      "Line3": "PO Box 78047",
-      "Line4": "Phoenix, AZ  85062"
-    },
-    "Balance": 768.4,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51895",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-20T09:45:59-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-20T09:45:59-07:00"
-    },
-    "DocNumber": "0130578376",
-    "TxnDate": "2025-07-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "5/8 in. x 4 ft. x 8 ft. Imperial\nFirecode X Gypsum Base",
-        "Amount": 768.4,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "340",
-      "name": "Home Depot Credit Services"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 768.4
   },
   {
     "SalesTermRef": {
@@ -17702,1207 +20993,6 @@
   },
   {
     "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-08-01",
-    "VendorAddr": {
-      "Id": "9219",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41206",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2024-08-01T12:06:31-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-17T12:41:52-07:00"
-    },
-    "DocNumber": "Loan payroll",
-    "TxnDate": "2024-08-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "labor  6/2/2024 to 6/15/2024",
-    "LinkedTxn": [
-      {
-        "TxnId": "51854",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "42542",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "42543",
-        "TxnType": "BillPaymentCheck"
-      },
-      {
-        "TxnId": "38155",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Payroll Loan",
-        "Amount": 0,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 1280.06,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2560",
-            "name": "Artisan Building Group, Inc:1 Park Dr., Hanover"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "256875678"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 350.56,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2881",
-            "name": "Maria and Chris Kaminski"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 1899.99,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2785",
-            "name": "Toll Brothers, Inc.:Willows at Boxford:Lot 40 - Willows at Boxford"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "349552421"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 1059.06,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2740",
-            "name": "C.C.M.S. The Wilshire Flls way:16 Rob Roy Rd, Worcester, MA"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "330304410"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "labor  6/2/2024 to 6/15/2024\n\nvacation",
-        "Amount": 1000,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 634.5,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2776",
-            "name": "Premium Contractors Group, Inc.:155 Eliot St, Ashland"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "345589986"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 5785.95,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2797",
-            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 1"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "353106250"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 1709.64,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2847",
-            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 4"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "373625495"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "labor  6/2/2024 to 6/15/2024",
-        "Amount": 1672.34,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2798",
-            "name": "Premium Contractors Group, Inc.:Saco, Maine - Building 5"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "353107484"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Premium group",
-        "Amount": 8.88,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "2 Leighton st, Cambridge",
-        "Amount": 426.29,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2263",
-            "name": "Premium HVAC Inc"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "13",
-        "LineNum": 13,
-        "Amount": 1916.14,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2167",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "14",
-        "LineNum": 14,
-        "Amount": 477.99,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2167",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "15",
-        "LineNum": 15,
-        "Amount": 2371.78,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2492",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 27 - Deck - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "236382188"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "16",
-        "LineNum": 16,
-        "Amount": 3123.38,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2903",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Building 1 - Winslow Point - Pulte Homes - 8177"
-          },
-          "AccountRef": {
-            "value": "125",
-            "name": "Panels Premium:Labor Panels"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "408265746"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "17",
-        "LineNum": 17,
-        "Amount": 46.8,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "105",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "18",
-        "LineNum": 18,
-        "Amount": 503.44,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2715",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "318340087"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "19",
-        "LineNum": 19,
-        "Amount": 530.7,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2715",
-            "name": "Pulte Homes, Inc.:Martins Landing 6492 - Pulte Homes MS-1074:Building 9 - Martins Landing - Pulte Homes - 6492"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "318340087"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "20",
-        "LineNum": 20,
-        "Amount": 77.78,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "21",
-        "LineNum": 21,
-        "Amount": 895.2,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "22",
-        "LineNum": 22,
-        "Amount": 648.01,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2810",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 15 / 7 - Deck - Cold Brook - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "354692637"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "23",
-        "LineNum": 23,
-        "Amount": 812.9,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2812",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 16 / 7 - Deck - Cold Brook - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "354702070"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "24",
-        "LineNum": 24,
-        "Amount": 74.06,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "25",
-        "LineNum": 25,
-        "Amount": 301,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2249",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 45 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "92233124"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "26",
-        "LineNum": 26,
-        "Amount": 100.08,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2824",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 53 - Deck - Pulte Homes MS-1074 - Cold Brook Preston 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "361764056"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "27",
-        "LineNum": 27,
-        "Amount": 1955.2,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2849",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 55 / 26 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "375280039"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "28",
-        "LineNum": 28,
-        "Amount": 2520.23,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2851",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "375289538"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "29",
-        "LineNum": 29,
-        "Amount": 2392.22,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2852",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Deck - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "375295514"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "30",
-        "LineNum": 30,
-        "Amount": 74.26,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "31",
-        "LineNum": 31,
-        "Amount": 68.12,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "64",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "32",
-        "LineNum": 32,
-        "Amount": 2152.45,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2655",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "287588764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "33",
-        "LineNum": 33,
-        "Amount": 420.76,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2481",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 6 - Chauncy Lake -  Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "231592342"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "34",
-        "LineNum": 34,
-        "Amount": 334.24,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2655",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "287588764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "35",
-        "LineNum": 35,
-        "Amount": 177.32,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2481",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 6 - Chauncy Lake -  Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "125",
-            "name": "Panels Premium:Labor Panels"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "231592342"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "36",
-        "LineNum": 36,
-        "Amount": 5799.39,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2655",
-            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 4 - Chauncy Lake - Pulte Homes - 6546"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "287588764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "37",
-        "LineNum": 37,
-        "Amount": 1362.25,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2896",
-            "name": "78"
-          },
-          "AccountRef": {
-            "value": "142",
-            "name": "Labor:Labor extra hours"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "38",
-        "LineNum": 38,
-        "Amount": 590.64,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2549",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 2 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "249460103"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "39",
-        "LineNum": 39,
-        "Amount": 449.5,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "371740480"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "40",
-        "LineNum": 40,
-        "Amount": 4382.24,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2834",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Building 3 - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "125",
-            "name": "Panels Premium:Labor Panels"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "371740480"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "41",
-        "LineNum": 41,
-        "Amount": 120.12,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2896",
-            "name": "78"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "42",
-        "LineNum": 42,
-        "Amount": 729,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2804",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 48 / 19 - Deck - Highland at Vale - Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "354609173"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "43",
-        "LineNum": 43,
-        "Amount": 1748.34,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2805",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 49 / 19 - Highland at Vale -Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "354614328"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "44",
-        "LineNum": 44,
-        "Amount": 780.46,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2807",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 50 / 19 - Highland at Vale -Pulte Homes - 7241"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "354644614"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "45",
-        "LineNum": 45,
-        "Amount": 136.04,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2801",
-            "name": "Pulte Homes, Inc.:Rookery Lane at Concord - 8616:Lot 1 - Deck - Rookery Lane at Concord - 8616"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "353131764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "46",
-        "LineNum": 46,
-        "Amount": 100.69,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2796",
-            "name": "Pulte Homes, Inc.:Rookery Lane at Concord - 8616:Lot 1 -  Rookery Lane at Concord - 8616"
-          },
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "353088764"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "47",
-        "LineNum": 47,
-        "Description": "Paid towards supplies - 54 Howard St - Check #1722",
-        "Amount": -20892.92,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "22",
-            "name": "Owner's pay & personal expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "48",
-        "LineNum": 48,
-        "Description": "Paid towards supplies - 54 Howard St - Check #1704",
-        "Amount": -26240.35,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "22",
-            "name": "Owner's pay & personal expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 6866.73
-  },
-  {
-    "SalesTermRef": {
       "value": "3"
     },
     "DueDate": "2024-08-27",
@@ -21164,106 +23254,6 @@
     "SalesTermRef": {
       "value": "1"
     },
-    "DueDate": "2025-06-11",
-    "VendorAddr": {
-      "Id": "17593",
-      "Line1": "BC Crane Corp",
-      "Line2": "158 Charles McComb Blvd",
-      "Line3": "New Bedford, MA  02745"
-    },
-    "Balance": 577.44,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50960",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-09-12T06:01:24-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-17T11:36:05-07:00"
-    },
-    "DocNumber": "5278",
-    "TxnDate": "2025-06-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA",
-    "LinkedTxn": [
-      {
-        "TxnId": "51847",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Crane service with operator, counterweight trucking, and related overtime.",
-        "Amount": 9410,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3163",
-            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "545340777"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "late fee",
-        "Amount": 577.44,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3163",
-            "name": "Turnkey Lumber, Inc.:626 Main Street, Dennis Port, MA"
-          },
-          "AccountRef": {
-            "value": "208",
-            "name": "Late Fee Income"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "545340777"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1693",
-      "name": "BC Crane Corp"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 9987.44
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
     "DueDate": "2025-09-26",
     "VendorAddr": {
       "Id": "17337",
@@ -21528,363 +23518,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 297
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-10-08",
-    "VendorAddr": {
-      "Id": "17592",
-      "Line1": "Estevao Costa"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51843",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-10-17T10:26:57-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-17T11:02:35-07:00"
-    },
-    "DocNumber": "337316983",
-    "TxnDate": "2025-10-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Foi feito um pagamento de $16,334.10 no Amex do Estevao, dia 10/06/2025",
-    "LinkedTxn": [
-      {
-        "TxnId": "51846",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Service Charge On\nPast Due Amount",
-        "Amount": 226.8,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "EXP UNIV 3/4\" J CHAN METRO GRAY\n1JNU84 48PCS/CTN\nMETROPOLITAN GRAY",
-        "Amount": 103.02,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2976",
-            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "434350690"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "OSI CAULKING QUAD MAX 004\n12 TUBES/CTN ARTIC WHITE 004",
-        "Amount": 153.26,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502826133"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "TRI TC24A 24X50 COIL 216\n6SGI24 33 POLY BLACK\nBLACK/WHITE",
-        "Amount": 273.16,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "CER J CHANL 5/8 BLACK\n5031054 48/CTN\nHAR TCH-UP PNT KIT AW HZU\nARTIC WHITE HZU 4670831\nTOUCH-UP PAINT 16OZ\nHARDIE ACCESSORIES 6/PALLET\nSSP SS COIL SIDING NAILS 2-1/4\"\n3600/BOX\nHAR PAN AW SM HZ5 4'X10'\nARCTIC WHITE HZ5 667351\nSMOOTH 4X10X5/16\nHARDIE PANEL 50PC/PALLET",
-        "Amount": 583.94,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502826133"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "surcharge - 09/30/25",
-        "Amount": 475.75,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "HAR PLK AW SM EE HZ5 5.25\"\nARCTIC WHITE HZ5 6671141\nSMOOTH EASED EDGE 5.25X12X5/16\nHARDIE PLANK 324PC/PALLET",
-        "Amount": 51.73,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502826133"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Service Charge On\nPast Due Amount",
-        "Amount": 132.38,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3089",
-            "name": "Autumn Leaf Homes:19 Old Connecticut Path, Wayland - MA 01778"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502826133"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Service Charge On\nPast Due Amount",
-        "Amount": 224.5,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "1418297 5-1/2\"X5-1/2\"X20'\nWLF PVC CASING W/J-CHA 5/4X4X16\nWPVCM-7968 5/4\"X4\"X16'\nPVC CASING WITH J CHANNEL\nTRI PVC TRIMBOARD SM 1X8X18\nACT 3/4\"X7-1/4\"X18'\nWHITE SMOOTH 108PCS/UNIT",
-        "Amount": 14109.56,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2976",
-            "name": "Autumn Leaf Homes:18 Evergreen Rd, Needham"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "434350690"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Amount": 0,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1248",
-      "name": "Estevao Costa"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 16334.1
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2024-11-12",
-    "Balance": 13819.6,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50863",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-09-11T10:27:38-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-17T11:02:35-07:00"
-    },
-    "DocNumber": "Loan 65 Mill",
-    "TxnDate": "2024-11-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Loan 09/09/25 European payment 65 Mill",
-    "LinkedTxn": [
-      {
-        "TxnId": "51846",
-        "TxnType": "BillPaymentCheck"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Loan 09/09/25 European payment 65 Mill",
-        "Amount": 15000,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "200",
-            "name": "Loan to Others Out"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1248",
-      "name": "Estevao Costa"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 15000
   },
   {
     "SalesTermRef": {
@@ -22297,413 +23930,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 196.5
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-10-17",
-    "Balance": 21969.01,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51835",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-17T08:57:29-07:00",
-      "LastModifiedByRef": {
-        "value": "9341455310585302"
-      },
-      "LastUpdatedTime": "2025-10-17T08:57:29-07:00"
-    },
-    "TxnDate": "2025-10-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FLOOR AND DECOR 790 WEB 0032\n404-471-1634",
-        "Amount": 4025.77,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "FLOOR AND DECOR 790 WEB 0032\n404-471-1634",
-        "Amount": 2771.81,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "KOOPMAN LUMBER 55",
-        "Amount": 769.83,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "KIMBALL SAND COMPANY INC\n5088831798",
-        "Amount": 662.37,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "KIMBALL SAND COMPANY INC\n5088831798",
-        "Amount": 611.72,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "KIMBALL SAND COMPANY INC BLACKSTONE MA\n5088831798",
-        "Amount": 657.59,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "SP MERLINLAMPS DENVER CO $4,638.00 ♦\n+13025251810",
-        "Amount": 4638,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "AKKERLIGHT.COM HOUSTON TX\n+12817544941",
-        "Amount": 422,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "ALLIED BLDG PROD\n5713233939",
-        "Amount": 3.65,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "THE HOME DEPOT\n800-654-0688",
-        "Amount": 2063.46,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "THE HOME DEPOT\n800-654-0688",
-        "Amount": 4514.48,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "12",
-        "LineNum": 12,
-        "Description": "Interest Charge on Pay Over Time Purchases",
-        "Amount": 828.33,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3008",
-            "name": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house"
-          },
-          "AccountRef": {
-            "value": "8",
-            "name": "Interest Paid"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "452399652"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "1248",
-      "name": "Estevao Costa"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 21969.01
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-10-27",
-    "VendorAddr": {
-      "Id": "11455",
-      "Line1": "GM Financial"
-    },
-    "Balance": 577.4,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51832",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-17T01:45:16-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-17T01:45:16-07:00"
-    },
-    "TxnDate": "2025-10-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Account #211062811844\n2022 Chevrolet Silverado - Premium Home Investiments.\nVIN #3GCPABEK5NG575506\n\nSet up as Auto pay.",
-        "Amount": 577.4,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "4",
-            "name": "Vehicles Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "RecurDataRef": {
-      "value": "88"
-    },
-    "VendorRef": {
-      "value": "1061",
-      "name": "GM Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 577.4
   },
   {
     "SalesTermRef": {
@@ -25153,7 +26379,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "3273",
-            "name": "Pulte Homes, Inc.:30 Coppersmith 8872"
+            "name": "Pulte Homes, Inc.:30 Coppersmith 8872 (deleted)"
           },
           "AccountRef": {
             "value": "131",
@@ -27318,70 +28544,6 @@
         "TxnType": "BillPaymentCheck"
       }
     ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2022 GMC Sierra - Vin# 06592",
-        "Amount": 375.12,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "191",
-            "name": "2022 GMC Sierra"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "RecurDataRef": {
-      "value": "37"
-    },
-    "VendorRef": {
-      "value": "1808",
-      "name": "Ally Financial"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 375.12
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-10-26",
-    "VendorAddr": {
-      "Id": "10290",
-      "Line1": "Ally Financial",
-      "Line2": "Payment Processing Center",
-      "Line3": "PO BOX 9001948",
-      "Line4": "Louisville, KY  40290-1948"
-    },
-    "Balance": 375.12,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51451",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-06T01:44:18-07:00",
-      "LastModifiedByRef": {
-        "value": "0"
-      },
-      "LastUpdatedTime": "2025-10-06T01:44:18-07:00"
-    },
-    "TxnDate": "2025-10-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "2022 GMC Sierra - Vin# 06592",
     "Line": [
       {
         "Id": "1",
@@ -113082,71 +114244,6 @@
     "SalesTermRef": {
       "value": "3"
     },
-    "DueDate": "2025-04-17",
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 71.2,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48169",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-09T12:39:15-07:00",
-      "LastModifiedByRef": {
-        "value": "9130351269425556"
-      },
-      "LastUpdatedTime": "2025-05-09T12:39:15-07:00"
-    },
-    "DocNumber": "16347-0007",
-    "TxnDate": "2025-03-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FORKLIFT 6K\nF60043 Make: JLG Model: G642A Ser #: 0160050043\nReason: WRONG EQUIPMENT FOR THE JOB\nFORKLIFT 6K \nF67789 Make: LULL Model: 644E-42 Ser #: 0160017789",
-        "Amount": 71.2,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3099",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 10 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "503379060"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 71.2
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
     "DueDate": "2025-04-16",
     "VendorAddr": {
       "Id": "10222"
@@ -132054,72 +133151,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2250
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-09-07",
-    "VendorAddr": {
-      "Id": "9321",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 3550,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41420",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2024-08-09T08:02:49-07:00",
-      "LastModifiedByRef": {
-        "value": "9130351269425556"
-      },
-      "LastUpdatedTime": "2025-04-11T03:11:44-07:00"
-    },
-    "DocNumber": "14649-0003",
-    "TxnDate": "2024-08-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Forklift",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORKLIFT 10K \nF105139 Make: JLG Model: 1055 Ser #: 160115139",
-        "Amount": 3550,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2906",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "408984366"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3550
   },
   {
     "SalesTermRef": {
@@ -168070,69 +169101,6 @@
     },
     "DueDate": "2024-09-20",
     "VendorAddr": {
-      "Id": "12559",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 150,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "41791",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2024-08-22T08:56:00-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356620599566"
-      },
-      "LastUpdatedTime": "2025-02-21T10:28:12-08:00"
-    },
-    "DocNumber": "11479-0018",
-    "TxnDate": "2024-08-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Fork extention",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORK EXTENTION \nF10 Make: FORK EXT. Model: * Ser #: *",
-        "Amount": 150,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2951",
-            "name": "Hopedale Airport Industrial Park - 4 Evergreen Lane."
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 150
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-09-20",
-    "VendorAddr": {
       "Id": "12558",
       "Line1": "ETS Equipment Rental"
     },
@@ -170231,72 +171199,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 3931.25
-  },
-  {
-    "SalesTermRef": {
-      "value": "3"
-    },
-    "DueDate": "2024-09-01",
-    "VendorAddr": {
-      "Id": "12540",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 467.9,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "42179",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2024-09-06T06:03:23-07:00",
-      "LastModifiedByRef": {
-        "value": "9130356620599566"
-      },
-      "LastUpdatedTime": "2025-02-21T09:41:51-08:00"
-    },
-    "DocNumber": "14958-0001",
-    "TxnDate": "2024-08-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Switch + labor",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1.00 SWITCH, FNR 4 SPEED EA 267.900 267.90\n1001239793\n1.00 LABOR HR 200.000 200.00",
-        "Amount": 467.9,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2932",
-            "name": "Pulte Homes, Inc.:Highland at Vale 7240 + 7241:Lot 58 - Highland at Vale - Pulte Holmes - 7241"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "416375400"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 467.9
   },
   {
     "SalesTermRef": {
@@ -174343,70 +175245,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2314.13
-  },
-  {
-    "SalesTermRef": {
-      "value": "1"
-    },
-    "DueDate": "2025-02-11",
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 150,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "45579",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-02-12T07:21:59-08:00",
-      "LastModifiedByRef": {
-        "value": "9130357530910006"
-      },
-      "LastUpdatedTime": "2025-02-12T07:21:59-08:00"
-    },
-    "DocNumber": "10721-0031",
-    "TxnDate": "2025-02-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 TRUSSES EXTENTION 150.00 150.00 150.00 150.00\nT11 Make: TRUSS EXT Model: * Ser #: *",
-        "Amount": 150,
-        "LinkedTxn": [],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3055",
-            "name": "Pulte Homes, Inc.:Winslow Point 8177 - Pulte Homes MS-1074:Lot 1 - Winslow Point  - Pulte Homes"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "481141750"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 150
   },
   {
     "SalesTermRef": {

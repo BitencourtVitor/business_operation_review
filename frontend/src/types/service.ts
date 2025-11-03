@@ -13,7 +13,6 @@ export interface ServiceRequestRow {
   additional_visits: string[];
   issue: string;
   warranty: boolean;
-  cost: number;
   tech: string;
   created_at: string;
 }

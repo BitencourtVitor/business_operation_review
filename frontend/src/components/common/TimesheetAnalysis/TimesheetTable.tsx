@@ -5,9 +5,10 @@ import TimesheetTableModal from '../../modals/TimesheetTableModal';
 interface TimesheetTableProps {
   filteredData: TimesheetRow[];
   years?: string[];
+  financialPass: boolean;
 }
 
-export default function TimesheetTable({ filteredData, years = [] }: TimesheetTableProps) {
+export default function TimesheetTable({ filteredData, years = [], financialPass }: TimesheetTableProps) {
   // Estados para agrupamento e ordenação da tabela
   const [groupBy, setGroupBy] = React.useState<'team' | 'error'>('team');
   const [sortBy, setSortBy] = React.useState<'total' | 'hours' | 'name' | 'removed'>('total');
@@ -186,8 +187,8 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
                 }}>
                 <option value="total">{groupBy === 'team' ? 'Team' : 'Error'}</option>
                 <option value="hours">Error Count</option>
-                <option value="name">Added Value</option>
-                <option value="removed">Removed Value</option>
+                {financialPass && <option value="name">Added Value</option>}
+                {financialPass && <option value="removed">Removed Value</option>}
               </select>
               <i
                 className="bi bi-chevron-down"
@@ -219,8 +220,8 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
               <tr style={{ background: 'var(--color-background-secondary)' }}>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'left', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>{groupBy === 'team' ? 'Team' : 'Error'}</th>
                 <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'center', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Error Count</th>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Added Value</th>
-                <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Removed Value</th>
+                {financialPass && <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Added Value</th>}
+                {financialPass && <th style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-primary)', textAlign: 'right', position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 2 }}>Removed Value</th>}
               </tr>
             </thead>
             <tbody>
@@ -228,8 +229,8 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
                 <tr key={key}>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'left' }}>{key}</td>
                   <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{val.count}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{val.add.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-                  <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{val.rem.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                  {financialPass && <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#1bbf5c', textAlign: 'right' }}>{val.add.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>}
+                  {financialPass && <td style={{ padding: 8, border: '1px solid var(--color-border-divider)', color: '#dc3545', textAlign: 'right' }}>{val.rem.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>}
                 </tr>
               ))}
             </tbody>
@@ -242,6 +243,7 @@ export default function TimesheetTable({ filteredData, years = [] }: TimesheetTa
         onClose={() => setShowModal(false)}
         data={filteredData}
         years={years}
+        financialPass={financialPass}
       />
     </>
   );

@@ -9,26 +9,37 @@ interface TimesheetTableModalProps {
   onClose: () => void;
   data: TimesheetRow[];
   years?: string[];
+  financialPass: boolean;
 }
 
-const TimesheetTableModal: React.FC<TimesheetTableModalProps> = ({ show, onClose, data, years = [] }) => {
-  // Todas as colunas disponíveis
-  const allColumns = useMemo(() => [
-    { value: 'date', label: 'Date' },
-    { value: 'nome', label: 'Name' },
-    { value: 'error', label: 'Error' },
-    { value: 'team', label: 'Team' },
-    { value: 'corporation', label: 'Corporation' },
-    { value: 'payrate', label: 'Pay Rate' },
-    { value: 'add_time_hour', label: 'Add Time' },
-    { value: 'remove_time_hour', label: 'Remove Time' },
-    { value: 'add_dollar', label: 'Added Value' },
-    { value: 'remove_dollar', label: 'Removed Value' },
-    { value: 'total', label: 'Total' }
-  ], []);
+const TimesheetTableModal: React.FC<TimesheetTableModalProps> = ({ show, onClose, data, years = [], financialPass }) => {
+  // Todas as colunas disponíveis - filtra colunas financeiras se não tiver permissão
+  const allColumns = useMemo(() => {
+    const columns = [
+      { value: 'date', label: 'Date' },
+      { value: 'nome', label: 'Name' },
+      { value: 'error', label: 'Error' },
+      { value: 'team', label: 'Team' },
+      { value: 'corporation', label: 'Corporation' },
+      { value: 'add_time_hour', label: 'Add Time' },
+      { value: 'remove_time_hour', label: 'Remove Time' },
+    ];
+    
+    // Adiciona colunas financeiras apenas se tiver permissão
+    if (financialPass) {
+      columns.push(
+        { value: 'payrate', label: 'Pay Rate' },
+        { value: 'add_dollar', label: 'Added Value' },
+        { value: 'remove_dollar', label: 'Removed Value' },
+        { value: 'total', label: 'Total' }
+      );
+    }
+    
+    return columns;
+  }, [financialPass]);
 
-  // Estados para ordenação da tabela
-  const [sortBy, setSortBy] = React.useState<typeof allColumns[number]['value']>('total');
+  // Estados para ordenação da tabela - usa 'date' se não tiver permissão financeira
+  const [sortBy, setSortBy] = React.useState<typeof allColumns[number]['value']>(financialPass ? 'total' : 'date');
   const [sortDir, setSortDir] = React.useState<'asc' | 'desc'>('desc');
   
   // Estados para filtros de data - 2025 como padrão

@@ -403,9 +403,12 @@ interface AcceptedEstimatesCarouselProps {
   selectedYear: string;
   selectedMonth: string;
   selectedCompany?: string;
+  selectedJobsites?: string[];
+  availableJobsites?: string[];
+  extractJobsite?: (customerName: string | null | undefined) => string;
 }
 
-export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth, selectedCompany = 'HVAC' }: AcceptedEstimatesCarouselProps) {
+export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth, selectedCompany = 'HVAC', selectedJobsites = [], availableJobsites = [], extractJobsite }: AcceptedEstimatesCarouselProps) {
   // Filtros editáveis
   const [onlyAccepted, setOnlyAccepted] = useState(true);
   
@@ -485,6 +488,8 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth,
   const searchInputRef = useRef<HTMLInputElement>(null);
   const drag = useRef({ x: 0, scroll: 0, dragging: false });
 
+  // Não precisamos mais buscar customer_names separadamente porque project_name já contém customer_name completo
+
   // Busca e ordenação
   const filteredEstimates = useMemo(() => {
     if (!carouselData) return [];
@@ -520,6 +525,17 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth,
         }
         
         return true;
+      });
+    }
+    
+    // Filtro por jobsite - só aplicar se houver seleção parcial (não todos selecionados)
+    // project_name já contém o customer_name completo (vem do SQL como e.customer_name AS project_name)
+    if (extractJobsite && selectedJobsites.length > 0 && availableJobsites.length > 0 && selectedJobsites.length < availableJobsites.length) {
+      filtered = filtered.filter(estimate => {
+        const customerName = estimate.project_name; // project_name já é o customer_name completo
+        if (!customerName) return true; // Se não tiver customer_name, manter
+        const jobsite = extractJobsite(customerName);
+        return selectedJobsites.includes(jobsite);
       });
     }
     
@@ -568,7 +584,7 @@ export default function AcceptedEstimatesCarousel({ selectedYear, selectedMonth,
     });
 
     return filtered;
-  }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals, selectedYear, selectedMonth]);
+  }, [carouselData, sortBy, sortDirection, searchTerm, invoicesTotals, expensesTotals, selectedYear, selectedMonth, selectedJobsites, availableJobsites, extractJobsite]);
 
   // Drag horizontal
   const onMouseDown = (e: React.MouseEvent) => {

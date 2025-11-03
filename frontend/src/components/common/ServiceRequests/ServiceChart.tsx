@@ -27,7 +27,6 @@ ChartJS.register(
 interface ServiceRequestItem {
   date_received?: string;
   date_completed?: string;
-  cost?: number;
   warranty?: boolean;
   contractor?: string;
   job_site?: string;
@@ -43,7 +42,6 @@ interface ServiceChartTooltipExternalProps {
   canvas?: HTMLCanvasElement | null;
   data: ServiceRequestItem[];
   dateType: 'received' | 'completed';
-  displayType: 'count' | 'value';
 }
 
 const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExternal({ 
@@ -53,8 +51,7 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
   selectedMonth, 
   canvas, 
   data, 
-  dateType,
-  displayType
+  dateType
 }: ServiceChartTooltipExternalProps) {
   const tooltipRef = React.useRef<HTMLDivElement>(null);
   const [realWidth, setRealWidth] = React.useState<number>(320);
@@ -63,7 +60,6 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
   let count: number = 0;
   let warrantyCount: number = 0;
   let nonWarrantyCount: number = 0;
-  let nonWarrantyCost: number = 0;
   let periodo: string = '';
   let caretX: number = 0;
   let caretY: number = 0;
@@ -84,7 +80,7 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
     if (tooltipRef.current) {
       setRealWidth(tooltipRef.current.offsetWidth);
     }
-  }, [periodo, count, warrantyCount, nonWarrantyCount, nonWarrantyCost]);
+  }, [periodo, count, warrantyCount, nonWarrantyCount]);
   
   if (!opacity || !dataPoints || dataPoints.length === 0) return null;
   dataIndex = dataPoints[0].dataIndex;
@@ -110,16 +106,6 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
 
   warrantyCount = periodData.filter(item => item.warranty === true).length;
   nonWarrantyCount = periodData.filter(item => item.warranty === false).length;
-  nonWarrantyCost = periodData
-    .filter(item => item.warranty === false)
-    .reduce((sum, item) => sum + (item.cost || 0), 0);
-
-  // Calcular valor total do período quando displayType for 'value'
-  const periodValue = displayType === 'value' 
-    ? periodData
-        .filter(item => item.warranty === false)
-        .reduce((sum, item) => sum + (item.cost || 0), 0)
-    : count;
 
   periodo = selectedMonth && selectedMonth !== 'Todos' ? `Day ${label}` : `Month ${label}`;
   caretX = typeof caretXVal === 'number' ? caretXVal : 0;
@@ -174,12 +160,7 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
           <span style={{ color: 'var(--color-text-secondary)' }}>Total</span>
-          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>
-            {displayType === 'value' 
-              ? periodValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
-              : periodValue
-            }
-          </span>
+          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{count}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
           <span style={{ color: 'var(--color-text-secondary)' }}>Warranty</span>
@@ -188,10 +169,6 @@ const ServiceChartTooltipExternal = React.memo(function ServiceChartTooltipExter
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15, marginBottom: 2 }}>
           <span style={{ color: 'var(--color-text-secondary)' }}>Non-Warranty</span>
           <span style={{ color: '#28a745', fontWeight: 500 }}>{nonWarrantyCount}</span>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 15 }}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Earned</span>
-          <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600 }}>{nonWarrantyCost.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</span>
         </div>
       </div>
     </div>,
@@ -229,7 +206,7 @@ function NoDataMessage({ title, message, icon }: { title: string, message: strin
 
 export function ServiceChart({ 
   filteredData, 
-  selectedMonth 
+  selectedMonth
 }: ServiceChartProps) {
   const [externalTooltip, setExternalTooltip] = useState<null | Partial<ServiceChartTooltipExternalProps>>(null);
   const [contractorTooltip, setContractorTooltip] = useState<{ show: boolean; x: number; y: number }>({ show: false, x: 0, y: 0 });
@@ -241,7 +218,6 @@ export function ServiceChart({
   const [techTooltip, setTechTooltip] = useState<{ show: boolean; x: number; y: number }>({ show: false, x: 0, y: 0 });
   const [techSortOrder, setTechSortOrder] = useState<'desc' | 'asc'>('desc');
   const [dateType, setDateType] = useState<'received' | 'completed'>('received');
-  const [displayType, setDisplayType] = useState<'count' | 'value'>('count');
 
   // Funções para calcular os principais itens
   const getTopContractor = () => {
@@ -312,15 +288,8 @@ export function ServiceChart({
           periodKey = (date.getMonth() + 1).toString().padStart(2, '0');
         }
         
-        if (displayType === 'count') {
-          // Contagem simples
-          dataByPeriod[periodKey] = (dataByPeriod[periodKey] || 0) + 1;
-        } else {
-          // Soma dos valores (apenas não-warranty)
-          if (item.warranty === false && item.cost) {
-            dataByPeriod[periodKey] = (dataByPeriod[periodKey] || 0) + (item.cost || 0);
-          }
-        }
+        // Contagem simples
+        dataByPeriod[periodKey] = (dataByPeriod[periodKey] || 0) + 1;
       }
     });
 
@@ -334,9 +303,7 @@ export function ServiceChart({
       labels,
       datasets: [
         {
-          label: displayType === 'count' 
-            ? (dateType === 'received' ? 'Service Requests Recebidos' : 'Service Requests Completados')
-            : (dateType === 'received' ? 'Valor Recebido' : 'Valor Completado'),
+          label: dateType === 'received' ? 'Service Requests Recebidos' : 'Service Requests Completados',
           data: data,
           borderColor: accent,
           backgroundColor: accent,
@@ -348,7 +315,7 @@ export function ServiceChart({
         }
       ]
     };
-  }, [filteredData, selectedMonth, dateType, displayType]);
+  }, [filteredData, selectedMonth, dateType]);
 
   const lineChartOptions = useMemo(() => {
     const borderDivider = getComputedStyle(document.documentElement).getPropertyValue('--color-border-divider').trim() || '#e0e0e0';
@@ -373,8 +340,7 @@ export function ServiceChart({
                 selectedMonth,
                 canvas: (context.chart && (context.chart as { canvas?: HTMLCanvasElement }).canvas) ? (context.chart as { canvas: HTMLCanvasElement }).canvas : undefined,
                 data: filteredData,
-                dateType,
-                displayType,
+                dateType
               });
             }
           }
@@ -394,11 +360,20 @@ export function ServiceChart({
          },
          y: {
            grid: { color: borderDivider },
-           ticks: { color: '#6c757d' },
+           ticks: { 
+             color: '#6c757d',
+             stepSize: 1,
+             callback: function(value) {
+               if (Number.isInteger(value)) {
+                 return value;
+               }
+               return null;
+             }
+           },
            beginAtZero: true,
            title: {
              display: true,
-             text: displayType === 'count' ? 'Requests Count' : 'Value ($)',
+             text: 'Requests Count',
              color: '#6c757d',
              font: { weight: 600, size: 12 },
              padding: { top: 10, bottom: 10 }
@@ -406,7 +381,7 @@ export function ServiceChart({
          },
        },
     };
-  }, [lineChartData, selectedMonth, filteredData, dateType, displayType]);
+  }, [lineChartData, selectedMonth, filteredData, dateType]);
 
   if (!filteredData || filteredData.length === 0) {
     return (
@@ -484,57 +459,11 @@ export function ServiceChart({
                      e.currentTarget.style.borderColor = 'var(--color-border-divider)';
                    }}
                  >
-                   {dateType === 'received' ? 'Received' : 'Completed'}
-                 </button>
-               </div>
-               
-               {/* Linha vertical separadora */}
-               <div style={{ 
-                 width: '1px', 
-                 height: 20, 
-                 background: 'var(--color-border-divider)', 
-                 margin: '0 8px' 
-               }} />
-               
-               {/* Display Type Control */}
-               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                 <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>
-                   Display
-                 </span>
-                 <button
-                   onClick={() => setDisplayType(displayType === 'count' ? 'value' : 'count')}
-                   style={{
-                     background: displayType === 'value' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)',
-                     color: displayType === 'value' ? '#fff' : 'var(--color-accent-primary)',
-                     border: '1px solid var(--color-border-divider)',
-                     borderRadius: 15,
-                     padding: '4px 16px',
-                     fontWeight: 500,
-                     fontSize: 14,
-                     cursor: 'pointer',
-                     transition: 'all 0.2s ease',
-                     height: 26,
-                     display: 'flex',
-                     alignItems: 'center',
-                     justifyContent: 'center',
-                     minWidth: 80
-                   }}
-                   onMouseEnter={(e) => {
-                     if (displayType === 'count') {
-                       e.currentTarget.style.background = 'var(--color-background-primary)';
-                       e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-                     }
-                   }}
-                   onMouseLeave={(e) => {
-                     e.currentTarget.style.background = displayType === 'value' ? 'var(--color-accent-primary)' : 'var(--color-background-primary)';
-                     e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-                   }}
-                 >
-                   {displayType === 'count' ? 'Count' : 'Value'}
-                 </button>
-               </div>
-             </div>
-           </h4>
+                  {dateType === 'received' ? 'Received' : 'Completed'}
+                </button>
+              </div>
+            </div>
+          </h4>
                        <div style={{ flex: 1, position: 'relative', width: '100%', height: '100%' }}>
               {lineChartData && lineChartOptions ? (
                 <Line data={lineChartData} options={lineChartOptions} />
@@ -834,17 +763,16 @@ export function ServiceChart({
        {externalTooltip && (() => {
          const tooltip = externalTooltip as NonNullable<typeof externalTooltip>;
          return (
-           <ServiceChartTooltipExternal
-             {...tooltip}
-             tooltip={tooltip.tooltip ? tooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
-             chartLabels={tooltip.chartLabels || []}
-             chartDatasets={tooltip.chartDatasets || []}
-             selectedMonth={tooltip.selectedMonth || ''}
-             canvas={tooltip.canvas || null}
-             data={tooltip.data || []}
-             dateType={tooltip.dateType || 'received'}
-             displayType={tooltip.displayType || 'count'}
-           />
+          <ServiceChartTooltipExternal
+            {...tooltip}
+            tooltip={tooltip.tooltip ? tooltip.tooltip as Record<string, unknown> : {} as Record<string, unknown>}
+            chartLabels={tooltip.chartLabels || []}
+            chartDatasets={tooltip.chartDatasets || []}
+            selectedMonth={tooltip.selectedMonth || ''}
+            canvas={tooltip.canvas || null}
+            data={tooltip.data || []}
+            dateType={tooltip.dateType || 'received'}
+          />
          );
        })()}
 

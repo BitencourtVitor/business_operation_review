@@ -1,5 +1,223 @@
 [
   {
+    "AcceptedDate": "2024-01-22",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "8673",
+    "SyncToken": "29",
+    "MetaData": {
+      "CreateTime": "2023-12-23T10:50:11-08:00",
+      "LastUpdatedTime": "2025-10-31T12:16:16-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1148",
+    "TxnDate": "2023-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "9207",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10721",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11877",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12239",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12291",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12425",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12550",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12708",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12712",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12749",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13018",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13304",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13305",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13531",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14297",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18029",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "4",
+        "LineNum": 1,
+        "Description": "Addition at Galt Residence \nAs Per plan Dated OCT 30 23 \nQuote includes all fases of construction and permits.\n200 Series Windows",
+        "Amount": 375000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 375000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "1",
+        "LineNum": 2,
+        "Description": "___Included Services___\n\n\n  - Foundation and Excavation     (Labor and Material)\n  - Framing    (Labor and Material)\n  - Roofing       (Labor and Material)\n  - Siding      (Labor and Material)\n  - HVAC      (Labor and MAterial)\n  - Plumbing      (Labor and Rough Material)\n  - Electrical     (Labor and Rough Material)\n  -Insulation     (Labor and Material)\n   -Plastering    (Labor and Material)\n   -Interior Trim to match existing (Labor and Material) \n  - Tile, hardwood (Labor Only)",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Excluding \nAllowances \nTo be provided By owner \nAppliances \nCabinets and Vanities\nPlumb fixtures \nElectrical fixtures \nGarage door \nGranit/Quartz \nTile \nCarpet \nHardwood \n\nExisting Hot water system we have to make sure that it produces enough for the whole house.\n\nIf Bedroom is left to finish afterwards 10% will be deducted.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 375000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "5959",
+      "Line1": "5 Claflin Ave",
+      "City": "Hopkinton",
+      "CountrySubDivisionCode": "MA"
+    },
+    "ShipAddr": {
+      "Id": "4560",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "2599",
+      "Line1": "1B Landing Ln, Hopedale, MA, 01747, USA"
+    },
+    "TotalAmt": 375000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2024-01-16T13:07:19-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
     "domain": "QBO",
     "sparse": false,
     "Id": "13648",
@@ -21360,220 +21578,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2024-05-02T11:11:36-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "AcceptedDate": "2024-01-22",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "8673",
-    "SyncToken": "24",
-    "MetaData": {
-      "CreateTime": "2023-12-23T10:50:11-08:00",
-      "LastUpdatedTime": "2025-01-16T05:30:35-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1148",
-    "TxnDate": "2023-12-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "9207",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10721",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11877",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12239",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12291",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12425",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12550",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12708",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12712",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12749",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13018",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13304",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13305",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13531",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14297",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "4",
-        "LineNum": 1,
-        "Description": "Addition at Galt Residence \nAs Per plan Dated OCT 30 23 \nQuote includes all fases of construction and permits.\n200 Series Windows",
-        "Amount": 375000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 375000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "1",
-        "LineNum": 2,
-        "Description": "___Included Services___\n\n\n  - Foundation and Excavation     (Labor and Material)\n  - Framing    (Labor and Material)\n  - Roofing       (Labor and Material)\n  - Siding      (Labor and Material)\n  - HVAC      (Labor and MAterial)\n  - Plumbing      (Labor and Rough Material)\n  - Electrical     (Labor and Rough Material)\n  -Insulation     (Labor and Material)\n   -Plastering    (Labor and Material)\n   -Interior Trim to match existing (Labor and Material) \n  - Tile, hardwood (Labor Only)",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Excluding \nAllowances \nTo be provided By owner \nAppliances \nCabinets and Vanities\nPlumb fixtures \nElectrical fixtures \nGarage door \nGranit/Quartz \nTile \nCarpet \nHardwood \n\nExisting Hot water system we have to make sure that it produces enough for the whole house.\n\nIf Bedroom is left to finish afterwards 10% will be deducted.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 375000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "314692141"
-    },
-    "CustomerRef": {
-      "value": "609",
-      "name": "5 Claflin Ave, Hopkinton, MA"
-    },
-    "BillAddr": {
-      "Id": "5959",
-      "Line1": "5 Claflin Ave",
-      "City": "Hopkinton",
-      "CountrySubDivisionCode": "MA"
-    },
-    "ShipAddr": {
-      "Id": "4560",
-      "Line1": "Tommy Galt.",
-      "Line2": "5 Claflin Ave",
-      "Line3": "Hopkinton, MA"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "2599",
-      "Line1": "1B Landing Ln, Hopedale, MA, 01747, USA"
-    },
-    "TotalAmt": 375000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "tommy.galt@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2024-01-16T13:07:19-08:00"
     },
     "TaxExemptionRef": {}
   },
