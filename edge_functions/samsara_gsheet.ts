@@ -6,9 +6,10 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL");
 const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// URLs das planilhas do Samsara
+// URLs das planilhas do Samsara e WEX
 const samsaraIdleEventsUrl = "https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/export?format=csv&gid=0";
 const samsaraTripsUrl = "https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/export?format=csv&gid=2085020611";
+const wexTransactionsUrl = "https://docs.google.com/spreadsheets/d/1YK4ui9pmcgkLMTTxym4J5yRvojqMBxWt-bIKPKazP20/export?format=csv&gid=168001319";
 
 /**
  * Normaliza strings para UTF-8 adequado
@@ -107,6 +108,63 @@ async function fetchCsvToJson(url: string, name: string) {
   } catch (error) {
     console.error(`Erro ao buscar ${name}:`, error);
     throw error;
+  }
+}
+
+// Função para parse de data do WEX (formato: "MM/DD/YYYY" ou "YYYY-MM-DD")
+function parseWexDate(dateStr: string, timeStr?: string): Date | null {
+  if (!dateStr) return null;
+  
+  try {
+    let date: Date;
+    
+    // Tentar formato MM/DD/YYYY
+    if (dateStr.includes('/')) {
+      const parts = dateStr.split('/');
+      if (parts.length === 3) {
+        const month = parseInt(parts[0], 10);
+        const day = parseInt(parts[1], 10);
+        const year = parseInt(parts[2], 10);
+        
+        if (isNaN(month) || isNaN(day) || isNaN(year)) {
+          return null;
+        }
+        
+        date = new Date(year, month - 1, day);
+      } else {
+        return null;
+      }
+    } else {
+      // Tentar formato ISO ou outro padrão
+      date = new Date(dateStr);
+    }
+    
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+    
+    // Se houver hora, adicionar ao Date
+    if (timeStr && timeStr.trim()) {
+      try {
+        const timeParts = timeStr.trim().split(':');
+        if (timeParts.length >= 2) {
+          const hours = parseInt(timeParts[0], 10);
+          const minutes = parseInt(timeParts[1], 10);
+          const seconds = timeParts[2] ? parseInt(timeParts[2], 10) : 0;
+          
+          if (!isNaN(hours) && !isNaN(minutes)) {
+            date.setHours(hours, minutes, seconds);
+          }
+        }
+      } catch (error) {
+        // Ignora erro de parse de hora
+      }
+    }
+    
+    return date;
+  } catch (error) {
+    console.error(`Erro ao fazer parse da data WEX: ${dateStr}`, error);
+    return null;
   }
 }
 
@@ -310,29 +368,52 @@ async function getLastProcessedEvent(): Promise<{ event_date: Date | null, event
   }
 }
 
-// Verificar se evento já existe na tabela
-async function checkEventExists(eventKey: string): Promise<boolean> {
+// Buscar event_keys existentes em lote (mais eficiente)
+async function getExistingEventKeys(eventKeys: string[]): Promise<Set<string>> {
   try {
-    const { data, error } = await supabase
-      .from('samsara_events')
-      .select('event_key')
-      .eq('event_key', eventKey)
-      .limit(1);
+    if (eventKeys.length === 0) return new Set();
     
-    if (error) {
-      throw error;
+    // Processar em lotes de 1000 para evitar query muito grande
+    const batchSize = 1000;
+    const existingKeys = new Set<string>();
+    
+    for (let i = 0; i < eventKeys.length; i += batchSize) {
+      const batch = eventKeys.slice(i, i + batchSize);
+      
+      const { data, error } = await supabase
+        .from('samsara_events')
+        .select('event_key')
+        .in('event_key', batch);
+      
+      if (error) {
+        console.warn(`Erro ao buscar event_keys do lote ${i / batchSize + 1}:`, error);
+        continue; // Continua com próximo lote
+      }
+      
+      if (data) {
+        data.forEach(row => {
+          if (row.event_key) {
+            existingKeys.add(row.event_key);
+          }
+        });
+      }
     }
     
-    return data && data.length > 0;
+    return existingKeys;
   } catch (error) {
-    console.error('Erro ao verificar se evento existe:', error);
-    throw error;
+    console.error('Erro ao buscar event_keys existentes:', error);
+    return new Set(); // Em caso de erro, retorna vazio (tenta inserir tudo)
   }
 }
 
-// Inserir dados em lotes para melhor performance
-async function insertTableBatch(table: string, data: any[], name: string, batchSize = 50) {
+// Inserir dados em lotes usando UPSERT (ON CONFLICT DO NOTHING)
+// Isso evita duplicatas automaticamente sem precisar verificar existência
+// Suporta tanto samsara_events (event_key) quanto wex_transactions (transaction_key)
+async function insertTableBatchUpsert(table: string, data: any[], name: string, batchSize = 1000) {
   try {
+    if (data.length === 0) return;
+    
+    // Processar em lotes menores para evitar timeout
     const batches = [];
     for (let i = 0; i < data.length; i += batchSize) {
       batches.push(data.slice(i, i + batchSize));
@@ -340,10 +421,47 @@ async function insertTableBatch(table: string, data: any[], name: string, batchS
     
     for (let i = 0; i < batches.length; i++) {
       const batch = batches[i];
-      const { error } = await supabase.from(table).insert(batch);
-      if (error) {
-        console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, error);
-        throw error;
+      
+      try {
+        // Determinar a coluna de conflito baseada na tabela
+        const conflictColumn = table === 'wex_transactions' ? 'transaction_key' : 'event_key';
+        
+        // Usar upsert com ignoreDuplicates para evitar duplicatas
+        // O PostgreSQL vai ignorar automaticamente duplicatas baseado na constraint UNIQUE
+        const { error, data } = await supabase
+          .from(table)
+          .upsert(batch, { 
+            onConflict: conflictColumn,
+            ignoreDuplicates: true
+          });
+        
+        if (error) {
+          // Se der erro de duplicata, ignorar (já existe)
+          if (error.message?.includes('duplicate') || error.message?.includes('unique') || error.code === '23505') {
+            console.log(`Lote ${i + 1}: alguns eventos já existem (ignorado)`);
+          } else {
+            // Para outros erros, tentar insert normal (pode gerar erro de duplicata, mas vamos continuar)
+            console.warn(`Upsert falhou, tentando insert normal:`, error.message);
+            const { error: insertError } = await supabase.from(table).insert(batch);
+            if (insertError) {
+              // Se der erro de duplicata, ignorar (já existe)
+              if (insertError.message?.includes('duplicate') || insertError.message?.includes('unique') || insertError.code === '23505') {
+                console.log(`Lote ${i + 1}: alguns eventos já existem (ignorado)`);
+              } else {
+                console.error(`Erro ao inserir lote ${i + 1}:`, insertError);
+                // Continua com próximo lote mesmo se houver erro
+              }
+            }
+          }
+        }
+      } catch (batchError: any) {
+        // Se der erro de duplicata, apenas logar e continuar
+        if (batchError?.message?.includes('duplicate') || batchError?.message?.includes('unique') || batchError?.code === '23505') {
+          console.log(`Lote ${i + 1}: alguns eventos já existem (ignorado)`);
+        } else {
+          console.error(`Erro ao inserir lote ${i + 1} em ${name}:`, batchError);
+          // Continua com próximo lote mesmo se houver erro
+        }
       }
       
       // Pequena pausa entre inserções para evitar sobrecarga
@@ -386,12 +504,17 @@ serve(async (req) => {
     // 1. Inicializar contadores
     let insertedCount = 0;
     let skippedCount = 0;
+    let wexInsertedCount = 0;
+    let wexSkippedCount = 0;
     
     // 2. Buscar dados do Samsara - Idle Events
     const idleEventsData = await fetchCsvToJson(samsaraIdleEventsUrl, 'Samsara_Idle_Events');
     
     // 3. Buscar dados do Samsara - Trips
     const tripsData = await fetchCsvToJson(samsaraTripsUrl, 'Samsara_Trips');
+    
+    // 3b. Buscar dados do WEX - Transactions
+    const wexTransactionsData = await fetchCsvToJson(wexTransactionsUrl, 'WEX_Transactions');
     
          // 4. Mapear Idle Events
      const mappedIdleEvents = idleEventsData.map((row) => {
@@ -434,8 +557,40 @@ serve(async (req) => {
        };
      });
     
-    // 6. Combinar todos os eventos
+    // 6. Combinar todos os eventos do Samsara
     const allEvents = [...mappedIdleEvents, ...mappedTrips];
+    
+    // 6b. Mapear WEX Transactions
+    const mappedWexTransactions = wexTransactionsData.map((row) => {
+      const transactionDate = getField(row, "Transaction Date");
+      const transactionTime = getField(row, "Transaction Time");
+      const embossLine2 = getField(row, "Emboss Line 2");
+      const units = getField(row, "Units");
+      const grossCost = getField(row, "Gross Cost");
+      const netCost = getField(row, "Net Cost");
+      const merchantCity = getField(row, "Merchant City");
+      
+      // Criar chave única: Transaction Date + Transaction Time + Emboss Line 2 + Units
+      const transactionKey = `${transactionDate}_${transactionTime}_${embossLine2}_${units}`;
+      
+      // Usar Net Cost se disponível, senão Gross Cost
+      const valor = parseNumericValue(netCost || grossCost, 0);
+      
+      // Parse da data (combina Transaction Date e Transaction Time)
+      const transactionDateObj = parseWexDate(transactionDate, transactionTime);
+      
+      return {
+        transaction_key: transactionKey,
+        transaction_date: transactionDateObj,
+        nome: normalizeName(embossLine2),
+        units: parseNumericValue(units, 0),
+        valor: valor,
+        local: merchantCity || null
+      };
+    });
+    
+    // Filtrar transações sem data válida
+    const validWexTransactions = mappedWexTransactions.filter(tx => tx.transaction_date !== null);
     
          // 7. Buscar último evento processado para continuar de onde parou
      const lastProcessedEvent = await getLastProcessedEvent();
@@ -491,51 +646,60 @@ serve(async (req) => {
         console.log('Nenhum evento anterior encontrado, processando todos os eventos históricos');
       }
      
-     // 9. Inserir apenas eventos que não existem (otimizado para grandes volumes)
+     // 9. Estratégia otimizada: usar UPSERT para evitar verificação individual
+     // Isso elimina a necessidade de verificar existência antes de inserir
      if (Array.isArray(eventsToProcess) && eventsToProcess.length > 0) {
-       console.log(`Processando ${eventsToProcess.length} eventos em lotes...`);
+       console.log(`Processando ${eventsToProcess.length} eventos usando UPSERT...`);
        
-       // Processar em lotes menores para evitar timeout
-       const batchSize = 100;
-       const totalBatches = Math.ceil(eventsToProcess.length / batchSize);
+       // Filtrar eventos sem data válida
+       const validEvents = eventsToProcess.filter(event => {
+         if (!event.event_date) {
+           console.log('Evento sem data ignorado:', event);
+           skippedCount++;
+           return false;
+         }
+         return true;
+       });
+       
+       console.log(`Eventos válidos para processar: ${validEvents.length}`);
+       
+       // Usar UPSERT em lotes grandes - muito mais eficiente
+       // O PostgreSQL vai ignorar duplicatas automaticamente
+       const batchSize = 1000; // Lotes maiores são mais eficientes
+       const totalBatches = Math.ceil(validEvents.length / batchSize);
        
        for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
          const startIndex = batchIndex * batchSize;
-         const endIndex = Math.min(startIndex + batchSize, eventsToProcess.length);
-         const currentBatch = eventsToProcess.slice(startIndex, endIndex);
+         const endIndex = Math.min(startIndex + batchSize, validEvents.length);
+         const currentBatch = validEvents.slice(startIndex, endIndex);
          
          console.log(`Processando lote ${batchIndex + 1}/${totalBatches} (${currentBatch.length} eventos)`);
          
-         const eventsToInsert = [];
-         
-         // Verificar existência em paralelo para melhor performance
-         const existenceChecks = await Promise.all(
-           currentBatch.map(async (event) => {
-             try {
-               const exists = await checkEventExists(event.event_key);
-               return { event, exists };
-             } catch (error) {
-               console.warn(`Erro ao verificar evento ${event.event_key}:`, error);
-               return { event, exists: false }; // Em caso de erro, tenta inserir
-             }
-           })
-         );
-         
-         for (const { event, exists } of existenceChecks) {
-           if (!exists) {
-             eventsToInsert.push(event);
-             insertedCount++;
-           } else {
-             skippedCount++;
-           }
-         }
-         
-         // Inserir lote atual se houver dados
-         if (eventsToInsert.length > 0) {
-           await insertTableBatch("samsara_events", eventsToInsert, "Samsara_Events");
-           console.log(`Lote ${batchIndex + 1} inserido: ${eventsToInsert.length} eventos`);
-         } else {
-           console.log(`Lote ${batchIndex + 1}: todos os eventos já existem`);
+         try {
+           // Preparar dados para inserção conforme schema da tabela
+           // Nota: duration não está na tabela atual, então removemos esse campo
+           const eventsToInsert = currentBatch.map(event => {
+             return {
+               event_date: event.event_date,
+               nome: event.nome,
+               local: event.local || null,
+               distancia: event.distancia || 0,
+               units: event.units || 0,
+               type: event.type,
+               event_key: event.event_key
+             };
+           });
+           
+           // Usar UPSERT - muito mais rápido que verificar existência
+           await insertTableBatchUpsert("samsara_events", eventsToInsert, "Samsara_Events", batchSize);
+           
+           insertedCount += eventsToInsert.length;
+           console.log(`Lote ${batchIndex + 1} processado: ${eventsToInsert.length} eventos`);
+           
+         } catch (error) {
+           console.error(`Erro ao processar lote ${batchIndex + 1}:`, error);
+           // Continua com próximo lote mesmo se houver erro
+           skippedCount += currentBatch.length;
          }
          
          // Pequena pausa entre lotes para evitar sobrecarga
@@ -546,16 +710,79 @@ serve(async (req) => {
      } else {
        console.log('Nenhum evento novo para processar');
      }
+     
+     // 10. Processar WEX Transactions usando UPSERT
+     if (Array.isArray(validWexTransactions) && validWexTransactions.length > 0) {
+       console.log(`Processando ${validWexTransactions.length} transações WEX usando UPSERT...`);
+       
+       const wexBatchSize = 1000;
+       const wexTotalBatches = Math.ceil(validWexTransactions.length / wexBatchSize);
+       
+       for (let batchIndex = 0; batchIndex < wexTotalBatches; batchIndex++) {
+         const startIndex = batchIndex * wexBatchSize;
+         const endIndex = Math.min(startIndex + wexBatchSize, validWexTransactions.length);
+         const currentBatch = validWexTransactions.slice(startIndex, endIndex);
+         
+         console.log(`Processando lote WEX ${batchIndex + 1}/${wexTotalBatches} (${currentBatch.length} transações)`);
+         
+         try {
+           // Preparar dados para inserção
+           const transactionsToInsert = currentBatch.map(tx => {
+             // Converter Date para string no formato YYYY-MM-DD
+             let transactionDateStr = null;
+             if (tx.transaction_date) {
+               const year = tx.transaction_date.getFullYear();
+               const month = String(tx.transaction_date.getMonth() + 1).padStart(2, '0');
+               const day = String(tx.transaction_date.getDate()).padStart(2, '0');
+               transactionDateStr = `${year}-${month}-${day}`;
+             }
+             
+             return {
+               transaction_key: tx.transaction_key,
+               transaction_date: transactionDateStr,
+               nome: tx.nome,
+               units: tx.units || 0,
+               valor: tx.valor || 0,
+               local: tx.local || null
+             };
+           });
+           
+           // Usar UPSERT para WEX Transactions
+           await insertTableBatchUpsert("wex_transactions", transactionsToInsert, "WEX_Transactions", wexBatchSize);
+           
+           wexInsertedCount += transactionsToInsert.length;
+           console.log(`Lote WEX ${batchIndex + 1} processado: ${transactionsToInsert.length} transações`);
+           
+         } catch (error) {
+           console.error(`Erro ao processar lote WEX ${batchIndex + 1}:`, error);
+           wexSkippedCount += currentBatch.length;
+         }
+         
+         // Pequena pausa entre lotes
+         if (batchIndex < wexTotalBatches - 1) {
+           await new Promise(resolve => setTimeout(resolve, 50));
+         }
+       }
+     } else {
+       console.log('Nenhuma transação WEX válida para processar');
+     }
     
     return new Response(JSON.stringify({
       success: true,
-      message: "Sincronização do Samsara concluída com sucesso!",
+      message: "Sincronização do Samsara e WEX concluída com sucesso!",
       summary: {
-        total_events: Array.isArray(allEvents) ? allEvents.length : 0,
-        idle_events: mappedIdleEvents.length,
-        trips: mappedTrips.length,
-        inserted: insertedCount,
-        skipped: skippedCount
+        samsara: {
+          total_events: Array.isArray(allEvents) ? allEvents.length : 0,
+          idle_events: mappedIdleEvents.length,
+          trips: mappedTrips.length,
+          inserted: insertedCount,
+          skipped: skippedCount
+        },
+        wex: {
+          total_transactions: Array.isArray(validWexTransactions) ? validWexTransactions.length : 0,
+          inserted: wexInsertedCount,
+          skipped: wexSkippedCount
+        }
       }
     }), {
       status: 200,

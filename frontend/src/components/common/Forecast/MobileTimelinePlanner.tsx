@@ -1,6 +1,32 @@
 import React, { useState, useMemo } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconFieldwire from '../../../assets/fieldwire.png';
+
+const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
+const indicatorWrapperStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'row',
+  gap: 6,
+  alignItems: 'center'
+};
+const indicatorIconStyle: React.CSSProperties = {
+  width: 32,
+  height: 32,
+  borderRadius: 12,
+  background: 'rgba(255,255,255,0.1)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+};
+
+const isTruthyFlag = (value?: string | boolean | null): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (!value) return false;
+  const normalized = value.toString().toLowerCase().trim();
+  if (!normalized) return false;
+  return POSITIVE_STRINGS.includes(normalized);
+};
 
 interface WorkforceProject {
   id: number;
@@ -10,6 +36,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  fieldwire?: boolean | string | null;
+  tem_contrato?: boolean | string | null;
   status?: string | null;
   address?: string | null;
   previous_start_date: string;
@@ -317,20 +345,33 @@ export default function MobileTimelinePlanner({
                         </div>
 
                         {/* Ícone HVAC abaixo do status, alinhado à direita */}
-                        {project.hvac && project.hvac.toUpperCase() === 'YES' && (
-                          <div style={{ flexShrink: 0 }}>
-                            <img 
-                              src={iconForecastHvac} 
-                              alt="HVAC" 
-                              style={{ 
-                                width: '20px', 
-                                height: '20px',
-                                objectFit: 'contain',
-                                opacity: 0.95
-                              }} 
-                            />
+                        {(project.hvac && project.hvac.toUpperCase() === 'YES') || isTruthyFlag(project.fieldwire) ? (
+                          <div style={indicatorWrapperStyle}>
+                            {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                              <div style={indicatorIconStyle}>
+                                <img 
+                                  src={iconForecastHvac} 
+                                  alt="HVAC" 
+                                  style={{ 
+                                    width: 18, 
+                                    height: 18,
+                                    objectFit: 'contain',
+                                    opacity: 0.95
+                                  }} 
+                                />
+                              </div>
+                            )}
+                            {isTruthyFlag(project.fieldwire) && (
+                              <div style={indicatorIconStyle}>
+                                <img 
+                                  src={iconFieldwire} 
+                                  alt="Fieldwire" 
+                                  style={{ width: 18, height: 18, objectFit: 'contain' }}
+                                />
+                              </div>
+                            )}
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
 
@@ -406,6 +447,12 @@ export default function MobileTimelinePlanner({
                         alignItems: 'center',
                         gap: '8px'
                       }}>
+                        {isTruthyFlag(project.tem_contrato) && (
+                          <i className="bi bi-file-earmark-check" style={{ 
+                            color: '#20c997', 
+                            fontSize: '16px' 
+                          }} />
+                        )}
                         <i className="bi bi-people" style={{ 
                           color: 'rgba(255,255,255,0.8)', 
                           fontSize: '14px' 
@@ -560,16 +607,36 @@ export default function MobileTimelinePlanner({
                 <i className="bi bi-people" />
                 <span>{selectedProject.workforce || 'No team assigned'}</span>
               </div>
-              {selectedProject.hvac && selectedProject.hvac.toUpperCase() === 'YES' && (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
-                  borderRadius: 24, padding: '4px 8px', fontSize: 12, color: 'var(--color-text-primary)'
-                }}>
-                  <img src={iconForecastHvac} alt="HVAC" style={{ width: 18, height: 18, objectFit: 'contain' }} />
-                  <span>HVAC</span>
-                </div>
-              )}
+                      {selectedProject.hvac && selectedProject.hvac.toUpperCase() === 'YES' && (
+                        <div style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 8,
+                          background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                          borderRadius: 24, padding: '4px 8px', fontSize: 12, color: 'var(--color-text-primary)'
+                        }}>
+                          <img src={iconForecastHvac} alt="HVAC" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                          <span>HVAC</span>
+                        </div>
+                      )}
+                      {isTruthyFlag(selectedProject.fieldwire) && (
+                        <div style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 8,
+                          background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                          borderRadius: 24, padding: '4px 10px', fontSize: 12, color: 'var(--color-text-primary)'
+                        }}>
+                          <img src={iconFieldwire} alt="Fieldwire" style={{ width: 18, height: 18, objectFit: 'contain' }} />
+                          <span>Fieldwire</span>
+                        </div>
+                      )}
+                      {isTruthyFlag(selectedProject.tem_contrato) && (
+                        <div style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)',
+                          borderRadius: 24, padding: '4px 10px', fontSize: 12, color: 'var(--color-text-primary)'
+                        }}>
+                          <i className="bi bi-file-earmark-check" />
+                          <span>Contrato</span>
+                        </div>
+                      )}
             </div>
 
             {/* Observações */}

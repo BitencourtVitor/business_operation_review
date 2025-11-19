@@ -2,6 +2,17 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconFieldwire from '../../../assets/fieldwire.png';
+
+const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
+
+const isTruthyFlag = (value?: string | boolean | null): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (!value) return false;
+  const normalized = value.toString().toLowerCase().trim();
+  if (!normalized) return false;
+  return POSITIVE_STRINGS.includes(normalized);
+};
 
 // Status a partir da coluna status; atraso independente
 const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => {
@@ -39,6 +50,15 @@ const PROJECT_STATUS_COLORS = {
   }
 } as const;
 const OVERDUE_COLORS = { primary: '#e04b4b', hover: '#c73f3f' } as const;
+const INDICATOR_ICON_STYLE: React.CSSProperties = {
+  width: 32,
+  height: 32,
+  borderRadius: 10,
+  background: 'rgba(255,255,255,0.1)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center'
+};
 
 interface WorkforceProject {
   id: number;
@@ -48,6 +68,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  fieldwire?: boolean | string | null;
+  tem_contrato?: boolean | string | null;
   status?: string | null;
   address?: string | null;
   previous_start_date: string;
@@ -195,13 +217,16 @@ export default function TimelinePlanner({
   const getCardHeight = (project: WorkforceProject) => {
     const hasObservation = !!(project.observacoes && project.observacoes.trim());
     const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
+    const hasFieldwire = isTruthyFlag(project.fieldwire);
+    const hasContract = isTruthyFlag(project.tem_contrato);
     const hasTeam = !!(project.workforce && project.workforce.trim());
     const hasDates = !!(project.previous_start_date && project.previous_end_date);
+    const indicatorCount = [hasHvac, hasFieldwire].filter(Boolean).length;
 
     let height = 144; // header + job + lot
     if (hasTeam) height += 16;
     if (hasDates) height += 16;
-    if (hasHvac) height += 16; // espaço para HVAC na coluna direita
+    if (indicatorCount > 0) height += indicatorCount * 18; // espaço para indicadores
     if (hasObservation) height += 36;
     return height;
   };
@@ -666,6 +691,29 @@ export default function TimelinePlanner({
                                 const overdue = !!overdueType;
                                 const baseColors = PROJECT_STATUS_COLORS[projectStatus as keyof typeof PROJECT_STATUS_COLORS];
                                 const cardColors = overdue ? OVERDUE_COLORS : baseColors;
+                                const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
+                                const hasFieldwire = isTruthyFlag(project.fieldwire);
+                                const hasContract = isTruthyFlag(project.tem_contrato);
+                                const indicatorBadges = ([
+                                  hasHvac && (
+                                    <div key={`${project.id}-hvac`} style={INDICATOR_ICON_STYLE}>
+                                      <img 
+                                        src={iconForecastHvac} 
+                                        alt="HVAC" 
+                                        style={{ width: 18, height: 18, objectFit: 'contain', opacity: 0.95 }} 
+                                      />
+                                    </div>
+                                  ),
+                                  hasFieldwire && (
+                                    <div key={`${project.id}-fieldwire`} style={INDICATOR_ICON_STYLE} title="Fieldwire">
+                                      <img 
+                                        src={iconFieldwire} 
+                                        alt="Fieldwire" 
+                                        style={{ width: 18, height: 18, objectFit: 'contain' }} 
+                                      />
+                                    </div>
+                                  )
+                                ] as (false | JSX.Element)[]).filter(Boolean) as JSX.Element[];
                                 
                                 return (
                                 <div
@@ -730,6 +778,12 @@ export default function TimelinePlanner({
                                     </div>
                                     {/* Equipe com ícone */}
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      {hasContract && (
+                                        <i className="bi bi-file-earmark-check" style={{ 
+                                          fontSize: 14, 
+                                          color: '#20c997' 
+                                        }} />
+                                      )}
                                       <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
                                       <span style={{ 
                                         fontSize: 11, 
@@ -753,7 +807,7 @@ export default function TimelinePlanner({
                                   </div>
 
                                   {/* Coluna direita - status e HVAC (itens alinhados à direita) */}
-                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 48, flexShrink: 0 }}>
+                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 52, flexShrink: 0 }}>
                                     <div 
                                       onMouseEnter={(e) => handleStatusMouseEnter(e, overdue ? 'Overdue' : (projectStatus === 'open' ? 'Open' : 'Not Started'))}
                                       onMouseLeave={handleStatusMouseLeave}
@@ -777,19 +831,9 @@ export default function TimelinePlanner({
                                         <span style={{ fontSize: 11 }}>N/S</span>
                                       )}
                                     </div>
-                                    {project.hvac && project.hvac.toUpperCase() === 'YES' && (
-                                      <div style={{
-                                        width: 32,
-                                        height: 32,
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center'
-                                      }}>
-                                        <img 
-                                          src={iconForecastHvac} 
-                                          alt="HVAC" 
-                                          style={{ width: 18, height: 18, objectFit: 'contain', opacity: 0.95 }} 
-                                        />
+                                    {indicatorBadges.length > 0 && (
+                                      <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
+                                        {indicatorBadges}
                                       </div>
                                     )}
                                   </div>

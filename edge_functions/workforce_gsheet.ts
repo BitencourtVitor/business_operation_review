@@ -67,6 +67,16 @@ function normalizeUtf8String(str: string | null | undefined): string {
   }
 }
 
+const YES_VALUES = ['yes', 'sim', 'true', '1', 'y'];
+function parseYesNo(value: string | null | undefined): boolean | null {
+  if (!value) return null;
+  const normalized = normalizeUtf8String(value).toLowerCase();
+  if (!normalized) return null;
+  if (YES_VALUES.includes(normalized)) return true;
+  if (['no', 'não', 'nao', 'false', '0', 'n'].includes(normalized)) return false;
+  return null;
+}
+
 // Função para testar se a planilha está acessível
 async function testSheetAccess(url: string, name: string) {
   try {
@@ -144,6 +154,8 @@ async function processProjectsData(csvData: any[]) {
     const workforce = normalizeUtf8String(row['Workforce']);
     const hvac = normalizeUtf8String(row['HVAC']);
     const observacoes = normalizeUtf8String(row['Obs']);
+    const fieldwireFlag = parseYesNo(row['Fieldwire?']);
+    const temContratoFlag = parseYesNo(row['Tem Contrato?']);
     
     // Converter lote/building para número (permitir vazio)
     const loteBuilding = row['Lote / Bld'] ? parseInt(row['Lote / Bld']) || 0 : 0;
@@ -166,6 +178,8 @@ async function processProjectsData(csvData: any[]) {
       previous_start_date: previousStartDate,
       previous_end_date: previousEndDate,
       observacoes: observacoes || null,
+      fieldwire: fieldwireFlag,
+      tem_contrato: temContratoFlag,
       updated_at: new Date().toISOString()
     };
   }).filter(row => row.cliente && row.job_site); // Filtrar apenas linhas com dados essenciais
