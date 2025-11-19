@@ -8,6 +8,8 @@ interface WorkforceProject {
   lote_building: number;
   workforce: string;
   hvac: string | null;
+  fieldwire?: boolean | string | null;
+  tem_contrato?: boolean | string | null;
   status?: string | null;
   address?: string | null;
   previous_start_date: string;
@@ -176,6 +178,8 @@ export default function TimelineGantt({
         lote_building: p.lote_building,
         workforce: p.workforce,
         hvac: p.hvac,
+        fieldwire: p.fieldwire,
+        tem_contrato: p.tem_contrato,
         previous_start_date: p.previous_start_date,
         previous_end_date: p.previous_end_date,
         observacoes: p.observacoes

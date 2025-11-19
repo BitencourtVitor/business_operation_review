@@ -1,6 +1,17 @@
 import React from 'react';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconFieldwire from '../../../assets/fieldwire.png';
 import { formatDateUS } from '../../../utils/formatters';
+
+const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
+
+const isTruthyFlag = (value?: string | boolean | null): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (!value) return false;
+  const normalized = value.toString().toLowerCase().trim();
+  if (!normalized) return false;
+  return POSITIVE_STRINGS.includes(normalized);
+};
 
 interface TimelineTooltipProps {
   isVisible: boolean;
@@ -17,6 +28,9 @@ interface TimelineTooltipProps {
       previous_start_date: string;
       previous_end_date: string;
       observacoes: string;
+      hvac?: string | null;
+      fieldwire?: boolean | string | null;
+      tem_contrato?: boolean | string | null;
     }>;
   };
   onClose: () => void;
@@ -197,31 +211,69 @@ export default function TimelineTooltip({
                       {project.workforce}
                     </div>
                   )}
-                  {project.hvac && project.hvac.toUpperCase() === 'YES' && (
-                    <div style={{
-                      background: '#17a2b8',
-                      color: 'white',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      padding: '6px 8px',
-                      borderRadius: 12,
-                      minWidth: 30,
-                      textAlign: 'center',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <img 
-                        src={iconForecastHvac} 
-                        alt="HVAC" 
-                        style={{ 
-                          width: '16px', 
-                          height: '16px',
-                          objectFit: 'contain'
-                        }} 
-                      />
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {project.hvac && project.hvac.toUpperCase() === 'YES' && (
+                      <div style={{
+                        background: '#17a2b8',
+                        color: 'white',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: '6px 8px',
+                        borderRadius: 12,
+                        minWidth: 30,
+                        textAlign: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <img 
+                          src={iconForecastHvac} 
+                          alt="HVAC" 
+                          style={{ 
+                            width: '16px', 
+                            height: '16px',
+                            objectFit: 'contain'
+                          }} 
+                        />
+                      </div>
+                    )}
+                    {isTruthyFlag(project.fieldwire) && (
+                      <div style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        borderRadius: 12,
+                        minWidth: 30,
+                        padding: '6px 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        <img 
+                          src={iconFieldwire} 
+                          alt="Fieldwire" 
+                          style={{ width: 16, height: 16, objectFit: 'contain' }}
+                        />
+                      </div>
+                    )}
+                    {isTruthyFlag(project.tem_contrato) && (
+                      <div style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        color: 'var(--color-text-primary)',
+                        fontSize: 11,
+                        fontWeight: 600,
+                        padding: '6px 10px',
+                        borderRadius: 12,
+                        minWidth: 30,
+                        textAlign: 'center',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 4
+                      }}>
+                        <i className="bi bi-file-earmark-check" />
+                        Contrato
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
