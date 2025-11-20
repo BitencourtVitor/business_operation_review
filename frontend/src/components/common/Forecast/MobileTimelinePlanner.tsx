@@ -42,6 +42,7 @@ interface WorkforceProject {
   address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
+  previous_beams_date: string | null;
   observacoes: string;
   created_at: string;
   updated_at: string;
@@ -66,6 +67,8 @@ interface MobileTimelinePlannerProps {
   onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
   sortByDate: 'off' | 'asc' | 'desc' | null;
   onSortByDateChange: (sortBy: 'off' | 'asc' | 'desc' | null) => void;
+  dateMode: 'start' | 'beams';
+  onDateModeChange: (mode: 'start' | 'beams') => void;
 }
 
 export default function MobileTimelinePlanner({
@@ -76,9 +79,18 @@ export default function MobileTimelinePlanner({
   groupBy,
   onGroupByChange,
   sortByDate,
-  onSortByDateChange
+  onSortByDateChange,
+  dateMode,
+  onDateModeChange
 }: MobileTimelinePlannerProps) {
   const [selectedProject, setSelectedProject] = useState<WorkforceProject | null>(null);
+  const resolveReferenceDate = (project: WorkforceProject) => {
+    const ref = dateMode === 'beams'
+      ? (project.previous_beams_date || project.previous_start_date)
+      : project.previous_start_date;
+    return ref || '';
+  };
+  const dateModeLabel = dateMode === 'beams' ? 'Beams Date' : 'Start Date';
 
   // Agrupar projetos por período
   const groupedProjects = useMemo(() => {
@@ -91,12 +103,15 @@ export default function MobileTimelinePlanner({
       const end = new Date(project.previous_end_date);
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
 
+      const referenceDate = resolveReferenceDate(project);
+      if (!referenceDate) return false;
+
       // Parse date string directly to avoid timezone issues
-      const dateParts = project.previous_start_date.split('-');
+      const dateParts = referenceDate.split('-');
       if (dateParts.length !== 3) return false;
       
       const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1]);
+      const projectMonthNum = parseInt(dateParts[1], 10);
       const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
@@ -109,9 +124,16 @@ export default function MobileTimelinePlanner({
     const grouped: { [key: string]: WorkforceProject[] } = {};
     
     filteredProjects.forEach(project => {
-      const startDate = new Date(project.previous_start_date);
-      const monthKey = `${startDate.getFullYear()}-${startDate.getMonth()}`;
-      const monthName = startDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + startDate.getFullYear();
+      const referenceDate = resolveReferenceDate(project);
+      if (!referenceDate) {
+        return;
+      }
+      const baseDate = new Date(referenceDate);
+      if (isNaN(baseDate.getTime())) {
+        return;
+      }
+      const monthKey = `${baseDate.getFullYear()}-${baseDate.getMonth()}`;
+      const monthName = baseDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + baseDate.getFullYear();
       
       if (!grouped[monthName]) {
         grouped[monthName] = [];
@@ -121,9 +143,17 @@ export default function MobileTimelinePlanner({
 
     // Ordenar por data
     Object.keys(grouped).forEach(month => {
-      grouped[month].sort((a, b) => 
-        new Date(a.previous_start_date).getTime() - new Date(b.previous_start_date).getTime()
-      );
+      grouped[month].sort((a, b) => {
+        const dateA = new Date(resolveReferenceDate(a) || '1900-01-01').getTime();
+        const dateB = new Date(resolveReferenceDate(b) || '1900-01-01').getTime();
+        if (sortByDate === 'desc') {
+          return dateB - dateA;
+        }
+        if (sortByDate === 'asc') {
+          return dateA - dateB;
+        }
+        return dateA - dateB;
+      });
     });
 
     return Object.entries(grouped).sort(([a], [b]) => {
@@ -131,7 +161,7 @@ export default function MobileTimelinePlanner({
       const dateB = new Date(b.split(' / ')[1] + ' ' + b.split(' / ')[0]);
       return dateA.getTime() - dateB.getTime();
     });
-  }, [workforceProjects, selectedYear, selectedMonth]);
+  }, [workforceProjects, selectedYear, selectedMonth, dateMode, sortByDate]);
 
   const formatDate = (dateString: string) => {
     return formatDateUS(dateString);
@@ -199,6 +229,78 @@ export default function MobileTimelinePlanner({
       maxWidth: '100%',
       boxSizing: 'border-box'
     }}>
+      <div style={{
+        marginBottom: '15px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '10px',
+          background: 'var(--color-background-secondary)',
+          border: '1px solid var(--color-border-divider)',
+          borderRadius: 10,
+          padding: '10px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <i className="bi bi-calendar-week" style={{ color: 'var(--color-accent-primary)', fontSize: 16 }} />
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>
+              Date Mode
+            </span>
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <button
+              onClick={() => onDateModeChange('start')}
+              style={{
+                background: dateMode === 'start' ? 'var(--color-accent-primary)' : 'transparent',
+                color: dateMode === 'start' ? '#fff' : 'var(--color-text-primary)',
+                border: '1px solid var(--color-border-divider)',
+                borderRadius: 20,
+                padding: '4px 12px',
+                fontSize: 13,
+                fontWeight: 600
+              }}
+            >
+              Start
+            </button>
+            <button
+              onClick={() => onDateModeChange('beams')}
+              style={{
+                background: dateMode === 'beams' ? '#17a2b8' : 'transparent',
+                color: dateMode === 'beams' ? '#fff' : 'var(--color-text-primary)',
+                border: '1px solid var(--color-border-divider)',
+                borderRadius: 20,
+                padding: '4px 12px',
+                fontSize: 13,
+                fontWeight: 600
+              }}
+            >
+              Beams
+            </button>
+          </div>
+        </div>
+        <button
+          onClick={() => onSortByDateChange(sortByDate === 'asc' ? 'desc' : sortByDate === 'desc' ? null : 'asc')}
+          style={{
+            background: sortByDate ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)',
+            color: sortByDate ? '#fff' : 'var(--color-text-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: 10,
+            padding: '10px 14px',
+            fontSize: 14,
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <span>Sort by {dateModeLabel}</span>
+          <span>{sortByDate ? sortByDate.toUpperCase() : 'OFF'}</span>
+        </button>
+      </div>
       {groupedProjects.map(([month, projects]) => (
         <div key={month} style={{ marginBottom: '25px' }}>
           {/* Container do mês */}
@@ -422,6 +524,25 @@ export default function MobileTimelinePlanner({
                           {project.type || 'Lot'} {project.lote_building}
                         </span>
                       </div>
+
+                      {project.previous_beams_date && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px'
+                        }}>
+                          <i className="bi bi-flag-fill" style={{ 
+                            color: 'rgba(255,255,255,0.8)', 
+                            fontSize: '14px' 
+                          }} />
+                          <span style={{
+                            fontSize: '14px',
+                            color: 'rgba(255,255,255,0.85)'
+                          }}>
+                            Beams: {formatDate(project.previous_beams_date)}
+                          </span>
+                        </div>
+                      )}
 
                       {/* Datas */}
                       <div style={{
