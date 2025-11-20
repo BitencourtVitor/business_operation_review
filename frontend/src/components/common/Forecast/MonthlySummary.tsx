@@ -13,6 +13,7 @@ interface WorkforceProject {
   address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
+  previous_beams_date: string | null;
   observacoes: string;
   created_at: string;
   updated_at: string;

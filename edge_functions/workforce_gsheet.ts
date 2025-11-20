@@ -165,6 +165,9 @@ async function processProjectsData(csvData: any[]) {
       new Date(row['Previous Start Date']).toISOString().split('T')[0] : null;
     const previousEndDate = row['Previous End Date'] && row['Previous End Date'].trim() ? 
       new Date(row['Previous End Date']).toISOString().split('T')[0] : null;
+    const previousBeamsDate = row['Previous Beams Date'] && row['Previous Beams Date'].trim()
+      ? new Date(row['Previous Beams Date']).toISOString().split('T')[0]
+      : null;
     
     return {
       cliente,
@@ -177,6 +180,7 @@ async function processProjectsData(csvData: any[]) {
       address: address || null,
       previous_start_date: previousStartDate,
       previous_end_date: previousEndDate,
+      previous_beams_date: previousBeamsDate,
       observacoes: observacoes || null,
       fieldwire: fieldwireFlag,
       tem_contrato: temContratoFlag,

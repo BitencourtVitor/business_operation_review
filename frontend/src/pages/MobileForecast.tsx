@@ -9,6 +9,8 @@ import MobileForecastMetrics from '../components/common/Forecast/MobileForecastM
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
+type DateMode = 'start' | 'beams';
+
 interface WorkforceProject {
   id: number;
   cliente: string;
@@ -23,10 +25,18 @@ interface WorkforceProject {
   address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
+  previous_beams_date: string | null;
   observacoes: string;
   created_at: string;
   updated_at: string;
 }
+
+const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | null => {
+  if (mode === 'beams') {
+    return project.previous_beams_date || project.previous_start_date || null;
+  }
+  return project.previous_start_date || null;
+};
 
 interface ForecastData {
   cliente: string;
@@ -39,12 +49,14 @@ interface ForecastData {
 }
 
 export default function MobileForecast() {
+  const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<string>('Framing');
   const [isCompanyMenuOpen, setIsCompanyMenuOpen] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [dateMode, setDateMode] = useState<DateMode>('start');
 
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
@@ -54,6 +66,11 @@ export default function MobileForecast() {
   const [selectedType, setSelectedType] = useState<string>('all'); // 'all', 'Lot', 'Building'
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
+
+  useEffect(() => {
+    setSelectedYear('');
+    setSelectedMonth('');
+  }, [dateMode]);
 
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
@@ -103,6 +120,8 @@ export default function MobileForecast() {
 
       if (projectsError) throw projectsError;
 
+      setRawProjects((projectsData || []) as WorkforceProject[]);
+
       const filtered = (projectsData || []).filter((p: any) => {
         const s = (p.status || '').toLowerCase().trim();
         // Apenas projetos com status 'not started' são exibidos
@@ -113,36 +132,6 @@ export default function MobileForecast() {
         return false;
       });
       setWorkforceProjects(filtered);
-
-      // Extrair anos únicos
-      const uniqueYears = [...new Set((projectsData || [])
-        .map(p => new Date(p.previous_start_date).getFullYear().toString())
-        .filter(year => year !== 'NaN'))].sort((a, b) => b.localeCompare(a));
-      setYears(uniqueYears);
-
-      // Extrair meses únicos
-      const uniqueMonths = [...new Set((projectsData || [])
-        .map(p => new Date(p.previous_start_date).toLocaleString('en-US', { month: 'long' }))
-        .filter(month => month))].sort();
-      setMonths(uniqueMonths);
-
-      // Extrair clientes únicos
-      const uniqueClients = [...new Set((projectsData || [])
-        .map(p => p.cliente)
-        .filter(cliente => cliente))].sort();
-      setClients(uniqueClients);
-
-      // Extrair job sites únicos
-      const uniqueJobSites = [...new Set((projectsData || [])
-        .map(p => p.job_site)
-        .filter(jobSite => jobSite))].sort();
-      setJobSites(uniqueJobSites);
-
-      // Extrair tipos únicos
-      const uniqueTypes = [...new Set((projectsData || [])
-        .map(p => p.type)
-        .filter(type => type))].sort();
-      setAvailableTypes(uniqueTypes);
 
     } catch (err) {
       console.error('Erro ao buscar dados do workforce:', err);
@@ -159,6 +148,67 @@ export default function MobileForecast() {
     }
   }, [isInitialLoading]);
 
+  useEffect(() => {
+    if (!rawProjects.length) {
+      setClients([]);
+      setJobSites([]);
+      setAvailableTypes([]);
+      return;
+    }
+
+    const uniqueClients = [...new Set(
+      rawProjects
+        .map(p => p.cliente)
+        .filter(cliente => !!cliente)
+    )].sort();
+    setClients(uniqueClients);
+
+    const uniqueJobSites = [...new Set(
+      rawProjects
+        .map(p => p.job_site)
+        .filter(jobSite => !!jobSite)
+    )].sort();
+    setJobSites(uniqueJobSites);
+
+    const uniqueTypes = [...new Set(
+      rawProjects
+        .map(p => p.type)
+        .filter(type => !!type)
+    )].sort();
+    setAvailableTypes(uniqueTypes);
+  }, [rawProjects]);
+
+  useEffect(() => {
+    if (!rawProjects.length) {
+      setYears([]);
+      setMonths([]);
+      return;
+    }
+
+    const referenceDates = rawProjects
+      .map(project => getReferenceDate(project, dateMode))
+      .filter((date): date is string => !!date);
+
+    const uniqueYears = [...new Set(
+      referenceDates
+        .map(date => new Date(date))
+        .filter(dateObj => !isNaN(dateObj.getTime()))
+        .map(dateObj => dateObj.getFullYear().toString())
+    )].sort((a, b) => b.localeCompare(a));
+    setYears(uniqueYears);
+
+    const uniqueMonths = [...new Set(
+      referenceDates
+        .map(date => {
+          const parsed = new Date(date);
+          if (isNaN(parsed.getTime())) return null;
+          return parsed.toLocaleString('en-US', { month: 'long' });
+        })
+        .filter((month): month is string => !!month)
+    )].sort();
+    setMonths(uniqueMonths);
+  }, [rawProjects, dateMode]);
+
   // Lista de projetos visíveis de acordo com filtros selecionados
   const visibleProjects = useMemo(() => {
     if (!workforceProjects.length) return [] as typeof workforceProjects;
@@ -173,12 +223,14 @@ export default function MobileForecast() {
       const end = new Date(project.previous_end_date);
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
 
-      // Parse date string directly to avoid timezone issues
-      const dateParts = project.previous_start_date.split('-');
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) return false;
+
+      const dateParts = referenceDate.split('-');
       if (dateParts.length !== 3) return false;
       
       const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1]);
+      const projectMonthNum = parseInt(dateParts[1], 10);
       const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
@@ -191,7 +243,7 @@ export default function MobileForecast() {
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch;
     });
 
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType]);
+  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -201,9 +253,16 @@ export default function MobileForecast() {
     const groupedData: { [key: string]: ForecastData } = {};
 
     visibleProjects.forEach(project => {
-      const startDate = new Date(project.previous_start_date);
-      const month = startDate.toLocaleString('en-US', { month: 'long' });
-      const year = startDate.getFullYear();
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) {
+        return;
+      }
+      const refDateObj = new Date(referenceDate);
+      if (isNaN(refDateObj.getTime())) {
+        return;
+      }
+      const month = refDateObj.toLocaleString('en-US', { month: 'long' });
+      const year = refDateObj.getFullYear();
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
       
@@ -227,7 +286,7 @@ export default function MobileForecast() {
       if (a.month !== b.month) return a.month.localeCompare(b.month);
       return a.cliente.localeCompare(b.cliente);
     });
-  }, [visibleProjects]);
+  }, [visibleProjects, dateMode]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
@@ -520,6 +579,8 @@ export default function MobileForecast() {
             onGroupByChange={setGroupBy}
             sortByDate={sortByDate}
             onSortByDateChange={setSortByDate}
+            dateMode={dateMode}
+            onDateModeChange={setDateMode}
           />
         </div>
       </div>

@@ -8,6 +8,8 @@ import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
 import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
+type DateMode = 'start' | 'beams';
+
 interface WorkforceProject {
   id: number;
   cliente: string;
@@ -22,10 +24,18 @@ interface WorkforceProject {
   address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
+  previous_beams_date: string | null;
   observacoes: string;
   created_at: string;
   updated_at: string;
 }
+
+const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | null => {
+  if (mode === 'beams') {
+    return project.previous_beams_date || project.previous_start_date || null;
+  }
+  return project.previous_start_date || null;
+};
 
 interface ForecastData {
   cliente: string;
@@ -46,9 +56,11 @@ interface WorkforceForecastProps {
 }
 
 export default function WorkforceForecast({ selectedType = 'Framing' }: WorkforceForecastProps) {
+  const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [dateMode, setDateMode] = useState<DateMode>('start');
 
   // Mapeamento de ícones das empresas
   const empresaIcones: { [empresa: string]: string } = {
@@ -63,6 +75,11 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
   const [selectedProjectType, setSelectedProjectType] = useState<string>('all'); // 'all', 'Lot', 'Building'
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
+
+  useEffect(() => {
+    setSelectedYear('');
+    setSelectedMonth('');
+  }, [dateMode]);
 
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
@@ -93,6 +110,8 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
 
         if (groupsError) throw groupsError;
 
+        setRawProjects((projectsData || []) as WorkforceProject[]);
+
         const filtered = (projectsData || []).filter((p: any) => {
           const s = (p.status || '').toLowerCase().trim();
           // Apenas projetos com status 'not started' são exibidos
@@ -103,36 +122,6 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
           return false;
         });
         setWorkforceProjects(filtered);
-
-        // Extrair anos únicos
-        const uniqueYears = [...new Set((projectsData || [])
-          .map(p => new Date(p.previous_start_date).getFullYear().toString())
-          .filter(year => year !== 'NaN'))].sort((a, b) => b.localeCompare(a));
-        setYears(uniqueYears);
-
-        // Extrair meses únicos
-        const uniqueMonths = [...new Set((projectsData || [])
-          .map(p => new Date(p.previous_start_date).toLocaleString('en-US', { month: 'long' }))
-          .filter(month => month))].sort();
-        setMonths(uniqueMonths);
-
-        // Extrair clientes únicos
-        const uniqueClients = [...new Set((projectsData || [])
-          .map(p => p.cliente)
-          .filter(cliente => cliente))].sort();
-        setClients(uniqueClients);
-
-        // Extrair job sites únicos
-        const uniqueJobSites = [...new Set((projectsData || [])
-          .map(p => p.job_site)
-          .filter(jobSite => jobSite))].sort();
-        setJobSites(uniqueJobSites);
-
-        // Extrair tipos únicos
-        const uniqueTypes = [...new Set((projectsData || [])
-          .map(p => p.type)
-          .filter(type => type))].sort();
-        setAvailableTypes(uniqueTypes);
 
       } catch (err) {
         console.error('Erro ao buscar dados do workforce:', err);
@@ -145,23 +134,86 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
     fetchWorkforceData();
   }, []);
 
+  useEffect(() => {
+    if (!rawProjects.length) {
+      setClients([]);
+      setJobSites([]);
+      setAvailableTypes([]);
+      return;
+    }
+
+    const uniqueClients = [...new Set(
+      rawProjects
+        .map(p => p.cliente)
+        .filter(cliente => !!cliente)
+    )].sort();
+    setClients(uniqueClients);
+
+    const uniqueJobSites = [...new Set(
+      rawProjects
+        .map(p => p.job_site)
+        .filter(jobSite => !!jobSite)
+    )].sort();
+    setJobSites(uniqueJobSites);
+
+    const uniqueTypes = [...new Set(
+      rawProjects
+        .map(p => p.type)
+        .filter(type => !!type)
+    )].sort();
+    setAvailableTypes(uniqueTypes);
+  }, [rawProjects]);
+
+  useEffect(() => {
+    if (!rawProjects.length) {
+      setYears([]);
+      setMonths([]);
+      return;
+    }
+
+    const referenceDates = rawProjects
+      .map(project => getReferenceDate(project, dateMode))
+      .filter((date): date is string => !!date);
+
+    const uniqueYears = [...new Set(
+      referenceDates
+        .map(date => new Date(date))
+        .filter(dateObj => !isNaN(dateObj.getTime()))
+        .map(dateObj => dateObj.getFullYear().toString())
+    )].sort((a, b) => b.localeCompare(a));
+    setYears(uniqueYears);
+
+    const uniqueMonths = [...new Set(
+      referenceDates
+        .map(date => {
+          const parsed = new Date(date);
+          if (isNaN(parsed.getTime())) return null;
+          return parsed.toLocaleString('en-US', { month: 'long' });
+        })
+        .filter((month): month is string => !!month)
+    )].sort();
+    setMonths(uniqueMonths);
+  }, [rawProjects, dateMode]);
+
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
     if (!workforceProjects.length) return [];
 
     const filteredProjects = workforceProjects.filter(project => {
-      // Exigir datas válidas de início e fim
       if (!project.previous_start_date || !project.previous_end_date) return false;
       const start = new Date(project.previous_start_date);
       const end = new Date(project.previous_end_date);
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
 
-      // Parse date string directly to avoid timezone issues
-      const dateParts = project.previous_start_date.split('-');
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) return false;
+
+      const dateParts = referenceDate.split('-');
       if (dateParts.length !== 3) return false;
       
       const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1]);
+      const projectMonthNum = parseInt(dateParts[1], 10);
+      if (Number.isNaN(projectMonthNum)) return false;
       const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
@@ -177,9 +229,16 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
     const groupedData: { [key: string]: ForecastData } = {};
 
     filteredProjects.forEach(project => {
-      const startDate = new Date(project.previous_start_date);
-      const month = startDate.toLocaleString('en-US', { month: 'long' });
-      const year = startDate.getFullYear();
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) {
+        return;
+      }
+      const refDateObj = new Date(referenceDate);
+      if (isNaN(refDateObj.getTime())) {
+        return;
+      }
+      const month = refDateObj.toLocaleString('en-US', { month: 'long' });
+      const year = refDateObj.getFullYear();
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
       
@@ -203,7 +262,7 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
       if (a.month !== b.month) return a.month.localeCompare(b.month);
       return a.cliente.localeCompare(b.cliente);
     });
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType]);
+  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType, dateMode]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
@@ -331,6 +390,8 @@ export default function WorkforceForecast({ selectedType = 'Framing' }: Workforc
           onGroupByChange={setGroupBy}
           sortByDate={sortByDate}
           onSortByDateChange={setSortByDate}
+          dateMode={dateMode}
+          onDateModeChange={setDateMode}
         />
       </div>
     </div>

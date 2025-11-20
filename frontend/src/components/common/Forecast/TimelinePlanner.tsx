@@ -60,6 +60,8 @@ const INDICATOR_ICON_STYLE: React.CSSProperties = {
   justifyContent: 'center'
 };
 
+type DateMode = 'start' | 'beams';
+
 interface WorkforceProject {
   id: number;
   cliente: string;
@@ -74,6 +76,7 @@ interface WorkforceProject {
   address?: string | null;
   previous_start_date: string;
   previous_end_date: string;
+  previous_beams_date: string | null;
   observacoes: string;
   created_at: string;
   updated_at: string;
@@ -98,6 +101,8 @@ interface TimelinePlannerProps {
   onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
   sortByDate: 'off' | 'asc' | 'desc' | null;
   onSortByDateChange: (sortByDate: 'off' | 'asc' | 'desc' | null) => void;
+  dateMode: DateMode;
+  onDateModeChange: (mode: DateMode) => void;
 }
 
 export default function TimelinePlanner({ 
@@ -107,13 +112,22 @@ export default function TimelinePlanner({
   groupBy, 
   onGroupByChange,
   sortByDate,
-  onSortByDateChange
+  onSortByDateChange,
+  dateMode,
+  onDateModeChange
 }: TimelinePlannerProps) {
   const getShortJobSite = (value?: string) => {
     if (!value) return '';
     const idx = value.indexOf(',');
     return (idx === -1 ? value : value.slice(0, idx)).trim();
   };
+  const resolveReferenceDate = (project: WorkforceProject) => {
+    const ref = dateMode === 'beams'
+      ? (project.previous_beams_date || project.previous_start_date)
+      : project.previous_start_date;
+    return ref || '';
+  };
+  const dateModeLabel = dateMode === 'beams' ? 'Beams Date' : 'Start Date';
   const navigate = useNavigate();
   const [draggedProject, setDraggedProject] = useState<WorkforceProject | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -156,9 +170,12 @@ export default function TimelinePlanner({
         const monthsWithData = new Set<number>();
         
         workforceProjects.forEach(project => {
-          if (project.previous_start_date) {
-            const projectDate = new Date(project.previous_start_date);
-            monthsWithData.add(projectDate.getMonth() + 1);
+          const referenceDate = resolveReferenceDate(project);
+          if (referenceDate) {
+            const projectDate = new Date(referenceDate);
+            if (!isNaN(projectDate.getTime())) {
+              monthsWithData.add(projectDate.getMonth() + 1);
+            }
           }
         });
         
@@ -181,7 +198,7 @@ export default function TimelinePlanner({
         }));
       }
     }
-  }, [showDays, selectedYear, selectedMonth, workforceProjects]);
+  }, [showDays, selectedYear, selectedMonth, workforceProjects, dateMode]);
 
   // Agrupar dados conforme seleção
   const groupedData = useMemo(() => {
@@ -192,7 +209,11 @@ export default function TimelinePlanner({
       if (!p.previous_start_date || !p.previous_end_date) return false;
       const s = new Date(p.previous_start_date);
       const e = new Date(p.previous_end_date);
-      return !isNaN(s.getTime()) && !isNaN(e.getTime());
+      if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
+      const referenceDate = resolveReferenceDate(p);
+      if (!referenceDate) return false;
+      const refDateObj = new Date(referenceDate);
+      return !isNaN(refDateObj.getTime());
     });
 
     validProjects.forEach(project => {
@@ -206,12 +227,12 @@ export default function TimelinePlanner({
     return Object.entries(groups).map(([groupName, projects]) => ({
       groupName,
       projects: projects.sort((a, b) => {
-        const dateA = new Date(a.previous_start_date || '1900-01-01');
-        const dateB = new Date(b.previous_start_date || '1900-01-01');
+        const dateA = new Date(resolveReferenceDate(a) || '1900-01-01');
+        const dateB = new Date(resolveReferenceDate(b) || '1900-01-01');
         return dateA.getTime() - dateB.getTime();
       })
     })).sort((a, b) => a.groupName.localeCompare(b.groupName));
-  }, [workforceProjects, groupBy]);
+  }, [workforceProjects, groupBy, dateMode]);
 
   // Calcular altura total de projetos para cada grupo
   const getCardHeight = (project: WorkforceProject) => {
@@ -221,11 +242,13 @@ export default function TimelinePlanner({
     const hasContract = isTruthyFlag(project.tem_contrato);
     const hasTeam = !!(project.workforce && project.workforce.trim());
     const hasDates = !!(project.previous_start_date && project.previous_end_date);
+    const hasBeamsDate = !!(project.previous_beams_date && project.previous_beams_date.trim?.() !== '');
     const indicatorCount = [hasHvac, hasFieldwire].filter(Boolean).length;
 
     let height = 144; // header + job + lot
     if (hasTeam) height += 16;
     if (hasDates) height += 16;
+    if (hasBeamsDate) height += 16;
     if (indicatorCount > 0) height += indicatorCount * 18; // espaço para indicadores
     if (hasObservation) height += 36;
     return height;
@@ -258,16 +281,18 @@ export default function TimelinePlanner({
       const s = new Date(project.previous_start_date);
       const e = new Date(project.previous_end_date);
       if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
+      const referenceDate = resolveReferenceDate(project);
+      if (!referenceDate) return false;
       
       if (showDays) {
-        return timeColumn.date ? project.previous_start_date.startsWith(timeColumn.date) : false;
+        return timeColumn.date ? referenceDate.startsWith(timeColumn.date) : false;
       } else {
         // Parse date string directly to avoid timezone issues
-        const dateParts = project.previous_start_date.split('-');
+        const dateParts = referenceDate.split('-');
         if (dateParts.length !== 3) return false;
         
-        const projectYear = parseInt(dateParts[0]);
-        const projectMonth = parseInt(dateParts[1]);
+        const projectYear = parseInt(dateParts[0], 10);
+        const projectMonth = parseInt(dateParts[1], 10);
         
         // Se há filtro de ano, verificar se o projeto está no ano correto
         if (selectedYear && selectedYear !== '') {
@@ -283,8 +308,8 @@ export default function TimelinePlanner({
     // Aplicar ordenação por data se não estiver desligada
     if (sortByDate && sortByDate !== 'off') {
       filteredProjects = filteredProjects.sort((a, b) => {
-        const dateA = new Date(a.previous_start_date || '1900-01-01');
-        const dateB = new Date(b.previous_start_date || '1900-01-01');
+        const dateA = new Date(resolveReferenceDate(a) || '1900-01-01');
+        const dateB = new Date(resolveReferenceDate(b) || '1900-01-01');
         
         if (sortByDate === 'asc') {
           return dateA.getTime() - dateB.getTime();
@@ -440,8 +465,46 @@ export default function TimelinePlanner({
                 </button>
               </div>
               
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Date Mode</span>
+                <button
+                  onClick={() => onDateModeChange('start')}
+                  style={{
+                    background: dateMode === 'start' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                    color: dateMode === 'start' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)',
+                    border: dateMode === 'start' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)',
+                    borderRadius: 15,
+                    padding: '4px 12px',
+                    fontWeight: 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: 26
+                  }}
+                >
+                  Start
+                </button>
+                <button
+                  onClick={() => onDateModeChange('beams')}
+                  style={{
+                    background: dateMode === 'beams' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                    color: dateMode === 'beams' ? '#17a2b8' : 'var(--color-text-primary)',
+                    border: dateMode === 'beams' ? '1.5px solid #17a2b8' : '1.5px solid var(--color-border-divider)',
+                    borderRadius: 15,
+                    padding: '4px 12px',
+                    fontWeight: 500,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    height: 26
+                  }}
+                >
+                  Beams
+                </button>
+              </div>
+              
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by Start Date</span>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by {dateModeLabel}</span>
                 <button 
                   onClick={() => onSortByDateChange(sortByDate === 'asc' ? 'desc' : sortByDate === 'desc' ? null : 'asc')} 
                   style={{ 
@@ -796,6 +859,14 @@ export default function TimelinePlanner({
                                       </span>
                                     </div>
                                     {/* Datas */}
+                                    {project.previous_beams_date && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                        <i className="bi bi-flag" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                        <span style={{ fontSize: 11, opacity: 0.9 }}>
+                                          Beams: {formatDateShort(project.previous_beams_date)}
+                                        </span>
+                                      </div>
+                                    )}
                                     {project.previous_start_date && project.previous_end_date && (
                                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                                         <i className="bi bi-calendar-range" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
