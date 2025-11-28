@@ -1,6 +1,803 @@
 [
   {
     "VendorAddr": {
+      "Id": "18478",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 832.78,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52850",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-25T08:53:28-08:00",
+      "LastUpdatedTime": "2025-11-25T08:53:28-08:00"
+    },
+    "TxnDate": "2025-11-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "17480",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51734",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-14T06:06:35-07:00",
+      "LastUpdatedTime": "2025-11-21T13:59:58-08:00"
+    },
+    "DocNumber": "BC - Lot 19 - LH",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 19 - Lakemont at Hudson\nFront porch posts - $600\nBulkhead stairs - $450",
+    "LinkedTxn": [
+      {
+        "TxnId": "52823",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Front porch posts - $600\nBulkhead stairs - $450",
+        "Amount": 1050,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3275",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "617851715"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1050
+  },
+  {
+    "VendorAddr": {
+      "Id": "17479",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51733",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-14T06:04:23-07:00",
+      "LastUpdatedTime": "2025-11-21T13:59:58-08:00"
+    },
+    "DocNumber": "BC - Lot 15 - LH",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 15 - Lakemont at Hudson\nFront porch posts - $600\nBulkhead stairs - $450",
+    "LinkedTxn": [
+      {
+        "TxnId": "52823",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Front porch posts - $600\nBulkhead stairs - $450",
+        "Amount": 1050,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3260",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609442665"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1050
+  },
+  {
+    "VendorAddr": {
+      "Id": "17761",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51987",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-22T12:09:02-07:00",
+      "LastUpdatedTime": "2025-11-12T14:34:45-08:00"
+    },
+    "TxnDate": "2025-10-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52536",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "52536",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "18110",
+      "Line1": "Fabian Cabrera",
+      "Line2": "Abad Construction, Inc.",
+      "Line3": "134 Freedom St",
+      "Line4": "1st fl",
+      "Line5": "Fall River, MA  02724"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52447",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-07T11:19:17-08:00",
+      "LastUpdatedTime": "2025-11-07T11:20:09-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52429",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "\"Ismael worked on this lot to help Abad Const.\nScope of Work:\n- 10 Windows installation: 10 x $60 = $600\n- 1 Door installation: $140\n- 1 Sliding door installation: $200\n\nTotal: $940.00 - Guilherme Acordou descontar somente 50%\"",
+        "Amount": 470,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 470
+  },
+  {
+    "VendorAddr": {
+      "Id": "18109",
+      "Line1": "Fabian Cabrera",
+      "Line2": "Abad Construction, Inc.",
+      "Line3": "134 Freedom St",
+      "Line4": "1st fl",
+      "Line5": "Fall River, MA  02724"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52446",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-07T11:18:51-08:00",
+      "LastUpdatedTime": "2025-11-07T11:20:09-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52429",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "\"Ismael worked on this lot to help Abad Const.\nScope of Work:\n- 10 Windows installation: 10 x $60 = $600\n- 1 Door installation: $140\n- 1 Sliding door installation: $200\n\nTotal: $940.00 - Guilherme Acordou descontar somente 50%\"",
+        "Amount": 470,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 470
+  },
+  {
+    "VendorAddr": {
+      "Id": "18108",
+      "Line1": "Fabian Cabrera",
+      "Line2": "Abad Construction, Inc.",
+      "Line3": "134 Freedom St",
+      "Line4": "1st fl",
+      "Line5": "Fall River, MA  02724"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52445",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-07T11:18:35-08:00",
+      "LastUpdatedTime": "2025-11-07T11:20:09-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52429",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "smael worked on this lot to help Abad Const.\nScope of Work:\n- 10 Windows installation: 10 x $60 = $600\n- 1 Door installation: $140\n- 1 Sliding door installation: $200\n- Tyvek: $150\n\nTotal: $1090.00 - Guilherme acordou descontar somente 50%",
+        "Amount": 545,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 545
+  },
+  {
+    "VendorAddr": {
+      "Id": "17606",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51732",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-10-14T06:00:23-07:00",
+      "LastUpdatedTime": "2025-11-07T10:44:08-08:00"
+    },
+    "DocNumber": "BC - Lot 17 - NG",
+    "TxnDate": "2025-10-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 17 - Newbury Glen\nFront porch posts - $600\nBulkhead stairs - $450",
+    "LinkedTxn": [
+      {
+        "TxnId": "52440",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Front porch posts - $600\nBulkhead stairs - $450\nGarage Stairs - U$150.00",
+        "Amount": 1200,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3261",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609452906"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1200
+  },
+  {
+    "VendorAddr": {
+      "Id": "17461",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51714",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-09T06:56:41-07:00",
+      "LastUpdatedTime": "2025-11-07T10:44:08-08:00"
+    },
+    "DocNumber": "BC - 0021",
+    "TxnDate": "2025-10-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 21 - Lakemont at Hudson\nMaterial hit the inspector's car\nBack charge subcontractors 50% of total amount of invoice (attached)",
+    "LinkedTxn": [
+      {
+        "TxnId": "52440",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Material hit the inspector's car\nBack charge subcontractors 50% of total amount of invoice (attached)",
+        "Amount": 825.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3321",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 21 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "651668614"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 825.49
+  },
+  {
+    "VendorAddr": {
+      "Id": "17350",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51403",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-02T07:21:47-07:00",
+      "LastUpdatedTime": "2025-11-07T10:44:08-08:00"
+    },
+    "DocNumber": "BC - 177897",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 12 - Newbury Glen\nFLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "52440",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3190",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 12 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "555812265"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
+      "Id": "17349",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51402",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-10-02T07:19:40-07:00",
+      "LastUpdatedTime": "2025-11-07T10:44:08-08:00"
+    },
+    "DocNumber": "BC - 177891",
+    "TxnDate": "2025-10-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 13 - Newbury Glen\n\nZip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "52440",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Zip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3215",
+            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 13 - Newbury Glen"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "573054843"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 100
+  },
+  {
+    "VendorAddr": {
+      "Id": "17891",
+      "Line1": "Fabian Cabrera",
+      "Line2": "Abad Construction, Inc.",
+      "Line3": "134 Freedom St",
+      "Line4": "1st fl",
+      "Line5": "Fall River, MA  02724"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52121",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-10-28T07:23:58-07:00",
+      "LastUpdatedTime": "2025-11-07T09:42:07-08:00"
+    },
+    "DocNumber": "BC-0000",
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lot 31 - Wheelock Farm\n\nBack Charge on Subcontractor (Abad)\n\nIsmael work on this lot to support Abad\nScope of work:\n- 16 windows installation: 16 x $60=$960\n- 01 door installation: $140\n\nTotal: $1100.00",
+    "LinkedTxn": [
+      {
+        "TxnId": "52429",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back Charge on Subcontractor (Abad)\n\nIsmael work on this lot to support Abad\nScope of work:\n- 16 windows installation: 16 x $60=$960\n- 01 door installation: $140\n\nTotal: $1100.00",
+        "Amount": 1100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3253",
+            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 31 - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "604223441"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "40",
+      "name": "Abad Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1100
+  },
+  {
+    "VendorAddr": {
       "Id": "10222"
     },
     "Balance": 398,
@@ -1022,68 +1819,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "17891",
-      "Line1": "Fabian Cabrera",
-      "Line2": "Abad Construction, Inc.",
-      "Line3": "134 Freedom St",
-      "Line4": "1st fl",
-      "Line5": "Fall River, MA  02724"
-    },
-    "Balance": 1100,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52121",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-28T07:23:58-07:00",
-      "LastUpdatedTime": "2025-10-28T07:23:58-07:00"
-    },
-    "DocNumber": "BC-0000",
-    "TxnDate": "2025-10-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 31 - Wheelock Farm\n\nBack Charge on Subcontractor (Abad)\n\nIsmael work on this lot to support Abad\nScope of work:\n- 16 windows installation: 16 x $60=$960\n- 01 door installation: $140\n\nTotal: $1100.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Back Charge on Subcontractor (Abad)\n\nIsmael work on this lot to support Abad\nScope of work:\n- 16 windows installation: 16 x $60=$960\n- 01 door installation: $140\n\nTotal: $1100.00",
-        "Amount": 1100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3253",
-            "name": "Pulte Homes, Inc.:Wheelock Farm 8856  - Pulte Homes MS - 1074:Lot 31 - Wheelock Farm"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "604223441"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "40",
-      "name": "Abad Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1100
-  },
-  {
-    "VendorAddr": {
       "Id": "17890",
       "Line1": "Breno Costa Desa",
       "Line2": "Desa Construction, Inc.",
@@ -1209,372 +1944,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 360
-  },
-  {
-    "VendorAddr": {
-      "Id": "17480",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 1050,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51734",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-14T06:06:35-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - Lot 19 - LH",
-    "TxnDate": "2025-10-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 19 - Lakemont at Hudson\nFront porch posts - $600\nBulkhead stairs - $450",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Front porch posts - $600\nBulkhead stairs - $450",
-        "Amount": 1050,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3275",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "617851715"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1050
-  },
-  {
-    "VendorAddr": {
-      "Id": "17479",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 1050,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51733",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-14T06:04:23-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - Lot 15 - LH",
-    "TxnDate": "2025-10-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 15 - Lakemont at Hudson\nFront porch posts - $600\nBulkhead stairs - $450",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Front porch posts - $600\nBulkhead stairs - $450",
-        "Amount": 1050,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3260",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "609442665"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1050
-  },
-  {
-    "VendorAddr": {
-      "Id": "17606",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 1200,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51732",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-10-14T06:00:23-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - Lot 17 - NG",
-    "TxnDate": "2025-10-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 17 - Newbury Glen\nFront porch posts - $600\nBulkhead stairs - $450",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Front porch posts - $600\nBulkhead stairs - $450\nGarage Stairs - U$150.00",
-        "Amount": 1200,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3261",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 17 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "609452906"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1200
-  },
-  {
-    "VendorAddr": {
-      "Id": "17461",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 825.49,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51714",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-09T06:56:41-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - 0021",
-    "TxnDate": "2025-10-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 21 - Lakemont at Hudson\nMaterial hit the inspector's car\nBack charge subcontractors 50% of total amount of invoice (attached)",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Material hit the inspector's car\nBack charge subcontractors 50% of total amount of invoice (attached)",
-        "Amount": 825.49,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3321",
-            "name": "Toll Brothers, Inc.:Lakemont at Hudson:Lot 21 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "651668614"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 825.49
-  },
-  {
-    "VendorAddr": {
-      "Id": "17350",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 100,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51403",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-02T07:21:47-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - 177897",
-    "TxnDate": "2025-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 12 - Newbury Glen\nFLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "FLOOR FIXED WITH LEVERLER/UNDERLAYMENT DUE TO SPRAY FOAM INSTALLATION AND ACCESS\n\nBack charge from Toll Brother\n\nTotal: $100.00",
-        "Amount": 100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3190",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 12 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "555812265"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 100
-  },
-  {
-    "VendorAddr": {
-      "Id": "17349",
-      "Line1": "Wanessa Silva Santos",
-      "Line2": "W Silva Construction, Inc.",
-      "Line3": "29 McAdams Rd",
-      "Line4": "Framingham, MA  01701"
-    },
-    "Balance": 100,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51402",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-10-02T07:19:40-07:00",
-      "LastUpdatedTime": "2025-10-24T13:57:16-07:00"
-    },
-    "DocNumber": "BC - 177891",
-    "TxnDate": "2025-10-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lot 13 - Newbury Glen\n\nZip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Zip held short required for bulkhead install, framers never addressed during frame punch\n\nBack charge applied by Toll Brothers\nTotal: $100.00",
-        "Amount": 100,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "3215",
-            "name": "Toll Brothers, Inc.:Newbury Glen:Lot 13 - Newbury Glen"
-          },
-          "AccountRef": {
-            "value": "124",
-            "name": "Contractors:Back Charges"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "573054843"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2766",
-      "name": "W Silva Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 100
   },
   {
     "VendorAddr": {
@@ -2327,76 +2696,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 300
-  },
-  {
-    "VendorAddr": {
-      "Id": "17761",
-      "Line1": "Flow Business and Financial Management LLC",
-      "Line2": "22 Lewis St",
-      "Line3": "Franklin, Massachussets  02038",
-      "Line4": "USA"
-    },
-    "Balance": 832.78,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51987",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-22T12:09:02-07:00",
-      "LastUpdatedTime": "2025-10-22T12:09:02-07:00"
-    },
-    "TxnDate": "2025-10-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Monthly payment",
-        "Amount": 682.78,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Insurance monthly payment",
-        "Amount": 150,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "Vehicles Expenses:Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "3183",
-      "name": "Flow Business and Financial Management LLC"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 832.78
   },
   {
     "VendorAddr": {
