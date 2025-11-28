@@ -147,29 +147,19 @@ const DestaqueModal: React.FC<DestaqueModalProps> = ({ show, onClose, data, onSa
           }
         }
       } else {
-        // Inserção - verificar se já existe um destaque para QUALQUER usuário responsável pela tela, mês e ano
-        // Primeiro, buscar todos os usuários responsáveis pela tela
-        const { data: usuariosResponsaveis } = await supabase
-          .from('usuarios_telas')
-          .select('usuario_id')
-          .eq('tela_id', destaque.tela_id);
+        // Inserção - verificar se já existe um destaque para o USUÁRIO ATUAL nesta tela, mês e ano
+        // Permitir múltiplos destaques para o mesmo mês/ano desde que sejam de usuários diferentes
+        const { data: existente } = await supabase
+          .from('destaques')
+          .select('id')
+          .eq('tela_id', destaque.tela_id)
+          .eq('mes', mesDb)
+          .eq('ano', anoDb)
+          .eq('usuario_id', usuarioRow.id)
+          .single();
         
-        if (usuariosResponsaveis && usuariosResponsaveis.length > 0) {
-          const responsaveisIds = usuariosResponsaveis.map(ut => ut.usuario_id);
-          
-          // Verificar se já existe destaque para qualquer usuário responsável
-          const { data: existente } = await supabase
-            .from('destaques')
-            .select('id')
-            .eq('tela_id', destaque.tela_id)
-            .eq('mes', mesDb)
-            .eq('ano', anoDb)
-            .in('usuario_id', responsaveisIds)
-            .single();
-          
-          if (existente) {
-            throw new Error('Já existe um destaque para esta tela, mês e ano');
-          }
+        if (existente) {
+          throw new Error('Você já possui um destaque para esta tela, mês e ano');
         }
 
         const destaquePrincipal = Object.fromEntries(

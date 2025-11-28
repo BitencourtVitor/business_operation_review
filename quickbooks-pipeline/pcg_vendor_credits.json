@@ -1,6 +1,1017 @@
 [
   {
     "VendorAddr": {
+      "Id": "10881",
+      "Line1": "Premium Plastering",
+      "Line2": "1B Landing lane",
+      "Line3": "Hopedale, MA  01747"
+    },
+    "Balance": 6480,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18267",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-24T10:21:07-08:00",
+      "LastUpdatedTime": "2025-11-24T10:21:07-08:00"
+    },
+    "DocNumber": "613",
+    "TxnDate": "2025-10-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC buildings 1 to 5",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "dry wall",
+        "Amount": 1296,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "348713612"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "dry wall",
+        "Amount": 1296,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "dry wall",
+        "Amount": 1296,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780868"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "dry wall",
+        "Amount": 1296,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363781166"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "dry wall",
+        "Amount": 1296,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "341",
+      "name": "Premium Plastering"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 6480
+  },
+  {
+    "VendorAddr": {
+      "Id": "10880",
+      "Line1": "Brutus Carpentry Design Inc.",
+      "Line2": "46 Old Bolton Rd",
+      "Line3": "Hudson, MA  01749"
+    },
+    "Balance": 640,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18266",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-24T10:17:19-08:00",
+      "LastUpdatedTime": "2025-11-24T10:17:19-08:00"
+    },
+    "DocNumber": "640.00",
+    "TxnDate": "2025-10-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "back charge premium",
+        "Amount": 640,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "638",
+            "name": "Saco Riverside, LLC"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "61",
+      "name": "Brutus Carpentry Design Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 640
+  },
+  {
+    "VendorAddr": {
+      "Id": "10876",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 3250,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18262",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-24T09:52:06-08:00",
+      "LastUpdatedTime": "2025-11-24T09:52:46-08:00"
+    },
+    "DocNumber": "3250",
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC, buildings 1-5",
+    "Line": [
+      {
+        "Id": "6",
+        "LineNum": 1,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "348713612"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 2,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 3,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780868"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 4,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363781166"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 5,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3250
+  },
+  {
+    "VendorAddr": {
+      "Id": "10167",
+      "Line1": "RBI Construction Group, Inc.",
+      "Line2": "186 Main St",
+      "Line3": "Marlborough, MA  01752"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17425",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-25T09:51:22-07:00",
+      "LastUpdatedTime": "2025-11-21T14:49:49-08:00"
+    },
+    "TxnDate": "2025-08-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
+    "LinkedTxn": [
+      {
+        "TxnId": "18255",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Irrigation:Irrigation Service Irrigation Service [min: nominal fee] Repaired a main line break \nIrrigation:Irrigation Parts \nIrrigation Parts: \nIrrigation:Irrigation Mid Season Test Irrigation Mid season test",
+        "Amount": 88.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "964",
+      "name": "RBI Construction Group, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 88.4
+  },
+  {
+    "VendorAddr": {
+      "Id": "10833",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18239",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-21T07:16:59-08:00",
+      "LastUpdatedTime": "2025-11-21T07:22:50-08:00"
+    },
+    "DocNumber": "Payroll",
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "18240",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18240",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 11498.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 11498.85
+  },
+  {
+    "VendorAddr": {
+      "Id": "10778",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18198",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-14T09:47:44-08:00",
+      "LastUpdatedTime": "2025-11-14T09:53:42-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "18199",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1258.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1041.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1372.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 932,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1149.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 928.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 392,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 884,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1632.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": -1704.79,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7886.67
+  },
+  {
+    "VendorAddr": {
+      "Id": "10742",
+      "Line1": "Ferguson",
+      "Line2": "PO BOX 417592",
+      "Line3": "BOSTON, MA  02241-7592"
+    },
+    "Balance": 139,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18162",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-13T10:33:29-08:00",
+      "LastUpdatedTime": "2025-11-13T10:33:29-08:00"
+    },
+    "DocNumber": "CM947302",
+    "TxnDate": "2025-11-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "F170 PLY 605 OI:6331290-1\nINVOICE SUB-TOTAL\nTAX\nUNIT PRICE\n14.535\nUM\nEA\nAMOUNT\n-130.82\n-130.82\n-8.18\nCust PO: None Job Name: 51 WEST WA",
+        "Amount": 139,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "69",
+            "name": "Owner's Pay & Personal Expenses:Felipe Drumond"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 139
+  },
+  {
+    "VendorAddr": {
+      "Id": "10741",
+      "Line1": "Ferguson",
+      "Line2": "PO BOX 417592",
+      "Line3": "BOSTON, MA  02241-7592"
+    },
+    "Balance": 358.59,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18161",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-13T10:32:57-08:00",
+      "LastUpdatedTime": "2025-11-13T10:32:57-08:00"
+    },
+    "DocNumber": "CM947301",
+    "TxnDate": "2025-11-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BLAC 1 100W MED A19 INCA OI:6329264\nMATERIAL ON RETURNS CART\nINVOICE SUB-TOTAL\nTAX\nUNIT PRICE\n112.500\nUM\nEA\nAMOUNT\n-337.50\n-337.50\n-21.09\nCust PO: None Job Name: 51 WEST WAY",
+        "Amount": 358.59,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "69",
+            "name": "Owner's Pay & Personal Expenses:Felipe Drumond"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 358.59
+  },
+  {
+    "VendorAddr": {
+      "Id": "10029",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17332",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-18T06:51:45-07:00",
+      "LastUpdatedTime": "2025-11-13T09:34:20-08:00"
+    },
+    "DocNumber": "2509-197519",
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returned items from invoice 2508-181680",
+    "LinkedTxn": [
+      {
+        "TxnId": "18129",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18129",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Returned items from invoice 2508-181680",
+        "Amount": 28.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 28.65
+  },
+  {
+    "VendorAddr": {
       "Id": "10443",
       "Line1": "Ferguson",
       "Line2": "PO BOX 417592",
@@ -121,125 +1132,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2800
-  },
-  {
-    "VendorAddr": {
-      "Id": "10167",
-      "Line1": "RBI Construction Group, Inc.",
-      "Line2": "186 Main St",
-      "Line3": "Marlborough, MA  01752"
-    },
-    "Balance": 88.4,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17425",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-25T09:51:22-07:00",
-      "LastUpdatedTime": "2025-09-25T09:51:22-07:00"
-    },
-    "TxnDate": "2025-08-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Irrigation:Irrigation Service Irrigation Service [min: nominal fee] Repaired a main line break \nIrrigation:Irrigation Parts \nIrrigation Parts: \nIrrigation:Irrigation Mid Season Test Irrigation Mid season test",
-        "Amount": 88.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "Fisher Lane, LLC:30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "81",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "964",
-      "name": "RBI Construction Group, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 88.4
-  },
-  {
-    "VendorAddr": {
-      "Id": "10029",
-      "Line1": "Botello Lumber Company",
-      "Line2": "26 Bowdoin Rd.",
-      "Line3": "Mashpee, MA  02649"
-    },
-    "Balance": 28.65,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17332",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-18T06:51:45-07:00",
-      "LastUpdatedTime": "2025-09-18T06:51:45-07:00"
-    },
-    "DocNumber": "2509-197519",
-    "TxnDate": "2025-09-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Returned items from invoice 2508-181680",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Returned items from invoice 2508-181680",
-        "Amount": 28.65,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "658",
-            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "356991881"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "35",
-      "name": "Botello Lumber Company"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 28.65
   },
   {
     "VendorAddr": {
@@ -3184,7 +4076,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "96",
@@ -3852,7 +4744,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -3877,7 +4769,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -3902,7 +4794,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -4320,7 +5212,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -4853,7 +5745,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "96",
@@ -5161,7 +6053,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -5186,7 +6078,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -5263,7 +6155,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",
@@ -7040,7 +7932,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis"
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis"
           },
           "AccountRef": {
             "value": "17",

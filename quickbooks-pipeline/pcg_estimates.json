@@ -1,345 +1,12 @@
 [
   {
-    "AcceptedDate": "2024-01-22",
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "8673",
-    "SyncToken": "29",
-    "MetaData": {
-      "CreateTime": "2023-12-23T10:50:11-08:00",
-      "LastUpdatedTime": "2025-10-31T12:16:16-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1148",
-    "TxnDate": "2023-12-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "9207",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10721",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11877",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12239",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12291",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12425",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12550",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12708",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12712",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12749",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13018",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13304",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13305",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13531",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "14297",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "18029",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "4",
-        "LineNum": 1,
-        "Description": "Addition at Galt Residence \nAs Per plan Dated OCT 30 23 \nQuote includes all fases of construction and permits.\n200 Series Windows",
-        "Amount": 375000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 375000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "1",
-        "LineNum": 2,
-        "Description": "___Included Services___\n\n\n  - Foundation and Excavation     (Labor and Material)\n  - Framing    (Labor and Material)\n  - Roofing       (Labor and Material)\n  - Siding      (Labor and Material)\n  - HVAC      (Labor and MAterial)\n  - Plumbing      (Labor and Rough Material)\n  - Electrical     (Labor and Rough Material)\n  -Insulation     (Labor and Material)\n   -Plastering    (Labor and Material)\n   -Interior Trim to match existing (Labor and Material) \n  - Tile, hardwood (Labor Only)",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Excluding \nAllowances \nTo be provided By owner \nAppliances \nCabinets and Vanities\nPlumb fixtures \nElectrical fixtures \nGarage door \nGranit/Quartz \nTile \nCarpet \nHardwood \n\nExisting Hot water system we have to make sure that it produces enough for the whole house.\n\nIf Bedroom is left to finish afterwards 10% will be deducted.",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 375000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "314692141"
-    },
-    "CustomerRef": {
-      "value": "609",
-      "name": "5 Claflin Ave, Hopkinton, MA"
-    },
-    "BillAddr": {
-      "Id": "5959",
-      "Line1": "5 Claflin Ave",
-      "City": "Hopkinton",
-      "CountrySubDivisionCode": "MA"
-    },
-    "ShipAddr": {
-      "Id": "4560",
-      "Line1": "Tommy Galt.",
-      "Line2": "5 Claflin Ave",
-      "Line3": "Hopkinton, MA"
-    },
-    "FreeFormAddress": true,
-    "ShipFromAddr": {
-      "Id": "2599",
-      "Line1": "1B Landing Ln, Hopedale, MA, 01747, USA"
-    },
-    "TotalAmt": 375000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "tommy.galt@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2024-01-16T13:07:19-08:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "13648",
-    "SyncToken": "11",
-    "MetaData": {
-      "CreateTime": "2024-11-23T13:04:01-08:00",
-      "LastUpdatedTime": "2025-10-17T06:02:57-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1279",
-    "TxnDate": "2024-11-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Interior Renovation and half bath addition.\nPayment plan attached.",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "13924",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "15139",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "17777",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Interior Renovation and half bath addition.\nWork to be done as per plan.\nAll permit fees and Drawing are included \nScope of work \n- Provide Dumpsters and Porta potty \n- Demo and dispose \n- Bath addition to be on sono tubes \n- Provide all Frame labor and material\n- Provide all plumbing rough material and labor \n- Plumbing finishes allowance $3,000\n- Provide electrical labor and rough material outlets and switches up to cod. Includes 30 4\" recessed lights \n- Electrical allowance $3,000\n- Hvac use existing \n- Provide insulation labor and material to meet code \n- Provide Blueboard and plaster labor and material\n- Interior trim, provide labor and material \nInstall all doors, trim windows and doors, install all baseboards, shelf and pole included on closets, install vanities and cabinets.  (any custom work will be charged extra)\n- Cabinets and vanities allowance 8k\n- Contertops $95/sq\n- Appliances to be provided by owners \n- Door, cabinets Hardware to be provided by owners\n- Tile labor and rough material included\n- Tile allowance $6/sq \n- Vinyl Floor allowance $4/sq\n- Paint \n- Final clean up\n- Fire place Allowance $3,500\n\nAny unseen damages will be charged as a change order.",
-        "Amount": 215000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 215000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 215000,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "541155823"
-    },
-    "CustomerRef": {
-      "value": "904",
-      "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
-    },
-    "BillAddr": {
-      "Id": "10456",
-      "Line1": "Lorri McBride",
-      "Line2": "53 Bluff Ave",
-      "Line3": "Mashpee, MA"
-    },
-    "ShipAddr": {
-      "Id": "10457",
-      "Line1": "Lorri McBride",
-      "Line2": "53 Bluff Ave",
-      "Line3": "Mashpee, MA"
-    },
-    "FreeFormAddress": true,
-    "TotalAmt": 215000,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "lmcbride841@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
     "domain": "QBO",
     "sparse": false,
     "Id": "17045",
-    "SyncToken": "8",
+    "SyncToken": "11",
     "MetaData": {
       "CreateTime": "2025-08-14T17:38:25-07:00",
-      "LastUpdatedTime": "2025-10-16T06:53:28-07:00"
+      "LastUpdatedTime": "2025-11-14T07:57:44-08:00"
     },
     "CustomField": [],
     "DocNumber": "1322",
@@ -348,7 +15,7 @@
       "value": "USD",
       "name": "United States Dollar"
     },
-    "PrivateNote": "Base contract + Change order #2 + Change order #3",
+    "PrivateNote": "Base contract + Change order #2 + #3 + #4 + Roof Structural + TM LVL Replace",
     "TxnStatus": "Accepted",
     "LinkedTxn": [
       {
@@ -361,6 +28,10 @@
       },
       {
         "TxnId": "17704",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18196",
         "TxnType": "Invoice"
       }
     ],
@@ -1203,7 +874,61 @@
         "CustomExtensions": []
       },
       {
-        "Amount": 1024525.16,
+        "Id": "35",
+        "LineNum": 32,
+        "Description": "Change Order - Roof Structural (attached)",
+        "Amount": 3524.24,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 3524.24,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "36",
+        "LineNum": 33,
+        "Description": "Change Order - TM LVL Replace (attached)",
+        "Amount": 9210.3,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 9210.3,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1037259.7,
         "DetailType": "SubTotalLineDetail",
         "SubTotalLineDetail": {}
       }
@@ -1250,10 +975,343 @@
       "Line3": "Bridgewater, MA - 02324"
     },
     "FreeFormAddress": true,
-    "TotalAmt": 1024525.16,
+    "TotalAmt": 1037259.7,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "AcceptedDate": "2024-01-22",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "8673",
+    "SyncToken": "29",
+    "MetaData": {
+      "CreateTime": "2023-12-23T10:50:11-08:00",
+      "LastUpdatedTime": "2025-10-31T12:16:16-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1148",
+    "TxnDate": "2023-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "9207",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10721",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11877",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12239",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12291",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12425",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12550",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12708",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12712",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12749",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13018",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13304",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13305",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13531",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "14297",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18029",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "4",
+        "LineNum": 1,
+        "Description": "Addition at Galt Residence \nAs Per plan Dated OCT 30 23 \nQuote includes all fases of construction and permits.\n200 Series Windows",
+        "Amount": 375000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 375000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "1",
+        "LineNum": 2,
+        "Description": "___Included Services___\n\n\n  - Foundation and Excavation     (Labor and Material)\n  - Framing    (Labor and Material)\n  - Roofing       (Labor and Material)\n  - Siding      (Labor and Material)\n  - HVAC      (Labor and MAterial)\n  - Plumbing      (Labor and Rough Material)\n  - Electrical     (Labor and Rough Material)\n  -Insulation     (Labor and Material)\n   -Plastering    (Labor and Material)\n   -Interior Trim to match existing (Labor and Material) \n  - Tile, hardwood (Labor Only)",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Excluding \nAllowances \nTo be provided By owner \nAppliances \nCabinets and Vanities\nPlumb fixtures \nElectrical fixtures \nGarage door \nGranit/Quartz \nTile \nCarpet \nHardwood \n\nExisting Hot water system we have to make sure that it produces enough for the whole house.\n\nIf Bedroom is left to finish afterwards 10% will be deducted.",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 375000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "314692141"
+    },
+    "CustomerRef": {
+      "value": "609",
+      "name": "5 Claflin Ave, Hopkinton, MA"
+    },
+    "BillAddr": {
+      "Id": "5959",
+      "Line1": "5 Claflin Ave",
+      "City": "Hopkinton",
+      "CountrySubDivisionCode": "MA"
+    },
+    "ShipAddr": {
+      "Id": "4560",
+      "Line1": "Tommy Galt.",
+      "Line2": "5 Claflin Ave",
+      "Line3": "Hopkinton, MA"
+    },
+    "FreeFormAddress": true,
+    "ShipFromAddr": {
+      "Id": "2599",
+      "Line1": "1B Landing Ln, Hopedale, MA, 01747, USA"
+    },
+    "TotalAmt": 375000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "tommy.galt@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2024-01-16T13:07:19-08:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "13648",
+    "SyncToken": "11",
+    "MetaData": {
+      "CreateTime": "2024-11-23T13:04:01-08:00",
+      "LastUpdatedTime": "2025-10-17T06:02:57-07:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1279",
+    "TxnDate": "2024-11-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Interior Renovation and half bath addition.\nPayment plan attached.",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "13924",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "15139",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "17777",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Interior Renovation and half bath addition.\nWork to be done as per plan.\nAll permit fees and Drawing are included \nScope of work \n- Provide Dumpsters and Porta potty \n- Demo and dispose \n- Bath addition to be on sono tubes \n- Provide all Frame labor and material\n- Provide all plumbing rough material and labor \n- Plumbing finishes allowance $3,000\n- Provide electrical labor and rough material outlets and switches up to cod. Includes 30 4\" recessed lights \n- Electrical allowance $3,000\n- Hvac use existing \n- Provide insulation labor and material to meet code \n- Provide Blueboard and plaster labor and material\n- Interior trim, provide labor and material \nInstall all doors, trim windows and doors, install all baseboards, shelf and pole included on closets, install vanities and cabinets.  (any custom work will be charged extra)\n- Cabinets and vanities allowance 8k\n- Contertops $95/sq\n- Appliances to be provided by owners \n- Door, cabinets Hardware to be provided by owners\n- Tile labor and rough material included\n- Tile allowance $6/sq \n- Vinyl Floor allowance $4/sq\n- Paint \n- Final clean up\n- Fire place Allowance $3,500\n\nAny unseen damages will be charged as a change order.",
+        "Amount": 215000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 215000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 215000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "541155823"
+    },
+    "CustomerRef": {
+      "value": "904",
+      "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
+    },
+    "BillAddr": {
+      "Id": "10456",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "ShipAddr": {
+      "Id": "10457",
+      "Line1": "Lorri McBride",
+      "Line2": "53 Bluff Ave",
+      "Line3": "Mashpee, MA"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 215000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "lmcbride841@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email"
+    },
     "TaxExemptionRef": {}
   },
   {
@@ -52024,7 +52082,7 @@
     },
     "CustomerRef": {
       "value": "314",
-      "name": "Lanese Construction Inc"
+      "name": "Lanese Construction, Inc."
     },
     "CustomerMemo": {
       "value": "Please note that the price is for the job description above, including labor , finish nails , glue .\nothers like staging, materials and everything else provided by contractor ."

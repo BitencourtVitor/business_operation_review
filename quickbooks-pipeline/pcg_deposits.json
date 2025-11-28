@@ -4,6 +4,54 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "TotalAmt": 2286.58,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18104",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-12T08:21:46-08:00",
+      "LastUpdatedTime": "2025-11-12T08:21:46-08:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2286.58,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "TotalAmt": 14916.51,
     "domain": "QBO",
     "sparse": false,
@@ -27011,7 +27059,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis",
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -28188,7 +28236,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "358",
-            "name": "Lanese Construction Inc:48-52 Judith Ann Rd, Dennis",
+            "name": "Lanese Construction, Inc.:48-52 Judith Ann Rd, Dennis",
             "type": "CUSTOMER"
           },
           "AccountRef": {
