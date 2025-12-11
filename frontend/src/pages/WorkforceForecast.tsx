@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
+import ForecastMaintenance from '../components/common/Forecast/ForecastMaintenance';
 
 // Componentes modulares
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
@@ -56,6 +57,9 @@ interface WorkforceForecastProps {
 }
 
 export default function WorkforceForecast({ selectedType = 'Framing' }: WorkforceForecastProps) {
+  // Ajuste temporário: exibir tela de manutenção em vez do layout completo
+  return <ForecastMaintenance variant="desktop" />;
+
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
