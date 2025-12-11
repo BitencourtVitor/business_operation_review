@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+
+  <style>
+    :root {
+      --color-brand-blue: #2E6BE6;
+      --color-brand-red: #E62E2E;
+      --color-brand-white: #fcfcfc;
+      --color-background-primary: var(--color-brand-white);
+      --color-background-secondary: #F5F5F5;
+      --color-text-primary: #343A40;
+      --color-text-secondary: #6C757D;
+      --color-accent-primary: var(--color-brand-blue);
+      --color-border-divider: #DEE2E6;
+      --color-placeholder: #adb5bd;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+    }
+
+    header {
+      width: 100%;
+      height: 64px;
+      background: var(--color-background-primary);
+      border-bottom: 1.5px solid var(--color-border-divider);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    header h1 {
+      margin: 0;
+      color: var(--color-accent-primary);
+      font-weight: 400;
+      font-size: 22px;
+      letter-spacing: 0.5px;
+    }
+
+    main {
+      padding: 32px 16px 48px;
+      margin-top: 64px;
+    }
+
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-divider);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05);
+      padding: 24px;
+    }
+
+    .card + .card { margin-top: 16px; }
+
+    .card-header {
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #e8f0ff;
+      color: var(--color-accent-primary);
+      font-weight: 600;
+      border-radius: 999px;
+      border: 1px solid #c5d9ff;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-size: 14px;
+    }
+
+    .btn.primary {
+      background: var(--color-accent-primary);
+      color: #fff;
+      box-shadow: 0 10px 20px rgba(46, 107, 230, 0.2);
+    }
+
+    .btn.primary:hover { filter: brightness(0.94); }
+
+    .btn.ghost {
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      border-color: var(--color-border-divider);
+    }
+
+    .btn.ghost:hover { background: #e9edf3; }
+
+    .btn.full { width: 100%; justify-content: center; display: inline-flex; }
+
+    .hidden { display: none !important; }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--color-text-primary);
+    }
+
+    .field small {
+      display: block;
+      color: var(--color-text-secondary);
+      margin-top: 6px;
+    }
+
+    .hint {
+      display: block;
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    select, input, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border-divider);
+      background: #fff;
+      font-size: 14px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      color: var(--color-text-primary);
+    }
+
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--color-accent-primary);
+      box-shadow: 0 0 0 3px rgba(46, 107, 230, 0.15);
+    }
+
+    select {
+      height: 42px;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #6b7280 50%),
+        linear-gradient(135deg, #6b7280 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) calc(50% - 3px),
+        calc(100% - 12px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      appearance: none;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .toggles {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .toggle {
+      border: 1px solid var(--color-border-divider);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: #f8fbff;
+      cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .toggle:hover {
+      border-color: var(--color-accent-primary);
+      box-shadow: 0 10px 20px rgba(46, 107, 230, 0.12);
+    }
+
+    .toggle input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-accent-primary);
+      cursor: pointer;
+    }
+
+    .toggle .label-title {
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .toggle .label-sub {
+      color: var(--color-text-secondary);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .submit-row {
+      margin-top: 4px;
+    }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .muted-box {
+      background: #f8fafc;
+      border: 1px dashed var(--color-border-divider);
+      border-radius: var(--radius);
+      padding: 16px;
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .works-list-container {
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--color-border-divider);
+      border-radius: var(--radius);
+      background: var(--color-background-primary);
+    }
+
+    .works-list-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .works-list-container::-webkit-scrollbar-track {
+      background: var(--color-background-secondary);
+      border-radius: 4px;
+    }
+
+    .works-list-container::-webkit-scrollbar-thumb {
+      background: var(--color-accent-primary);
+      border-radius: 4px;
+    }
+
+    .works-list-container::-webkit-scrollbar-thumb:hover {
+      background: var(--color-brand-blue);
+    }
+
+    .work-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--color-border-divider);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .work-item:last-child {
+      border-bottom: none;
+    }
+
+    .work-item:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .work-item input[type="radio"] {
+      margin-top: 2px;
+      accent-color: var(--color-accent-primary);
+      flex-shrink: 0;
+      width: auto;
+    }
+
+    .work-item-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .work-item-title {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+    }
+
+    .work-item-meta {
+      color: var(--color-text-secondary);
+      font-size: 13px;
+    }
+
+    .work-item-id {
+      color: var(--color-text-secondary);
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    .fieldwire-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 0;
+      padding-right: 16px;
+      border-bottom: 1px solid var(--color-border-divider);
+    }
+
+    .fieldwire-item:last-child {
+      border-bottom: none;
+    }
+
+    .fieldwire-item-name {
+      font-weight: 500;
+      color: var(--color-text-primary);
+      flex: 1;
+      text-align: left;
+    }
+
+    .machine-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border-divider);
+    }
+
+    .machine-item:last-child {
+      border-bottom: none;
+    }
+
+    .machine-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: space-between;
+    }
+
+    .machine-equipment-category {
+      color: var(--color-text-secondary);
+      opacity: 0.5;
+      font-size: 14px;
+    }
+
+    .machine-title {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      font-size: 15px;
+    }
+
+    .machine-separator {
+      width: 1px;
+      height: 20px;
+      background: var(--color-border-divider);
+      opacity: 0.6;
+      margin: 0 12px;
+    }
+
+    .machine-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+
+    .contract-step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--color-border-divider);
+    }
+
+    .contract-step-item:last-child {
+      border-bottom: none;
+    }
+
+    .contract-step-name {
+      flex: 1;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      font-size: 14px;
+    }
+
+    .contract-steps-container {
+      border: 1px solid var(--color-border-divider);
+      border-radius: var(--radius);
+      background: var(--color-background-primary);
+      padding: 12px 16px;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1000;
+    }
+
+    .modal-backdrop.hidden { display: none; }
+
+    .modal {
+      background: var(--color-background-primary);
+      border: 1px solid var(--color-border-divider);
+      border-radius: 12px;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(15, 23, 42, 0.25);
+      padding: 20px 20px 16px;
+    }
+
+    .modal h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .modal p {
+      margin: 6px 0 12px;
+      color: var(--color-text-secondary);
+      font-size: 14px;
+    }
+
+    .modal .field {
+      margin-bottom: 12px;
+    }
+
+    .modal .summary {
+      background: #f6f8fb;
+      border: 1px solid var(--color-border-divider);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: var(--color-text-primary);
+    }
+
+    .modal .actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn.danger {
+      background: var(--color-brand-red);
+      color: #fff;
+    }
+
+    .btn.danger:hover { filter: brightness(0.95); }
+
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .toggles { grid-template-columns: 1fr; }
+      main { padding: 24px 12px 36px; }
+    }
+  </style>
+</head>
+
+
+<body>
+
+<header>
+  <h1>Forecast Control</h1>
+</header>
+
+<main>
+  <div class="container">
+
+    <div class="button-row">
+      <button class="btn primary" onclick="showForm('addForm')">Adicionar nova obra</button>
+      <button class="btn ghost" onclick="showForm('editForm')">Modificar obra existente</button>
+      <button class="btn danger" onclick="openDeleteModal()">Deletar obra</button>
+    </div>
+
+    <!-- FORM ADICIONAR OBRA -->
+    <div id="addForm" class="card">
+      <div class="card-header">
+        <span class="badge">Cadastro de nova obra</span>
+      </div>
+
+      <form id="newWorkForm">
+        <div class="field">
+          <label for="client">Cliente</label>
+          <select id="client" onchange="onAddClientChange()"></select>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="jobsite">Job Site</label>
+            <select id="jobsite"></select>
+          </div>
+          <div class="field">
+            <label for="jobsiteNew">+ Nova opção (opcional)</label>
+            <input id="jobsiteNew" placeholder="Novo Jobsite">
+            <small id="jobsiteHint" class="hint hidden">Caso você informe um novo jobsite, o selecionado na lista será desconsiderado.</small>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="Lot">Lot</option>
+              <option value="Building">Building</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="lotOrBld">Lot / Building</label>
+            <input id="lotOrBld" placeholder="Informe o lote ou o prédio">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="address">Address</label>
+          <input id="address" placeholder="Endereço completo">
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="workforce">Workforce</label>
+            <select id="workforce"></select>
+          </div>
+          <div class="field">
+            <label for="workforceNew">+ Nova opção (opcional)</label>
+            <input id="workforceNew" placeholder="Novo workforce">
+            <small id="workforceHint" class="hint hidden">Caso você informe um novo workforce, o selecionado na lista será desconsiderado.</small>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="prevBeams">Previous Beams Date</label>
+            <input type="date" id="prevBeams">
+          </div>
+          <div class="field">
+            <label for="prevStart">Previous Start Date</label>
+            <input type="date" id="prevStart">
+          </div>
+          <div class="field">
+            <label for="prevEnd">Previous End Date</label>
+            <input type="date" id="prevEnd">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="obs">Observações</label>
+          <textarea id="obs" placeholder="Observações adicionais"></textarea>
+        </div>
+
+        <div class="toggles">
+          <label class="toggle" for="hvac">
+            <input type="checkbox" id="hvac">
+            <div>
+              <div class="label-title">HVAC</div>
+              <div class="label-sub">Indica que faremos as instalações de HVAC para essa obra.</div>
+            </div>
+          </label>
+
+          <label class="toggle" for="buildertrend">
+            <input type="checkbox" id="buildertrend">
+            <div>
+              <div class="label-title">BuilderTrend</div>
+              <div class="label-sub">Indica que essa obra já foi cadastrada dentro do BuilderTrend.</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="machineProvider">Machine Provider</label>
+            <select id="machineProvider"></select>
+          </div>
+          <div class="field">
+            <label for="machineProviderNew">+ Nova opção (opcional)</label>
+            <input id="machineProviderNew" placeholder="Novo provider">
+            <small id="machineProviderHint" class="hint hidden">Caso você informe um novo provider, o selecionado na lista será desconsiderado.</small>
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <button id="saveBtn" class="btn primary full" type="button" onclick="submitNewWork()">
+            <span id="saveSpinner" class="spinner hidden" aria-hidden="true"></span>
+            <span id="saveText">Salvar obra</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- FORM EDITAR OBRA -->
+    <div id="editForm" class="card hidden">
+      <div class="card-header">
+        <span class="badge">Edição de obra</span>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:12px;">
+        <div class="field">
+          <label for="editClient">Cliente</label>
+          <select id="editClient" onchange="onEditClientChange()"></select>
+        </div>
+        <div class="field">
+          <label for="editJobsite">Job Site</label>
+          <select id="editJobsite" onchange="onEditJobsiteChange()"></select>
+        </div>
+      </div>
+
+      <div id="editWorksList" class="muted-box">Selecione um cliente e um job site para listar as obras.</div>
+
+      <div id="editPanels" class="hidden" style="margin-top:16px; display:flex; flex-direction:column; gap:16px;">
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Endereço</span>
+          </div>
+          <div class="field">
+            <label for="editAddress">Address</label>
+            <input id="editAddress" placeholder="Endereço completo">
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Workforce & Contract</span>
+          </div>
+          <div class="field">
+            <label for="editWorkforce">Workforce</label>
+            <select id="editWorkforce"></select>
+          </div>
+          <div class="field" style="margin-top:20px;">
+            <label for="editStatus">Status</label>
+            <input id="editStatus" placeholder="Status da obra">
+          </div>
+          <div id="contractStepsList" style="margin-top:16px;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--color-text-primary);">Passos do Contrato</div>
+            <div class="muted-box" style="text-align:left;padding:12px;">Selecione uma obra para carregar os passos do contrato.</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="toggles">
+            <label class="toggle" for="editHvac">
+              <input type="checkbox" id="editHvac">
+              <div>
+                <div class="label-title">HVAC</div>
+                <div class="label-sub">Indica que faremos as instalações de HVAC para essa obra.</div>
+              </div>
+            </label>
+
+            <label class="toggle" for="editBuildertrend">
+              <input type="checkbox" id="editBuildertrend">
+              <div>
+                <div class="label-title">BuilderTrend</div>
+                <div class="label-sub">Indica que essa obra já foi cadastrada dentro do BuilderTrend.</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Datas</span>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="editPrevBeams">Previous Beams Date</label>
+              <input type="date" id="editPrevBeams">
+            </div>
+            <div class="field">
+              <label for="editPrevStart">Previous Start Date</label>
+              <input type="date" id="editPrevStart">
+            </div>
+            <div class="field">
+              <label for="editPrevEnd">Previous End Date</label>
+              <input type="date" id="editPrevEnd">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Observações</span>
+          </div>
+          <div class="field">
+            <textarea id="editObs" placeholder="Observações"></textarea>
+          </div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Fieldwire</span>
+          </div>
+          <div id="fieldwireList" class="muted-box">Selecione uma obra para carregar os documentos.</div>
+        </div>
+
+        <div class="card" style="padding:16px;">
+          <div class="card-header" style="margin-bottom:10px;">
+            <span class="badge">Machines</span>
+          </div>
+          <div class="field" style="margin-bottom:16px;">
+            <label for="editMachineProvider">Machine Provider</label>
+            <select id="editMachineProvider"></select>
+          </div>
+          <div id="machinesList" class="muted-box">Selecione uma obra para carregar as máquinas.</div>
+        </div>
+
+        <div class="submit-row">
+          <button id="editSaveBtn" class="btn primary full" type="button" onclick="saveEdit()">
+            <span id="editSaveSpinner" class="spinner hidden" aria-hidden="true"></span>
+            <span id="editSaveText">Salvar alterações</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal Deleção -->
+<div id="deleteModal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h3>Deletar obra</h3>
+
+    <div class="field">
+      <label for="deleteId">ID</label>
+      <input id="deleteId" placeholder="Ex.: ABCD1234">
+    </div>
+
+    <div id="deleteSummary" class="summary hidden"></div>
+    <div id="deleteError" class="summary hidden" style="border-color:#e62e2e;color:#e62e2e;background:#fff5f5;"></div>
+
+    <div class="actions">
+      <button class="btn ghost" type="button" onclick="closeDeleteModal()">Fechar</button>
+      <button id="deleteFetchBtn" class="btn primary" type="button" onclick="fetchWorkForDelete()">OK</button>
+      <button id="deleteConfirmBtn" class="btn danger hidden" type="button" onclick="confirmDelete()">Sim, deletar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Alternar formulários
+function showForm(id) {
+  document.getElementById("addForm").classList.add("hidden");
+  document.getElementById("editForm").classList.add("hidden");
+  document.getElementById(id).classList.remove("hidden");
+}
+
+// Carregar listas ao carregar página
+document.addEventListener("DOMContentLoaded", () => {
+  google.script.run
+    .withSuccessHandler(populateOptions)
+    .withFailureHandler(err => alert("Erro ao carregar listas: " + err))
+    .getInitialOptions();  // <<< NOME CERTO
+});
+
+// Preencher selects
+function populateOptions(data) {
+  fillSelect("client", data.clients);
+  fillSelect("jobsite", []); // Inicia vazio, será preenchido quando cliente for selecionado
+  fillSelect("workforce", data.workforce);
+  fillSelect("machineProvider", data.machineProviders);
+  fillSelect("editClient", data.clients);
+  fillSelect("editJobsite", []);
+  fillSelect("editWorkforce", data.workforce);
+  fillSelect("editMachineProvider", data.machineProviders);
+}
+
+function fillSelect(id, values) {
+  const sel = document.getElementById(id);
+  sel.innerHTML = "";
+
+  const empty = document.createElement("option");
+  empty.value = "";
+  empty.textContent = "-- selecione --";
+  sel.appendChild(empty);
+
+  values.forEach(v => {
+    const o = document.createElement("option");
+    o.value = v;
+    o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+
+// Enviar formulário
+function submitNewWork() {
+  const jobsiteNewValue = jobsiteNew.value.trim();
+  const workforceNewValue = workforceNew.value.trim();
+  const machineProviderNewValue = machineProviderNew.value.trim();
+
+  const form = {
+    client: client.value,
+    jobsite: jobsiteNewValue ? "" : jobsite.value,
+    jobsiteNew: jobsiteNewValue,
+    type: type.value,
+    lotOrBld: lotOrBld.value,
+    address: address.value,
+    workforce: workforceNewValue ? "" : workforce.value,
+    workforceNew: workforceNewValue,
+    previousBeamsDate: prevBeams.value,
+    previousStartDate: prevStart.value,
+    previousEndDate: prevEnd.value,
+    obs: obs.value,
+    hvac: hvac.checked,
+    buildertrend: buildertrend.checked,
+    machineProvider: machineProviderNewValue ? "" : machineProvider.value,
+    machineProviderNew: machineProviderNewValue
+  };
+
+  setSaving(true);
+
+  google.script.run
+    .withSuccessHandler(res => {
+      setSaving(false);
+      alert("Obra criada com sucesso! ID: " + res.id);
+    })
+    .withFailureHandler(err => {
+      setSaving(false);
+      alert("Erro: " + err);
+    })
+    .addNewWorkAndDerivatives(form);
+}
+
+function toggleHint(inputEl, hintId) {
+  const hint = document.getElementById(hintId);
+  if (!hint) return;
+  const hasText = inputEl.value.trim().length > 0;
+  hint.classList.toggle("hidden", !hasText);
+}
+
+function setSaving(isSaving) {
+  const btn = document.getElementById("saveBtn");
+  const spinner = document.getElementById("saveSpinner");
+  const text = document.getElementById("saveText");
+  if (!btn || !spinner || !text) return;
+  btn.disabled = isSaving;
+  spinner.classList.toggle("hidden", !isSaving);
+  text.textContent = isSaving ? "Salvando..." : "Salvar obra";
+}
+
+jobsiteNew.addEventListener("input", () => toggleHint(jobsiteNew, "jobsiteHint"));
+workforceNew.addEventListener("input", () => toggleHint(workforceNew, "workforceHint"));
+machineProviderNew.addEventListener("input", () => toggleHint(machineProviderNew, "machineProviderHint"));
+
+// -------- Modal Delete --------
+function openDeleteModal() {
+  resetDeleteModal();
+  document.getElementById("deleteModal").classList.remove("hidden");
+}
+
+function closeDeleteModal() {
+  document.getElementById("deleteModal").classList.add("hidden");
+}
+
+function resetDeleteModal() {
+  const idInput = document.getElementById("deleteId");
+  const summary = document.getElementById("deleteSummary");
+  const errBox = document.getElementById("deleteError");
+  const confirmBtn = document.getElementById("deleteConfirmBtn");
+  if (idInput) idInput.value = "";
+  if (summary) {
+    summary.textContent = "";
+    summary.classList.add("hidden");
+  }
+  if (errBox) {
+    errBox.textContent = "";
+    errBox.classList.add("hidden");
+  }
+  if (confirmBtn) confirmBtn.classList.add("hidden");
+}
+
+function fetchWorkForDelete() {
+  const id = document.getElementById("deleteId").value.trim();
+  const summary = document.getElementById("deleteSummary");
+  const errBox = document.getElementById("deleteError");
+  const confirmBtn = document.getElementById("deleteConfirmBtn");
+  if (summary) { summary.textContent = ""; summary.classList.add("hidden"); }
+  if (errBox) { errBox.textContent = ""; errBox.classList.add("hidden"); }
+  if (confirmBtn) confirmBtn.classList.add("hidden");
+  if (!id) {
+    if (errBox) {
+      errBox.textContent = "Informe um ID.";
+      errBox.classList.remove("hidden");
+    }
+    return;
+  }
+
+  document.getElementById("deleteFetchBtn").disabled = true;
+  google.script.run
+    .withSuccessHandler(data => {
+      document.getElementById("deleteFetchBtn").disabled = false;
+      if (summary) {
+        summary.innerHTML = `
+          <div><strong>Job Site:</strong> ${data.jobSite || "-"}</div>
+          <div><strong>Type:</strong> ${data.type || "-"}</div>
+          <div><strong>Lot / Bld:</strong> ${data.lotOrBld || "-"}</div>
+        `;
+        summary.classList.remove("hidden");
+      }
+      if (confirmBtn) confirmBtn.classList.remove("hidden");
+    })
+    .withFailureHandler(err => {
+      document.getElementById("deleteFetchBtn").disabled = false;
+      if (errBox) {
+        errBox.textContent = err;
+        errBox.classList.remove("hidden");
+      }
+    })
+    .getWorkSummary(id);
+}
+
+function confirmDelete() {
+  const id = document.getElementById("deleteId").value.trim();
+  if (!id) return;
+  document.getElementById("deleteConfirmBtn").disabled = true;
+  google.script.run
+    .withSuccessHandler(() => {
+      document.getElementById("deleteConfirmBtn").disabled = false;
+      alert("Obra deletada com sucesso.");
+      closeDeleteModal();
+    })
+    .withFailureHandler(err => {
+      document.getElementById("deleteConfirmBtn").disabled = false;
+      alert("Erro ao deletar: " + err);
+    })
+    .deleteWorkById(id);
+}
+
+// -------- Editar obra existente --------
+let currentWorkId = null;
+let currentFieldwire = [];
+let currentMachines = [];
+let currentContractSteps = [];
+let editSearchResults = [];
+let isEditSaving = false;
+
+function searchWorks() {
+  const client = document.getElementById("editClient").value;
+  const jobsite = document.getElementById("editJobsite").value;
+  const list = document.getElementById("editWorksList");
+  const panels = document.getElementById("editPanels");
+  if (panels) panels.classList.add("hidden");
+  if (!client || !jobsite) {
+    if (list) {
+      list.textContent = "Selecione um cliente e um job site para listar as obras.";
+      list.classList.remove("hidden");
+    }
+    return;
+  }
+  if (list) {
+    list.textContent = "Buscando obras...";
+    list.classList.remove("hidden");
+  }
+  google.script.run
+    .withSuccessHandler(data => {
+      if (!list) return;
+      editSearchResults = (data || []).filter(w => String(w.status || "").trim() !== "Not Started");
+      if (!editSearchResults.length) {
+        list.textContent = "Nenhuma obra encontrada para o filtro (apenas obras com status diferente de 'Not Started').";
+        return;
+      }
+      const html = `<div class="works-list-container">${editSearchResults.map((w, idx) => `
+        <div class="work-item" onclick="document.querySelector('input[value=\\'${w.id}\\']').checked=true;selectWorkIndex(${idx})">
+          <input type="radio" name="editWorkRadio" value="${w.id}" onchange="selectWorkIndex(${idx})">
+          <div class="work-item-content">
+            <div class="work-item-title">${w.type || "-"} — ${w.lotOrBld || "(sem lote/prédio)"}</div>
+            <div class="work-item-meta">${w.address || "-"}</div>
+          </div>
+        </div>
+      `).join("")}</div>`;
+      list.innerHTML = html;
+    })
+    .withFailureHandler(err => {
+      if (list) list.textContent = "Erro: " + err;
+    })
+    .getWorksByClientJobsite(client, jobsite);
+}
+
+function onAddClientChange() {
+  const client = document.getElementById("client").value;
+  if (!client) {
+    fillSelect("jobsite", []);
+    return;
+  }
+  google.script.run
+    .withSuccessHandler(js => {
+      fillSelect("jobsite", js || []);
+    })
+    .withFailureHandler(() => {
+      fillSelect("jobsite", []);
+    })
+    .getJobsitesByClient(client);
+}
+
+function onEditClientChange() {
+  const client = document.getElementById("editClient").value;
+  const jobsiteSelect = document.getElementById("editJobsite");
+  const list = document.getElementById("editWorksList");
+  const panels = document.getElementById("editPanels");
+  if (panels) panels.classList.add("hidden");
+  if (list) {
+    list.textContent = "Selecione um cliente e um job site para listar as obras.";
+    list.classList.remove("hidden");
+  }
+  if (!client) {
+    fillSelect("editJobsite", []);
+    return;
+  }
+  google.script.run
+    .withSuccessHandler(js => {
+      fillSelect("editJobsite", js || []);
+      // Auto-search if jobsite already selected
+      if (jobsiteSelect.value) {
+        searchWorks();
+      }
+    })
+    .withFailureHandler(() => {
+      fillSelect("editJobsite", []);
+    })
+    .getJobsitesByClient(client);
+}
+
+function onEditJobsiteChange() {
+  const client = document.getElementById("editClient").value;
+  const jobsite = document.getElementById("editJobsite").value;
+  if (client && jobsite) {
+    searchWorks();
+  } else {
+    const list = document.getElementById("editWorksList");
+    const panels = document.getElementById("editPanels");
+    if (panels) panels.classList.add("hidden");
+    if (list) {
+      list.textContent = "Selecione um cliente e um job site para listar as obras.";
+      list.classList.remove("hidden");
+    }
+  }
+}
+
+function selectWorkIndex(idx) {
+  const work = editSearchResults[idx];
+  if (!work) return;
+  currentWorkId = work.id;
+  const panels = document.getElementById("editPanels");
+  if (panels) panels.classList.remove("hidden");
+
+  document.getElementById("editAddress").value = work.address || "";
+  document.getElementById("editWorkforce").value = work.workforce || "";
+  document.getElementById("editStatus").value = work.status || "";
+  document.getElementById("editPrevBeams").value = work.previousBeamsDate || "";
+  document.getElementById("editPrevStart").value = work.previousStartDate || "";
+  document.getElementById("editPrevEnd").value = work.previousEndDate || "";
+  document.getElementById("editObs").value = work.obs || "";
+  document.getElementById("editHvac").checked = !!work.hvac;
+  document.getElementById("editBuildertrend").checked = !!work.buildertrend;
+  document.getElementById("editMachineProvider").value = work.machineProvider || "";
+
+  loadFieldwire(work.id);
+  loadMachines(work.id);
+  loadContractSteps(work.id);
+}
+
+function loadFieldwire(id) {
+  const box = document.getElementById("fieldwireList");
+  if (box) {
+    box.textContent = "Carregando documentos...";
+    box.classList.remove("hidden");
+  }
+  google.script.run
+    .withSuccessHandler(rows => {
+      currentFieldwire = rows || [];
+      if (!box) return;
+      if (!rows || !rows.length) {
+        box.textContent = "Nenhum documento encontrado para esta obra.";
+        return;
+      }
+      const html = rows.map((r, idx) => `
+        <div class="fieldwire-item">
+          <div class="fieldwire-item-name">${r.document || "(sem título)"}</div>
+          <input type="checkbox" ${r.status ? "checked" : ""} onchange="toggleFieldwireStatus(${idx}, this.checked)" style="width:18px;height:18px;accent-color:var(--color-accent-primary);cursor:pointer;">
+        </div>
+      `).join("");
+      box.innerHTML = html;
+    })
+    .withFailureHandler(err => {
+      if (box) box.textContent = "Erro: " + err;
+    })
+    .getFieldwireByWork(id);
+}
+
+function toggleFieldwireStatus(idx, checked) {
+  if (!currentFieldwire[idx]) return;
+  currentFieldwire[idx].status = checked;
+}
+
+function loadMachines(id) {
+  const box = document.getElementById("machinesList");
+  if (box) {
+    box.textContent = "Carregando máquinas...";
+    box.classList.remove("hidden");
+  }
+  google.script.run
+    .withSuccessHandler(rows => {
+      currentMachines = rows || [];
+      if (!box) return;
+      if (!rows || !rows.length) {
+        box.textContent = "Nenhuma máquina encontrada para esta obra.";
+        return;
+      }
+      const html = rows.map((r, idx) => {
+        const isChecked = r.status || false;
+        return `
+        <div class="machine-item">
+          <div class="machine-title-row">
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${r.equipmentCategory ? `<span class="machine-equipment-category">${r.equipmentCategory}</span>` : ""}
+              <span class="machine-title">${r.title || "(sem título)"}</span>
+            </div>
+            <div class="machine-controls">
+              <span class="machine-separator"></span>
+              <input type="checkbox" ${isChecked ? "checked" : ""} onchange="toggleMachineStatus(${idx}, this.checked)" style="width:18px;height:18px;accent-color:var(--color-accent-primary);cursor:pointer;">
+              <div class="field" style="flex:0 0 180px;margin:0;">
+                <input id="machineUnit_${idx}" value="${r.unit || ""}" oninput="editMachineUnit(${idx}, this.value)" placeholder="Unit" ${isChecked ? "" : "disabled"}>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      }).join("");
+      box.innerHTML = html;
+    })
+    .withFailureHandler(err => {
+      if (box) box.textContent = "Erro: " + err;
+    })
+    .getMachinesByWork(id);
+}
+
+function toggleMachineStatus(idx, checked) {
+  if (!currentMachines[idx]) return;
+  currentMachines[idx].status = checked;
+  const unitInput = document.getElementById(`machineUnit_${idx}`);
+  if (unitInput) {
+    unitInput.disabled = !checked;
+    if (!checked) {
+      unitInput.value = "";
+      currentMachines[idx].unit = "";
+    }
+  }
+}
+
+function loadContractSteps(id) {
+  const box = document.getElementById("contractStepsList");
+  if (!box) return;
+  google.script.run
+    .withSuccessHandler(rows => {
+      if (!rows || !rows.length) {
+        box.innerHTML = `
+          <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--color-text-primary);">Passos do Contrato</div>
+          <div class="muted-box" style="text-align:left;padding:12px;">Nenhum passo de contrato encontrado para esta obra.</div>
+        `;
+        return;
+      }
+      currentContractSteps = rows || [];
+      const html = `
+        <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--color-text-primary);">Passos do Contrato</div>
+        <div class="contract-steps-container">
+          ${rows.map((r, idx) => `
+            <div class="contract-step-item">
+              <div class="contract-step-name">${r.step || "(sem nome)"}</div>
+              <input type="checkbox" ${r.status ? "checked" : ""} onchange="toggleContractStep(${idx}, this.checked)" style="width:18px;height:18px;accent-color:var(--color-accent-primary);cursor:pointer;">
+            </div>
+          `).join("")}
+        </div>
+      `;
+      box.innerHTML = html;
+    })
+    .withFailureHandler(err => {
+      box.innerHTML = `
+        <div style="font-weight:600;font-size:13px;margin-bottom:10px;color:var(--color-text-primary);">Passos do Contrato</div>
+        <div class="muted-box" style="text-align:left;padding:12px;">Erro: ${err}</div>
+      `;
+    })
+    .getContractStepsByWork(id);
+}
+
+function editMachineUnit(idx, value) {
+  if (!currentMachines[idx]) return;
+  currentMachines[idx].unit = value;
+}
+
+function toggleContractStep(idx, checked) {
+  if (!currentContractSteps[idx]) return;
+  currentContractSteps[idx].status = checked;
+}
+
+function saveEdit() {
+  if (!currentWorkId) {
+    alert("Selecione uma obra primeiro.");
+    return;
+  }
+  if (isEditSaving) return;
+  const payload = {
+    id: currentWorkId,
+    address: document.getElementById("editAddress").value,
+    workforce: document.getElementById("editWorkforce").value,
+    status: document.getElementById("editStatus").value,
+    previousBeamsDate: document.getElementById("editPrevBeams").value,
+    previousStartDate: document.getElementById("editPrevStart").value,
+    previousEndDate: document.getElementById("editPrevEnd").value,
+    obs: document.getElementById("editObs").value,
+    hvac: document.getElementById("editHvac").checked,
+    buildertrend: document.getElementById("editBuildertrend").checked,
+    machineProvider: document.getElementById("editMachineProvider").value
+  };
+
+  // Valida machines: se status YES, unit obrigatório
+  for (const m of currentMachines) {
+    if (m.status && !String(m.unit || "").trim()) {
+      alert(`Informe o Unit para "${m.title || "item"}" quando Status = YES.`);
+      return;
+    }
+  }
+
+  setEditSaving(true);
+  google.script.run
+    .withSuccessHandler(() => {
+      google.script.run
+        .withSuccessHandler(() => {
+          google.script.run
+            .withSuccessHandler(() => {
+              google.script.run
+                .withSuccessHandler(() => {
+                  setEditSaving(false);
+                  alert("Alterações salvas.");
+                })
+                .withFailureHandler(err => { setEditSaving(false); alert("Erro ao atualizar contract steps: " + err); })
+                .updateContractSteps(currentWorkId, currentContractSteps);
+            })
+            .withFailureHandler(err => { setEditSaving(false); alert("Erro ao atualizar machines: " + err); })
+            .updateMachines(currentWorkId, currentMachines);
+        })
+        .withFailureHandler(err => { setEditSaving(false); alert("Erro ao atualizar Fieldwire: " + err); })
+        .updateFieldwireStatuses(currentWorkId, currentFieldwire);
+    })
+    .withFailureHandler(err => { setEditSaving(false); alert("Erro ao atualizar obra: " + err); })
+    .updateWork(payload);
+}
+
+function setEditSaving(isSaving) {
+  isEditSaving = isSaving;
+  const btn = document.getElementById("editSaveBtn");
+  const spinner = document.getElementById("editSaveSpinner");
+  const text = document.getElementById("editSaveText");
+  if (!btn || !spinner || !text) return;
+  btn.disabled = isSaving;
+  spinner.classList.toggle("hidden", !isSaving);
+  text.textContent = isSaving ? "Salvando..." : "Salvar alterações";
+}
+</script>
+
+</body>
+</html>

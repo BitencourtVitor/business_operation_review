@@ -1,23 +1,56 @@
 import React, { useState } from 'react';
 import MonthlySummary from './MonthlySummary';
 
-interface WorkforceProject {
+interface ForecastFieldwire {
   id: number;
+  obra_id: string;
+  category: string | null;
+  document: string | null;
+  status: boolean | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface ForecastMachine {
+  id: number;
+  obra_id: string;
+  category: string | null;
+  subcategory: string | null;
+  equipment_category: string | null;
+  title: string | null;
+  status: boolean | null;
+  unit: string | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface ForecastContractStep {
+  id: number;
+  obra_id: string;
+  step: string | null;
+  status: boolean | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface WorkforceProject {
+  id: string;
   cliente: string;
   job_site: string;
-  lote_building: number;
-  workforce: string;
-  hvac: string | null;
-  fieldwire?: boolean | string | null;
-  tem_contrato?: boolean | string | null;
-  status?: string | null;
-  address?: string | null;
-  previous_start_date: string;
-  previous_end_date: string;
+  type: string | null;
+  lote_bld: string | null;
+  workforce: string | null;
+  hvac: boolean | null;
+  buildertrend: boolean | null;
+  machine_provider: string | null;
+  status: string | null;
+  address: string | null;
   previous_beams_date: string | null;
-  observacoes: string;
-  created_at: string;
-  updated_at: string;
+  previous_start_date: string | null;
+  previous_end_date: string | null;
+  obs: string | null;
+  create_datetime: string | null;
+  lastupdate_datetimez: string | null;
+  fieldwire?: ForecastFieldwire[];
+  machines?: ForecastMachine[];
+  contract_steps?: ForecastContractStep[];
 }
 
 interface ForecastStats {
