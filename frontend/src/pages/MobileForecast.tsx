@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
+import ForecastMaintenance from '../components/common/Forecast/ForecastMaintenance';
 
 // Componentes modulares
 import MobileForecastLoading from '../components/common/Forecast/MobileForecastLoading';
@@ -49,6 +50,9 @@ interface ForecastData {
 }
 
 export default function MobileForecast() {
+  // Ajuste temporário: exibir tela de manutenção em vez do layout completo
+  return <ForecastMaintenance variant="mobile" />;
+
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
