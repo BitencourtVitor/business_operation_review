@@ -667,9 +667,16 @@
           <div class="card-header" style="margin-bottom:10px;">
             <span class="badge">Workforce & Contract</span>
           </div>
-          <div class="field">
-            <label for="editWorkforce">Workforce</label>
-            <select id="editWorkforce"></select>
+          <div class="grid-2">
+            <div class="field">
+              <label for="editWorkforce">Workforce</label>
+              <select id="editWorkforce"></select>
+            </div>
+            <div class="field">
+              <label for="editWorkforceNew">+ Nova opção (opcional)</label>
+              <input id="editWorkforceNew" placeholder="Novo workforce">
+              <small id="editWorkforceHint" class="hint hidden">Caso você informe um novo workforce, o selecionado na lista será desconsiderado.</small>
+            </div>
           </div>
           <div class="field" style="margin-top:20px;">
             <label for="editStatus">Status</label>
@@ -741,9 +748,16 @@
           <div class="card-header" style="margin-bottom:10px;">
             <span class="badge">Machines</span>
           </div>
-          <div class="field" style="margin-bottom:16px;">
-            <label for="editMachineProvider">Machine Provider</label>
-            <select id="editMachineProvider"></select>
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div class="field">
+              <label for="editMachineProvider">Machine Provider</label>
+              <select id="editMachineProvider"></select>
+            </div>
+            <div class="field">
+              <label for="editMachineProviderNew">+ Nova opção (opcional)</label>
+              <input id="editMachineProviderNew" placeholder="Novo provider">
+              <small id="editMachineProviderHint" class="hint hidden">Caso você informe um novo provider, o selecionado na lista será desconsiderado.</small>
+            </div>
           </div>
           <div id="machinesList" class="muted-box">Selecione uma obra para carregar as máquinas.</div>
         </div>
@@ -885,6 +899,16 @@ function setSaving(isSaving) {
 jobsiteNew.addEventListener("input", () => toggleHint(jobsiteNew, "jobsiteHint"));
 workforceNew.addEventListener("input", () => toggleHint(workforceNew, "workforceHint"));
 machineProviderNew.addEventListener("input", () => toggleHint(machineProviderNew, "machineProviderHint"));
+
+// Event listeners para os campos de edição
+const editWorkforceNew = document.getElementById("editWorkforceNew");
+const editMachineProviderNew = document.getElementById("editMachineProviderNew");
+if (editWorkforceNew) {
+  editWorkforceNew.addEventListener("input", () => toggleHint(editWorkforceNew, "editWorkforceHint"));
+}
+if (editMachineProviderNew) {
+  editMachineProviderNew.addEventListener("input", () => toggleHint(editMachineProviderNew, "editMachineProviderHint"));
+}
 
 // -------- Modal Delete --------
 function openDeleteModal() {
@@ -1089,6 +1113,7 @@ function selectWorkIndex(idx) {
 
   document.getElementById("editAddress").value = work.address || "";
   document.getElementById("editWorkforce").value = work.workforce || "";
+  document.getElementById("editWorkforceNew").value = ""; // Limpa o campo de nova opção
   document.getElementById("editStatus").value = work.status || "";
   document.getElementById("editPrevBeams").value = work.previousBeamsDate || "";
   document.getElementById("editPrevStart").value = work.previousStartDate || "";
@@ -1097,6 +1122,7 @@ function selectWorkIndex(idx) {
   document.getElementById("editHvac").checked = !!work.hvac;
   document.getElementById("editBuildertrend").checked = !!work.buildertrend;
   document.getElementById("editMachineProvider").value = work.machineProvider || "";
+  document.getElementById("editMachineProviderNew").value = ""; // Limpa o campo de nova opção
 
   loadFieldwire(work.id);
   loadMachines(work.id);
@@ -1242,10 +1268,15 @@ function saveEdit() {
     return;
   }
   if (isEditSaving) return;
+  
+  const workforceNewValue = document.getElementById("editWorkforceNew").value.trim();
+  const machineProviderNewValue = document.getElementById("editMachineProviderNew").value.trim();
+  
   const payload = {
     id: currentWorkId,
     address: document.getElementById("editAddress").value,
-    workforce: document.getElementById("editWorkforce").value,
+    workforce: workforceNewValue ? "" : document.getElementById("editWorkforce").value,
+    workforceNew: workforceNewValue,
     status: document.getElementById("editStatus").value,
     previousBeamsDate: document.getElementById("editPrevBeams").value,
     previousStartDate: document.getElementById("editPrevStart").value,
@@ -1253,7 +1284,8 @@ function saveEdit() {
     obs: document.getElementById("editObs").value,
     hvac: document.getElementById("editHvac").checked,
     buildertrend: document.getElementById("editBuildertrend").checked,
-    machineProvider: document.getElementById("editMachineProvider").value
+    machineProvider: machineProviderNewValue ? "" : document.getElementById("editMachineProvider").value,
+    machineProviderNew: machineProviderNewValue
   };
 
   // Valida machines: se status YES, unit obrigatório
