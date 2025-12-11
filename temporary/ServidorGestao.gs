@@ -516,13 +516,14 @@ function updateWork(data) {
     appendEventChange(idStr, "Address", oldAddressN, data.address || "");
     changed = true;
   }
-  if (oldWorkforceN !== (data.workforce || "")) {
-    const newWorkforce = String(data.workforce || "").trim();
-    dataSheet.getRange(rowIdx, 8).setValue(newWorkforce);
-    appendEventChange(idStr, "Workforce", oldWorkforceN, newWorkforce);
+  // Prioridade: NEW > selected (mesma lógica do createNewWork)
+  const finalWorkforce = (data.workforceNew && String(data.workforceNew).trim()) ? String(data.workforceNew).trim() : (data.workforce || "");
+  if (oldWorkforceN !== finalWorkforce) {
+    dataSheet.getRange(rowIdx, 8).setValue(finalWorkforce);
+    appendEventChange(idStr, "Workforce", oldWorkforceN, finalWorkforce);
     // Adiciona à Categorization se não existir - usando mapeamento
-    if (newWorkforce && categ) {
-      appendIfNotExists(categ, CATEGORIZATION_MAP.Workforce.startCol, newWorkforce);
+    if (data.workforceNew && String(data.workforceNew).trim() && categ) {
+      appendIfNotExists(categ, CATEGORIZATION_MAP.Workforce.startCol, String(data.workforceNew).trim());
     }
     changed = true;
   }
@@ -556,13 +557,14 @@ function updateWork(data) {
     appendEventChange(idStr, "BuilderTrend", oldBtN, btStr);
     changed = true;
   }
-  if (oldMachineProviderN !== (data.machineProvider || "")) {
-    const newMachineProvider = String(data.machineProvider || "").trim();
-    dataSheet.getRange(rowIdx, 15).setValue(newMachineProvider);
-    appendEventChange(idStr, "MachineProvider", oldMachineProviderN, newMachineProvider);
+  // Prioridade: NEW > selected (mesma lógica do createNewWork)
+  const finalMachineProvider = (data.machineProviderNew && String(data.machineProviderNew).trim()) ? String(data.machineProviderNew).trim() : (data.machineProvider || "");
+  if (oldMachineProviderN !== finalMachineProvider) {
+    dataSheet.getRange(rowIdx, 15).setValue(finalMachineProvider);
+    appendEventChange(idStr, "MachineProvider", oldMachineProviderN, finalMachineProvider);
     // Adiciona à Categorization se não existir - usando mapeamento
-    if (newMachineProvider && categ) {
-      appendIfNotExists(categ, CATEGORIZATION_MAP.MachineProvider.startCol, newMachineProvider);
+    if (data.machineProviderNew && String(data.machineProviderNew).trim() && categ) {
+      appendIfNotExists(categ, CATEGORIZATION_MAP.MachineProvider.startCol, String(data.machineProviderNew).trim());
     }
     changed = true;
   }
