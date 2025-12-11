@@ -12,24 +12,57 @@ import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 type DateMode = 'start' | 'beams';
 
-interface WorkforceProject {
+interface ForecastFieldwire {
   id: number;
+  obra_id: string;
+  category: string | null;
+  document: string | null;
+  status: boolean | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface ForecastMachine {
+  id: number;
+  obra_id: string;
+  category: string | null;
+  subcategory: string | null;
+  equipment_category: string | null;
+  title: string | null;
+  status: boolean | null;
+  unit: string | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface ForecastContractStep {
+  id: number;
+  obra_id: string;
+  step: string | null;
+  status: boolean | null;
+  lastupdate_datetimez: string | null;
+}
+
+interface WorkforceProject {
+  id: string; // Mudou de number para string (ID da obra)
   cliente: string;
   job_site: string;
   type: string | null;
-  lote_building: number;
-  workforce: string;
-  hvac: string | null;
-  fieldwire?: boolean | string | null;
-  tem_contrato?: boolean | string | null;
-  status?: string | null;
-  address?: string | null;
-  previous_start_date: string;
-  previous_end_date: string;
+  lote_bld: string | null; // Mudou de lote_building (number) para lote_bld (string)
+  workforce: string | null;
+  hvac: boolean | null; // Mudou de string para boolean
+  buildertrend: boolean | null; // Novo campo
+  machine_provider: string | null; // Novo campo
+  status: string | null;
+  address: string | null;
   previous_beams_date: string | null;
-  observacoes: string;
-  created_at: string;
-  updated_at: string;
+  previous_start_date: string | null;
+  previous_end_date: string | null;
+  obs: string | null; // Mudou de observacoes para obs
+  create_datetime: string | null; // Mudou de created_at
+  lastupdate_datetimez: string | null; // Mudou de updated_at
+  // Dados relacionados das tabelas derivadas
+  fieldwire?: ForecastFieldwire[];
+  machines?: ForecastMachine[];
+  contract_steps?: ForecastContractStep[];
 }
 
 const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | null => {
@@ -37,6 +70,17 @@ const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | n
     return project.previous_beams_date || project.previous_start_date || null;
   }
   return project.previous_start_date || null;
+};
+
+// Helper para verificar se tem Fieldwire ativo
+const hasActiveFieldwire = (project: WorkforceProject): boolean => {
+  return project.fieldwire?.some(fw => fw.status === true) || false;
+};
+
+// Helper para verificar se tem contrato completo
+const hasCompleteContract = (project: WorkforceProject): boolean => {
+  if (!project.contract_steps || project.contract_steps.length === 0) return false;
+  return project.contract_steps.every(cs => cs.status === true);
 };
 
 interface ForecastData {
@@ -50,9 +94,6 @@ interface ForecastData {
 }
 
 export default function MobileForecast() {
-  // Ajuste temporário: exibir tela de manutenção em vez do layout completo
-  return <ForecastMaintenance variant="mobile" />;
-
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,34 +152,92 @@ export default function MobileForecast() {
     };
   }, [isCompanyMenuOpen]);
 
-  // Função para buscar dados do workforce
+  // Função para buscar dados do forecast (novo modelo)
   const fetchWorkforceData = async () => {
     try {
       setLoading(true);
       
-      // Buscar projetos
+      // Buscar dados principais da tabela forecast_data
       const { data: projectsData, error: projectsError } = await supabase
-        .from('workforce_projects')
+        .from('forecast_data')
         .select('*')
         .order('previous_start_date', { ascending: true });
 
       if (projectsError) throw projectsError;
 
-      setRawProjects((projectsData || []) as WorkforceProject[]);
+      if (!projectsData || projectsData.length === 0) {
+        setRawProjects([]);
+        setWorkforceProjects([]);
+        return;
+      }
 
-      const filtered = (projectsData || []).filter((p: any) => {
+      // Buscar dados relacionados em paralelo
+      const obraIds = projectsData.map(p => p.id);
+      
+      const [fieldwireData, machinesData, contractStepsData] = await Promise.all([
+        supabase
+          .from('forecast_fieldwire')
+          .select('*')
+          .in('obra_id', obraIds),
+        supabase
+          .from('forecast_machines')
+          .select('*')
+          .in('obra_id', obraIds),
+        supabase
+          .from('forecast_contract_steps')
+          .select('*')
+          .in('obra_id', obraIds)
+      ]);
+
+      // Agrupar dados relacionados por obra_id
+      const fieldwireMap = new Map<string, ForecastFieldwire[]>();
+      (fieldwireData.data || []).forEach((fw: ForecastFieldwire) => {
+        if (!fieldwireMap.has(fw.obra_id)) {
+          fieldwireMap.set(fw.obra_id, []);
+        }
+        fieldwireMap.get(fw.obra_id)!.push(fw);
+      });
+
+      const machinesMap = new Map<string, ForecastMachine[]>();
+      (machinesData.data || []).forEach((m: ForecastMachine) => {
+        if (!machinesMap.has(m.obra_id)) {
+          machinesMap.set(m.obra_id, []);
+        }
+        machinesMap.get(m.obra_id)!.push(m);
+      });
+
+      const contractStepsMap = new Map<string, ForecastContractStep[]>();
+      (contractStepsData.data || []).forEach((cs: ForecastContractStep) => {
+        if (!contractStepsMap.has(cs.obra_id)) {
+          contractStepsMap.set(cs.obra_id, []);
+        }
+        contractStepsMap.get(cs.obra_id)!.push(cs);
+      });
+
+      // Combinar dados principais com dados relacionados
+      const enrichedProjects: WorkforceProject[] = projectsData.map((project: any) => ({
+        ...project,
+        fieldwire: fieldwireMap.get(project.id) || [],
+        machines: machinesMap.get(project.id) || [],
+        contract_steps: contractStepsMap.get(project.id) || []
+      }));
+
+      setRawProjects(enrichedProjects);
+
+      // Filtrar apenas projetos com status 'not started' e com data de início válida
+      const filtered = enrichedProjects.filter((p: WorkforceProject) => {
         const s = (p.status || '').toLowerCase().trim();
-        // Apenas projetos com status 'not started' são exibidos
         if (s === 'not started') {
           const start = p.previous_start_date ? new Date(p.previous_start_date) : null;
           return !!(start && !isNaN(start.getTime()));
         }
         return false;
       });
+      
       setWorkforceProjects(filtered);
 
     } catch (err) {
-      console.error('Erro ao buscar dados do workforce:', err);
+      console.error('Erro ao buscar dados do forecast:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setLoading(false);
@@ -174,12 +273,12 @@ export default function MobileForecast() {
     )].sort();
     setJobSites(uniqueJobSites);
 
-    const uniqueTypes = [...new Set(
-      rawProjects
-        .map(p => p.type)
-        .filter(type => !!type)
-    )].sort();
-    setAvailableTypes(uniqueTypes);
+      const uniqueTypes = [...new Set(
+        rawProjects
+          .map(p => p.type)
+          .filter(type => !!type)
+      )].sort();
+      setAvailableTypes(uniqueTypes);
   }, [rawProjects]);
 
   useEffect(() => {

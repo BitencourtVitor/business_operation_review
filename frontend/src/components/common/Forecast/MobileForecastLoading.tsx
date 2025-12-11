@@ -53,17 +53,18 @@ export default function MobileForecastLoading({ onComplete }: MobileForecastLoad
       }, 200);
 
       try {
-        // Chamar a edge function do workforce
-        console.log('📊 MobileForecastLoading: Chamando workforce_gsheet...');
-        const { error } = await supabase.functions.invoke('workforce_gsheet', {
-          body: { userId: 'mobile-forecast-loading' }
+        // Chamar a edge function do forecast (novo modelo)
+        console.log('📊 MobileForecastLoading: Chamando forecast...');
+        const { error } = await supabase.functions.invoke('forecast', {
+          method: 'POST',
+          body: {}
         });
         
         // Limpar o intervalo de progresso
         clearInterval(progressInterval);
         
         if (error) {
-          console.error('❌ Erro na edge function workforce_gsheet:', error);
+          console.error('❌ Erro na edge function forecast:', error);
           setLoadingItems(prev => prev.map(item => 
             item.id === 'workforce' 
               ? { ...item, status: 'error', progress: 100, error: error.message }

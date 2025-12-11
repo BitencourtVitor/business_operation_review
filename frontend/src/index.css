@@ -227,3 +227,15 @@ input::placeholder, textarea::placeholder {
 #week-select::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
 }
+
+/* Esconder scrollbar do modal */
+.modal-scroll-container {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+.modal-scroll-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}

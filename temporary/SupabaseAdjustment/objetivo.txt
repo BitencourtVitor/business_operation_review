@@ -1,0 +1,36 @@
+Agora nós temos um arquivo Google Planilha, dentro dele temos várias planilhas, a planilha principal e as derivadas, e todos os dados são gerenciados através de um site HTML. Está tudo perfeito. Resta o que será nosso último passo. Agora nós vamos precisar ajustar um banco de dados, Supabase, que é usado para coletar todas as informações da planilha, e por fim abastecer o front-end da apresentação desses dados, que por sinal é um projeto que usa TypeScript e que está hospedado dentro da Vercel. Essa é a missão principal.
+
+Nosso objetivo, portanto, é observar no arquivo workforce_projects.sql qual era o modelo de tabela que eu tinha anteriormente. Essa tabela era usada apenas para coletar as informações do nosso modelo antigo, que era de uma única planilha. Agora, como sabemos, são várias planilhas separadas com vários detalhes, então eu vou te passar, dentro desse mesmo arquivo .txt, o GID de cada uma das tabelas e quais são as colunas que elas possuem.
+
+Link do documento:
+https://docs.google.com/spreadsheets/d/188IqXMBS6UaVzG-FWRI9REVCFsqLV_tOkv0F3PxX83I/edit?gid=0#gid=0
+
+Planilha 'Data':
+GID=0
+Colunas: ID	Cliente	Job Site	Type	Lote / Bld	Status	Address	Workforce	Previous Beams Date	Previous Start Date	Previous End Date	Obs	HVAC	Buildertrend	MachineProvider	Create DateTime	LastUpdate DatetimeZ
+Sobre:
+Essa é a nossa planilha principal. Tanto que o GID dela é zero, como você pode notar. O objetivo dela é guardar dados principais de cada obra. Então a gente tem ali o ID, que é um string client, jobsite, type, lote / building, status, address, workforce. Tudo isso é string também.
+Temos três colunas de data, que é a data dos Beams, o startDate e o endDate. Temos um campo de observações, que é um string longa. Temos HVAC e BuilderTrend, que são booleanos a partir do valor NO e YES. Temos MachineProvider, CreateDateTime e LastUpdateDateTime, que são data, hora, zone.
+As datas vão vir no formato mês/dia/ano, enquanto que os datetimes das últimas colunas virão como o exemplo a seguir: 2025-12-11T15:34:34Z
+
+É importante que criemos novas tabelas dentro do banco de dados que respeitem o formato dos dados que são armazenados na planilha, para que não haja nenhum problema de coleta e apresentação dos dados ao longo do fluxo. Teremos uma Edge Function que vai coletar todos os dados, portanto precisamos respeitar o fluxo para não ter problema no tratamento dos dados e no trânsito deles de uma ponta a outra.
+
+Dentro do arquivo workforce_gsheet.js, você vai encontrar o antigo modelo de coleta dos dados que abastecia a antiga tabela. Eu gostaria que fossem feitas consultas assíncronas, para que fosse mais rápido. A gente consulta a tabela principal e, ao mesmo tempo, consulta as derivadas, mas entendo que, talvez, por conta de ser uma única Edge Function, o processo precise ser síncrono. Bom, se possível, que seja assíncrono.
+
+Planilha 'Fieldwire':
+GID=187846874
+Colunas: ID	Category	Document	Status	LastUpdate DatetimeZ
+Sobre:
+Essa é a planilha que gerencia dados da documentação de plantas da obra. Então, no IDE nós temos uma FK que aponta para uma obra (PK) na planilha de GID de zero. Na CATEGORY nós temos a categoria daquela obra. No DOCUMENT temos a descrição de qual é o documento. O STATUS pode ser NO ou YES. E LAST UPDATE, DATE TIME, é um DATA HORA ZONA no mesmo padrão da planilha principal.
+
+Planilha 'Machines':
+GID=1720524266
+Colunas: ID	Category	Subcategory	Equipment Category	Title	Status	Unit	LastUpdate DatetimeZ
+Sobre:
+Praticamente todo tipo de obra precisa de máquinas e equipamentos para as máquinas, que são os chamados attachments. E essa planilha controla isso. Aqui nós temos a relação de máquinas que são direcionadas para cada obra. Isso é, se e somente se já tiver uma máquina reservada e os attachments delas reservados também. Portanto, nós temos na coluna ID, AFK da obra, Category e Subcategory são o tipo da obra. Equipment Category é a categoria do equipamento, se é uma máquina ou um attachment. Title é a descrição do tipo de máquina e do tipo de attachment. Status pode ser No ou Yes. E Unit é porque caso o status seja Yes, precisamos dizer qual é a Unit, qual o código daquela máquina. E por fim, temos o DateTime dentro dos padrões que já conhecemos.
+
+Planilha 'ContractSteps':
+GID=1936634959
+Colunas: ID	Step	Status	LastUpdate DatetimeZ
+Sobre:
+Toda obra vai ter mão de obra de subcontratado. Diante desse fato, nós precisamos ter o contrato regularizado. E para que esse contrato seja regularizado, existem diferentes etapas. Essa planilha gerencia isso. Na coluna ID, nós temos a AFK da obra. Step, nós temos uma etapa do contrato que precisa ser cumprida, evidentemente. Em Status, nós temos No ou Yes, para refletir se aquela etapa já foi cumprida ou não. E, por fim, a data-hora daquela última alteração.

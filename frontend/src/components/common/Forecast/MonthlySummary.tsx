@@ -1,22 +1,23 @@
 import React, { useMemo } from 'react';
 
 interface WorkforceProject {
-  id: number;
+  id: string;
   cliente: string;
   job_site: string;
-  lote_building: number;
-  workforce: string;
-  hvac: string | null;
-  fieldwire?: boolean | string | null;
-  tem_contrato?: boolean | string | null;
-  status?: string | null;
-  address?: string | null;
-  previous_start_date: string;
-  previous_end_date: string;
+  type: string | null;
+  lote_bld: string | null;
+  workforce: string | null;
+  hvac: boolean | null;
+  buildertrend: boolean | null;
+  machine_provider: string | null;
+  status: string | null;
+  address: string | null;
   previous_beams_date: string | null;
-  observacoes: string;
-  created_at: string;
-  updated_at: string;
+  previous_start_date: string | null;
+  previous_end_date: string | null;
+  obs: string | null;
+  create_datetime: string | null;
+  lastupdate_datetimez: string | null;
 }
 
 interface MonthlySummaryProps {
@@ -52,6 +53,8 @@ export default function MonthlySummary({
 
     // Filtrar projetos baseado nos filtros
     const filteredProjects = workforceProjects.filter(project => {
+      if (!project.previous_start_date) return false;
+      
       const projectYear = new Date(project.previous_start_date).getFullYear().toString();
       const projectMonth = new Date(project.previous_start_date).toLocaleString('en-US', { month: 'long' });
       
@@ -67,7 +70,11 @@ export default function MonthlySummary({
     const grouped: { [key: string]: MonthlyData } = {};
 
     filteredProjects.forEach(project => {
+      if (!project.previous_start_date) return;
+      
       const startDate = new Date(project.previous_start_date);
+      if (isNaN(startDate.getTime())) return;
+      
       const monthKey = `${startDate.getFullYear()}-${startDate.getMonth()}`;
       const monthName = startDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + startDate.getFullYear();
       
