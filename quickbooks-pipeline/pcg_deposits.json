@@ -4,6 +4,1545 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "TotalAmt": 2645.1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18720",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T13:27:12-08:00",
+      "LastUpdatedTime": "2025-12-10T13:27:12-08:00"
+    },
+    "TxnDate": "2025-11-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Check 288339",
+        "Amount": 2645.1,
+        "LinkedTxn": [
+          {
+            "TxnId": "18713",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "288339"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 1880,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18712",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T11:02:12-08:00",
+      "LastUpdatedTime": "2025-12-10T11:02:12-08:00"
+    },
+    "TxnDate": "2025-11-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Check 287754",
+        "Amount": 1880,
+        "LinkedTxn": [
+          {
+            "TxnId": "18711",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "287754"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 1089,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18709",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T10:01:48-08:00",
+      "LastUpdatedTime": "2025-12-10T10:01:48-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Check 287592",
+        "Amount": 1089,
+        "LinkedTxn": [
+          {
+            "TxnId": "18708",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "287592"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 22200,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18707",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T09:35:34-08:00",
+      "LastUpdatedTime": "2025-12-10T09:35:34-08:00"
+    },
+    "TxnDate": "2025-08-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 22200,
+        "LinkedTxn": [
+          {
+            "TxnId": "18706",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 3911.23,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18705",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T09:32:50-08:00",
+      "LastUpdatedTime": "2025-12-10T09:32:50-08:00"
+    },
+    "TxnDate": "2025-11-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 3911.23,
+        "LinkedTxn": [
+          {
+            "TxnId": "18704",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "15"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 4500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18703",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T09:30:25-08:00",
+      "LastUpdatedTime": "2025-12-10T09:30:25-08:00"
+    },
+    "TxnDate": "2025-12-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 4500,
+        "LinkedTxn": [
+          {
+            "TxnId": "18700",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "18"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 75376.57,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18697",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T09:20:14-08:00",
+      "LastUpdatedTime": "2025-12-10T09:20:14-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 75376.57,
+        "LinkedTxn": [
+          {
+            "TxnId": "18675",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "CheckNum": "11"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 6000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18668",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:59-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:59-08:00"
+    },
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 6000,
+        "LinkedTxn": [
+          {
+            "TxnId": "18658",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "22"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 12000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18667",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:56-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:56-08:00"
+    },
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 12000,
+        "LinkedTxn": [
+          {
+            "TxnId": "18657",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "23"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 22400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18666",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:53-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:53-08:00"
+    },
+    "TxnDate": "2025-12-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 22400,
+        "LinkedTxn": [
+          {
+            "TxnId": "18656",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "21"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 14050,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18665",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:49-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:49-08:00"
+    },
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 14050,
+        "LinkedTxn": [
+          {
+            "TxnId": "18653",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "17"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 56419.26,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18664",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:46-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:46-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 56419.26,
+        "LinkedTxn": [
+          {
+            "TxnId": "18652",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "16"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 29300,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18663",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:39-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:39-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 29300,
+        "LinkedTxn": [
+          {
+            "TxnId": "18651",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "14"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 10500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18662",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:36-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:36-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 10500,
+        "LinkedTxn": [
+          {
+            "TxnId": "18645",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "13"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 15206.49,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18661",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:33-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:33-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 15206.49,
+        "LinkedTxn": [
+          {
+            "TxnId": "18643",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "12"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 16800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18660",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:31-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:31-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 16800,
+        "LinkedTxn": [
+          {
+            "TxnId": "18639",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "10"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 1753.54,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18659",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T08:26:27-08:00",
+      "LastUpdatedTime": "2025-12-10T08:26:27-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 1753.54,
+        "LinkedTxn": [
+          {
+            "TxnId": "18636",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "9"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 38062.33,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18635",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-10T07:20:22-08:00",
+      "LastUpdatedTime": "2025-12-10T07:20:22-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 38062.33,
+        "LinkedTxn": [
+          {
+            "TxnId": "18624",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 5007.67,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18596",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T18:11:40-08:00",
+      "LastUpdatedTime": "2025-12-09T18:11:40-08:00"
+    },
+    "TxnDate": "2025-12-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 119995",
+        "Amount": 5007.67,
+        "LinkedTxn": [
+          {
+            "TxnId": "18556",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "8"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 9400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18595",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:25:49-08:00",
+      "LastUpdatedTime": "2025-12-09T14:25:49-08:00"
+    },
+    "TxnDate": "2025-11-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "WEBBANK/INTUIT GPWEB LOAN ID NBR: 1849196",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WEBBANK/INTUIT GPWEB LOAN ID NBR: 1849196",
+        "Amount": 9400,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "131",
+            "name": "Quickbooks",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "1150040002",
+            "name": "Quickbooks Credit Line"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2690,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18593",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:24:31-08:00",
+      "LastUpdatedTime": "2025-12-09T14:24:31-08:00"
+    },
+    "TxnDate": "2025-12-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2690,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "59",
+            "name": "Payroll"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 12000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18592",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:22:52-08:00",
+      "LastUpdatedTime": "2025-12-09T14:22:52-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 12000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "142",
+            "name": "Premium Framing",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "152",
+            "name": "Loan to Group IN"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2690,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18591",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:19:28-08:00",
+      "LastUpdatedTime": "2025-12-09T14:19:28-08:00"
+    },
+    "TxnDate": "2025-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2690,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "59",
+            "name": "Payroll"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2691.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18590",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:17:54-08:00",
+      "LastUpdatedTime": "2025-12-09T14:17:54-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 2691.25,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "59",
+            "name": "Payroll"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18589",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:16:08-08:00",
+      "LastUpdatedTime": "2025-12-09T14:16:08-08:00"
+    },
+    "TxnDate": "2025-11-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks",
+        "Amount": 4573.16,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 28500,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18575",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:09:40-08:00",
+      "LastUpdatedTime": "2025-12-09T14:09:40-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Internet Transfer from Xx8972 CK - loan to PCG",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Internet Transfer from Xx8972 CK - loan to PCG",
+        "Amount": 28500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "142",
+            "name": "Premium Framing",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "152",
+            "name": "Loan to Group IN"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 16800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18572",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T14:04:43-08:00",
+      "LastUpdatedTime": "2025-12-09T14:04:43-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 1932",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 1932",
+        "Amount": 16800,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2104.61,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18508",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T07:11:01-08:00",
+      "LastUpdatedTime": "2025-12-09T07:11:01-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 10133",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10133",
+        "Amount": 2104.61,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2232.88,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18505",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T07:10:35-08:00",
+      "LastUpdatedTime": "2025-12-09T07:10:35-08:00"
+    },
+    "TxnDate": "2025-11-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 10132",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10132",
+        "Amount": 2232.88,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 1657.43,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18501",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T07:10:02-08:00",
+      "LastUpdatedTime": "2025-12-09T07:10:02-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 10131",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10131",
+        "Amount": 1657.43,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 2448.95,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18498",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T07:09:30-08:00",
+      "LastUpdatedTime": "2025-12-09T07:09:30-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Check 10129",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Check 10129",
+        "Amount": 2448.95,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18456",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-08T13:47:13-08:00",
+      "LastUpdatedTime": "2025-12-08T13:47:13-08:00"
+    },
+    "TxnDate": "2025-12-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks December 1st and 20",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks December 1st and 20",
+        "Amount": 4573.16,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "TotalAmt": 12830.79,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18455",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-08T13:45:01-08:00",
+      "LastUpdatedTime": "2025-12-08T13:45:01-08:00"
+    },
+    "TxnDate": "2025-12-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks October 27th to December 1st",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks October 27th to December 1st",
+        "Amount": 12830.79,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "142",
+            "name": "Premium Framing",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "TotalAmt": 4573.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18454",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-08T13:38:06-08:00",
+      "LastUpdatedTime": "2025-12-08T13:38:06-08:00"
+    },
+    "TxnDate": "2025-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Remote Deposit Scanned Checks - Week 03 and 04",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Remote Deposit Scanned Checks - Week 03 and 04",
+        "Amount": 4573.16,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "200",
+            "name": "Premium HVAC",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 15000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18319",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-28T12:57:14-08:00",
+      "LastUpdatedTime": "2025-11-28T12:57:14-08:00"
+    },
+    "TxnDate": "2025-07-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 15000,
+        "LinkedTxn": [
+          {
+            "TxnId": "18318",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "6414"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 16710,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18317",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-28T12:20:57-08:00",
+      "LastUpdatedTime": "2025-11-28T12:20:57-08:00"
+    },
+    "TxnDate": "2025-05-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Check #6375",
+        "Amount": 16710,
+        "LinkedTxn": [
+          {
+            "TxnId": "18315",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "6375"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "TotalAmt": 22400,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18316",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-28T12:19:20-08:00",
+      "LastUpdatedTime": "2025-11-28T12:19:20-08:00"
+    },
+    "TxnDate": "2025-08-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Check #6436\nInv #1968",
+        "Amount": 22400,
+        "LinkedTxn": [
+          {
+            "TxnId": "18314",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "2"
+          },
+          "CheckNum": "6436"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "TotalAmt": 2286.58,
     "domain": "QBO",
     "sparse": false,
@@ -3008,54 +4547,6 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
-    "TotalAmt": 22200,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17242",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-11T17:35:05-07:00",
-      "LastUpdatedTime": "2025-09-11T17:35:05-07:00"
-    },
-    "TxnDate": "2025-08-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Funds for RBI and Martin Design payment",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Funds for RBI and Martin Design payment",
-        "Amount": 22200,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "842",
-            "name": "Fisher Lane, LLC",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "161",
-            "name": "SALES"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ],
-    "TxnTaxDetail": {}
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
     "TotalAmt": 25000,
     "domain": "QBO",
     "sparse": false,
@@ -3143,46 +4634,6 @@
             "value": "2"
           },
           "CheckNum": "1024"
-        }
-      }
-    ],
-    "TxnTaxDetail": {}
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "TotalAmt": 22400,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17238",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-11T17:25:26-07:00",
-      "LastUpdatedTime": "2025-09-11T17:25:26-07:00"
-    },
-    "TxnDate": "2025-08-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Invoices (full): 1969, 1971, 1977, 1982\nInvoices (partial): 1984",
-        "Amount": 22400,
-        "LinkedTxn": [
-          {
-            "TxnId": "17214",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "6436"
         }
       }
     ],
@@ -3896,46 +5347,6 @@
             "AssociatedValues": []
           }
         ]
-      }
-    ],
-    "TxnTaxDetail": {}
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "TotalAmt": 15000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16846",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-01T11:31:22-07:00",
-      "LastUpdatedTime": "2025-08-01T11:31:22-07:00"
-    },
-    "TxnDate": "2025-07-25",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Invoice 1968 (partial)",
-        "Amount": 15000,
-        "LinkedTxn": [
-          {
-            "TxnId": "16809",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "6414"
-        }
       }
     ],
     "TxnTaxDetail": {}
@@ -5265,46 +6676,6 @@
           }
         },
         "CustomExtensions": []
-      }
-    ],
-    "TxnTaxDetail": {}
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "186",
-      "name": "Mutual One Bank (8998)"
-    },
-    "TotalAmt": 16710,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16272",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-27T07:47:16-07:00",
-      "LastUpdatedTime": "2025-05-27T07:47:16-07:00"
-    },
-    "TxnDate": "2025-05-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Invoices 1911 + 1916 + 1917 + 1941",
-        "Amount": 16710,
-        "LinkedTxn": [
-          {
-            "TxnId": "16247",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "2"
-          },
-          "CheckNum": "6375"
-        }
       }
     ],
     "TxnTaxDetail": {}

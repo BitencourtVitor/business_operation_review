@@ -1,6 +1,404 @@
 [
   {
     "VendorAddr": {
+      "Id": "11127",
+      "Line1": "RBI Construction Group, Inc.",
+      "Line2": "186 Main St",
+      "Line3": "Marlborough, MA  01752"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18694",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-12-10T09:14:02-08:00",
+      "LastUpdatedTime": "2025-12-10T09:27:23-08:00"
+    },
+    "DocNumber": "RBI - Back charges",
+    "TxnDate": "2025-12-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Back Charge - RBI",
+    "LinkedTxn": [
+      {
+        "TxnId": "18702",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Lot 20 - Wendell Place - Agreement",
+        "Amount": 1500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1020",
+            "name": "Toll Brothers:Wendell Place (Foundation):Lot 20 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "731548002"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Lot 08 - Newbury Glen - Agreement",
+        "Amount": 1500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1021",
+            "name": "Toll Brothers:Newbury Glenn (Foundation):Lot 08 - Newbury Glenn"
+          },
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "731565647"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Lot 04 - Lakemont at Hudson - Agreement",
+        "Amount": 1500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1022",
+            "name": "Toll Brothers:Lakemont at Hudson (Foundation):Lot 04 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "731568669"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "November Forms",
+        "Amount": 10000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Tools - Agreed with Rosenberg",
+        "Amount": 7500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "964",
+      "name": "RBI Construction Group, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 22000
+  },
+  {
+    "VendorAddr": {
+      "Id": "11013",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 26.28,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18391",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-05T07:14:19-08:00",
+      "LastUpdatedTime": "2025-12-05T10:37:24-08:00"
+    },
+    "DocNumber": "2508-196914",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)",
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "Credit Card",
+        "Amount": 26.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "904",
+            "name": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "541155823"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 26.28
+  },
+  {
+    "VendorAddr": {
+      "Id": "10984",
+      "Line1": "Ferguson",
+      "Line2": "PO BOX 417592",
+      "Line3": "BOSTON, MA  02241-7592"
+    },
+    "Balance": 168.05,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18381",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-05T05:24:02-08:00",
+      "LastUpdatedTime": "2025-12-05T05:24:02-08:00"
+    },
+    "DocNumber": "CM946930",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Victoria and Brandon Forney:51 West Way, Mashpee, MA",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FINISH PLUMBING",
+        "Amount": 168.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "Victoria and Brandon Forney:51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "137",
+            "name": "Job Supplies:Plumbing Fixtures"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 168.05
+  },
+  {
+    "VendorAddr": {
+      "Id": "10983",
+      "Line1": "Ferguson",
+      "Line2": "PO BOX 417592",
+      "Line3": "BOSTON, MA  02241-7592"
+    },
+    "Balance": 1603.35,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18380",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-05T05:23:09-08:00",
+      "LastUpdatedTime": "2025-12-05T05:23:09-08:00"
+    },
+    "DocNumber": "CM946933",
+    "TxnDate": "2025-10-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "165 BAXTERS NECK RD",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "FINISH",
+        "Amount": 1603.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "137",
+            "name": "Job Supplies:Plumbing Fixtures"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "143",
+      "name": "Ferguson"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1603.35
+  },
+  {
+    "VendorAddr": {
+      "Id": "10243",
+      "Line1": "Braun Construction, Inc.",
+      "Line2": "38 Pine Grove Avenue",
+      "Line3": "Hyannis, MA  02601"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17501",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-08T06:58:09-07:00",
+      "LastUpdatedTime": "2025-11-28T09:30:58-08:00"
+    },
+    "DocNumber": "249",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA",
+    "LinkedTxn": [
+      {
+        "TxnId": "18310",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Exterior painting\n Prep and painting; facial, corner boards, trims, windows' trims, doors'trims, softer's\nand re-caulk all place that needs.",
+        "Amount": 2800,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "609",
+            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
+          },
+          "AccountRef": {
+            "value": "114",
+            "name": "Sub-Contractors:PAINTING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "314692141"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "162",
+      "name": "Braun Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2800
+  },
+  {
+    "VendorAddr": {
       "Id": "10881",
       "Line1": "Premium Plastering",
       "Line2": "1B Landing lane",
@@ -1072,66 +1470,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 526.21
-  },
-  {
-    "VendorAddr": {
-      "Id": "10243",
-      "Line1": "Braun Construction, Inc.",
-      "Line2": "38 Pine Grove Avenue",
-      "Line3": "Hyannis, MA  02601"
-    },
-    "Balance": 2800,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17501",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-08T06:58:09-07:00",
-      "LastUpdatedTime": "2025-10-08T06:58:09-07:00"
-    },
-    "DocNumber": "249",
-    "TxnDate": "2025-10-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Exterior painting\n Prep and painting; facial, corner boards, trims, windows' trims, doors'trims, softer's\nand re-caulk all place that needs.",
-        "Amount": 2800,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "609",
-            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
-          },
-          "AccountRef": {
-            "value": "114",
-            "name": "Sub-Contractors:PAINTING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "314692141"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "162",
-      "name": "Braun Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2800
   },
   {
     "VendorAddr": {
