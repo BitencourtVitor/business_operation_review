@@ -2,6 +2,1347 @@
   {
     "domain": "QBO",
     "sparse": false,
+    "Id": "18801",
+    "SyncToken": "8",
+    "MetaData": {
+      "CreateTime": "2025-12-11T19:35:42-08:00",
+      "LastUpdatedTime": "2025-12-11T22:04:56-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1334",
+    "TxnDate": "2025-12-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Original Estimate",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "18804",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18805",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18806",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Submittals and Shop Drawings",
+        "Amount": 20000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 20000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Cordination",
+        "Amount": 10000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 10000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "1st Level Wall Materials",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "1st Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "1st Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "2st Level Floor Materials (Trusses)",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "2nd Level Floor Installation Labor",
+        "Amount": 19043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 19043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "2st Level Wall Panels Materials",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "2nd Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "2nd Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "3st Level Floor Materials (Trusses)",
+        "Amount": 46316.66,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.66,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "LineNum": 12,
+        "Description": "3rd Level Floor Installation Labor",
+        "Amount": 19043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 19043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "LineNum": 13,
+        "Description": "3st Level Wall Panels Materials",
+        "Amount": 46316.64,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 46316.64,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "LineNum": 14,
+        "Description": "3rd Level Wall Installation Field Labor",
+        "Amount": 25548.23,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 25548.23,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "15",
+        "LineNum": 15,
+        "Description": "3rd Level Punch and Hold-down Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "16",
+        "LineNum": 16,
+        "Description": "Roof Materials (Trusses)",
+        "Amount": 57833.31,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 57833.31,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "17",
+        "LineNum": 17,
+        "Description": "Roof Framing Installation Labor",
+        "Amount": 33043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 33043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "18",
+        "LineNum": 18,
+        "Description": "Roof Punch Labor",
+        "Amount": 11976.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 11976.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "19",
+        "LineNum": 19,
+        "Description": "Stair Labor",
+        "Amount": 12043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 12043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "20",
+        "LineNum": 20,
+        "Description": "Window & Door Installation Labor",
+        "Amount": 20043.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 20043.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "21",
+        "LineNum": 21,
+        "Description": "Stored Material",
+        "Amount": 360532.4,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 360532.4,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "22",
+        "LineNum": 22,
+        "Description": "SUBTOTAL - NEW ADDITION BUILDING: $907918.00",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "23",
+        "LineNum": 23,
+        "Description": "All Materials",
+        "Amount": 27000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 27000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "24",
+        "LineNum": 24,
+        "Description": "1st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "25",
+        "LineNum": 25,
+        "Description": "2st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "26",
+        "LineNum": 26,
+        "Description": "3st Floor Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "27",
+        "LineNum": 27,
+        "Description": "Roof Labor",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "28",
+        "LineNum": 28,
+        "Description": "Window Mullion Frame",
+        "Amount": 8000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 8000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "29",
+        "LineNum": 29,
+        "Description": "SUBTOTAL - HISTORIC SCHOOL: $107000.00",
+        "DetailType": "DescriptionOnly",
+        "DescriptionLineDetail": {},
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "31",
+        "LineNum": 30,
+        "Description": "Change order #2 (attached)",
+        "Amount": 17000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-12-11",
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 17000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "32",
+        "LineNum": 31,
+        "Description": "Change order #3 (attached)",
+        "Amount": -8000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-12-11",
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": -8000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "33",
+        "LineNum": 32,
+        "Description": "Change order #4 (attached)",
+        "Amount": 3107.16,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-12-11",
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 3107.16,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "34",
+        "LineNum": 33,
+        "Description": "Change Order - Roof Structural (attached)",
+        "Amount": 3524.24,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-12-11",
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 3524.24,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "35",
+        "LineNum": 34,
+        "Description": "Change Order - TM LVL Replace (attached)",
+        "Amount": 9210.3,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ServiceDate": "2025-12-11",
+          "ItemRef": {
+            "value": "221",
+            "name": "Change Order"
+          },
+          "UnitPrice": 9210.3,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 1039759.7,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "732709317"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "1026",
+      "name": "Callahan - Baldwinville School Apartments - Teste"
+    },
+    "BillAddr": {
+      "Id": "11211",
+      "Line1": "Usuario Interno - Teste"
+    },
+    "ShipAddr": {
+      "Id": "11207",
+      "Line1": "Usuario Interno - Teste"
+    },
+    "FreeFormAddress": true,
+    "TotalAmt": 1039759.7,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "4831",
+    "SyncToken": "44",
+    "MetaData": {
+      "CreateTime": "2023-04-12T10:57:31-07:00",
+      "LastUpdatedTime": "2025-12-01T08:11:27-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "1068",
+    "TxnDate": "2023-04-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Estimate for Main Project",
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "9841",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "9842",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "10784",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11640",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11650",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "11874",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12412",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12621",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "12744",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13019",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "13663",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "18324",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "30 Springdale ave Dover",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "220",
+            "name": "Remodeling"
+          },
+          "UnitPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Addition per plans dated 03/16/2023\nincludes:\nLabor and material for the entire project.",
+        "Amount": 596000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "220",
+            "name": "Remodeling"
+          },
+          "UnitPrice": 596000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 3,
+        "Description": "3-phase 240v delta - 480 Y 227 (set up transformer)",
+        "Amount": 31972,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "11",
+            "name": "Electrical"
+          },
+          "UnitPrice": 31972,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 4,
+        "Description": "Credit - Baseboard Heater",
+        "Amount": -4300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": -4300,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 5,
+        "Description": "Mini Split\n\n1 Outdoor \n3 Heads inside \n\nSpecs\nGCS-MULTIU42HP230V1DO HEAT PUMP OUTDOOR UNIT MINISPLIT MULTI-ZONE 3.5T 23SEER 208-230/1/60 60A\nGREE\nGCS-3VIR18HP230V1AH GREE VIREO INDOOR UNIT [18K BTU 20",
+        "Amount": 18000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 18000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 6,
+        "Description": "200 amp underground",
+        "Amount": 10000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 10000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 7,
+        "Description": "Structural change",
+        "Amount": 2000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 2000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 8,
+        "Description": "Drainage connect",
+        "Amount": 4500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 4500,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 9,
+        "Description": "2nd Floor add Bathroom",
+        "Amount": 15000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 15000,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Description": "Plan changes 4/12/24\nAdding glass to doors # 9 and 10 - $3,274\nAdding janitorial sinks on the first and second floors including a Closet on the second floor $7,000 \nBattery backup to the Kone elevator $6,735",
+        "Amount": 17009,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1",
+            "name": "Services"
+          },
+          "UnitPrice": 17009,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "26",
+            "name": "Services"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          },
+          "TaxClassificationRef": {}
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 690181,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "TxnTaxDetail": {
+      "TxnTaxCodeRef": {
+        "value": "3"
+      },
+      "TotalTax": 0,
+      "TaxLine": [
+        {
+          "Amount": 0,
+          "DetailType": "TaxLineDetail",
+          "TaxLineDetail": {
+            "TaxRateRef": {
+              "value": "3"
+            },
+            "PercentBased": true,
+            "TaxPercent": 6.25,
+            "NetAmountTaxable": 0
+          }
+        }
+      ]
+    },
+    "ProjectRef": {
+      "value": "343563365"
+    },
+    "CustomerRef": {
+      "value": "631",
+      "name": "30 Springdale Ave., Dover"
+    },
+    "CustomerMemo": {
+      "value": "Updated 5/16/23\nUpdated 2/21/24"
+    },
+    "BillAddr": {
+      "Id": "4063",
+      "Line1": "Dover Professional Building LLC",
+      "Line2": "197 West Springfield Street",
+      "Line3": "Boston, MA 02118"
+    },
+    "FreeFormAddress": false,
+    "ShipFromAddr": {
+      "Id": "641",
+      "Line1": "11 Airport Road, Hopedale, MA, 01747, USA"
+    },
+    "TotalAmt": 690181,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "dickmalcom1@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2024-05-02T11:11:36-07:00"
+    },
+    "TaxExemptionRef": {}
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
     "Id": "17045",
     "SyncToken": "11",
     "MetaData": {
@@ -21271,371 +22612,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2024-07-12T08:21:30-07:00"
-    },
-    "TaxExemptionRef": {}
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "4831",
-    "SyncToken": "42",
-    "MetaData": {
-      "CreateTime": "2023-04-12T10:57:31-07:00",
-      "LastUpdatedTime": "2025-01-30T05:55:34-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "1068",
-    "TxnDate": "2023-04-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Estimate for Main Project",
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "9841",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "9842",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "10784",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11640",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11650",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "11874",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12412",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12621",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "12744",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13019",
-        "TxnType": "Invoice"
-      },
-      {
-        "TxnId": "13663",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "30 Springdale ave Dover",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "220",
-            "name": "Remodeling"
-          },
-          "UnitPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Addition per plans dated 03/16/2023\nincludes:\nLabor and material for the entire project.",
-        "Amount": 596000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "220",
-            "name": "Remodeling"
-          },
-          "UnitPrice": 596000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 3,
-        "Description": "3-phase 240v delta - 480 Y 227 (set up transformer)",
-        "Amount": 31972,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "11",
-            "name": "Electrical"
-          },
-          "UnitPrice": 31972,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 4,
-        "Description": "Credit - Baseboard Heater",
-        "Amount": -4300,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": -4300,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 5,
-        "Description": "Mini Split\n\n1 Outdoor \n3 Heads inside \n\nSpecs\nGCS-MULTIU42HP230V1DO HEAT PUMP OUTDOOR UNIT MINISPLIT MULTI-ZONE 3.5T 23SEER 208-230/1/60 60A\nGREE\nGCS-3VIR18HP230V1AH GREE VIREO INDOOR UNIT [18K BTU 20",
-        "Amount": 18000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 18000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 6,
-        "Description": "200 amp underground",
-        "Amount": 10000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 10000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 7,
-        "Description": "Structural change",
-        "Amount": 2000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 2000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 8,
-        "Description": "Drainage connect",
-        "Amount": 4500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 4500,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 9,
-        "Description": "2nd Floor add Bathroom",
-        "Amount": 15000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 15000,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 10,
-        "Description": "Plan changes 4/12/24\nAdding glass to doors # 9 and 10 - $3,274\nAdding janitorial sinks on the first and second floors including a Closet on the second floor $7,000 \nBattery backup to the Kone elevator $6,735",
-        "Amount": 17009,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1",
-            "name": "Services"
-          },
-          "UnitPrice": 17009,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "26",
-            "name": "Services"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          },
-          "TaxClassificationRef": {}
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 690181,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "TxnTaxDetail": {
-      "TxnTaxCodeRef": {
-        "value": "3"
-      },
-      "TotalTax": 0,
-      "TaxLine": [
-        {
-          "Amount": 0,
-          "DetailType": "TaxLineDetail",
-          "TaxLineDetail": {
-            "TaxRateRef": {
-              "value": "3"
-            },
-            "PercentBased": true,
-            "TaxPercent": 6.25,
-            "NetAmountTaxable": 0
-          }
-        }
-      ]
-    },
-    "ProjectRef": {
-      "value": "343563365"
-    },
-    "CustomerRef": {
-      "value": "631",
-      "name": "30 Springdale Ave., Dover"
-    },
-    "CustomerMemo": {
-      "value": "Updated 5/16/23\nUpdated 2/21/24"
-    },
-    "BillAddr": {
-      "Id": "4063",
-      "Line1": "Dover Professional Building LLC",
-      "Line2": "197 West Springfield Street",
-      "Line3": "Boston, MA 02118"
-    },
-    "FreeFormAddress": false,
-    "ShipFromAddr": {
-      "Id": "641",
-      "Line1": "11 Airport Road, Hopedale, MA, 01747, USA"
-    },
-    "TotalAmt": 690181,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "dickmalcom1@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2024-05-02T11:11:36-07:00"
     },
     "TaxExemptionRef": {}
   },

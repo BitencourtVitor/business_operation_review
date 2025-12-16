@@ -4,6 +4,581 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 418,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23293",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-11T17:54:42-08:00",
+      "LastUpdatedTime": "2025-12-11T17:54:42-08:00"
+    },
+    "TxnDate": "2025-12-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 09626D",
+        "Amount": 238,
+        "LinkedTxn": [
+          {
+            "TxnId": "23291",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      },
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 02781D",
+        "Amount": 180,
+        "LinkedTxn": [
+          {
+            "TxnId": "23292",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 118320,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23258",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-09T12:53:50-08:00",
+      "LastUpdatedTime": "2025-12-09T12:53:50-08:00"
+    },
+    "TxnDate": "2025-12-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 440,
+        "LinkedTxn": [
+          {
+            "TxnId": "23216",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 3500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23217",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "23222",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "23223",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 25910,
+        "LinkedTxn": [
+          {
+            "TxnId": "23225",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23226",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 24275,
+        "LinkedTxn": [
+          {
+            "TxnId": "23228",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 17725,
+        "LinkedTxn": [
+          {
+            "TxnId": "23230",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 14025,
+        "LinkedTxn": [
+          {
+            "TxnId": "23231",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Amount": 21445,
+        "LinkedTxn": [
+          {
+            "TxnId": "23257",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "456032"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1602",
+            "name": "Toll Brothers:Willis Brook at Lynnfield:Lot 05 - Willis Brook at  Lynnfield",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "456032"
+        },
+        "ProjectRef": {
+          "value": "674880262"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1459",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 21 - Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "456032"
+        },
+        "ProjectRef": {
+          "value": "600176232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1681",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 67 - The Pinehills Owls Nest",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "456032"
+        },
+        "ProjectRef": {
+          "value": "713806156"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 207,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23174",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-04T17:19:05-08:00",
+      "LastUpdatedTime": "2025-12-04T17:19:05-08:00"
+    },
+    "TxnDate": "2025-12-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 569564",
+        "Amount": 207,
+        "LinkedTxn": [
+          {
+            "TxnId": "23153",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "142",
+      "name": "Primary Savings 1 (9525) - 1"
+    },
+    "TotalAmt": 0.03,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23143",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-03T14:12:34-08:00",
+      "LastUpdatedTime": "2025-12-03T14:12:34-08:00"
+    },
+    "TxnDate": "2025-11-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "DIVIDEND",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "DIVIDEND",
+        "Amount": 0.03,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "29",
+            "name": "DCU",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "34",
+            "name": "Interest Earned"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 243338.1,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23138",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-03T14:08:28-08:00",
+      "LastUpdatedTime": "2025-12-03T14:08:28-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "1st floor \n21602 - 21604",
+        "Amount": 56132.89,
+        "LinkedTxn": [
+          {
+            "TxnId": "23134",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2902"
+        }
+      },
+      {
+        "Description": "2nd Floor \n21602-21604",
+        "Amount": 56132.89,
+        "LinkedTxn": [
+          {
+            "TxnId": "23135",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2902"
+        }
+      },
+      {
+        "Description": "3rd Floor Apartments\n21602 - 21604 - All units",
+        "Amount": 51750.36,
+        "LinkedTxn": [
+          {
+            "TxnId": "23136",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2902"
+        }
+      },
+      {
+        "Description": "4th Floor Apartments\n21602 - 21604 - 21617 - All units",
+        "Amount": 81321.96,
+        "LinkedTxn": [
+          {
+            "TxnId": "23137",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2902"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-12089572",
+        "Amount": -640,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "986",
+            "name": "Pulte Homes:Pulte Homes - Winslow Point - 8177:Building 1 - Winslow Point - Pulte Homes - 8177 / 8178",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "1680-PMX-2902"
+        },
+        "ProjectRef": {
+          "value": "404477248"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "BC-INV-12089572",
+        "Amount": -680,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "986",
+            "name": "Pulte Homes:Pulte Homes - Winslow Point - 8177:Building 1 - Winslow Point - Pulte Homes - 8177 / 8178",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "1680-PMX-2902"
+        },
+        "ProjectRef": {
+          "value": "404477248"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "BC-INV-12089572",
+        "Amount": -680,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "986",
+            "name": "Pulte Homes:Pulte Homes - Winslow Point - 8177:Building 1 - Winslow Point - Pulte Homes - 8177 / 8178",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "1680-PMX-2902"
+        },
+        "ProjectRef": {
+          "value": "404477248"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 588,
     "domain": "QBO",
     "sparse": false,
@@ -244,7 +819,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1660",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 58 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 58 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -271,7 +846,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1487",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 68 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 68 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1032,7 +1607,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1516",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1352,7 +1927,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1564",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 70 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 70 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1379,7 +1954,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1515",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 134 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 134 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -1688,7 +2263,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1612",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 41 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 41 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3572,7 +4147,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1517",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 106 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 106 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -3793,7 +4368,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1605",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 40- Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 40 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -5733,7 +6308,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "676",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 01 - Pinehills Owls Nest (Model Home)",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 01 - The Pinehills Owls Nest (Model Home)",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -5787,7 +6362,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1518",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 72 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 72 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -5814,7 +6389,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1516",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 139 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -7131,7 +7706,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1434",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -8210,7 +8785,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1291",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 105 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 105 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -9000,7 +9575,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1436",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 10 - Pinehills  Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 10 - The Pinehills  Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -11020,7 +11595,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1437",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 11 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 11 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -11101,7 +11676,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1249",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 142 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 142 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -12930,7 +13505,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1335",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 13 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 13 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -13792,7 +14367,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1346",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 137 - Pinehillls Owls nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 137 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -14570,7 +15145,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1291",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 105 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 105 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -15253,7 +15828,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1290",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 27 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 27 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -17712,7 +18287,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1278",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 26 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 26 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -18515,7 +19090,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1164",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 14 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 14 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -18569,7 +19144,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "1254",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 99 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 99 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -40002,7 +40577,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "608",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 18 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 18 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {
@@ -40029,7 +40604,7 @@
         "DepositLineDetail": {
           "Entity": {
             "value": "660",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 19 - Pinehills Owls Nest",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 19 - The Pinehills Owls Nest",
             "type": "CUSTOMER"
           },
           "AccountRef": {

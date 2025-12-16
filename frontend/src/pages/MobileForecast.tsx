@@ -72,15 +72,38 @@ const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | n
   return project.previous_start_date || null;
 };
 
-// Helper para verificar se tem Fieldwire ativo
-const hasActiveFieldwire = (project: WorkforceProject): boolean => {
-  return project.fieldwire?.some(fw => fw.status === true) || false;
+// Helper para verificar se Fieldwire está completo (todos os documentos com status true)
+const isFieldwireComplete = (project: WorkforceProject): boolean => {
+  if (!project.fieldwire || project.fieldwire.length === 0) return false;
+  return project.fieldwire.every(fw => fw.status === true);
+};
+
+// Helper para verificar se Machines and Attachments está completo
+const isMachinesComplete = (project: WorkforceProject): boolean => {
+  if (!project.machines || project.machines.length === 0) return false;
+  return project.machines.every(m => m.status === true);
 };
 
 // Helper para verificar se tem contrato completo
 const hasCompleteContract = (project: WorkforceProject): boolean => {
   if (!project.contract_steps || project.contract_steps.length === 0) return false;
   return project.contract_steps.every(cs => cs.status === true);
+};
+
+// Helper para verificar se tem Workforce
+const hasWorkforce = (project: WorkforceProject): boolean => {
+  return !!(project.workforce && project.workforce.trim() !== '');
+};
+
+// Helper para verificar se a obra já iniciou (baseado na data de início)
+const hasProjectStarted = (project: WorkforceProject): boolean => {
+  if (!project.previous_start_date) return false;
+  const startDate = new Date(project.previous_start_date);
+  if (isNaN(startDate.getTime())) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  startDate.setHours(0, 0, 0, 0);
+  return startDate <= today;
 };
 
 interface ForecastData {
@@ -109,6 +132,12 @@ export default function MobileForecast() {
   const [selectedClient, setSelectedClient] = useState<string[]>([]);
   const [selectedJobSite, setSelectedJobSite] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string>('all'); // 'all', 'Lot', 'Building'
+  const [selectedFieldwire, setSelectedFieldwire] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedBuildertrend, setSelectedBuildertrend] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedMachines, setSelectedMachines] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true); // Filtro para mostrar apenas "Not Started"
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
@@ -223,18 +252,9 @@ export default function MobileForecast() {
       }));
 
       setRawProjects(enrichedProjects);
-
-      // Filtrar apenas projetos com status 'not started' e com data de início válida
-      const filtered = enrichedProjects.filter((p: WorkforceProject) => {
-        const s = (p.status || '').toLowerCase().trim();
-        if (s === 'not started') {
-          const start = p.previous_start_date ? new Date(p.previous_start_date) : null;
-          return !!(start && !isNaN(start.getTime()));
-        }
-        return false;
-      });
       
-      setWorkforceProjects(filtered);
+      // Não filtrar por status aqui - será feito no visibleProjects
+      setWorkforceProjects(enrichedProjects);
 
     } catch (err) {
       console.error('Erro ao buscar dados do forecast:', err);
@@ -320,13 +340,35 @@ export default function MobileForecast() {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Excluir cards quando as datas forem nulas/indefinidas/inválidas
-      if (!project.previous_start_date || !project.previous_end_date) return false;
+      // Filtro de status "Not Started"
+      if (filterNotStarted) {
+        const s = (project.status || '').toLowerCase().trim();
+        if (s !== 'not started') return false;
+        // Se for "not started", verificar se tem data de início válida
+        if (!project.previous_start_date) return false;
+        const start = new Date(project.previous_start_date);
+        if (isNaN(start.getTime())) return false;
+      }
+
+      // Quando filterNotStarted está desativado, mostrar todas as obras
+      // Mas ainda precisamos de datas válidas para agrupar por período
+      // Se não tiver datas, não podemos agrupar, então excluímos
+      if (!project.previous_start_date || !project.previous_end_date) {
+        // Se filterNotStarted está desativado, ainda precisamos de pelo menos uma data para exibir
+        // Mas se não tiver nenhuma data, não podemos exibir no timeline
+        return false;
+      }
       const start = new Date(project.previous_start_date);
       const end = new Date(project.previous_end_date);
       if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
 
-      const referenceDate = getReferenceDate(project, dateMode);
+      // Quando filterNotStarted está desativado, usar previous_start_date como fallback
+      // se a data de referência não estiver disponível
+      let referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate && !filterNotStarted) {
+        // Se não tiver data de referência mas o filtro está desativado, usar start_date como fallback
+        referenceDate = project.previous_start_date || null;
+      }
       if (!referenceDate) return false;
 
       const dateParts = referenceDate.split('-');
@@ -343,10 +385,26 @@ export default function MobileForecast() {
       const clientMatch = selectedClientSet.size === 0 || selectedClientSet.has(clientNorm);
       const jobSiteMatch = selectedJobSiteSet.size === 0 || selectedJobSiteSet.has(jobSiteNorm);
       const typeMatch = selectedType === 'all' || project.type === selectedType;
-      return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch;
+      
+      // Filtros de conclusão
+      const fieldwireMatch = selectedFieldwire === 'all' || 
+        (selectedFieldwire === 'yes' ? isFieldwireComplete(project) : !isFieldwireComplete(project));
+      const buildertrendMatch = selectedBuildertrend === 'all' || 
+        (selectedBuildertrend === 'yes' ? project.buildertrend === true : project.buildertrend !== true);
+      const machinesMatch = selectedMachines === 'all' || 
+        (selectedMachines === 'yes' ? isMachinesComplete(project) : !isMachinesComplete(project));
+      const contractStepsMatch = selectedContractSteps === 'all' || 
+        (selectedContractSteps === 'yes' ? hasCompleteContract(project) : !hasCompleteContract(project));
+      const workforceMatch = selectedWorkforce === 'all' || 
+        (selectedWorkforce === 'yes' ? hasWorkforce(project) : !hasWorkforce(project));
+      
+      return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch;
     });
 
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, dateMode]);
+  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, 
+      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, 
+      filterNotStarted, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -484,8 +542,10 @@ export default function MobileForecast() {
       minHeight: '100vh', 
       background: 'var(--color-background-primary)',
       padding: '10px',
-      maxWidth: '100vw',
-      overflowX: 'hidden'
+      width: '100%',
+      maxWidth: '100%',
+      overflowX: 'hidden',
+      boxSizing: 'border-box'
     }}>
       {/* Header mobile */}
       <div style={{ 
@@ -632,9 +692,11 @@ export default function MobileForecast() {
 
       {/* Container principal com largura controlada */}
       <div style={{ 
-        maxWidth: '100%',
         width: '100%',
-        margin: '0 auto'
+        maxWidth: '100%',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+        overflowX: 'hidden'
       }}>
         {/* Filtros mobile */}
         <div style={{ marginBottom: '20px', width: '100%' }}>
@@ -644,6 +706,12 @@ export default function MobileForecast() {
             selectedClient={selectedClient}
             selectedJobSite={selectedJobSite}
             selectedType={selectedType}
+            selectedFieldwire={selectedFieldwire}
+            selectedBuildertrend={selectedBuildertrend}
+            selectedMachines={selectedMachines}
+            selectedContractSteps={selectedContractSteps}
+            selectedWorkforce={selectedWorkforce}
+            filterNotStarted={filterNotStarted}
             years={years}
             months={months}
             clients={clients}
@@ -654,6 +722,12 @@ export default function MobileForecast() {
             onClientChange={setSelectedClient}
             onJobSiteChange={setSelectedJobSite}
             onTypeChange={setSelectedType}
+            onFieldwireChange={setSelectedFieldwire}
+            onBuildertrendChange={setSelectedBuildertrend}
+            onMachinesChange={setSelectedMachines}
+            onContractStepsChange={setSelectedContractSteps}
+            onWorkforceChange={setSelectedWorkforce}
+            onFilterNotStartedChange={setFilterNotStarted}
           />
         </div>
 
@@ -684,6 +758,7 @@ export default function MobileForecast() {
             onSortByDateChange={setSortByDate}
             dateMode={dateMode}
             onDateModeChange={setDateMode}
+            filterNotStarted={filterNotStarted}
           />
         </div>
       </div>

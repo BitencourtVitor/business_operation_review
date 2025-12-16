@@ -541,6 +541,12 @@ export default function ForecastImprovement() {
             selectedClient={selectedClient}
             selectedJobSite={selectedJobSite}
             selectedType={selectedType}
+            selectedFieldwire="all"
+            selectedBuildertrend="all"
+            selectedMachines="all"
+            selectedContractSteps="all"
+            selectedWorkforce="all"
+            filterNotStarted={true}
             years={years}
             months={months}
             clients={clients}
@@ -551,6 +557,12 @@ export default function ForecastImprovement() {
             onClientChange={setSelectedClient}
             onJobSiteChange={setSelectedJobSite}
             onTypeChange={setSelectedType}
+            onFieldwireChange={() => {}}
+            onBuildertrendChange={() => {}}
+            onMachinesChange={() => {}}
+            onContractStepsChange={() => {}}
+            onWorkforceChange={() => {}}
+            onFilterNotStartedChange={() => {}}
           />
         </div>
 

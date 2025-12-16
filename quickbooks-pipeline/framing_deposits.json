@@ -1,6 +1,1609 @@
 [
   {
     "DepositToAccountRef": {
+      "value": "199",
+      "name": "Mutual One Savings 1501"
+    },
+    "TotalAmt": 300000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53439",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T09:43:01-08:00",
+      "LastUpdatedTime": "2025-12-12T09:43:01-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN 1/JAMES R SCHMIDT POD SABRINA J SCH MIDT 026009593",
+        "Amount": 300000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3414",
+            "name": "James Schmidt",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "1150040028",
+            "name": "Loan James Schmidt"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "199",
+      "name": "Mutual One Savings 1501"
+    },
+    "TotalAmt": 226.08,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53434",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T09:37:03-08:00",
+      "LastUpdatedTime": "2025-12-12T09:37:03-08:00"
+    },
+    "TxnDate": "2025-11-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Credit Interest",
+        "Amount": 226.08,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "103",
+            "name": "Mutual One Bank",
+            "type": "VENDOR"
+          },
+          "AccountRef": {
+            "value": "91",
+            "name": "Interest Income"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 2000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53420",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T09:17:52-08:00",
+      "LastUpdatedTime": "2025-12-12T09:17:52-08:00"
+    },
+    "TxnDate": "2025-12-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN 1/EDUARDO DE OLIVEIRA SCHIMITZ ANAN DA ESTHER RITTER",
+        "Amount": 2000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "400000043",
+            "name": "Ananda Shimitz",
+            "type": "EMPLOYEE"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 8000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53419",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T09:17:48-08:00",
+      "LastUpdatedTime": "2025-12-12T09:17:48-08:00"
+    },
+    "TxnDate": "2025-12-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN 1/EDUARDO DE OLIVEIRA SCHIMITZ ANAN DA ESTHER RITTER",
+        "Amount": 8000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "400000043",
+            "name": "Ananda Shimitz",
+            "type": "EMPLOYEE"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 8000,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53418",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T09:17:31-08:00",
+      "LastUpdatedTime": "2025-12-12T09:17:31-08:00"
+    },
+    "TxnDate": "2025-12-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "WIRE IN 1/EDUARDO DE OLIVEIRA SCHIMITZ ANAN DA ESTHER RITTER",
+        "Amount": 8000,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "400000043",
+            "name": "Ananda Shimitz",
+            "type": "EMPLOYEE"
+          },
+          "AccountRef": {
+            "value": "201",
+            "name": "Loan to Others In"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 133420.25,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53358",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-11T13:54:34-08:00",
+      "LastUpdatedTime": "2025-12-12T08:49:41-08:00"
+    },
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Rough Carpentry",
+        "Amount": 122751,
+        "LinkedTxn": [
+          {
+            "TxnId": "53347",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Amount": 1350,
+        "LinkedTxn": [
+          {
+            "TxnId": "53348",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Amount": 11.25,
+        "LinkedTxn": [
+          {
+            "TxnId": "53349",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "53350",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "53351",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Amount": 400,
+        "LinkedTxn": [
+          {
+            "TxnId": "53352",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Description": "Rough Carpentry",
+        "Amount": 22,
+        "LinkedTxn": [
+          {
+            "TxnId": "53353",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Description": "Rough Carpentry\t$2,134.00\nRough Carpentry\t$2,134.00\nRough Carpentry\t$2,134.00\nRough Carpentry\t$2,134.00",
+        "Amount": 8536,
+        "LinkedTxn": [
+          {
+            "TxnId": "53357",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2978"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-12121686",
+        "Amount": -250,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2978"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 9640.7,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52874",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-25T20:17:58-08:00",
+      "LastUpdatedTime": "2025-12-12T08:49:15-08:00"
+    },
+    "TxnDate": "2025-11-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52871",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2901"
+        }
+      },
+      {
+        "Amount": 700,
+        "LinkedTxn": [
+          {
+            "TxnId": "52872",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2901"
+        }
+      },
+      {
+        "Description": "Rough Carpentry\nParty Wall - Ma",
+        "Amount": 8960.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "52873",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2901"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-12048348",
+        "Amount": -220,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2901"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 230101.86,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52797",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-20T09:31:26-08:00",
+      "LastUpdatedTime": "2025-12-12T08:48:42-08:00"
+    },
+    "TxnDate": "2025-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "payment - extra Chauncy Lake",
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "52790",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2856"
+        }
+      },
+      {
+        "Description": "extra - Chauncy Lake",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "52791",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2856"
+        }
+      },
+      {
+        "Description": "Extra - Chauncy Lake",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "52792",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2856"
+        }
+      },
+      {
+        "Description": "Rough Carpentry",
+        "Amount": 122751,
+        "LinkedTxn": [
+          {
+            "TxnId": "52794",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2856"
+        }
+      },
+      {
+        "Description": "Rough Carpentry",
+        "Amount": 105250.86,
+        "LinkedTxn": [
+          {
+            "TxnId": "52796",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2856"
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 33885.8,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52610",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-13T11:16:52-08:00",
+      "LastUpdatedTime": "2025-12-12T08:47:55-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Invoice #7938 - Cons Weather Co",
+        "Amount": 225,
+        "LinkedTxn": [
+          {
+            "TxnId": "52580",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Building 2 - Highland at Vale",
+        "Amount": 3240,
+        "LinkedTxn": [
+          {
+            "TxnId": "52581",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Whelock farm \nInvoice # 8540",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52582",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "extra - Cons Losses, Re \nInvoice # 8588",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52583",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Lot 01 - Riverview\nInvoice # 8589",
+        "Amount": 160,
+        "LinkedTxn": [
+          {
+            "TxnId": "52584",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra -  Whelock Farm \nInvoice #8619",
+        "Amount": 650,
+        "LinkedTxn": [
+          {
+            "TxnId": "52585",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Wheelock Farm Lot 31 \nInvoice #8620",
+        "Amount": 450,
+        "LinkedTxn": [
+          {
+            "TxnId": "52586",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra \nInvoice #8637",
+        "Amount": 4209.98,
+        "LinkedTxn": [
+          {
+            "TxnId": "52587",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Chauncy Lake \nInvoice #8650",
+        "Amount": 700,
+        "LinkedTxn": [
+          {
+            "TxnId": "52588",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Chauncy Lake \nInvoice #8651",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52589",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra - Riverview\nInvoice #8653",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52590",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra \nInvoice #8654",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "52592",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra \nInvoice #8655",
+        "Amount": 200,
+        "LinkedTxn": [
+          {
+            "TxnId": "52594",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Extra\nInvoice #8656",
+        "Amount": 800,
+        "LinkedTxn": [
+          {
+            "TxnId": "52595",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Party wall 5",
+        "Amount": 4559,
+        "LinkedTxn": [
+          {
+            "TxnId": "52597",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Party wall 4",
+        "Amount": 4789.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "52599",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Crane Rental",
+        "Amount": 4789.72,
+        "LinkedTxn": [
+          {
+            "TxnId": "52601",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Rough Carpentry - Invoice partially paid",
+        "Amount": 4365,
+        "LinkedTxn": [
+          {
+            "TxnId": "52602",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "Base deck + Walkout basement",
+        "Amount": 3243,
+        "LinkedTxn": [
+          {
+            "TxnId": "52605",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Description": "optional 20034",
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "52609",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "2711"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "BC-INV-11356184",
+        "Amount": -365,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2711"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "BC-INV-12034946",
+        "Amount": -30.6,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "7",
+            "name": "Pulte Homes, Inc.",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "2711"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 6800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53361",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-11T18:00:48-08:00",
+      "LastUpdatedTime": "2025-12-11T18:00:48-08:00"
+    },
+    "TxnDate": "2025-12-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 541-967",
+        "Amount": 6800,
+        "LinkedTxn": [
+          {
+            "TxnId": "53355",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "7"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "158",
+      "name": "DCU Business Checking 0257"
+    },
+    "TotalAmt": 87826,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53341",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-11T12:21:34-08:00",
+      "LastUpdatedTime": "2025-12-11T12:34:57-08:00"
+    },
+    "TxnDate": "2025-12-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 250,
+        "LinkedTxn": [
+          {
+            "TxnId": "53105",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53106",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 26033,
+        "LinkedTxn": [
+          {
+            "TxnId": "53278",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 450,
+        "LinkedTxn": [
+          {
+            "TxnId": "53307",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "second floor + optionals (Exterior basement entrance)",
+        "Amount": 12937,
+        "LinkedTxn": [
+          {
+            "TxnId": "53309",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "First floor + over payment",
+        "Amount": 26033,
+        "LinkedTxn": [
+          {
+            "TxnId": "53311",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53312",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53313",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53314",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "second floor - over payment",
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "53316",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 1000,
+        "LinkedTxn": [
+          {
+            "TxnId": "53318",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "53320",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 1950,
+        "LinkedTxn": [
+          {
+            "TxnId": "53322",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 2200,
+        "LinkedTxn": [
+          {
+            "TxnId": "53324",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "53326",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 2500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53328",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Contract Update EPO-Contract Update TIS",
+        "Amount": 2500,
+        "LinkedTxn": [
+          {
+            "TxnId": "53330",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Contract Update EPO\nContract Update TIS",
+        "Amount": 1700,
+        "LinkedTxn": [
+          {
+            "TxnId": "53332",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Amount": 300,
+        "LinkedTxn": [
+          {
+            "TxnId": "53334",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Contract Update EPO\nContract Update TIS",
+        "Amount": 1700,
+        "LinkedTxn": [
+          {
+            "TxnId": "53336",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "PC106158\nContract Update EPO\nContract Update TIS",
+        "Amount": 600,
+        "LinkedTxn": [
+          {
+            "TxnId": "53338",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Second Floor + walkout basement",
+        "Amount": 13277,
+        "LinkedTxn": [
+          {
+            "TxnId": "53340",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Lot 18 - Wendell Place \nPO \t1013055",
+        "Amount": 150,
+        "LinkedTxn": [
+          {
+            "TxnId": "53343",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Description": "Lot 15 - Wendell Place \nPO 1013056",
+        "Amount": 150,
+        "LinkedTxn": [
+          {
+            "TxnId": "53345",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          },
+          "CheckNum": "456031"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Extra payment on first and second floor",
+        "Amount": -6179,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3176",
+            "name": "Toll Brothers, Inc.:Willis Brook at Lynnfield",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "456031"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Amount": -900,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3032",
+            "name": "Toll Brothers, Inc.:Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "456031"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Amount": -1800,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "3032",
+            "name": "Toll Brothers, Inc.:Wendell Place",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "456031"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Amount": -525,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "2927",
+            "name": "Toll Brothers, Inc.:Lakemont at Hudson",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "82",
+            "name": "Back Charges"
+          },
+          "PaymentMethodRef": {
+            "value": "4",
+            "name": "ACH"
+          },
+          "CheckNum": "456031"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "TotalAmt": 27450,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52953",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-11-30T17:08:00-08:00",
+      "LastUpdatedTime": "2025-11-30T17:08:00-08:00"
+    },
+    "TxnDate": "2025-11-30",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 777-457",
+        "Amount": 27450,
+        "LinkedTxn": [
+          {
+            "TxnId": "52952",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "7"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "DepositToAccountRef": {
       "value": "158",
       "name": "DCU Business Checking 0257"
     },
@@ -199,208 +1802,6 @@
             "value": "4"
           },
           "CheckNum": "452099"
-        }
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "158",
-      "name": "DCU Business Checking 0257"
-    },
-    "TotalAmt": 9640.7,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52874",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-25T20:17:58-08:00",
-      "LastUpdatedTime": "2025-11-25T20:17:58-08:00"
-    },
-    "TxnDate": "2025-11-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52871",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2901"
-        }
-      },
-      {
-        "Amount": 700,
-        "LinkedTxn": [
-          {
-            "TxnId": "52872",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2901"
-        }
-      },
-      {
-        "Description": "Rough Carpentry\nParty Wall - Ma",
-        "Amount": 8960.7,
-        "LinkedTxn": [
-          {
-            "TxnId": "52873",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2901"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "BC-INV-12048348",
-        "Amount": -220,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "7",
-            "name": "Pulte Homes, Inc.",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "2901"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "158",
-      "name": "DCU Business Checking 0257"
-    },
-    "TotalAmt": 230101.86,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52797",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-20T09:31:26-08:00",
-      "LastUpdatedTime": "2025-11-20T09:31:26-08:00"
-    },
-    "TxnDate": "2025-11-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "payment - extra Chauncy Lake",
-        "Amount": 500,
-        "LinkedTxn": [
-          {
-            "TxnId": "52790",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2856"
-        }
-      },
-      {
-        "Description": "extra - Chauncy Lake",
-        "Amount": 800,
-        "LinkedTxn": [
-          {
-            "TxnId": "52791",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2856"
-        }
-      },
-      {
-        "Description": "Extra - Chauncy Lake",
-        "Amount": 800,
-        "LinkedTxn": [
-          {
-            "TxnId": "52792",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2856"
-        }
-      },
-      {
-        "Description": "Rough Carpentry",
-        "Amount": 122751,
-        "LinkedTxn": [
-          {
-            "TxnId": "52794",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2856"
-        }
-      },
-      {
-        "Description": "Rough Carpentry",
-        "Amount": 105250.86,
-        "LinkedTxn": [
-          {
-            "TxnId": "52796",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2856"
         }
       }
     ]
@@ -1184,416 +2585,6 @@
             "name": "ACH"
           },
           "CheckNum": "448395"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "DepositToAccountRef": {
-      "value": "158",
-      "name": "DCU Business Checking 0257"
-    },
-    "TotalAmt": 33885.8,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52610",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-13T11:16:52-08:00",
-      "LastUpdatedTime": "2025-11-13T11:16:52-08:00"
-    },
-    "TxnDate": "2025-11-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Description": "Invoice #7938 - Cons Weather Co",
-        "Amount": 225,
-        "LinkedTxn": [
-          {
-            "TxnId": "52580",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Building 2 - Highland at Vale",
-        "Amount": 3240,
-        "LinkedTxn": [
-          {
-            "TxnId": "52581",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Whelock farm \nInvoice # 8540",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52582",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "extra - Cons Losses, Re \nInvoice # 8588",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52583",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Lot 01 - Riverview\nInvoice # 8589",
-        "Amount": 160,
-        "LinkedTxn": [
-          {
-            "TxnId": "52584",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra -  Whelock Farm \nInvoice #8619",
-        "Amount": 650,
-        "LinkedTxn": [
-          {
-            "TxnId": "52585",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Wheelock Farm Lot 31 \nInvoice #8620",
-        "Amount": 450,
-        "LinkedTxn": [
-          {
-            "TxnId": "52586",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra \nInvoice #8637",
-        "Amount": 4209.98,
-        "LinkedTxn": [
-          {
-            "TxnId": "52587",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Chauncy Lake \nInvoice #8650",
-        "Amount": 700,
-        "LinkedTxn": [
-          {
-            "TxnId": "52588",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Chauncy Lake \nInvoice #8651",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52589",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra - Riverview\nInvoice #8653",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52590",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra \nInvoice #8654",
-        "Amount": 800,
-        "LinkedTxn": [
-          {
-            "TxnId": "52592",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra \nInvoice #8655",
-        "Amount": 200,
-        "LinkedTxn": [
-          {
-            "TxnId": "52594",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Extra\nInvoice #8656",
-        "Amount": 800,
-        "LinkedTxn": [
-          {
-            "TxnId": "52595",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Party wall 5",
-        "Amount": 4559,
-        "LinkedTxn": [
-          {
-            "TxnId": "52597",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Party wall 4",
-        "Amount": 4789.7,
-        "LinkedTxn": [
-          {
-            "TxnId": "52599",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Crane Rental",
-        "Amount": 4789.72,
-        "LinkedTxn": [
-          {
-            "TxnId": "52601",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Rough Carpentry - Invoice partially paid",
-        "Amount": 4365,
-        "LinkedTxn": [
-          {
-            "TxnId": "52602",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "Base deck + Walkout basement",
-        "Amount": 3243,
-        "LinkedTxn": [
-          {
-            "TxnId": "52605",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Description": "optional 20034",
-        "Amount": 300,
-        "LinkedTxn": [
-          {
-            "TxnId": "52609",
-            "TxnType": "Payment",
-            "TxnLineId": "0"
-          }
-        ],
-        "DepositLineDetail": {
-          "PaymentMethodRef": {
-            "value": "4"
-          },
-          "CheckNum": "2711"
-        }
-      },
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "BC-INV-11356184",
-        "Amount": -365,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "7",
-            "name": "Pulte Homes, Inc.",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "2711"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "BC-INV-12034946",
-        "Amount": -30.6,
-        "DetailType": "DepositLineDetail",
-        "DepositLineDetail": {
-          "Entity": {
-            "value": "7",
-            "name": "Pulte Homes, Inc.",
-            "type": "CUSTOMER"
-          },
-          "AccountRef": {
-            "value": "82",
-            "name": "Back Charges"
-          },
-          "PaymentMethodRef": {
-            "value": "4",
-            "name": "ACH"
-          },
-          "CheckNum": "2711"
         },
         "CustomExtensions": []
       }

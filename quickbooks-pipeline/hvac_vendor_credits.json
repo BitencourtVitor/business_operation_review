@@ -1,6 +1,514 @@
 [
   {
     "VendorAddr": {
+      "Id": "18331",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19262",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-06-23T13:13:58-07:00",
+      "LastUpdatedTime": "2025-12-11T07:12:52-08:00"
+    },
+    "DocNumber": "S3362959.002",
+    "TxnDate": "2025-06-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "19397",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3362959.002",
+        "Amount": 268.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1289",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 06 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "526849767"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 268.97
+  },
+  {
+    "VendorAddr": {
+      "Id": "22856",
+      "Line1": "Delta T",
+      "Line2": "PO Box 6070",
+      "Line3": "Manchester, NH  03108"
+    },
+    "Balance": 73.16,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23287",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-11T06:09:17-08:00",
+      "LastUpdatedTime": "2025-12-11T06:09:17-08:00"
+    },
+    "DocNumber": "S3409836.001",
+    "TxnDate": "2025-12-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S3409836.001",
+        "Amount": 73.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1362",
+            "name": "Scott Johnson:17 Smith Place Cambridge"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "563778909"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "34",
+      "name": "Delta T"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 73.16
+  },
+  {
+    "VendorAddr": {
+      "Id": "20724",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21260",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-25T07:59:39-07:00",
+      "LastUpdatedTime": "2025-12-05T14:06:20-08:00"
+    },
+    "DocNumber": "S6742418.001",
+    "TxnDate": "2025-09-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "23181",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6742418.001",
+        "Amount": 447.87,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1372",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564589364"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 447.87
+  },
+  {
+    "VendorAddr": {
+      "Id": "20707",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21114",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-22T07:11:46-07:00",
+      "LastUpdatedTime": "2025-12-05T14:06:20-08:00"
+    },
+    "DocNumber": "S6705992.008",
+    "TxnDate": "2025-09-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "23181",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6705992.008",
+        "Amount": 178.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1461",
+            "name": "Toll Brothers:Wendell Place:Lot 07 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600186596"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 178.17
+  },
+  {
+    "VendorAddr": {
+      "Id": "20206",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20824",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-09T08:07:34-07:00",
+      "LastUpdatedTime": "2025-12-05T14:06:20-08:00"
+    },
+    "DocNumber": "S6705247.004",
+    "TxnDate": "2025-09-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "23181",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6705247.004",
+        "Amount": 95.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1424",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "590276723"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 95.92
+  },
+  {
+    "VendorAddr": {
+      "Id": "20204",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 223.93,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20822",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-09T08:04:06-07:00",
+      "LastUpdatedTime": "2025-12-05T14:06:20-08:00"
+    },
+    "DocNumber": "S6713755.003",
+    "TxnDate": "2025-09-04",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "23181",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6713755.003",
+        "Amount": 967.7,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1417",
+            "name": "Toll Brothers:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "585773234"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 967.7
+  },
+  {
+    "VendorAddr": {
+      "Id": "22648",
+      "Line1": "The Portland Group",
+      "Line2": "PO BOX 583",
+      "Line3": "Framingham, MA  01704"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20693",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-09-02T09:36:59-07:00",
+      "LastUpdatedTime": "2025-12-05T14:06:20-08:00"
+    },
+    "DocNumber": "S6705992.006",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "23181",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S6705992.006",
+        "Amount": 503.94,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1461",
+            "name": "Toll Brothers:Wendell Place:Lot 07 - Wendell Place"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600186596"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "174",
+      "name": "The Portland Group"
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 503.94
+  },
+  {
+    "VendorAddr": {
+      "Id": "21302",
+      "Line1": "Johnstone Supply, Inc.",
+      "Line2": "4 Quinsigamond Avenue",
+      "Line3": "Worcester, MA  01608"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21909",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-16T10:08:18-07:00",
+      "LastUpdatedTime": "2025-12-05T13:53:17-08:00"
+    },
+    "DocNumber": "S102389685.001",
+    "TxnDate": "2025-10-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Return",
+    "LinkedTxn": [
+      {
+        "TxnId": "23180",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "S102389685.001",
+        "Amount": 60.21,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Job Supplies:Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "12",
+      "name": "Johnstone Supply, Inc."
+    },
+    "APAccountRef": {
+      "value": "7",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 60.21
+  },
+  {
+    "VendorAddr": {
       "Id": "22459",
       "Line1": "Delta T",
       "Line2": "PO Box 6070",
@@ -690,59 +1198,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 221.1
-  },
-  {
-    "VendorAddr": {
-      "Id": "21924",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 46.18,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22513",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-07T11:42:45-08:00",
-      "LastUpdatedTime": "2025-11-07T11:42:45-08:00"
-    },
-    "DocNumber": "S3402069.001",
-    "TxnDate": "2025-11-07",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "return",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3402069.001",
-        "Amount": 46.18,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 46.18
   },
   {
     "VendorAddr": {
@@ -2010,59 +2465,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "21302",
-      "Line1": "Johnstone Supply, Inc.",
-      "Line2": "4 Quinsigamond Avenue",
-      "Line3": "Worcester, MA  01608"
-    },
-    "Balance": 60.21,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21909",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-16T10:08:18-07:00",
-      "LastUpdatedTime": "2025-10-16T10:08:18-07:00"
-    },
-    "DocNumber": "S102389685.001",
-    "TxnDate": "2025-10-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Return",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S102389685.001",
-        "Amount": 60.21,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "12",
-      "name": "Johnstone Supply, Inc."
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 60.21
-  },
-  {
-    "VendorAddr": {
       "Id": "21289",
       "Line1": "S.G. Torrice Company / Ferguson",
       "Line2": "Ferguson Enterprises LLC #1196",
@@ -2426,7 +2828,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1493",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 69 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 69 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "191",
@@ -2491,7 +2893,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1523",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 71 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 71 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "191",
@@ -2556,7 +2958,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1434",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 73 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "191",
@@ -2985,7 +3387,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1279",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 138 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 138 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "183",
@@ -3050,7 +3452,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1276",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 36 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 36 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "183",
@@ -3141,118 +3543,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "21063",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 412.98,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21661",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-09T10:27:58-07:00",
-      "LastUpdatedTime": "2025-10-09T10:27:58-07:00"
-    },
-    "DocNumber": "S3394396.001",
-    "TxnDate": "2025-10-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "returns",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3394396.001",
-        "Amount": 412.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 412.98
-  },
-  {
-    "VendorAddr": {
-      "Id": "20724",
-      "Line1": "The Portland Group",
-      "Line2": "PO BOX 583",
-      "Line3": "Framingham, MA  01704"
-    },
-    "Balance": 447.87,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21260",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-25T07:59:39-07:00",
-      "LastUpdatedTime": "2025-09-25T07:59:39-07:00"
-    },
-    "DocNumber": "S6742418.001",
-    "TxnDate": "2025-09-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S6742418.001",
-        "Amount": 447.87,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1372",
-            "name": "Toll Brothers:Lakemont at Hudson:Lot 19 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "564589364"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "174",
-      "name": "The Portland Group"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 447.87
-  },
-  {
-    "VendorAddr": {
       "Id": "20713",
       "Line1": "S.G. Torrice Company / Ferguson",
       "Line2": "Ferguson Enterprises LLC #1196",
@@ -3317,65 +3607,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 14700.4
-  },
-  {
-    "VendorAddr": {
-      "Id": "20707",
-      "Line1": "The Portland Group",
-      "Line2": "PO BOX 583",
-      "Line3": "Framingham, MA  01704"
-    },
-    "Balance": 178.17,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21114",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-22T07:11:46-07:00",
-      "LastUpdatedTime": "2025-09-24T07:41:25-07:00"
-    },
-    "DocNumber": "S6705992.008",
-    "TxnDate": "2025-09-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S6705992.008",
-        "Amount": 178.17,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1461",
-            "name": "Toll Brothers:Wendell Place:Lot 07 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "600186596"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "174",
-      "name": "The Portland Group"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 178.17
   },
   {
     "VendorAddr": {
@@ -3561,182 +3792,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "20206",
-      "Line1": "The Portland Group",
-      "Line2": "PO BOX 583",
-      "Line3": "Framingham, MA  01704"
-    },
-    "Balance": 95.92,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20824",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-09T08:07:34-07:00",
-      "LastUpdatedTime": "2025-09-09T08:07:34-07:00"
-    },
-    "DocNumber": "S6705247.004",
-    "TxnDate": "2025-09-04",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S6705247.004",
-        "Amount": 95.92,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1424",
-            "name": "Toll Brothers:Lakemont at Hudson:Lot 12 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "590276723"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "174",
-      "name": "The Portland Group"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 95.92
-  },
-  {
-    "VendorAddr": {
-      "Id": "20204",
-      "Line1": "The Portland Group",
-      "Line2": "PO BOX 583",
-      "Line3": "Framingham, MA  01704"
-    },
-    "Balance": 967.7,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20822",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-09T08:04:06-07:00",
-      "LastUpdatedTime": "2025-09-09T08:04:06-07:00"
-    },
-    "DocNumber": "S6713755.003",
-    "TxnDate": "2025-09-04",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S6713755.003",
-        "Amount": 967.7,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1417",
-            "name": "Toll Brothers:Lakemont at Hudson:Lot 15 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "585773234"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "174",
-      "name": "The Portland Group"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 967.7
-  },
-  {
-    "VendorAddr": {
-      "Id": "20062",
-      "Line1": "The Portland Group",
-      "Line2": "PO BOX 583",
-      "Line3": "Framingham, MA  01704"
-    },
-    "Balance": 503.94,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20693",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-02T09:36:59-07:00",
-      "LastUpdatedTime": "2025-09-02T09:36:59-07:00"
-    },
-    "DocNumber": "S6705992.006",
-    "TxnDate": "2025-08-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 503.94,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1461",
-            "name": "Toll Brothers:Wendell Place:Lot 07 - Wendell Place"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "600186596"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "174",
-      "name": "The Portland Group"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 503.94
-  },
-  {
-    "VendorAddr": {
       "Id": "19960",
       "Line1": "The Portland Group",
       "Line2": "PO BOX 583",
@@ -3773,7 +3828,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1545",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 55 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 55 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "183",
@@ -4557,71 +4612,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 2601.67
-  },
-  {
-    "VendorAddr": {
-      "Id": "18331",
-      "Line1": "Delta T",
-      "Line2": "PO Box 6070",
-      "Line3": "Manchester, NH  03108"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "19262",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-06-23T13:13:58-07:00",
-      "LastUpdatedTime": "2025-07-24T06:40:09-07:00"
-    },
-    "DocNumber": "S3362959.002",
-    "TxnDate": "2025-06-17",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "19397",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "S3362959.002",
-        "Amount": 268.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1289",
-            "name": "Toll Brothers:Lakemont at Hudson:Lot 06 - Lakemont at Hudson"
-          },
-          "AccountRef": {
-            "value": "191",
-            "name": "Job Supplies:Materials HVAC"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "526849767"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "34",
-      "name": "Delta T"
-    },
-    "APAccountRef": {
-      "value": "7",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 268.97
   },
   {
     "VendorAddr": {
@@ -6822,7 +6812,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "1080",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 86 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 86 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "183",
@@ -11881,7 +11871,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "768",
-            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 20 - Pinehills Owls Nest"
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 20 - The Pinehills Owls Nest"
           },
           "AccountRef": {
             "value": "183",
@@ -15838,7 +15828,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "314",
-            "name": "Toll Brothers:The Willows at Boxford:Lot 5 - Willows at Boxford"
+            "name": "Toll Brothers:The Willows at Boxford:Lot 05 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "183",
