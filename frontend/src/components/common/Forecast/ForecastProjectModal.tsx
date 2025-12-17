@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
-import { hasProjectStarted } from './helpers';
+import { isProjectStartedByStatus, getOverdueType } from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
 import iconBoomlift from '../../../assets/boomlift.png';
@@ -190,25 +190,47 @@ export default function ForecastProjectModal({
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                 {project.cliente}
               </div>
-              {/* Indicador de obra iniciada (quando filtro Not Started está desativado) */}
-              {!filterNotStarted && hasProjectStarted(project) && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '6px 10px',
-                  background: 'rgba(40, 167, 69, 0.1)',
-                  borderRadius: '8px',
-                  border: '1px solid #28a745',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: '#28a745',
-                  flexShrink: 0
-                }}>
-                  <i className="bi bi-play-circle-fill" style={{ fontSize: '14px' }} />
-                  <span>Started</span>
-                </div>
-              )}
+              {/* Indicadores de status - três condições mutuamente exclusivas */}
+              {(() => {
+                const projectStarted = isProjectStartedByStatus(project);
+                const overdue = !!getOverdueType(project);
+                
+                if (projectStarted) {
+                  // Condição 1: Obra iniciada (status ≠ "Not Started") → mostra "Started" verde
+                  return (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#28a745',
+                      flexShrink: 0
+                    }}>
+                      <i className="bi bi-play-circle-fill" style={{ fontSize: 14 }} />
+                      <span>Started</span>
+                    </div>
+                  );
+                } else if (overdue) {
+                  // Condição 2: Obra atrasada (status = "Not Started" E StartDate ultrapassada) → mostra "Overdue" vermelho
+                  return (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#e04b4b',
+                      flexShrink: 0
+                    }}>
+                      <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
+                      <span>Overdue</span>
+                    </div>
+                  );
+                }
+                // Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → não mostra nada
+                return null;
+              })()}
             </div>
             <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 2 }}>{project.job_site}</div>
             <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{project.type || 'Lot'} {project.lote_bld || 'N/A'}</div>
