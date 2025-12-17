@@ -1,7 +1,7 @@
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
 import {
-  hasProjectStarted,
+  isProjectStartedByStatus,
   getOverdueType,
   isFieldwireComplete,
   getFieldwireProgress,
@@ -25,9 +25,12 @@ export default function ForecastProjectCard({
   filterNotStarted,
   onCardClick
 }: ForecastProjectCardProps) {
-  const projectStarted = hasProjectStarted(project);
+  const projectStarted = isProjectStartedByStatus(project);
   const overdue = !!getOverdueType(project);
-  // Prioridade: Vermelho (atrasado) > Verde (iniciado) > Cinza (não iniciado)
+  // Três condições mutuamente exclusivas:
+  // 1. Vermelho: status = "Not Started" E StartDate ultrapassada (atrasada)
+  // 2. Verde: status ≠ "Not Started" (iniciada)
+  // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
   const borderColor = overdue ? '#e04b4b' : (projectStarted ? '#28a745' : '#6c757d');
   const shadowColor = overdue ? 'rgba(224, 75, 75, 0.2)' : (projectStarted ? 'rgba(40, 167, 69, 0.15)' : 'rgba(108, 117, 125, 0.15)');
   
@@ -110,27 +113,24 @@ export default function ForecastProjectCard({
                 {project.cliente}
               </h4>
               {/* Indicadores de status - à direita do Cliente */}
+              {/* Três condições mutuamente exclusivas: Started (verde), Overdue (vermelho), ou nenhum (cinza) */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {/* Indicador de obra iniciada (quando filtro Not Started está desativado) */}
-                {!filterNotStarted && projectStarted && (
+                {projectStarted ? (
+                  // Condição 1: Obra iniciada (status ≠ "Not Started") → mostra "Started" verde
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '4px',
-                    padding: '4px 8px',
-                    background: 'rgba(40, 167, 69, 0.1)',
-                    borderRadius: '6px',
-                    border: '1px solid #28a745',
-                    fontSize: '11px',
+                    gap: '6px',
+                    color: '#28a745',
+                    fontSize: '13px',
                     fontWeight: 600,
-                    color: '#28a745'
+                    flexShrink: 0
                   }}>
-                    <i className="bi bi-play-circle-fill" style={{ fontSize: '12px' }} />
+                    <i className="bi bi-play-circle-fill" style={{ fontSize: 14 }} />
                     <span>Started</span>
                   </div>
-                )}
-                {/* Alerta de atraso */}
-                {overdue && (
+                ) : overdue ? (
+                  // Condição 2: Obra atrasada (status = "Not Started" E StartDate ultrapassada) → mostra "Overdue" vermelho
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -143,7 +143,8 @@ export default function ForecastProjectCard({
                     <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
                     <span>Overdue</span>
                   </div>
-                )}
+                ) : null}
+                {/* Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → não mostra nada */}
               </div>
             </div>
             <p style={{

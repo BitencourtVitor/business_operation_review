@@ -21,20 +21,28 @@ const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => 
   return 'not-started';
 };
 
-// Tipo de atraso: 'start' quando não iniciou após a data de início;
-// 'end' quando passou da data de fim mas segue aberto
-const getOverdueType = (project: WorkforceProject): 'start' | 'end' | null => {
+// Tipo de atraso: 'start' quando não iniciou após a data de início
+// IMPORTANTE: O atraso é determinado APENAS pela StartDate, não pela BeamsDate
+// REGRA: Se a obra está iniciada (status ≠ "Not Started"), ela NÃO pode estar atrasada
+// Só pode estar atrasada se status = "Not Started" E StartDate foi ultrapassada
+const getOverdueType = (project: WorkforceProject): 'start' | null => {
   const normalizedStatus = (project.status || '').toLowerCase().trim();
+  
+  // Se o status for diferente de "Not Started", a obra já começou, então NÃO está atrasada
+  if (normalizedStatus !== 'not started') {
+    return null;
+  }
+  
+  // Se o status for "Not Started", verificar se a StartDate foi ultrapassada
+  // BeamsDate NÃO é usado para determinar atraso
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
-  const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
-
-  if (normalizedStatus === 'not started' && startDate && today > startDate) {
-    return 'start';
+  if (startDate) {
+    startDate.setHours(0, 0, 0, 0);
+    if (today > startDate) return 'start';
   }
-  if (normalizedStatus === 'open' && endDate && today > endDate) {
-    return 'end';
-  }
+  
   return null;
 };
 
@@ -752,8 +760,11 @@ export default function TimelinePlanner({
                                 const projectStatus = getProjectStatus(project);
                                 const overdueType = getOverdueType(project);
                                 const overdue = !!overdueType;
-                                const baseColors = PROJECT_STATUS_COLORS[projectStatus as keyof typeof PROJECT_STATUS_COLORS];
-                                const cardColors = overdue ? OVERDUE_COLORS : baseColors;
+                                // Três condições mutuamente exclusivas:
+                                // 1. Vermelho: status = "Not Started" E StartDate ultrapassada (atrasada)
+                                // 2. Verde: status ≠ "Not Started" (iniciada)
+                                // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
+                                const cardColors = overdue ? OVERDUE_COLORS : (projectStatus === 'open' ? PROJECT_STATUS_COLORS.open : PROJECT_STATUS_COLORS['not-started']);
                                 const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
                                 const hasFieldwire = isTruthyFlag(project.fieldwire);
                                 const hasContract = isTruthyFlag(project.tem_contrato);
@@ -880,7 +891,7 @@ export default function TimelinePlanner({
                                   {/* Coluna direita - status e HVAC (itens alinhados à direita) */}
                                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 52, flexShrink: 0 }}>
                                     <div 
-                                      onMouseEnter={(e) => handleStatusMouseEnter(e, overdue ? 'Overdue' : (projectStatus === 'open' ? 'Open' : 'Not Started'))}
+                                      onMouseEnter={(e) => handleStatusMouseEnter(e, overdue ? 'Overdue' : (projectStatus === 'open' ? 'Started' : 'Not Started'))}
                                       onMouseLeave={handleStatusMouseLeave}
                                       style={{
                                       background: 'rgba(255,255,255,0.2)',

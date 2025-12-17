@@ -54,7 +54,15 @@ export const getMachineByTitle = (project: WorkforceProject, searchTerm: string)
   }) || null;
 };
 
+// Helper para verificar se a obra já iniciou baseado no STATUS (não na data)
+// Se o status for diferente de "Not Started", a obra já começou
+export const isProjectStartedByStatus = (project: WorkforceProject): boolean => {
+  const normalizedStatus = (project.status || '').toLowerCase().trim();
+  return normalizedStatus !== 'not started';
+};
+
 // Helper para verificar se a obra já iniciou (baseado na data de início)
+// Mantido para compatibilidade, mas não deve ser usado para determinar se a obra começou
 export const hasProjectStarted = (project: WorkforceProject): boolean => {
   if (!project.previous_start_date) return false;
   const startDate = new Date(project.previous_start_date);
@@ -66,16 +74,27 @@ export const hasProjectStarted = (project: WorkforceProject): boolean => {
 };
 
 // Helper para obter tipo de atraso
-export const getOverdueType = (project: WorkforceProject): 'start' | 'end' | null => {
-  // Se a obra já iniciou, não está atrasada
-  if (hasProjectStarted(project)) return null;
-  
+// IMPORTANTE: O atraso é determinado APENAS pela StartDate, não pela BeamsDate
+// REGRA: Se a obra está iniciada (status ≠ "Not Started"), ela NÃO pode estar atrasada
+// Só pode estar atrasada se status = "Not Started" E StartDate foi ultrapassada
+export const getOverdueType = (project: WorkforceProject): 'start' | null => {
   const normalizedStatus = (project.status || '').toLowerCase().trim();
+  
+  // Se o status for diferente de "Not Started", a obra já começou, então NÃO está atrasada
+  if (normalizedStatus !== 'not started') {
+    return null;
+  }
+  
+  // Se o status for "Not Started", verificar se a StartDate foi ultrapassada
+  // BeamsDate NÃO é usado para determinar atraso
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
-  const endDate = project.previous_end_date ? new Date(project.previous_end_date) : null;
-  if (normalizedStatus === 'not started' && startDate && today > startDate) return 'start';
-  if (normalizedStatus === 'open' && endDate && today > endDate) return 'end';
+  if (startDate) {
+    startDate.setHours(0, 0, 0, 0);
+    if (today > startDate) return 'start';
+  }
+  
   return null;
 };
 
