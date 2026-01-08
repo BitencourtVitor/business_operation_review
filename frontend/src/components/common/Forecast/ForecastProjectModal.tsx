@@ -6,6 +6,8 @@ import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
 import iconBoomlift from '../../../assets/boomlift.png';
 import iconForklift from '../../../assets/forklift.png';
+// TODO: Adicionar ícone storage.png na pasta assets quando disponível
+// import iconStorage from '../../../assets/storage.png';
 
 interface ForecastProjectModalProps {
   project: WorkforceProject;
@@ -30,6 +32,8 @@ export default function ForecastProjectModal({
     { id: 'overview', icon: 'bi-info-circle', label: 'Overview', image: null },
     ...(project.fieldwire && project.fieldwire.length > 0 ? [{ id: 'fieldwire', icon: null, label: 'Fieldwire', image: iconFieldwire }] : []),
     { id: 'buildertrend', icon: null, label: 'BuilderTrend', image: iconBuildertrend },
+    // TODO: Quando iconStorage estiver disponível, atualizar para: { id: 'storage', icon: null, label: 'Storage', image: iconStorage },
+    { id: 'storage', icon: 'bi-box', label: 'Storage', image: null },
     ...(project.machines && project.machines.length > 0 ? [{ id: 'machines', icon: 'bi-truck', label: 'Machines', image: null }] : []),
     ...(project.contract_steps && project.contract_steps.length > 0 ? [{ id: 'contract', icon: 'bi-file-check', label: 'Contract', image: null }] : [])
   ];
@@ -56,6 +60,7 @@ export default function ForecastProjectModal({
       'overview',
       ...(project.fieldwire && project.fieldwire.length > 0 ? ['fieldwire'] : []),
       'buildertrend',
+      'storage',
       ...(project.machines && project.machines.length > 0 ? ['machines'] : []),
       ...(project.contract_steps && project.contract_steps.length > 0 ? ['contract'] : [])
     ];
@@ -426,6 +431,27 @@ export default function ForecastProjectModal({
             }}>
               <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Criação da obra dentro BuilderTrend</div>
               {project.buildertrend ? (
+                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
+              ) : (
+                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+
+          {/* Storage - Sempre presente */}
+          <div id="modal-section-storage" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Storage</div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(0,0,0,0.05)',
+              borderRadius: 8,
+              border: '1px solid var(--color-border-divider)'
+            }}>
+              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Obra adicionada ao sistema de estoque</div>
+              {project.storage ? (
                 <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
               ) : (
                 <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />

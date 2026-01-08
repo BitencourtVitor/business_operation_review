@@ -4,6 +4,46 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "TotalAmt": 44144.08,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18842",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-16T17:15:39-08:00",
+      "LastUpdatedTime": "2025-12-16T17:15:39-08:00"
+    },
+    "TxnDate": "2025-12-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 984-307",
+        "Amount": 44144.08,
+        "LinkedTxn": [
+          {
+            "TxnId": "18838",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "9"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "TotalAmt": 2645.1,
     "domain": "QBO",
     "sparse": false,

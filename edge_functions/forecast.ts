@@ -220,6 +220,7 @@ async function processDataSheet(csvData: any[]) {
       obs: normalizeUtf8String(row['Obs']) || null,
       hvac: parseYesNo(row['HVAC']),
       buildertrend: parseYesNo(row['Buildertrend']),
+      storage: parseYesNo(row['Storage']),
       machine_provider: normalizeUtf8String(row['MachineProvider']) || null,
       create_datetime: parseDateTime(row['Create DateTime']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])

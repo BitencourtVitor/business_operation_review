@@ -50,6 +50,7 @@ interface WorkforceProject {
   workforce: string | null;
   hvac: boolean | null; // Mudou de string para boolean
   buildertrend: boolean | null; // Novo campo
+  storage: boolean | null; // Indica se a obra já foi adicionada ao sistema de estoque
   machine_provider: string | null; // Novo campo
   status: string | null;
   address: string | null;

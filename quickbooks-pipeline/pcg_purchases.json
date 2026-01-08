@@ -4,6 +4,2137 @@
       "value": "186",
       "name": "Mutual One Bank (8998)"
     },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1030",
+      "name": "Inland Residential Real Estate Services, LLC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11425",
+      "Line1": "Inland Residential Real Estate Services, LLC",
+      "Line2": "2901 Butterfield Road",
+      "Line3": "Oak Brook, Illinois  60523 USA"
+    },
+    "TotalAmt": 135,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18969",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-23T09:03:13-08:00",
+      "LastUpdatedTime": "2025-12-23T09:03:52-08:00"
+    },
+    "DocNumber": "1989",
+    "TxnDate": "2025-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Refund for incorrect payment applied to Invoice #2304 on the check 287754",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Refund for incorrect payment applied to Invoice #2304 on the check 287754",
+        "Amount": 135,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "960",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "107",
+            "name": "HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "188",
+      "name": "Premium HVAC, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11422",
+      "Line1": "Premium HVAC, Inc.",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, MA  01747 USA"
+    },
+    "TotalAmt": 8254.1,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18968",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-23T08:54:03-08:00",
+      "LastUpdatedTime": "2025-12-23T09:03:52-08:00"
+    },
+    "DocNumber": "1988",
+    "TxnDate": "2025-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Cirrus apartments contract\nChecks: 287592 -287754 - 286757 - 277754 - 288339 - 288910 - 289910",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Cirrus apartments\nChecks: 287592 -287754 - 286757 - 277754 - 288339 - 288910 - 289910",
+        "Amount": 8254.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "960",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "107",
+            "name": "HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1002",
+      "name": "Olam Builders Inc",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11410",
+      "Line1": "Olam Builders Inc",
+      "Line2": "869 Broadway, apt 2",
+      "Line3": "Chelsea, MA  02150 USA"
+    },
+    "TotalAmt": 1245.45,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18944",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-22T08:40:11-08:00",
+      "LastUpdatedTime": "2025-12-22T09:07:57-08:00"
+    },
+    "DocNumber": "1983",
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor",
+        "Amount": 1245.45,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "81",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "61",
+      "name": "Brutus Carpentry Design Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11392",
+      "Line1": "Brutus Carpentry Design Inc.",
+      "Line2": "46 Old Bolton Rd",
+      "Line3": "Hudson, MA  01749"
+    },
+    "TotalAmt": 5954,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18933",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-22T05:28:29-08:00",
+      "LastUpdatedTime": "2025-12-22T09:07:57-08:00"
+    },
+    "DocNumber": "1984",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Interest loan",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Interest loan",
+        "Amount": 5954,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "229",
+      "name": "Felipe Drumond",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11358",
+      "Line1": "Felipe Drumond"
+    },
+    "TotalAmt": 2635.58,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18910",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-18T11:45:01-08:00",
+      "LastUpdatedTime": "2025-12-18T12:13:38-08:00"
+    },
+    "DocNumber": "1966",
+    "TxnDate": "2025-12-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payout Felipe Drumond",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Cleaning 51 West Way",
+        "Amount": 2600,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "658",
+            "name": "51 West Way, Mashpee, MA"
+          },
+          "AccountRef": {
+            "value": "121",
+            "name": "Clean Up"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "356991881"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Amount": 35.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "6",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "229",
+      "name": "Felipe Drumond",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "3771"
+    },
+    "TotalAmt": 6500,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18867",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-18T09:32:39-08:00",
+      "LastUpdatedTime": "2025-12-18T09:34:01-08:00"
+    },
+    "DocNumber": "1964",
+    "TxnDate": "2025-12-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll Felipe Drumond - 11.29.2025 - 12.13.2025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payroll - 11.29.2025 - 12.13.2025",
+        "Amount": 6500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "59",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "11276",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "TotalAmt": 10000,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18847",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-17T06:42:38-08:00",
+      "LastUpdatedTime": "2025-12-17T07:58:50-08:00"
+    },
+    "DocNumber": "1956",
+    "TxnDate": "2025-12-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "funds for paying adp's payroll",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "funds for paying adp's payroll",
+        "Amount": 10000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "151",
+            "name": "Loan to Group OUT"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "501",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 20,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18843",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-16T18:06:01-08:00",
+      "LastUpdatedTime": "2025-12-16T18:06:01-08:00"
+    },
+    "TxnDate": "2025-12-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 20,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "93",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "1028",
+      "name": "Kuver Guru",
+      "type": "Vendor"
+    },
+    "TotalAmt": 11.97,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18837",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:40:06-08:00",
+      "LastUpdatedTime": "2025-12-13T09:40:06-08:00"
+    },
+    "TxnDate": "2025-11-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "POS Withdrawal (FIS) KUVER GURU CORP 61 WEST ST MILFORD MA(2287)",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) KUVER GURU CORP 61 WEST ST MILFORD MA(2287)",
+        "Amount": 11.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "429",
+      "name": "Floor&Decor",
+      "type": "Vendor"
+    },
+    "TotalAmt": 500,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18835",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:37:32-08:00",
+      "LastUpdatedTime": "2025-12-13T09:37:32-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "FlrDecorProPrem SYF PAYMNT ID NBR: XXXXXXXX0132954",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "FlrDecorProPrem SYF PAYMNT ID NBR: XXXXXXXX0132954",
+        "Amount": 500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "143",
+            "name": "Wood Flooring"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "213",
+      "name": "Walmart",
+      "type": "Vendor"
+    },
+    "TotalAmt": 99.39,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18834",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:35:56-08:00",
+      "LastUpdatedTime": "2025-12-13T09:35:56-08:00"
+    },
+    "TxnDate": "2025-11-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "POS Withdrawal (FIS) WAL-MART #1918 250 HARTFORD AVE BELLINGHAM MA(2287)",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) WAL-MART #1918 250 HARTFORD AVE BELLINGHAM MA(2287)",
+        "Amount": 99.39,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "188",
+      "name": "Mutual One Parent Acct x1440"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "970",
+      "name": "Devaney Energy",
+      "type": "Vendor"
+    },
+    "TotalAmt": 490.2,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18833",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:33:58-08:00",
+      "LastUpdatedTime": "2025-12-13T09:33:58-08:00"
+    },
+    "TxnDate": "2025-11-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "ENERGY PROVIDER PURCHASE ID NBR: 228044450",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "ENERGY PROVIDER PURCHASE ID NBR: 228044450",
+        "Amount": 490.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040001",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "Credit": false,
+    "TotalAmt": 169.9,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18832",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:31:31-08:00",
+      "LastUpdatedTime": "2025-12-13T09:31:31-08:00"
+    },
+    "TxnDate": "2025-11-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PING PONG*UBIA HONGKONG HK XXXX3001",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PING PONG*UBIA HONGKONG HK XXXX3001",
+        "Amount": 169.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "2",
+            "name": "Uncategorized Expense"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "755",
+      "name": "PODS",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 307.07,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18831",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:31:17-08:00",
+      "LastUpdatedTime": "2025-12-13T09:31:17-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PODS CLEARWATER FL XXXX5014",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PODS CLEARWATER FL XXXX5014",
+        "Amount": 307.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "46",
+            "name": "Equipment Rental"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1027",
+      "name": "Arivs Appraisal",
+      "type": "Vendor"
+    },
+    "Credit": true,
+    "TotalAmt": 950,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "11"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18830",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:29:54-08:00",
+      "LastUpdatedTime": "2025-12-13T09:29:54-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "ARIVS APPRAISAL 0000ORANGE CA XXXX3001",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "ARIVS APPRAISAL 0000ORANGE CA XXXX3001",
+        "Amount": 950,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1027",
+      "name": "Arivs Appraisal",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 2425,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18829",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:29:31-08:00",
+      "LastUpdatedTime": "2025-12-13T09:29:31-08:00"
+    },
+    "TxnDate": "2025-11-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "ARIVS APPRAISAL 0000ORANGE CA XXXX3001",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "ARIVS APPRAISAL 0000ORANGE CA XXXX3001",
+        "Amount": 2425,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "10",
+            "name": "Legal & Professional Services"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "50",
+      "name": "Amex Gold"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "710",
+      "name": "Uber",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 26.37,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18828",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T09:22:25-08:00",
+      "LastUpdatedTime": "2025-12-13T09:22:25-08:00"
+    },
+    "TxnDate": "2025-11-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Uber Trip help.uber.com CA XXXX1007",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Uber Trip help.uber.com CA XXXX1007",
+        "Amount": 26.37,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's Pay & Personal Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "683",
+      "name": "Buildertrend",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 668.26,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18513",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T08:19:35-08:00",
+      "LastUpdatedTime": "2025-12-13T09:13:32-08:00"
+    },
+    "TxnDate": "2025-11-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "BT*BUILDERTREND OMAHA NE XXXX5014",
+    "LinkedTxn": [
+      {
+        "TxnId": "18826",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "BT*BUILDERTREND OMAHA NE XXXX5014",
+        "Amount": 334.13,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      },
+      {
+        "Id": "2",
+        "Description": "Monthly fee BuilderTrend November",
+        "Amount": 334.13,
+        "LinkedTxn": [
+          {
+            "TxnId": "18826",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "142",
+            "name": "Premium Framing"
+          },
+          "AccountRef": {
+            "value": "14",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "863",
+      "name": "Hopkinton Lumber",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 58.38,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18721",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-10T13:44:45-08:00",
+      "LastUpdatedTime": "2025-12-13T09:03:55-08:00"
+    },
+    "TxnDate": "2025-11-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "HOPKINTON LUMBER CO HOPKINTON MA XXXX5014 - No receipt",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "HOPKINTON LUMBER CO HOPKINTON MA XXXX5014 - No receipt",
+        "Amount": 58.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "609",
+            "name": "5 Claflin Ave, Hopkinton, MA"
+          },
+          "AccountRef": {
+            "value": "133",
+            "name": "Deck and Porch Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "314692141"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "29",
+      "name": "PA Landers Inc.",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 1500.3,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18119",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-13T06:21:13-08:00",
+      "LastUpdatedTime": "2025-12-13T09:03:27-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX5014",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
+        "Amount": 478.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
+        "Amount": 510.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "59",
+            "name": "33 Running Light Way, Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "33142387"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
+        "Amount": 510.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "59",
+            "name": "33 Running Light Way, Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "33142387"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "50",
+      "name": "Amex Gold"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "366",
+      "name": "Lowe's",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 57.35,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18472",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-08T19:08:49-08:00",
+      "LastUpdatedTime": "2025-12-13T09:01:30-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LOWES.COM X-XXX-XXX-6937 NC XXXX1023",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "LOWES.COM X-XXX-XXX-6937 NC XXXX1023",
+        "Amount": 57.35,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "904",
+            "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
+          },
+          "AccountRef": {
+            "value": "137",
+            "name": "Plumbing Fixtures"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "541155823"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "366",
+      "name": "Lowe's",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 315.14,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18526",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T08:49:29-08:00",
+      "LastUpdatedTime": "2025-12-13T09:00:41-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LOWES.COM X-XXX-XXX-6937 NC XXXX5014",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "LOWES.COM X-XXX-XXX-6937 NC XXXX5014",
+        "Amount": 315.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "904",
+            "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
+          },
+          "AccountRef": {
+            "value": "137",
+            "name": "Plumbing Fixtures"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "541155823"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "282",
+      "name": "Lansing Building Products",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 772.56,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18722",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-10T13:45:18-08:00",
+      "LastUpdatedTime": "2025-12-13T08:59:49-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LANSING BP SOUTHBOROSOUTHBOROUGH MA XXXX5014 - No receipt",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "LANSING BP SOUTHBOROSOUTHBOROUGH MA XXXX5014 - No receipt",
+        "Amount": 772.56,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "865",
+            "name": "69 Central Ave, Falmouth"
+          },
+          "AccountRef": {
+            "value": "135",
+            "name": "Siding Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502698502"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "50",
+      "name": "Amex Gold"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "29",
+      "name": "PA Landers Inc.",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 1909.9,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18474",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-08T19:24:42-08:00",
+      "LastUpdatedTime": "2025-12-13T08:59:10-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3011",
+    "LinkedTxn": [
+      {
+        "TxnId": "18475",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PA LANDERS INC HANOVER MA XXXX3011",
+        "Amount": 1909.9,
+        "LinkedTxn": [
+          {
+            "TxnId": "18475",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "26",
+      "name": "QXO (Former Beacon Building Products",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 6.57,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18554",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T10:39:45-08:00",
+      "LastUpdatedTime": "2025-12-13T08:56:39-08:00"
+    },
+    "TxnDate": "2025-11-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "X QXO XXXXX0007 WEST BARNSTAB MA XXXX1039",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "X QXO XXXXX0007 WEST BARNSTAB MA XXXX1039",
+        "Amount": 6.57,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "865",
+            "name": "69 Central Ave, Falmouth"
+          },
+          "AccountRef": {
+            "value": "135",
+            "name": "Siding Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "502698502"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "31",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 116.75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18523",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T08:41:49-08:00",
+      "LastUpdatedTime": "2025-12-13T08:56:14-08:00"
+    },
+    "TxnDate": "2025-11-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT MARLBOROUGH MA XXXX5014",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT MARLBOROUGH MA XXXX5014",
+        "Amount": 116.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "609",
+            "name": "5 Claflin Ave, Hopkinton, MA"
+          },
+          "AccountRef": {
+            "value": "133",
+            "name": "Deck and Porch Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "314692141"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "29",
+      "name": "PA Landers Inc.",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 3911.23,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18530",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T08:55:41-08:00",
+      "LastUpdatedTime": "2025-12-13T08:55:36-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3001",
+    "LinkedTxn": [
+      {
+        "TxnId": "18531",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PA LANDERS INC HANOVER MA XXXX3001",
+        "Amount": 3911.23,
+        "LinkedTxn": [
+          {
+            "TxnId": "18531",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "49",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "29",
+      "name": "PA Landers Inc.",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 9411.99,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18528",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-09T08:54:22-08:00",
+      "LastUpdatedTime": "2025-12-13T08:55:07-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3001",
+    "LinkedTxn": [
+      {
+        "TxnId": "18529",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "PA LANDERS INC HANOVER MA XXXX3001",
+        "Amount": 9411.99,
+        "LinkedTxn": [
+          {
+            "TxnId": "18529",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "855",
+            "name": "30 Pleasant Park Dr., Mashpee"
+          },
+          "AccountRef": {
+            "value": "1150040006",
+            "name": "Sitework Material"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "484682130"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "186",
+      "name": "Mutual One Bank (8998)"
+    },
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "220",
@@ -762,7 +2893,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1143,156 +3274,6 @@
   },
   {
     "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "282",
-      "name": "Lansing Building Products",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 772.56,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18722",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-10T13:45:18-08:00",
-      "LastUpdatedTime": "2025-12-10T13:45:18-08:00"
-    },
-    "TxnDate": "2025-11-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "LANSING BP SOUTHBOROSOUTHBOROUGH MA XXXX5014 - No receipt",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "LANSING BP SOUTHBOROSOUTHBOROUGH MA XXXX5014 - No receipt",
-        "Amount": 772.56,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "865",
-            "name": "69 Central Ave, Falmouth"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502698502"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "863",
-      "name": "Hopkinton Lumber",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 58.38,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18721",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-10T13:44:45-08:00",
-      "LastUpdatedTime": "2025-12-10T13:44:45-08:00"
-    },
-    "TxnDate": "2025-11-05",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "HOPKINTON LUMBER CO HOPKINTON MA XXXX5014 - No receipt",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "HOPKINTON LUMBER CO HOPKINTON MA XXXX5014 - No receipt",
-        "Amount": 58.38,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "609",
-            "name": "5 Claflin Ave, Hopkinton, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "314692141"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
       "value": "50",
       "name": "Amex Gold"
     },
@@ -1326,7 +3307,7 @@
     "SyncToken": "2",
     "MetaData": {
       "CreateTime": "2025-08-28T07:46:34-07:00",
-      "LastUpdatedTime": "2025-12-10T08:53:43-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:29-08:00"
     },
     "TxnDate": "2025-08-15",
     "CurrencyRef": {
@@ -1361,7 +3342,7 @@
             "value": "1150040005",
             "name": "Concrete and Foundation"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1469,7 +3450,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1578,7 +3559,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1610,7 +3591,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1723,7 +3704,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1777,7 +3758,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1809,7 +3790,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -1914,7 +3895,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2045,7 +4026,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2077,7 +4058,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2182,7 +4163,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2287,7 +4268,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2392,7 +4373,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2497,7 +4478,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2610,7 +4591,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2642,7 +4623,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2674,7 +4655,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -2779,7 +4760,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "TAX"
           }
@@ -2913,7 +4894,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3211,7 +5192,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3312,7 +5293,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3536,7 +5517,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3836,7 +5817,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3868,7 +5849,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -3900,7 +5881,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -4049,7 +6030,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -5159,7 +7140,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-09T14:04:17-08:00",
-      "LastUpdatedTime": "2025-12-09T14:04:17-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:29-08:00"
     },
     "TxnDate": "2025-11-05",
     "CurrencyRef": {
@@ -5194,7 +7175,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -5436,81 +7417,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "26",
-      "name": "QXO (Former Beacon Building Products",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 6.57,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18554",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T10:39:45-08:00",
-      "LastUpdatedTime": "2025-12-09T10:39:45-08:00"
-    },
-    "TxnDate": "2025-11-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "X QXO XXXXX0007 WEST BARNSTAB MA XXXX1039",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "X QXO XXXXX0007 WEST BARNSTAB MA XXXX1039",
-        "Amount": 6.57,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "865",
-            "name": "69 Central Ave, Falmouth"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "502698502"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "769",
       "name": "Everett J. Prescott, Inc.",
       "type": "Vendor"
@@ -5539,7 +7445,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-09T09:21:44-08:00",
-      "LastUpdatedTime": "2025-12-09T09:21:44-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:31-08:00"
     },
     "TxnDate": "2025-11-14",
     "CurrencyRef": {
@@ -5574,7 +7480,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -6827,180 +8733,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "29",
-      "name": "PA Landers Inc.",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 3911.23,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18530",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T08:55:41-08:00",
-      "LastUpdatedTime": "2025-12-10T09:32:39-08:00"
-    },
-    "TxnDate": "2025-11-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3001",
-    "LinkedTxn": [
-      {
-        "TxnId": "18531",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "PA LANDERS INC HANOVER MA XXXX3001",
-        "Amount": 3911.23,
-        "LinkedTxn": [
-          {
-            "TxnId": "18531",
-            "TxnType": "ReimburseCharge"
-          }
-        ],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "HasBeenBilled",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "29",
-      "name": "PA Landers Inc.",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 9411.99,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18528",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T08:54:22-08:00",
-      "LastUpdatedTime": "2025-12-10T09:32:39-08:00"
-    },
-    "TxnDate": "2025-11-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3001",
-    "LinkedTxn": [
-      {
-        "TxnId": "18529",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "PA LANDERS INC HANOVER MA XXXX3001",
-        "Amount": 9411.99,
-        "LinkedTxn": [
-          {
-            "TxnId": "18529",
-            "TxnType": "ReimburseCharge"
-          }
-        ],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "HasBeenBilled",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "401",
       "name": "Nouria",
       "type": "Vendor"
@@ -7052,81 +8784,6 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "366",
-      "name": "Lowe's",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 315.14,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18526",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T08:49:29-08:00",
-      "LastUpdatedTime": "2025-12-09T08:49:29-08:00"
-    },
-    "TxnDate": "2025-11-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "LOWES.COM X-XXX-XXX-6937 NC XXXX5014",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "LOWES.COM X-XXX-XXX-6937 NC XXXX5014",
-        "Amount": 315.14,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "904",
-            "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "541155823"
         },
         "CustomExtensions": [
           {
@@ -7270,81 +8927,6 @@
         },
         "ProjectRef": {
           "value": "633825987"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "31",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 116.75,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18523",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T08:41:49-08:00",
-      "LastUpdatedTime": "2025-12-09T08:41:49-08:00"
-    },
-    "TxnDate": "2025-11-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "THE HOME DEPOT MARLBOROUGH MA XXXX5014",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "THE HOME DEPOT MARLBOROUGH MA XXXX5014",
-        "Amount": 116.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "609",
-            "name": "5 Claflin Ave, Hopkinton, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "314692141"
         },
         "CustomExtensions": [
           {
@@ -7730,7 +9312,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-09T08:38:05-08:00",
-      "LastUpdatedTime": "2025-12-09T08:38:05-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:30-08:00"
     },
     "TxnDate": "2025-11-18",
     "CurrencyRef": {
@@ -7765,7 +9347,7 @@
             "value": "14",
             "name": "Reimbursable Expenses"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -7919,74 +9501,6 @@
         },
         "ProjectRef": {
           "value": "53028002"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "683",
-      "name": "Buildertrend",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 668.26,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18513",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-09T08:19:35-08:00",
-      "LastUpdatedTime": "2025-12-09T08:19:35-08:00"
-    },
-    "TxnDate": "2025-11-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "BT*BUILDERTREND OMAHA NE XXXX5014",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "BT*BUILDERTREND OMAHA NE XXXX5014",
-        "Amount": 668.26,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Office Supplies & Software"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
         },
         "CustomExtensions": [
           {
@@ -9846,168 +11360,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "29",
-      "name": "PA Landers Inc.",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 1909.9,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18474",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-08T19:24:42-08:00",
-      "LastUpdatedTime": "2025-12-10T09:32:39-08:00"
-    },
-    "TxnDate": "2025-11-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX3011",
-    "LinkedTxn": [
-      {
-        "TxnId": "18475",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "PA LANDERS INC HANOVER MA XXXX3011",
-        "Amount": 1909.9,
-        "LinkedTxn": [
-          {
-            "TxnId": "18475",
-            "TxnType": "ReimburseCharge"
-          }
-        ],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "855",
-            "name": "30 Pleasant Park Dr., Mashpee"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "HasBeenBilled",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "484682130"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "50",
-      "name": "Amex Gold"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "366",
-      "name": "Lowe's",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 57.35,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18472",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-08T19:08:49-08:00",
-      "LastUpdatedTime": "2025-12-08T19:08:49-08:00"
-    },
-    "TxnDate": "2025-11-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "LOWES.COM X-XXX-XXX-6937 NC XXXX1023",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "LOWES.COM X-XXX-XXX-6937 NC XXXX1023",
-        "Amount": 57.35,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "904",
-            "name": "53 Bluff Ave, Mashpee, MA (2nd Phase)"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "541155823"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "50",
-      "name": "Amex Gold"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "138",
       "name": "American Express",
       "type": "Vendor"
@@ -11317,7 +12669,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-11-10T10:02:12-08:00",
-      "LastUpdatedTime": "2025-11-15T09:40:37-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:28-08:00"
     },
     "TxnDate": "2025-10-20",
     "CurrencyRef": {
@@ -11368,7 +12720,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -11395,7 +12747,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -11422,7 +12774,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -11449,7 +12801,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -11493,7 +12845,7 @@
             "value": "6",
             "name": "Bank Charges & Fees"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -12158,7 +13510,7 @@
     "SyncToken": "1",
     "MetaData": {
       "CreateTime": "2025-11-13T11:05:55-08:00",
-      "LastUpdatedTime": "2025-11-15T08:54:33-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:31-08:00"
     },
     "DocNumber": "1921",
     "TxnDate": "2025-10-31",
@@ -12194,7 +13546,7 @@
             "value": "10",
             "name": "Legal & Professional Services"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -12268,124 +13620,6 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "49",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "29",
-      "name": "PA Landers Inc.",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 1500.3,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18119",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-13T06:21:13-08:00",
-      "LastUpdatedTime": "2025-11-13T06:21:13-08:00"
-    },
-    "TxnDate": "2025-11-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "PA LANDERS INC HANOVER MA XXXX5014",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
-        "Amount": 478.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
-        "Amount": 510.95,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "59",
-            "name": "33 Running Light Way, Mashpee"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "33142387"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "Description": "PA LANDERS INC HANOVER MA XXXX5014",
-        "Amount": 510.95,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "59",
-            "name": "33 Running Light Way, Mashpee"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "33142387"
         },
         "CustomExtensions": []
       }
@@ -12660,7 +13894,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -12692,7 +13926,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -12801,7 +14035,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -12836,7 +14070,7 @@
             "value": "59",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -13159,7 +14393,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-11-10T10:58:55-08:00",
-      "LastUpdatedTime": "2025-11-10T10:58:55-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:31-08:00"
     },
     "TxnDate": "2025-10-16",
     "CurrencyRef": {
@@ -13194,7 +14428,7 @@
             "value": "13",
             "name": "Office Supplies & Software"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -13935,7 +15169,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-11-10T10:03:10-08:00",
-      "LastUpdatedTime": "2025-11-10T10:03:10-08:00"
+      "LastUpdatedTime": "2025-12-27T03:42:31-08:00"
     },
     "TxnDate": "2025-10-23",
     "CurrencyRef": {
@@ -13970,7 +15204,7 @@
             "value": "17",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }

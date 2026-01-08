@@ -2,11 +2,2395 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "51246",
+    "Id": "53810",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-23T12:06:52-08:00",
+      "LastUpdatedTime": "2025-12-24T11:24:46-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3063",
+    "TxnDate": "2025-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,028 sq ft - Rough Carpentry 1",
+        "Amount": 15534.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1894",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 15534.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,991 sq ft - Rough Carpentry 2",
+        "Amount": 15251.06,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1895",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
+          },
+          "UnitPrice": 15251.06,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Bedroom 5 Option",
+        "Amount": 666.67,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1981",
+            "name": "PH - Wheelock Farm:65856 - All Plans"
+          },
+          "UnitPrice": 666.67,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Boxed Ceiling - Dining Room",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1892",
+            "name": "PH - Wheelock Farm:71001 - All Plans"
+          },
+          "UnitPrice": 1000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Fireplace Electric - Gathering Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1890",
+            "name": "PH - Wheelock Farm:13958 - Continental / Hardwick / Newberry / Wellington"
+          },
+          "UnitPrice": 900,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Elevation 1",
+        "Amount": 2900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1903",
+            "name": "PH - Wheelock Farm:63559 - Hardwick"
+          },
+          "UnitPrice": 2900,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 36252.21,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "740689259"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3428",
+      "name": "Lot 33 -  Wheelock Farm"
+    },
+    "BillAddr": {
+      "Id": "19318",
+      "Line1": "Wheelock Farm 8856  - Pulte Homes MS - 1074",
+      "Line2": "Hardwick V"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 36252.21,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52032",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-24T12:42:59-07:00",
+      "LastUpdatedTime": "2025-12-24T11:17:23-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3037",
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,549 sqft - Base First Floor",
+        "Amount": 11865.34,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3263",
+            "name": "PH - Bates Quarry:Base First Floor - Chablis"
+          },
+          "UnitPrice": 11865.34,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "752 sqft - Base Second Floor",
+        "Amount": 5760.32,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3264",
+            "name": "PH - Bates Quarry:Base Second Floor - Chablis"
+          },
+          "UnitPrice": 5760.32,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window @ Flex 2",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3269",
+            "name": "PH - Bates Quarry:13928 - Caserta / Chablis"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Window @ Owner's Suite",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3270",
+            "name": "PH - Bates Quarry:13934 - All Plans"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Window @ Bedroom 2",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3273",
+            "name": "PH - Bates Quarry:13937 - Abbeyville / Chablis"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Window @ Flex",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3276",
+            "name": "PH - Bates Quarry:61523 - Abbeyville / Caserta / Chablis"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Window(s) @ Gathering Room",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3289",
+            "name": "PH - Bates Quarry:65368 - Chablis / Tuscan"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Boxed Ceiling @ Owner's Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3303",
+            "name": "PH - Bates Quarry:69162 - All Plans"
+          },
+          "UnitPrice": 1000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Basement - Full 8' Finished",
+        "Amount": 7100,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3308",
+            "name": "PH - Bates Quarry:69457 - Chablis"
+          },
+          "UnitPrice": 7100,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "French Door",
+        "Amount": 150,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3302",
+            "name": "PH - Bates Quarry:69160 - Chablis / Salerno / Tuscan"
+          },
+          "UnitPrice": 150,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 11,
+        "Description": "Elevation 4",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3286",
+            "name": "PH - Bates Quarry:63562 - Chablis"
+          },
+          "UnitPrice": 1200,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 29575.66,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "693169776"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3372",
+      "name": "Lot 17 - Bates Quarry"
+    },
+    "BillAddr": {
+      "Id": "17792",
+      "Line1": "Lot 17 - Bates Quarry - 9304",
+      "Line2": "7 Sandtrap Circle",
+      "Line3": "Chablis"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 29575.66,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52031",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-24T12:39:00-07:00",
+      "LastUpdatedTime": "2025-12-24T11:16:06-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3036",
+    "TxnDate": "2025-10-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,562 sqft - Base First Floor",
+        "Amount": 11964.92,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3261",
+            "name": "PH - Bates Quarry:Base First Floor - Caserta"
+          },
+          "UnitPrice": 11964.92,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "880 sqft - Base Second Floor",
+        "Amount": 6740.8,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3262",
+            "name": "PH - Bates Quarry:Base Second Floor - Caserta"
+          },
+          "UnitPrice": 6740.8,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window @ Flex 2",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3269",
+            "name": "PH - Bates Quarry:13928 - Caserta / Chablis"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Window @ Owner's Suite",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3270",
+            "name": "PH - Bates Quarry:13934 - All Plans"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Window @ Cafe",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3271",
+            "name": "PH - Bates Quarry:13935 - Abbeyville / Caserta / Salerno"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Window @ Loft",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3272",
+            "name": "PH - Bates Quarry:13936 - Caserta"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Window @ Flex",
+        "Amount": 500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3276",
+            "name": "PH - Bates Quarry:61523 - Abbeyville / Caserta / Chablis"
+          },
+          "UnitPrice": 500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Boxed Ceiling @ Owner's Suite",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3303",
+            "name": "PH - Bates Quarry:69162 - All Plans"
+          },
+          "UnitPrice": 1000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Basement - Full 8' Finished",
+        "Amount": 6200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3307",
+            "name": "PH - Bates Quarry:69457 - Caserta"
+          },
+          "UnitPrice": 6200,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Elevation 4",
+        "Amount": 700,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3285",
+            "name": "PH - Bates Quarry:63562 - Caserta"
+          },
+          "UnitPrice": 700,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 29105.72,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "693165834"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3371",
+      "name": "Lot 16 - Bates Quarry"
+    },
+    "BillAddr": {
+      "Id": "19275",
+      "Line1": "Lot 16 - Bates Quarry - 9304",
+      "Line2": "9 Sandtrap Circle",
+      "Line3": "Caserta"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 29105.72,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53546",
     "SyncToken": "3",
     "MetaData": {
+      "CreateTime": "2025-12-16T09:39:36-08:00",
+      "LastUpdatedTime": "2025-12-24T11:10:42-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3059",
+    "TxnDate": "2025-12-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Base - 3309 sq",
+        "Amount": 14113.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000121",
+            "name": "TB - Owls Nest-Regency:Base First Floor - Chatham Modern Farmhouse"
+          },
+          "UnitPrice": 14113.5,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Base - Wall Frame Second Floor",
+        "Amount": 13616.5,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000152",
+            "name": "TB - Owls Nest-Regency:Base Second Floor - Chatham"
+          },
+          "UnitPrice": 13616.5,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Full Bath/Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000191",
+            "name": "TB - Owls Nest-Regency:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Open Railing",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000157",
+            "name": "TB - Owls Nest-Regency:201 - Chatham"
+          },
+          "UnitPrice": 0,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001591",
+            "name": "TB - Owls Nest-Regency:020400 - All Plans"
+          },
+          "UnitPrice": -500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Covered Deck - Walkout",
+        "Amount": 4300,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000182",
+            "name": "TB - Owls Nest-Regency:263316 - Chatham"
+          },
+          "UnitPrice": 4300,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Walkout Basement",
+        "Amount": 4900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000162",
+            "name": "TB - Owls Nest-Regency:017 - Chatham"
+          },
+          "UnitPrice": 4900,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 36680,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "735967904"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3420",
+      "name": "Lot 120 - Owls Nest"
+    },
+    "BillAddr": {
+      "Id": "18998",
+      "Line1": "The Pinehills - Owls Nest",
+      "Line2": "46 Loons Call",
+      "Line3": "Chatham Modern Farmhouse"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 36680,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53108",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-08T11:25:36-08:00",
+      "LastUpdatedTime": "2025-12-24T10:55:11-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3056",
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,815 sqft - Rough Carpentry - First Draw",
+        "Amount": 14927,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3256",
+            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Sutton Eastern Shore"
+          },
+          "UnitPrice": 14927,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "378 sqft - Rough Carpentry - Second Draw",
+        "Amount": 7877,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010001741",
+            "name": "TB - Willis Brook at Lynnfield:Base Second Draw - Sutton"
+          },
+          "UnitPrice": 7877,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Single-Panel Gliding Door-8x8 with 4' Sidelight-Great Room",
+        "Amount": 350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3209",
+            "name": "TB - Willis Brook at Lynnfield:026539 - All Plans"
+          },
+          "UnitPrice": 350,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Extended Garage Depth 4'",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3216",
+            "name": "TB - Willis Brook at Lynnfield:263061 - All Plans"
+          },
+          "UnitPrice": 1200,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 24354,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "730298812"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3406",
+      "name": "Lot 06 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "18719",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "12 Stableford Court",
+      "Line3": "Sutton Eastern Shore"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 24354,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52465",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-11-11T05:05:51-08:00",
+      "LastUpdatedTime": "2025-12-24T10:54:33-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3045",
+    "TxnDate": "2025-11-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2,028 sq ft - Rough Carpentry 1",
+        "Amount": 15534.48,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1894",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 15534.48,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,991 sq ft - Rough Carpentry 2",
+        "Amount": 15251.06,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1895",
+            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
+          },
+          "UnitPrice": 15251.06,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Window Option @ Cafe",
+        "Amount": 810,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1548",
+            "name": "PH - Woodland Hill:13935 Hardwick"
+          },
+          "UnitPrice": 405,
+          "UnitCostPrice": 0,
+          "Qty": 2,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Window Option @ Living Room",
+        "Amount": 810,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1825",
+            "name": "PH - Rookery Lane at Concord:13942 - Hardwick - 1st Floor"
+          },
+          "UnitPrice": 405,
+          "UnitCostPrice": 0,
+          "Qty": 2,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Bay Window @ Dining Room Option",
+        "Amount": 1000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1910",
+            "name": "PH - Wheelock Farm:39000 - Hardwick"
+          },
+          "UnitPrice": 1000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Window Option @ Gathering Room",
+        "Amount": 810,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1550",
+            "name": "PH - Woodland Hill:65368 Hardwick"
+          },
+          "UnitPrice": 405,
+          "UnitCostPrice": 0,
+          "Qty": 2,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Basement - Daylight Unfinished",
+        "Amount": 2025,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1540",
+            "name": "PH - Woodland Hill:68553 Hardwick"
+          },
+          "UnitPrice": 2025,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Tray Celling @ Owner's Suite",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1555",
+            "name": "PH - Woodland Hill:69162 Hardwick"
+          },
+          "UnitPrice": 900,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "Tray Celling @ Dining Room",
+        "Amount": 900,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1554",
+            "name": "PH - Woodland Hill:71001 Hardwick"
+          },
+          "UnitPrice": 900,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 10,
+        "Description": "Elevation 2",
+        "Amount": 3500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1904",
+            "name": "PH - Wheelock Farm:63560 - Hardwick"
+          },
+          "UnitPrice": 3500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 41540.54,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "631654773"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3292",
+      "name": "Lot 04 - Rookery Lane at Concord"
+    },
+    "BillAddr": {
+      "Id": "18126",
+      "Line1": "Rookery Lane at Concord - 8616",
+      "Line2": "56 Rookery Lane",
+      "Line3": "Hardwick V"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 41540.54,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "AcceptedBy": "Guilherme Costa",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52780",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-11-20T07:46:26-08:00",
+      "LastUpdatedTime": "2025-12-24T08:16:56-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3050",
+    "TxnDate": "2025-11-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Siding",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Siding Installation per plan \nLabor only, Including front porch ceiling installation ",
+        "Amount": 14800,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 14800,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 14800,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "715643892"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3401",
+      "name": "98 Central St Natick"
+    },
+    "BillAddr": {
+      "Id": "18585",
+      "Line1": "Autumn Leaf Homes"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 14800,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "britton.bradford@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-11-20T07:46:36-08:00"
+    }
+  },
+  {
+    "AcceptedBy": "Guilherme Costa",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52980",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-01T13:34:09-08:00",
+      "LastUpdatedTime": "2025-12-24T08:16:52-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3052",
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Roof",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Roof labor and material \nRoof Black,30yr architectural shingles\nBlack drip edge ",
+        "Amount": 10500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 10500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 10500,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "715643892"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3401",
+      "name": "98 Central St Natick"
+    },
+    "BillAddr": {
+      "Id": "18584",
+      "Line1": "Autumn Leaf Homes"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 10500,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "britton.bradford@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-12-01T13:34:18-08:00"
+    }
+  },
+  {
+    "AcceptedBy": "Guilherme Costa",
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52986",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-12-02T12:58:57-08:00",
+      "LastUpdatedTime": "2025-12-24T08:16:46-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3053",
+    "TxnDate": "2025-12-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Frame",
+    "TxnStatus": "Accepted",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Rough Frame by plan, including Finish basement, Attic, windows and exterior doors installation and rough deck frame.\nNails \n",
+        "Amount": 37000,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "20",
+            "name": "Description"
+          },
+          "UnitPrice": 37000,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 37000,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "715643892"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3401",
+      "name": "98 Central St Natick"
+    },
+    "BillAddr": {
+      "Id": "18646",
+      "Line1": "Autumn Leaf Homes"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 37000,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "EmailSent",
+    "BillEmail": {
+      "Address": "britton.bradford@gmail.com"
+    },
+    "DeliveryInfo": {
+      "DeliveryType": "Email",
+      "DeliveryTime": "2025-12-05T06:47:57-08:00"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53762",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-22T14:52:41-08:00",
+      "LastUpdatedTime": "2025-12-22T14:52:41-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3062",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2468 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000371",
+            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
+          },
+          "UnitPrice": 23283,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2226 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000455",
+            "name": "TB - Newbury Glen:015 - Williamstown"
+          },
+          "UnitPrice": 400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000579",
+            "name": "TB - Newbury Glen:201 Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 0,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 36220,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "740267203"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3427",
+      "name": "Lot 08 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "19276",
+      "Line1": "Newbury Glen",
+      "Line2": "12 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 36220,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53107",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-08T10:57:50-08:00",
+      "LastUpdatedTime": "2025-12-18T11:46:58-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3055",
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53629",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,823 sqft (total) - Rough Carpentry - First Draw",
+        "Amount": 9947,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3251",
+            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Westford Eastern Shore"
+          },
+          "UnitPrice": 9947,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,823 sqft (total) - Rough Carpentry - First Draw",
+        "Amount": 9947,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3251",
+            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Westford Eastern Shore"
+          },
+          "UnitPrice": 9947,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Extended Garage Depth 4'",
+        "Amount": 1200,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3216",
+            "name": "TB - Willis Brook at Lynnfield:263061 - All Plans"
+          },
+          "UnitPrice": 1200,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 21094,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "730288082"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3405",
+      "name": "Lot 12 - Willis Brook at Lynnfield"
+    },
+    "BillAddr": {
+      "Id": "18987",
+      "Line1": "Willis Brook at Lynnfield",
+      "Line2": "3 Stableford Court",
+      "Line3": "Westford Eastern Shore"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 21094,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53109",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-12-08T12:43:44-08:00",
+      "LastUpdatedTime": "2025-12-18T11:42:09-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3057",
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Converted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53310",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "53627",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2468 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000371",
+            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
+          },
+          "UnitPrice": 23283,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2226 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000372",
+            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
+          },
+          "UnitPrice": 12537,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000455",
+            "name": "TB - Newbury Glen:015 - Williamstown"
+          },
+          "UnitPrice": 400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000686",
+            "name": "TB - Newbury Glen:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000566",
+            "name": "TB - Newbury Glen:201 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 0,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Finished Basement",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000580",
+            "name": "TB - Newbury Glen:263018 Williamstown Modern Farmhouse"
+          },
+          "UnitPrice": 6500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 42970,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "730329810"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3407",
+      "name": "Lot 09 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "19101",
+      "Line1": "Newbury Glen",
+      "Line2": "10 Fitch Avenue",
+      "Line3": "Hopkinton, MA 01748"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 42970,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53618",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-18T09:34:36-08:00",
+      "LastUpdatedTime": "2025-12-18T09:38:53-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3061",
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53619",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Elevation 5",
+        "Amount": 2725,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3196",
+            "name": "PH - Riverview THs:63563 - Southbrook"
+          },
+          "UnitPrice": 2725,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 24200,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "737327923"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3424",
+      "name": "Lot 24 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "19093",
+      "Line1": "Riverview THs - 9042 + 50s - 9041",
+      "Line2": "76 East Point Drive",
+      "Line3": "Southbrook"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 24200,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51246",
+    "SyncToken": "5",
+    "MetaData": {
       "CreateTime": "2025-09-25T09:53:31-07:00",
-      "LastUpdatedTime": "2025-12-11T13:49:22-08:00"
+      "LastUpdatedTime": "2025-12-18T08:17:41-08:00"
     },
     "CustomField": [],
     "DocNumber": "3024",
@@ -27,6 +2411,14 @@
       },
       {
         "TxnId": "53356",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "53610",
+        "TxnType": "Invoice"
+      },
+      {
+        "TxnId": "53616",
         "TxnType": "Invoice"
       }
     ],
@@ -378,6 +2770,388 @@
     "BillEmail": {
       "Address": "8884210781@onlinecapturecenter.com"
     }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53550",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-16T10:38:58-08:00",
+      "LastUpdatedTime": "2025-12-18T08:14:10-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3060",
+    "TxnDate": "2025-12-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53614",
+        "TxnType": "Invoice"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1,294 sqft - Base House",
+        "Amount": 10157.9,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3190",
+            "name": "PH - Riverview THs:Base - First Floor"
+          },
+          "UnitPrice": 10157.9,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "1,006 sqft - Base House",
+        "Amount": 11317.1,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3191",
+            "name": "PH - Riverview THs:Base - Second Floor"
+          },
+          "UnitPrice": 11317.1,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Elevation 3",
+        "Amount": 1350,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "3194",
+            "name": "PH - Riverview THs:63561 - Southbrook"
+          },
+          "UnitPrice": 1350,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 22825,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "735999253"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3421",
+      "name": "Lot 23 - Riverview"
+    },
+    "BillAddr": {
+      "Id": "14685"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 22825,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet",
+    "BillEmail": {
+      "Address": "8884210781@onlinecapturecenter.com"
+    }
+  },
+  {
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53110",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-08T14:34:15-08:00",
+      "LastUpdatedTime": "2025-12-16T07:54:52-08:00"
+    },
+    "CustomField": [],
+    "DocNumber": "3058",
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "TxnStatus": "Pending",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2484 sf",
+        "Amount": 23283,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000395",
+            "name": "TB - Lakemont At Hudson:Base First Draw - Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 23283,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "2303 sf",
+        "Amount": 12537,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000406",
+            "name": "TB - Lakemont At Hudson:Base Second Draw - Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 12537,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Full Bath Finished Lower Level",
+        "Amount": 250,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000686",
+            "name": "TB - Newbury Glen:383 - All Plans"
+          },
+          "UnitPrice": 250,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Exterior Basement Entrance",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000455",
+            "name": "TB - Newbury Glen:015 - Williamstown"
+          },
+          "UnitPrice": 400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000532",
+            "name": "TB - Newbury Glen:036415 Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "Open Railing Replaces Painted Half Wall",
+        "Amount": 0,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000579",
+            "name": "TB - Newbury Glen:201 Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 0,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "Soffit Ceiling Dining Room",
+        "Amount": 400,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000532",
+            "name": "TB - Newbury Glen:036415 Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 400,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "Finished Basement",
+        "Amount": 6500,
+        "DetailType": "SalesItemLineDetail",
+        "SalesItemLineDetail": {
+          "ItemRef": {
+            "value": "1010000569",
+            "name": "TB - Newbury Glen:263018 Williamstown Modern Craftsman"
+          },
+          "UnitPrice": 6500,
+          "UnitCostPrice": 0,
+          "Qty": 1,
+          "ItemAccountRef": {
+            "value": "1",
+            "name": "Sales"
+          },
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CostAmount": 0,
+        "HomeCostAmount": 0,
+        "CustomExtensions": []
+      },
+      {
+        "Amount": 43770,
+        "DetailType": "SubTotalLineDetail",
+        "SubTotalLineDetail": {}
+      }
+    ],
+    "ProjectRef": {
+      "value": "730377287"
+    },
+    "TotalCostAmount": 0,
+    "HomeTotalCostAmount": 0,
+    "CustomerRef": {
+      "value": "3408",
+      "name": "Lot 03 - Newbury Glen"
+    },
+    "BillAddr": {
+      "Id": "18979",
+      "Line1": "Newbury Glen",
+      "Line2": "7 Myrtle Avenue",
+      "Line3": "Hopkinton, MA 01748"
+    },
+    "FreeFormAddress": false,
+    "TotalAmt": 43770,
+    "ApplyTaxAfterDiscount": false,
+    "PrintStatus": "NotSet",
+    "EmailStatus": "NotSet"
   },
   {
     "domain": "QBO",
@@ -1022,213 +3796,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "53109",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-12-08T12:43:44-08:00",
-      "LastUpdatedTime": "2025-12-11T10:15:47-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3057",
-    "TxnDate": "2025-12-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Accepted",
-    "LinkedTxn": [
-      {
-        "TxnId": "53310",
-        "TxnType": "Invoice"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2468 sf",
-        "Amount": 23283,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000371",
-            "name": "TB - Newbury Glen:Base First Draw - Williamstown"
-          },
-          "UnitPrice": 23283,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2226 sf",
-        "Amount": 12537,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000372",
-            "name": "TB - Newbury Glen:Base Second Draw - Williamstown"
-          },
-          "UnitPrice": 12537,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Exterior Basement Entrance",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000455",
-            "name": "TB - Newbury Glen:015 - Williamstown"
-          },
-          "UnitPrice": 400,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000686",
-            "name": "TB - Newbury Glen:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Open Railing Replaces Painted Half Wall",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000566",
-            "name": "TB - Newbury Glen:201 Williamstown Modern Farmhouse"
-          },
-          "UnitPrice": 0,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Finished Basement",
-        "Amount": 6500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000580",
-            "name": "TB - Newbury Glen:263018 Williamstown Modern Farmhouse"
-          },
-          "UnitPrice": 6500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 42970,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "730329810"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3407",
-      "name": "Lot 09 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "18720",
-      "Line1": "Newbury Glen",
-      "Line2": "10 Fitch Avenue",
-      "Line3": "Hopkinton, MA 01748"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 42970,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "52654",
     "SyncToken": "9",
     "MetaData": {
@@ -1382,505 +3949,6 @@
     },
     "FreeFormAddress": false,
     "TotalAmt": 36220,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "53110",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-08T14:34:15-08:00",
-      "LastUpdatedTime": "2025-12-08T14:34:15-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3058",
-    "TxnDate": "2025-12-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2484 sf",
-        "Amount": 23283,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000395",
-            "name": "TB - Lakemont At Hudson:Base First Draw - Williamstown Modern Craftsman"
-          },
-          "UnitPrice": 23283,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "2303 sf",
-        "Amount": 12537,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000406",
-            "name": "TB - Lakemont At Hudson:Base Second Draw - Williamstown Modern Craftsman"
-          },
-          "UnitPrice": 12537,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Full Bath Finished Lower Level",
-        "Amount": 250,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000686",
-            "name": "TB - Newbury Glen:383 - All Plans"
-          },
-          "UnitPrice": 250,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Exterior Basement Entrance",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000455",
-            "name": "TB - Newbury Glen:015 - Williamstown"
-          },
-          "UnitPrice": 400,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000532",
-            "name": "TB - Newbury Glen:036415 Williamstown Modern Craftsman"
-          },
-          "UnitPrice": 400,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Open Railing Replaces Painted Half Wall",
-        "Amount": 0,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000579",
-            "name": "TB - Newbury Glen:201 Williamstown Modern Craftsman"
-          },
-          "UnitPrice": 0,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Soffit Ceiling Dining Room",
-        "Amount": 400,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010000532",
-            "name": "TB - Newbury Glen:036415 Williamstown Modern Craftsman"
-          },
-          "UnitPrice": 400,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 37270,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "730377287"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3408",
-      "name": "Lot 03 - Newbury Glen"
-    },
-    "BillAddr": {
-      "Id": "18722",
-      "Line1": "Newbury Glen",
-      "Line2": "7 Myrtle Avenue",
-      "Line3": "Hopkinton, MA 01748"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 37270,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "53108",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-08T11:25:36-08:00",
-      "LastUpdatedTime": "2025-12-08T11:25:36-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3056",
-    "TxnDate": "2025-12-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1,815 sqft - Rough Carpentry - First Draw",
-        "Amount": 14927,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3256",
-            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Sutton Eastern Shore"
-          },
-          "UnitPrice": 14927,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "378 sqft - Rough Carpentry - Second Draw",
-        "Amount": 7877,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1010001741",
-            "name": "TB - Willis Brook at Lynnfield:Base Second Draw - Sutton"
-          },
-          "UnitPrice": 7877,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Single-Panel Gliding Door-8x8 with 4' Sidelight-Great Room",
-        "Amount": 350,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3209",
-            "name": "TB - Willis Brook at Lynnfield:026539 - All Plans"
-          },
-          "UnitPrice": 350,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Extended Garage Depth 4'",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3216",
-            "name": "TB - Willis Brook at Lynnfield:263061 - All Plans"
-          },
-          "UnitPrice": 1200,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 24354,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "730298812"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3406",
-      "name": "Lot 06 - Willis Brook at Lynnfield"
-    },
-    "BillAddr": {
-      "Id": "18719",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "12 Stableford Court",
-      "Line3": "Sutton Eastern Shore"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 24354,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "53107",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-08T10:57:50-08:00",
-      "LastUpdatedTime": "2025-12-08T10:57:50-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3055",
-    "TxnDate": "2025-12-08",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1,823 sqft (total) - Rough Carpentry - First Draw",
-        "Amount": 9947,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3251",
-            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Westford Eastern Shore"
-          },
-          "UnitPrice": 9947,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1,823 sqft (total) - Rough Carpentry - First Draw",
-        "Amount": 9947,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3251",
-            "name": "TB - Willis Brook at Lynnfield:Base First Draw - Westford Eastern Shore"
-          },
-          "UnitPrice": 9947,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Extended Garage Depth 4'",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3216",
-            "name": "TB - Willis Brook at Lynnfield:263061 - All Plans"
-          },
-          "UnitPrice": 1200,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 21094,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "730288082"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3405",
-      "name": "Lot 12 - Willis Brook at Lynnfield"
-    },
-    "BillAddr": {
-      "Id": "18718",
-      "Line1": "Willis Brook at Lynnfield",
-      "Line2": "3 Stableford Court",
-      "Line3": "Westford Eastern Shore"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 21094,
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
@@ -4739,83 +6807,6 @@
     }
   },
   {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52986",
-    "SyncToken": "3",
-    "MetaData": {
-      "CreateTime": "2025-12-02T12:58:57-08:00",
-      "LastUpdatedTime": "2025-12-05T06:48:00-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3053",
-    "TxnDate": "2025-12-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Frame",
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Rough Frame by plan, including Finish basement, Attic, windows and exterior doors installation and rough deck frame.\nNails \n",
-        "Amount": 40260,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 40260,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 40260,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "715643892"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3401",
-      "name": "98 Central St Natick"
-    },
-    "BillAddr": {
-      "Id": "18646",
-      "Line1": "Autumn Leaf Homes"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 40260,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "britton.bradford@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-12-05T06:47:57-08:00"
-    }
-  },
-  {
     "AcceptedDate": "2025-12-01",
     "domain": "QBO",
     "sparse": false,
@@ -4891,160 +6882,6 @@
     "DeliveryInfo": {
       "DeliveryType": "Email",
       "DeliveryTime": "2025-12-01T06:34:55-08:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52780",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-11-20T07:46:26-08:00",
-      "LastUpdatedTime": "2025-12-02T12:53:25-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3050",
-    "TxnDate": "2025-11-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Siding",
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Siding Installation per plan \nLabor only, Including front porch ceiling installation ",
-        "Amount": 14800,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 14800,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 14800,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "715643892"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3401",
-      "name": "98 Central St Natick"
-    },
-    "BillAddr": {
-      "Id": "18585",
-      "Line1": "Autumn Leaf Homes"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 14800,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "britton.bradford@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-11-20T07:46:36-08:00"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52980",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-12-01T13:34:09-08:00",
-      "LastUpdatedTime": "2025-12-02T12:53:05-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3052",
-    "TxnDate": "2025-12-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Roof",
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Roof labor and material \nRoof Black,30yr architectural shingles\nBlack drip edge ",
-        "Amount": 10500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "20",
-            "name": "Description"
-          },
-          "UnitPrice": 10500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 10500,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "715643892"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3401",
-      "name": "98 Central St Natick"
-    },
-    "BillAddr": {
-      "Id": "18584",
-      "Line1": "Autumn Leaf Homes"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 10500,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "EmailSent",
-    "BillEmail": {
-      "Address": "britton.bradford@gmail.com"
-    },
-    "DeliveryInfo": {
-      "DeliveryType": "Email",
-      "DeliveryTime": "2025-12-01T13:34:18-08:00"
     }
   },
   {
@@ -5813,6 +7650,12 @@
       "name": "United States Dollar"
     },
     "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53849",
+        "TxnType": "Invoice"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -7186,314 +9029,6 @@
   {
     "domain": "QBO",
     "sparse": false,
-    "Id": "52465",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-11-11T05:05:51-08:00",
-      "LastUpdatedTime": "2025-11-11T05:22:47-08:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3045",
-    "TxnDate": "2025-11-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "2,028 sq ft - Rough Carpentry 1",
-        "Amount": 15534.48,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1894",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 1st Floor"
-          },
-          "UnitPrice": 15534.48,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "1,991 sq ft - Rough Carpentry 2",
-        "Amount": 15251.06,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1895",
-            "name": "PH - Wheelock Farm:Base - Hardwick - 2nd Floor"
-          },
-          "UnitPrice": 15251.06,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window Option @ Cafe",
-        "Amount": 810,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1548",
-            "name": "PH - Woodland Hill:13935 Hardwick"
-          },
-          "UnitPrice": 405,
-          "UnitCostPrice": 0,
-          "Qty": 2,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Window Option @ Living Room",
-        "Amount": 810,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1825",
-            "name": "PH - Rookery Lane at Concord:13942 - Hardwick - 1st Floor"
-          },
-          "UnitPrice": 405,
-          "UnitCostPrice": 0,
-          "Qty": 2,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Bay Window @ Dining Room Option",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1910",
-            "name": "PH - Wheelock Farm:39000 - Hardwick"
-          },
-          "UnitPrice": 1000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Window Option @ Gathering Room",
-        "Amount": 810,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1550",
-            "name": "PH - Woodland Hill:65368 Hardwick"
-          },
-          "UnitPrice": 405,
-          "UnitCostPrice": 0,
-          "Qty": 2,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Basement - Daylight Unfinished",
-        "Amount": 2025,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1540",
-            "name": "PH - Woodland Hill:68553 Hardwick"
-          },
-          "UnitPrice": 2025,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Tray Celling @ Owner's Suite",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1555",
-            "name": "PH - Woodland Hill:69162 Hardwick"
-          },
-          "UnitPrice": 900,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Tray Celling @ Dining Room",
-        "Amount": 900,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1554",
-            "name": "PH - Woodland Hill:71001 Hardwick"
-          },
-          "UnitPrice": 900,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Elevation 2",
-        "Amount": 3500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "1904",
-            "name": "PH - Wheelock Farm:63560 - Hardwick"
-          },
-          "UnitPrice": 3500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 41540.54,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "631654773"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3292",
-      "name": "Lot 04 - Rookery Lane at Concord"
-    },
-    "BillAddr": {
-      "Id": "18126",
-      "Line1": "Rookery Lane at Concord - 8616",
-      "Line2": "56 Rookery Lane",
-      "Line3": "Hardwick V"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 41540.54,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
     "Id": "52462",
     "SyncToken": "0",
     "MetaData": {
@@ -8785,6 +10320,12 @@
       "name": "United States Dollar"
     },
     "TxnStatus": "Accepted",
+    "LinkedTxn": [
+      {
+        "TxnId": "53846",
+        "TxnType": "Invoice"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -9069,648 +10610,6 @@
     "ApplyTaxAfterDiscount": false,
     "PrintStatus": "NotSet",
     "EmailStatus": "NotSet"
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52032",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-24T12:42:59-07:00",
-      "LastUpdatedTime": "2025-10-24T12:48:10-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3037",
-    "TxnDate": "2025-10-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1,549 sqft - Base First Floor",
-        "Amount": 11865.34,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3263",
-            "name": "PH - Bates Quarry:Base First Floor - Chablis"
-          },
-          "UnitPrice": 11865.34,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "752 sqft - Base Second Floor",
-        "Amount": 5760.32,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3264",
-            "name": "PH - Bates Quarry:Base Second Floor - Chablis"
-          },
-          "UnitPrice": 5760.32,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window @ Flex 2",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3269",
-            "name": "PH - Bates Quarry:13928 - Caserta / Chablis"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Window @ Owner's Suite",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3270",
-            "name": "PH - Bates Quarry:13934 - All Plans"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Window @ Bedroom 2",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3273",
-            "name": "PH - Bates Quarry:13937 - Abbeyville / Chablis"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Window @ Flex",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3276",
-            "name": "PH - Bates Quarry:61523 - Abbeyville / Caserta / Chablis"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Window(s) @ Gathering Room",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3289",
-            "name": "PH - Bates Quarry:65368 - Chablis / Tuscan"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Boxed Ceiling @ Owner's Suite",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3303",
-            "name": "PH - Bates Quarry:69162 - All Plans"
-          },
-          "UnitPrice": 1000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Basement - Full 8' Finished",
-        "Amount": 7100,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3308",
-            "name": "PH - Bates Quarry:69457 - Chablis"
-          },
-          "UnitPrice": 7100,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "French Door",
-        "Amount": 150,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3302",
-            "name": "PH - Bates Quarry:69160 - Chablis / Salerno / Tuscan"
-          },
-          "UnitPrice": 150,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Description": "Elevation 4",
-        "Amount": 1200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3286",
-            "name": "PH - Bates Quarry:63562 - Chablis"
-          },
-          "UnitPrice": 1200,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 29575.66,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "693169776"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3372",
-      "name": "Lot 17 - Bates Quarry"
-    },
-    "BillAddr": {
-      "Id": "17792",
-      "Line1": "Lot 17 - Bates Quarry - 9304",
-      "Line2": "7 Sandtrap Circle",
-      "Line3": "Chablis"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 29575.66,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
-  },
-  {
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52031",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-24T12:39:00-07:00",
-      "LastUpdatedTime": "2025-10-24T12:39:00-07:00"
-    },
-    "CustomField": [],
-    "DocNumber": "3036",
-    "TxnDate": "2025-10-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "TxnStatus": "Pending",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1,562 sqft - Base First Floor",
-        "Amount": 11964.92,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3261",
-            "name": "PH - Bates Quarry:Base First Floor - Caserta"
-          },
-          "UnitPrice": 11964.92,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "880 sqft - Base Second Floor",
-        "Amount": 6740.8,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3262",
-            "name": "PH - Bates Quarry:Base Second Floor - Caserta"
-          },
-          "UnitPrice": 6740.8,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "Window @ Flex 2",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3269",
-            "name": "PH - Bates Quarry:13928 - Caserta / Chablis"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "Window @ Owner's Suite",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3270",
-            "name": "PH - Bates Quarry:13934 - All Plans"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "Window @ Cafe",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3271",
-            "name": "PH - Bates Quarry:13935 - Abbeyville / Caserta / Salerno"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "Window @ Loft",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3272",
-            "name": "PH - Bates Quarry:13936 - Caserta"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "Window @ Flex",
-        "Amount": 500,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3276",
-            "name": "PH - Bates Quarry:61523 - Abbeyville / Caserta / Chablis"
-          },
-          "UnitPrice": 500,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "Boxed Ceiling @ Owner's Suite",
-        "Amount": 1000,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3303",
-            "name": "PH - Bates Quarry:69162 - All Plans"
-          },
-          "UnitPrice": 1000,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "Basement - Full 8' Finished",
-        "Amount": 6200,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3307",
-            "name": "PH - Bates Quarry:69457 - Caserta"
-          },
-          "UnitPrice": 6200,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "Elevation 4",
-        "Amount": 700,
-        "DetailType": "SalesItemLineDetail",
-        "SalesItemLineDetail": {
-          "ItemRef": {
-            "value": "3285",
-            "name": "PH - Bates Quarry:63562 - Caserta"
-          },
-          "UnitPrice": 700,
-          "UnitCostPrice": 0,
-          "Qty": 1,
-          "ItemAccountRef": {
-            "value": "1",
-            "name": "Sales"
-          },
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CostAmount": 0,
-        "HomeCostAmount": 0,
-        "CustomExtensions": []
-      },
-      {
-        "Amount": 29105.72,
-        "DetailType": "SubTotalLineDetail",
-        "SubTotalLineDetail": {}
-      }
-    ],
-    "ProjectRef": {
-      "value": "693165834"
-    },
-    "TotalCostAmount": 0,
-    "HomeTotalCostAmount": 0,
-    "CustomerRef": {
-      "value": "3371",
-      "name": "Lot 16 - Bates Quarry"
-    },
-    "BillAddr": {
-      "Id": "17790",
-      "Line1": "Lot 16 - Bates Quarry - 9304",
-      "Line2": "9 Sandtrap Circle",
-      "Line3": "Caserta"
-    },
-    "FreeFormAddress": false,
-    "TotalAmt": 29105.72,
-    "ApplyTaxAfterDiscount": false,
-    "PrintStatus": "NotSet",
-    "EmailStatus": "NotSet",
-    "BillEmail": {
-      "Address": "8884210781@onlinecapturecenter.com"
-    }
   },
   {
     "domain": "QBO",

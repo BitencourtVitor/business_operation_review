@@ -1,6 +1,598 @@
 [
   {
     "VendorAddr": {
+      "Id": "10876",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18262",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-11-24T09:52:06-08:00",
+      "LastUpdatedTime": "2025-12-22T08:18:00-08:00"
+    },
+    "DocNumber": "3250",
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC, buildings 1-5",
+    "LinkedTxn": [
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "6",
+        "LineNum": 1,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "348713612"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 2,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "677",
+            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780539"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 3,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "678",
+            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363780868"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 4,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363781166"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "LineNum": 5,
+        "Description": "repairs of doors & windows buildings 1-5",
+        "Amount": 650,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "640",
+            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "155",
+            "name": "BACK CHARGE"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "347135234"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3250
+  },
+  {
+    "VendorAddr": {
+      "Id": "9769",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17027",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T06:46:10-07:00",
+      "LastUpdatedTime": "2025-12-22T08:18:00-08:00"
+    },
+    "DocNumber": "Building 4 - Saco BC",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Saco Riverside, LLC:Building 4 - Saco Riverside",
+    "LinkedTxn": [
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Back charge fix windows and doors leak",
+        "Amount": 1250.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "679",
+            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "363781166"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1250.75
+  },
+  {
+    "VendorAddr": {
+      "Id": "9752",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "17017",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-08-13T04:21:58-07:00",
+      "LastUpdatedTime": "2025-12-22T08:18:00-08:00"
+    },
+    "DocNumber": "Building 1 - Saco BC",
+    "TxnDate": "2025-08-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Building 1 - Saco Back Charge",
+    "LinkedTxn": [
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Change on closet doors height and addition trim",
+        "Amount": 6000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "348713612"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Back charge fix windows and doors leak",
+        "Amount": 1250.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "641",
+            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "348713612"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7250.75
+  },
+  {
+    "VendorAddr": {
+      "Id": "9108",
+      "Line1": "Premium Framing, Inc",
+      "Line2": "1B Landing Ln",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "16009",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-05-01T08:37:44-07:00",
+      "LastUpdatedTime": "2025-12-22T08:18:00-08:00"
+    },
+    "DocNumber": "8036",
+    "TxnDate": "2025-05-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18941",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Credit Memo: QV14622",
+        "Amount": 2408.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "609",
+            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "314692141"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "388",
+      "name": "Premium Framing, Inc"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2408.43
+  },
+  {
+    "VendorAddr": {
+      "Id": "11313",
+      "Line1": "Home Depot"
+    },
+    "Balance": 736.98,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18871",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-18T09:46:58-08:00",
+      "LastUpdatedTime": "2025-12-18T09:50:36-08:00"
+    },
+    "DocNumber": "134009624",
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "WC 12/12",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "0134009444\n1 1001754835\n5/4 in. x 6 in. x 12 ft. Ground\nContact Pressure-Treated\nPremium Southern Yellow Pine\nDecking Board\n14.18- 45 638.10-\n 2 1001753972\n1 in. x 8 in. x 8 ft. Ground\nContact Pressure-Treated Board\nSouthern Yellow Pine Lumber",
+        "Amount": 736.98,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Windows and Exterior Doors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "31",
+      "name": "Home Depot"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 736.98
+  },
+  {
+    "VendorAddr": {
+      "Id": "183"
+    },
+    "Balance": 538.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18872",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-18T09:47:44-08:00",
+      "LastUpdatedTime": "2025-12-18T09:47:44-08:00"
+    },
+    "DocNumber": "134009690",
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "0134008734\n1 1001753967\n1 in. x 6 in. x 12 ft. Appearance\nGrade Pressure Treated Ground\nContact Southern Pine Lumber\n8.89- 57 506.73-",
+        "Amount": 538.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Windows and Exterior Doors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "31",
+      "name": "Home Depot"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 538.4
+  },
+  {
+    "VendorAddr": {
       "Id": "11127",
       "Line1": "RBI Construction Group, Inc.",
       "Line2": "186 Main St",
@@ -613,166 +1205,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 640
-  },
-  {
-    "VendorAddr": {
-      "Id": "10876",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 3250,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18262",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-11-24T09:52:06-08:00",
-      "LastUpdatedTime": "2025-11-24T09:52:46-08:00"
-    },
-    "DocNumber": "3250",
-    "TxnDate": "2025-11-24",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Saco Riverside, LLC, buildings 1-5",
-    "Line": [
-      {
-        "Id": "6",
-        "LineNum": 1,
-        "Description": "repairs of doors & windows buildings 1-5",
-        "Amount": 650,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "641",
-            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "155",
-            "name": "BACK CHARGE"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "348713612"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 2,
-        "Description": "repairs of doors & windows buildings 1-5",
-        "Amount": 650,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "677",
-            "name": "Saco Riverside, LLC:Building 2 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "155",
-            "name": "BACK CHARGE"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "363780539"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 3,
-        "Description": "repairs of doors & windows buildings 1-5",
-        "Amount": 650,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "678",
-            "name": "Saco Riverside, LLC:Building 3 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "155",
-            "name": "BACK CHARGE"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "363780868"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 4,
-        "Description": "repairs of doors & windows buildings 1-5",
-        "Amount": 650,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "155",
-            "name": "BACK CHARGE"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "363781166"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 5,
-        "Description": "repairs of doors & windows buildings 1-5",
-        "Amount": 650,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "640",
-            "name": "Saco Riverside, LLC:Building 5 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "155",
-            "name": "BACK CHARGE"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "347135234"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3250
   },
   {
     "VendorAddr": {
@@ -1593,151 +2025,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "9769",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 1250.75,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17027",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-13T06:46:10-07:00",
-      "LastUpdatedTime": "2025-08-13T06:46:10-07:00"
-    },
-    "DocNumber": "Building 4 - Saco BC",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Saco Riverside, LLC:Building 4 - Saco Riverside",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Back charge fix windows and doors leak",
-        "Amount": 1250.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "679",
-            "name": "Saco Riverside, LLC:Building 4 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "363781166"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1250.75
-  },
-  {
-    "VendorAddr": {
-      "Id": "9752",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 7250.75,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "17017",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-08-13T04:21:58-07:00",
-      "LastUpdatedTime": "2025-08-13T04:21:58-07:00"
-    },
-    "DocNumber": "Building 1 - Saco BC",
-    "TxnDate": "2025-08-13",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Building 1 - Saco Back Charge",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Change on closet doors height and addition trim",
-        "Amount": 6000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "641",
-            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "348713612"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Back charge fix windows and doors leak",
-        "Amount": 1250.75,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "641",
-            "name": "Saco Riverside, LLC:Building 1 - Saco Riverside"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "348713612"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 7250.75
-  },
-  {
-    "VendorAddr": {
       "Id": "7556",
       "Line1": "Koopman Lumber",
       "Line2": "Dept 6420",
@@ -2315,65 +2602,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 297.93
-  },
-  {
-    "VendorAddr": {
-      "Id": "9108",
-      "Line1": "Premium Framing, Inc",
-      "Line2": "1B Landing Ln",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "Balance": 2408.43,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "16009",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-05-01T08:37:44-07:00",
-      "LastUpdatedTime": "2025-06-02T12:56:42-07:00"
-    },
-    "DocNumber": "8036",
-    "TxnDate": "2025-05-01",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Credit Memo: QV14622",
-        "Amount": 2408.43,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "609",
-            "name": "Tommy Galt.:5 Claflin Ave, Hopkinton, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "314692141"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "388",
-      "name": "Premium Framing, Inc"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2408.43
   },
   {
     "VendorAddr": {

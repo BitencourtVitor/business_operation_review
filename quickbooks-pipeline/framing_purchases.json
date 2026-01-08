@@ -1,6 +1,3345 @@
 [
   {
     "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2732",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 174.25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53845",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-25T17:23:47-08:00",
+      "LastUpdatedTime": "2025-12-25T17:23:47-08:00"
+    },
+    "TxnDate": "2025-12-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 174.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "204",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "3169",
+      "name": "EPL Construction",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "15154"
+    },
+    "TotalAmt": 2565.5,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53763",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-22T14:57:44-08:00",
+      "LastUpdatedTime": "2025-12-22T15:02:07-08:00"
+    },
+    "DocNumber": "2694",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "fee for check against cash",
+        "Amount": 2565.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "5",
+            "name": "Bank Charges & Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1580",
+      "name": "Premium Contractors Group, Inc",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "19267",
+      "Line1": "Premium Contractors Group, Inc",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, MA  01747",
+      "Line4": "United States"
+    },
+    "TotalAmt": 3665.94,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53755",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-22T13:22:59-08:00",
+      "LastUpdatedTime": "2025-12-22T15:02:07-08:00"
+    },
+    "DocNumber": "2692",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Office Costs October from Dezember 15th to 22nd",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Office Costs Dezember 15th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Office Costs Dezember 22nd",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3426",
+      "name": "Crack-X",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 3140,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53737",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-22T07:58:04-08:00",
+      "LastUpdatedTime": "2025-12-26T09:41:44-08:00"
+    },
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Crack-X Invoice 155 Elliot St, Ashland",
+    "LinkedTxn": [
+      {
+        "TxnId": "53738",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Crack-X Invoice 155 Elliot St, Ashland",
+        "Amount": 3140,
+        "LinkedTxn": [
+          {
+            "TxnId": "53738",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "Premium Contractors Group, Inc."
+          },
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "146",
+      "name": "DCU Business Checking 7418"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "101",
+      "name": "Premium Framing, Inc.",
+      "type": "Vendor"
+    },
+    "TotalAmt": 58396.5,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53734",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-22T05:01:39-08:00",
+      "LastUpdatedTime": "2025-12-22T05:43:09-08:00"
+    },
+    "DocNumber": "9057",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Funds transfer",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Funds transfer",
+        "Amount": 58396.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "198",
+            "name": "Mutual One Checking 8972"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "3184",
+      "name": "MMD Services, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "17201",
+      "Line1": "MMD Services, Inc.",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, MA  01747 US"
+    },
+    "TotalAmt": 1700,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53609",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-18T00:40:12-08:00",
+      "LastUpdatedTime": "2025-12-20T07:38:20-08:00"
+    },
+    "DocNumber": "2674",
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Labor",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Labor",
+        "Amount": 1700,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "RecurDataRef": {
+      "value": "101"
+    }
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "2521",
+      "name": "Guilherme M Costa",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "3246"
+    },
+    "TotalAmt": 688.32,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53607",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-17T15:19:50-08:00",
+      "LastUpdatedTime": "2025-12-17T15:21:09-08:00"
+    },
+    "DocNumber": "2665",
+    "TxnDate": "2025-12-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payout Guilherme",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Payout Guilherme",
+        "Amount": 688.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 80.27,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "48571",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-05-27T14:53:30-07:00",
+      "LastUpdatedTime": "2025-12-18T06:11:53-08:00"
+    },
+    "TxnDate": "2025-05-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Foundation Truck",
+    "LinkedTxn": [
+      {
+        "TxnId": "48572",
+        "TxnType": "ReimburseCharge"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Foundation Truck",
+        "Amount": 80.27,
+        "LinkedTxn": [
+          {
+            "TxnId": "48572",
+            "TxnType": "ReimburseCharge"
+          }
+        ],
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1071",
+            "name": "Premium Contractors Group, Inc."
+          },
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "HasBeenBilled",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "2521",
+      "name": "Guilherme M Costa",
+      "type": "Vendor"
+    },
+    "TotalAmt": 6000,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53597",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-17T11:22:26-08:00",
+      "LastUpdatedTime": "2025-12-17T11:22:26-08:00"
+    },
+    "TxnDate": "2025-09-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Tile 65 Mill",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Tile 65 Mill",
+        "Amount": 6000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "6",
+            "name": "Contractors"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "2521",
+      "name": "Guilherme M Costa",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "3246"
+    },
+    "TotalAmt": 5000,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53555",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-16T12:04:56-08:00",
+      "LastUpdatedTime": "2025-12-16T12:09:33-08:00"
+    },
+    "DocNumber": "2663",
+    "TxnDate": "2025-12-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "2",
+        "Description": "65 mill",
+        "Amount": 5000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "3422",
+      "name": "William Painting",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2500,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53554",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-16T11:53:18-08:00",
+      "LastUpdatedTime": "2025-12-16T11:53:18-08:00"
+    },
+    "DocNumber": "2662",
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Guilherme Costa Credit:65 Mill St, Hopedale MA - Guilherme's house",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "65 mill",
+        "Amount": 2500,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "111",
+            "name": "Labor"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1580",
+      "name": "Premium Contractors Group, Inc",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "18583",
+      "Line1": "Premium Contractors Group, Inc",
+      "Line2": "1B Landing Lane",
+      "Line3": "Hopedale, MA  01747",
+      "Line4": "United States"
+    },
+    "TotalAmt": 12830.79,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52985",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-12-02T12:01:56-08:00",
+      "LastUpdatedTime": "2025-12-15T18:03:54-08:00"
+    },
+    "DocNumber": "2637",
+    "TxnDate": "2025-12-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Office Costs October 27th to Dezember 8th",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Office Costs October 27th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Office Costs November 3rd",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Office Costs November 10th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Office Costs November 17th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "Office Costs November  24th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "Office Costs Dezember 1st",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "Description": "Office Costs Dezember 8th",
+        "Amount": 1832.97,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040014",
+            "name": "Office Expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "146",
+      "name": "DCU Business Checking 7418"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "101",
+      "name": "Premium Framing, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "18955",
+      "Line1": "Premium Framing, Inc."
+    },
+    "TotalAmt": 36746.5,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53527",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-15T08:13:48-08:00",
+      "LastUpdatedTime": "2025-12-15T08:18:09-08:00"
+    },
+    "DocNumber": "9056",
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Funds transfer",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Funds transfer",
+        "Amount": 36746.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "198",
+            "name": "Mutual One Checking 8972"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "356",
+      "name": "Progressive Insurance",
+      "type": "Vendor"
+    },
+    "TotalAmt": 846.11,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53395",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-12T08:47:06-08:00",
+      "LastUpdatedTime": "2025-12-13T07:27:09-08:00"
+    },
+    "TxnDate": "2025-11-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "NATIONAL CONT BRANCH43DEBIT ACH INS PREM",
+        "Amount": 846.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "2107",
+      "name": "Auto Bright Car Care",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 30,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53522",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:21:34-08:00",
+      "LastUpdatedTime": "2025-12-13T07:21:34-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AUTO BRIGHT CAR CAREFRAMINGHAM MA XXXX1044",
+        "Amount": 30,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1887",
+      "name": "NCourt",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 40,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53521",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:21:01-08:00",
+      "LastUpdatedTime": "2025-12-13T07:21:01-08:00"
+    },
+    "TxnDate": "2025-11-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "NCOURT-DP KENNESAW GA XXXX1085",
+        "Amount": 40,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3361",
+            "name": "Building 1 - Coppersmith"
+          },
+          "AccountRef": {
+            "value": "129",
+            "name": "Freight Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "689601869"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "213",
+      "name": "Staples",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 27.99,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53520",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:18:27-08:00",
+      "LastUpdatedTime": "2025-12-13T07:18:27-08:00"
+    },
+    "TxnDate": "2025-11-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "STAPLES X0348 BELLINGHAM MA XXXX1013",
+        "Amount": 27.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "171",
+      "name": "Marathon Tool",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 59.14,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53519",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:16:21-08:00",
+      "LastUpdatedTime": "2025-12-13T07:16:21-08:00"
+    },
+    "TxnDate": "2025-11-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "MARATHON TOOL AND INFRANKLIN MA XXXX1036",
+        "Amount": 59.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "197",
+            "name": "Tools and Small Equipment"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 53.36,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53518",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:14:20-08:00",
+      "LastUpdatedTime": "2025-12-13T07:14:20-08:00"
+    },
+    "TxnDate": "2025-10-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX1044",
+        "Amount": 53.36,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3417",
+            "name": "103 Blackstone St, Mendon"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "734023928"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 283.07,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53517",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:08:37-08:00",
+      "LastUpdatedTime": "2025-12-13T07:08:37-08:00"
+    },
+    "TxnDate": "2025-10-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT READING MA XXXX3008",
+        "Amount": 283.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3249",
+            "name": "Lot 01 - Willis Brook at Lynnfield"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600581950"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1298",
+      "name": "Floor and Decor",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 13437.91,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53516",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:05:00-08:00",
+      "LastUpdatedTime": "2025-12-13T07:05:00-08:00"
+    },
+    "TxnDate": "2025-11-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "FLOOR AND DECOR 305 BELLINGHAM MA XXXX1005",
+        "Amount": 13437.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3416",
+      "name": "Norwood Urgent Care",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 100,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53515",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T07:03:30-08:00",
+      "LastUpdatedTime": "2025-12-13T07:03:30-08:00"
+    },
+    "TxnDate": "2025-10-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "EPS*Norwood Urgent CNORWOOD MA XXXX1044",
+        "Amount": 100,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "52",
+            "name": "Medical Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3415",
+      "name": "Whitewater Forest Products",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 7923.93,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53514",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:59:54-08:00",
+      "LastUpdatedTime": "2025-12-13T06:59:54-08:00"
+    },
+    "TxnDate": "2025-11-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "SP WHITEWATER FORESTBATAVIA OH XXXX1005",
+        "Amount": 7923.93,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "149",
+      "name": "Commonweath of Massachusetts",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1454.37,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53513",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:56:22-08:00",
+      "LastUpdatedTime": "2025-12-13T06:56:22-08:00"
+    },
+    "TxnDate": "2025-12-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "COMMONWEALTH MAS ECHECK WEB",
+        "Amount": 1454.37,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "423",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 2077.14,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53512",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:55:39-08:00",
+      "LastUpdatedTime": "2025-12-13T06:55:39-08:00"
+    },
+    "TxnDate": "2025-11-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX1005",
+        "Amount": 2077.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "423",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 1375.55,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53511",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:53:04-08:00",
+      "LastUpdatedTime": "2025-12-13T06:53:04-08:00"
+    },
+    "TxnDate": "2025-11-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX1005",
+        "Amount": 1375.55,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "1887",
+      "name": "NCourt",
+      "type": "Vendor"
+    },
+    "TotalAmt": 102.09,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53510",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:52:21-08:00",
+      "LastUpdatedTime": "2025-12-13T06:52:21-08:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Contractor license renewal",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Contractor license renewal",
+        "Amount": 102.09,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "17",
+            "name": "Taxes & Licenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "423",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "TotalAmt": 421.8,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53508",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:49:07-08:00",
+      "LastUpdatedTime": "2025-12-13T06:49:07-08:00"
+    },
+    "TxnDate": "2025-11-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) AMAZON MKTPL*B0 440 Terry Ave N SEATTLE WA(1552)",
+        "Amount": 421.8,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "400000171",
+      "name": "Gabrielle Costa",
+      "type": "Employee"
+    },
+    "TotalAmt": 10000,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53506",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:42:55-08:00",
+      "LastUpdatedTime": "2025-12-13T06:42:55-08:00"
+    },
+    "TxnDate": "2025-11-20",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "WIRE TO Grabrielle Costa BK AMER NYC",
+        "Amount": 10000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3112",
+      "name": "Fort Equipment Services Corporation",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1307.88,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53505",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:42:36-08:00",
+      "LastUpdatedTime": "2025-12-13T06:42:36-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "FORT EQUIPMENT S SALE",
+        "Amount": 1307.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040009",
+            "name": "Machines Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "3112",
+      "name": "Fort Equipment Services Corporation",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1335.84,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53504",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:41:46-08:00",
+      "LastUpdatedTime": "2025-12-13T06:41:46-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "FORT EQUIPMENT S SALE",
+        "Amount": 1335.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040008",
+            "name": "Machine Repairs"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "312",
+      "name": "Mass DOT",
+      "type": "Vendor"
+    },
+    "TotalAmt": 40,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53503",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-13T06:33:32-08:00",
+      "LastUpdatedTime": "2025-12-13T06:33:32-08:00"
+    },
+    "TxnDate": "2025-11-25",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "POS Withdrawal (FIS) NCOURT *MA-DOT- 10 Park Plaza BOSTON MA(1552)",
+        "Amount": 40,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3361",
+            "name": "Building 1 - Coppersmith"
+          },
+          "AccountRef": {
+            "value": "129",
+            "name": "Freight Panels"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "689601869"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "228",
+      "name": "Koopman Lumber",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "18946",
+      "Line1": "Koopman Lumber"
+    },
+    "TotalAmt": 3508.77,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52842",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-24T11:24:45-08:00",
+      "LastUpdatedTime": "2025-12-12T20:05:05-08:00"
+    },
+    "DocNumber": "Paid by Guilherme",
+    "TxnDate": "2025-11-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Invoice number: 2775327",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Authorization code: 73778438\nInvoice number: 2775327",
+        "Amount": 3508.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "2521",
+      "name": "Guilherme M Costa",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "18937",
+      "Line1": "Guilherme M Costa"
+    },
+    "TotalAmt": 5000,
+    "PrintStatus": "NotSet",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52466",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-11-11T05:11:51-08:00",
+      "LastUpdatedTime": "2025-12-12T14:07:58-08:00"
+    },
+    "DocNumber": "2595",
+    "TxnDate": "2025-11-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "2",
+        "Amount": 5000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "22",
+            "name": "Owner's pay & personal expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "198",
+      "name": "Mutual One Checking 8972"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "439",
+      "name": "Hyphen Solution, LLC.",
+      "type": "Vendor"
+    },
+    "TotalAmt": 197.89,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53502",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T14:03:22-08:00",
+      "LastUpdatedTime": "2025-12-12T14:03:22-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Hyphen Solutions XXXXXX8100 VSP*Hyphen ID NBR: 26759280",
+        "Amount": 197.89,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "2795",
+      "name": "Samsara",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 378.68,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53490",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:47:37-08:00",
+      "LastUpdatedTime": "2025-12-12T13:47:37-08:00"
+    },
+    "TxnDate": "2025-11-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "SAMSARA SAN FRANCISCO CA XXXX3008",
+        "Amount": 378.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "12",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 114.33,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53488",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:43:14-08:00",
+      "LastUpdatedTime": "2025-12-12T13:43:14-08:00"
+    },
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT MANSFIELD MA XXXX3008",
+        "Amount": 114.33,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3394",
+            "name": "Lot 43 - Deck - Wheelock Farm"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "709957268"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 15.92,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53487",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:42:27-08:00",
+      "LastUpdatedTime": "2025-12-12T13:42:27-08:00"
+    },
+    "TxnDate": "2025-11-13",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX1085",
+        "Amount": 15.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "197",
+            "name": "Tools and Small Equipment"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3112",
+      "name": "Fort Equipment Services Corporation",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 550,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53486",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:33:57-08:00",
+      "LastUpdatedTime": "2025-12-12T13:33:57-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "IN *FORT EQUIPMENT SMILLBURY MA XXXX1085",
+        "Amount": 550,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040008",
+            "name": "Machine Repairs"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3112",
+      "name": "Fort Equipment Services Corporation",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 1433.16,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53485",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:25:34-08:00",
+      "LastUpdatedTime": "2025-12-12T13:25:34-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "IN *FORT EQUIPMENT SMILLBURY MA XXXX1085",
+        "Amount": 1433.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040008",
+            "name": "Machine Repairs"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3112",
+      "name": "Fort Equipment Services Corporation",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 659.9,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53484",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:25:08-08:00",
+      "LastUpdatedTime": "2025-12-12T13:25:08-08:00"
+    },
+    "TxnDate": "2025-11-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "IN *FORT EQUIPMENT SMILLBURY MA XXXX1085",
+        "Amount": 659.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040009",
+            "name": "Machines Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "2581",
+      "name": "Scrubadub Marlborough",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 26,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53483",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:20:25-08:00",
+      "LastUpdatedTime": "2025-12-12T13:20:25-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "NO RECEIPT",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "NO RECEIPT",
+        "Amount": 26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "2581",
+      "name": "Scrubadub Marlborough",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 2,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53482",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:20:11-08:00",
+      "LastUpdatedTime": "2025-12-12T13:20:11-08:00"
+    },
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "NO RECEIPT",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "NO RECEIPT",
+        "Amount": 2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "148",
+            "name": "Maintenance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "182",
+      "name": "Amex Gold Card (2000)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 78.25,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53481",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:19:09-08:00",
+      "LastUpdatedTime": "2025-12-12T13:19:09-08:00"
+    },
+    "TxnDate": "2025-12-01",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX1036",
+        "Amount": 78.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3344",
+            "name": "Building 1 - Riverview"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "669193039"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 121.54,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53480",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:14:07-08:00",
+      "LastUpdatedTime": "2025-12-12T13:14:07-08:00"
+    },
+    "TxnDate": "2025-11-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX1005",
+        "Amount": 121.54,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "181",
+      "name": "Amex Platinum Card (1005)"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "165",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 277.9,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53479",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-12T13:13:32-08:00",
+      "LastUpdatedTime": "2025-12-12T13:13:32-08:00"
+    },
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT BELLINGHAM MA XXXX1005",
+        "Amount": 277.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3008",
+            "name": "65 Mill St, Hopedale MA - Guilherme's house"
+          },
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "452399652"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
       "value": "182",
       "name": "Amex Gold Card (2000)"
     },
@@ -63,73 +3402,6 @@
             "AssociatedValues": []
           }
         ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "10222"
-    },
-    "TotalAmt": 21948,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "53468",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-12T11:29:52-08:00",
-      "LastUpdatedTime": "2025-12-12T11:30:08-08:00"
-    },
-    "DocNumber": "2657",
-    "TxnDate": "2025-12-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "ETS - Equipments Rental - November",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Rental Equipments",
-        "Amount": 21948,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
       }
     ]
   },
@@ -3860,72 +7132,6 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
-      "value": "356",
-      "name": "Progressive Insurance",
-      "type": "Vendor"
-    },
-    "TotalAmt": 846.11,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "53395",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-12T08:47:06-08:00",
-      "LastUpdatedTime": "2025-12-12T08:47:06-08:00"
-    },
-    "TxnDate": "2025-11-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "NATIONAL CONT BRANCH43DEBIT ACH INS PREM",
-        "Amount": 846.11,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
       "value": "664",
       "name": "Microsoft",
       "type": "Vendor"
@@ -4839,7 +8045,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-12T07:50:34-08:00",
-      "LastUpdatedTime": "2025-12-12T07:50:34-08:00"
+      "LastUpdatedTime": "2025-12-26T09:38:43-08:00"
     },
     "TxnDate": "2025-11-21",
     "CurrencyRef": {
@@ -4873,7 +8079,7 @@
             "value": "195",
             "name": "Loan to Group OUT"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -6461,7 +9667,7 @@
             "value": "50",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -9436,7 +12642,7 @@
             "value": "50",
             "name": "Payroll"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -13981,179 +17187,6 @@
       "value": "198",
       "name": "Mutual One Checking 8972"
     },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "1580",
-      "name": "Premium Contractors Group, Inc",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "18583",
-      "Line1": "Premium Contractors Group, Inc",
-      "Line2": "1B Landing Lane",
-      "Line3": "Hopedale, MA  01747",
-      "Line4": "United States"
-    },
-    "TotalAmt": 12830.79,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52985",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-12-02T12:01:56-08:00",
-      "LastUpdatedTime": "2025-12-03T07:15:17-08:00"
-    },
-    "DocNumber": "2637",
-    "TxnDate": "2025-12-02",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Office Costs October 27th to Dezember 1st",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Office Costs October 27th",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Description": "Office Costs November 3rd",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "Description": "Office Costs November 10th",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "Description": "Office Costs November 17th",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "Description": "Office Costs November  24th",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "Description": "Office Costs Dezember 1st",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "Description": "Office Costs Dezember 8th",
-        "Amount": 1832.97,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "1150040014",
-            "name": "Office Expenses Premium Group"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
     "PaymentType": "Cash",
     "EntityRef": {
       "value": "2732",
@@ -14429,72 +17462,6 @@
           "AccountRef": {
             "value": "198",
             "name": "Mutual One Checking 8972"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "228",
-      "name": "Koopman Lumber",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "15911"
-    },
-    "TotalAmt": 3508.77,
-    "PrintStatus": "NeedToPrint",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52842",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-24T11:24:45-08:00",
-      "LastUpdatedTime": "2025-11-24T11:24:45-08:00"
-    },
-    "TxnDate": "2025-11-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Invoice number: 2775327",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Authorization code: 73778438\nInvoice number: 2775327",
-        "Amount": 3508.77,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {
@@ -16830,74 +19797,6 @@
             "AssociatedValues": []
           }
         ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "2521",
-      "name": "Guilherme M Costa",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "3246"
-    },
-    "TotalAmt": 5000,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52466",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-11-11T05:11:51-08:00",
-      "LastUpdatedTime": "2025-11-11T05:12:26-08:00"
-    },
-    "DocNumber": "2595",
-    "TxnDate": "2025-11-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Payout Guilherme Costa",
-        "Amount": 5000,
-        "DetailType": "ItemBasedExpenseLineDetail",
-        "ItemBasedExpenseLineDetail": {
-          "BillableStatus": "NotBillable",
-          "ItemRef": {
-            "value": "15",
-            "name": "Extra"
-          },
-          "UnitPrice": 5000,
-          "Qty": 1,
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
       }
     ]
   },
@@ -51370,92 +54269,6 @@
           "AccountRef": {
             "value": "198",
             "name": "Mutual One Checking 8972"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "198",
-      "name": "Mutual One Checking 8972"
-    },
-    "PaymentType": "Check",
-    "EntityRef": {
-      "value": "3184",
-      "name": "MMD Services, Inc.",
-      "type": "Vendor"
-    },
-    "RemitToAddr": {
-      "Id": "17200",
-      "Line1": "MMD Services, Inc.",
-      "Line2": "1B Landing Lane",
-      "Line3": "Hopedale, MA  01747 US"
-    },
-    "TotalAmt": 1752.57,
-    "PrintStatus": "PrintComplete",
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "3"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51268",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-09-26T10:30:46-07:00",
-      "LastUpdatedTime": "2025-09-26T10:37:52-07:00"
-    },
-    "DocNumber": "2490",
-    "TxnDate": "2025-09-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Labor",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Labor 09/07/25 - 09/20/25",
-        "Amount": 1700,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "111",
-            "name": "Labor"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Amount": 52.57,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "5",
-            "name": "Bank Charges & Fees"
           },
           "BillableStatus": "NotBillable",
           "TaxCodeRef": {
@@ -102610,85 +105423,6 @@
             "name": "Office Supplies & Software"
           },
           "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "182",
-      "name": "Amex Gold Card (2000)"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "165",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 80.27,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "48571",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-05-27T14:53:30-07:00",
-      "LastUpdatedTime": "2025-07-04T03:48:43-07:00"
-    },
-    "TxnDate": "2025-05-20",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Foundation Truck",
-    "LinkedTxn": [
-      {
-        "TxnId": "48572",
-        "TxnType": "ReimburseCharge"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Foundation Truck",
-        "Amount": 80.27,
-        "LinkedTxn": [
-          {
-            "TxnId": "48572",
-            "TxnType": "ReimburseCharge"
-          }
-        ],
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2264",
-            "name": "Premium Foundation, Inc"
-          },
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
