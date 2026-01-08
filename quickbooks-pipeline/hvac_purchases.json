@@ -6,6 +6,2769 @@
     },
     "PaymentType": "Cash",
     "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2484.5,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23595",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-29T08:33:11-08:00",
+      "LastUpdatedTime": "2025-12-29T08:33:11-08:00"
+    },
+    "TxnDate": "2025-12-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Dario - 12.07.2025 - 12.20.2025 - Check 10172",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Dario - 12.07.2025 - 12.20.2025 - Check 10172",
+        "Amount": 2484.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 7489.17,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23594",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-29T07:42:48-08:00",
+      "LastUpdatedTime": "2025-12-29T07:42:48-08:00"
+    },
+    "TxnDate": "2025-12-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "12.07.2025 - 12.20.2025 - ADP Tax LV ADP Tax ID NBR: L6N4W 122626A01",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "12.07.2025 - 12.20.2025 - ADP Tax LV ADP Tax ID NBR: L6N4W 122626A01",
+        "Amount": 7489.17,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 15152.86,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23593",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-29T07:42:30-08:00",
+      "LastUpdatedTime": "2025-12-29T07:42:30-08:00"
+    },
+    "TxnDate": "2025-12-24",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "12.07.2025 - 12.20.2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX5847N4W",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "12.07.2025 - 12.20.2025 - ADP WAGE PAY 323298036 WAGE PAY ID NBR: XXXXXXXX5847N4W",
+        "Amount": 15152.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentMethodRef": {
+      "value": "6"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 23.06,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23430",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-18T08:19:28-08:00",
+      "LastUpdatedTime": "2025-12-24T11:18:22-08:00"
+    },
+    "DocNumber": "11.23.25-12.06.25",
+    "TxnDate": "2025-12-16",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Child care - Edwin - Rhode Island - Check 10171",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Child care - Edwin - Rhode Island - Check 10171",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Child care - Edwin - Rhode Island - Check 10171",
+        "Amount": 23.06,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentMethodRef": {
+      "value": "6"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "31",
+      "name": "ADP",
+      "type": "Vendor"
+    },
+    "TotalAmt": 2036.92,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23429",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-18T08:18:39-08:00",
+      "LastUpdatedTime": "2025-12-24T11:15:11-08:00"
+    },
+    "DocNumber": "11.23.25 - 12.06.25",
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Dario - 11.23.2025 - 12.06.2025 - Check 10170",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Dario - 11.23.2025 - 12.06.2025 - Check 10170",
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 645.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613345566"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 716.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1546",
+            "name": "Building 7 - Chauncy Lake - Pulte Homes - 6546"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "638868216"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 65.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1368",
+            "name": "Lot 07 - Newbury Glenn"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564574832"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 96.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1458",
+            "name": "Lot 04 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600158116"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 22,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1288",
+            "name": "Lot 05 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "526846417"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 39.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1369",
+            "name": "Lot 11 - Lakemont At Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564581036"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 44.38,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1424",
+            "name": "Lot 12 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "590276723"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 49.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1373",
+            "name": "Lot 16 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564597783"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "10",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 90.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1372",
+            "name": "Lot 19 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564589364"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 9.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1374",
+            "name": "Lot 20 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564652994"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "12",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 33.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1459",
+            "name": "Lot 21 - Lakemont at Hudson"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "600176232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "13",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 191.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1603",
+            "name": "Lot 108 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "674937755"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "14",
+        "Description": "Dario - 11.23.2025 - 12.06.2025",
+        "Amount": 32.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1601",
+            "name": "Lot 04 -  Willis Brook at Lynnfield"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "674799361"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "1508",
+      "name": "Premium Contractors Group, Inc. (IC Vendor)",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "23341",
+      "Line1": "Premium Contractors Group, Inc.",
+      "Line2": "1B LANDING LN",
+      "Line3": "HOPEDALE, MA  017471531 USA"
+    },
+    "TotalAmt": 4573.16,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23510",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-23T07:16:36-08:00",
+      "LastUpdatedTime": "2025-12-23T07:46:06-08:00"
+    },
+    "DocNumber": "1686",
+    "TxnDate": "2025-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Office expenses - December 03 and 04",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Office expenses - December 03 and 04",
+        "Amount": 4573.16,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "1150040000",
+            "name": "Office expenses Premium Group"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613345566"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "668",
+      "name": "Premium HVAC",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "5204"
+    },
+    "TotalAmt": 3978.46,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23509",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-23T07:14:01-08:00",
+      "LastUpdatedTime": "2025-12-23T07:46:06-08:00"
+    },
+    "DocNumber": "1685",
+    "TxnDate": "2025-12-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "transfer funds to DCU",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "transfer funds to DCU",
+        "Amount": 3978.46,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "193",
+            "name": "DCU Visa Credit Card"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 14.92,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23454",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-19T18:19:10-08:00",
+      "LastUpdatedTime": "2025-12-19T18:19:10-08:00"
+    },
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 14.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "141",
+      "name": "HVAC DCU BANK  (5697) - 1"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "29",
+      "name": "DCU",
+      "type": "Vendor"
+    },
+    "TotalAmt": 1034.68,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "20089",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-07-30T07:25:26-07:00",
+      "LastUpdatedTime": "2025-12-18T12:13:33-08:00"
+    },
+    "TxnDate": "2025-06-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
+        "Amount": 1034.68,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "204",
+            "name": "2022 Toyota VIN 1412 Loan"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1548",
+      "name": "Construction Solutions",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 1920,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23420",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-18T07:12:16-08:00",
+      "LastUpdatedTime": "2025-12-18T07:12:16-08:00"
+    },
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Dryer vent box- \nDryer box - $1,920\nConstruction SolutioPhoenix AZ XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Dryer vent box- \nDryer box - $1,920\nConstruction SolutioPhoenix AZ XXXX3009",
+        "Amount": 1920,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "191",
+            "name": "Materials HVAC"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1782",
+      "name": "North Stock",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 625.84,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23417",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-18T06:52:41-08:00",
+      "LastUpdatedTime": "2025-12-18T06:52:41-08:00"
+    },
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "BT*NORTHSTOCK, INC. CHICAGO IL XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "BT*NORTHSTOCK, INC. CHICAGO IL XXXX3009",
+        "Amount": 625.84,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1484",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 48.3,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22275",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-30T14:11:53-07:00",
+      "LastUpdatedTime": "2025-12-17T14:59:28-08:00"
+    },
+    "TxnDate": "2025-10-27",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT SEEKONK MA XXXX1078",
+        "Amount": 48.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1440",
+            "name": "Building 1 - Riverview at East Point - Pulte Homes - 9041"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "594226234"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "147",
+      "name": "Premium Contractors Group",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "10421"
+    },
+    "TotalAmt": 5345.5,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23387",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-17T14:06:08-08:00",
+      "LastUpdatedTime": "2025-12-17T14:06:46-08:00"
+    },
+    "DocNumber": "1676",
+    "TxnDate": "2025-12-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "51 West Way",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "51 West Way -",
+        "Amount": 5345.5,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613345566"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Check",
+    "EntityRef": {
+      "value": "8",
+      "name": "Premium Framing, Inc.",
+      "type": "Vendor"
+    },
+    "RemitToAddr": {
+      "Id": "10546"
+    },
+    "TotalAmt": 5697.49,
+    "PrintStatus": "PrintComplete",
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "3"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23386",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-17T14:02:25-08:00",
+      "LastUpdatedTime": "2025-12-17T14:06:46-08:00"
+    },
+    "DocNumber": "1675",
+    "TxnDate": "2025-12-17",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "65 Mill St, Hopedale",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "65 Mill St, Hopedale -",
+        "Amount": 5697.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1492",
+            "name": "Office Labor/Payroll"
+          },
+          "AccountRef": {
+            "value": "57",
+            "name": "Payroll"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "613345566"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "34",
+      "name": "Delta T",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 96.49,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21700",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-10T11:55:21-07:00",
+      "LastUpdatedTime": "2025-12-16T14:55:47-08:00"
+    },
+    "TxnDate": "2025-10-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "DELTA T FRANKLIN 000FRANKLIN MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Job Supplies",
+        "Amount": 48.24,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Job Supplies",
+        "Amount": 48.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1572",
+            "name": "Riverview East Point - Lot 02"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249011"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "19",
+      "name": "Lowe's",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 229.61,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21113",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-09-22T06:35:00-07:00",
+      "LastUpdatedTime": "2025-12-16T14:34:59-08:00"
+    },
+    "TxnDate": "2025-09-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LOWE'S SEEKONK MA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "LOWE'S SEEKONK MA XXXX3009",
+        "Amount": 229.61,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 184.18,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "21697",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-10T11:46:57-07:00",
+      "LastUpdatedTime": "2025-12-16T14:27:50-08:00"
+    },
+    "TxnDate": "2025-09-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT SEEKONK MA XXXX3009",
+        "Amount": 184.18,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1438",
+            "name": "Pulte Homes - Riverview at East Point - 9041"
+          },
+          "AccountRef": {
+            "value": "217",
+            "name": "Tools and Small Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": [
+          {
+            "ExtensionType": "DIMENSION",
+            "AssociatedValues": []
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 44.33,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23025",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-01T09:31:40-08:00",
+      "LastUpdatedTime": "2025-12-16T14:26:47-08:00"
+    },
+    "TxnDate": "2025-11-26",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Job Supplies",
+        "Amount": 14.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Job Supplies",
+        "Amount": 14.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1575",
+            "name": "Riverview East Point - Lot 05"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249788"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Job Supplies",
+        "Amount": 14.79,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1576",
+            "name": "Riverview East Point - Lot 06"
+          },
+          "AccountRef": {
+            "value": "232",
+            "name": "HVAC Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664250085"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 163.66,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "22274",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-10-30T13:56:45-07:00",
+      "LastUpdatedTime": "2025-12-16T14:16:43-08:00"
+    },
+    "TxnDate": "2025-10-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT PROVIDENCE RI XXXX1078",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1571",
+            "name": "Riverview East Point - Lot 01"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664248232"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1572",
+            "name": "Riverview East Point - Lot 02"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249011"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1573",
+            "name": "Riverview East Point - Lot 03"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249212"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1574",
+            "name": "Riverview East Point - Lot 04"
+          },
+          "AccountRef": {
+            "value": "1150040018",
+            "name": "Finish Material"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249551"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1575",
+            "name": "Riverview East Point - Lot 05"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664249788"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
+        "Amount": 27.26,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1576",
+            "name": "Riverview East Point - Lot 06"
+          },
+          "AccountRef": {
+            "value": "1150040017",
+            "name": "Rough Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "664250085"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "17",
+      "name": "QuickBooks Payments",
+      "type": "Vendor"
+    },
+    "TotalAmt": 4.48,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23374",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T18:07:46-08:00",
+      "LastUpdatedTime": "2025-12-15T18:07:46-08:00"
+    },
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "System-recorded fee for QuickBooks Payments. Fee-name: DiscountRateFee, fee-type: Daily.",
+        "Amount": 4.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "150",
+            "name": "QuickBooks Payments Fees"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 32.12,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23353",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T07:14:43-08:00",
+      "LastUpdatedTime": "2025-12-15T07:14:43-08:00"
+    },
+    "TxnDate": "2025-12-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT MARLBOROUGH MA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT MARLBOROUGH MA XXXX3009",
+        "Amount": 32.12,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1369",
+            "name": "Lot 11 - Lakemont At Hudson"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "564581036"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "3",
+      "name": "Home Depot",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 73.64,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23352",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T07:07:04-08:00",
+      "LastUpdatedTime": "2025-12-15T07:07:04-08:00"
+    },
+    "TxnDate": "2025-11-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "THE HOME DEPOT MARLBOROUGH MA XXXX3025",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "THE HOME DEPOT MARLBOROUGH MA XXXX3025",
+        "Amount": 73.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "825",
+            "name": "Premium HVAC, Inc"
+          },
+          "AccountRef": {
+            "value": "217",
+            "name": "Tools and Small Equipments"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
+      "value": "18",
+      "name": "Intuit",
+      "type": "Vendor"
+    },
+    "TotalAmt": 201.88,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23350",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:59:28-08:00",
+      "LastUpdatedTime": "2025-12-15T06:59:28-08:00"
+    },
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "INTUIT * 800-446-8848 TSheets ID NBR: 5100784",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "INTUIT * 800-446-8848 TSheets ID NBR: 5100784",
+        "Amount": 201.88,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "1582",
+      "name": "Appsheet Premium",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23338",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:26:35-08:00",
+      "LastUpdatedTime": "2025-12-15T06:26:35-08:00"
+    },
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "APPSHEET PREMIUM PLAMOUNTAIN VIEW CA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "APPSHEET PREMIUM PLAMOUNTAIN VIEW CA XXXX3009",
+        "Amount": 75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "84",
+      "name": "Supply House",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 15.75,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23337",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:23:00-08:00",
+      "LastUpdatedTime": "2025-12-15T06:23:00-08:00"
+    },
+    "TxnDate": "2025-12-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "SUPPLYHOUSE.COM MELVILLE NY XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "SUPPLYHOUSE.COM MELVILLE NY XXXX3009",
+        "Amount": 15.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1484",
+            "name": "Cirrus Apartments"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "141",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 15.27,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23335",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:21:15-08:00",
+      "LastUpdatedTime": "2025-12-15T06:21:15-08:00"
+    },
+    "TxnDate": "2025-12-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AMAZON.COM AMZN.COM/BILL WA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON.COM AMZN.COM/BILL WA XXXX3009",
+        "Amount": 15.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "51",
+            "name": "Office Supplies & Software"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "23",
+      "name": "AT&T",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 449.93,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23333",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:10:19-08:00",
+      "LastUpdatedTime": "2025-12-15T06:10:19-08:00"
+    },
+    "TxnDate": "2025-12-10",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AT&T XXX-XXX-2020 TX XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AT&T XXX-XXX-2020 TX XXXX3009",
+        "Amount": 449.93,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "80",
+            "name": "Utilities"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "141",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 104.14,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23331",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:04:46-08:00",
+      "LastUpdatedTime": "2025-12-15T06:04:46-08:00"
+    },
+    "TxnDate": "2025-12-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+        "Amount": 104.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1204",
+            "name": "Lot 141 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "481645266"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "141",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 31.86,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23330",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:02:19-08:00",
+      "LastUpdatedTime": "2025-12-15T06:02:19-08:00"
+    },
+    "TxnDate": "2025-12-07",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+        "Amount": 31.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040012",
+            "name": "Van Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "EntityRef": {
+      "value": "141",
+      "name": "Amazon",
+      "type": "Vendor"
+    },
+    "Credit": false,
+    "TotalAmt": 151.3,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23329",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T06:00:01-08:00",
+      "LastUpdatedTime": "2025-12-15T06:00:01-08:00"
+    },
+    "TxnDate": "2025-12-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "AMAZON MARKETPLACE NAMZN.COM/BILL WA XXXX3009",
+        "Amount": 151.3,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "1150040012",
+            "name": "Van Materials"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "157",
+      "name": "Amex Platinum"
+    },
+    "PaymentType": "CreditCard",
+    "Credit": false,
+    "TotalAmt": 2741,
+    "PurchaseEx": {
+      "any": [
+        {
+          "name": "{http://schema.intuit.com/finance/v3}NameValue",
+          "declaredType": "com.intuit.schema.finance.v3.NameValue",
+          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
+          "value": {
+            "Name": "TxnType",
+            "Value": "54"
+          },
+          "nil": false,
+          "globalScope": true,
+          "typeSubstituted": false
+        }
+      ]
+    },
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23324",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T05:30:53-08:00",
+      "LastUpdatedTime": "2025-12-15T05:30:53-08:00"
+    },
+    "TxnDate": "2025-12-03",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "LUXURY META XXXXXX7346 ID XXXX3009",
+    "Line": [
+      {
+        "Id": "1",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1567",
+            "name": "Lot 39 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "661707214"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1605",
+            "name": "Lot 40 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "676167929"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1612",
+            "name": "Lot 41 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "681889644"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1545",
+            "name": "Lot 55 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "638702873"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1717",
+            "name": "Lot 57 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "730289816"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.62,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1660",
+            "name": "Lot 58 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "696650430"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1449",
+            "name": "Lot 107 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "599636540"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "Description": "Split between lots 39/40/41/55/57/58/107/106",
+        "Amount": 342.64,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1517",
+            "name": "Lot 106 - The Pinehills Owls Nest"
+          },
+          "AccountRef": {
+            "value": "183",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "621733619"
+        },
+        "CustomExtensions": []
+      }
+    ]
+  },
+  {
+    "AccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "PaymentType": "Cash",
+    "EntityRef": {
       "value": "532",
       "name": "MutualOne Bank",
       "type": "Vendor"
@@ -2373,7 +5136,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-09T08:16:42-08:00",
-      "LastUpdatedTime": "2025-12-09T08:16:42-08:00"
+      "LastUpdatedTime": "2025-12-23T18:10:08-08:00"
     },
     "TxnDate": "2025-11-29",
     "CurrencyRef": {
@@ -2408,7 +5171,7 @@
             "value": "183",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -6672,124 +9435,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "3",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 44.33,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "23025",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-12-01T09:31:40-08:00",
-      "LastUpdatedTime": "2025-12-01T09:31:40-08:00"
-    },
-    "TxnDate": "2025-11-26",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX3009",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Job Supplies",
-        "Amount": 14.77,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1574",
-            "name": "Riverview East Point - Lot 04"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249551"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Description": "Job Supplies",
-        "Amount": 14.77,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1575",
-            "name": "Riverview East Point - Lot 05"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249788"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "Description": "Job Supplies",
-        "Amount": 14.79,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1576",
-            "name": "Riverview East Point - Lot 06"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664250085"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "75",
       "name": "Eco Building Products",
       "type": "Vendor"
@@ -6881,7 +9526,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-01T09:25:14-08:00",
-      "LastUpdatedTime": "2025-12-01T09:25:14-08:00"
+      "LastUpdatedTime": "2025-12-23T18:16:40-08:00"
     },
     "TxnDate": "2025-11-25",
     "CurrencyRef": {
@@ -6916,7 +9561,7 @@
             "value": "51",
             "name": "Office Supplies & Software"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -6963,7 +9608,7 @@
     "SyncToken": "0",
     "MetaData": {
       "CreateTime": "2025-12-01T09:12:16-08:00",
-      "LastUpdatedTime": "2025-12-01T09:12:16-08:00"
+      "LastUpdatedTime": "2025-12-23T18:17:25-08:00"
     },
     "TxnDate": "2025-11-25",
     "CurrencyRef": {
@@ -6998,7 +9643,7 @@
             "value": "183",
             "name": "Job Supplies"
           },
-          "BillableStatus": "Billable",
+          "BillableStatus": "HasBeenBilled",
           "TaxCodeRef": {
             "value": "NON"
           }
@@ -13260,7 +15905,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "57",
@@ -19652,266 +22297,6 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "3",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 48.3,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22275",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-30T14:11:53-07:00",
-      "LastUpdatedTime": "2025-10-30T14:11:53-07:00"
-    },
-    "TxnDate": "2025-10-27",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX1078",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "THE HOME DEPOT SEEKONK MA XXXX1078",
-        "Amount": 48.3,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1440",
-            "name": "Building 1 - Riverview at East Point - Pulte Homes - 9041"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "594226234"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "3",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 163.66,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "22274",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-30T13:56:45-07:00",
-      "LastUpdatedTime": "2025-10-30T13:56:45-07:00"
-    },
-    "TxnDate": "2025-10-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "THE HOME DEPOT PROVIDENCE RI XXXX1078",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1571",
-            "name": "Riverview East Point - Lot 01"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664248232"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1572",
-            "name": "Riverview East Point - Lot 02"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249011"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1573",
-            "name": "Riverview East Point - Lot 03"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249212"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1574",
-            "name": "Riverview East Point - Lot 04"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249551"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1575",
-            "name": "Riverview East Point - Lot 05"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249788"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "Description": "Lots 01 - 02 - 03 - 04 - 05 - 06",
-        "Amount": 27.26,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1576",
-            "name": "Riverview East Point - Lot 06"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664250085"
         },
         "CustomExtensions": []
       }
@@ -31665,100 +34050,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "34",
-      "name": "Delta T",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 96.49,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21700",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-10T11:55:21-07:00",
-      "LastUpdatedTime": "2025-10-10T11:55:21-07:00"
-    },
-    "TxnDate": "2025-10-06",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "DELTA T FRANKLIN 000FRANKLIN MA XXXX3025",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "Job Supplies",
-        "Amount": 48.24,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1571",
-            "name": "Riverview East Point - Lot 01"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664248232"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "Description": "Job Supplies",
-        "Amount": 48.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1572",
-            "name": "Riverview East Point - Lot 02"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249011"
-        },
-        "CustomExtensions": []
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "3",
       "name": "Home Depot",
       "type": "Vendor"
@@ -31885,81 +34176,6 @@
           "TaxCodeRef": {
             "value": "NON"
           }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
-      "value": "3",
-      "name": "Home Depot",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 184.18,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21697",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-10-10T11:46:57-07:00",
-      "LastUpdatedTime": "2025-10-10T11:46:57-07:00"
-    },
-    "TxnDate": "2025-09-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "THE HOME DEPOT SEEKONK MA XXXX3009",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "THE HOME DEPOT SEEKONK MA XXXX3009",
-        "Amount": 184.18,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1574",
-            "name": "Riverview East Point - Lot 04"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664249551"
         },
         "CustomExtensions": [
           {
@@ -46830,81 +49046,6 @@
     },
     "PaymentType": "CreditCard",
     "EntityRef": {
-      "value": "19",
-      "name": "Lowe's",
-      "type": "Vendor"
-    },
-    "Credit": false,
-    "TotalAmt": 229.61,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "21113",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-09-22T06:35:00-07:00",
-      "LastUpdatedTime": "2025-09-22T06:35:00-07:00"
-    },
-    "TxnDate": "2025-09-10",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "LOWE'S SEEKONK MA XXXX3009",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "LOWE'S SEEKONK MA XXXX3009",
-        "Amount": 229.61,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1571",
-            "name": "Riverview East Point - Lot 01"
-          },
-          "AccountRef": {
-            "value": "183",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "664248232"
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
-      "value": "157",
-      "name": "Amex Platinum"
-    },
-    "PaymentType": "CreditCard",
-    "EntityRef": {
       "value": "141",
       "name": "Amazon",
       "type": "Vendor"
@@ -58328,73 +60469,6 @@
   },
   {
     "AccountRef": {
-      "value": "141",
-      "name": "HVAC DCU BANK  (5697) - 1"
-    },
-    "PaymentType": "Cash",
-    "EntityRef": {
-      "value": "29",
-      "name": "DCU",
-      "type": "Vendor"
-    },
-    "TotalAmt": 1034.68,
-    "PurchaseEx": {
-      "any": [
-        {
-          "name": "{http://schema.intuit.com/finance/v3}NameValue",
-          "declaredType": "com.intuit.schema.finance.v3.NameValue",
-          "scope": "javax.xml.bind.JAXBElement$GlobalScope",
-          "value": {
-            "Name": "TxnType",
-            "Value": "54"
-          },
-          "nil": false,
-          "globalScope": true,
-          "typeSubstituted": false
-        }
-      ]
-    },
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "20089",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-07-30T07:25:26-07:00",
-      "LastUpdatedTime": "2025-09-10T05:32:44-07:00"
-    },
-    "TxnDate": "2025-06-09",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
-    "Line": [
-      {
-        "Id": "1",
-        "Description": "TRANSFER - ***9525-142, AMOUNT:-1034.68, LOAN PAYMENT TRANSFER ONE TIME COMMERCIAL VEHICLE PAYMENT",
-        "Amount": 1034.68,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "7",
-            "name": "Accounts Payable (A/P)"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": [
-          {
-            "ExtensionType": "DIMENSION",
-            "AssociatedValues": []
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "AccountRef": {
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
@@ -61174,7 +63248,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -218290,7 +220364,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -236508,7 +238582,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -245073,7 +247147,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "57",
@@ -281021,7 +283095,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -314498,7 +316572,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -322604,7 +324678,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "57",
@@ -323654,7 +325728,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -324213,7 +326287,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "57",
@@ -325190,7 +327264,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -341873,7 +343947,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "183",
@@ -376282,7 +378356,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "86",
@@ -440521,7 +442595,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "158",
@@ -440713,7 +442787,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "158",
@@ -441909,7 +443983,7 @@
         "AccountBasedExpenseLineDetail": {
           "CustomerRef": {
             "value": "316",
-            "name": "Lot 4 - Willows at Boxford"
+            "name": "Lot 04 - Willows at Boxford"
           },
           "AccountRef": {
             "value": "158",

@@ -13,6 +13,8 @@ import {
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
+// TODO: Adicionar ícone storage.png na pasta assets quando disponível
+// import iconStorage from '../../../assets/storage.png';
 
 interface ForecastProjectCardProps {
   project: WorkforceProject;
@@ -309,6 +311,23 @@ export default function ForecastProjectCard({
                 alt="BuilderTrend" 
                 style={{ width: 18, height: 18, objectFit: 'contain' }}
               />
+            </div>
+          )}
+          
+          {/* Storage */}
+          {project.storage === true && (
+            <div style={{
+              width: 30,
+              height: 30,
+              borderRadius: 6,
+              border: `1px solid ${project.storage ? '#4ade80' : '#6c757d'}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--color-background-secondary)'
+            }}>
+              {/* TODO: Substituir por <img src={iconStorage} alt="Storage" style={{ width: 18, height: 18, objectFit: 'contain' }} /> quando o ícone estiver disponível */}
+              <i className="bi bi-box" style={{ fontSize: 16 }} />
             </div>
           )}
           

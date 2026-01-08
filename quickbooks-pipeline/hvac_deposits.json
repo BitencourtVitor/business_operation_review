@@ -4,6 +4,664 @@
       "value": "231",
       "name": "Mutual One Checking (8980)"
     },
+    "TotalAmt": 29600.4,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23543",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-24T06:14:55-08:00",
+      "LastUpdatedTime": "2025-12-24T06:14:55-08:00"
+    },
+    "TxnDate": "2025-12-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Description": "Payment 1680-PMX-3033 - 12.19.2025",
+        "Amount": 29600.4,
+        "LinkedTxn": [
+          {
+            "TxnId": "23542",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-3033"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 102665,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23480",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-22T09:26:05-08:00",
+      "LastUpdatedTime": "2025-12-22T09:26:30-08:00"
+    },
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 360,
+        "LinkedTxn": [
+          {
+            "TxnId": "23456",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 570,
+        "LinkedTxn": [
+          {
+            "TxnId": "23457",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "23459",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23461",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23463",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 29635,
+        "LinkedTxn": [
+          {
+            "TxnId": "23465",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 2250,
+        "LinkedTxn": [
+          {
+            "TxnId": "23466",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 5975,
+        "LinkedTxn": [
+          {
+            "TxnId": "23470",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 20575,
+        "LinkedTxn": [
+          {
+            "TxnId": "23472",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 21900,
+        "LinkedTxn": [
+          {
+            "TxnId": "23476",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 3300,
+        "LinkedTxn": [
+          {
+            "TxnId": "23478",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Amount": 3100,
+        "LinkedTxn": [
+          {
+            "TxnId": "23479",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "461208"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1448",
+            "name": "Toll Brothers:Newbury Glen Hopkinton:Lot 18 - Newbury Glen",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "461208"
+        },
+        "ProjectRef": {
+          "value": "599321576"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1676",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 102 - The Pinehills Owls Nest",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "461208"
+        },
+        "ProjectRef": {
+          "value": "708998137"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 499,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23453",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-19T17:20:08-08:00",
+      "LastUpdatedTime": "2025-12-19T17:20:08-08:00"
+    },
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 00923D",
+        "Amount": 499,
+        "LinkedTxn": [
+          {
+            "TxnId": "23443",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "5"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 448.2,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23373",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T16:48:29-08:00",
+      "LastUpdatedTime": "2025-12-15T16:48:29-08:00"
+    },
+    "TxnDate": "2025-12-15",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "System-recorded deposit for QuickBooks Payments",
+    "Line": [
+      {
+        "Description": "Paid via QuickBooks Payments: Payment ID 115-087",
+        "Amount": 448.2,
+        "LinkedTxn": [
+          {
+            "TxnId": "23359",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "4"
+          }
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 50130.93,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23364",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T09:22:42-08:00",
+      "LastUpdatedTime": "2025-12-15T09:22:42-08:00"
+    },
+    "TxnDate": "2025-12-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "1st floor \n21617 - Missing 104 and 109\n\n4th Floor\n21623 - All units",
+    "Line": [
+      {
+        "Description": "23063 - Trash Compactor \n23066 - Screen Enclouser",
+        "Amount": 13736.15,
+        "LinkedTxn": [
+          {
+            "TxnId": "23355",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2979"
+        }
+      },
+      {
+        "Description": "21617 - 101\n21617 - 102\n21617 - 103\n21617 - 104 - Not received\n21617 - 105\n21617 - 106\n21617 - 107\n21617 - 108\n21617 - 109 - Not Received\n21617 - 110\n21617 - 111\n21617 - 112\n21617 - 113",
+        "Amount": 27153.7,
+        "LinkedTxn": [
+          {
+            "TxnId": "23358",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2979"
+        }
+      },
+      {
+        "Description": "All units received \n21623 - 401\n21623 - 402\n21623 - 403\n21623 - 404\n21623 - 405\n21623 - 406\n21623 - 407\n21623 - 408\n21623 - 409\n21623 - 410\n21623 - 411\n21623 - 412",
+        "Amount": 9241.08,
+        "LinkedTxn": [
+          {
+            "TxnId": "23362",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "1680-PMX-2979"
+        }
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
+    "TotalAmt": 40625,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "23351",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T07:05:58-08:00",
+      "LastUpdatedTime": "2025-12-15T07:05:58-08:00"
+    },
+    "TxnDate": "2025-12-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Amount": 500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23334",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 350,
+        "LinkedTxn": [
+          {
+            "TxnId": "23336",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 6500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23339",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 3000,
+        "LinkedTxn": [
+          {
+            "TxnId": "23342",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 13250,
+        "LinkedTxn": [
+          {
+            "TxnId": "23343",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 7725,
+        "LinkedTxn": [
+          {
+            "TxnId": "23345",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 3200,
+        "LinkedTxn": [
+          {
+            "TxnId": "23346",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 3100,
+        "LinkedTxn": [
+          {
+            "TxnId": "23347",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Amount": 3500,
+        "LinkedTxn": [
+          {
+            "TxnId": "23349",
+            "TxnType": "Payment",
+            "TxnLineId": "0"
+          }
+        ],
+        "DepositLineDetail": {
+          "PaymentMethodRef": {
+            "value": "6"
+          },
+          "CheckNum": "458722"
+        }
+      },
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "QMI Cost Savings",
+        "Amount": -500,
+        "DetailType": "DepositLineDetail",
+        "DepositLineDetail": {
+          "Entity": {
+            "value": "1685",
+            "name": "Toll Brothers:The Pinehills Owls Nest:Lot 66 - The Pinehills Owls Nest",
+            "type": "CUSTOMER"
+          },
+          "AccountRef": {
+            "value": "189",
+            "name": "Back Charge"
+          },
+          "PaymentMethodRef": {
+            "value": "6",
+            "name": "ACH"
+          },
+          "CheckNum": "458722"
+        },
+        "ProjectRef": {
+          "value": "713976884"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "TxnTaxDetail": {}
+  },
+  {
+    "DepositToAccountRef": {
+      "value": "231",
+      "name": "Mutual One Checking (8980)"
+    },
     "TotalAmt": 418,
     "domain": "QBO",
     "sparse": false,

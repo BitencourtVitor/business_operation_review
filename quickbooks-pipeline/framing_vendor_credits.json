@@ -1,17 +1,189 @@
 [
   {
     "VendorAddr": {
+      "Id": "19310",
+      "Line1": "Home Depot",
+      "Line2": "530 Boston Turnpike",
+      "Line3": "Shrewsbury, MA  01545",
+      "Line4": "United States"
+    },
+    "Balance": 313.32,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53807",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-23T10:56:35-08:00",
+      "LastUpdatedTime": "2025-12-23T10:56:35-08:00"
+    },
+    "DocNumber": "0134141383",
+    "TxnDate": "2025-12-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Credit Memo 134141383 (Original Invoice 0131836988)\nRefund for Marble Tile Purchase (Net Credit)",
+        "Amount": 313.32,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "165",
+      "name": "Home Depot"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 313.32
+  },
+  {
+    "VendorAddr": {
+      "Id": "7471"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50089",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-04T17:05:35-07:00",
+      "LastUpdatedTime": "2025-12-22T12:40:10-08:00"
+    },
+    "DocNumber": "203950",
+    "TxnDate": "2025-07-23",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Returned",
+    "LinkedTxn": [
+      {
+        "TxnId": "53753",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "50977",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 119.53,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 119.53
+  },
+  {
+    "VendorAddr": {
+      "Id": "16232",
+      "Line1": "Builders FirstSource"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50063",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-08-04T15:19:38-07:00",
+      "LastUpdatedTime": "2025-12-22T12:40:10-08:00"
+    },
+    "DocNumber": "204290",
+    "TxnDate": "2025-07-28",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Storage",
+    "LinkedTxn": [
+      {
+        "TxnId": "53753",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "50977",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 1341.14,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "131",
+            "name": "Job Supplies:Materials Premium"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1341.14
+  },
+  {
+    "VendorAddr": {
       "Id": "18732",
       "Line1": "Central Equipment and Fasteners"
     },
-    "Balance": 8764.03,
+    "Balance": 0,
     "domain": "QBO",
     "sparse": false,
     "Id": "53117",
-    "SyncToken": "3",
+    "SyncToken": "5",
     "MetaData": {
       "CreateTime": "2025-12-09T08:01:42-08:00",
-      "LastUpdatedTime": "2025-12-11T14:12:40-08:00"
+      "LastUpdatedTime": "2025-12-22T07:23:17-08:00"
     },
     "DocNumber": "Material not delivere",
     "TxnDate": "2025-12-09",
@@ -19,6 +191,20 @@
       "value": "USD",
       "name": "United States Dollar"
     },
+    "LinkedTxn": [
+      {
+        "TxnId": "53736",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "53736",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "53736",
+        "TxnType": "BillPayment"
+      }
+    ],
     "Line": [
       {
         "Id": "1",
@@ -48,6 +234,119 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 8764.03
+  },
+  {
+    "VendorAddr": {
+      "Id": "19003",
+      "Line1": "Wanessa Silva Santos",
+      "Line2": "W Silva Construction, Inc.",
+      "Line3": "29 McAdams Rd",
+      "Line4": "Framingham, MA  01701"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53551",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-12-16T11:20:02-08:00",
+      "LastUpdatedTime": "2025-12-19T08:15:29-08:00"
+    },
+    "DocNumber": "80566",
+    "TxnDate": "2025-11-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "4 Lady Constancy Way, Westford, MA",
+    "LinkedTxn": [
+      {
+        "TxnId": "53708",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Water Damage",
+        "Amount": 1490,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2766",
+      "name": "W Silva Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1490
+  },
+  {
+    "VendorAddr": {
+      "Id": "18961",
+      "Line1": "Home Depot Credit Services",
+      "Line2": "Dept. 32-2649395757",
+      "Line3": "PO Box 78047",
+      "Line4": "Phoenix, AZ  85062"
+    },
+    "Balance": 3694.95,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "53530",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-15T10:16:14-08:00",
+      "LastUpdatedTime": "2025-12-15T10:16:14-08:00"
+    },
+    "DocNumber": "133350488",
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "0132215521  - 5.2mm - Sandeply Plywood (1/4\nin. Category Common: 1/4 in. x\n4 ft. x 8 ft.; Actual: 0.205 in. x 48\nin. x 96 in.)",
+        "Amount": 3694.95,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "340",
+      "name": "Home Depot Credit Services"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3694.95
   },
   {
     "VendorAddr": {
@@ -5479,117 +5778,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 500
-  },
-  {
-    "VendorAddr": {
-      "Id": "7471"
-    },
-    "Balance": 2.25,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50089",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-04T17:05:35-07:00",
-      "LastUpdatedTime": "2025-09-15T10:05:10-07:00"
-    },
-    "DocNumber": "203950",
-    "TxnDate": "2025-07-23",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Returned",
-    "LinkedTxn": [
-      {
-        "TxnId": "50977",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 119.53,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "16",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 119.53
-  },
-  {
-    "VendorAddr": {
-      "Id": "16232",
-      "Line1": "Builders FirstSource"
-    },
-    "Balance": 25.25,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50063",
-    "SyncToken": "5",
-    "MetaData": {
-      "CreateTime": "2025-08-04T15:19:38-07:00",
-      "LastUpdatedTime": "2025-09-15T10:05:10-07:00"
-    },
-    "DocNumber": "204290",
-    "TxnDate": "2025-07-28",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Storage",
-    "LinkedTxn": [
-      {
-        "TxnId": "50977",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 1341.14,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "131",
-            "name": "Job Supplies:Materials Premium"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "2837",
-      "name": "Builders FirstSource"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1341.14
   },
   {
     "VendorAddr": {
