@@ -1,6 +1,917 @@
 [
   {
     "VendorAddr": {
+      "Id": "19843",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 832.78,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "54730",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2026-01-22T00:47:22-08:00",
+      "LastUpdatedTime": "2026-01-22T00:47:22-08:00"
+    },
+    "TxnDate": "2026-01-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "19965",
+      "Line1": "Builders FirstSource"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "54424",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2026-01-19T11:01:32-08:00",
+      "LastUpdatedTime": "2026-01-21T19:59:55-08:00"
+    },
+    "DocNumber": "211612",
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "95 Pearson Blvd\nGardner, MA 01440",
+    "LinkedTxn": [
+      {
+        "TxnId": "54729",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "F3512H - HGUS412 FM HD HANGER 55.19 ea (110.38)\nso 2974701",
+        "Amount": 115.07,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "16",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "2837",
+      "name": "Builders FirstSource"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 115.07
+  },
+  {
+    "VendorAddr": {
+      "Id": "19844",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "54315",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2026-01-13T19:36:51-08:00",
+      "LastUpdatedTime": "2026-01-21T07:44:34-08:00"
+    },
+    "DocNumber": "Paula's Car",
+    "TxnDate": "2025-12-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "54454",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "54454",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "18478",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "52850",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-11-25T08:53:28-08:00",
+      "LastUpdatedTime": "2026-01-13T19:33:35-08:00"
+    },
+    "DocNumber": "Paula's Car",
+    "TxnDate": "2025-11-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "53116",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "53116",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "17761",
+      "Line1": "Flow Business and Financial Management LLC",
+      "Line2": "22 Lewis St",
+      "Line3": "Franklin, Massachussets  02038",
+      "Line4": "USA"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "51987",
+    "SyncToken": "2",
+    "MetaData": {
+      "CreateTime": "2025-10-22T12:09:02-07:00",
+      "LastUpdatedTime": "2026-01-13T19:33:20-08:00"
+    },
+    "DocNumber": "Paula's Car",
+    "TxnDate": "2025-10-22",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "52536",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "52536",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Monthly payment",
+        "Amount": 682.78,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "13",
+            "name": "Reimbursable Expenses"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Insurance monthly payment",
+        "Amount": 150,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "202",
+            "name": "Vehicles Expenses:Insurance"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3183",
+      "name": "Flow Business and Financial Management LLC"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 832.78
+  },
+  {
+    "VendorAddr": {
+      "Id": "19764",
+      "Line1": "BDS Home Services, Inc.",
+      "Line2": "35 June St",
+      "Line3": "Worcester St, Massachusetts",
+      "Line4": "01757 United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "54253",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2026-01-09T10:11:12-08:00",
+      "LastUpdatedTime": "2026-01-09T10:11:31-08:00"
+    },
+    "TxnDate": "2026-01-09",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Back Charge",
+    "LinkedTxn": [
+      {
+        "TxnId": "54235",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Installation of Plywood for the Decks",
+        "Amount": 1120,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3207",
+      "name": "BDS Home Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1120
+  },
+  {
+    "VendorAddr": {
+      "Id": "19558",
+      "Line1": "BDS Home Services, Inc.",
+      "Line2": "35 June St",
+      "Line3": "Worcester St, Massachusetts",
+      "Line4": "01757 United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "54101",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2026-01-06T11:04:07-08:00",
+      "LastUpdatedTime": "2026-01-08T11:46:33-08:00"
+    },
+    "TxnDate": "2026-01-06",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Back Charge",
+    "LinkedTxn": [
+      {
+        "TxnId": "54235",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Instalação de 10 hold downs, incluindo mão de obra de dois funcionários, totalizando 18 horas de cada funcionario",
+        "Amount": 1260,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "Instalação de blocos estruturais em ambos os lados do corredor e nas paredes com portas dos decks, com mão de obra de dois funcionários, totalizando  18 horas de cada funcionario",
+        "Amount": 1260,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "Execução de serviços em paredes de pequena extensão na cobertura (roof) para viabilizar a execução dos trabalhos da equipe de HVAC e, posteriormente, permitir a fixação dos plywoods pelos carpinteiros, com mão de obra de dois funcionários, totalizando 2 horas de cada funcionario.",
+        "Amount": 140,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "Execução de enxerto na fundação, na parede posterior do edifício, com ajuste de 1 polegada (1”) para nivelamento e liberação do início dos trabalhos de siding, com mão de obra de dois funcionários, totalizando 2 horas de cada funcionario",
+        "Amount": 140,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "Fixação de plywoods nas paredes estruturais divisórias entre os apartamentos, no terceiro pavimento e em algumas áreas do quarto pavimento, com mão de obra de dois funcionários, totalizando 5 horas por funcionário.",
+        "Amount": 350,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "3263",
+            "name": "Pulte Homes, Inc.:Chauncy Lake 6546 - Pulte Homes MS - 1074:Building 7 - Chauncy Lake"
+          },
+          "AccountRef": {
+            "value": "124",
+            "name": "Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "609465377"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3207",
+      "name": "BDS Home Services, Inc."
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3150
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50281",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:05:23-07:00",
+      "LastUpdatedTime": "2025-12-30T09:30:31-08:00"
+    },
+    "DocNumber": "17369-0003",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 398,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 398
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "50280",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-08-08T08:04:58-07:00",
+      "LastUpdatedTime": "2025-12-30T09:30:31-08:00"
+    },
+    "DocNumber": "17369-0002",
+    "TxnDate": "2025-07-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Amount": 2000,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 2000
+  },
+  {
+    "VendorAddr": {
+      "Id": "13486",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47279",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2025-04-09T13:42:54-07:00",
+      "LastUpdatedTime": "2025-12-30T09:30:31-08:00"
+    },
+    "DocNumber": "14242-0005",
+    "TxnDate": "2024-09-18",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
+        "Amount": 978,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2906",
+            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "408984366"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 978
+  },
+  {
+    "VendorAddr": {
+      "Id": "10222"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "47278",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-04-09T13:24:10-07:00",
+      "LastUpdatedTime": "2025-12-30T09:30:31-08:00"
+    },
+    "DocNumber": "13470-0008",
+    "TxnDate": "2024-07-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "13470-0008",
+        "Amount": 1931.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "2851",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "375289538"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1931.43
+  },
+  {
+    "VendorAddr": {
+      "Id": "11580",
+      "Line1": "ETS Equipment Rental"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "44677",
+    "SyncToken": "5",
+    "MetaData": {
+      "CreateTime": "2024-12-27T13:46:22-08:00",
+      "LastUpdatedTime": "2025-12-30T09:30:31-08:00"
+    },
+    "DocNumber": "10108-0032",
+    "TxnDate": "2024-09-12",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "51914",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "1 TRUSSES EXTENTION 100.00 100.00 100.00 100.00-\nT10 Make: TRUSS EXT Model: * Ser #: *\n\nCredit That We have with Them",
+        "Amount": 106.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "1053",
+            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
+          },
+          "AccountRef": {
+            "value": "40",
+            "name": "Equipment Rentals"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "56",
+      "name": "ETS Equipment Rental"
+    },
+    "APAccountRef": {
+      "value": "34",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 106.25
+  },
+  {
+    "VendorAddr": {
       "Id": "19310",
       "Line1": "Home Depot",
       "Line2": "530 Boston Turnpike",
@@ -416,86 +1327,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "18478",
-      "Line1": "Flow Business and Financial Management LLC",
-      "Line2": "22 Lewis St",
-      "Line3": "Franklin, Massachussets  02038",
-      "Line4": "USA"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "52850",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-11-25T08:53:28-08:00",
-      "LastUpdatedTime": "2025-12-09T07:30:09-08:00"
-    },
-    "TxnDate": "2025-11-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "53116",
-        "TxnType": "BillPayment"
-      },
-      {
-        "TxnId": "53116",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Monthly payment",
-        "Amount": 682.78,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Insurance monthly payment",
-        "Amount": 150,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "Vehicles Expenses:Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "3183",
-      "name": "Flow Business and Financial Management LLC"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 832.78
-  },
-  {
-    "VendorAddr": {
       "Id": "15305"
     },
     "Balance": 0,
@@ -776,86 +1607,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1050
-  },
-  {
-    "VendorAddr": {
-      "Id": "17761",
-      "Line1": "Flow Business and Financial Management LLC",
-      "Line2": "22 Lewis St",
-      "Line3": "Franklin, Massachussets  02038",
-      "Line4": "USA"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "51987",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-10-22T12:09:02-07:00",
-      "LastUpdatedTime": "2025-11-12T14:34:45-08:00"
-    },
-    "TxnDate": "2025-10-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "52536",
-        "TxnType": "BillPayment"
-      },
-      {
-        "TxnId": "52536",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Monthly payment",
-        "Amount": 682.78,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "13",
-            "name": "Reimbursable Expenses"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "Insurance monthly payment",
-        "Amount": 150,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "202",
-            "name": "Vehicles Expenses:Insurance"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "3183",
-      "name": "Flow Business and Financial Management LLC"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 832.78
   },
   {
     "VendorAddr": {
@@ -1369,317 +2120,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 1100
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 398,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50281",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:05:23-07:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "17369-0003",
-    "TxnDate": "2025-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 398,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 398
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 2000,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50280",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:04:58-07:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "17369-0002",
-    "TxnDate": "2025-07-19",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 2000,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 2000
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 125.98,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "50279",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-08-08T08:02:07-07:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "10311-0028",
-    "TxnDate": "2025-01-22",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Amount": 125.98,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 125.98
-  },
-  {
-    "VendorAddr": {
-      "Id": "13486",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 978,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47279",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:42:54-07:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "14242-0005",
-    "TxnDate": "2024-09-18",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 FORKLIFT 6K\nF61705 Make: JLG Model: G642A Ser #: 160051705",
-        "Amount": 978,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2906",
-            "name": "Pulte Homes, Inc.:Woodland Hill 8180 - Pulte Homes MS - 1074:Lot 36 - Woodland Hill - Pulte Homes - 8180"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "408984366"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 978
-  },
-  {
-    "VendorAddr": {
-      "Id": "10222"
-    },
-    "Balance": 1931.43,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "47278",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-04-09T13:24:10-07:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "13470-0008",
-    "TxnDate": "2024-07-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "13470-0008",
-        "Amount": 1931.43,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "2851",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074:Lot 56 / 26 - Cold Brook Preston - Pulte Homes - 7274"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "375289538"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1931.43
-  },
-  {
-    "VendorAddr": {
-      "Id": "11580",
-      "Line1": "ETS Equipment Rental"
-    },
-    "Balance": 106.25,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "44677",
-    "SyncToken": "4",
-    "MetaData": {
-      "CreateTime": "2024-12-27T13:46:22-08:00",
-      "LastUpdatedTime": "2025-10-29T13:42:29-07:00"
-    },
-    "DocNumber": "10108-0032",
-    "TxnDate": "2024-09-12",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "1 TRUSSES EXTENTION 100.00 100.00 100.00 100.00-\nT10 Make: TRUSS EXT Model: * Ser #: *\n\nCredit That We have with Them",
-        "Amount": 106.25,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "1053",
-            "name": "Pulte Homes, Inc.:Cold Brook Preston 7274 - Pulte Homes MS - 1074"
-          },
-          "AccountRef": {
-            "value": "40",
-            "name": "Equipment Rentals"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "56",
-      "name": "ETS Equipment Rental"
-    },
-    "APAccountRef": {
-      "value": "34",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 106.25
   },
   {
     "VendorAddr": {
