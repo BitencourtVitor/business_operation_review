@@ -1,6 +1,1501 @@
 [
   {
     "VendorAddr": {
+      "Id": "11759",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19269",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2026-01-15T10:12:50-08:00",
+      "LastUpdatedTime": "2026-01-28T13:26:52-08:00"
+    },
+    "DocNumber": "2509-197519",
+    "TxnDate": "2025-09-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "LinkedTxn": [
+      {
+        "TxnId": "19618",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "2508-181680",
+        "Amount": 28.65,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 28.65
+  },
+  {
+    "VendorAddr": {
+      "Id": "11013",
+      "Line1": "Botello Lumber Company",
+      "Line2": "26 Bowdoin Rd.",
+      "Line3": "Mashpee, MA  02649"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18391",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-12-05T07:14:19-08:00",
+      "LastUpdatedTime": "2026-01-28T13:26:52-08:00"
+    },
+    "DocNumber": "2508-196914",
+    "TxnDate": "2025-08-29",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)",
+    "LinkedTxn": [
+      {
+        "TxnId": "19618",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "2",
+        "LineNum": 1,
+        "Description": "Credit Card",
+        "Amount": 26.28,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "904",
+            "name": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "541155823"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "35",
+      "name": "Botello Lumber Company"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 26.28
+  },
+  {
+    "VendorAddr": {
+      "Id": "11918",
+      "Line1": "R&H Construction, Inc.",
+      "Line2": "996 East Falmouth Highway",
+      "Line3": "East Falmouth, MA  02536"
+    },
+    "Balance": 3800,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15681",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-04-11T07:50:34-07:00",
+      "LastUpdatedTime": "2026-01-26T09:50:15-08:00"
+    },
+    "DocNumber": "Water svc curbsto",
+    "TxnDate": "2025-04-11",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Credit requested 04/11/25",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Install 1\" water service from curbstop",
+        "Amount": 3800,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "268",
+            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
+          },
+          "AccountRef": {
+            "value": "103",
+            "name": "Sub-Contractors:Utility Connections"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "53028002"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "139",
+      "name": "R&H Construction, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 3800
+  },
+  {
+    "VendorAddr": {
+      "Id": "8448",
+      "Line1": "RW Plumbing Inc.",
+      "Line2": "6 Lilac Ct",
+      "Line3": "Walpole, MA  02081"
+    },
+    "Balance": 1000.02,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "15389",
+    "SyncToken": "1",
+    "MetaData": {
+      "CreateTime": "2025-03-18T09:32:40-07:00",
+      "LastUpdatedTime": "2026-01-22T09:23:09-08:00"
+    },
+    "DocNumber": "3992",
+    "TxnDate": "2025-03-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "Estimate 2533. Overpayment.",
+        "Amount": 1000.02,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "108",
+            "name": "Sub-Contractors:PLUMBING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "12",
+      "name": "RW Plumbing Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1000.02
+  },
+  {
+    "VendorAddr": {
+      "Id": "11837",
+      "Line1": "Turnkey Lumber Corporation",
+      "Line2": "179 NH Route 12 North",
+      "Line3": "Fitzwilliam, New Hampshire",
+      "Line4": "03447 USA"
+    },
+    "Balance": 1350,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19327",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2026-01-20T02:37:51-08:00",
+      "LastUpdatedTime": "2026-01-20T02:37:51-08:00"
+    },
+    "DocNumber": "BC - Baldwinville",
+    "TxnDate": "2025-12-08",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "11/11 - Fixing 3rd floor trusses position of units 105/107/108\n6 labors - 3 hours ea one\nTotal: 18 hours\n11/12 - Fixing 3rd floor trusses position of units 106/104\n3 labors - 4 hours ea one\nTotal: 12 hours\nTotal: 30 hours x $45/h = $1350.00",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "11/11 - Fixing 3rd floor trusses position of units 105/107/108\n6 labors - 3 hours ea one\nTotal: 18 hours\n\n11/12 - Fixing 3rd floor trusses position of units 106/104\n3 labors - 4 hours ea one\nTotal: 12 hours\n\nBack Charge on Turnkey\n\nTotal: 30 hours x $45/h = $1350.00",
+        "Amount": 1350,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "162",
+            "name": "Sub-Contractors:Back Charges"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "667",
+      "name": "Turnkey Lumber Corporation"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 1350
+  },
+  {
+    "VendorAddr": {
+      "Id": "11534",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 10631.42,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19063",
+    "SyncToken": "6",
+    "MetaData": {
+      "CreateTime": "2025-12-30T12:25:14-08:00",
+      "LastUpdatedTime": "2026-01-09T13:06:22-08:00"
+    },
+    "DocNumber": "Payroll",
+    "TxnDate": "2025-12-19",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll 11.30 - 12.13",
+    "LinkedTxn": [
+      {
+        "TxnId": "19222",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "47",
+        "LineNum": 1,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 904.15,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "48",
+        "LineNum": 2,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 754.51,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "49",
+        "LineNum": 3,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 900.91,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "50",
+        "LineNum": 4,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 963.92,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "51",
+        "LineNum": 5,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 952.77,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "52",
+        "LineNum": 6,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1606.73,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "53",
+        "LineNum": 7,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 892.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "54",
+        "LineNum": 8,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1207.49,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "55",
+        "LineNum": 9,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 461.85,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "56",
+        "LineNum": 10,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 865.46,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "57",
+        "LineNum": 11,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1670.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "58",
+        "LineNum": 12,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 440.37,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 11621.42
+  },
+  {
+    "VendorAddr": {
+      "Id": "11656",
+      "Line1": "Koopman Lumber",
+      "Line2": "Dept 6420",
+      "Line3": "PO Box 4110",
+      "Line4": "Woburn, MA  01888-4110"
+    },
+    "Balance": 632.19,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19178",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2026-01-09T06:14:00-08:00",
+      "LastUpdatedTime": "2026-01-09T06:14:00-08:00"
+    },
+    "DocNumber": "197662",
+    "TxnDate": "2026-01-05",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Callahan, Inc.:Baldwinville School",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "STOCK GALV WEDGE ANCHORS\nInvoice number 3340300, cust ref STOCK GALV WEDGE\nANCHORS, order number 16598206\n1 125 H372434 - GALV WEDGE ANC 1/2X5 1/2 (4.76) PC (595.00)\nPower-Stud wedge anchors are fully threaded, torque\ncontrolled, wedge expansion anchors designed for\nconcrete applications. Suitable base materials include solid\nconcrete and grout-filled concrete masonry. These anchors\nhave various DOT approvals including Caltrans listing for\n\"stud mechanical expansion anchors\". They're also suitable\nfor use with pressure treated lumber.",
+        "Amount": 632.19,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "17",
+            "name": "Job Supplies"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "3",
+      "name": "Koopman Lumber"
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 632.19
+  },
+  {
+    "VendorAddr": {
+      "Id": "11536",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18239",
+    "SyncToken": "3",
+    "MetaData": {
+      "CreateTime": "2025-11-21T07:16:59-08:00",
+      "LastUpdatedTime": "2025-12-30T15:04:11-08:00"
+    },
+    "DocNumber": "Payroll",
+    "TxnDate": "2025-11-21",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll 11.02 - 11.15",
+    "LinkedTxn": [
+      {
+        "TxnId": "18240",
+        "TxnType": "BillPayment"
+      },
+      {
+        "TxnId": "18240",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1588.13,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1344.86,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 2079.05,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1657.43,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1464.48,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1340.27,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 606,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1418.63,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 11498.85
+  },
+  {
+    "VendorAddr": {
+      "Id": "11532",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 0,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "18198",
+    "SyncToken": "4",
+    "MetaData": {
+      "CreateTime": "2025-11-14T09:47:44-08:00",
+      "LastUpdatedTime": "2025-12-30T15:03:46-08:00"
+    },
+    "DocNumber": "Payroll",
+    "TxnDate": "2025-11-14",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll - 10.19 - 11.01",
+    "LinkedTxn": [
+      {
+        "TxnId": "18199",
+        "TxnType": "BillPayment"
+      }
+    ],
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1025.58,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 862.29,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1111.75,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 777.87,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 943.99,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 775.09,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 342.11,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 741.09,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "IS Payroll paid by PCG",
+        "Amount": 1306.9,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "11",
+        "LineNum": 10,
+        "Amount": 0,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 7886.67
+  },
+  {
+    "VendorAddr": {
+      "Id": "11535",
+      "Line1": "ES General Contractor, Inc.",
+      "Line2": "390 Cabot Street",
+      "Line3": "#1",
+      "Line4": "Beverly, Massachusetts  01915",
+      "Line5": "United States"
+    },
+    "Balance": 12774.11,
+    "domain": "QBO",
+    "sparse": false,
+    "Id": "19064",
+    "SyncToken": "0",
+    "MetaData": {
+      "CreateTime": "2025-12-30T12:49:45-08:00",
+      "LastUpdatedTime": "2025-12-30T12:49:45-08:00"
+    },
+    "DocNumber": "Payroll",
+    "TxnDate": "2026-01-02",
+    "CurrencyRef": {
+      "value": "USD",
+      "name": "United States Dollar"
+    },
+    "PrivateNote": "Payroll 12.14 - 12.27",
+    "Line": [
+      {
+        "Id": "1",
+        "LineNum": 1,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 756,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "2",
+        "LineNum": 2,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1587.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "3",
+        "LineNum": 3,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1416.4,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "4",
+        "LineNum": 4,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1211.2,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "5",
+        "LineNum": 5,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1883.25,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "6",
+        "LineNum": 6,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1356.96,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "7",
+        "LineNum": 7,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1527,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "8",
+        "LineNum": 8,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1488.6,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      },
+      {
+        "Id": "9",
+        "LineNum": 9,
+        "Description": "ES Payroll paid by PCG",
+        "Amount": 1547.1,
+        "DetailType": "AccountBasedExpenseLineDetail",
+        "AccountBasedExpenseLineDetail": {
+          "CustomerRef": {
+            "value": "961",
+            "name": "Callahan, Inc.:Baldwinville School"
+          },
+          "AccountRef": {
+            "value": "106",
+            "name": "Sub-Contractors:FRAMING"
+          },
+          "BillableStatus": "NotBillable",
+          "TaxCodeRef": {
+            "value": "NON"
+          }
+        },
+        "ProjectRef": {
+          "value": "633825987"
+        },
+        "CustomExtensions": []
+      }
+    ],
+    "VendorRef": {
+      "value": "864",
+      "name": "ES General Contractor, Inc."
+    },
+    "APAccountRef": {
+      "value": "37",
+      "name": "Accounts Payable (A/P)"
+    },
+    "TotalAmt": 12774.11
+  },
+  {
+    "VendorAddr": {
       "Id": "10876",
       "Line1": "Premium Framing, Inc",
       "Line2": "1B Landing Ln",
@@ -745,66 +2240,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "11013",
-      "Line1": "Botello Lumber Company",
-      "Line2": "26 Bowdoin Rd.",
-      "Line3": "Mashpee, MA  02649"
-    },
-    "Balance": 26.28,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18391",
-    "SyncToken": "2",
-    "MetaData": {
-      "CreateTime": "2025-12-05T07:14:19-08:00",
-      "LastUpdatedTime": "2025-12-05T10:37:24-08:00"
-    },
-    "DocNumber": "2508-196914",
-    "TxnDate": "2025-08-29",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)",
-    "Line": [
-      {
-        "Id": "2",
-        "LineNum": 1,
-        "Description": "Credit Card",
-        "Amount": 26.28,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "904",
-            "name": "Lorri McBride:53 Bluff Ave, Mashpee, MA (2nd Phase)"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "541155823"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "35",
-      "name": "Botello Lumber Company"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 26.28
-  },
-  {
-    "VendorAddr": {
       "Id": "10984",
       "Line1": "Ferguson",
       "Line2": "PO BOX 417592",
@@ -1270,385 +2705,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 88.4
-  },
-  {
-    "VendorAddr": {
-      "Id": "10833",
-      "Line1": "ES General Contractor, Inc.",
-      "Line2": "390 Cabot Street",
-      "Line3": "#1",
-      "Line4": "Beverly, Massachusetts  01915",
-      "Line5": "United States"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18239",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-11-21T07:16:59-08:00",
-      "LastUpdatedTime": "2025-11-21T07:22:50-08:00"
-    },
-    "DocNumber": "Payroll",
-    "TxnDate": "2025-11-21",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "18240",
-        "TxnType": "BillPayment"
-      },
-      {
-        "TxnId": "18240",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 11498.85,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "864",
-      "name": "ES General Contractor, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 11498.85
-  },
-  {
-    "VendorAddr": {
-      "Id": "10778",
-      "Line1": "ES General Contractor, Inc.",
-      "Line2": "390 Cabot Street",
-      "Line3": "#1",
-      "Line4": "Beverly, Massachusetts  01915",
-      "Line5": "United States"
-    },
-    "Balance": 0,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "18198",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2025-11-14T09:47:44-08:00",
-      "LastUpdatedTime": "2025-11-14T09:53:42-08:00"
-    },
-    "TxnDate": "2025-11-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "LinkedTxn": [
-      {
-        "TxnId": "18199",
-        "TxnType": "BillPayment"
-      }
-    ],
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 1258.32,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "2",
-        "LineNum": 2,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 1041.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "3",
-        "LineNum": 3,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 1372.8,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "4",
-        "LineNum": 4,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 932,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "5",
-        "LineNum": 5,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 1149.94,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "6",
-        "LineNum": 6,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 928.4,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "7",
-        "LineNum": 7,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 392,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "8",
-        "LineNum": 8,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 884,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "9",
-        "LineNum": 9,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": 1632.6,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "10",
-        "LineNum": 10,
-        "Description": "IS Payroll paid by PCG",
-        "Amount": -1704.79,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "961",
-            "name": "Callahan, Inc.:Baldwinville School"
-          },
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "633825987"
-        },
-        "CustomExtensions": []
-      },
-      {
-        "Id": "11",
-        "LineNum": 11,
-        "Amount": 0,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "106",
-            "name": "Sub-Contractors:FRAMING"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "864",
-      "name": "ES General Contractor, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 7886.67
   },
   {
     "VendorAddr": {
@@ -2425,66 +3481,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "9300",
-      "Line1": "Mid Cape Home",
-      "Line2": "465 Route 134",
-      "Line3": "South Dennis, MA  02660"
-    },
-    "Balance": 825.06,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "12196",
-    "SyncToken": "1",
-    "MetaData": {
-      "CreateTime": "2024-08-27T08:08:46-07:00",
-      "LastUpdatedTime": "2025-06-19T11:12:08-07:00"
-    },
-    "DocNumber": "2408-270509",
-    "TxnDate": "2024-07-31",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Sawmill Herringbone shingles - 165 Baxter Neck",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Payment made twice",
-        "Amount": 825.06,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "17",
-            "name": "Job Supplies"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "378",
-      "name": "Mid Cape Home"
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 825.06
-  },
-  {
-    "VendorAddr": {
       "Id": "9133",
       "Line1": "Roger",
       "Line2": "Prime Construction Services, Inc."
@@ -2873,66 +3869,6 @@
   },
   {
     "VendorAddr": {
-      "Id": "8652",
-      "Line1": "R&H Construction, Inc.",
-      "Line2": "996 East Falmouth Highway",
-      "Line3": "East Falmouth, MA  02536"
-    },
-    "Balance": 3800,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15681",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-04-11T07:50:34-07:00",
-      "LastUpdatedTime": "2025-04-11T07:50:34-07:00"
-    },
-    "DocNumber": "Water svc curbsto",
-    "TxnDate": "2025-04-11",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "PrivateNote": "Credit requested 04/11/25",
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Install 1\" water service from curbstop",
-        "Amount": 3800,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "CustomerRef": {
-            "value": "268",
-            "name": "Premium Contractors Group, Inc.:165 Baxter Neck Rd, Barnstable, MA"
-          },
-          "AccountRef": {
-            "value": "96",
-            "name": "Sub-Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "ProjectRef": {
-          "value": "53028002"
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "139",
-      "name": "R&H Construction, Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 3800
-  },
-  {
-    "VendorAddr": {
       "Id": "5702",
       "Line1": "Van Millwork",
       "Line2": "27 South Maple Street",
@@ -2988,58 +3924,6 @@
       "name": "Accounts Payable (A/P)"
     },
     "TotalAmt": 28.68
-  },
-  {
-    "VendorAddr": {
-      "Id": "8448",
-      "Line1": "RW Plumbing Inc.",
-      "Line2": "6 Lilac Ct",
-      "Line3": "Walpole, MA  02081"
-    },
-    "Balance": 1000.02,
-    "domain": "QBO",
-    "sparse": false,
-    "Id": "15389",
-    "SyncToken": "0",
-    "MetaData": {
-      "CreateTime": "2025-03-18T09:32:40-07:00",
-      "LastUpdatedTime": "2025-03-18T09:32:40-07:00"
-    },
-    "DocNumber": "3992",
-    "TxnDate": "2025-03-14",
-    "CurrencyRef": {
-      "value": "USD",
-      "name": "United States Dollar"
-    },
-    "Line": [
-      {
-        "Id": "1",
-        "LineNum": 1,
-        "Description": "Estimate 2533. Overpayment.",
-        "Amount": 1000.02,
-        "DetailType": "AccountBasedExpenseLineDetail",
-        "AccountBasedExpenseLineDetail": {
-          "AccountRef": {
-            "value": "96",
-            "name": "Sub-Contractors"
-          },
-          "BillableStatus": "NotBillable",
-          "TaxCodeRef": {
-            "value": "NON"
-          }
-        },
-        "CustomExtensions": []
-      }
-    ],
-    "VendorRef": {
-      "value": "12",
-      "name": "RW Plumbing Inc."
-    },
-    "APAccountRef": {
-      "value": "37",
-      "name": "Accounts Payable (A/P)"
-    },
-    "TotalAmt": 1000.02
   },
   {
     "VendorAddr": {
