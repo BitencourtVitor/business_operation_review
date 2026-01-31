@@ -2,12 +2,14 @@ import type { WorkforceProject } from './types';
 import ForecastProjectCard from './ForecastProjectCard';
 
 interface ForecastProjectsGridProps {
+  theme?: 'light' | 'dark';
   groupedProjects: [string, WorkforceProject[]][];
   filterNotStarted: boolean;
   onProjectClick: (project: WorkforceProject) => void;
 }
 
 export default function ForecastProjectsGrid({
+  theme,
   groupedProjects,
   filterNotStarted,
   onProjectClick
@@ -67,6 +69,7 @@ export default function ForecastProjectsGrid({
               {projects.map((project) => (
                 <ForecastProjectCard
                   key={project.id}
+                  theme={theme}
                   project={project}
                   filterNotStarted={filterNotStarted}
                   onCardClick={onProjectClick}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import MultiSelectDropdown from '../MultiSelectDropdown';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
+import iconQBTime from '../../../assets/qbtime_logo.png';
 
 interface MobileForecastFiltersProps {
   selectedYear: string;
@@ -14,6 +15,7 @@ interface MobileForecastFiltersProps {
   selectedMachines: string;
   selectedContractSteps: string;
   selectedWorkforce: string;
+  selectedQBTime: string;
   filterNotStarted: boolean;
   years: string[];
   months: string[];
@@ -44,6 +46,7 @@ export default function MobileForecastFilters({
   selectedMachines,
   selectedContractSteps,
   selectedWorkforce,
+  selectedQBTime,
   filterNotStarted,
   years,
   months,
@@ -60,6 +63,7 @@ export default function MobileForecastFilters({
   onMachinesChange,
   onContractStepsChange,
   onWorkforceChange,
+  onQBTimeChange,
   onFilterNotStartedChange
 }: MobileForecastFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -134,6 +138,7 @@ export default function MobileForecastFilters({
     selectedMachines !== 'all' ? selectedMachines : null,
     selectedContractSteps !== 'all' ? selectedContractSteps : null,
     selectedWorkforce !== 'all' ? selectedWorkforce : null,
+    selectedQBTime !== 'all' ? selectedQBTime : null,
     filterNotStarted ? 'not-started' : null,
   ].filter(Boolean).length;
 
@@ -148,6 +153,7 @@ export default function MobileForecastFilters({
     onMachinesChange('all');
     onContractStepsChange('all');
     onWorkforceChange('all');
+    onQBTimeChange('all');
     onFilterNotStartedChange(true);
   };
 
@@ -165,7 +171,6 @@ export default function MobileForecastFilters({
   }) => (
     <div>
       <label style={{
-        display: 'block',
         fontSize: '13px',
         fontWeight: 500,
         color: 'var(--color-text-secondary)',
@@ -517,6 +522,20 @@ export default function MobileForecastFilters({
                 <i className="bi bi-people" style={{ fontSize: 14, color: 'var(--color-accent-primary)' }} />
               }
               label="Workforce"
+            />
+
+            {/* Quickbooks Time */}
+            <SegmentedButtonGroup
+              value={selectedQBTime}
+              onChange={onQBTimeChange}
+              icon={
+                <img 
+                  src={iconQBTime} 
+                  alt="Quickbooks Time" 
+                  style={{ width: 16, height: 16, objectFit: 'contain' }}
+                />
+              }
+              label="Quickbooks Time"
             />
           </div>
 

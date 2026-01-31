@@ -1,24 +1,5 @@
 import React, { useMemo } from 'react';
-
-interface WorkforceProject {
-  id: string;
-  cliente: string;
-  job_site: string;
-  type: string | null;
-  lote_bld: string | null;
-  workforce: string | null;
-  hvac: boolean | null;
-  buildertrend: boolean | null;
-  machine_provider: string | null;
-  status: string | null;
-  address: string | null;
-  previous_beams_date: string | null;
-  previous_start_date: string | null;
-  previous_end_date: string | null;
-  obs: string | null;
-  create_datetime: string | null;
-  lastupdate_datetimez: string | null;
-}
+import type { WorkforceProject } from './types';
 
 interface MonthlySummaryProps {
   workforceProjects: WorkforceProject[];

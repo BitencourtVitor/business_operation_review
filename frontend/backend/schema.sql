@@ -43,6 +43,72 @@ CREATE TABLE public.destaques_positivos (
   CONSTRAINT destaques_positivos_pkey PRIMARY KEY (id),
   CONSTRAINT destaques_positivos_destaque_id_fkey FOREIGN KEY (destaque_id) REFERENCES public.destaques(id)
 );
+CREATE TABLE public.employee_names (
+  id bigint NOT NULL DEFAULT nextval('employee_names_id_seq'::regclass),
+  wex_name text UNIQUE,
+  samsara_name text UNIQUE,
+  normalized_name text NOT NULL,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  vehicle_model text,
+  vehicle_min_consumption bigint,
+  vehicle_max_consumption bigint,
+  CONSTRAINT employee_names_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.forecast_contract_steps (
+  id bigint NOT NULL DEFAULT nextval('forecast_contract_steps_id_seq'::regclass),
+  obra_id text NOT NULL,
+  step text,
+  status boolean,
+  lastupdate_datetimez timestamp with time zone,
+  CONSTRAINT forecast_contract_steps_pkey PRIMARY KEY (id),
+  CONSTRAINT forecast_contract_steps_obra_id_fkey FOREIGN KEY (obra_id) REFERENCES public.forecast_data(id)
+);
+CREATE TABLE public.forecast_data (
+  id text NOT NULL,
+  cliente text NOT NULL,
+  job_site text NOT NULL,
+  type text,
+  lote_bld text,
+  status text,
+  address text,
+  workforce text,
+  previous_beams_date date,
+  previous_start_date date,
+  previous_end_date date,
+  obs text,
+  hvac boolean,
+  buildertrend boolean,
+  machine_provider text,
+  create_datetime timestamp with time zone,
+  lastupdate_datetimez timestamp with time zone,
+  storage boolean,
+  CONSTRAINT forecast_data_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.forecast_fieldwire (
+  id bigint NOT NULL DEFAULT nextval('forecast_fieldwire_id_seq'::regclass),
+  obra_id text NOT NULL,
+  category text,
+  document text,
+  status boolean,
+  lastupdate_datetimez timestamp with time zone,
+  CONSTRAINT forecast_fieldwire_pkey PRIMARY KEY (id),
+  CONSTRAINT forecast_fieldwire_obra_id_fkey FOREIGN KEY (obra_id) REFERENCES public.forecast_data(id)
+);
+CREATE TABLE public.forecast_machines (
+  id bigint NOT NULL DEFAULT nextval('forecast_machines_id_seq'::regclass),
+  obra_id text NOT NULL,
+  category text,
+  subcategory text,
+  equipment_category text,
+  title text,
+  status boolean,
+  unit text,
+  lastupdate_datetimez timestamp with time zone,
+  CONSTRAINT forecast_machines_pkey PRIMARY KEY (id),
+  CONSTRAINT forecast_machines_obra_id_fkey FOREIGN KEY (obra_id) REFERENCES public.forecast_data(id)
+);
 CREATE TABLE public.framing_bill_lines (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   bill_id uuid NOT NULL,
@@ -847,8 +913,8 @@ CREATE TABLE public.perfis (
   tipo text NOT NULL CHECK (tipo = ANY (ARRAY['user'::text, 'admin_setor'::text, 'gestor'::text, 'dev'::text, 'owner'::text])),
   tela_id uuid,
   CONSTRAINT perfis_pkey PRIMARY KEY (usuario_id),
-  CONSTRAINT perfis_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id),
-  CONSTRAINT perfis_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
+  CONSTRAINT perfis_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
+  CONSTRAINT perfis_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id)
 );
 CREATE TABLE public.permit_control (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -874,8 +940,8 @@ CREATE TABLE public.planos_de_acao (
   deletado boolean DEFAULT false,
   tela_id uuid,
   CONSTRAINT planos_de_acao_pkey PRIMARY KEY (id),
-  CONSTRAINT planos_de_acao_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id),
-  CONSTRAINT planos_de_acao_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id)
+  CONSTRAINT planos_de_acao_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
+  CONSTRAINT planos_de_acao_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id)
 );
 CREATE TABLE public.project_monitoring_hvac (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -928,6 +994,22 @@ CREATE TABLE public.receivables_accounting (
   last_update_datetimez timestamp with time zone,
   CONSTRAINT receivables_accounting_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.samsara_events (
+  id bigint NOT NULL DEFAULT nextval('samsara_events_id_seq'::regclass),
+  event_date timestamp with time zone,
+  nome character varying NOT NULL,
+  local text,
+  distancia numeric DEFAULT 0,
+  units numeric DEFAULT 0,
+  type character varying NOT NULL CHECK (type::text = ANY (ARRAY['idle'::character varying, 'trip'::character varying]::text[])),
+  event_key character varying NOT NULL UNIQUE,
+  idle_duration numeric DEFAULT 0,
+  raw_start_time text,
+  raw_asset_name text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT samsara_events_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.service_requests (
   id uuid NOT NULL DEFAULT uuid_generate_v4(),
   contractor text NOT NULL,
@@ -945,7 +1027,6 @@ CREATE TABLE public.service_requests (
   tech text NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   additional_visits ARRAY,
-  cost double precision DEFAULT 0.0,
   CONSTRAINT service_requests_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.takeoff_works (
@@ -1004,6 +1085,7 @@ CREATE TABLE public.usuarios (
   email text NOT NULL UNIQUE,
   senha_hash text NOT NULL,
   criado_em timestamp without time zone DEFAULT now(),
+  financial_pass boolean NOT NULL DEFAULT false,
   CONSTRAINT usuarios_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.usuarios_telas (
@@ -1013,4 +1095,35 @@ CREATE TABLE public.usuarios_telas (
   CONSTRAINT usuarios_telas_pkey PRIMARY KEY (id),
   CONSTRAINT usuarios_telas_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuarios(id),
   CONSTRAINT usuarios_telas_tela_id_fkey FOREIGN KEY (tela_id) REFERENCES public.telas(id)
+);
+CREATE TABLE public.wex_transactions (
+  id bigint NOT NULL DEFAULT nextval('wex_transactions_id_seq'::regclass),
+  transaction_key text NOT NULL UNIQUE,
+  transaction_date date NOT NULL,
+  nome text NOT NULL,
+  units numeric NOT NULL,
+  valor numeric NOT NULL,
+  local text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT wex_transactions_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.workforce_projects (
+  id bigint NOT NULL DEFAULT nextval('workforce_projects_id_seq'::regclass),
+  cliente character varying NOT NULL,
+  job_site character varying NOT NULL,
+  lote_building integer DEFAULT 0,
+  workforce character varying,
+  previous_start_date date,
+  previous_end_date date,
+  observacoes text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  type text,
+  hvac text,
+  status text,
+  address text,
+  fieldwire boolean,
+  tem_contrato boolean,
+  previous_beams_date date,
+  CONSTRAINT workforce_projects_pkey PRIMARY KEY (id)
 );

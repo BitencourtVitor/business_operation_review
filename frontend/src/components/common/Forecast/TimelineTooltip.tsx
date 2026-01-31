@@ -1,5 +1,6 @@
 import React from 'react';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import { formatDateUS } from '../../../utils/formatters';
 
@@ -14,6 +15,7 @@ const isTruthyFlag = (value?: string | boolean | null): boolean => {
 };
 
 interface TimelineTooltipProps {
+  theme?: 'light' | 'dark';
   isVisible: boolean;
   position: { x: number; y: number };
   data: {
@@ -37,11 +39,13 @@ interface TimelineTooltipProps {
 }
 
 export default function TimelineTooltip({ 
+  theme,
   isVisible, 
   position, 
   data, 
   onClose 
 }: TimelineTooltipProps) {
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
   if (!isVisible) return null;
 
   return (
@@ -227,7 +231,7 @@ export default function TimelineTooltip({
                         justifyContent: 'center'
                       }}>
                         <img 
-                          src={iconForecastHvac} 
+                          src={isDarkMode ? iconForecastHvacDark : iconForecastHvac} 
                           alt="HVAC" 
                           style={{ 
                             width: '16px', 

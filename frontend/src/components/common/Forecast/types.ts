@@ -37,6 +37,7 @@ export interface WorkforceProject {
   hvac: boolean | null;
   buildertrend: boolean | null;
   storage: boolean | null;
+  qbtime: boolean | null;
   machine_provider: string | null;
   status: string | null;
   address: string | null;
