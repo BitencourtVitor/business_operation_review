@@ -58,7 +58,7 @@ export interface ForecastData {
   month: string;
   year: number;
   projectCount: number;
-  startDate: string;
-  endDate: string;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 

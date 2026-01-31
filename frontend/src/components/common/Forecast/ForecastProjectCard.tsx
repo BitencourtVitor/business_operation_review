@@ -82,7 +82,7 @@ export default function ForecastProjectCard({
         padding: '16px',
         cursor: 'pointer',
         transition: 'all 0.25s ease-in-out',
-        boxShadow: `0 2px 8px ${shadowColor}`,
+        boxShadow: 'none',
         width: '100%',
         minWidth: 0,
         maxWidth: '100%',
@@ -94,10 +94,12 @@ export default function ForecastProjectCard({
       }}
       onClick={() => onCardClick(project)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = `0 0 0 1px ${borderColor}, 0 8px 20px ${shadowColor}`;
+        // Simula o engrossamento da borda usando um anel de box-shadow (spread)
+        // Isso evita que o layout interno "pule" pois a box-shadow não ocupa espaço no box model
+        e.currentTarget.style.boxShadow = `0 0 0 1px ${borderColor}, 0 2px 8px ${shadowColor}`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = `0 2px 8px ${shadowColor}`;
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
       {/* Barra de Progresso de Completude - Topo do Card */}
@@ -117,7 +119,7 @@ export default function ForecastProjectCard({
           height: '100%',
           width: `${metrics.percentage}%`,
           background: getProgressBarColor(),
-          transition: 'width 0.5s ease-in-out, background-color 0.3s ease',
+          transition: 'width 0.25s ease-in-out, background-color 0.25s ease',
           borderRadius: '2px'
         }} />
       </div>
@@ -125,8 +127,8 @@ export default function ForecastProjectCard({
       {/* Parte Superior - Dividida em Esquerda e Direita */}
       <div style={{
         display: 'flex',
-        gap: '16px',
-        marginBottom: '16px'
+        gap: '12px',
+        marginBottom: '12px'
       }}>
         {/* Lado Esquerdo - Informações principais */}
         <div style={{ 
@@ -134,45 +136,53 @@ export default function ForecastProjectCard({
           minWidth: 0,
           display: 'flex',
           flexDirection: 'column',
-          gap: '12px'
+          gap: '8px'
         }}>
-          {/* Cliente e Job Site - Alinhados à esquerda */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '4px',
-            flex: 1
-          }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              justifyContent: 'flex-start'
-            }}>
-              <h4 style={{
-                margin: 0,
-                fontSize: '16px',
-                fontWeight: 700,
-                color: 'var(--color-text-primary)',
-                lineHeight: 1.3,
-                textAlign: 'left',
-                flex: 1
-              }}>
-                {project.cliente}
-              </h4>
-            </div>
-            <p style={{
-              margin: 0,
-              fontSize: '14px',
-              color: 'var(--color-text-secondary)',
-              lineHeight: 1.3,
-              textAlign: 'left'
-            }}>
-              {project.job_site}
-            </p>
+                {/* Cliente e Job Site - Alinhados à esquerda */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '2px',
+                  flex: 1,
+                  minWidth: 0 // Importante para permitir o truncamento no flex child
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    justifyContent: 'flex-start',
+                    minWidth: 0
+                  }}>
+                    <h4 style={{
+                      margin: 0,
+                      fontSize: '15px',
+                      fontWeight: 700,
+                      color: 'var(--color-text-primary)',
+                      lineHeight: 1.3,
+                      textAlign: 'left',
+                      flex: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {project.cliente}
+                    </h4>
+                  </div>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '13px',
+                    color: 'var(--color-text-secondary)',
+                    lineHeight: 1.3,
+                    textAlign: 'left',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {project.job_site}
+                  </p>
 
             {/* Status Stickers - Abaixo do Job Site */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
               {/* Status Principal (Open, Closed, Started, etc) */}
               {project.status && !overdue && (
                 <div style={{
@@ -189,9 +199,9 @@ export default function ForecastProjectCard({
                          project.status.toLowerCase() === 'started' ? '#28a745' :
                          project.status.toLowerCase() === 'not started' ? '#6c757d' :
                          '#3b82f6',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  fontSize: '10px',
                   fontWeight: 700,
                   border: `1px solid ${
                     project.status.toLowerCase() === 'closed' ? 'rgba(108, 117, 125, 0.3)' : 
@@ -215,15 +225,15 @@ export default function ForecastProjectCard({
                   gap: '4px',
                   background: 'rgba(224, 75, 75, 0.1)',
                   color: '#e04b4b',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  fontSize: '10px',
                   fontWeight: 700,
                   border: '1px solid rgba(224, 75, 75, 0.3)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 10 }} />
+                  <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 9 }} />
                   <span>Overdue</span>
                 </div>
               )}
@@ -236,15 +246,15 @@ export default function ForecastProjectCard({
                   gap: '4px',
                   background: 'rgba(40, 167, 69, 0.1)',
                   color: '#28a745',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  fontSize: '11px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  fontSize: '10px',
                   fontWeight: 700,
                   border: '1px solid rgba(40, 167, 69, 0.3)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  <i className="bi bi-play-circle-fill" style={{ fontSize: 10 }} />
+                  <i className="bi bi-play-circle-fill" style={{ fontSize: 9 }} />
                   <span>Started</span>
                 </div>
               )}
@@ -256,13 +266,13 @@ export default function ForecastProjectCard({
             <div style={{
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '6px',
-              fontSize: '13px',
+              gap: '4px',
+              fontSize: '12px',
               color: 'var(--color-text-secondary)',
               lineHeight: 1.4,
               textAlign: 'left'
             }}>
-              <i className="bi bi-geo-alt-fill" style={{ fontSize: 12, marginTop: '2px', flexShrink: 0 }} />
+              <i className="bi bi-geo-alt-fill" style={{ fontSize: 11, marginTop: '2px', flexShrink: 0 }} />
               <span style={{
                 wordBreak: 'break-word',
                 whiteSpace: 'normal',
@@ -277,12 +287,12 @@ export default function ForecastProjectCard({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '14px',
+            gap: '4px',
+            fontSize: '13px',
             fontWeight: 600,
             color: 'var(--color-text-primary)'
           }}>
-            <i className="bi bi-geo-alt" style={{ fontSize: 12 }} />
+            <i className="bi bi-geo-alt" style={{ fontSize: 11 }} />
             <span>{project.type || 'Lot'} {project.lote_bld || 'N/A'}</span>
           </div>
           
@@ -290,16 +300,20 @@ export default function ForecastProjectCard({
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '6px',
-            fontSize: '13px',
+            gap: '4px',
+            fontSize: '12px',
             color: project.workforce ? 'var(--color-text-primary)' : '#ffcc00',
             fontWeight: project.workforce ? 400 : 600
           }}>
             {hasCompleteContract(project) && (
-              <i className="bi bi-file-earmark-check" style={{ fontSize: 14, color: '#20c997' }} />
+              <i className="bi bi-file-earmark-check" style={{ fontSize: 13, color: '#20c997' }} />
             )}
-            <i className="bi bi-people" style={{ fontSize: 12 }} />
-            <span>{project.workforce || 'No team assigned'}</span>
+            <i className="bi bi-people" style={{ fontSize: 11 }} />
+            <span style={{ 
+              overflow: 'hidden', 
+              textOverflow: 'ellipsis', 
+              whiteSpace: 'nowrap' 
+            }}>{project.workforce || 'No team assigned'}</span>
           </div>
           
           {/* Machine Provider */}
@@ -307,220 +321,251 @@ export default function ForecastProjectCard({
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-              fontSize: '13px',
+              gap: '4px',
+              fontSize: '12px',
               color: 'var(--color-text-secondary)'
             }}>
-              <i className="bi bi-truck" style={{ fontSize: 12 }} />
-              <span>{project.machine_provider}</span>
+              <i className="bi bi-truck" style={{ fontSize: 11 }} />
+              <span style={{ 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis', 
+                whiteSpace: 'nowrap' 
+              }}>{project.machine_provider}</span>
             </div>
           )}
         </div>
         
-        {/* Lado Direito - Ícones em quadrados */}
+        {/* Lado Direito - Ícones em Grid 2x3 */}
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
-          alignItems: 'flex-end',
+          alignItems: 'center',
+          gap: '6px',
           flexShrink: 0
         }}>
-          {/* HVAC - Sempre no topo, borda cinza (presença, não conclusão) */}
-          {project.hvac === true && (
+          {/* Grid 2x3 para os stickers obrigatórios */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 28px)',
+            gap: '6px',
+            alignContent: 'start'
+          }}>
+            {/* Fieldwire - Borda progressiva */}
             <div style={{
-              width: 30,
-              height: 30,
-              borderRadius: 6,
-              border: '1px solid #6c757d',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'var(--color-background-secondary)'
-            }}>
-              <img 
-                src={isDarkMode ? iconForecastHvacDark : iconForecastHvac} 
-                alt="HVAC" 
-                style={{ width: 18, height: 18, objectFit: 'contain' }}
-              />
-            </div>
-          )}
-          
-          {/* Fieldwire - Borda progressiva */}
-          {hasActiveFieldwire(project) && (
-            <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--color-background-secondary)',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              opacity: (fieldwireComplete || fieldwireProgress > 0) ? 1 : 0.5,
+              filter: (fieldwireComplete || fieldwireProgress > 0) ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
               {/* SVG para borda externa com progresso */}
-              <svg width="30" height="30" style={{ position: 'absolute', top: 0, left: 0 }}>
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="29"
-                  height="29"
-                  rx="5.5"
-                  fill="none"
-                  stroke={fieldwireComplete ? '#4ade80' : (fieldwireProgress > 0 ? '#fbbf24' : '#6c757d')}
-                  strokeWidth="1"
-                  strokeDasharray={fieldwireComplete 
-                    ? '105 0' 
-                    : fieldwireProgress > 0
-                    ? `${(fieldwireProgress / 100) * 105} 105`
-                    : '0 105'}
-                  strokeDashoffset="0"
-                />
-              </svg>
+              {(fieldwireComplete || fieldwireProgress > 0) && (
+                <svg width="28" height="28" style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <rect
+                    x="0.5"
+                    y="0.5"
+                    width="27"
+                    height="27"
+                    rx="5.5"
+                    fill="none"
+                    stroke={fieldwireComplete ? '#4ade80' : '#fbbf24'}
+                    strokeWidth="1"
+                    strokeDasharray={fieldwireComplete 
+                      ? '100 0' 
+                      : `${(fieldwireProgress / 100) * 100} 100`}
+                    strokeDashoffset="0"
+                  />
+                </svg>
+              )}
               <img 
                 src={iconFieldwire} 
                 alt="Fieldwire" 
-                style={{ width: 18, height: 18, objectFit: 'contain', zIndex: 1, position: 'relative' }}
+                style={{ width: 16, height: 16, objectFit: 'contain', zIndex: 1, position: 'relative' }}
               />
             </div>
-          )}
-          
-          {/* BuilderTrend - Sempre borda verde se true */}
-          {!!project.buildertrend && (
+            
+            {/* BuilderTrend - Sempre borda verde se true */}
             <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
-              border: '1px solid #4ade80',
+              border: project.buildertrend ? '1px solid #4ade80' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'var(--color-background-secondary)'
+              background: 'var(--color-background-secondary)',
+              opacity: project.buildertrend ? 1 : 0.5,
+              filter: project.buildertrend ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
               <img 
                 src={isDarkMode ? iconBuildertrendDark : iconBuildertrend} 
                 alt="BuilderTrend" 
-                style={{ width: 18, height: 18, objectFit: 'contain' }}
+                style={{ width: 16, height: 16, objectFit: 'contain' }}
               />
             </div>
-          )}
 
-          {/* Quickbooks Time - Sempre borda verde se true */}
-          {!!project.qbtime && (
+            {/* Quickbooks Time - Sempre borda verde se true */}
             <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
-              border: '1px solid #4ade80',
+              border: project.qbtime ? '1px solid #4ade80' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'var(--color-background-secondary)'
+              background: 'var(--color-background-secondary)',
+              opacity: project.qbtime ? 1 : 0.5,
+              filter: project.qbtime ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
               <img 
                 src={isDarkMode ? iconQBTimeDark : iconQBTime} 
                 alt="Quickbooks Time" 
-                style={{ width: 18, height: 18, objectFit: 'contain' }}
+                style={{ width: 16, height: 16, objectFit: 'contain' }}
               />
             </div>
-          )}
-          
-          {/* Storage */}
-          {project.storage === true && (
+            
+            {/* Storage */}
             <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
-              border: `1px solid ${project.storage ? '#4ade80' : '#6c757d'}`,
+              border: project.storage ? '1px solid #4ade80' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'var(--color-background-secondary)'
+              background: 'var(--color-background-secondary)',
+              opacity: project.storage ? 1 : 0.5,
+              filter: project.storage ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
-              {/* TODO: Substituir por <img src={iconStorage} alt="Storage" style={{ width: 18, height: 18, objectFit: 'contain' }} /> quando o ícone estiver disponível */}
-              <i className="bi bi-box" style={{ fontSize: 16 }} />
+              <i className="bi bi-box" style={{ 
+                fontSize: 14,
+                color: project.storage ? 'inherit' : 'var(--color-text-secondary)'
+              }} />
             </div>
-          )}
-          
-          {/* Machines and Attachments - Borda progressiva baseada no total de máquinas */}
-          {project.machines && project.machines.length > 0 && (
+            
+            {/* Machines and Attachments - Borda progressiva baseada no total de máquinas */}
             <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--color-background-secondary)',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              opacity: (machinesComplete || machinesProgress > 0) ? 1 : 0.5,
+              filter: (machinesComplete || machinesProgress > 0) ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
               {/* SVG para borda externa com progresso */}
-              <svg width="30" height="30" style={{ position: 'absolute', top: 0, left: 0 }}>
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="29"
-                  height="29"
-                  rx="5.5"
-                  fill="none"
-                  stroke={machinesComplete ? '#4ade80' : (machinesProgress > 0 ? '#fbbf24' : '#6c757d')}
-                  strokeWidth="1"
-                  strokeDasharray={machinesComplete 
-                    ? '105 0' 
-                    : machinesProgress > 0
-                    ? `${(machinesProgress / 100) * 105} 105`
-                    : '0 105'}
-                  strokeDashoffset="0"
-                />
-              </svg>
+              {(machinesComplete || machinesProgress > 0) && (
+                <svg width="28" height="28" style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <rect
+                    x="0.5"
+                    y="0.5"
+                    width="27"
+                    height="27"
+                    rx="5.5"
+                    fill="none"
+                    stroke={machinesComplete ? '#4ade80' : '#fbbf24'}
+                    strokeWidth="1"
+                    strokeDasharray={machinesComplete 
+                      ? '100 0' 
+                      : `${(machinesProgress / 100) * 100} 100`}
+                    strokeDashoffset="0"
+                  />
+                </svg>
+              )}
               <i className="bi bi-truck" style={{ 
-                fontSize: 16, 
-                color: 'var(--color-text-primary)',
+                fontSize: 14, 
+                color: (machinesComplete || machinesProgress > 0) ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
                 zIndex: 1,
                 position: 'relative'
               }} />
             </div>
-          )}
-          
-          {/* Contrato - Borda externa quadrada mostra progresso das etapas */}
-          {project.contract_steps && project.contract_steps.length > 0 && (
+            
+            {/* Contrato - Borda externa quadrada mostra progresso das etapas */}
             <div style={{
-              width: 30,
-              height: 30,
+              width: 28,
+              height: 28,
               borderRadius: 6,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--color-background-secondary)',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              opacity: (contractComplete || contractProgress > 0) ? 1 : 0.5,
+              filter: (contractComplete || contractProgress > 0) ? 'none' : 'grayscale(100%)',
+              transition: 'all 0.2s ease'
             }}>
               {/* SVG para borda externa com progresso (retangular arredondado) */}
-              <svg width="30" height="30" style={{ position: 'absolute', top: 0, left: 0 }}>
-                <rect
-                  x="0.5"
-                  y="0.5"
-                  width="29"
-                  height="29"
-                  rx="5.5"
-                  fill="none"
-                  stroke={contractComplete ? '#4ade80' : (contractProgress > 0 ? '#fbbf24' : '#6c757d')}
-                  strokeWidth="1"
-                  strokeDasharray={contractComplete 
-                    ? '105 0' 
-                    : contractProgress > 0
-                    ? `${(contractProgress / 100) * 105} 105`
-                    : '0 105'}
-                  strokeDashoffset="0"
-                />
-              </svg>
+              {(contractComplete || contractProgress > 0) && (
+                <svg width="28" height="28" style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <rect
+                    x="0.5"
+                    y="0.5"
+                    width="27"
+                    height="27"
+                    rx="5.5"
+                    fill="none"
+                    stroke={contractComplete ? '#4ade80' : '#fbbf24'}
+                    strokeWidth="1"
+                    strokeDasharray={contractComplete 
+                      ? '100 0' 
+                      : `${(contractProgress / 100) * 100} 100`}
+                    strokeDashoffset="0"
+                  />
+                </svg>
+              )}
               <i className={`bi ${contractComplete ? 'bi-file-earmark-check' : 'bi-file-earmark'}`} style={{ 
-                fontSize: 14, 
-                color: contractComplete ? '#4ade80' : 'var(--color-text-secondary)',
+                fontSize: 12, 
+                color: (contractComplete || contractProgress > 0) ? (contractComplete ? '#4ade80' : 'var(--color-text-primary)') : 'var(--color-text-secondary)',
                 zIndex: 1 
               }} />
             </div>
+          </div>
+
+          {/* HVAC - Abaixo do grid com linha separadora quando presente */}
+          {project.hvac === true && (
+            <>
+              {/* Linha Horizontal Separadora */}
+              <div style={{
+                width: '100%',
+                height: '1px',
+                background: 'var(--color-border-divider)',
+                opacity: 0.6,
+                margin: '2px 0'
+              }} />
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                border: '1px solid #6c757d',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'var(--color-background-secondary)',
+                transition: 'all 0.2s ease'
+              }}>
+                <img 
+                  src={isDarkMode ? iconForecastHvacDark : iconForecastHvac} 
+                  alt="HVAC" 
+                  style={{ width: 16, height: 16, objectFit: 'contain' }}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -529,9 +574,9 @@ export default function ForecastProjectCard({
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr 1fr',
-        gap: '8px',
-        marginBottom: '12px',
-        paddingTop: '12px',
+        gap: '4px',
+        marginBottom: '10px',
+        paddingTop: '10px',
         borderTop: '1px solid var(--color-border-divider)',
         width: '100%',
         boxSizing: 'border-box'
@@ -541,11 +586,11 @@ export default function ForecastProjectCard({
           background: 'var(--color-background-secondary)',
           border: '1px solid var(--color-border-divider)',
           borderRadius: 8,
-          padding: '8px 6px',
+          padding: '6px 4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '6px',
+          gap: '4px',
           minWidth: 0,
           overflow: 'hidden',
           boxSizing: 'border-box'
@@ -556,7 +601,7 @@ export default function ForecastProjectCard({
             flexShrink: 0
           }} />
           <div style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 400,
             color: 'var(--color-text-primary)',
             textAlign: 'center',
@@ -573,11 +618,11 @@ export default function ForecastProjectCard({
           background: 'var(--color-background-secondary)',
           border: '1px solid var(--color-border-divider)',
           borderRadius: 8,
-          padding: '8px 6px',
+          padding: '6px 4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '6px',
+          gap: '4px',
           minWidth: 0,
           overflow: 'hidden',
           boxSizing: 'border-box'
@@ -588,7 +633,7 @@ export default function ForecastProjectCard({
             flexShrink: 0
           }} />
           <div style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 400,
             color: 'var(--color-text-primary)',
             textAlign: 'center',
@@ -605,11 +650,11 @@ export default function ForecastProjectCard({
           background: 'var(--color-background-secondary)',
           border: '1px solid var(--color-border-divider)',
           borderRadius: 8,
-          padding: '8px 6px',
+          padding: '6px 4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '6px',
+          gap: '4px',
           minWidth: 0,
           overflow: 'hidden',
           boxSizing: 'border-box'
@@ -620,7 +665,7 @@ export default function ForecastProjectCard({
             flexShrink: 0
           }} />
           <div style={{
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 400,
             color: 'var(--color-text-primary)',
             textAlign: 'center',

@@ -9,7 +9,6 @@ import MobileForecastLoading from '../components/common/Forecast/MobileForecastL
 import MobileForecastFilters from '../components/common/Forecast/MobileForecastFilters';
 import MobileForecastMetrics from '../components/common/Forecast/MobileForecastMetrics';
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
-import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 type DateMode = 'start' | 'beams';
 
@@ -119,6 +118,11 @@ interface ForecastData {
   endDate: string;
 }
 
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
 export default function MobileForecast() {
   const [theme, setTheme] = useState<'light' | 'dark'>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
@@ -142,7 +146,7 @@ export default function MobileForecast() {
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all'); // 'all', 'yes', 'no'
-  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true); // Filtro para mostrar apenas "Not Started"
+  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true); // Filtro para mostrar apenas "Not Started" ativo por padrão
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
@@ -172,12 +176,11 @@ export default function MobileForecast() {
   const [jobSites, setJobSites] = useState<string[]>([]);
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
 
-  // Mapeamento de empresas e logos
+  // Mapeamento de empresas
   const companies = [
     {
       id: 'Framing',
-      name: 'Framing',
-      logo: sublogoFraming
+      name: 'Framing'
     }
     // Futuras empresas podem ser adicionadas aqui
   ];
@@ -305,20 +308,33 @@ export default function MobileForecast() {
     )].sort();
     setClients(uniqueClients);
 
+    const filteredForJobSites = selectedClient.length > 0
+      ? rawProjects.filter(p => selectedClient.includes(p.cliente))
+      : rawProjects;
+
     const uniqueJobSites = [...new Set(
-      rawProjects
+      filteredForJobSites
         .map(p => p.job_site)
         .filter(jobSite => !!jobSite)
     )].sort();
     setJobSites(uniqueJobSites);
 
-      const uniqueTypes = [...new Set(
-        rawProjects
-          .map(p => p.type)
-          .filter(type => !!type)
-      )].sort();
-      setAvailableTypes(uniqueTypes);
-  }, [rawProjects]);
+    // Limpar job sites selecionados que não pertencem mais aos clientes selecionados
+    if (selectedJobSite.length > 0) {
+      const validJobSites = new Set(uniqueJobSites);
+      const newSelectedJobSite = selectedJobSite.filter(js => validJobSites.has(js));
+      if (newSelectedJobSite.length !== selectedJobSite.length) {
+        setSelectedJobSite(newSelectedJobSite);
+      }
+    }
+
+    const uniqueTypes = [...new Set(
+      rawProjects
+        .map(p => p.type)
+        .filter(type => !!type)
+    )].sort();
+    setAvailableTypes(uniqueTypes);
+  }, [rawProjects, selectedClient]);
 
   useEffect(() => {
     if (!rawProjects.length) {
@@ -331,25 +347,44 @@ export default function MobileForecast() {
       .map(project => getReferenceDate(project, dateMode))
       .filter((date): date is string => !!date);
 
-    const uniqueYears = [...new Set(
-      referenceDates
-        .map(date => new Date(date))
-        .filter(dateObj => !isNaN(dateObj.getTime()))
-        .map(dateObj => dateObj.getFullYear().toString())
-    )].sort((a, b) => b.localeCompare(a));
+    // Mapear datas para { year, monthIndex } de forma robusta
+    const parsedDates = referenceDates.map(date => {
+      // Tentar extrair via split primeiro (YYYY-MM-DD)
+      const parts = date.split('-');
+      if (parts.length >= 2) {
+        const year = parts[0];
+        const monthIndex = parseInt(parts[1], 10) - 1;
+        if (!isNaN(monthIndex) && monthIndex >= 0 && monthIndex <= 11) {
+          return { year, monthIndex };
+        }
+      }
+      // Fallback para Date object
+      const d = new Date(date);
+      if (!isNaN(d.getTime())) {
+        return { 
+          year: d.getUTCFullYear().toString(), 
+          monthIndex: d.getUTCMonth() 
+        };
+      }
+      return null;
+    }).filter((d): d is { year: string, monthIndex: number } => d !== null);
+
+    // 1. Extrair anos únicos com dados
+    const uniqueYears = [...new Set(parsedDates.map(d => d.year))].sort((a, b) => b.localeCompare(a));
     setYears(uniqueYears);
 
-    const uniqueMonths = [...new Set(
-      referenceDates
-        .map(date => {
-          const parsed = new Date(date);
-          if (isNaN(parsed.getTime())) return null;
-          return parsed.toLocaleString('en-US', { month: 'long' });
-        })
-        .filter((month): month is string => !!month)
-    )].sort();
+    // 2. Extrair meses únicos com dados, filtrando pelo ano selecionado
+    const filteredByYear = parsedDates.filter(d => !selectedYear || d.year === selectedYear);
+    const uniqueMonthIndices = [...new Set(filteredByYear.map(d => d.monthIndex))].sort((a, b) => a - b);
+    const uniqueMonths = uniqueMonthIndices.map(index => MONTH_NAMES[index]);
+
     setMonths(uniqueMonths);
-  }, [rawProjects, dateMode]);
+    
+    // Se o mês selecionado não estiver mais disponível no novo ano, limpa a seleção
+    if (selectedMonth && !uniqueMonths.includes(selectedMonth)) {
+      setSelectedMonth('');
+    }
+  }, [rawProjects, dateMode, selectedYear]);
 
   // Lista de projetos visíveis de acordo com filtros selecionados
   const visibleProjects = useMemo(() => {
@@ -359,43 +394,18 @@ export default function MobileForecast() {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Filtro de status "Not Started"
+      // Quando filterNotStarted está ativo, filtramos apenas 'not started'
       if (filterNotStarted) {
         const s = (project.status || '').toLowerCase().trim();
         if (s !== 'not started') return false;
-        // Se for "not started", verificar se tem data de início válida
-        if (!project.previous_start_date) return false;
-        const start = new Date(project.previous_start_date);
-        if (isNaN(start.getTime())) return false;
       }
 
-      // Quando filterNotStarted está desativado, mostrar todas as obras
-      // Mas ainda precisamos de datas válidas para agrupar por período
-      // Se não tiver datas, não podemos agrupar, então excluímos
-      if (!project.previous_start_date || !project.previous_end_date) {
-        // Se filterNotStarted está desativado, ainda precisamos de pelo menos uma data para exibir
-        // Mas se não tiver nenhuma data, não podemos exibir no timeline
-        return false;
-      }
-      const start = new Date(project.previous_start_date);
-      const end = new Date(project.previous_end_date);
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
-
-      // Quando filterNotStarted está desativado, usar previous_start_date como fallback
-      // se a data de referência não estiver disponível
-      let referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate && !filterNotStarted) {
-        // Se não tiver data de referência mas o filtro está desativado, usar start_date como fallback
-        referenceDate = project.previous_start_date || null;
-      }
-      if (!referenceDate) return false;
-
-      const dateParts = referenceDate.split('-');
-      if (dateParts.length !== 3) return false;
+      // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
+      const referenceDate = getReferenceDate(project, dateMode);
       
-      const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1], 10);
-      const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+      const projectYear = referenceDate ? referenceDate.split('-')[0] : null;
+      const projectMonthNum = referenceDate ? parseInt(referenceDate.split('-')[1], 10) : null;
+      const projectMonth = projectMonthNum ? MONTH_NAMES[projectMonthNum - 1] : null;
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
@@ -405,7 +415,7 @@ export default function MobileForecast() {
       const jobSiteMatch = selectedJobSiteSet.size === 0 || selectedJobSiteSet.has(jobSiteNorm);
       const typeMatch = selectedType === 'all' || project.type === selectedType;
       
-      // Filtros de conclusão
+      // Filtros de conclusão (mantemos para funcionalidade da UI)
       const fieldwireMatch = selectedFieldwire === 'all' || 
         (selectedFieldwire === 'yes' ? isFieldwireComplete(project) : !isFieldwireComplete(project));
       const buildertrendMatch = selectedBuildertrend === 'all' || 
@@ -437,15 +447,17 @@ export default function MobileForecast() {
 
     visibleProjects.forEach(project => {
       const referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate) {
-        return;
+      
+      let month = 'Pending';
+      let year = 0;
+
+      if (referenceDate) {
+        const refDateObj = new Date(referenceDate);
+        if (!isNaN(refDateObj.getTime())) {
+          month = refDateObj.toLocaleString('en-US', { month: 'long' });
+          year = refDateObj.getFullYear();
+        }
       }
-      const refDateObj = new Date(referenceDate);
-      if (isNaN(refDateObj.getTime())) {
-        return;
-      }
-      const month = refDateObj.toLocaleString('en-US', { month: 'long' });
-      const year = refDateObj.getFullYear();
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
       
@@ -466,7 +478,9 @@ export default function MobileForecast() {
 
     return Object.values(groupedData).sort((a, b) => {
       if (a.year !== b.year) return b.year - a.year;
-      if (a.month !== b.month) return a.month.localeCompare(b.month);
+      const monthIndexA = MONTH_NAMES.indexOf(a.month);
+      const monthIndexB = MONTH_NAMES.indexOf(b.month);
+      if (monthIndexA !== monthIndexB) return monthIndexA - monthIndexB;
       return a.cliente.localeCompare(b.cliente);
     });
   }, [visibleProjects, dateMode]);
@@ -482,14 +496,23 @@ export default function MobileForecast() {
     let periodEnd = '';
     
     if (forecastData.length > 0) {
-      const allStartDates = forecastData.map(item => new Date(item.startDate));
-      const allEndDates = forecastData.map(item => new Date(item.endDate));
+      const allStartDates = forecastData
+        .map(item => item.startDate ? new Date(item.startDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
-      const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+      const allEndDates = forecastData
+        .map(item => item.endDate ? new Date(item.endDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
-      periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
+      if (allStartDates.length > 0) {
+        const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
+        periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
+      }
+      
+      if (allEndDates.length > 0) {
+        const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+        periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
+      }
     }
 
     return {
@@ -503,7 +526,7 @@ export default function MobileForecast() {
 
   // Mostrar loading inicial se ainda estiver carregando
   if (isInitialLoading) {
-    return <MobileForecastLoading onComplete={() => setIsInitialLoading(false)} />;
+    return <MobileForecastLoading onComplete={() => setIsInitialLoading(false)} theme={theme} />;
   }
 
   if (loading) {
@@ -561,27 +584,27 @@ export default function MobileForecast() {
 
   return (
     <div style={{ 
-      minHeight: '100vh', 
-      background: 'var(--color-background-primary)',
-      padding: '10px',
-      width: '100%',
-      maxWidth: '100%',
-      overflowX: 'hidden',
-      boxSizing: 'border-box'
+      padding: '12px', 
+      background: 'var(--color-background-primary)', 
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      overflowX: 'hidden'
     }}>
       {/* Header mobile */}
       <div style={{ 
         textAlign: 'center', 
-        marginBottom: '20px',
-        padding: '15px 0',
+        marginBottom: '12px',
+        padding: '6px 0',
         borderBottom: '2px solid var(--color-accent-primary)',
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flexShrink: 0
       }}>
         {/* Espaçador para equilibrar o layout à esquerda */}
-        <div style={{ width: 42, marginLeft: 10 }}></div>
+        <div style={{ width: 32, marginLeft: 8 }}></div>
 
         {/* Botão de seleção de empresa */}
         <div style={{ position: 'relative', display: 'inline-block', flex: 1 }} data-company-menu>
@@ -592,35 +615,21 @@ export default function MobileForecast() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '10px',
+              gap: '8px',
               cursor: 'pointer',
-              padding: '8px 16px',
+              padding: '6px 12px',
               borderRadius: '8px',
               transition: 'background 0.2s',
               margin: '0 auto'
             }}
             onClick={() => setIsCompanyMenuOpen(!isCompanyMenuOpen)}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-background-secondary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'none';
-            }}
           >
-            <img 
-              src={companies.find(c => c.id === selectedCompany)?.logo || sublogoFraming} 
-              alt={selectedCompany} 
-              style={{ 
-                width: 28, 
-                height: 28, 
-                objectFit: 'contain'
-              }}
-            />
             <h1 style={{ 
               color: 'var(--color-text-primary)', 
-              fontSize: '24px', 
-              fontWeight: 600, 
-              margin: 0
+              fontSize: '18px', 
+              fontWeight: 700, 
+              margin: 0,
+              whiteSpace: 'nowrap'
             }}>
               {selectedCompany} Forecast
             </h1>
@@ -679,15 +688,6 @@ export default function MobileForecast() {
                     }
                   }}
                 >
-                  <img 
-                    src={company.logo} 
-                    alt={company.name} 
-                    style={{ 
-                      width: 24, 
-                      height: 24, 
-                      objectFit: 'contain'
-                    }}
-                  />
                   <span style={{
                     color: 'var(--color-text-primary)',
                     fontSize: '16px',
@@ -736,10 +736,13 @@ export default function MobileForecast() {
         maxWidth: '100%',
         margin: '0 auto',
         boxSizing: 'border-box',
-        overflowX: 'hidden'
+        overflowX: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
       }}>
         {/* Filtros mobile */}
-        <div style={{ marginBottom: '20px', width: '100%' }}>
+        <div style={{ width: '100%' }}>
           <MobileForecastFilters
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
@@ -770,11 +773,15 @@ export default function MobileForecast() {
             onWorkforceChange={setSelectedWorkforce}
             onQBTimeChange={setSelectedQBTime}
             onFilterNotStartedChange={setFilterNotStarted}
+            dateMode={dateMode}
+            onDateModeChange={setDateMode}
+            sortByDate={sortByDate}
+            onSortByDateChange={setSortByDate}
           />
         </div>
 
         {/* Métricas mobile */}
-        <div style={{ marginBottom: '20px', width: '100%' }}>
+        <div style={{ width: '100%' }}>
           <MobileForecastMetrics 
             stats={stats} 
             workforceProjects={workforceProjects}

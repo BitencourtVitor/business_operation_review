@@ -153,18 +153,22 @@ export default function TimelinePlanner({
     }
   }, [showDays, selectedYear, selectedMonth, workforceProjects, dateMode]);
 
-  // Agrupar dados conforme seleção
+  // Agrupar dados conforme seleção (apenas para a Timeline View)
   const groupedData = useMemo(() => {
     const groups: { [key: string]: WorkforceProject[] } = {};
     
-    // Considerar apenas projetos com datas válidas de início e fim
+    // Na visualização de Timeline, ainda precisamos de datas válidas para plotar
     const validProjects = workforceProjects.filter(p => {
-      if (!p.previous_start_date || !p.previous_end_date) return false;
-      const s = new Date(p.previous_start_date);
-      const e = new Date(p.previous_end_date);
+      const hasDates = p.previous_start_date && p.previous_end_date;
+      if (!hasDates) return false;
+      
+      const s = new Date(p.previous_start_date!);
+      const e = new Date(p.previous_end_date!);
       if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
+      
       const referenceDate = getReferenceDate(p, dateMode);
       if (!referenceDate) return false;
+      
       const refDateObj = new Date(referenceDate);
       return !isNaN(refDateObj.getTime());
     });
@@ -193,15 +197,18 @@ export default function TimelinePlanner({
     
     workforceProjects.forEach(project => {
       const referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate) return;
       
-      const dateParts = referenceDate.split('-');
-      if (dateParts.length !== 3) return;
+      let monthYear = 'Pending / No Date';
       
-      const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1], 10);
-      const projectMonthName = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
-      const monthYear = `${projectMonthName} / ${projectYear}`;
+      if (referenceDate) {
+        const dateParts = referenceDate.split('-');
+        if (dateParts.length === 3) {
+          const projectYear = dateParts[0];
+          const projectMonthNum = parseInt(dateParts[1], 10);
+          const projectMonthName = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+          monthYear = `${projectMonthName} / ${projectYear}`;
+        }
+      }
       
       if (!grouped[monthYear]) {
         grouped[monthYear] = [];
@@ -219,8 +226,11 @@ export default function TimelinePlanner({
       });
     });
 
-    // Ordenar os meses cronologicamente
+    // Ordenar os meses cronologicamente, colocando "Pending / No Date" no final
     return Object.entries(grouped).sort(([a], [b]) => {
+      if (a === 'Pending / No Date') return 1;
+      if (b === 'Pending / No Date') return -1;
+      
       const [monthA, yearA] = a.split(' / ');
       const [monthB, yearB] = b.split(' / ');
       const dateA = new Date(`${monthA} 1, ${yearA}`);

@@ -528,7 +528,9 @@ export default function ForecastFilters({
               <label style={{ fontSize: '13px', fontWeight: 500, marginBottom: '6px', display: 'block', color: 'var(--color-text-secondary)' }}>Tipo de Projeto</label>
               <select value={selectedType} onChange={e => onTypeChange(e.target.value)} style={selectStyle}>
                 <option value="all">Todos os Tipos</option>
-                {availableTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                {availableTypes
+                  .filter(type => type === 'Building' || type === 'Lot')
+                  .map(type => <option key={type} value={type}>{type}</option>)}
               </select>
             </div>
 

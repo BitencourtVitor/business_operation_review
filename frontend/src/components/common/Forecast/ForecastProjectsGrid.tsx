@@ -17,13 +17,13 @@ export default function ForecastProjectsGrid({
   return (
     <>
       {groupedProjects.map(([month, projects]) => (
-        <div key={month} style={{ marginBottom: '25px' }}>
+        <div key={month} style={{ marginBottom: '12px' }}>
           {/* Container do mês */}
           <div style={{
             background: 'var(--color-background-secondary)',
             border: '1px solid var(--color-border-divider)',
             borderRadius: '12px',
-            padding: '20px',
+            padding: '12px 0',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
             width: '100%',
             maxWidth: '100%',
@@ -33,7 +33,7 @@ export default function ForecastProjectsGrid({
             {/* Cabeçalho do mês */}
             <div style={{
               marginBottom: '16px',
-              paddingBottom: '12px',
+              padding: '0 12px 12px 12px',
               borderBottom: '1px solid var(--color-border-divider)'
             }}>
               <h3 style={{
@@ -57,14 +57,14 @@ export default function ForecastProjectsGrid({
             {/* Grid de cards dos projetos */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '16px',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))',
+              gap: '12px',
+              padding: '0 12px',
               width: '100%',
               maxWidth: '100%',
               boxSizing: 'border-box',
               alignContent: 'start',
-              alignItems: 'start',
-              overflowX: 'hidden'
+              alignItems: 'start'
             }}>
               {projects.map((project) => (
                 <ForecastProjectCard
