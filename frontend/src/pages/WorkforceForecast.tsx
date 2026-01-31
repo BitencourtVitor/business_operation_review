@@ -794,6 +794,7 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
                 workforceProjects={visibleProjects}
                 groupBy={groupBy}
                 onGroupByChange={setGroupBy}
+                dateMode={dateMode}
               />
             </div>
           </div>
@@ -833,42 +834,6 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         @keyframes slideDown {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Custom Scrollbar */
-        .custom-scrollbar::-webkit-scrollbar,
-        #content::-webkit-scrollbar,
-        div::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track,
-        #content::-webkit-scrollbar-track,
-        div::-webkit-scrollbar-track {
-          background: var(--color-background-primary);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb,
-        #content::-webkit-scrollbar-thumb,
-        div::-webkit-scrollbar-thumb {
-          background: var(--color-border-divider);
-          border-radius: 10px;
-          border: 2px solid var(--color-background-primary);
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover,
-        #content::-webkit-scrollbar-thumb:hover,
-        div::-webkit-scrollbar-thumb:hover {
-          background: var(--color-accent-primary);
-        }
-
-        /* Suporte para Firefox */
-        .custom-scrollbar,
-        #content,
-        div {
-          scrollbar-width: thin;
-          scrollbar-color: var(--color-border-divider) var(--color-background-primary);
         }
       `}</style>
     </div>
