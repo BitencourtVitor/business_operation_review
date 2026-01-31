@@ -159,19 +159,23 @@ input::placeholder, textarea::placeholder {
 
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-accent-primary) var(--color-background-secondary);
+  scrollbar-color: var(--color-border-divider) transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
+  height: 4px;
   background: transparent;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--color-accent-primary, #2E6BE6);
-  border-radius: 6px;
+  background: var(--color-border-divider);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: var(--color-background-secondary, #23272f);
-  border-radius: 6px;
+  background: transparent;
+  border-radius: 10px;
 }
 
 

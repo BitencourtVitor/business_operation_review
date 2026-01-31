@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
 import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep } from '../components/common/Forecast/types';
-import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce, getForecastProjectStatus, type ForecastProjectStatus } from '../components/common/Forecast/helpers';
+import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce, getForecastProjectStatus } from '../components/common/Forecast/helpers';
 
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
@@ -164,6 +164,7 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all');
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
+  const [showOnlyNotStarted, setShowOnlyNotStarted] = useState(true);
 
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
   const [viewMode] = useState<'grid' | 'timeline'>('grid');
@@ -354,12 +355,6 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Filtro de Status (mesma lógica do mobile usando getForecastProjectStatus)
-      if (selectedStatuses.length > 0) {
-        const projectStatus = getForecastProjectStatus(project);
-        if (!selectedStatuses.includes(projectStatus)) return false;
-      }
-
       // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
       const referenceDate = getReferenceDate(project, dateMode);
       
@@ -390,13 +385,17 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
       const qbtimeMatch = selectedQBTime === 'all' || 
         (selectedQBTime === 'yes' ? project.qbtime === true : project.qbtime !== true);
       
+      const projectStatus = getForecastProjectStatus(project);
+      const notStartedMatch = !showOnlyNotStarted || 
+        (projectStatus === 'not started' || projectStatus === 'overdue');
+      
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
-        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch && qbtimeMatch;
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch && qbtimeMatch && notStartedMatch;
     });
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType, 
       selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
-      selectedStatuses, dateMode]);
+      showOnlyNotStarted, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -602,61 +601,53 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
             <div style={{ 
               background: 'var(--color-background-secondary)', 
               borderRadius: '16px', 
-              padding: '24px', 
+              padding: '12px', 
               border: '1px solid var(--color-border-divider)',
               animation: 'slideDown 0.3s ease-out'
             }}>
-              {/* Grid 3x2 de Filtros Segmentados */}
-              <div className="row g-4">
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="Fieldwire"
-                    value={selectedFieldwire}
-                    onChange={setSelectedFieldwire}
-                    icon={<img src={iconFieldwire} alt="Fieldwire" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
-                  />
-                </div>
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="Buildertrend"
-                    value={selectedBuildertrend}
-                    onChange={setSelectedBuildertrend}
-                    icon={<img src={theme === 'dark' ? iconBuildertrendDark : iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
-                  />
-                </div>
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="QBTime"
-                    value={selectedQBTime}
-                    onChange={setSelectedQBTime}
-                    icon={<img src={theme === 'dark' ? iconQBTimeDark : iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
-                  />
-                </div>
-
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="Machines"
-                    value={selectedMachines}
-                    onChange={setSelectedMachines}
-                    icon={<i className="bi bi-truck" style={{ fontSize: '16px' }} />}
-                  />
-                </div>
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="Workforce"
-                    value={selectedWorkforce}
-                    onChange={setSelectedWorkforce}
-                    icon={<i className="bi bi-people" style={{ fontSize: '16px' }} />}
-                  />
-                </div>
-                <div className="col-md-4">
-                  <SegmentedButtonGroup
-                    label="Contract"
-                    value={selectedContractSteps}
-                    onChange={setSelectedContractSteps}
-                    icon={<i className="bi bi-file-earmark-text" style={{ fontSize: '16px' }} />}
-                  />
-                </div>
+              {/* Grid 3x2 de Filtros Segmentados - Sem paddings/margins de grid */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(3, 1fr)', 
+                gap: '8px',
+                width: '100%' 
+              }}>
+                <SegmentedButtonGroup
+                  label="Fieldwire"
+                  value={selectedFieldwire}
+                  onChange={setSelectedFieldwire}
+                  icon={<img src={iconFieldwire} alt="Fieldwire" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                />
+                <SegmentedButtonGroup
+                  label="Buildertrend"
+                  value={selectedBuildertrend}
+                  onChange={setSelectedBuildertrend}
+                  icon={<img src={theme === 'dark' ? iconBuildertrendDark : iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                />
+                <SegmentedButtonGroup
+                  label="QBTime"
+                  value={selectedQBTime}
+                  onChange={setSelectedQBTime}
+                  icon={<img src={theme === 'dark' ? iconQBTimeDark : iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                />
+                <SegmentedButtonGroup
+                  label="Machines"
+                  value={selectedMachines}
+                  onChange={setSelectedMachines}
+                  icon={<i className="bi bi-truck" style={{ fontSize: '16px' }} />}
+                />
+                <SegmentedButtonGroup
+                  label="Workforce"
+                  value={selectedWorkforce}
+                  onChange={setSelectedWorkforce}
+                  icon={<i className="bi bi-people" style={{ fontSize: '16px' }} />}
+                />
+                <SegmentedButtonGroup
+                  label="Contract"
+                  value={selectedContractSteps}
+                  onChange={setSelectedContractSteps}
+                  icon={<i className="bi bi-file-earmark-text" style={{ fontSize: '16px' }} />}
+                />
               </div>
             </div>
           </div>
@@ -715,6 +706,39 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
             />
           </button>
 
+          {/* Filtro Show only Not Started - Centralizado entre os botões */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            background: 'var(--color-background-primary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: '12px',
+            padding: '0 4px 0 15px',
+            height: '42px',
+            flex: '0 1 auto',
+            minWidth: '240px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
+              <i className="bi bi-eye" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Not Started Only</span>
+            </div>
+            <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)', marginLeft: 'auto' }}>
+              <button
+                style={segmentedButtonStyle(showOnlyNotStarted)}
+                onClick={() => setShowOnlyNotStarted(true)}
+              >
+                On
+              </button>
+              <button
+                style={segmentedButtonStyle(!showOnlyNotStarted)}
+                onClick={() => setShowOnlyNotStarted(false)}
+              >
+                Off
+              </button>
+            </div>
+          </div>
+
           {/* Botão Stickers (Altura Ajustada) */}
           <button
             onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
@@ -768,10 +792,6 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
               <ForecastMetrics 
                 stats={stats} 
                 workforceProjects={visibleProjects}
-                selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
-                selectedClient={selectedClient}
-                selectedJobSite={selectedJobSite}
                 groupBy={groupBy}
                 onGroupByChange={setGroupBy}
               />

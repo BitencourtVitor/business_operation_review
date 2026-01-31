@@ -1,3 +1,5 @@
+export type DateMode = 'start' | 'beams';
+
 export interface ForecastFieldwire {
   id: number;
   obra_id: string;
