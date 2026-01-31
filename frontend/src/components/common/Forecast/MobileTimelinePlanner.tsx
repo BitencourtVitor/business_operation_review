@@ -12,9 +12,7 @@ interface MobileTimelinePlannerProps {
   groupBy: 'cliente' | 'job_site';
   onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
   sortByDate: 'off' | 'asc' | 'desc' | null;
-  onSortByDateChange: (sortBy: 'off' | 'asc' | 'desc' | null) => void;
   dateMode: 'start' | 'beams';
-  onDateModeChange: (mode: 'start' | 'beams') => void;
 }
 
 export default function MobileTimelinePlanner({
@@ -23,9 +21,7 @@ export default function MobileTimelinePlanner({
   selectedYear, 
   selectedMonth, 
   sortByDate,
-  onSortByDateChange,
-  dateMode,
-  onDateModeChange
+  dateMode
 }: MobileTimelinePlannerProps) {
   const [selectedProject, setSelectedProject] = useState<WorkforceProject | null>(null);
 

@@ -3,30 +3,7 @@ import { createPortal } from 'react-dom';
 import { supabase } from '../../supabaseClient';
 import dayjs from 'dayjs';
 import CloseButton from '../../utils/CloseButton';
-
-// Interface para Plano de Ação
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string | null;
-  acoes: Acao[];
-  deletado?: boolean;
-}
-
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string; // Mantido para compatibilidade, mas será usado como string separada por vírgulas
-  responsaveis: string[]; // Nova propriedade para múltiplos responsáveis
-  status: string;
-  data_limite: string;
-}
+import type { PlanoAcao, Acao } from '../../types/planoAcao';
 
 interface PlanoAcaoModalProps {
   show: boolean;

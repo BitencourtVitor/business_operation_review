@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
-import ForecastMaintenance from '../components/common/Forecast/ForecastMaintenance';
 import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep } from '../components/common/Forecast/types';
 import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce } from '../components/common/Forecast/helpers';
 
@@ -189,21 +188,21 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     const uniqueClients = [...new Set(
       rawProjects
         .map(p => p.cliente)
-        .filter(cliente => !!cliente)
+        .filter((cliente): cliente is string => !!cliente)
     )].sort();
     setClients(uniqueClients);
 
     const uniqueJobSites = [...new Set(
       rawProjects
         .map(p => p.job_site)
-        .filter(jobSite => !!jobSite)
+        .filter((jobSite): jobSite is string => !!jobSite)
     )].sort();
     setJobSites(uniqueJobSites);
 
     const uniqueTypes = [...new Set(
       rawProjects
         .map(p => p.type)
-        .filter(type => !!type)
+        .filter((type): type is string => !!type)
     )].sort();
     setAvailableTypes(uniqueTypes);
   }, [rawProjects]);
@@ -464,51 +463,6 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
               </span>
             </div>
           </h1>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{
-              background: 'rgba(var(--color-accent-primary-rgb), 0.05)',
-              padding: '4px 12px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              fontWeight: 600,
-              color: 'var(--color-accent-primary)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}>
-              <i className="bi bi-clock-history" />
-              Atualizado em Tempo Real
-            </div>
-            
-            <button 
-              onClick={fetchWorkforceData}
-              style={{
-                background: 'var(--color-background-primary)',
-                border: '1px solid var(--color-border-divider)',
-                borderRadius: '10px',
-                padding: '10px 16px',
-                color: 'var(--color-text-primary)',
-                fontSize: '14px',
-                fontWeight: 600,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-                e.currentTarget.style.transform = 'rotate(15deg)';
-                setTimeout(() => e.currentTarget.style.transform = 'rotate(0deg)', 200);
-              }}
-              onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}
-            >
-              <i className="bi bi-arrow-clockwise" />
-              Atualizar
-            </button>
-          </div>
         </div>
         
         {/* Filtros */}

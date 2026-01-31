@@ -9,8 +9,7 @@ import {
   hasCompleteContract, 
   getReferenceDate, 
   getOverdueType,
-  hasActiveFieldwire,
-  isProjectStartedByStatus
+  hasActiveFieldwire
 } from './helpers';
 
 // Importar novos componentes
@@ -380,7 +379,6 @@ export default function TimelinePlanner({
         <ForecastProjectModal
           theme={theme}
           project={selectedProject}
-          filterNotStarted={false}
           onClose={() => setSelectedProject(null)}
         />
       )}
@@ -579,7 +577,6 @@ export default function TimelinePlanner({
               <ForecastProjectsGrid
                 theme={theme}
                 groupedProjects={groupedByMonth}
-                filterNotStarted={false}
                 onProjectClick={setSelectedProject}
               />
             </div>
