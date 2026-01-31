@@ -23,7 +23,6 @@ interface MobileForecastFiltersProps {
   months: string[];
   clients: string[];
   jobSites: string[];
-  availableTypes: string[];
   onYearChange: (year: string) => void;
   onMonthChange: (month: string) => void;
   onClientChange: (clients: string[]) => void;
@@ -59,7 +58,6 @@ export default function MobileForecastFilters({
   months,
   clients,
   jobSites,
-  availableTypes,
   onYearChange,
   onMonthChange,
   onClientChange,

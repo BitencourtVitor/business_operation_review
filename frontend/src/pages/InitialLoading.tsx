@@ -15,35 +15,36 @@ interface LoadingItem {
   error?: string;
 }
 
+const INITIAL_LOADING_ITEMS: LoadingItem[] = [
+  { id: 'workforce', title: 'Forecast', status: 'pending', progress: 0 },
+  { id: 'timesheet', title: 'Timesheet Analysis', status: 'pending', progress: 0 },
+  { id: 'permit', title: 'Permit Control', status: 'pending', progress: 0 },
+  { id: 'receivables', title: 'Receivables Accounting', status: 'pending', progress: 0 },
+  { id: 'payables', title: 'Payables Accounting', status: 'pending', progress: 0 },
+  { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
+  { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 },
+  { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 },
+  { id: 'fuel_control_schema', title: 'Fuel Control Schema', status: 'pending', progress: 0 },
+  { id: 'fuel_control_data', title: 'Fuel Control Data', status: 'pending', progress: 0 }
+];
+
+const EDGE_FUNCTIONS = [
+  { id: 'workforce', name: 'forecast' },
+  { id: 'timesheet', name: 'timesheet_gsheet' },
+  { id: 'permit', name: 'permit_gsheet' },
+  { id: 'receivables', name: 'receivable_gsheet' },
+  { id: 'payables', name: 'payable_gsheet' },
+  { id: 'takeoff', name: 'takeoff_gsheet' },
+  { id: 'service', name: 'service_gsheet' },
+  { id: 'monitoring_hvac', name: 'monitoring_hvac_gsheet' }
+];
+
 export default function InitialLoading() {
   const navigate = useNavigate();
   const [theme] = useState<Theme>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
-  const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([
-    { id: 'workforce', title: 'Forecast', status: 'pending', progress: 0 },
-    { id: 'timesheet', title: 'Timesheet Analysis', status: 'pending', progress: 0 },
-    { id: 'permit', title: 'Permit Control', status: 'pending', progress: 0 },
-    { id: 'receivables', title: 'Receivables Accounting', status: 'pending', progress: 0 },
-    { id: 'payables', title: 'Payables Accounting', status: 'pending', progress: 0 },
-    { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
-    { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 },
-    { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 },
-    { id: 'fuel_control_schema', title: 'Fuel Control Schema', status: 'pending', progress: 0 },
-    { id: 'fuel_control_data', title: 'Fuel Control Data', status: 'pending', progress: 0 }
-  ]);
+  const [loadingItems, setLoadingItems] = useState<LoadingItem[]>(INITIAL_LOADING_ITEMS);
   const [hasValidSession, setHasValidSession] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
   const hasProcessed = useRef(false);
-
-  const edgeFunctions = [
-    { id: 'workforce', name: 'workforce_gsheet' },
-    { id: 'timesheet', name: 'timesheet_gsheet' },
-    { id: 'permit', name: 'permit_gsheet' },
-    { id: 'receivables', name: 'receivable_gsheet' },
-    { id: 'payables', name: 'payable_gsheet' },
-    { id: 'takeoff', name: 'takeoff_gsheet' },
-    { id: 'service', name: 'service_gsheet' },
-    { id: 'monitoring_hvac', name: 'monitoring_hvac_gsheet' }
-  ];
 
   // Aplicar tema ao documento
   useEffect(() => {
@@ -63,7 +64,6 @@ export default function InitialLoading() {
       }
       
       hasProcessed.current = true;
-      setIsProcessing(true);
       console.log('🚀 InitialLoading: Iniciando processamento das edge functions...');
       
       // Verificar se o usuário já tem uma sessão válida
@@ -84,7 +84,7 @@ export default function InitialLoading() {
       })));
 
       // Criar intervalos de progresso para todos os itens
-      const progressIntervals = edgeFunctions.map(func => {
+      const progressIntervals = EDGE_FUNCTIONS.map(func => {
         return setInterval(() => {
           setLoadingItems(prev => prev.map(item => 
             item.id === func.id && item.progress < 90 
@@ -96,12 +96,12 @@ export default function InitialLoading() {
 
       try {
         // Executar todas as edge functions em paralelo
-        const promises = edgeFunctions.map(async (func, index) => {
+        const promises = EDGE_FUNCTIONS.map(async (func, index) => {
           try {
-            if (func.name === 'workforce_gsheet') {
-              console.log('📊 InitialLoading: Chamando workforce_gsheet...');
+            if (func.name === 'forecast') {
+              console.log('📊 InitialLoading: Chamando forecast...');
             }
-            const { error } = await supabase.functions.invoke(func.name, {
+            const { data, error } = await supabase.functions.invoke(func.name, {
               body: { userId: 'loading-process' }
             });
             
@@ -109,9 +109,17 @@ export default function InitialLoading() {
             clearInterval(progressIntervals[index]);
             
             if (error) {
+              console.error(`❌ Erro ao invocar ${func.name}:`, error);
               setLoadingItems(prev => prev.map(item => 
                 item.id === func.id 
                   ? { ...item, status: 'error', progress: 100, error: error.message }
+                  : item
+              ));
+            } else if (data && data.error) {
+              console.error(`❌ Erro no retorno da function ${func.name}:`, data.error);
+              setLoadingItems(prev => prev.map(item => 
+                item.id === func.id 
+                  ? { ...item, status: 'error', progress: 100, error: typeof data.error === 'string' ? data.error : JSON.stringify(data.error) }
                   : item
               ));
             } else {
@@ -122,6 +130,7 @@ export default function InitialLoading() {
               ));
             }
           } catch (error) {
+            console.error(`❌ Exceção ao invocar ${func.name}:`, error);
             clearInterval(progressIntervals[index]);
             setLoadingItems(prev => prev.map(item => 
               item.id === func.id 
@@ -134,7 +143,7 @@ export default function InitialLoading() {
         // Carregar esquema de Fuel Control
         const fuelSchemaPromise = (async () => {
           try {
-            const fuelSchemaIndex = loadingItems.findIndex(item => item.id === 'fuel_control_schema');
+            const fuelSchemaIndex = INITIAL_LOADING_ITEMS.findIndex(item => item.id === 'fuel_control_schema');
             if (fuelSchemaIndex !== -1) {
               const success = await loadFuelControlSchema();
               
@@ -152,7 +161,7 @@ export default function InitialLoading() {
                 ));
               }
             }
-          } catch (error) {
+          } catch {
             setLoadingItems(prev => prev.map(item => 
               item.id === 'fuel_control_schema'
                 ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar esquema' }
@@ -164,7 +173,7 @@ export default function InitialLoading() {
         // Carregar dados de combustível (Samsara + WEX)
         const fuelDataPromise = (async () => {
           try {
-            const fuelDataIndex = loadingItems.findIndex(item => item.id === 'fuel_control_data');
+            const fuelDataIndex = INITIAL_LOADING_ITEMS.findIndex(item => item.id === 'fuel_control_data');
             if (fuelDataIndex !== -1) {
               // Atualizar status para loading
               setLoadingItems(prev => prev.map(item => 
@@ -193,7 +202,7 @@ export default function InitialLoading() {
                   : item
               ));
             }
-          } catch (error) {
+          } catch {
             setLoadingItems(prev => prev.map(item => 
               item.id === 'fuel_control_data'
                 ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar dados' }
@@ -217,13 +226,11 @@ export default function InitialLoading() {
         console.error('Erro geral no processamento:', error);
         // Limpar todos os intervalos em caso de erro
         progressIntervals.forEach(interval => clearInterval(interval));
-      } finally {
-        // Resetar estado de processamento
-        setIsProcessing(false);
       }
     };
 
     processAllFunctions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getStatusIcon = (status: LoadingItem['status']) => {

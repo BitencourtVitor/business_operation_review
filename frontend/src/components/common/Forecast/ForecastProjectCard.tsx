@@ -1,14 +1,11 @@
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
 import {
-  isProjectStartedByStatus,
-  getOverdueType,
   isFieldwireComplete,
   getFieldwireProgress,
   getMachinesProgress,
   hasCompleteContract,
   getContractProgress,
-  hasActiveFieldwire,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
   type ForecastProjectStatus

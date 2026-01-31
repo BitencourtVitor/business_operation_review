@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
 import { addCurrentMonthIfMissing } from '../utils/dataUtils';
 import { getISOWeek } from '../utils/weekUtils';
@@ -22,6 +22,8 @@ import PlanoAcaoPartition from '../components/partitions/PlanoAcaoPartition';
 import sublogoHvac from '../assets/submenu/sublogo_hvac.png';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
+
+import type { PlanoAcao } from '../types/planoAcao';
 
 dayjs.extend(isBetween);
 
@@ -47,29 +49,6 @@ interface Oportunidade {
   criado_em: string;
   desafios: string[];
   melhorias: string[];
-}
-
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
-
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  responsaveis?: string[];
-  status: string;
-  data_limite: string;
 }
 
 interface ProjectMonitoringProps {
@@ -181,13 +160,13 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
   }, [projectMonitoringDataFromHook]);
 
   // Função para obter a data relevante baseada no dateType selecionado
-  const getRelevantDate = (row: ProjectMonitoringHvacData): string | null => {
+  const getRelevantDate = useCallback((row: ProjectMonitoringHvacData): string | null => {
     if (dateType === 'start') {
       return row.start_date || null;
     } else {
       return row.finish_date || null;
     }
-  };
+  }, [dateType]);
 
   // Carregar todos os dados para filtros e cachear
   useEffect(() => {
@@ -238,7 +217,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     };
 
     fetchAll();
-  }, []);
+  }, [getRelevantDate]);
 
   // Atualizar meses disponíveis conforme ano selecionado
   useEffect(() => {
@@ -272,7 +251,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     
     // Se o mês selecionado não existir mais, resetar
     if (selectedMonth && !mesesComAtual.includes(selectedMonth)) setSelectedMonth('');
-  }, [selectedYear, projectMonitoringData]);
+  }, [selectedYear, projectMonitoringData, getRelevantDate, selectedMonth]);
 
   // Filtrar dados
   const filteredData = useMemo(() => {
@@ -353,7 +332,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
     if (selectedTeam.length > 0) filtered = filtered.filter(d => d.team && selectedTeam.includes(d.team));
     
     return filtered;
-  }, [projectMonitoringData, selectedYear, selectedMonth, selectedWeek, selectedProject, selectedStatus, selectedTeam, dateType]);
+  }, [projectMonitoringData, selectedYear, selectedMonth, selectedWeek, selectedProject, selectedStatus, selectedTeam, getRelevantDate]);
 
   // Funções para modais
   const handleSave = async () => {
@@ -562,15 +541,15 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             telaId={telaId}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
+            selectedYear={selectedYear ? Number(selectedYear) : undefined}
+            selectedMonth={selectedMonth ? Number(selectedMonth) : undefined}
             isAdmin={podeEditar}
             usuarioLogadoId={usuarioId}
             onEdit={async (mes, ano) => {
               setModalType('oportunidade');
               // Se mes/ano não vierem do card, usa o filtro
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes.toString() : selectedMonth;
+              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano.toString() : selectedYear;
               if (!mesRef || !anoRef) {
                 setModalData(null);
                 setModalOpen(true);
@@ -683,7 +662,7 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
                 descricao: '',
                 criado_em: new Date().toISOString(),
                 data_inicio: '',
-                data_fim: '',
+                data_fim: null,
                 acoes: [],
               });
               setModalOpen(true);

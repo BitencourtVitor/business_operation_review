@@ -309,8 +309,8 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
             usuarioLogadoId={usuarioId}
             onEdit={async (mes, ano, usuarioId) => {
               setModalType('destaque');
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes.toString() : selectedMonth;
+              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano.toString() : selectedYear;
               if (!mesRef || !anoRef) {
                 setModalData(null);
                 setModalOpen(true);
@@ -373,14 +373,14 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             telaId={telaId}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
+            selectedYear={selectedYear ? Number(selectedYear) : undefined}
+            selectedMonth={selectedMonth ? Number(selectedMonth) : undefined}
             isAdmin={podeEditar}
             usuarioLogadoId={usuarioId}
             onEdit={async (mes, ano) => {
               setModalType('oportunidade');
-              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes : selectedMonth;
-              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano : selectedYear;
+              const mesRef = (typeof mes === 'string' || typeof mes === 'number') ? mes.toString() : selectedMonth;
+              const anoRef = (typeof ano === 'string' || typeof ano === 'number') ? ano.toString() : selectedYear;
               if (!mesRef || !anoRef) {
                 setModalData(null);
                 setModalOpen(true);

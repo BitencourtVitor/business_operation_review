@@ -2,9 +2,6 @@ import { useState, useEffect, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
-import ForecastMaintenance from '../components/common/Forecast/ForecastMaintenance';
-
-// Componentes modulares
 import MobileForecastLoading from '../components/common/Forecast/MobileForecastLoading';
 import MobileForecastFilters from '../components/common/Forecast/MobileForecastFilters';
 import MobileForecastMetrics from '../components/common/Forecast/MobileForecastMetrics';
@@ -103,17 +100,6 @@ const hasWorkforce = (project: WorkforceProject): boolean => {
   return !!(project.workforce && project.workforce.trim() !== '');
 };
 
-// Helper para verificar se a obra já iniciou (baseado na data de início)
-const hasProjectStarted = (project: WorkforceProject): boolean => {
-  if (!project.previous_start_date) return false;
-  const startDate = new Date(project.previous_start_date);
-  if (isNaN(startDate.getTime())) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  startDate.setHours(0, 0, 0, 0);
-  return startDate <= today;
-};
-
 interface ForecastData {
   cliente: string;
   job_site: string;
@@ -180,7 +166,6 @@ export default function MobileForecast() {
   const [months, setMonths] = useState<string[]>([]);
   const [clients, setClients] = useState<string[]>([]);
   const [jobSites, setJobSites] = useState<string[]>([]);
-  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
 
   // Mapeamento de empresas
   const companies = [
@@ -272,7 +257,7 @@ export default function MobileForecast() {
       });
 
       // Combinar dados principais com dados relacionados
-      const enrichedProjects: WorkforceProject[] = projectsData.map((project: any) => ({
+      const enrichedProjects: WorkforceProject[] = (projectsData as unknown as WorkforceProject[]).map((project) => ({
         ...project,
         fieldwire: fieldwireMap.get(project.id) || [],
         machines: machinesMap.get(project.id) || [],
@@ -303,7 +288,6 @@ export default function MobileForecast() {
     if (!rawProjects.length) {
       setClients([]);
       setJobSites([]);
-      setAvailableTypes([]);
       return;
     }
 
@@ -333,14 +317,7 @@ export default function MobileForecast() {
         setSelectedJobSite(newSelectedJobSite);
       }
     }
-
-    const uniqueTypes = [...new Set(
-      rawProjects
-        .map(p => p.type)
-        .filter(type => !!type)
-    )].sort();
-    setAvailableTypes(uniqueTypes);
-  }, [rawProjects, selectedClient]);
+  }, [rawProjects, selectedClient, selectedJobSite]);
 
   useEffect(() => {
     if (!rawProjects.length) {
@@ -390,7 +367,7 @@ export default function MobileForecast() {
     if (selectedMonth && !uniqueMonths.includes(selectedMonth)) {
       setSelectedMonth('');
     }
-  }, [rawProjects, dateMode, selectedYear]);
+  }, [rawProjects, dateMode, selectedYear, selectedMonth]);
 
   // Lista de projetos visíveis de acordo com filtros selecionados
   const visibleProjects = useMemo(() => {
@@ -474,8 +451,8 @@ export default function MobileForecast() {
           month,
           year,
           projectCount: 0,
-          startDate: project.previous_start_date,
-          endDate: project.previous_end_date
+          startDate: project.previous_start_date || '',
+          endDate: project.previous_end_date || ''
         };
       }
       
@@ -770,7 +747,6 @@ export default function MobileForecast() {
             months={months}
             clients={clients}
             jobSites={jobSites}
-            availableTypes={availableTypes}
             onYearChange={setSelectedYear}
             onMonthChange={setSelectedMonth}
             onClientChange={setSelectedClient}
@@ -815,9 +791,7 @@ export default function MobileForecast() {
             groupBy={groupBy}
             onGroupByChange={setGroupBy}
             sortByDate={sortByDate}
-            onSortByDateChange={setSortByDate}
             dateMode={dateMode}
-            onDateModeChange={setDateMode}
           />
         </div>
       </div>

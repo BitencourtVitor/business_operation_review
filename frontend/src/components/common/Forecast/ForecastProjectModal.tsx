@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
 import { 
-  isProjectStartedByStatus, 
   getOverdueType,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
@@ -13,8 +12,6 @@ import iconBuildertrend from '../../../assets/buildertrend.png';
 import iconBuildertrendDark from '../../../assets/buildertrend_darkmode.png';
 import iconQBTime from '../../../assets/qbtime_logo.png';
 import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
-import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
-import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconBoomlift from '../../../assets/boomlift.png';
 import iconForklift from '../../../assets/forklift.png';
 // TODO: Adicionar ícone storage.png na pasta assets quando disponível
@@ -34,7 +31,6 @@ export default function ForecastProjectModal({
   const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
   const projectStatus = getForecastProjectStatus(project);
   const metrics = getProjectCompletionMetrics(project);
-  const overdue = !!getOverdueType(project);
 
   const getProgressBarColor = () => {
     if (projectStatus === 'overdue') return '#e04b4b'; // Overdue: Sempre Vermelho

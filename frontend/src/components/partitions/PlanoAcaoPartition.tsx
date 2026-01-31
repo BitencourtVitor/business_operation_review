@@ -4,28 +4,7 @@ import dayjs from 'dayjs';
 import PartitionCard from './PartitionCard';
 import EmptyMessage from './EmptyMessage';
 import PartitionLoading from './PartitionLoading';
-
-// Tipos para os dados
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  status: string;
-  data_limite: string;
-}
-
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
+import type { PlanoAcao, Acao } from '../../types/planoAcao';
 
 interface PlanoAcaoPartitionProps {
   usuarioResponsavelId: string;
