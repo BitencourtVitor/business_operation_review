@@ -9,6 +9,7 @@ import MobileForecastLoading from '../components/common/Forecast/MobileForecastL
 import MobileForecastFilters from '../components/common/Forecast/MobileForecastFilters';
 import MobileForecastMetrics from '../components/common/Forecast/MobileForecastMetrics';
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 import { 
   getForecastProjectStatus, 
@@ -629,15 +630,19 @@ export default function MobileForecast() {
             }}
             onClick={() => setIsCompanyMenuOpen(!isCompanyMenuOpen)}
           >
-            <h1 style={{ 
-              color: 'var(--color-text-primary)', 
-              fontSize: '18px', 
-              fontWeight: 700, 
-              margin: 0,
-              whiteSpace: 'nowrap'
-            }}>
-              {selectedCompany} Forecast
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img src={sublogoFraming} alt="Framing Logo" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+              <h1 style={{ 
+                  color: 'var(--color-text-primary)', 
+                  fontSize: '18px', 
+                  fontWeight: 600, 
+                  margin: 0,
+                  whiteSpace: 'nowrap',
+                  letterSpacing: '-0.3px'
+                }}>
+                  {selectedCompany} Forecast
+                </h1>
+            </div>
             <i 
               className={`bi bi-chevron-${isCompanyMenuOpen ? 'up' : 'down'}`}
               style={{ 
