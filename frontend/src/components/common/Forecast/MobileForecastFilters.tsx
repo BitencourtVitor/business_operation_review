@@ -3,10 +3,13 @@ import MultiSelectDropdown from '../MultiSelectDropdown';
 import SingleSelectDropdown from '../SingleSelectDropdown';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
+import iconBuildertrendDark from '../../../assets/buildertrend_darkmode.png';
 import iconQBTime from '../../../assets/qbtime_logo.png';
+import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
 import { type ForecastProjectStatus } from './helpers';
 
 interface MobileForecastFiltersProps {
+  theme?: 'light' | 'dark';
   selectedYear: string;
   selectedMonth: string;
   selectedClient: string[];
@@ -42,6 +45,7 @@ interface MobileForecastFiltersProps {
 }
 
 export default function MobileForecastFilters({
+  theme,
   selectedYear,
   selectedMonth,
   selectedClient,
@@ -77,6 +81,7 @@ export default function MobileForecastFilters({
 }: MobileForecastFiltersProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
 
   useEffect(() => {
     const handleResize = () => {
@@ -86,19 +91,7 @@ export default function MobileForecastFilters({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Estilo para selects customizados
-  const selectStyle: React.CSSProperties = {
-    background: 'var(--color-background-primary)',
-    color: 'var(--color-text-primary)',
-    border: '1px solid var(--color-border-divider)',
-    borderRadius: 8,
-    padding: '6px 10px',
-    fontSize: 13,
-    width: '100%',
-    transition: 'background 0.3s, color 0.3s, border 0.3s',
-    cursor: 'pointer',
-  };
-
+  // Estilo para botões segmentados
   const filterButtonStyle: React.CSSProperties = {
     background: 'var(--color-background-secondary)',
     border: '1px solid var(--color-border-divider)',
@@ -564,7 +557,6 @@ export default function MobileForecastFilters({
                         options={clients.map(client => ({ value: client, label: client }))}
                         selectedValues={selectedClient}
                         onChange={onClientChange}
-                        placeholder="Client"
                         allLabel="All"
                         dropdownTitle="Clients"
                         variant="ghost"
@@ -588,7 +580,6 @@ export default function MobileForecastFilters({
                         options={jobSites.map(jobSite => ({ value: jobSite, label: jobSite }))}
                         selectedValues={selectedJobSite}
                         onChange={onJobSiteChange}
-                        placeholder="Location"
                         allLabel="All"
                         dropdownTitle="Work Locations"
                         variant="ghost"
@@ -668,14 +659,14 @@ export default function MobileForecastFilters({
                   label="Buildertrend"
                   value={selectedBuildertrend}
                   onChange={onBuildertrendChange}
-                  icon={<img src={iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                  icon={<img src={isDarkMode ? iconBuildertrendDark : iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
                 />
 
                 <SegmentedButtonGroup
                   label="QBTime"
                   value={selectedQBTime}
                   onChange={onQBTimeChange}
-                  icon={<img src={iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                  icon={<img src={isDarkMode ? iconQBTimeDark : iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
                 />
 
                 <div style={{

@@ -480,7 +480,7 @@ export default function Dashboard() {
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
       case 'Forecast':
-        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} selectedType={selectedForecastType} />;
+        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Fuel Control':
         // Verificar permissão financeira antes de mostrar Fuel Control
         if (!financialPass) {
@@ -1044,7 +1044,7 @@ export default function Dashboard() {
           left: 215,
           width: 'calc(100vw - 215px)',
           height: 'calc(100vh - 64px)',
-          overflow: 'auto',
+          overflow: 'hidden',
           background: 'transparent',
           zIndex: 10,
         }}

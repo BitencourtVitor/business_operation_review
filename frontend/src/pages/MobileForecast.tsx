@@ -731,6 +731,7 @@ export default function MobileForecast() {
         {/* Filtros mobile */}
         <div style={{ width: '100%' }}>
           <MobileForecastFilters
+            theme={theme}
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             selectedClient={selectedClient}

@@ -64,23 +64,13 @@ interface ForecastStats {
 interface MobileForecastMetricsProps {
   stats: ForecastStats;
   workforceProjects: WorkforceProject[];
-  selectedYear: string;
-  selectedMonth: string;
-  selectedClient: string[];
-  selectedJobSite: string[];
   groupBy: 'cliente' | 'job_site';
-  onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
 }
 
 export default function MobileForecastMetrics({ 
   stats, 
   workforceProjects, 
-  selectedYear, 
-  selectedMonth, 
-  selectedClient, 
-  selectedJobSite,
-  groupBy,
-  onGroupByChange
+  groupBy
 }: MobileForecastMetricsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -226,12 +216,7 @@ export default function MobileForecastMetrics({
           }}>
             <MonthlySummary
               workforceProjects={workforceProjects}
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              selectedClient={selectedClient}
-              selectedJobSite={selectedJobSite}
               groupBy={groupBy}
-              onGroupByChange={onGroupByChange}
             />
           </div>
         </div>

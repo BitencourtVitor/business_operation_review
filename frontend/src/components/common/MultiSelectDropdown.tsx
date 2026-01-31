@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface MultiSelectDropdownProps {
-  options: { value: string; label: string }[];
+  options: ({ value: string; label: string } | string)[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
-  placeholder?: string;
   allLabel?: string;
   dropdownTitle?: string;
   disablePortal?: boolean;
@@ -15,10 +14,9 @@ interface MultiSelectDropdownProps {
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
-  options,
-  selectedValues,
+  options = [],
+  selectedValues = [],
   onChange,
-  placeholder = 'Selecionar',
   allLabel = 'Todos',
   dropdownTitle,
   disablePortal = false,
@@ -57,10 +55,10 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       let customWidth = dropdownWidth;
       if (!customWidth) {
         // Find longest option label to estimate width
-        const longestLabel = options.reduce((longest, opt) => 
-          opt.label.length > longest.length ? opt.label : longest, 
-          allLabel
-        );
+        const longestLabel = options.reduce<string>((longest, opt) => {
+          const currentLabel = typeof opt === 'string' ? opt : opt.label;
+          return currentLabel.length > longest.length ? currentLabel : longest;
+        }, allLabel);
         // Rough estimation: 8px per character + padding + checkbox space
         const estimatedWidth = Math.max(rect.width, longestLabel.length * 8 + 60);
         customWidth = Math.min(estimatedWidth, 300); // Cap at 300px
@@ -98,13 +96,16 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   // Verificar se todos estão selecionados de forma mais robusta
   const allSelected = options.length > 0 && 
     selectedValues.length === options.length && 
-    options.every(opt => selectedValues.includes(opt.value));
+    options.every(opt => {
+      const value = typeof opt === 'string' ? opt : opt.value;
+      return selectedValues.includes(value);
+    });
   
-  const toggleOption = (opt: string) => {
-    if (selectedValues.includes(opt)) {
-      onChange(selectedValues.filter(o => o !== opt));
+  const toggleOption = (optValue: string) => {
+    if (selectedValues.includes(optValue)) {
+      onChange(selectedValues.filter(o => o !== optValue));
     } else {
-      onChange([...selectedValues, opt]);
+      onChange([...selectedValues, optValue]);
     }
   };
   
@@ -112,7 +113,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     if (allSelected) {
       onChange([]);
     } else {
-      onChange(options.map(opt => opt.value));
+      onChange(options.map(opt => typeof opt === 'string' ? opt : opt.value));
     }
   };
 
@@ -172,23 +173,27 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           <span>{allLabel}</span>
         </label>
       </div>
-      {options.map((opt, index) => (
-        <label key={`${opt.value}-${index}`} className="d-flex align-items-center" style={{ 
-          gap: 8, 
-          fontSize: 14, 
-          color: 'var(--color-text-secondary)', 
-          cursor: 'pointer', 
-          padding: '6px 12px' 
-        }}>
-          <input 
-            type="checkbox" 
-            checked={selectedValues.includes(opt.value)} 
-            onChange={() => toggleOption(opt.value)} 
-            style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} 
-          />
-          <span>{opt.label}</span>
-        </label>
-      ))}
+      {options.map((opt, index) => {
+        const value = typeof opt === 'string' ? opt : opt.value;
+        const label = typeof opt === 'string' ? opt : opt.label;
+        return (
+          <label key={`${value}-${index}`} className="d-flex align-items-center" style={{ 
+            gap: 8, 
+            fontSize: 14, 
+            color: 'var(--color-text-secondary)', 
+            cursor: 'pointer', 
+            padding: '6px 12px' 
+          }}>
+            <input 
+              type="checkbox" 
+              checked={selectedValues.includes(value)} 
+              onChange={() => toggleOption(value)} 
+              style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} 
+            />
+            <span>{label}</span>
+          </label>
+        );
+      })}
     </div>
   );
 
