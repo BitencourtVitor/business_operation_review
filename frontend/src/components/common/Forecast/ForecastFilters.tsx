@@ -349,7 +349,7 @@ export default function ForecastFilters({
                    whiteSpace: 'nowrap',
                    border: '1px solid rgba(255, 165, 0, 0.2)'
                  }}>
-                   Not Started
+                   Open
                  </div>
                )}
             </div>
@@ -561,7 +561,7 @@ export default function ForecastFilters({
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontSize: '14px', fontWeight: 600, color: filterNotStarted ? 'var(--color-accent-primary)' : 'var(--color-text-primary)' }}>
-                    Apenas "Não Iniciados"
+                    Apenas "Open"
                   </span>
                   <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                     Ocultar projetos em andamento

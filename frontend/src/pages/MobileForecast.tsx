@@ -10,6 +10,11 @@ import MobileForecastFilters from '../components/common/Forecast/MobileForecastF
 import MobileForecastMetrics from '../components/common/Forecast/MobileForecastMetrics';
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
 
+import { 
+  getForecastProjectStatus, 
+  type ForecastProjectStatus 
+} from '../components/common/Forecast/helpers';
+
 type DateMode = 'start' | 'beams';
 
 interface ForecastFieldwire {
@@ -135,7 +140,7 @@ export default function MobileForecast() {
   const [dateMode, setDateMode] = useState<DateMode>('start');
 
   // Estados para filtros
-  const [selectedYear, setSelectedYear] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedClient, setSelectedClient] = useState<string[]>([]);
   const [selectedJobSite, setSelectedJobSite] = useState<string[]>([]);
@@ -146,7 +151,7 @@ export default function MobileForecast() {
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all'); // 'all', 'yes', 'no'
-  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true); // Filtro para mostrar apenas "Not Started" ativo por padrão
+  const [selectedStatuses, setSelectedStatuses] = useState<ForecastProjectStatus[]>(['overdue', 'not started']); // Inicia mostrando apenas overdue e not started
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
@@ -394,10 +399,10 @@ export default function MobileForecast() {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Quando filterNotStarted está ativo, filtramos apenas 'not started'
-      if (filterNotStarted) {
-        const s = (project.status || '').toLowerCase().trim();
-        if (s !== 'not started') return false;
+      // Quando selectedStatuses está ativo, filtramos pelos status selecionados
+      if (selectedStatuses.length > 0) {
+        const status = getForecastProjectStatus(project);
+        if (!selectedStatuses.includes(status)) return false;
       }
 
       // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
@@ -436,7 +441,7 @@ export default function MobileForecast() {
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, 
       selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
-      filterNotStarted, dateMode]);
+      selectedStatuses, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -755,7 +760,7 @@ export default function MobileForecast() {
             selectedContractSteps={selectedContractSteps}
             selectedWorkforce={selectedWorkforce}
             selectedQBTime={selectedQBTime}
-            filterNotStarted={filterNotStarted}
+            selectedStatuses={selectedStatuses}
             years={years}
             months={months}
             clients={clients}
@@ -772,7 +777,7 @@ export default function MobileForecast() {
             onContractStepsChange={setSelectedContractSteps}
             onWorkforceChange={setSelectedWorkforce}
             onQBTimeChange={setSelectedQBTime}
-            onFilterNotStartedChange={setFilterNotStarted}
+            onStatusesChange={setSelectedStatuses}
             dateMode={dateMode}
             onDateModeChange={setDateMode}
             sortByDate={sortByDate}
@@ -808,7 +813,6 @@ export default function MobileForecast() {
             onSortByDateChange={setSortByDate}
             dateMode={dateMode}
             onDateModeChange={setDateMode}
-            filterNotStarted={filterNotStarted}
           />
         </div>
       </div>

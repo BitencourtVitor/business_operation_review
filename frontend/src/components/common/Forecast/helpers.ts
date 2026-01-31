@@ -54,11 +54,41 @@ export const getMachineByTitle = (project: WorkforceProject, searchTerm: string)
   }) || null;
 };
 
-// Helper para verificar se a obra já iniciou baseado no STATUS (não na data)
-// Se o status for diferente de "Not Started", a obra já começou
-export const isProjectStartedByStatus = (project: WorkforceProject): boolean => {
+// Tipagem para os 4 status do Forecast
+export type ForecastProjectStatus = 'closed' | 'overdue' | 'open' | 'not started';
+
+// Helper centralizado para determinar o status único de um projeto do Forecast
+export const getForecastProjectStatus = (project: WorkforceProject): ForecastProjectStatus => {
   const normalizedStatus = (project.status || '').toLowerCase().trim();
-  return normalizedStatus !== 'not started';
+  
+  // 1. Prioridade Máxima: CLOSED
+  if (normalizedStatus === 'closed') {
+    return 'closed';
+  }
+  
+  // 2. Prioridade: OPEN (Equivalente ao antigo Started no Forecast)
+  if (normalizedStatus === 'open' || normalizedStatus === 'started') {
+    return 'open';
+  }
+
+  // 3. Prioridade: OVERDUE (Apenas se não for closed/open e a data de início passou)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
+  
+  if (startDate) {
+    startDate.setHours(0, 0, 0, 0);
+    if (today > startDate) return 'overdue';
+  }
+  
+  // 4. Fallback: NOT STARTED
+  return 'not started';
+};
+
+// Helper para verificar se a obra já iniciou baseado no STATUS (não na data)
+export const isProjectStartedByStatus = (project: WorkforceProject): boolean => {
+  const status = getForecastProjectStatus(project);
+  return status === 'open';
 };
 
 // Helper para verificar se a obra já iniciou (baseado na data de início)
@@ -75,18 +105,17 @@ export const hasProjectStarted = (project: WorkforceProject): boolean => {
 
 // Helper para obter tipo de atraso
 // IMPORTANTE: O atraso é determinado APENAS pela StartDate, não pela BeamsDate
-// REGRA: Se a obra está iniciada (status ≠ "Not Started"), ela NÃO pode estar atrasada
-// Só pode estar atrasada se status = "Not Started" E StartDate foi ultrapassada
+// REGRA: Se a obra está fechada (status = "Closed"), ela NÃO pode estar atrasada
+// Se não está fechada e a data passou, está atrasada
 export const getOverdueType = (project: WorkforceProject): 'start' | null => {
   const normalizedStatus = (project.status || '').toLowerCase().trim();
   
-  // Se o status for diferente de "Not Started", a obra já começou, então NÃO está atrasada
-  if (normalizedStatus !== 'not started') {
+  // Se o status for "Closed", a obra já terminou, então NÃO está atrasada
+  if (normalizedStatus === 'closed') {
     return null;
   }
   
-  // Se o status for "Not Started", verificar se a StartDate foi ultrapassada
-  // BeamsDate NÃO é usado para determinar atraso
+  // Verificar se a StartDate foi ultrapassada
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;

@@ -18,19 +18,26 @@ import ForecastProjectsGrid from './ForecastProjectsGrid';
 import ForecastProjectModal from './ForecastProjectModal';
 
 // Status a partir da coluna status; atraso independente
-const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => {
-  return isProjectStartedByStatus(project) ? 'open' : 'not-started';
+const getProjectStatus = (project: WorkforceProject): 'open' | 'started' | 'closed' => {
+  const status = (project.status || '').toLowerCase().trim();
+  if (status === 'closed') return 'closed';
+  if (status === 'open' || status === 'started') return 'started';
+  return 'open';
 };
 
 // Cores para status e atraso
 const PROJECT_STATUS_COLORS = {
-  'not-started': {
+  'open': {
     primary: '#6c757d',
     hover: '#5a6268'
   },
-  'open': {
+  'started': {
     primary: '#28a745',
     hover: '#218838'
+  },
+  'closed': {
+    primary: '#495057',
+    hover: '#343a40'
   }
 } as const;
 const OVERDUE_COLORS = { primary: '#e04b4b', hover: '#c73f3f' } as const;
@@ -764,10 +771,10 @@ export default function TimelinePlanner({
                                 const overdueType = getOverdueType(project);
                                 const overdue = !!overdueType;
                                 // Três condições mutuamente exclusivas:
-                                // 1. Vermelho: status = "Not Started" E StartDate ultrapassada (atrasada)
-                                // 2. Verde: status ≠ "Not Started" (iniciada)
-                                // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
-                                const cardColors = overdue ? OVERDUE_COLORS : (projectStatus === 'open' ? PROJECT_STATUS_COLORS.open : PROJECT_STATUS_COLORS['not-started']);
+                                // 1. Vermelho: status = "Open" E StartDate ultrapassada (atrasada)
+                                // 2. Verde: status ≠ "Open" (iniciada)
+                                // 3. Cinza: status = "Open" E StartDate não ultrapassada (normal)
+                                const cardColors = overdue ? OVERDUE_COLORS : (projectStatus === 'started' ? PROJECT_STATUS_COLORS.started : projectStatus === 'closed' ? PROJECT_STATUS_COLORS.closed : PROJECT_STATUS_COLORS.open);
                                 
                                 const hasHvac = !!project.hvac;
                                 const hasFw = hasActiveFieldwire(project);
