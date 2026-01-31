@@ -121,17 +121,7 @@ export default function ForecastImprovement() {
       if (projectsError) throw projectsError;
 
       setRawProjects((projectsData || []) as WorkforceProject[]);
-
-      const filtered = (projectsData || []).filter((p: any) => {
-        const s = (p.status || '').toLowerCase().trim();
-        // Apenas projetos com status 'not started' são exibidos
-        if (s === 'not started') {
-          const start = p.previous_start_date ? new Date(p.previous_start_date) : null;
-          return !!(start && !isNaN(start.getTime()));
-        }
-        return false;
-      });
-      setWorkforceProjects(filtered);
+      setWorkforceProjects((projectsData || []) as WorkforceProject[]);
 
     } catch (err) {
       console.error('Erro ao buscar dados do workforce:', err);
@@ -217,21 +207,19 @@ export default function ForecastImprovement() {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Excluir cards quando as datas forem nulas/indefinidas/inválidas
-      if (!project.previous_start_date || !project.previous_end_date) return false;
-      const start = new Date(project.previous_start_date);
-      const end = new Date(project.previous_end_date);
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
-
       const referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate) return false;
-
-      const dateParts = referenceDate.split('-');
-      if (dateParts.length !== 3) return false;
       
-      const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1], 10);
-      const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+      let projectYear = null;
+      let projectMonth = null;
+
+      if (referenceDate) {
+        const dateParts = referenceDate.split('-');
+        if (dateParts.length === 3) {
+          projectYear = dateParts[0];
+          const projectMonthNum = parseInt(dateParts[1], 10);
+          projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+        }
+      }
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
@@ -254,15 +242,17 @@ export default function ForecastImprovement() {
 
     visibleProjects.forEach(project => {
       const referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate) {
-        return;
+      
+      let month = 'Pending';
+      let year = 0;
+
+      if (referenceDate) {
+        const refDateObj = new Date(referenceDate);
+        if (!isNaN(refDateObj.getTime())) {
+          month = refDateObj.toLocaleString('en-US', { month: 'long' });
+          year = refDateObj.getFullYear();
+        }
       }
-      const refDateObj = new Date(referenceDate);
-      if (isNaN(refDateObj.getTime())) {
-        return;
-      }
-      const month = refDateObj.toLocaleString('en-US', { month: 'long' });
-      const year = refDateObj.getFullYear();
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
       
@@ -299,14 +289,23 @@ export default function ForecastImprovement() {
     let periodEnd = '';
     
     if (forecastData.length > 0) {
-      const allStartDates = forecastData.map(item => new Date(item.startDate));
-      const allEndDates = forecastData.map(item => new Date(item.endDate));
+      const allStartDates = forecastData
+        .map(item => item.startDate ? new Date(item.startDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
-      const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+      const allEndDates = forecastData
+        .map(item => item.endDate ? new Date(item.endDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
-      periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
+      if (allStartDates.length > 0) {
+        const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
+        periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
+      }
+      
+      if (allEndDates.length > 0) {
+        const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+        periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
+      }
     }
 
     return {
@@ -387,8 +386,8 @@ export default function ForecastImprovement() {
       {/* Header mobile */}
       <div style={{ 
         textAlign: 'center', 
-        marginBottom: '20px',
-        padding: '15px 0',
+        marginBottom: '12px',
+        padding: '10px 0',
         borderBottom: '2px solid var(--color-accent-primary)',
         position: 'relative'
       }}>
@@ -531,10 +530,13 @@ export default function ForecastImprovement() {
       <div style={{ 
         maxWidth: '100%',
         width: '100%',
-        margin: '0 auto'
+        margin: '0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '12px'
       }}>
         {/* Filtros mobile */}
-        <div style={{ marginBottom: '20px', width: '100%' }}>
+        <div style={{ width: '100%' }}>
           <MobileForecastFilters
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
@@ -567,7 +569,7 @@ export default function ForecastImprovement() {
         </div>
 
         {/* Métricas mobile */}
-        <div style={{ marginBottom: '20px', width: '100%' }}>
+        <div style={{ width: '100%' }}>
           <MobileForecastMetrics 
             stats={stats} 
             workforceProjects={workforceProjects}

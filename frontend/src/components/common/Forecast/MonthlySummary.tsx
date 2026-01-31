@@ -110,7 +110,7 @@ export default function MonthlySummary({
       background: 'var(--color-background-secondary)',
       border: '1px solid var(--color-border-divider)',
       borderRadius: 8,
-      padding: '16px',
+      padding: '12px',
       width: '100%',
       maxWidth: '100%',
       boxSizing: 'border-box'
@@ -120,20 +120,20 @@ export default function MonthlySummary({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '12px'
+        marginBottom: '10px'
       }}>
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '6px'
         }}>
           <i className="bi bi-calendar-range" style={{ 
             color: 'var(--color-accent-primary)', 
-            fontSize: '16px' 
+            fontSize: '14px' 
           }} />
           <h4 style={{
             margin: 0,
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: 600,
             color: 'var(--color-text-primary)'
           }}>
@@ -145,15 +145,15 @@ export default function MonthlySummary({
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '6px',
           background: 'var(--color-background-primary)',
           border: '1px solid var(--color-border-divider)',
           borderRadius: '6px',
-          padding: '4px 8px'
+          padding: '2px 6px'
         }}>
           <i className="bi bi-layers" style={{ 
             color: 'var(--color-text-secondary)', 
-            fontSize: '14px' 
+            fontSize: '12px' 
           }} />
           <select
             value={groupBy}
@@ -162,14 +162,14 @@ export default function MonthlySummary({
               background: 'transparent',
               border: 'none',
               color: 'var(--color-text-primary)',
-              fontSize: '14px',
+              fontSize: '12px',
               fontWeight: 500,
               cursor: 'pointer',
               outline: 'none'
             }}
           >
-            <option value="cliente">By Client</option>
-            <option value="job_site">By Job Site</option>
+            <option value="cliente">Client</option>
+            <option value="job_site">Site</option>
           </select>
         </div>
       </div>
@@ -178,13 +178,14 @@ export default function MonthlySummary({
       <div style={{
         overflowX: 'auto',
         overflowY: 'hidden',
-        paddingBottom: '8px'
+        paddingBottom: '6px',
+        WebkitOverflowScrolling: 'touch'
       }}>
         <div style={{
           display: 'flex',
-          gap: '12px',
+          gap: '10px',
           minWidth: 'max-content',
-          paddingBottom: '4px'
+          paddingBottom: '2px'
         }}>
           {monthlyData.map((monthData, index) => (
             <div
@@ -193,8 +194,8 @@ export default function MonthlySummary({
                 background: 'var(--color-background-primary)',
                 border: '1px solid var(--color-border-divider)',
                 borderRadius: 8,
-                padding: '12px',
-                minWidth: '140px',
+                padding: '10px',
+                minWidth: '120px',
                 flexShrink: 0
               }}
             >

@@ -69,7 +69,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all');
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
-  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true);
+  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(false);
 
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
@@ -247,34 +247,18 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Filtro de status "Not Started"
+      // Quando filterNotStarted está ativo, filtramos apenas 'not started'
       if (filterNotStarted) {
         const s = (project.status || '').toLowerCase().trim();
         if (s !== 'not started') return false;
-        if (!project.previous_start_date) return false;
-        const start = new Date(project.previous_start_date);
-        if (isNaN(start.getTime())) return false;
       }
 
-      if (!project.previous_start_date || !project.previous_end_date) {
-        return false;
-      }
-      const start = new Date(project.previous_start_date);
-      const end = new Date(project.previous_end_date);
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
-
-      let referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate && !filterNotStarted) {
-        referenceDate = project.previous_start_date || null;
-      }
-      if (!referenceDate) return false;
-
-      const dateParts = referenceDate.split('-');
-      if (dateParts.length !== 3) return false;
+      // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
+      const referenceDate = getReferenceDate(project, dateMode);
       
-      const projectYear = dateParts[0];
-      const projectMonthNum = parseInt(dateParts[1], 10);
-      const projectMonth = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+      const projectYear = referenceDate ? referenceDate.split('-')[0] : null;
+      const projectMonthNum = referenceDate ? parseInt(referenceDate.split('-')[1], 10) : null;
+      const projectMonth = projectMonthNum ? new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' }) : null;
       
       const yearMatch = !selectedYear || projectYear === selectedYear;
       const monthMatch = !selectedMonth || projectMonth === selectedMonth;
@@ -284,7 +268,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
       const jobSiteMatch = selectedJobSiteSet.size === 0 || selectedJobSiteSet.has(jobSiteNorm);
       const typeMatch = selectedProjectType === 'all' || project.type === selectedProjectType;
       
-      // Filtros de conclusão
+      // Filtros de conclusão (mantemos para funcionalidade da UI)
       const fieldwireMatch = selectedFieldwire === 'all' || 
         (selectedFieldwire === 'yes' ? isFieldwireComplete(project) : !isFieldwireComplete(project));
       const buildertrendMatch = selectedBuildertrend === 'all' || 
@@ -315,13 +299,17 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
 
     visibleProjects.forEach(project => {
       const referenceDate = getReferenceDate(project, dateMode);
-      if (!referenceDate) return;
       
-      const refDateObj = new Date(referenceDate);
-      if (isNaN(refDateObj.getTime())) return;
-      
-      const month = refDateObj.toLocaleString('en-US', { month: 'long' });
-      const year = refDateObj.getFullYear();
+      let month = 'Pending';
+      let year = 0;
+
+      if (referenceDate) {
+        const refDateObj = new Date(referenceDate);
+        if (!isNaN(refDateObj.getTime())) {
+          month = refDateObj.toLocaleString('en-US', { month: 'long' });
+          year = refDateObj.getFullYear();
+        }
+      }
       
       const key = `${project.cliente}-${project.job_site}-${month}-${year}`;
       
@@ -332,8 +320,8 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
           month,
           year,
           projectCount: 0,
-          startDate: project.previous_start_date!,
-          endDate: project.previous_end_date!
+          startDate: project.previous_start_date,
+          endDate: project.previous_end_date
         };
       }
       
@@ -357,14 +345,23 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     let periodEnd = '';
     
     if (forecastData.length > 0) {
-      const allStartDates = forecastData.map(item => new Date(item.startDate));
-      const allEndDates = forecastData.map(item => new Date(item.endDate));
+      const allStartDates = forecastData
+        .map(item => item.startDate ? new Date(item.startDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      const minStartDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
-      const maxEndDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+      const allEndDates = forecastData
+        .map(item => item.endDate ? new Date(item.endDate) : null)
+        .filter((d): d is Date => d !== null && !isNaN(d.getTime()));
       
-      periodStart = formatDateUS(minStartDate.toISOString().split('T')[0]);
-      periodEnd = formatDateUS(maxEndDate.toISOString().split('T')[0]);
+      if (allStartDates.length > 0) {
+         const minDate = new Date(Math.min(...allStartDates.map(d => d.getTime())));
+         periodStart = formatDateUS(minDate.toISOString().split('T')[0]);
+       }
+       
+       if (allEndDates.length > 0) {
+         const maxDate = new Date(Math.max(...allEndDates.map(d => d.getTime())));
+         periodEnd = formatDateUS(maxDate.toISOString().split('T')[0]);
+       }
     }
 
     return {

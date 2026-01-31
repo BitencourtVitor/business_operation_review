@@ -14,10 +14,10 @@ interface LoadingItem {
 
 interface MobileForecastLoadingProps {
   onComplete: () => void;
+  theme?: 'light' | 'dark';
 }
 
-export default function MobileForecastLoading({ onComplete }: MobileForecastLoadingProps) {
-  const [theme] = useState<Theme>('light'); // Assuming light theme for public mobile forecast
+export default function MobileForecastLoading({ onComplete, theme = 'light' }: MobileForecastLoadingProps) {
   const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([
     { id: 'workforce', title: 'Forecast Data', status: 'pending', progress: 0 }
   ]);
@@ -199,7 +199,7 @@ export default function MobileForecastLoading({ onComplete }: MobileForecastLoad
         style={{
           width: '100%',
           maxWidth: 'min(400px, 95vw)',
-          maxHeight: 'min(500px, 95vh)',
+          maxHeight: 'min(600px, 95vh)',
           background: 'var(--color-background-primary)',
           color: 'var(--color-text-primary)',
           border: theme === 'dark' 
@@ -217,7 +217,8 @@ export default function MobileForecastLoading({ onComplete }: MobileForecastLoad
           transition: 'all 0.3s ease',
           position: 'relative',
           backdropFilter: 'blur(10px)',
-          overflow: 'auto'
+          overflowY: 'auto',
+          overflowX: 'hidden'
         }}
       >
         {/* Logo */}

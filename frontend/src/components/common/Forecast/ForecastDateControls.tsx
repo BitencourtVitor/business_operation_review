@@ -16,28 +16,28 @@ export default function ForecastDateControls({
 
   return (
     <div style={{
-      marginBottom: '15px',
+      marginBottom: '12px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '8px'
+      gap: '6px'
     }}>
       <div style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: '10px',
+        gap: '8px',
         background: 'var(--color-background-secondary)',
         border: '1px solid var(--color-border-divider)',
-        borderRadius: 10,
-        padding: '10px'
+        borderRadius: 8,
+        padding: '6px 10px'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <i className="bi bi-calendar-week" style={{ color: 'var(--color-accent-primary)', fontSize: 16 }} />
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)' }}>
+          <i className="bi bi-calendar-week" style={{ color: 'var(--color-accent-primary)', fontSize: 14 }} />
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>
             Date Mode
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 4 }}>
           <button
             onClick={() => onDateModeChange('beams')}
             style={{
@@ -45,16 +45,16 @@ export default function ForecastDateControls({
               color: dateMode === 'beams' ? '#fff' : 'var(--color-text-primary)',
               border: '1px solid var(--color-border-divider)',
               borderRadius: 20,
-              padding: '4px 12px',
-              fontSize: 13,
+              padding: '3px 10px',
+              fontSize: 12,
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
+              gap: 4,
               cursor: 'pointer'
             }}
           >
-            <i className="bi bi-flag-fill" style={{ fontSize: 12 }} />
+            <i className="bi bi-flag-fill" style={{ fontSize: 11 }} />
             Beams
           </button>
           <button
@@ -64,23 +64,23 @@ export default function ForecastDateControls({
               color: dateMode === 'start' ? '#fff' : 'var(--color-text-primary)',
               border: '1px solid var(--color-border-divider)',
               borderRadius: 20,
-              padding: '4px 12px',
-              fontSize: 13,
+              padding: '3px 10px',
+              fontSize: 12,
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
-              gap: 6,
+              gap: 4,
               cursor: 'pointer'
             }}
           >
-            <i className="bi bi-calendar" style={{ fontSize: 12 }} />
+            <i className="bi bi-calendar" style={{ fontSize: 11 }} />
             Start
           </button>
         </div>
       </div>
       <div style={{
         display: 'flex',
-        gap: '8px',
+        gap: '6px',
         alignItems: 'center'
       }}>
         <button
@@ -90,16 +90,15 @@ export default function ForecastDateControls({
             background: sortByDate ? 'var(--color-accent-primary)' : 'var(--color-background-secondary)',
             color: sortByDate ? '#fff' : 'var(--color-text-primary)',
             border: '1px solid var(--color-border-divider)',
-            borderRadius: 10,
-            padding: '10px 14px',
-            fontSize: 14,
+            borderRadius: 8,
+            padding: '8px 12px',
+            fontSize: 13,
             fontWeight: 600,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer'
-          }}
-        >
+          }}>
           <span>Sort by {dateModeLabel}</span>
           <span>{sortByDate ? sortByDate.toUpperCase() : 'OFF'}</span>
         </button>

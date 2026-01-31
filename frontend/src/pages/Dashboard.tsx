@@ -559,7 +559,14 @@ export default function Dashboard() {
 
   return (
     <FuelDataProvider>
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)' }}>
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background-primary) 100%)',
+        width: '100%',
+        maxWidth: '100vw',
+        overflowX: 'hidden',
+        position: 'relative'
+      }}>
         {/* Header */}
         <header
         style={{
@@ -574,7 +581,8 @@ export default function Dashboard() {
           position: 'fixed',
           top: 0,
           left: 0,
-          zIndex: 1,
+          zIndex: 1000,
+          boxSizing: 'border-box'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: 215, minWidth: 215, height: '100%', justifyContent: 'center', borderRight: '1.5px solid var(--color-border-divider)'}}>

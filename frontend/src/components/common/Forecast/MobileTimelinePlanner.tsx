@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { WorkforceProject, ForecastData } from './types';
-import ForecastDateControls from './ForecastDateControls';
 import ForecastProjectsGrid from './ForecastProjectsGrid';
 import ForecastProjectModal from './ForecastProjectModal';
 
@@ -44,18 +43,16 @@ export default function MobileTimelinePlanner({
     if (!workforceProjects.length) return [];
 
     const filteredProjects = workforceProjects.filter(project => {
-      // Excluir cards quando as datas forem nulas/indefinidas/inválidas
-      if (!project.previous_start_date || !project.previous_end_date) return false;
-      const start = new Date(project.previous_start_date);
-      const end = new Date(project.previous_end_date);
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) return false;
-
       const referenceDate = resolveReferenceDate(project);
-      if (!referenceDate) return false;
+      
+      // Se não houver data de referência, permitimos se não houver filtro de ano/mês
+      if (!referenceDate) {
+        return !selectedYear && !selectedMonth;
+      }
 
       // Parse date string directly to avoid timezone issues
       const dateParts = referenceDate.split('-');
-      if (dateParts.length !== 3) return false;
+      if (dateParts.length !== 3) return !selectedYear && !selectedMonth;
       
       const projectYear = dateParts[0];
       const projectMonthNum = parseInt(dateParts[1], 10);
@@ -72,14 +69,14 @@ export default function MobileTimelinePlanner({
     
     filteredProjects.forEach(project => {
       const referenceDate = resolveReferenceDate(project);
-      if (!referenceDate) {
-        return;
+      let monthName = 'Pending / No Date';
+      
+      if (referenceDate) {
+        const baseDate = new Date(referenceDate);
+        if (!isNaN(baseDate.getTime())) {
+          monthName = baseDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + baseDate.getFullYear();
+        }
       }
-      const baseDate = new Date(referenceDate);
-      if (isNaN(baseDate.getTime())) {
-        return;
-      }
-      const monthName = baseDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + baseDate.getFullYear();
       
       if (!grouped[monthName]) {
         grouped[monthName] = [];
@@ -102,9 +99,15 @@ export default function MobileTimelinePlanner({
       });
     });
 
+    // Ordenar os meses cronologicamente, colocando "Pending / No Date" no final
     return Object.entries(grouped).sort(([a], [b]) => {
-      const dateA = new Date(a.split(' / ')[1] + ' ' + a.split(' / ')[0]);
-      const dateB = new Date(b.split(' / ')[1] + ' ' + b.split(' / ')[0]);
+      if (a === 'Pending / No Date') return 1;
+      if (b === 'Pending / No Date') return -1;
+      
+      const [monthA, yearA] = a.split(' / ');
+      const [monthB, yearB] = b.split(' / ');
+      const dateA = new Date(`${monthA} 1, ${yearA}`);
+      const dateB = new Date(`${monthB} 1, ${yearB}`);
       return dateA.getTime() - dateB.getTime();
     });
   }, [workforceProjects, selectedYear, selectedMonth, sortByDate, resolveReferenceDate]);
@@ -127,19 +130,13 @@ export default function MobileTimelinePlanner({
   return (
     <>
     <div style={{ 
-      padding: '0 5px',
+      padding: 0,
       width: '100%',
         maxWidth: '100%',
       boxSizing: 'border-box',
         overflowX: 'hidden',
         overflowY: 'visible'
       }}>
-        <ForecastDateControls
-          dateMode={dateMode}
-          onDateModeChange={onDateModeChange}
-          sortByDate={sortByDate}
-          onSortByDateChange={onSortByDateChange}
-        />
         <ForecastProjectsGrid
           theme={theme}
           groupedProjects={groupedProjects}

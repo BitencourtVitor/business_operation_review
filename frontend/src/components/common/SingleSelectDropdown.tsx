@@ -3,24 +3,28 @@ import { createPortal } from 'react-dom';
 
 interface SingleSelectDropdownProps {
   options: { value: string; label: string }[];
-  value: string;
+  selectedValue: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  label?: string;
+  allLabel?: string;
   dropdownTitle?: string;
   disablePortal?: boolean;
   dropdownWidth?: number;
+  variant?: 'default' | 'ghost';
+  label?: string;
 }
 
 const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
   options,
-  value,
+  selectedValue,
   onChange,
   placeholder = 'Selecionar',
-  label,
+  allLabel = 'Todos',
   dropdownTitle,
   disablePortal = false,
-  dropdownWidth
+  dropdownWidth,
+  variant = 'default',
+  label
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -48,27 +52,31 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
   useEffect(() => {
     if ((open || !hasPreRendered) && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const customWidth = dropdownWidth || rect.width;
       
-      // Calcular posição considerando limites da tela
-      let left = rect.left + window.scrollX;
-      const viewportWidth = window.innerWidth;
-      
-      // Se a largura customizada for maior que a largura do botão
-      if (customWidth > rect.width) {
-        // Alinhar com a borda direita do botão e crescer para a esquerda
-        const buttonRight = rect.right + window.scrollX;
-        left = buttonRight - customWidth;
-        
-        // Garantir que não saia pela esquerda
-        if (left < 0) {
-          left = 0;
-        }
+      // Calculate necessary width if not provided
+      let customWidth = dropdownWidth;
+      if (!customWidth) {
+        // Find longest option label to estimate width
+        const longestLabel = options.reduce((longest, opt) => 
+          opt.label.length > longest.length ? opt.label : longest, 
+          allLabel
+        );
+        // Rough estimation: 8px per character + padding
+        const estimatedWidth = Math.max(rect.width, longestLabel.length * 8 + 40);
+        customWidth = Math.min(estimatedWidth, 300); // Cap at 300px
       }
       
-      // Garantir que não saia pela esquerda
-      if (left < 0) {
-        left = 0;
+      let left = rect.left + window.scrollX;
+      
+      if (customWidth > rect.width) {
+        // Align with right edge of button if dropdown is wider
+        left = (rect.right + window.scrollX) - customWidth;
+        if (left < 10) left = 10; // Keep some margin from left edge
+      }
+      
+      // Ensure it doesn't overflow right edge of screen
+      if (left + customWidth > window.innerWidth - 10) {
+        left = window.innerWidth - customWidth - 10;
       }
       
       setDropdownPos({
@@ -78,11 +86,15 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
       });
       if (!hasPreRendered) setHasPreRendered(true);
     }
-  }, [open, hasPreRendered, dropdownWidth]);
+  }, [open, hasPreRendered, dropdownWidth, options, allLabel]);
 
-  const selectedOption = options.find(opt => opt.value === value);
+  const handleSelect = (val: string) => {
+    onChange(val);
+    setOpen(false);
+  };
 
-  // Dropdown JSX (usado para pré-render e para exibir)
+  const selectedOption = options.find(opt => opt.value === selectedValue);
+
   const dropdownJSX = (
     <div
       ref={dropdownRef}
@@ -121,29 +133,34 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
           {dropdownTitle}
         </div>
       )}
-      {options.map(opt => (
-        <button
-          key={opt.value}
-          type="button"
+      <div 
+        onClick={() => handleSelect('')}
+        style={{ 
+          padding: '8px 12px', 
+          cursor: 'pointer',
+          background: selectedValue === '' ? 'rgba(var(--color-accent-primary-rgb, 37, 99, 235), 0.08)' : 'transparent',
+          color: selectedValue === '' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+          fontWeight: selectedValue === '' ? 600 : 400,
+          borderBottom: '1px solid var(--color-border-divider)'
+        }}
+      >
+        {allLabel}
+      </div>
+      {options.map((opt, index) => (
+        <div 
+          key={`${opt.value}-${index}`}
+          onClick={() => handleSelect(opt.value)}
           style={{ 
-            width: '100%',
-            textAlign: 'left',
-            background: 'transparent',
-            border: 'none',
-            padding: '8px 12px',
-            fontSize: 14,
-            color: opt.value === value ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+            padding: '8px 12px', 
             cursor: 'pointer',
-            fontWeight: opt.value === value ? 500 : 400,
-            background: opt.value === value ? 'var(--color-background-secondary)' : 'transparent'
-          }}
-          onClick={() => {
-            onChange(opt.value);
-            setOpen(false);
+            background: selectedValue === opt.value ? 'rgba(var(--color-accent-primary-rgb, 37, 99, 235), 0.08)' : 'transparent',
+            color: selectedValue === opt.value ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+            fontWeight: selectedValue === opt.value ? 600 : 400,
+            transition: 'all 0.2s'
           }}
         >
           {opt.label}
-        </button>
+        </div>
       ))}
     </div>
   );
@@ -153,20 +170,10 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
       position: 'relative', 
       minWidth: 0, 
       width: '100%', 
-      height: 38, 
-      borderTopRightRadius: 8, 
-      borderBottomRightRadius: 8 
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center'
     }}>
-      {label && (
-        <div style={{ 
-          fontSize: 12, 
-          color: 'var(--color-text-secondary)', 
-          marginBottom: 4,
-          fontWeight: 500
-        }}>
-          {label}
-        </div>
-      )}
       <button
         ref={buttonRef}
         type="button"
@@ -174,29 +181,55 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
         style={{ 
           cursor: 'pointer', 
           width: '100%', 
-          height: 38, 
-          background: 'var(--color-background-primary)', 
+          height: variant === 'ghost' ? '30px' : 38, 
+          background: variant === 'ghost' ? 'transparent' : 'var(--color-background-primary)', 
           color: 'var(--color-text-primary)', 
-          border: 'none', 
-          borderRadius: 0, 
-          fontSize: 14, 
+          border: variant === 'ghost' ? 'none' : '1px solid var(--color-border-divider)', 
+          borderRadius: 8, 
+          fontSize: variant === 'ghost' ? 12 : 13, 
           boxShadow: 'none', 
-          padding: '0 12px', 
-          margin: 0 
+          padding: variant === 'ghost' ? '0 5px' : '0 10px', 
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
         }}
         onClick={() => setOpen(o => !o)}
       >
         <span style={{ 
-          whiteSpace: 'nowrap', 
-          overflow: 'hidden', 
-          textOverflow: 'ellipsis', 
-          textAlign: 'left' 
-        }}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
-        <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
+            flex: 1, 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis', 
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: variant === 'ghost' ? 'space-between' : 'flex-start',
+            gap: '8px'
+          }}>
+            {label && (
+              <span style={{ 
+                color: variant === 'ghost' ? 'var(--color-text-secondary)' : 'inherit', 
+                fontWeight: variant === 'ghost' ? 500 : 'inherit', 
+                fontSize: variant === 'ghost' ? '11px' : 'inherit',
+                opacity: variant === 'ghost' ? 0.8 : 1
+              }}>
+                {label}
+              </span>
+            )}
+            <span style={{ 
+              fontWeight: variant === 'ghost' ? 600 : 400,
+              flex: 1,
+              textAlign: variant === 'ghost' ? 'right' : 'left',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: variant === 'ghost' ? '13px' : '13px'
+            }}>
+              {selectedValue === '' ? allLabel : (selectedOption?.label || placeholder)}
+            </span>
+          </span>
+        <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8, fontSize: '12px' }} />
       </button>
-      {/* Pré-renderiza o dropdown invisível ao montar, e visível ao abrir */}
       {hasPreRendered && (
         disablePortal
           ? dropdownJSX
@@ -206,4 +239,4 @@ const SingleSelectDropdown: React.FC<SingleSelectDropdownProps> = ({
   );
 };
 
-export default SingleSelectDropdown; 
+export default SingleSelectDropdown;

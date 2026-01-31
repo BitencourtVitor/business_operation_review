@@ -10,6 +10,8 @@ interface MultiSelectDropdownProps {
   dropdownTitle?: string;
   disablePortal?: boolean;
   dropdownWidth?: number;
+  variant?: 'default' | 'ghost';
+  label?: string;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -20,7 +22,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   allLabel = 'Todos',
   dropdownTitle,
   disablePortal = false,
-  dropdownWidth
+  dropdownWidth,
+  variant = 'default',
+  label
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -48,7 +52,19 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   useEffect(() => {
     if ((open || !hasPreRendered) && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      const customWidth = dropdownWidth || rect.width;
+      
+      // Calculate necessary width if not provided
+      let customWidth = dropdownWidth;
+      if (!customWidth) {
+        // Find longest option label to estimate width
+        const longestLabel = options.reduce((longest, opt) => 
+          opt.label.length > longest.length ? opt.label : longest, 
+          allLabel
+        );
+        // Rough estimation: 8px per character + padding + checkbox space
+        const estimatedWidth = Math.max(rect.width, longestLabel.length * 8 + 60);
+        customWidth = Math.min(estimatedWidth, 300); // Cap at 300px
+      }
       
       // Calcular posição considerando limites da tela
       let left = rect.left + window.scrollX;
@@ -60,14 +76,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         left = buttonRight - customWidth;
         
         // Garantir que não saia pela esquerda
-        if (left < 0) {
-          left = 0;
+        if (left < 10) {
+          left = 10;
         }
       }
       
-      // Garantir que não saia pela esquerda
-      if (left < 0) {
-        left = 0;
+      // Ensure it doesn't overflow right edge of screen
+      if (left + customWidth > window.innerWidth - 10) {
+        left = window.innerWidth - customWidth - 10;
       }
       
       setDropdownPos({
@@ -77,7 +93,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       });
       if (!hasPreRendered) setHasPreRendered(true);
     }
-  }, [open, hasPreRendered, dropdownWidth]);
+  }, [open, hasPreRendered, dropdownWidth, options, allLabel]);
 
   // Verificar se todos estão selecionados de forma mais robusta
   const allSelected = options.length > 0 && 
@@ -181,9 +197,9 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
       position: 'relative', 
       minWidth: 0, 
       width: '100%', 
-      height: 38, 
-      borderTopRightRadius: 8, 
-      borderBottomRightRadius: 8 
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center'
     }}>
       <button
         ref={buttonRef}
@@ -192,30 +208,51 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         style={{ 
           cursor: 'pointer', 
           width: '100%', 
-          height: 38, 
-          background: 'var(--color-background-primary)', 
+          height: variant === 'ghost' ? '30px' : 38, 
+          background: variant === 'ghost' ? 'transparent' : 'var(--color-background-primary)', 
           color: 'var(--color-text-primary)', 
-          border: 'none', 
-          borderRadius: 0, 
-          fontSize: 14, 
+          border: variant === 'ghost' ? 'none' : '1px solid var(--color-border-divider)', 
+          borderRadius: 8, 
+          fontSize: variant === 'ghost' ? 12 : 13, 
           boxShadow: 'none', 
-          padding: '0 12px', 
+          padding: variant === 'ghost' ? '0 8px' : '0 10px', 
           margin: 0 
         }}
         onClick={() => setOpen(o => !o)}
       >
         <span style={{ 
-          whiteSpace: 'nowrap', 
-          overflow: 'hidden', 
-          textOverflow: 'ellipsis', 
-          textAlign: 'left' 
-        }}>
-          {selectedValues.length === 0
-            ? placeholder
-            : allSelected
-              ? allLabel
-              : `${selectedValues.length} selecionados`}
-        </span>
+            flex: 1, 
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis', 
+            whiteSpace: 'nowrap',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: variant === 'ghost' ? 'space-between' : 'flex-start',
+            gap: '8px'
+          }}>
+            {label && (
+              <span style={{ 
+                color: variant === 'ghost' ? 'var(--color-text-secondary)' : 'inherit', 
+                fontWeight: variant === 'ghost' ? 500 : 'inherit', 
+                fontSize: variant === 'ghost' ? '11px' : 'inherit',
+                opacity: variant === 'ghost' ? 0.8 : 1
+              }}>
+                {label}
+              </span>
+            )}
+            <span style={{ 
+              fontWeight: variant === 'ghost' ? 600 : 400,
+              flex: 1,
+              textAlign: variant === 'ghost' ? 'right' : 'left',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: variant === 'ghost' ? '13px' : '13px'
+            }}>
+              {selectedValues.length === 0 ? allLabel : 
+               `${selectedValues.length} ${selectedValues.length === 1 ? 'selected' : 'selected'}`}
+            </span>
+          </span>
         <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
       </button>
       {/* Pré-renderiza o dropdown invisível ao montar, e visível ao abrir */}

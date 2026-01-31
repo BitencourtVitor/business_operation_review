@@ -88,46 +88,45 @@ export default function MobileForecastMetrics({
     background: 'var(--color-background-secondary)',
     border: '1px solid var(--color-border-divider)',
     borderRadius: 8,
-    padding: '12px',
+    padding: '6px 2px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     textAlign: 'center',
-    minHeight: '80px',
+    minHeight: '60px',
     justifyContent: 'center'
   };
 
   const metricValueStyle: React.CSSProperties = {
     color: 'var(--color-accent-primary)',
     fontWeight: 600,
-    fontSize: '20px',
-    marginBottom: '4px'
+    fontSize: '16px',
+    marginBottom: '1px'
   };
 
   const metricLabelStyle: React.CSSProperties = {
     color: 'var(--color-text-secondary)',
-    fontSize: '12px',
+    fontSize: '10px',
     fontWeight: 500,
     textTransform: 'uppercase',
-    letterSpacing: '0.5px'
+    letterSpacing: '0.3px'
   };
 
   const summaryButtonStyle: React.CSSProperties = {
     background: 'var(--color-background-secondary)',
     border: '1px solid var(--color-border-divider)',
     borderRadius: 8,
-    padding: '12px 16px',
+    padding: '6px 10px',
     width: '100%',
     maxWidth: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 500,
     color: 'var(--color-text-primary)',
     cursor: 'pointer',
     transition: 'all 0.3s',
-    marginBottom: '10px',
     boxSizing: 'border-box'
   };
 
@@ -135,11 +134,18 @@ export default function MobileForecastMetrics({
     <div style={{
       width: '100%',
       maxWidth: '100%',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '8px'
     }}>
       {/* Botão de resumo */}
       <button
-        style={summaryButtonStyle}
+        style={{
+          ...summaryButtonStyle,
+          height: '42px',
+          padding: '0 10px'
+        }}
         onClick={() => setIsExpanded(!isExpanded)}
         onMouseEnter={(e) => {
           e.currentTarget.style.background = 'var(--color-background-primary)';
@@ -148,21 +154,21 @@ export default function MobileForecastMetrics({
           e.currentTarget.style.background = 'var(--color-background-secondary)';
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <i className="bi bi-bar-chart" style={{ color: 'var(--color-accent-primary)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <i className="bi bi-bar-chart" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
           <span>Summary</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ 
             color: 'var(--color-accent-primary)', 
             fontWeight: 600, 
-            fontSize: '18px' 
+            fontSize: '15px' 
           }}>
             {stats.totalProjects} projects
           </span>
           <i 
             className={`bi bi-chevron-${isExpanded ? 'up' : 'down'}`} 
-            style={{ color: 'var(--color-text-secondary)' }}
+            style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}
           />
         </div>
       </button>
@@ -172,14 +178,13 @@ export default function MobileForecastMetrics({
         <div style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '10px',
-          marginBottom: '10px'
+          gap: '8px'
         }}>
           {/* Métricas principais - 3 células lado a lado */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '8px'
+            gap: '6px'
           }}>
             {/* Total de Projetos */}
             <div style={metricStyle}>
