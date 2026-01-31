@@ -221,6 +221,7 @@ async function processDataSheet(csvData: any[]) {
       hvac: parseYesNo(row['HVAC']),
       buildertrend: parseYesNo(row['Buildertrend']),
       storage: parseYesNo(row['Storage']),
+      qbtime: parseYesNo(row['QBTime']),
       machine_provider: normalizeUtf8String(row['MachineProvider']) || null,
       create_datetime: parseDateTime(row['Create DateTime']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])

@@ -5,6 +5,7 @@ import ForecastProjectsGrid from './ForecastProjectsGrid';
 import ForecastProjectModal from './ForecastProjectModal';
 
 interface MobileTimelinePlannerProps {
+  theme?: 'light' | 'dark';
   forecastData: ForecastData[];
   workforceProjects: WorkforceProject[];
   selectedYear: string;
@@ -19,9 +20,10 @@ interface MobileTimelinePlannerProps {
 }
 
 export default function MobileTimelinePlanner({
+  theme,
   workforceProjects,
-  selectedYear,
-  selectedMonth,
+  selectedYear, 
+  selectedMonth, 
   sortByDate,
   onSortByDateChange,
   dateMode,
@@ -139,6 +141,7 @@ export default function MobileTimelinePlanner({
           onSortByDateChange={onSortByDateChange}
         />
         <ForecastProjectsGrid
+          theme={theme}
           groupedProjects={groupedProjects}
           filterNotStarted={filterNotStarted}
           onProjectClick={setSelectedProject}
@@ -148,6 +151,7 @@ export default function MobileTimelinePlanner({
       {/* Modal de detalhes do projeto */}
       {selectedProject && (
         <ForecastProjectModal
+          theme={theme}
           project={selectedProject}
           filterNotStarted={filterNotStarted}
           onClose={() => setSelectedProject(null)}

@@ -289,7 +289,6 @@ export default function Dashboard() {
     'Fuel Control': 'bi bi-fuel-pump',
     'Permit Control': 'bi bi-file-earmark-check',
     'Takeoff Works': 'bi bi-houses',
-    'IT Projects': 'bi bi-braces-asterisk',
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
     'Forecast': 'bi bi-graph-up',
@@ -331,7 +330,6 @@ export default function Dashboard() {
       'Takeoff Works',
       'Service Requests',
       'Project Monitoring',
-      'IT Projects',
       'Forecast'
     ];
 
@@ -492,29 +490,6 @@ export default function Dashboard() {
           telaId={telaId}
           financialPass={financialPass && showFinancialData}
         />;
-      case 'IT Projects':
-        return (
-          <div className="container-fluid">
-            <div className="row">
-              <div className="col-12">
-                <div className="card" style={{ 
-                  background: 'var(--color-background-primary)',
-                  border: '1.5px solid var(--color-border-divider)',
-                  borderRadius: 10
-                }}>
-                  <div className="card-body">
-                    <h5 className="card-title" style={{ color: 'var(--color-text-primary)' }}>
-                      {tela.descricao}
-                    </h5>
-                    <p style={{ color: 'var(--color-text-secondary)' }}>
-                      Conteúdo da página {tela.descricao} será implementado em breve.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
       default:
         // Verificar se é Project Monitoring
         if (tela.descricao?.startsWith('Project Monitoring')) {

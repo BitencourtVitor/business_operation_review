@@ -8,25 +8,33 @@ import {
   getMachinesProgress,
   hasCompleteContract,
   getContractProgress,
-  hasActiveFieldwire
+  hasActiveFieldwire,
+  getProjectCompletionMetrics
 } from './helpers';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
+import iconBuildertrendDark from '../../../assets/buildertrend_darkmode.png';
+import iconQBTime from '../../../assets/qbtime_logo.png';
+import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
 // TODO: Adicionar ícone storage.png na pasta assets quando disponível
 // import iconStorage from '../../../assets/storage.png';
 
 interface ForecastProjectCardProps {
+  theme?: 'light' | 'dark';
   project: WorkforceProject;
   filterNotStarted: boolean;
   onCardClick: (project: WorkforceProject) => void;
 }
 
 export default function ForecastProjectCard({
+  theme,
   project,
   filterNotStarted,
   onCardClick
 }: ForecastProjectCardProps) {
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
   const projectStarted = isProjectStartedByStatus(project);
   const overdue = !!getOverdueType(project);
   // Três condições mutuamente exclusivas:
@@ -34,7 +42,7 @@ export default function ForecastProjectCard({
   // 2. Verde: status ≠ "Not Started" (iniciada)
   // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
   const borderColor = overdue ? '#e04b4b' : (projectStarted ? '#28a745' : '#6c757d');
-  const shadowColor = overdue ? 'rgba(224, 75, 75, 0.2)' : (projectStarted ? 'rgba(40, 167, 69, 0.15)' : 'rgba(108, 117, 125, 0.15)');
+  const shadowColor = overdue ? 'rgba(224, 75, 75, 0.4)' : (projectStarted ? 'rgba(40, 167, 69, 0.3)' : 'rgba(108, 117, 125, 0.25)');
   
   const fieldwireProgress = getFieldwireProgress(project);
   const fieldwireComplete = isFieldwireComplete(project);
@@ -42,6 +50,24 @@ export default function ForecastProjectCard({
   const machinesComplete = project.machines && project.machines.length > 0 && project.machines.every(m => m.status === true);
   const contractProgress = getContractProgress(project);
   const contractComplete = hasCompleteContract(project);
+
+  const metrics = getProjectCompletionMetrics(project);
+
+  // Lógica de cores para a barra de progresso baseada no status e completude
+  const getProgressBarColor = () => {
+    const status = (project.status || '').toLowerCase().trim();
+    
+    if (overdue) return '#e04b4b'; // Overdue: Sempre Vermelho (prioridade sobre Not Started)
+    if (status === 'closed') return '#495057'; // Closed: Cinza Escuro
+    if (status === 'not started') return '#6c757d'; // Not Started (não atrasado): Cinza
+    
+    // Para obras "Started" ou outros status ativos (Open, etc)
+    if (metrics.percentage === 100) {
+      return '#3b82f6'; // 100% Completo: Azul
+    } else {
+      return '#f59e0b'; // Incompleto: Laranja/Amarelo chamativo
+    }
+  };
 
   const formatDate = (dateString: string) => {
     return formatDateUS(dateString);
@@ -55,7 +81,7 @@ export default function ForecastProjectCard({
         borderRadius: '12px',
         padding: '16px',
         cursor: 'pointer',
-        transition: 'all 0.2s',
+        transition: 'all 0.25s ease-in-out',
         boxShadow: `0 2px 8px ${shadowColor}`,
         width: '100%',
         minWidth: 0,
@@ -68,14 +94,34 @@ export default function ForecastProjectCard({
       }}
       onClick={() => onCardClick(project)}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-2px)';
-        e.currentTarget.style.boxShadow = `0 4px 12px ${shadowColor}`;
+        e.currentTarget.style.boxShadow = `0 0 0 1px ${borderColor}, 0 8px 20px ${shadowColor}`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = `0 2px 8px ${shadowColor}`;
       }}
     >
+      {/* Barra de Progresso de Completude - Topo do Card */}
+      <div style={{
+        width: '100%',
+        height: '4px',
+        background: 'rgba(0,0,0,0.15)',
+        borderRadius: '2px',
+        marginBottom: '12px',
+        overflow: 'hidden',
+        position: 'relative'
+      }}>
+        <div style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          height: '100%',
+          width: `${metrics.percentage}%`,
+          background: getProgressBarColor(),
+          transition: 'width 0.5s ease-in-out, background-color 0.3s ease',
+          borderRadius: '2px'
+        }} />
+      </div>
+
       {/* Parte Superior - Dividida em Esquerda e Direita */}
       <div style={{
         display: 'flex',
@@ -101,12 +147,12 @@ export default function ForecastProjectCard({
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              justifyContent: 'space-between'
+              justifyContent: 'flex-start'
             }}>
               <h4 style={{
                 margin: 0,
                 fontSize: '16px',
-                fontWeight: 600,
+                fontWeight: 700,
                 color: 'var(--color-text-primary)',
                 lineHeight: 1.3,
                 textAlign: 'left',
@@ -114,40 +160,6 @@ export default function ForecastProjectCard({
               }}>
                 {project.cliente}
               </h4>
-              {/* Indicadores de status - à direita do Cliente */}
-              {/* Três condições mutuamente exclusivas: Started (verde), Overdue (vermelho), ou nenhum (cinza) */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {projectStarted ? (
-                  // Condição 1: Obra iniciada (status ≠ "Not Started") → mostra "Started" verde
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: '#28a745',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    flexShrink: 0
-                  }}>
-                    <i className="bi bi-play-circle-fill" style={{ fontSize: 14 }} />
-                    <span>Started</span>
-                  </div>
-                ) : overdue ? (
-                  // Condição 2: Obra atrasada (status = "Not Started" E StartDate ultrapassada) → mostra "Overdue" vermelho
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: '#e04b4b',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    flexShrink: 0
-                  }}>
-                    <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
-                    <span>Overdue</span>
-                  </div>
-                ) : null}
-                {/* Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → não mostra nada */}
-              </div>
             </div>
             <p style={{
               margin: 0,
@@ -158,6 +170,85 @@ export default function ForecastProjectCard({
             }}>
               {project.job_site}
             </p>
+
+            {/* Status Stickers - Abaixo do Job Site */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+              {/* Status Principal (Open, Closed, Started, etc) */}
+              {project.status && !overdue && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: project.status.toLowerCase() === 'closed' ? 'rgba(108, 117, 125, 0.1)' : 
+                              project.status.toLowerCase() === 'open' ? 'rgba(59, 130, 246, 0.1)' :
+                              project.status.toLowerCase() === 'started' ? 'rgba(40, 167, 69, 0.1)' :
+                              project.status.toLowerCase() === 'not started' ? 'rgba(108, 117, 125, 0.1)' :
+                              'rgba(59, 130, 246, 0.1)',
+                  color: project.status.toLowerCase() === 'closed' ? '#6c757d' : 
+                         project.status.toLowerCase() === 'open' ? '#3b82f6' :
+                         project.status.toLowerCase() === 'started' ? '#28a745' :
+                         project.status.toLowerCase() === 'not started' ? '#6c757d' :
+                         '#3b82f6',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  border: `1px solid ${
+                    project.status.toLowerCase() === 'closed' ? 'rgba(108, 117, 125, 0.3)' : 
+                    project.status.toLowerCase() === 'open' ? 'rgba(59, 130, 246, 0.3)' :
+                    project.status.toLowerCase() === 'started' ? 'rgba(40, 167, 69, 0.3)' :
+                    project.status.toLowerCase() === 'not started' ? 'rgba(108, 117, 125, 0.3)' :
+                    'rgba(59, 130, 246, 0.3)'
+                  }`,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  <span>{project.status}</span>
+                </div>
+              )}
+
+              {/* Overdue Sticker - Substitui visualmente o Not Started se ativo */}
+              {overdue && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(224, 75, 75, 0.1)',
+                  color: '#e04b4b',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  border: '1px solid rgba(224, 75, 75, 0.3)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 10 }} />
+                  <span>Overdue</span>
+                </div>
+              )}
+
+              {/* Started Sticker (Baseado na lógica de data se necessário, ou se o status principal não for Started) */}
+              {projectStarted && project.status?.toLowerCase() !== 'started' && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(40, 167, 69, 0.1)',
+                  color: '#28a745',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  border: '1px solid rgba(40, 167, 69, 0.3)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  <i className="bi bi-play-circle-fill" style={{ fontSize: 10 }} />
+                  <span>Started</span>
+                </div>
+              )}
+            </div>
           </div>
           
           {/* Address - Com quebra de linha, alinhado à esquerda */}
@@ -247,7 +338,7 @@ export default function ForecastProjectCard({
               background: 'var(--color-background-secondary)'
             }}>
               <img 
-                src={iconForecastHvac} 
+                src={isDarkMode ? iconForecastHvacDark : iconForecastHvac} 
                 alt="HVAC" 
                 style={{ width: 18, height: 18, objectFit: 'contain' }}
               />
@@ -294,21 +385,41 @@ export default function ForecastProjectCard({
             </div>
           )}
           
-          {/* BuilderTrend */}
-          {project.buildertrend === true && (
+          {/* BuilderTrend - Sempre borda verde se true */}
+          {!!project.buildertrend && (
             <div style={{
               width: 30,
               height: 30,
               borderRadius: 6,
-              border: `1px solid ${project.buildertrend ? '#4ade80' : '#6c757d'}`,
+              border: '1px solid #4ade80',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               background: 'var(--color-background-secondary)'
             }}>
               <img 
-                src={iconBuildertrend} 
+                src={isDarkMode ? iconBuildertrendDark : iconBuildertrend} 
                 alt="BuilderTrend" 
+                style={{ width: 18, height: 18, objectFit: 'contain' }}
+              />
+            </div>
+          )}
+
+          {/* Quickbooks Time - Sempre borda verde se true */}
+          {!!project.qbtime && (
+            <div style={{
+              width: 30,
+              height: 30,
+              borderRadius: 6,
+              border: '1px solid #4ade80',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--color-background-secondary)'
+            }}>
+              <img 
+                src={isDarkMode ? iconQBTimeDark : iconQBTime} 
+                alt="Quickbooks Time" 
                 style={{ width: 18, height: 18, objectFit: 'contain' }}
               />
             </div>

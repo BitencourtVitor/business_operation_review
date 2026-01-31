@@ -41,7 +41,6 @@ export default function DashboardLayout({
     'Timesheet Analysis': 'bi bi-watch',
     'Accounting Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
-    'IT Projects': 'bi bi-braces-asterisk',
   };
 
   // Separar telas por tipo

@@ -2,48 +2,24 @@ import React, { useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconFieldwire from '../../../assets/fieldwire.png';
+import type { WorkforceProject, ForecastData } from './types';
+import { 
+  hasCompleteContract, 
+  getReferenceDate, 
+  getOverdueType,
+  hasActiveFieldwire,
+  isProjectStartedByStatus
+} from './helpers';
 
-const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
-
-const isTruthyFlag = (value?: string | boolean | null): boolean => {
-  if (typeof value === 'boolean') return value;
-  if (!value) return false;
-  const normalized = value.toString().toLowerCase().trim();
-  if (!normalized) return false;
-  return POSITIVE_STRINGS.includes(normalized);
-};
+// Importar novos componentes
+import ForecastProjectsGrid from './ForecastProjectsGrid';
+import ForecastProjectModal from './ForecastProjectModal';
 
 // Status a partir da coluna status; atraso independente
 const getProjectStatus = (project: WorkforceProject): 'not-started' | 'open' => {
-  const normalizedStatus = (project.status || '').toLowerCase().trim();
-  if (normalizedStatus === 'open') return 'open';
-  return 'not-started';
-};
-
-// Tipo de atraso: 'start' quando não iniciou após a data de início
-// IMPORTANTE: O atraso é determinado APENAS pela StartDate, não pela BeamsDate
-// REGRA: Se a obra está iniciada (status ≠ "Not Started"), ela NÃO pode estar atrasada
-// Só pode estar atrasada se status = "Not Started" E StartDate foi ultrapassada
-const getOverdueType = (project: WorkforceProject): 'start' | null => {
-  const normalizedStatus = (project.status || '').toLowerCase().trim();
-  
-  // Se o status for diferente de "Not Started", a obra já começou, então NÃO está atrasada
-  if (normalizedStatus !== 'not started') {
-    return null;
-  }
-  
-  // Se o status for "Not Started", verificar se a StartDate foi ultrapassada
-  // BeamsDate NÃO é usado para determinar atraso
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const startDate = project.previous_start_date ? new Date(project.previous_start_date) : null;
-  if (startDate) {
-    startDate.setHours(0, 0, 0, 0);
-    if (today > startDate) return 'start';
-  }
-  
-  return null;
+  return isProjectStartedByStatus(project) ? 'open' : 'not-started';
 };
 
 // Cores para status e atraso
@@ -70,37 +46,8 @@ const INDICATOR_ICON_STYLE: React.CSSProperties = {
 
 type DateMode = 'start' | 'beams';
 
-interface WorkforceProject {
-  id: number;
-  cliente: string;
-  job_site: string;
-  type: string | null;
-  lote_building: number;
-  workforce: string;
-  hvac: string | null;
-  fieldwire?: boolean | string | null;
-  tem_contrato?: boolean | string | null;
-  status?: string | null;
-  address?: string | null;
-  previous_start_date: string;
-  previous_end_date: string;
-  previous_beams_date: string | null;
-  observacoes: string;
-  created_at: string;
-  updated_at: string;
-}
-
-interface ForecastData {
-  cliente: string;
-  job_site: string;
-  month: string;
-  year: number;
-  projectCount: number;
-  startDate: string;
-  endDate: string;
-}
-
 interface TimelinePlannerProps {
+  theme?: 'light' | 'dark';
   forecastData: ForecastData[];
   workforceProjects: WorkforceProject[];
   selectedYear: string;
@@ -114,6 +61,7 @@ interface TimelinePlannerProps {
 }
 
 export default function TimelinePlanner({ 
+  theme,
   workforceProjects,
   selectedYear, 
   selectedMonth, 
@@ -129,20 +77,17 @@ export default function TimelinePlanner({
     const idx = value.indexOf(',');
     return (idx === -1 ? value : value.slice(0, idx)).trim();
   };
-  const resolveReferenceDate = (project: WorkforceProject) => {
-    const ref = dateMode === 'beams'
-      ? (project.previous_beams_date || project.previous_start_date)
-      : project.previous_start_date;
-    return ref || '';
-  };
-  const dateModeLabel = dateMode === 'beams' ? 'Beams Date' : 'Start Date';
-  const navigate = useNavigate();
-  const [draggedProject, setDraggedProject] = useState<WorkforceProject | null>(null);
+    const isDarkMode = theme ? theme === 'dark' : document.documentElement.classList.contains('dark');
+    const hvacIcon = isDarkMode ? iconForecastHvacDark : iconForecastHvac;
+    const navigate = useNavigate();
+  
+  // Novos estados para o redesign
+  const [viewMode, setViewMode] = useState<'timeline' | 'grid'>('grid');
+  const [selectedProject, setSelectedProject] = useState<WorkforceProject | null>(null);
+
   const timelineRef = useRef<HTMLDivElement>(null);
   const [isDraggingTimeline, setIsDraggingTimeline] = useState(false);
   const [timelineDragStart, setTimelineDragStart] = useState({ x: 0, scrollLeft: 0 });
-  const [jobTooltip, setJobTooltip] = useState<{ visible: boolean; x: number; y: number; content: string; align: 'left' | 'right' }>({ visible: false, x: 0, y: 0, content: '', align: 'right' });
-  const [statusTooltip, setStatusTooltip] = useState<{ visible: boolean; x: number; y: number; content: string; align: 'left' | 'right' }>({ visible: false, x: 0, y: 0, content: '', align: 'right' });
   
   // Determinar se deve mostrar dias ou meses
   const showDays = selectedMonth && selectedMonth !== '';
@@ -178,7 +123,7 @@ export default function TimelinePlanner({
         const monthsWithData = new Set<number>();
         
         workforceProjects.forEach(project => {
-          const referenceDate = resolveReferenceDate(project);
+          const referenceDate = getReferenceDate(project, dateMode);
           if (referenceDate) {
             const projectDate = new Date(referenceDate);
             if (!isNaN(projectDate.getTime())) {
@@ -218,7 +163,7 @@ export default function TimelinePlanner({
       const s = new Date(p.previous_start_date);
       const e = new Date(p.previous_end_date);
       if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
-      const referenceDate = resolveReferenceDate(p);
+      const referenceDate = getReferenceDate(p, dateMode);
       if (!referenceDate) return false;
       const refDateObj = new Date(referenceDate);
       return !isNaN(refDateObj.getTime());
@@ -235,31 +180,83 @@ export default function TimelinePlanner({
     return Object.entries(groups).map(([groupName, projects]) => ({
       groupName,
       projects: projects.sort((a, b) => {
-        const dateA = new Date(resolveReferenceDate(a) || '1900-01-01');
-        const dateB = new Date(resolveReferenceDate(b) || '1900-01-01');
+        const dateA = new Date(getReferenceDate(a, dateMode) || '1900-01-01');
+        const dateB = new Date(getReferenceDate(b, dateMode) || '1900-01-01');
         return dateA.getTime() - dateB.getTime();
       })
     })).sort((a, b) => a.groupName.localeCompare(b.groupName));
   }, [workforceProjects, groupBy, dateMode]);
 
+  // Novo agrupamento para o Grid View (Inspirado no Mobile)
+  const groupedByMonth = useMemo(() => {
+    const grouped: { [key: string]: WorkforceProject[] } = {};
+    
+    workforceProjects.forEach(project => {
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) return;
+      
+      const dateParts = referenceDate.split('-');
+      if (dateParts.length !== 3) return;
+      
+      const projectYear = dateParts[0];
+      const projectMonthNum = parseInt(dateParts[1], 10);
+      const projectMonthName = new Date(2024, projectMonthNum - 1, 1).toLocaleString('en-US', { month: 'long' });
+      const monthYear = `${projectMonthName} / ${projectYear}`;
+      
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
+      }
+      grouped[monthYear].push(project);
+    });
+
+    // Ordenar projetos dentro de cada mês
+    Object.keys(grouped).forEach(month => {
+      grouped[month].sort((a, b) => {
+        const dateA = new Date(getReferenceDate(a, dateMode) || '1900-01-01').getTime();
+        const dateB = new Date(getReferenceDate(b, dateMode) || '1900-01-01').getTime();
+        if (sortByDate === 'desc') return dateB - dateA;
+        return dateA - dateB;
+      });
+    });
+
+    // Ordenar os meses cronologicamente
+    return Object.entries(grouped).sort(([a], [b]) => {
+      const [monthA, yearA] = a.split(' / ');
+      const [monthB, yearB] = b.split(' / ');
+      const dateA = new Date(`${monthA} 1, ${yearA}`);
+      const dateB = new Date(`${monthB} 1, ${yearB}`);
+      return dateA.getTime() - dateB.getTime();
+    });
+  }, [workforceProjects, dateMode, sortByDate]);
+
   // Calcular altura total de projetos para cada grupo
   const getCardHeight = (project: WorkforceProject) => {
-    const hasObservation = !!(project.observacoes && project.observacoes.trim());
-    const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
-    const hasFieldwire = isTruthyFlag(project.fieldwire);
-    const hasContract = isTruthyFlag(project.tem_contrato);
-    const hasTeam = !!(project.workforce && project.workforce.trim());
+    const hasObservation = !!(project.obs && project.obs.trim());
+    const hasBeams = !!project.previous_beams_date;
     const hasDates = !!(project.previous_start_date && project.previous_end_date);
-    const hasBeamsDate = !!(project.previous_beams_date && project.previous_beams_date.trim?.() !== '');
-    const indicatorCount = [hasHvac, hasFieldwire].filter(Boolean).length;
+    
+    const hasHvac = !!project.hvac;
+    const hasFw = hasActiveFieldwire(project);
+    const indicatorCount = [hasHvac, hasFw].filter(Boolean).length;
 
-    let height = 144; // header + job + lot
-    if (hasTeam) height += 16;
-    if (hasDates) height += 16;
-    if (hasBeamsDate) height += 16;
-    if (indicatorCount > 0) height += indicatorCount * 18; // espaço para indicadores
-    if (hasObservation) height += 36;
-    return height;
+    // Altura da coluna esquerda (informações)
+    let leftHeight = 20; // Título
+    leftHeight += 20; // Job Site (estimado com wrap)
+    leftHeight += 18; // Lote
+    leftHeight += 18; // Equipe
+    if (hasBeams) leftHeight += 18;
+    if (hasDates) leftHeight += 18;
+    leftHeight += 12; // Paddings internos
+
+    // Altura da coluna direita (status + indicadores)
+    let rightHeight = 28; // Status
+    rightHeight += indicatorCount * 40; // Indicadores (32px + 8px gap)
+    rightHeight += 12; // Paddings internos
+
+    let height = Math.max(leftHeight, rightHeight);
+    if (hasObservation) height += 50; // Altura estimada para observação
+    
+    return height + 20; // + padding total do card
   };
 
   const getGroupHeight = (groupName: string) => {
@@ -289,7 +286,7 @@ export default function TimelinePlanner({
       const s = new Date(project.previous_start_date);
       const e = new Date(project.previous_end_date);
       if (isNaN(s.getTime()) || isNaN(e.getTime())) return false;
-      const referenceDate = resolveReferenceDate(project);
+      const referenceDate = getReferenceDate(project, dateMode);
       if (!referenceDate) return false;
       
       if (showDays) {
@@ -316,8 +313,8 @@ export default function TimelinePlanner({
     // Aplicar ordenação por data se não estiver desligada
     if (sortByDate && sortByDate !== 'off') {
       filteredProjects = filteredProjects.sort((a, b) => {
-        const dateA = new Date(resolveReferenceDate(a) || '1900-01-01');
-        const dateB = new Date(resolveReferenceDate(b) || '1900-01-01');
+        const dateA = new Date(getReferenceDate(a, dateMode) || '1900-01-01');
+        const dateB = new Date(getReferenceDate(b, dateMode) || '1900-01-01');
         
         if (sortByDate === 'asc') {
           return dateA.getTime() - dateB.getTime();
@@ -328,33 +325,6 @@ export default function TimelinePlanner({
     }
 
     return filteredProjects;
-  };
-
-  // Funções de drag and drop
-  const handleDragStart = (e: React.DragEvent, project: WorkforceProject) => {
-    setDraggedProject(project);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e: React.DragEvent, targetGroupName: string, targetTimeColumn: { month?: number; date?: string }) => {
-    e.preventDefault();
-    
-    if (!draggedProject) return;
-
-    // Aqui você pode implementar a lógica para atualizar a data do projeto
-    // Por exemplo, chamando uma função de callback para atualizar no backend
-    console.log('Moving project:', draggedProject.id, 'to:', targetGroupName, targetTimeColumn);
-    
-    setDraggedProject(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedProject(null);
   };
 
   // Funções para drag and drop da timeline
@@ -385,109 +355,137 @@ export default function TimelinePlanner({
     setIsDraggingTimeline(false);
   };
 
-  // Tooltip personalizado para Job Site (mostra endereço completo)
-  const handleJobSiteMouseEnter = (e: React.MouseEvent, project: WorkforceProject) => {
-    const target = e.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    const tooltipWidth = 320;
-    const padding = 12;
-    const preferRight = rect.right + tooltipWidth + padding < window.innerWidth;
-    const x = preferRight ? rect.right + padding : rect.left - tooltipWidth - padding;
-    const y = Math.max(8, rect.top + window.scrollY - 6);
-    const content = (project.address && project.address.trim()) ? project.address : project.job_site;
-    setJobTooltip({ visible: true, x, y, content, align: preferRight ? 'right' : 'left' });
-  };
-
-  const handleJobSiteMouseLeave = () => {
-    setJobTooltip(prev => ({ ...prev, visible: false }));
-  };
-
-  // Tooltip para Status
-  const handleStatusMouseEnter = (e: React.MouseEvent, label: string) => {
-    const target = e.currentTarget as HTMLElement;
-    const rect = target.getBoundingClientRect();
-    const tooltipWidth = 200;
-    const padding = 12;
-    const preferRight = rect.right + tooltipWidth + padding < window.innerWidth;
-    const x = preferRight ? rect.right + padding : rect.left - tooltipWidth - padding;
-    const y = Math.max(8, rect.top + window.scrollY - 6);
-    setStatusTooltip({ visible: true, x, y, content: label, align: preferRight ? 'right' : 'left' });
-  };
-
-  const handleStatusMouseLeave = () => {
-    setStatusTooltip(prev => ({ ...prev, visible: false }));
-  };
-
 
   return (
-    <div style={{ flex: 1, overflow: 'hidden' }}>
-      <div className="card" style={{ background: 'var(--color-background-primary)', border: 'none', height: '100%' }}>
-        <div className="card-header" style={{ background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)', borderBottom: 'none', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
+    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Modal de Detalhes do Projeto */}
+      {selectedProject && (
+        <ForecastProjectModal
+          theme={theme}
+          project={selectedProject}
+          filterNotStarted={false}
+          onClose={() => setSelectedProject(null)}
+        />
+      )}
+
+      <div className="card" style={{ background: 'var(--color-background-primary)', border: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div className="card-header" style={{ background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)', borderBottom: 'none', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', padding: '16px 24px' }}>
           <div className="d-flex justify-content-between align-items-center">
-            <h5 className="card-title mb-0" style={{ color: 'var(--color-text-primary)', fontSize: 16 }}>
-              <i className="bi bi-calendar3 me-2" style={{ color: 'var(--color-accent-primary)' }} />
-              Timeline
-            </h5>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Group by</span>
-                <button 
-                  onClick={() => onGroupByChange('cliente')} 
-                  style={{ 
-                    background: groupBy === 'cliente' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-                    color: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)', 
-                    border: groupBy === 'cliente' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)', 
-                    borderRadius: 15, 
-                    padding: '4px 16px', 
-                    fontWeight: 500, 
-                    fontSize: 14, 
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <h5 className="card-title mb-0" style={{ color: 'var(--color-text-primary)', fontSize: 18, fontWeight: 700 }}>
+                <i className="bi bi-calendar3 me-2" style={{ color: 'var(--color-accent-primary)' }} />
+                {viewMode === 'grid' ? 'Project Forecast' : 'Timeline Planner'}
+              </h5>
+              
+              {/* Toggle de View Mode */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                background: 'var(--color-background-primary)', 
+                borderRadius: '12px', 
+                padding: '4px', 
+                border: '1px solid var(--color-border-divider)',
+                marginLeft: '8px'
+              }}>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  style={{
+                    background: viewMode === 'grid' ? 'var(--color-accent-primary)' : 'transparent',
+                    color: viewMode === 'grid' ? 'white' : 'var(--color-text-secondary)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '6px 16px',
+                    fontSize: '13px',
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    height: 26,
+                    transition: 'all 0.2s',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    gap: '8px'
                   }}
                 >
-                  Cliente
+                  <i className="bi bi-grid-fill" />
+                  Grid
                 </button>
-                <button 
-                  onClick={() => onGroupByChange('job_site')} 
-                  style={{ 
-                    background: groupBy === 'job_site' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)', 
-                    color: groupBy === 'job_site' ? '#fd7e14' : 'var(--color-text-primary)', 
-                    border: groupBy === 'job_site' ? '1.5px solid #fd7e14' : '1.5px solid var(--color-border-divider)', 
-                    borderRadius: 15, 
-                    padding: '4px 16px', 
-                    fontWeight: 500, 
-                    fontSize: 14, 
+                <button
+                  onClick={() => setViewMode('timeline')}
+                  style={{
+                    background: viewMode === 'timeline' ? 'var(--color-accent-primary)' : 'transparent',
+                    color: viewMode === 'timeline' ? 'white' : 'var(--color-text-secondary)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '6px 16px',
+                    fontSize: '13px',
+                    fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    height: 26,
+                    transition: 'all 0.2s',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    gap: '8px'
                   }}
                 >
-                  Job Site
+                  <i className="bi bi-view-stacked" />
+                  Timeline
                 </button>
               </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {viewMode === 'timeline' && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                  <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Group by</span>
+                  <button 
+                    onClick={() => onGroupByChange('cliente')} 
+                    style={{ 
+                      background: groupBy === 'cliente' ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent', 
+                      color: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', 
+                      border: groupBy === 'cliente' ? '1px solid var(--color-accent-primary)' : '1px solid transparent', 
+                      borderRadius: 15, 
+                      padding: '2px 12px', 
+                      fontWeight: 600, 
+                      fontSize: 12, 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      height: 24
+                    }}
+                  >
+                    Cliente
+                  </button>
+                  <button 
+                    onClick={() => onGroupByChange('job_site')} 
+                    style={{ 
+                      background: groupBy === 'job_site' ? 'rgba(253, 126, 20, 0.1)' : 'transparent', 
+                      color: groupBy === 'job_site' ? '#fd7e14' : 'var(--color-text-secondary)', 
+                      border: groupBy === 'job_site' ? '1px solid #fd7e14' : '1px solid transparent', 
+                      borderRadius: 15, 
+                      padding: '2px 12px', 
+                      fontWeight: 600, 
+                      fontSize: 12, 
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      height: 24
+                    }}
+                  >
+                    Job Site
+                  </button>
+                </div>
+              )}
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Date Mode</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Mode</span>
                 <button
                   onClick={() => onDateModeChange('start')}
                   style={{
-                    background: dateMode === 'start' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-                    color: dateMode === 'start' ? 'var(--color-accent-primary)' : 'var(--color-text-primary)',
-                    border: dateMode === 'start' ? '1.5px solid var(--color-accent-primary)' : '1.5px solid var(--color-border-divider)',
+                    background: dateMode === 'start' ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent',
+                    color: dateMode === 'start' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                    border: dateMode === 'start' ? '1px solid var(--color-accent-primary)' : '1px solid transparent',
                     borderRadius: 15,
-                    padding: '4px 12px',
-                    fontWeight: 500,
-                    fontSize: 13,
+                    padding: '2px 10px',
+                    fontWeight: 600,
+                    fontSize: 12,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    height: 26
+                    height: 24
                   }}
                 >
                   Start
@@ -495,87 +493,85 @@ export default function TimelinePlanner({
                 <button
                   onClick={() => onDateModeChange('beams')}
                   style={{
-                    background: dateMode === 'beams' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-                    color: dateMode === 'beams' ? '#17a2b8' : 'var(--color-text-primary)',
-                    border: dateMode === 'beams' ? '1.5px solid #17a2b8' : '1.5px solid var(--color-border-divider)',
+                    background: dateMode === 'beams' ? 'rgba(23, 162, 184, 0.1)' : 'transparent',
+                    color: dateMode === 'beams' ? '#17a2b8' : 'var(--color-text-secondary)',
+                    border: dateMode === 'beams' ? '1px solid #17a2b8' : '1px solid transparent',
                     borderRadius: 15,
-                    padding: '4px 12px',
-                    fontWeight: 500,
-                    fontSize: 13,
+                    padding: '2px 10px',
+                    fontWeight: 600,
+                    fontSize: 12,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
-                    height: 26
+                    height: 24
                   }}
                 >
                   Beams
                 </button>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500 }}>Sort by {dateModeLabel}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Sort</span>
                 <button 
                   onClick={() => onSortByDateChange(sortByDate === 'asc' ? 'desc' : sortByDate === 'desc' ? null : 'asc')} 
                   style={{ 
-                    background: sortByDate ? 'var(--color-accent-primary)' : 'var(--color-background-primary)', 
+                    background: sortByDate ? 'var(--color-accent-primary)' : 'transparent', 
                     color: sortByDate ? '#fff' : 'var(--color-text-secondary)', 
-                    border: '1px solid var(--color-border-divider)', 
+                    border: sortByDate ? '1px solid var(--color-accent-primary)' : '1px solid transparent', 
                     borderRadius: 15, 
-                    padding: '4px 10px', 
-                    fontSize: 14, 
+                    padding: '2px 10px', 
+                    fontSize: 12, 
                     cursor: 'pointer', 
                     display: 'flex', 
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.2s',
-                    height: 26,
-                    fontWeight: 500
+                    height: 24,
+                    fontWeight: 600
                   }}
                 >
                   {sortByDate === 'asc' ? 'ASC' : sortByDate === 'desc' ? 'DESC' : 'OFF'}
                 </button>
               </div>
 
-              {/* Botão para versão mobile */}
               <button
                 onClick={() => navigate('/forecast')}
                 style={{
                   background: 'var(--color-background-primary)',
                   border: '1px solid var(--color-border-divider)',
-                  borderRadius: 25,
-                  padding: '6px 12px',
-                  height: 38,
+                  borderRadius: '10px',
+                  padding: '8px 12px',
+                  color: 'var(--color-text-secondary)',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 8,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  color: 'var(--color-text-primary)',
-                  fontSize: 14,
-                  fontWeight: 500
+                  justifyContent: 'center'
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'var(--color-accent-primary)';
-                  e.currentTarget.style.color = 'white';
-                  e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'var(--color-background-primary)';
-                  e.currentTarget.style.color = 'var(--color-text-primary)';
-                  e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-                }}
+                title="Versão Mobile"
               >
-                <i className="bi bi-phone" style={{ fontSize: 16 }} />
-                Mobile View
+                <i className="bi bi-phone" />
               </button>
             </div>
           </div>
         </div>
-        
-        <div className="card-body p-0" style={{ border: '1px solid var(--color-border-divider)', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', overflow: 'hidden', height: 'calc(100% - 60px)' }}>
+
+        <div style={{ flex: 1, overflowY: 'auto', padding: viewMode === 'grid' ? '24px' : '0' }}>
+          {viewMode === 'grid' ? (
+            <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
+              <ForecastProjectsGrid
+                theme={theme}
+                groupedProjects={groupedByMonth}
+                filterNotStarted={false}
+                onProjectClick={setSelectedProject}
+              />
+            </div>
+          ) : (
+            <div className="card-body p-0" style={{ border: '1px solid var(--color-border-divider)', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', overflow: 'hidden', height: '100%' }}>
           {groupedData.length === 0 ? (
             <div className="text-center p-4" style={{ color: 'var(--color-text-secondary)' }}>
               <i className="bi bi-calendar-x" style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />
-              <p className="mb-0">Nenhuma obra encontrada para os filtros selecionados</p>
+              <p className="mb-0">No projects found for the selected filters</p>
             </div>
           ) : (
             <>
@@ -679,7 +675,6 @@ export default function TimelinePlanner({
                 <div 
                   className="timeline-content"
                   style={{ position: 'relative' }}
-                  onDragOver={handleDragOver}
                 >
                   {groupedData.map((group, groupIndex) => (
                     <div 
@@ -753,8 +748,6 @@ export default function TimelinePlanner({
                                 flexShrink: 0,
                                 boxSizing: 'border-box'
                               }}
-                              onDrop={(e) => handleDrop(e, group.groupName, col)}
-                              onDragOver={handleDragOver}
                             >
                               {projects.map((project, projectIndex) => {
                                 const projectStatus = getProjectStatus(project);
@@ -765,20 +758,22 @@ export default function TimelinePlanner({
                                 // 2. Verde: status ≠ "Not Started" (iniciada)
                                 // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
                                 const cardColors = overdue ? OVERDUE_COLORS : (projectStatus === 'open' ? PROJECT_STATUS_COLORS.open : PROJECT_STATUS_COLORS['not-started']);
-                                const hasHvac = !!(project.hvac && project.hvac.toUpperCase() === 'YES');
-                                const hasFieldwire = isTruthyFlag(project.fieldwire);
-                                const hasContract = isTruthyFlag(project.tem_contrato);
+                                
+                                const hasHvac = !!project.hvac;
+                                const hasFw = hasActiveFieldwire(project);
+                                const hasContract = hasCompleteContract(project);
+                                
                                 const indicatorBadges = ([
                                   hasHvac && (
-                                    <div key={`${project.id}-hvac`} style={INDICATOR_ICON_STYLE}>
+                                    <div key={`${project.id}-hvac`} style={INDICATOR_ICON_STYLE} title="HVAC">
                                       <img 
-                                        src={iconForecastHvac} 
+                                        src={hvacIcon} 
                                         alt="HVAC" 
                                         style={{ width: 18, height: 18, objectFit: 'contain', opacity: 0.95 }} 
                                       />
                                     </div>
                                   ),
-                                  hasFieldwire && (
+                                  hasFw && (
                                     <div key={`${project.id}-fieldwire`} style={INDICATOR_ICON_STYLE} title="Fieldwire">
                                       <img 
                                         src={iconFieldwire} 
@@ -787,12 +782,11 @@ export default function TimelinePlanner({
                                       />
                                     </div>
                                   )
-                                ] as (false | JSX.Element)[]).filter(Boolean) as JSX.Element[];
+                                ] as (false | React.ReactElement)[]).filter(Boolean) as React.ReactElement[];
                                 
                                 return (
                                 <div
                                   key={project.id}
-                                  draggable
                                 style={{
                                   background: cardColors.primary,
                                   borderRadius: 8,
@@ -800,7 +794,7 @@ export default function TimelinePlanner({
                                   marginBottom: projectIndex < projects.length - 1 ? 10 : 0,
                                   color: 'white',
                                   fontSize: 12,
-                                  cursor: 'grab',
+                                  cursor: 'pointer',
                                   transition: 'all 0.2s ease',
                                   border: '1px solid rgba(255,255,255,0.2)',
                                   userSelect: 'none',
@@ -810,130 +804,119 @@ export default function TimelinePlanner({
                                   flexDirection: 'column',
                                   alignItems: 'stretch',
                                   textAlign: 'left',
-                                  boxShadow: '0 1px 3px rgba(0,0,0,0.15)'
+                                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                 }}
-                                  onDragStart={(e) => handleDragStart(e, project)}
-                                  onDragEnd={handleDragEnd}
-                                  onMouseEnter={(e) => {
-                                    if (!draggedProject) {
-                                      e.currentTarget.style.background = cardColors.hover;
-                                      e.currentTarget.style.transform = 'scale(1.02)';
-                                      e.currentTarget.style.cursor = 'grab';
-                                    }
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    if (!draggedProject) {
-                                      e.currentTarget.style.background = cardColors.primary;
-                                      e.currentTarget.style.transform = 'scale(1)';
-                                    }
-                                  }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedProject(project);
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.transform = 'translateY(-2px)';
+                                  e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
+                                  e.currentTarget.style.background = cardColors.hover;
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.transform = 'translateY(0)';
+                                  e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                  e.currentTarget.style.background = cardColors.primary;
+                                }}
                                 >
-                                {/* Layout em duas colunas: esquerda (info) e direita (status + HVAC) */}
-                                <div style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-                                  {/* Coluna esquerda - informações */}
-                                  <div style={{ flex: 1, minWidth: 0 }}>
-                                    {/* Título */}
-                                    <div style={{ color: 'white', fontWeight: 700, marginTop: 2, marginBottom: 2, fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                      {project.cliente}
-                                    </div>
-                                    {/* Job site com tooltip de endereço completo e quebra de linha */}
-                                    <div 
-                                      style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}
-                                      onMouseEnter={(e) => handleJobSiteMouseEnter(e, project)}
-                                      onMouseLeave={handleJobSiteMouseLeave}
-                                    >
-                                      <i className="bi bi-geo-alt" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>{getShortJobSite(project.job_site)}</span>
-                                    </div>
-                                    {/* Lote com ícone */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, opacity: 0.9, marginTop: 4, marginBottom: 4, fontWeight: 'bold' }}>
-                                      <i className="bi bi-building" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                      <span>{project.type || 'Lot'} {project.lote_building}</span>
-                                    </div>
-                                    {/* Equipe com ícone */}
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                      {hasContract && (
-                                        <i className="bi bi-file-earmark-check" style={{ 
-                                          fontSize: 14, 
-                                          color: '#20c997' 
-                                        }} />
+                                  {/* Layout em duas colunas: esquerda (info) e direita (status + indicators) */}
+                                  <div style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
+                                    {/* Coluna esquerda - informações */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      {/* Título */}
+                                      <div style={{ color: 'white', fontWeight: 700, marginTop: 2, marginBottom: 2, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                        {project.cliente}
+                                      </div>
+                                      
+                                      {/* Job site */}
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                        <i className="bi bi-geo-alt" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.9)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'normal', wordBreak: 'break-word' }}>
+                                          {getShortJobSite(project.job_site)}
+                                        </span>
+                                      </div>
+                                      
+                                      {/* Lote */}
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, opacity: 0.9, marginTop: 4, fontWeight: 'bold' }}>
+                                        <i className="bi bi-building" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                        <span>{project.type || 'Lot'} {project.lote_bld || 'N/A'}</span>
+                                      </div>
+                                      
+                                      {/* Equipe */}
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                        <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                        <span style={{ 
+                                          fontSize: 11, 
+                                          opacity: 0.9,
+                                          color: project.workforce ? 'inherit' : '#ffcc00',
+                                          fontWeight: project.workforce ? 'normal' : 'bold'
+                                        }}>
+                                          {project.workforce || 'No team'}
+                                        </span>
+                                        {hasContract && (
+                                          <i className="bi bi-file-earmark-check" style={{ color: '#4ade80', fontSize: 14 }} title="Contract Complete" />
+                                        )}
+                                      </div>
+                                      
+                                      {/* Datas */}
+                                      {project.previous_beams_date && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                          <i className="bi bi-flag" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                          <span style={{ fontSize: 11, opacity: 0.9 }}>
+                                            Beams: {formatDateShort(project.previous_beams_date)}
+                                          </span>
+                                        </div>
                                       )}
-                                      <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                      <span style={{ 
-                                        fontSize: 11, 
-                                        opacity: 0.8,
-                                        marginBottom: 4,
-                                        fontWeight: project.workforce ? 'normal' : 'bold',
-                                        color: project.workforce ? 'inherit' : '#ffcc00'
+                                      {project.previous_start_date && project.previous_end_date && (
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                          <i className="bi bi-calendar-range" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                          <span style={{ fontSize: 11, opacity: 0.9 }}>
+                                            {formatDateShort(project.previous_start_date)} - {formatDateShort(project.previous_end_date)}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Coluna direita - status e indicators */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 40, flexShrink: 0 }}>
+                                      <div style={{
+                                        background: 'rgba(255,255,255,0.2)',
+                                        color: 'white',
+                                        borderRadius: 8,
+                                        width: 28,
+                                        height: 28,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
                                       }}>
-                                        {project.workforce || 'No team assigned'}
-                                      </span>
+                                        {overdue ? (
+                                          <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
+                                        ) : projectStatus === 'open' ? (
+                                          <i className="bi bi-play-fill" style={{ fontSize: 16 }} />
+                                        ) : (
+                                          <span style={{ fontSize: 10, fontWeight: 700 }}>N/S</span>
+                                        )}
+                                      </div>
+                                      {indicatorBadges}
                                     </div>
-                                    {/* Datas */}
-                                    {project.previous_beams_date && (
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                        <i className="bi bi-flag" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                        <span style={{ fontSize: 11, opacity: 0.9 }}>
-                                          Beams: {formatDateShort(project.previous_beams_date)}
-                                        </span>
-                                      </div>
-                                    )}
-                                    {project.previous_start_date && project.previous_end_date && (
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                        <i className="bi bi-calendar-range" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                        <span style={{ fontSize: 11, opacity: 0.9 }}>
-                                          {formatDateShort(project.previous_start_date)} - {formatDateShort(project.previous_end_date)}
-                                        </span>
-                                      </div>
-                                    )}
                                   </div>
-
-                                  {/* Coluna direita - status e HVAC (itens alinhados à direita) */}
-                                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, width: 52, flexShrink: 0 }}>
-                                    <div 
-                                      onMouseEnter={(e) => handleStatusMouseEnter(e, overdue ? 'Overdue' : (projectStatus === 'open' ? 'Started' : 'Not Started'))}
-                                      onMouseLeave={handleStatusMouseLeave}
-                                      style={{
-                                      background: 'rgba(255,255,255,0.2)',
-                                      color: 'white',
-                                      borderRadius: 12,
-                                      fontSize: 12,
-                                      fontWeight: 700,
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      width: 32,
-                                      height: 32
+                                  
+                                  {/* Observação */}
+                                  {project.obs && project.obs.trim() && (
+                                    <div style={{
+                                      marginTop: 8,
+                                      padding: '6px 8px',
+                                      background: 'rgba(0,0,0,0.15)',
+                                      borderRadius: 6,
+                                      color: 'rgba(255,255,255,0.95)',
+                                      fontSize: 11,
+                                      lineHeight: 1.3
                                     }}>
-                                      {overdue ? (
-                                        <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
-                                      ) : projectStatus === 'open' ? (
-                                        <i className="bi bi-play-fill" style={{ fontSize: 16 }} />
-                                      ) : (
-                                        <span style={{ fontSize: 11 }}>N/S</span>
-                                      )}
+                                      {project.obs}
                                     </div>
-                                    {indicatorBadges.length > 0 && (
-                                      <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
-                                        {indicatorBadges}
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                                {/* Observação em largura total, fora das duas colunas */}
-                                {project.observacoes && project.observacoes.trim() && (
-                                  <div style={{
-                                    marginTop: 8,
-                                    padding: '6px 8px',
-                                    background: 'rgba(0,0,0,0.15)',
-                                    borderRadius: 6,
-                                    color: 'rgba(255,255,255,0.95)',
-                                    fontSize: 11,
-                                    lineHeight: 1.3
-                                  }}>
-                                    {project.observacoes}
-                                  </div>
-                                )}
+                                  )}
                                 </div>
                                 );
                               })}
@@ -948,59 +931,10 @@ export default function TimelinePlanner({
             </div>
             </>
           )}
-        </div>
-      </div>
-      {/* Tooltip de Job Site (endereço completo) */}
-      {jobTooltip.visible && (
-        <div
-          style={{
-            position: 'fixed',
-            top: jobTooltip.y,
-            left: jobTooltip.x,
-            zIndex: 2000,
-            background: 'var(--color-background-primary)',
-            color: 'var(--color-text-primary)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: 8,
-            padding: '10px 12px',
-            width: 320,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
-            transition: 'opacity 0.5s ease',
-            opacity: 1
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <i className="bi bi-geo" style={{ color: 'var(--color-accent-primary)' }} />
-            <span style={{ fontSize: 13, fontWeight: 600 }}>Full Address</span>
           </div>
-          <div style={{ marginTop: 6, fontSize: 13, lineHeight: 1.35 }}>
-            {jobTooltip.content}
-          </div>
+          )}
         </div>
-      )}
-      {/* Tooltip de Status */}
-      {statusTooltip.visible && (
-        <div
-          style={{
-            position: 'fixed',
-            top: statusTooltip.y,
-            left: statusTooltip.x,
-            zIndex: 2000,
-            background: 'var(--color-background-primary)',
-            color: 'var(--color-text-primary)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: 8,
-            padding: '8px 10px',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.18)',
-            transition: 'opacity 0.5s ease',
-            opacity: 1,
-            fontSize: 13,
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {statusTooltip.content}
-        </div>
-      )}
     </div>
+  </div>
   );
 }

@@ -98,3 +98,77 @@ export const getOverdueType = (project: WorkforceProject): 'start' | null => {
   return null;
 };
 
+// Helper para obter a data de referência baseada no modo (start ou beams)
+export const getReferenceDate = (project: WorkforceProject, mode: 'start' | 'beams'): string | null => {
+  if (mode === 'beams') {
+    return project.previous_beams_date || project.previous_start_date || null;
+  }
+  return project.previous_start_date || null;
+};
+
+// Helper para verificar se tem workforce atribuído
+export const hasWorkforce = (project: WorkforceProject): boolean => {
+  return !!(project.workforce && project.workforce.trim() !== '');
+};
+
+const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
+
+// Helper para verificar se um valor é verdadeiro (booleano ou string)
+export const isTruthyFlag = (value?: string | boolean | null): boolean => {
+  if (typeof value === 'boolean') return value;
+  if (!value) return false;
+  const normalized = value.toString().toLowerCase().trim();
+  if (!normalized) return false;
+  return POSITIVE_STRINGS.includes(normalized);
+};
+
+// Helper para calcular a métrica de completude da preparação da obra
+export const getProjectCompletionMetrics = (project: WorkforceProject) => {
+  let completedPoints = 0;
+  let totalPoints = 0;
+
+  // 1. Fieldwire Documents
+  if (project.fieldwire && project.fieldwire.length > 0) {
+    totalPoints += project.fieldwire.length;
+    completedPoints += project.fieldwire.filter(fw => fw.status === true).length;
+  }
+
+  // 2. BuilderTrend
+  totalPoints += 1;
+  if (project.buildertrend === true) {
+    completedPoints += 1;
+  }
+
+  // 3. QuickBooks Time
+  totalPoints += 1;
+  if (project.qbtime === true) {
+    completedPoints += 1;
+  }
+
+  // 4. Storage
+  totalPoints += 1;
+  if (project.storage === true) {
+    completedPoints += 1;
+  }
+
+  // 5. Contract Status
+  if (project.contract_steps && project.contract_steps.length > 0) {
+    totalPoints += project.contract_steps.length;
+    completedPoints += project.contract_steps.filter(cs => cs.status === true).length;
+  }
+
+  // 6. Machines and Attachments
+  if (project.machines && project.machines.length > 0) {
+    totalPoints += project.machines.length;
+    completedPoints += project.machines.filter(m => m.status === true).length;
+  }
+
+  const percentage = totalPoints > 0 ? Math.round((completedPoints / totalPoints) * 100) : 0;
+
+  return {
+    completedPoints,
+    totalPoints,
+    percentage
+  };
+};
+

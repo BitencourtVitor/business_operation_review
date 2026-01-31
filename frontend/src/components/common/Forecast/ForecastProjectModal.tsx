@@ -1,25 +1,48 @@
 import { useState, useRef } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
-import { isProjectStartedByStatus, getOverdueType } from './helpers';
+import { 
+  isProjectStartedByStatus, 
+  getOverdueType,
+  getProjectCompletionMetrics 
+} from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
+import iconBuildertrendDark from '../../../assets/buildertrend_darkmode.png';
+import iconQBTime from '../../../assets/qbtime_logo.png';
+import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
+import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
+import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconBoomlift from '../../../assets/boomlift.png';
 import iconForklift from '../../../assets/forklift.png';
 // TODO: Adicionar ícone storage.png na pasta assets quando disponível
 // import iconStorage from '../../../assets/storage.png';
 
 interface ForecastProjectModalProps {
+  theme?: 'light' | 'dark';
   project: WorkforceProject;
   filterNotStarted: boolean;
   onClose: () => void;
 }
 
 export default function ForecastProjectModal({
+  theme,
   project,
   filterNotStarted,
   onClose
 }: ForecastProjectModalProps) {
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
+  const metrics = getProjectCompletionMetrics(project);
+  const overdue = !!getOverdueType(project);
+
+  const getProgressBarColor = () => {
+    const status = (project.status || '').toLowerCase().trim();
+    if (overdue) return '#e04b4b';
+    if (status === 'closed') return '#495057';
+    if (status === 'not started') return '#6c757d';
+    if (metrics.percentage === 100) return '#3b82f6';
+    return '#f59e0b';
+  };
   const [activeSection, setActiveSection] = useState<string>('overview');
   const modalScrollRef = useRef<HTMLDivElement>(null);
   const modalScrollContainerRef = useRef<HTMLDivElement>(null);
@@ -31,11 +54,12 @@ export default function ForecastProjectModal({
   const sections = [
     { id: 'overview', icon: 'bi-info-circle', label: 'Overview', image: null },
     ...(project.fieldwire && project.fieldwire.length > 0 ? [{ id: 'fieldwire', icon: null, label: 'Fieldwire', image: iconFieldwire }] : []),
-    { id: 'buildertrend', icon: null, label: 'BuilderTrend', image: iconBuildertrend },
+    { id: 'buildertrend', icon: null, label: 'BuilderTrend', image: isDarkMode ? iconBuildertrendDark : iconBuildertrend },
+    { id: 'qbtime', icon: null, label: 'Quickbooks Time', image: isDarkMode ? iconQBTimeDark : iconQBTime },
     // TODO: Quando iconStorage estiver disponível, atualizar para: { id: 'storage', icon: null, label: 'Storage', image: iconStorage },
     { id: 'storage', icon: 'bi-box', label: 'Storage', image: null },
-    ...(project.machines && project.machines.length > 0 ? [{ id: 'machines', icon: 'bi-truck', label: 'Machines', image: null }] : []),
-    ...(project.contract_steps && project.contract_steps.length > 0 ? [{ id: 'contract', icon: 'bi-file-check', label: 'Contract', image: null }] : [])
+    ...(project.contract_steps && project.contract_steps.length > 0 ? [{ id: 'contract', icon: 'bi-file-check', label: 'Contract', image: null }] : []),
+    ...(project.machines && project.machines.length > 0 ? [{ id: 'machines', icon: 'bi-truck', label: 'Machines', image: null }] : [])
   ];
 
   const handleSectionClick = (sectionId: string) => {
@@ -54,38 +78,38 @@ export default function ForecastProjectModal({
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const container = e.currentTarget;
     const scrollTop = container.scrollTop;
-    const viewportMiddle = scrollTop + container.clientHeight / 2;
+    const containerHeight = container.clientHeight;
     
-    const sectionIds = [
-      'overview',
-      ...(project.fieldwire && project.fieldwire.length > 0 ? ['fieldwire'] : []),
-      'buildertrend',
-      'storage',
-      ...(project.machines && project.machines.length > 0 ? ['machines'] : []),
-      ...(project.contract_steps && project.contract_steps.length > 0 ? ['contract'] : [])
-    ];
+    // Lista de IDs das seções ativas no momento
+    const activeSectionIds = sections.map(s => s.id);
     
-    let activeId = sectionIds[0];
-    let minDistance = Infinity;
+    let currentActiveId = activeSectionIds[0];
     
-    sectionIds.forEach((sectionId) => {
+    // Threshold para considerar uma seção ativa (se o topo dela estiver nos primeiros 100px do container)
+    const threshold = 100;
+
+    for (const sectionId of activeSectionIds) {
       const element = document.getElementById(`modal-section-${sectionId}`);
       if (element) {
         const elementTop = element.offsetTop;
-        const elementBottom = elementTop + element.offsetHeight;
-        const elementMiddle = elementTop + (elementBottom - elementTop) / 2;
-        const distance = Math.abs(viewportMiddle - elementMiddle);
-        
-        if (elementTop <= scrollTop + container.clientHeight && 
-            elementBottom >= scrollTop && 
-            distance < minDistance) {
-          minDistance = distance;
-          activeId = sectionId;
+        // Se o topo da seção passou do threshold ou se estamos perto do topo do container
+        if (elementTop <= scrollTop + threshold) {
+          currentActiveId = sectionId;
+        } else {
+          // Como as seções estão em ordem, se esta seção ainda não chegou no topo, as próximas também não
+          break;
         }
       }
-    });
+    }
     
-    setActiveSection(activeId);
+    // Caso especial: se chegamos no final do scroll, ativa a última seção
+    if (scrollTop + containerHeight >= container.scrollHeight - 20) {
+      currentActiveId = activeSectionIds[activeSectionIds.length - 1];
+    }
+    
+    if (currentActiveId !== activeSection) {
+      setActiveSection(currentActiveId);
+    }
   };
 
   return (
@@ -131,12 +155,12 @@ export default function ForecastProjectModal({
               width: '40px',
               height: '40px',
               borderRadius: '8px',
-              border: 'none',
-              background: activeSection === section.id 
-                ? 'var(--color-accent-primary)' 
-                : 'var(--color-background-secondary)',
+              border: activeSection === section.id 
+                ? '2px solid var(--color-accent-primary)' 
+                : '1px solid var(--color-border-divider)',
+              background: 'transparent',
               color: activeSection === section.id 
-                ? '#fff' 
+                ? 'var(--color-accent-primary)' 
                 : 'var(--color-text-secondary)',
               cursor: 'pointer',
               display: 'flex',
@@ -180,18 +204,46 @@ export default function ForecastProjectModal({
           borderBottom: '1px solid var(--color-border-divider)',
           background: 'var(--color-background-primary)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           flexShrink: 0
         }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              gap: '12px',
-              marginBottom: 4 
-            }}>
+          {/* Barra de Progresso de Completude - Dentro do Header para consistência com o Card */}
+          <div style={{
+            width: '100%',
+            height: '4px',
+            background: 'rgba(0,0,0,0.15)',
+            borderRadius: '2px',
+            marginBottom: '12px',
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            <div style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              height: '100%',
+              width: `${metrics.percentage}%`,
+              background: getProgressBarColor(),
+              transition: 'width 0.5s ease-in-out, background-color 0.3s ease',
+              borderRadius: '2px'
+            }} />
+          </div>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            width: '100%'
+          }}>
+            <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'flex-start',
+                gap: '12px',
+                marginBottom: 4,
+                flexWrap: 'wrap'
+              }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                 {project.cliente}
               </div>
@@ -206,13 +258,19 @@ export default function ForecastProjectModal({
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '13px',
-                      fontWeight: 600,
+                      gap: '4px',
+                      background: 'rgba(40, 167, 69, 0.1)',
                       color: '#28a745',
-                      flexShrink: 0
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      border: '1px solid rgba(40, 167, 69, 0.3)',
+                      flexShrink: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
                     }}>
-                      <i className="bi bi-play-circle-fill" style={{ fontSize: 14 }} />
+                      <i className="bi bi-play-circle-fill" style={{ fontSize: 10 }} />
                       <span>Started</span>
                     </div>
                   );
@@ -222,23 +280,67 @@ export default function ForecastProjectModal({
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '13px',
-                      fontWeight: 600,
+                      gap: '4px',
+                      background: 'rgba(224, 75, 75, 0.1)',
                       color: '#e04b4b',
-                      flexShrink: 0
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      border: '1px solid rgba(224, 75, 75, 0.3)',
+                      flexShrink: 0,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
                     }}>
-                      <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 14 }} />
+                      <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 10 }} />
                       <span>Overdue</span>
                     </div>
                   );
                 }
-                // Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → não mostra nada
-                return null;
+                // Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → mostra "Not Started" cinza
+                return (
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: 'rgba(108, 117, 125, 0.1)',
+                    color: '#6c757d',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    border: '1px solid rgba(108, 117, 125, 0.3)',
+                    flexShrink: 0,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    <span>Not Started</span>
+                  </div>
+                );
               })()}
             </div>
-            <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 2 }}>{project.job_site}</div>
-            <div style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>{project.type || 'Lot'} {project.lote_bld || 'N/A'}</div>
+            <div style={{ 
+              fontSize: 13, 
+              color: 'var(--color-text-secondary)', 
+              marginBottom: 4,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <span>{project.job_site}</span>
+              <span style={{ color: 'var(--color-border-divider)' }}>|</span>
+              <span style={{ fontWeight: 600 }}>{project.type || 'Lot'} {project.lote_bld || 'N/A'}</span>
+            </div>
+            <div style={{ 
+              fontSize: 12, 
+              color: 'var(--color-text-secondary)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '4px'
+            }}>
+              <i className="bi bi-geo-alt-fill" style={{ fontSize: 10, marginTop: 2 }} />
+              <span style={{ textAlign: 'left' }}>{project.address}</span>
+            </div>
           </div>
           <button
             style={{
@@ -262,8 +364,9 @@ export default function ForecastProjectModal({
             <i className="bi bi-x" style={{ fontSize: 18 }} />
           </button>
         </div>
+      </div>
 
-        {/* Conteúdo scrollável */}
+      {/* Conteúdo scrollável */}
         <div 
           ref={modalScrollContainerRef}
           style={{
@@ -277,14 +380,6 @@ export default function ForecastProjectModal({
         >
           {/* Overview Section */}
           <div id="modal-section-overview" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
-            {/* Address */}
-            {project.address && project.address.trim() && (
-              <div style={{ marginBottom: 12, textAlign: 'left' }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 4, fontWeight: 600 }}>Address</div>
-                <div style={{ fontSize: 14, color: 'var(--color-text-primary)', lineHeight: 1.5, textAlign: 'left' }}>{project.address}</div>
-              </div>
-            )}
-
             {/* Datas */}
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', marginBottom: 8, fontWeight: 600, textAlign: 'left' }}>Datas</div>
@@ -350,7 +445,116 @@ export default function ForecastProjectModal({
           )}
 
           {/* Linha separadora */}
-          {project.buildertrend === true && (
+          <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
+
+          {/* BuilderTrend Section */}
+          <div id="modal-section-buildertrend" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>BuilderTrend</div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(0,0,0,0.05)',
+              borderRadius: 8,
+              border: '1px solid var(--color-border-divider)'
+            }}>
+              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Configuração da obra no BuilderTrend</div>
+              {project.buildertrend ? (
+                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
+              ) : (
+                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+
+          {/* Linha separadora */}
+          <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
+
+          {/* Quickbooks Time Section */}
+          <div id="modal-section-qbtime" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Quickbooks Time</div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(0,0,0,0.05)',
+              borderRadius: 8,
+              border: '1px solid var(--color-border-divider)'
+            }}>
+              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Cadastro da obra no Quickbooks Time</div>
+              {project.qbtime ? (
+                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
+              ) : (
+                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+
+          {/* Linha separadora */}
+          <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
+
+          {/* Storage - Sempre presente */}
+          <div id="modal-section-storage" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Storage</div>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '12px',
+              background: 'rgba(0,0,0,0.05)',
+              borderRadius: 8,
+              border: '1px solid var(--color-border-divider)'
+            }}>
+              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Obra adicionada ao sistema de estoque</div>
+              {project.storage ? (
+                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
+              ) : (
+                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
+              )}
+            </div>
+          </div>
+
+          {/* Linha separadora */}
+          <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
+
+          {/* Contract Steps */}
+          {project.contract_steps && project.contract_steps.length > 0 && (
+            <div id="modal-section-contract" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8, textAlign: 'left' }}>Contract Steps</div>
+              {project.workforce && (
+                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 12, opacity: 0.7, textAlign: 'left' }}>
+                  Workforce: {project.workforce}
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {project.contract_steps.map((cs) => (
+                  <div key={cs.id} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px',
+                    background: 'rgba(0,0,0,0.05)',
+                    borderRadius: 8,
+                    border: '1px solid var(--color-border-divider)'
+                  }}>
+                    <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                      {cs.step || 'N/A'}
+                    </div>
+                    {cs.status ? (
+                      <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80' }} />
+                    ) : (
+                      <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24' }} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Linha separadora */}
+          {project.machines && project.machines.length > 0 && (
             <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
           )}
 
@@ -408,90 +612,6 @@ export default function ForecastProjectModal({
                     </div>
                   );
                 })}
-              </div>
-            </div>
-          )}
-
-          {/* Linha separadora */}
-          {(project.fieldwire && project.fieldwire.length > 0) && (
-            <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
-          )}
-
-          {/* Buildertrend - Sempre presente */}
-          <div id="modal-section-buildertrend" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>BuilderTrend</div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px',
-              background: 'rgba(0,0,0,0.05)',
-              borderRadius: 8,
-              border: '1px solid var(--color-border-divider)'
-            }}>
-              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Criação da obra dentro BuilderTrend</div>
-              {project.buildertrend ? (
-                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
-              ) : (
-                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
-              )}
-            </div>
-          </div>
-
-          {/* Storage - Sempre presente */}
-          <div id="modal-section-storage" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Storage</div>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '12px',
-              background: 'rgba(0,0,0,0.05)',
-              borderRadius: 8,
-              border: '1px solid var(--color-border-divider)'
-            }}>
-              <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>Obra adicionada ao sistema de estoque</div>
-              {project.storage ? (
-                <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
-              ) : (
-                <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
-              )}
-            </div>
-          </div>
-
-          {/* Linha separadora */}
-          <div style={{ height: 1, background: 'var(--color-border-divider)', marginBottom: 16 }} />
-
-          {/* Contract Steps */}
-          {project.contract_steps && project.contract_steps.length > 0 && (
-            <div id="modal-section-contract" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8, textAlign: 'left' }}>Contract Steps</div>
-              {project.workforce && (
-                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 12, opacity: 0.7, textAlign: 'left' }}>
-                  Workforce: {project.workforce}
-                </div>
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {project.contract_steps.map((cs) => (
-                  <div key={cs.id} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px',
-                    background: 'rgba(0,0,0,0.05)',
-                    borderRadius: 8,
-                    border: '1px solid var(--color-border-divider)'
-                  }}>
-                    <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>
-                      {cs.step || 'N/A'}
-                    </div>
-                    {cs.status ? (
-                      <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80' }} />
-                    ) : (
-                      <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24' }} />
-                    )}
-                  </div>
-                ))}
               </div>
             </div>
           )}

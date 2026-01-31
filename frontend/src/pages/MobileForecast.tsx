@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
 import ForecastMaintenance from '../components/common/Forecast/ForecastMaintenance';
@@ -50,6 +51,7 @@ interface WorkforceProject {
   workforce: string | null;
   hvac: boolean | null; // Mudou de string para boolean
   buildertrend: boolean | null; // Novo campo
+  qbtime: boolean | null; // Novo campo
   storage: boolean | null; // Indica se a obra já foi adicionada ao sistema de estoque
   machine_provider: string | null; // Novo campo
   status: string | null;
@@ -118,6 +120,7 @@ interface ForecastData {
 }
 
 export default function MobileForecast() {
+  const [theme, setTheme] = useState<'light' | 'dark'>(Cookies.get('theme') === 'dark' ? 'dark' : 'light');
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,9 +141,24 @@ export default function MobileForecast() {
   const [selectedMachines, setSelectedMachines] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedQBTime, setSelectedQBTime] = useState<string>('all'); // 'all', 'yes', 'no'
   const [filterNotStarted, setFilterNotStarted] = useState<boolean>(true); // Filtro para mostrar apenas "Not Started"
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
+
+  // Persistir tema no cookie e aplicar classe
+  useEffect(() => {
+    Cookies.set('theme', theme, { expires: 365 });
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const handleThemeToggle = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     setSelectedYear('');
@@ -399,12 +417,15 @@ export default function MobileForecast() {
       const workforceMatch = selectedWorkforce === 'all' || 
         (selectedWorkforce === 'yes' ? hasWorkforce(project) : !hasWorkforce(project));
       
+      const qbtimeMatch = selectedQBTime === 'all' || 
+        (selectedQBTime === 'yes' ? project.qbtime === true : project.qbtime !== true);
+      
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
-        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch;
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch && qbtimeMatch;
     });
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, 
-      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, 
+      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
       filterNotStarted, dateMode]);
 
   // Processar dados para o forecast
@@ -554,10 +575,16 @@ export default function MobileForecast() {
         marginBottom: '20px',
         padding: '15px 0',
         borderBottom: '2px solid var(--color-accent-primary)',
-        position: 'relative'
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
       }}>
+        {/* Espaçador para equilibrar o layout à esquerda */}
+        <div style={{ width: 42, marginLeft: 10 }}></div>
+
         {/* Botão de seleção de empresa */}
-        <div style={{ position: 'relative', display: 'inline-block' }} data-company-menu>
+        <div style={{ position: 'relative', display: 'inline-block', flex: 1 }} data-company-menu>
           <button
             style={{
               background: 'none',
@@ -569,7 +596,8 @@ export default function MobileForecast() {
               cursor: 'pointer',
               padding: '8px 16px',
               borderRadius: '8px',
-              transition: 'background 0.2s'
+              transition: 'background 0.2s',
+              margin: '0 auto'
             }}
             onClick={() => setIsCompanyMenuOpen(!isCompanyMenuOpen)}
             onMouseEnter={(e) => {
@@ -682,13 +710,24 @@ export default function MobileForecast() {
           )}
         </div>
 
-        <p style={{ 
-          color: 'var(--color-text-secondary)', 
-          fontSize: '14px', 
-          margin: '5px 0 0 0' 
-        }}>
-          Project Timeline
-        </p>
+        {/* Botão de Tema */}
+        <button
+          type="button"
+          onClick={handleThemeToggle}
+          className="btn-secondary-custom d-flex align-items-center justify-content-center"
+          style={{ 
+            width: 42, 
+            height: 38, 
+            fontSize: 16, 
+            marginRight: 10,
+            borderRadius: '8px',
+            background: 'var(--color-background-secondary)',
+            border: '1.5px solid var(--color-border-divider)',
+            color: 'var(--color-text-primary)'
+          }}
+        >
+          <i className={`bi ${theme === 'dark' ? 'bi-moon-stars' : 'bi-sun'}`}/>
+        </button>
       </div>
 
       {/* Container principal com largura controlada */}
@@ -712,6 +751,7 @@ export default function MobileForecast() {
             selectedMachines={selectedMachines}
             selectedContractSteps={selectedContractSteps}
             selectedWorkforce={selectedWorkforce}
+            selectedQBTime={selectedQBTime}
             filterNotStarted={filterNotStarted}
             years={years}
             months={months}
@@ -728,6 +768,7 @@ export default function MobileForecast() {
             onMachinesChange={setSelectedMachines}
             onContractStepsChange={setSelectedContractSteps}
             onWorkforceChange={setSelectedWorkforce}
+            onQBTimeChange={setSelectedQBTime}
             onFilterNotStartedChange={setFilterNotStarted}
           />
         </div>
@@ -749,6 +790,7 @@ export default function MobileForecast() {
         {/* Timeline Planner mobile */}
         <div style={{ flex: 1, width: '100%' }}>
           <MobileTimelinePlanner 
+            theme={theme}
             forecastData={forecastData}
             workforceProjects={visibleProjects}
             selectedYear={selectedYear}
