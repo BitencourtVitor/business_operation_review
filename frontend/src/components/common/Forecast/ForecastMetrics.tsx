@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import MetricTooltip from '../../tooltips/MetricTooltip';
+import React from 'react';
 import MonthlySummary from './MonthlySummary';
 import type { WorkforceProject } from './types';
 
@@ -14,10 +13,6 @@ interface ForecastStats {
 interface ForecastMetricsProps {
   stats: ForecastStats;
   workforceProjects: WorkforceProject[];
-  selectedYear: string;
-  selectedMonth: string;
-  selectedClient: string[];
-  selectedJobSite: string[];
   groupBy: 'cliente' | 'job_site';
   onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
 }
@@ -25,15 +20,9 @@ interface ForecastMetricsProps {
 export default function ForecastMetrics({ 
   stats,
   workforceProjects,
-  selectedYear,
-  selectedMonth,
-  selectedClient,
-  selectedJobSite,
   groupBy,
   onGroupByChange
 }: ForecastMetricsProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const metricCardStyle: React.CSSProperties = {
     background: 'var(--color-background-secondary)',
     border: '1px solid var(--color-border-divider)',
@@ -69,182 +58,143 @@ export default function ForecastMetrics({
     zIndex: 1
   };
 
-  const summaryButtonStyle: React.CSSProperties = {
-    background: isExpanded ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-    border: `1px solid ${isExpanded ? 'var(--color-accent-primary)' : 'var(--color-border-divider)'}`,
-    borderRadius: 16,
-    padding: '16px 24px',
-    width: '100%',
+  const metricIconStyle: React.CSSProperties = {
+    width: '40px',
+    height: '40px',
+    borderRadius: '10px',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    fontSize: 16,
-    fontWeight: 700,
-    color: 'var(--color-text-primary)',
-    cursor: 'pointer',
-    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    marginBottom: isExpanded ? '24px' : '0',
-    boxShadow: isExpanded ? '0 8px 20px -4px rgba(0,0,0,0.1)' : '0 2px 4px rgba(0,0,0,0.05)',
+    justifyContent: 'center',
+    fontSize: '20px',
+    marginBottom: '12px'
   };
 
   return (
     <div style={{ 
       width: '100%',
-      marginBottom: '24px'
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '24px'
     }}>
-      {/* Botão de Toggle do Resumo */}
-      <button
-        style={summaryButtonStyle}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            background: 'var(--color-accent-primary)',
-            color: 'white',
-            width: '40px',
-            height: '40px',
-            borderRadius: '12px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 10px rgba(var(--color-accent-primary-rgb), 0.3)'
-          }}>
-            <i className={`bi bi-${isExpanded ? 'eye-slash-fill' : 'bar-chart-line-fill'}`} style={{ fontSize: '20px' }} />
+      {/* Cards de Métricas */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '20px', 
+        width: '100%',
+        flexWrap: 'wrap'
+      }}>
+        <div style={metricCardStyle}>
+          <div style={{ ...metricIconStyle, background: 'rgba(var(--color-accent-primary-rgb), 0.1)', color: 'var(--color-accent-primary)' }}>
+            <i className="bi bi-briefcase-fill" />
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '18px', lineHeight: 1.2 }}>Estatísticas & Resumo</span>
-            <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', opacity: 0.8 }}>
-              {isExpanded ? 'Clique para recolher o painel' : 'Clique para ver detalhes do período'}
-            </span>
-          </div>
+          <div style={metricValueStyle}>{stats.totalProjects}</div>
+          <div style={metricLabelStyle}>Total Projects</div>
         </div>
-        
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          {!isExpanded && (
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Projetos</span>
-                <span style={{ color: 'var(--color-accent-primary)', fontWeight: 800, fontSize: '20px', marginTop: '-2px' }}>{stats.totalProjects}</span>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Clientes</span>
-                <span style={{ color: 'var(--color-accent-primary)', fontWeight: 800, fontSize: '20px', marginTop: '-2px' }}>{stats.uniqueClients}</span>
-              </div>
-            </div>
-          )}
-          <div style={{ 
-            width: '32px', 
-            height: '32px', 
-            borderRadius: '50%', 
-            background: isExpanded ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'all 0.2s'
-          }}>
-             <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'}`} style={{ color: isExpanded ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', fontSize: '18px' }} />
-          </div>
-        </div>
-      </button>
 
-      {/* Conteúdo Expandido */}
-      {isExpanded && (
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '24px',
-          animation: 'fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+        <div style={metricCardStyle}>
+          <div style={{ ...metricIconStyle, background: 'rgba(40, 167, 69, 0.1)', color: '#28a745' }}>
+            <i className="bi bi-people-fill" />
+          </div>
+          <div style={metricValueStyle}>{stats.uniqueClients}</div>
+          <div style={metricLabelStyle}>Unique Clients</div>
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={{ ...metricIconStyle, background: 'rgba(253, 126, 20, 0.1)', color: '#fd7e14' }}>
+            <i className="bi bi-geo-alt-fill" />
+          </div>
+          <div style={metricValueStyle}>{stats.uniqueJobSites}</div>
+          <div style={metricLabelStyle}>Unique Job Sites</div>
+        </div>
+
+        <div style={metricCardStyle}>
+          <div style={{ ...metricIconStyle, background: 'rgba(23, 162, 184, 0.1)', color: '#17a2b8' }}>
+            <i className="bi bi-calendar-range-fill" />
+          </div>
+          <div style={{ ...metricValueStyle, fontSize: '14px', fontWeight: 700 }}>
+            {new Date(stats.periodStart).toLocaleDateString()} - {new Date(stats.periodEnd).toLocaleDateString()}
+          </div>
+          <div style={metricLabelStyle}>Analysis Period</div>
+        </div>
+      </div>
+
+      {/* Seção de Resumo Mensal */}
+      <div style={{
+        background: 'var(--color-background-secondary)',
+        borderRadius: '24px',
+        border: '1px solid var(--color-border-divider)',
+        padding: '0',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '24px'
         }}>
-          {/* Grid de Métricas */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '20px'
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: 800, 
+            color: 'var(--color-text-primary)', 
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
           }}>
-            <MetricTooltip title="Total Projects" content="Total de projetos agendados no período selecionado.">
-              <div style={metricCardStyle} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}>
-                <div style={{ ...metricValueStyle, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</div>
-                <div style={metricLabelStyle}>Total de Projetos</div>
-                <i className="bi bi-hammer" style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '60px', opacity: 0.03, transform: 'rotate(-15deg)' }} />
-              </div>
-            </MetricTooltip>
-
-            <MetricTooltip title="Unique Clients" content="Número de clientes distintos atendidos.">
-              <div style={metricCardStyle} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}>
-                <div style={metricValueStyle}>{stats.uniqueClients}</div>
-                <div style={metricLabelStyle}>Clientes Ativos</div>
-                <i className="bi bi-building" style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '60px', opacity: 0.03, transform: 'rotate(-15deg)' }} />
-              </div>
-            </MetricTooltip>
-
-            <MetricTooltip title="Unique Job Sites" content="Número de locais de obra diferentes.">
-              <div style={metricCardStyle} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}>
-                <div style={metricValueStyle}>{stats.uniqueJobSites}</div>
-                <div style={metricLabelStyle}>Canteiros de Obra</div>
-                <i className="bi bi-geo-alt" style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '60px', opacity: 0.03, transform: 'rotate(-15deg)' }} />
-              </div>
-            </MetricTooltip>
-
-            <MetricTooltip title="Forecast Period" content="Intervalo de datas do cronograma atual.">
-              <div style={{ ...metricCardStyle, gridColumn: 'span 1' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}>
-                <div style={{ ...metricValueStyle, fontSize: '16px', fontWeight: 700, marginTop: '8px' }}>
-                  {stats.periodStart && stats.periodEnd ? `${stats.periodStart} - ${stats.periodEnd}` : 'N/A'}
-                </div>
-                <div style={{ ...metricLabelStyle, marginTop: '4px' }}>Período do Forecast</div>
-                <i className="bi bi-calendar-range" style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '60px', opacity: 0.03, transform: 'rotate(-15deg)' }} />
-              </div>
-            </MetricTooltip>
-          </div>
-
-          {/* Seção de Resumo Mensal */}
-          <div style={{
-            background: 'var(--color-background-secondary)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: '20px',
-            padding: '24px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.03)'
-          }}>
+            <i className="bi bi-calendar-week" style={{ color: 'var(--color-accent-primary)' }} />
+            Monthly Summary & Distribution
+          </h3>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 700, textTransform: 'uppercase' }}>Group by</span>
             <div style={{ 
-              marginBottom: '20px', 
               display: 'flex', 
-              alignItems: 'center', 
-              gap: '12px',
-              borderBottom: '1px solid var(--color-border-divider)',
-              paddingBottom: '16px'
+              background: 'var(--color-background-primary)', 
+              borderRadius: '12px', 
+              padding: '4px', 
+              border: '1px solid var(--color-border-divider)'
             }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: '8px',
-                background: 'rgba(var(--color-accent-primary-rgb), 0.1)',
-                color: 'var(--color-accent-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <i className="bi bi-calendar-check" style={{ fontSize: '18px' }} />
-              </div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Resumo por Mês</h3>
+              <button 
+                onClick={() => onGroupByChange('cliente')} 
+                style={{ 
+                  background: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'transparent', 
+                  color: groupBy === 'cliente' ? 'white' : 'var(--color-text-secondary)', 
+                  border: 'none', 
+                  borderRadius: '8px', 
+                  padding: '6px 16px', 
+                  fontWeight: 600, 
+                  fontSize: 12, 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Client
+              </button>
+              <button 
+                onClick={() => onGroupByChange('job_site')} 
+                style={{ 
+                  background: groupBy === 'job_site' ? 'var(--color-accent-primary)' : 'transparent', 
+                  color: groupBy === 'job_site' ? 'white' : 'var(--color-text-secondary)', 
+                  border: 'none', 
+                  borderRadius: '8px', 
+                  padding: '6px 16px', 
+                  fontWeight: 600, 
+                  fontSize: 12, 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                Job Site
+              </button>
             </div>
-            <MonthlySummary
-              workforceProjects={workforceProjects}
-              selectedYear={selectedYear}
-              selectedMonth={selectedMonth}
-              selectedClient={selectedClient}
-              selectedJobSite={selectedJobSite}
-              groupBy={groupBy}
-              onGroupByChange={onGroupByChange}
-            />
           </div>
         </div>
-      )}
 
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+        <MonthlySummary 
+          workforceProjects={workforceProjects}
+          groupBy={groupBy}
+        />
+      </div>
     </div>
   );
 }

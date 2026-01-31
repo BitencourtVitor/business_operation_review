@@ -1,14 +1,9 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import type { WorkforceProject } from './types';
 
 interface MonthlySummaryProps {
   workforceProjects: WorkforceProject[];
-  selectedYear: string;
-  selectedMonth: string;
-  selectedClient: string[];
-  selectedJobSite: string[];
   groupBy: 'cliente' | 'job_site';
-  onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
 }
 
 interface MonthlyData {
@@ -18,39 +13,19 @@ interface MonthlyData {
   companies: { [company: string]: number };
 }
 
-export default function MonthlySummary({
-  workforceProjects,
-  selectedYear,
-  selectedMonth,
-  selectedClient,
-  selectedJobSite,
-  groupBy,
-  onGroupByChange
+export default function MonthlySummary({ 
+  workforceProjects, 
+  groupBy
 }: MonthlySummaryProps) {
   
   // Processar dados mensais
   const monthlyData = useMemo(() => {
     if (!workforceProjects.length) return [];
 
-    // Filtrar projetos baseado nos filtros
-    const filteredProjects = workforceProjects.filter(project => {
-      if (!project.previous_start_date) return false;
-      
-      const projectYear = new Date(project.previous_start_date).getFullYear().toString();
-      const projectMonth = new Date(project.previous_start_date).toLocaleString('en-US', { month: 'long' });
-      
-      const yearMatch = !selectedYear || projectYear === selectedYear;
-      const monthMatch = !selectedMonth || projectMonth === selectedMonth;
-      const clientMatch = selectedClient.length === 0 || selectedClient.includes(project.cliente);
-      const jobSiteMatch = selectedJobSite.length === 0 || selectedJobSite.includes(project.job_site);
-
-      return yearMatch && monthMatch && clientMatch && jobSiteMatch;
-    });
-
     // Agrupar por mês
     const grouped: { [key: string]: MonthlyData } = {};
 
-    filteredProjects.forEach(project => {
+    workforceProjects.forEach(project => {
       if (!project.previous_start_date) return;
       
       const startDate = new Date(project.previous_start_date);
@@ -83,7 +58,7 @@ export default function MonthlySummary({
       return new Date(a.month.split(' / ')[1] + ' ' + a.month.split(' / ')[0]).getMonth() - 
              new Date(b.month.split(' / ')[1] + ' ' + b.month.split(' / ')[0]).getMonth();
     });
-  }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, groupBy]);
+  }, [workforceProjects, groupBy]);
 
   if (monthlyData.length === 0) {
     return (
@@ -106,74 +81,7 @@ export default function MonthlySummary({
   }
 
   return (
-    <div style={{
-      background: 'var(--color-background-secondary)',
-      border: '1px solid var(--color-border-divider)',
-      borderRadius: 8,
-      padding: '12px',
-      width: '100%',
-      maxWidth: '100%',
-      boxSizing: 'border-box'
-    }}>
-      {/* Header */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '10px'
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <i className="bi bi-calendar-range" style={{ 
-            color: 'var(--color-accent-primary)', 
-            fontSize: '14px' 
-          }} />
-          <h4 style={{
-            margin: 0,
-            fontSize: '14px',
-            fontWeight: 600,
-            color: 'var(--color-text-primary)'
-          }}>
-            Monthly Summary
-          </h4>
-        </div>
-
-        {/* Botão Group By */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px',
-          background: 'var(--color-background-primary)',
-          border: '1px solid var(--color-border-divider)',
-          borderRadius: '6px',
-          padding: '2px 6px'
-        }}>
-          <i className="bi bi-layers" style={{ 
-            color: 'var(--color-text-secondary)', 
-            fontSize: '12px' 
-          }} />
-          <select
-            value={groupBy}
-            onChange={(e) => onGroupByChange(e.target.value as 'cliente' | 'job_site')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--color-text-primary)',
-              fontSize: '12px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              outline: 'none'
-            }}
-          >
-            <option value="cliente">Client</option>
-            <option value="job_site">Site</option>
-          </select>
-        </div>
-      </div>
-
+    <div style={{ width: '100%' }}>
       {/* Scroll horizontal */}
       <div style={{
         overflowX: 'auto',
@@ -187,7 +95,7 @@ export default function MonthlySummary({
           minWidth: 'max-content',
           paddingBottom: '2px'
         }}>
-          {monthlyData.map((monthData, index) => (
+          {monthlyData.map((monthData) => (
             <div
               key={`${monthData.year}-${monthData.month}`}
               style={{

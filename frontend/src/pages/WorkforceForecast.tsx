@@ -3,13 +3,116 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
 import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep } from '../components/common/Forecast/types';
-import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce } from '../components/common/Forecast/helpers';
+import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce, getForecastProjectStatus, type ForecastProjectStatus } from '../components/common/Forecast/helpers';
+
+import sublogoFraming from '../assets/submenu/sublogo_framing.png';
+
+import iconFieldwire from '../assets/fieldwire.png';
+import iconBuildertrend from '../assets/buildertrend.png';
+import iconBuildertrendDark from '../assets/buildertrend_darkmode.png';
+import iconQBTime from '../assets/qbtime_logo.png';
+import iconQBTimeDark from '../assets/qbtime_darkmode.png';
+
+// Estilos para botões segmentados (copiados do mobile para manter consistência)
+const segmentedButtonGroupStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: '2px',
+  background: 'rgba(var(--color-text-primary-rgb, 0, 0, 0), 0.05)',
+  padding: '2px',
+  borderRadius: 8,
+  border: '1px solid var(--color-border-divider)'
+};
+
+const segmentedButtonStyle = (isActive: boolean): React.CSSProperties => ({
+  flex: 1,
+  padding: '6px 12px',
+  fontSize: '11px',
+  fontWeight: isActive ? 600 : 500,
+  color: isActive ? '#fff' : 'var(--color-text-secondary)',
+  background: isActive ? 'var(--color-accent-primary)' : 'transparent',
+  border: 'none',
+  borderRadius: 6,
+  cursor: 'pointer',
+  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '4px',
+  boxShadow: isActive ? '0 2px 4px rgba(0, 0, 0, 0.2)' : 'none'
+});
+
+const filterButtonStyle: React.CSSProperties = {
+  background: 'var(--color-background-secondary)',
+  border: '1px solid var(--color-border-divider)',
+  borderRadius: 8,
+  padding: '6px 10px',
+  width: '100%',
+  maxWidth: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  fontSize: 14,
+  fontWeight: 500,
+  color: 'var(--color-text-primary)',
+  cursor: 'pointer',
+  transition: 'all 0.3s',
+  boxSizing: 'border-box'
+};
+
+// Componente para botões segmentados
+const SegmentedButtonGroup = ({ 
+  value, 
+  onChange, 
+  icon, 
+  label 
+}: { 
+  value: string; 
+  onChange: (value: string) => void; 
+  icon?: React.ReactNode;
+  label: string;
+}) => (
+  <div style={{
+    ...filterButtonStyle,
+    height: '42px',
+    padding: '0 4px 0 15px',
+    cursor: 'default',
+    background: 'var(--color-background-primary)',
+    border: '1px solid var(--color-border-divider)',
+    borderRadius: '8px'
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <span style={{ color: 'var(--color-accent-primary)', display: 'flex', alignItems: 'center' }}>
+        {icon}
+      </span>
+      <span style={{ fontWeight: 600, fontSize: '13px' }}>{label}</span>
+    </div>
+    <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)' }}>
+      <button
+        style={segmentedButtonStyle(value === 'all')}
+        onClick={() => onChange('all')}
+      >
+        All
+      </button>
+      <button
+        style={segmentedButtonStyle(value === 'yes')}
+        onClick={() => onChange('yes')}
+      >
+        Done
+      </button>
+      <button
+        style={segmentedButtonStyle(value === 'no')}
+        onClick={() => onChange('no')}
+      >
+        Pendent
+      </button>
+    </div>
+  </div>
+);
 
 // Componentes modulares
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
 import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
 import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
-import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 type DateMode = 'start' | 'beams';
 
@@ -18,16 +121,14 @@ interface WorkforceForecastProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
-  selectedType?: string;
 }
 
-export default function WorkforceForecast({ selectedType: initialSelectedType = 'Framing' }: WorkforceForecastProps) {
+export default function WorkforceForecast({}: WorkforceForecastProps) {
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [dateMode, setDateMode] = useState<DateMode>('start');
-  const [selectedType, setSelectedType] = useState<string>(initialSelectedType);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (Cookies.get('theme') as 'light' | 'dark') || 
@@ -49,11 +150,6 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     return () => observer.disconnect();
   }, []);
 
-  // Mapeamento de ícones das empresas
-  const empresaIcones: { [empresa: string]: string } = {
-    'Framing': sublogoFraming,
-  };
-  
   // Estados para filtros
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedMonth, setSelectedMonth] = useState<string>('');
@@ -68,29 +164,42 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
   const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all');
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
-  const [filterNotStarted, setFilterNotStarted] = useState<boolean>(false);
 
-  const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
+  const [viewMode] = useState<'grid' | 'timeline'>('grid');
+  const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
+  const [isCompanyMenuOpen, setIsCompanyMenuOpen] = useState(false);
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 
   useEffect(() => {
     setSelectedYear('');
     setSelectedMonth('');
   }, [dateMode]);
 
+  // Fechar menu ao clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('[data-company-menu]')) {
+        setIsCompanyMenuOpen(false);
+      }
+    };
+
+    if (isCompanyMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isCompanyMenuOpen]);
+
   // Estados para opções de filtro
   const [years, setYears] = useState<string[]>([]);
   const [months, setMonths] = useState<string[]>([]);
   const [clients, setClients] = useState<string[]>([]);
   const [jobSites, setJobSites] = useState<string[]>([]);
-  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
-
-  // Sincronizar selectedType se prop mudar
-  useEffect(() => {
-    if (initialSelectedType) {
-      setSelectedType(initialSelectedType);
-    }
-  }, [initialSelectedType]);
 
   // Buscar dados do workforce (mesma lógica do mobile)
   const fetchWorkforceData = async () => {
@@ -155,7 +264,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
       });
 
       // Combinar dados principais com dados relacionados
-      const enrichedProjects: WorkforceProject[] = projectsData.map((project: any) => ({
+      const enrichedProjects: WorkforceProject[] = projectsData.map((project: WorkforceProject) => ({
         ...project,
         fieldwire: fieldwireMap.get(project.id) || [],
         machines: machinesMap.get(project.id) || [],
@@ -181,7 +290,6 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     if (!rawProjects.length) {
       setClients([]);
       setJobSites([]);
-      setAvailableTypes([]);
       return;
     }
 
@@ -204,7 +312,6 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
         .map(p => p.type)
         .filter((type): type is string => !!type)
     )].sort();
-    setAvailableTypes(uniqueTypes);
   }, [rawProjects]);
 
   useEffect(() => {
@@ -226,6 +333,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     )].sort((a, b) => b.localeCompare(a));
     setYears(uniqueYears);
 
+    const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const uniqueMonths = [...new Set(
       referenceDates
         .map(date => {
@@ -234,7 +342,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
           return parsed.toLocaleString('en-US', { month: 'long' });
         })
         .filter((month): month is string => !!month)
-    )].sort();
+    )].sort((a, b) => monthOrder.indexOf(a) - monthOrder.indexOf(b));
     setMonths(uniqueMonths);
   }, [rawProjects, dateMode]);
 
@@ -246,10 +354,10 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Quando filterNotStarted está ativo, filtramos apenas 'open'
-      if (filterNotStarted) {
-        const s = (project.status || '').toLowerCase().trim();
-        if (s !== 'open') return false;
+      // Filtro de Status (mesma lógica do mobile usando getForecastProjectStatus)
+      if (selectedStatuses.length > 0) {
+        const projectStatus = getForecastProjectStatus(project);
+        if (!selectedStatuses.includes(projectStatus)) return false;
       }
 
       // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
@@ -288,7 +396,7 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType, 
       selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
-      filterNotStarted, dateMode]);
+      selectedStatuses, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -328,11 +436,22 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     });
 
     return Object.values(groupedData).sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      if (a.month !== b.month) return a.month.localeCompare(b.month);
+      // Ordenação cronológica (Ano e Mês)
+      if (a.year !== b.year) {
+        return sortByDate === 'desc' ? b.year - a.year : a.year - b.year;
+      }
+      
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const monthIndexA = months.indexOf(a.month);
+      const monthIndexB = months.indexOf(b.month);
+      
+      if (monthIndexA !== monthIndexB) {
+        return sortByDate === 'desc' ? monthIndexB - monthIndexA : monthIndexA - monthIndexB;
+      }
+      
       return a.cliente.localeCompare(b.cliente);
     });
-  }, [visibleProjects, dateMode]);
+  }, [visibleProjects, dateMode, sortByDate]);
 
   // Calcular estatísticas
   const stats = useMemo(() => {
@@ -407,144 +526,275 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
   }
 
   return (
-    <div id="content" style={{ 
-      height: '100%', 
-      minHeight: '100%', 
-      overflow: 'hidden', 
-      display: 'flex', 
+    <div style={{ 
+      padding: '0', // Removido padding para o header ocupar 100%
+      background: 'var(--color-background-primary)',
+      height: '100vh', // Altura fixa da viewport
+      display: 'flex',
       flexDirection: 'column',
-      background: 'var(--color-background-primary)'
+      overflow: 'hidden', // Esconde overflow na altura total
+      position: 'relative'
     }}>
-      {/* Barra superior com título e filtros */}
-      <header style={{ 
-        padding: '20px 32px', 
+      {/* Barra superior com título e filtros - Padronizada com Project Monitoring */}
+      <div className="d-flex flex-row justify-content-between align-items-center" style={{ 
+        padding: '10px 20px', 
         borderBottom: '1px solid var(--color-border-divider)', 
-        background: 'var(--color-background-secondary)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-        zIndex: 101
+        background: 'var(--color-background-primary)',
+        zIndex: 100 // Garante que fique acima do conteúdo rolável
       }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '20px'
-        }}>
-          <h1 style={{ 
-            color: 'var(--color-text-primary)', 
-            fontSize: 28, 
-            fontWeight: 800, 
-            marginBottom: 0, 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: 20 
-          }}>
-            <div style={{
-              background: 'white',
-              padding: '8px',
-              borderRadius: '14px',
-              boxShadow: '0 4px 10px rgba(0,0,0,0.08)',
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              src={sublogoFraming} 
+              alt="Framing" 
+              style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
+            />
+            <h1 style={{ 
+              color: 'var(--color-text-primary)', 
+              fontSize: 24, 
+              fontWeight: 400, 
+              margin: 0,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(0,0,0,0.05)'
+              gap: '12px'
             }}>
-              <img 
-                src={empresaIcones[selectedType] || sublogoFraming} 
-                alt={selectedType} 
-                style={{ width: 36, height: 36, objectFit: 'contain' }}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-accent-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '2px' }}>
-                Forecast System
-              </span>
-              <span style={{ lineHeight: 1 }}>
-                {selectedType}
-              </span>
-            </div>
-          </h1>
-        </div>
-        
-        {/* Filtros */}
-        <ForecastFilters
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-          selectedClient={selectedClient}
-          selectedJobSite={selectedJobSite}
-          selectedType={selectedProjectType}
-          selectedFieldwire={selectedFieldwire}
-          selectedBuildertrend={selectedBuildertrend}
-          selectedMachines={selectedMachines}
-          selectedContractSteps={selectedContractSteps}
-          selectedWorkforce={selectedWorkforce}
-          selectedQBTime={selectedQBTime}
-          filterNotStarted={filterNotStarted}
-          years={years}
-          months={months}
-          clients={clients}
-          jobSites={jobSites}
-          availableTypes={availableTypes}
-          onYearChange={setSelectedYear}
-          onMonthChange={setSelectedMonth}
-          onClientChange={setSelectedClient}
-          onJobSiteChange={setSelectedJobSite}
-          onTypeChange={setSelectedProjectType}
-          onFieldwireChange={setSelectedFieldwire}
-          onBuildertrendChange={setSelectedBuildertrend}
-          onMachinesChange={setSelectedMachines}
-          onContractStepsChange={setSelectedContractSteps}
-          onWorkforceChange={setSelectedWorkforce}
-          onQBTimeChange={setSelectedQBTime}
-          onFilterNotStartedChange={setFilterNotStarted}
-        />
-      </header>
+              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>Framing</span>
+              <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>Forecast</span>
+            </h1>
+          </div>
 
-      {/* Conteúdo principal com scroll */}
-      <main style={{ 
-        flex: 1, 
-        overflowY: 'auto', 
-        padding: '32px',
+          <ForecastFilters 
+            selectedYear={selectedYear}
+            onYearChange={setSelectedYear}
+            selectedMonth={selectedMonth}
+            onMonthChange={setSelectedMonth}
+            selectedClient={selectedClient}
+            onClientChange={setSelectedClient}
+            selectedJobSite={selectedJobSite}
+            onJobSiteChange={setSelectedJobSite}
+            selectedType={selectedProjectType}
+            onTypeChange={setSelectedProjectType}
+            years={years}
+            months={months}
+            clients={clients}
+            jobSites={jobSites}
+            dateMode={dateMode}
+            onDateModeChange={setDateMode}
+            sortByDate={sortByDate}
+            onSortByDateChange={setSortByDate}
+          />
+        </div>
+      </div>
+
+      {/* Container principal - Única área rolável */}
+      <div id="content" className="custom-scrollbar" style={{ 
+        width: '100%',
+        padding: '12px', // Ajustado para 12px em todas as direções
         display: 'flex',
         flexDirection: 'column',
-        gap: '32px',
-        background: 'var(--color-background-primary)'
+        gap: '12px',
+        flex: 1,
+        overflow: 'hidden' // Esconde overflow geral
       }}>
-        {/* Métricas */}
-        <ForecastMetrics 
-          stats={stats}
-          workforceProjects={visibleProjects}
-          selectedYear={selectedYear}
-          selectedMonth={selectedMonth}
-          selectedClient={selectedClient}
-          selectedJobSite={selectedJobSite}
-          groupBy={groupBy}
-          onGroupByChange={setGroupBy}
-        />
-        
-        {/* Timeline Planner */}
-        <div style={{
-          background: 'var(--color-background-secondary)',
-          borderRadius: '24px',
-          border: '1px solid var(--color-border-divider)',
-          padding: '32px',
-          flex: 1,
-          minHeight: '700px',
-          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05)',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          overflow: 'hidden'
-        }}>
-          {/* Decoração sutil no fundo */}
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '4px',
-            background: 'linear-gradient(90deg, var(--color-accent-primary), transparent)'
-          }} />
+        {/* Seção de Filtros Avançados / Stickers */}
+        {isAdvancedFiltersOpen && (
+          <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ 
+              background: 'var(--color-background-secondary)', 
+              borderRadius: '16px', 
+              padding: '24px', 
+              border: '1px solid var(--color-border-divider)',
+              animation: 'slideDown 0.3s ease-out'
+            }}>
+              {/* Grid 3x2 de Filtros Segmentados */}
+              <div className="row g-4">
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="Fieldwire"
+                    value={selectedFieldwire}
+                    onChange={setSelectedFieldwire}
+                    icon={<img src={iconFieldwire} alt="Fieldwire" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="Buildertrend"
+                    value={selectedBuildertrend}
+                    onChange={setSelectedBuildertrend}
+                    icon={<img src={theme === 'dark' ? iconBuildertrendDark : iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="QBTime"
+                    value={selectedQBTime}
+                    onChange={setSelectedQBTime}
+                    icon={<img src={theme === 'dark' ? iconQBTimeDark : iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />}
+                  />
+                </div>
 
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="Machines"
+                    value={selectedMachines}
+                    onChange={setSelectedMachines}
+                    icon={<i className="bi bi-truck" style={{ fontSize: '16px' }} />}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="Workforce"
+                    value={selectedWorkforce}
+                    onChange={setSelectedWorkforce}
+                    icon={<i className="bi bi-people" style={{ fontSize: '16px' }} />}
+                  />
+                </div>
+                <div className="col-md-4">
+                  <SegmentedButtonGroup
+                    label="Contract"
+                    value={selectedContractSteps}
+                    onChange={setSelectedContractSteps}
+                    icon={<i className="bi bi-file-earmark-text" style={{ fontSize: '16px' }} />}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Sumário / Métricas / Filtros Avançados - Estrutura unificada sempre visível */}
+        <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Botão de Sumário Toggle (Estilo Mobile) */}
+          <button
+            onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              background: isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
+              border: isSummaryOpen ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
+              borderRadius: '12px',
+              padding: '0 20px',
+              height: '42px',
+              flex: '1',
+              cursor: 'pointer',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+              e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
+              e.currentTarget.style.background = isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className="bi bi-bar-chart-line-fill" style={{ color: 'var(--color-accent-primary)', fontSize: '16px' }} />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Summary</span>
+            </div>
+            
+            <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: '16px', flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</span>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Projects</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueClients}</span>
+                <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Clients</span>
+              </div>
+            </div>
+
+            <i 
+              className={`bi bi-chevron-${isSummaryOpen ? 'up' : 'down'}`} 
+              style={{ 
+                color: isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                fontSize: '12px',
+                transition: 'transform 0.3s ease'
+              }} 
+            />
+          </button>
+
+          {/* Botão Stickers (Altura Ajustada) */}
+          <button
+            onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
+            style={{
+              width: '160px',
+              background: isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: '12px',
+              padding: '0 16px',
+              height: '42px',
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+              e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
+              e.currentTarget.style.background = isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <i className={`bi bi-sliders${isAdvancedFiltersOpen ? '' : ''}`} style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+              <span>Stickers</span>
+            </div>
+            <i 
+              className={`bi bi-chevron-${isAdvancedFiltersOpen ? 'up' : 'down'}`} 
+              style={{ 
+                color: isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                fontSize: '12px',
+                transition: 'transform 0.3s ease'
+              }} 
+            />
+          </button>
+        </div>
+
+        {/* Sumário Expandido - Toggleable */}
+        {isSummaryOpen && (
+          <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+            <div style={{ 
+              width: '100%',
+              animation: 'slideDown 0.3s ease-out'
+            }}>
+              <ForecastMetrics 
+                stats={stats} 
+                workforceProjects={visibleProjects}
+                selectedYear={selectedYear}
+                selectedMonth={selectedMonth}
+                selectedClient={selectedClient}
+                selectedJobSite={selectedJobSite}
+                groupBy={groupBy}
+                onGroupByChange={setGroupBy}
+              />
+            </div>
+          </div>
+        )}
+
+
+        {/* Conteúdo Principal (Grid/Timeline) */}
+        <div style={{ 
+          flex: 1, 
+          width: '100%',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          background: 'var(--color-background-primary)',
+          borderRadius: '16px',
+          border: 'none',
+          overflowY: 'auto', // Adicionado overflow vertical apenas aqui
+          display: 'flex', 
+          flexDirection: 'column',
+          boxShadow: 'none',
+          marginBottom: '0' // Removido margin bottom
+        }}>
           <TimelinePlanner 
             theme={theme}
             forecastData={forecastData}
@@ -552,15 +802,55 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
             groupBy={groupBy}
-            onGroupByChange={setGroupBy}
             sortByDate={sortByDate}
-            onSortByDateChange={setSortByDate}
             dateMode={dateMode}
-            onDateModeChange={setDateMode}
-            filterNotStarted={filterNotStarted}
+            viewMode={viewMode}
           />
         </div>
-      </main>
+      </div>
+
+      <style>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar,
+        #content::-webkit-scrollbar,
+        div::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track,
+        #content::-webkit-scrollbar-track,
+        div::-webkit-scrollbar-track {
+          background: var(--color-background-primary);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb,
+        #content::-webkit-scrollbar-thumb,
+        div::-webkit-scrollbar-thumb {
+          background: var(--color-border-divider);
+          border-radius: 10px;
+          border: 2px solid var(--color-background-primary);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover,
+        #content::-webkit-scrollbar-thumb:hover,
+        div::-webkit-scrollbar-thumb:hover {
+          background: var(--color-accent-primary);
+        }
+
+        /* Suporte para Firefox */
+        .custom-scrollbar,
+        #content,
+        div {
+          scrollbar-width: thin;
+          scrollbar-color: var(--color-border-divider) var(--color-background-primary);
+        }
+      `}</style>
     </div>
   );
 }

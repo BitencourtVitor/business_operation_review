@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { formatDateShort } from '../../../utils/formatters';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
@@ -59,11 +58,9 @@ interface TimelinePlannerProps {
   selectedYear: string;
   selectedMonth: string;
   groupBy: 'cliente' | 'job_site';
-  onGroupByChange: (groupBy: 'cliente' | 'job_site') => void;
   sortByDate: 'off' | 'asc' | 'desc' | null;
-  onSortByDateChange: (sortByDate: 'off' | 'asc' | 'desc' | null) => void;
   dateMode: DateMode;
-  onDateModeChange: (mode: DateMode) => void;
+  viewMode: 'grid' | 'timeline';
 }
 
 export default function TimelinePlanner({ 
@@ -72,11 +69,9 @@ export default function TimelinePlanner({
   selectedYear, 
   selectedMonth, 
   groupBy, 
-  onGroupByChange,
   sortByDate,
-  onSortByDateChange,
   dateMode,
-  onDateModeChange
+  viewMode
 }: TimelinePlannerProps) {
   const getShortJobSite = (value?: string) => {
     if (!value) return '';
@@ -85,10 +80,8 @@ export default function TimelinePlanner({
   };
     const isDarkMode = theme ? theme === 'dark' : document.documentElement.classList.contains('dark');
     const hvacIcon = isDarkMode ? iconForecastHvacDark : iconForecastHvac;
-    const navigate = useNavigate();
   
   // Novos estados para o redesign
-  const [viewMode, setViewMode] = useState<'timeline' | 'grid'>('grid');
   const [selectedProject, setSelectedProject] = useState<WorkforceProject | null>(null);
 
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -241,6 +234,10 @@ export default function TimelinePlanner({
       const [monthB, yearB] = b.split(' / ');
       const dateA = new Date(`${monthA} 1, ${yearA}`);
       const dateB = new Date(`${monthB} 1, ${yearB}`);
+      
+      if (sortByDate === 'desc') {
+        return dateB.getTime() - dateA.getTime();
+      }
       return dateA.getTime() - dateB.getTime();
     });
   }, [workforceProjects, dateMode, sortByDate]);
@@ -383,197 +380,10 @@ export default function TimelinePlanner({
         />
       )}
 
-      <div className="card" style={{ background: 'var(--color-background-primary)', border: 'none', height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <div className="card-header" style={{ background: 'var(--color-background-secondary)', border: '1px solid var(--color-border-divider)', borderBottom: 'none', borderTopLeftRadius: '16px', borderTopRightRadius: '16px', padding: '16px 24px' }}>
-          <div className="d-flex justify-content-between align-items-center">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <h5 className="card-title mb-0" style={{ color: 'var(--color-text-primary)', fontSize: 18, fontWeight: 700 }}>
-                <i className="bi bi-calendar3 me-2" style={{ color: 'var(--color-accent-primary)' }} />
-                {viewMode === 'grid' ? 'Project Forecast' : 'Timeline Planner'}
-              </h5>
-              
-              {/* Toggle de View Mode */}
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                background: 'var(--color-background-primary)', 
-                borderRadius: '12px', 
-                padding: '4px', 
-                border: '1px solid var(--color-border-divider)',
-                marginLeft: '8px'
-              }}>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  style={{
-                    background: viewMode === 'grid' ? 'var(--color-accent-primary)' : 'transparent',
-                    color: viewMode === 'grid' ? 'white' : 'var(--color-text-secondary)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '6px 16px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <i className="bi bi-grid-fill" />
-                  Grid
-                </button>
-                <button
-                  onClick={() => setViewMode('timeline')}
-                  style={{
-                    background: viewMode === 'timeline' ? 'var(--color-accent-primary)' : 'transparent',
-                    color: viewMode === 'timeline' ? 'white' : 'var(--color-text-secondary)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '6px 16px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  <i className="bi bi-view-stacked" />
-                  Timeline
-                </button>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              {viewMode === 'timeline' && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                  <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Group by</span>
-                  <button 
-                    onClick={() => onGroupByChange('cliente')} 
-                    style={{ 
-                      background: groupBy === 'cliente' ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent', 
-                      color: groupBy === 'cliente' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', 
-                      border: groupBy === 'cliente' ? '1px solid var(--color-accent-primary)' : '1px solid transparent', 
-                      borderRadius: 15, 
-                      padding: '2px 12px', 
-                      fontWeight: 600, 
-                      fontSize: 12, 
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      height: 24
-                    }}
-                  >
-                    Cliente
-                  </button>
-                  <button 
-                    onClick={() => onGroupByChange('job_site')} 
-                    style={{ 
-                      background: groupBy === 'job_site' ? 'rgba(253, 126, 20, 0.1)' : 'transparent', 
-                      color: groupBy === 'job_site' ? '#fd7e14' : 'var(--color-text-secondary)', 
-                      border: groupBy === 'job_site' ? '1px solid #fd7e14' : '1px solid transparent', 
-                      borderRadius: 15, 
-                      padding: '2px 12px', 
-                      fontWeight: 600, 
-                      fontSize: 12, 
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                      height: 24
-                    }}
-                  >
-                    Job Site
-                  </button>
-                </div>
-              )}
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Mode</span>
-                <button
-                  onClick={() => onDateModeChange('start')}
-                  style={{
-                    background: dateMode === 'start' ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent',
-                    color: dateMode === 'start' ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                    border: dateMode === 'start' ? '1px solid var(--color-accent-primary)' : '1px solid transparent',
-                    borderRadius: 15,
-                    padding: '2px 10px',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    height: 24
-                  }}
-                >
-                  Start
-                </button>
-                <button
-                  onClick={() => onDateModeChange('beams')}
-                  style={{
-                    background: dateMode === 'beams' ? 'rgba(23, 162, 184, 0.1)' : 'transparent',
-                    color: dateMode === 'beams' ? '#17a2b8' : 'var(--color-text-secondary)',
-                    border: dateMode === 'beams' ? '1px solid #17a2b8' : '1px solid transparent',
-                    borderRadius: 15,
-                    padding: '2px 10px',
-                    fontWeight: 600,
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                    height: 24
-                  }}
-                >
-                  Beams
-                </button>
-              </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-primary)', borderRadius: 25, padding: '6px 12px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600 }}>Sort</span>
-                <button 
-                  onClick={() => onSortByDateChange(sortByDate === 'asc' ? 'desc' : sortByDate === 'desc' ? null : 'asc')} 
-                  style={{ 
-                    background: sortByDate ? 'var(--color-accent-primary)' : 'transparent', 
-                    color: sortByDate ? '#fff' : 'var(--color-text-secondary)', 
-                    border: sortByDate ? '1px solid var(--color-accent-primary)' : '1px solid transparent', 
-                    borderRadius: 15, 
-                    padding: '2px 10px', 
-                    fontSize: 12, 
-                    cursor: 'pointer', 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.2s',
-                    height: 24,
-                    fontWeight: 600
-                  }}
-                >
-                  {sortByDate === 'asc' ? 'ASC' : sortByDate === 'desc' ? 'DESC' : 'OFF'}
-                </button>
-              </div>
-
-              <button
-                onClick={() => navigate('/forecast')}
-                style={{
-                  background: 'var(--color-background-primary)',
-                  border: '1px solid var(--color-border-divider)',
-                  borderRadius: '10px',
-                  padding: '8px 12px',
-                  color: 'var(--color-text-secondary)',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                title="Versão Mobile"
-              >
-                <i className="bi bi-phone" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', padding: viewMode === 'grid' ? '24px' : '0' }}>
+      <div className="card" style={{ background: 'var(--color-background-primary)', border: 'none', height: '100%', display: 'flex', flexDirection: 'column', margin: 0, padding: 0 }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: 0 }}>
           {viewMode === 'grid' ? (
-            <div style={{ animation: 'fadeIn 0.4s ease-out' }}>
+            <div style={{ animation: 'fadeIn 0.4s ease-out', padding: 0 }}>
               <ForecastProjectsGrid
                 theme={theme}
                 groupedProjects={groupedByMonth}
@@ -581,7 +391,7 @@ export default function TimelinePlanner({
               />
             </div>
           ) : (
-            <div className="card-body p-0" style={{ border: '1px solid var(--color-border-divider)', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', overflow: 'hidden', height: '100%' }}>
+            <div className="card-body p-0" style={{ border: '1px solid var(--color-border-divider)', borderBottomLeftRadius: '8px', borderBottomRightRadius: '8px', overflow: 'hidden', height: '100%', padding: 0 }}>
           {groupedData.length === 0 ? (
             <div className="text-center p-4" style={{ color: 'var(--color-text-secondary)' }}>
               <i className="bi bi-calendar-x" style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />

@@ -19,10 +19,10 @@ export default function ForecastProjectsGrid({
           {/* Container do mês */}
           <div style={{
             background: 'var(--color-background-secondary)',
-            border: '1px solid var(--color-border-divider)',
+            border: '1px solid var(--color-border-divider)', // Restaurada borda de 1px
             borderRadius: '12px',
             padding: '12px 0',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+            boxShadow: 'none', // Mantida sem sombra
             width: '100%',
             maxWidth: '100%',
             boxSizing: 'border-box',
