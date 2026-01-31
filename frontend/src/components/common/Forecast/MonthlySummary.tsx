@@ -1,9 +1,11 @@
 import { useMemo } from 'react';
-import type { WorkforceProject } from './types';
+import type { WorkforceProject, DateMode } from './types';
+import { getReferenceDate } from './helpers';
 
 interface MonthlySummaryProps {
   workforceProjects: WorkforceProject[];
   groupBy: 'cliente' | 'job_site';
+  dateMode: DateMode;
 }
 
 interface MonthlyData {
@@ -15,7 +17,8 @@ interface MonthlyData {
 
 export default function MonthlySummary({ 
   workforceProjects, 
-  groupBy
+  groupBy,
+  dateMode
 }: MonthlySummaryProps) {
   
   // Processar dados mensais
@@ -26,18 +29,22 @@ export default function MonthlySummary({
     const grouped: { [key: string]: MonthlyData } = {};
 
     workforceProjects.forEach(project => {
-      if (!project.previous_start_date) return;
+      const referenceDate = getReferenceDate(project, dateMode);
+      if (!referenceDate) return;
       
-      const startDate = new Date(project.previous_start_date);
-      if (isNaN(startDate.getTime())) return;
+      const date = new Date(referenceDate);
+      if (isNaN(date.getTime())) return;
       
-      const monthKey = `${startDate.getFullYear()}-${startDate.getMonth()}`;
-      const monthName = startDate.toLocaleString('en-US', { month: 'long' }) + ' / ' + startDate.getFullYear();
+      // Ajustar para UTC para evitar problemas de fuso horário
+      const year = date.getUTCFullYear();
+      const monthIndex = date.getUTCMonth();
+      const monthKey = `${year}-${monthIndex.toString().padStart(2, '0')}`;
+      const monthName = date.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' }) + ' / ' + year;
       
       if (!grouped[monthKey]) {
         grouped[monthKey] = {
           month: monthName,
-          year: startDate.getFullYear(),
+          year: year,
           total: 0,
           companies: {}
         };
@@ -52,13 +59,11 @@ export default function MonthlySummary({
       grouped[monthKey].total++;
     });
 
-    // Converter para array e ordenar por data
-    return Object.values(grouped).sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return new Date(a.month.split(' / ')[1] + ' ' + a.month.split(' / ')[0]).getMonth() - 
-             new Date(b.month.split(' / ')[1] + ' ' + b.month.split(' / ')[0]).getMonth();
-    });
-  }, [workforceProjects, groupBy]);
+    // Converter para array e ordenar por data (ano e depois mês)
+    return Object.keys(grouped)
+      .sort((a, b) => a.localeCompare(b))
+      .map(key => grouped[key]);
+  }, [workforceProjects, groupBy, dateMode]);
 
   if (monthlyData.length === 0) {
     return (
@@ -83,12 +88,15 @@ export default function MonthlySummary({
   return (
     <div style={{ width: '100%' }}>
       {/* Scroll horizontal */}
-      <div style={{
-        overflowX: 'auto',
-        overflowY: 'hidden',
-        paddingBottom: '6px',
-        WebkitOverflowScrolling: 'touch'
-      }}>
+      <div 
+        className="custom-scrollbar"
+        style={{
+          overflowX: 'auto',
+          overflowY: 'hidden',
+          paddingBottom: '5px',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
         <div style={{
           display: 'flex',
           gap: '10px',
@@ -178,7 +186,10 @@ export default function MonthlySummary({
       {monthlyData.length > 3 && (
         <div style={{
           textAlign: 'center',
-          marginTop: '8px'
+          paddingTop: 0,
+          paddingBottom: '8px',
+          marginTop: '6px',
+          borderBottom: '1px solid var(--color-border-divider)'
         }}>
           <i className="bi bi-arrow-left-right" style={{
             color: 'var(--color-text-secondary)',

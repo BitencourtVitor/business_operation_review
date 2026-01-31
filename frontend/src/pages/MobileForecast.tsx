@@ -13,7 +13,7 @@ import {
   type ForecastProjectStatus 
 } from '../components/common/Forecast/helpers';
 
-type DateMode = 'start' | 'beams';
+import type { DateMode } from '../components/common/Forecast/types';
 
 interface ForecastFieldwire {
   id: number;
@@ -771,13 +771,9 @@ export default function MobileForecast() {
         <div style={{ width: '100%' }}>
           <MobileForecastMetrics 
             stats={stats} 
-            workforceProjects={workforceProjects}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-            selectedClient={selectedClient}
-            selectedJobSite={selectedJobSite}
+            workforceProjects={visibleProjects}
             groupBy={groupBy}
-            onGroupByChange={setGroupBy}
+            dateMode={dateMode}
           />
         </div>
         
