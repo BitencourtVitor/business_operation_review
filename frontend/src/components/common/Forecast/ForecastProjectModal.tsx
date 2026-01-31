@@ -4,7 +4,9 @@ import type { WorkforceProject } from './types';
 import { 
   isProjectStartedByStatus, 
   getOverdueType,
-  getProjectCompletionMetrics 
+  getProjectCompletionMetrics,
+  getForecastProjectStatus,
+  type ForecastProjectStatus
 } from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
@@ -21,27 +23,30 @@ import iconForklift from '../../../assets/forklift.png';
 interface ForecastProjectModalProps {
   theme?: 'light' | 'dark';
   project: WorkforceProject;
-  filterNotStarted: boolean;
   onClose: () => void;
 }
 
 export default function ForecastProjectModal({
   theme,
   project,
-  filterNotStarted,
   onClose
 }: ForecastProjectModalProps) {
   const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
+  const projectStatus = getForecastProjectStatus(project);
   const metrics = getProjectCompletionMetrics(project);
   const overdue = !!getOverdueType(project);
 
   const getProgressBarColor = () => {
-    const status = (project.status || '').toLowerCase().trim();
-    if (overdue) return '#e04b4b';
-    if (status === 'closed') return '#495057';
-    if (status === 'not started') return '#6c757d';
-    if (metrics.percentage === 100) return '#3b82f6';
-    return '#f59e0b';
+    if (projectStatus === 'overdue') return '#e04b4b'; // Overdue: Sempre Vermelho
+    if (projectStatus === 'closed') return '#495057'; // Closed: Cinza Escuro
+    if (projectStatus === 'not started') return '#3b82f6'; // Not Started: Azul (cor do status)
+    
+    // Para obras "Started" ou status ativos (Open, etc)
+    if (metrics.percentage === 100) {
+      return '#3b82f6'; // 100% Completo: Azul
+    } else {
+      return '#f59e0b'; // Incompleto: Laranja/Amarelo
+    }
   };
   const [activeSection, setActiveSection] = useState<string>('overview');
   const modalScrollRef = useRef<HTMLDivElement>(null);
@@ -247,74 +252,35 @@ export default function ForecastProjectModal({
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)' }}>
                 {project.cliente}
               </div>
-              {/* Indicadores de status - três condições mutuamente exclusivas */}
+              {/* Indicadores de status - quatro condições mutuamente exclusivas */}
               {(() => {
-                const projectStarted = isProjectStartedByStatus(project);
-                const overdue = !!getOverdueType(project);
+                const getStatusVisuals = (status: ForecastProjectStatus) => {
+                  switch (status) {
+                    case 'overdue':
+                      return { color: '#e04b4b', icon: 'bi-exclamation-triangle-fill', label: 'Overdue' };
+                    case 'open':
+                      return { color: '#28a745', icon: 'bi-play-circle-fill', label: 'Open' };
+                    case 'not started':
+                      return { color: '#3b82f6', icon: 'bi-clock', label: 'Not Started' };
+                    case 'closed':
+                      return { color: '#6c757d', icon: 'bi-check-circle-fill', label: 'Closed' };
+                    default:
+                      return { color: '#6c757d', icon: 'bi-clock', label: 'Open' };
+                  }
+                };
+
+                const visuals = getStatusVisuals(projectStatus);
                 
-                if (projectStarted) {
-                  // Condição 1: Obra iniciada (status ≠ "Not Started") → mostra "Started" verde
-                  return (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      background: 'rgba(40, 167, 69, 0.1)',
-                      color: '#28a745',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      border: '1px solid rgba(40, 167, 69, 0.3)',
-                      flexShrink: 0,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      <i className="bi bi-play-circle-fill" style={{ fontSize: 10 }} />
-                      <span>Started</span>
-                    </div>
-                  );
-                } else if (overdue) {
-                  // Condição 2: Obra atrasada (status = "Not Started" E StartDate ultrapassada) → mostra "Overdue" vermelho
-                  return (
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      background: 'rgba(224, 75, 75, 0.1)',
-                      color: '#e04b4b',
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      border: '1px solid rgba(224, 75, 75, 0.3)',
-                      flexShrink: 0,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px'
-                    }}>
-                      <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 10 }} />
-                      <span>Overdue</span>
-                    </div>
-                  );
-                }
-                // Condição 3: Obra normal (status = "Not Started" E StartDate não ultrapassada) → mostra "Not Started" cinza
                 return (
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    background: 'rgba(108, 117, 125, 0.1)',
-                    color: '#6c757d',
-                    padding: '2px 8px',
-                    borderRadius: '12px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    border: '1px solid rgba(108, 117, 125, 0.3)',
-                    flexShrink: 0,
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
+                    display: 'flex', alignItems: 'center', gap: '4px',
+                    background: `${visuals.color}15`, color: visuals.color,
+                    padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: 700,
+                    border: `1px solid ${visuals.color}30`, flexShrink: 0,
+                    textTransform: 'uppercase', letterSpacing: '0.5px'
                   }}>
-                    <span>Not Started</span>
+                    <i className={`bi ${visuals.icon}`} style={{ fontSize: 10 }} />
+                    <span>{visuals.label}</span>
                   </div>
                 );
               })()}

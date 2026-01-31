@@ -4,6 +4,7 @@ import SingleSelectDropdown from '../SingleSelectDropdown';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
 import iconQBTime from '../../../assets/qbtime_logo.png';
+import { type ForecastProjectStatus } from './helpers';
 
 interface MobileForecastFiltersProps {
   selectedYear: string;
@@ -17,7 +18,7 @@ interface MobileForecastFiltersProps {
   selectedContractSteps: string;
   selectedWorkforce: string;
   selectedQBTime: string;
-  filterNotStarted: boolean;
+  selectedStatuses: ForecastProjectStatus[];
   years: string[];
   months: string[];
   clients: string[];
@@ -34,7 +35,7 @@ interface MobileForecastFiltersProps {
   onContractStepsChange: (value: string) => void;
   onWorkforceChange: (value: string) => void;
   onQBTimeChange: (value: string) => void;
-  onFilterNotStartedChange: (value: boolean) => void;
+  onStatusesChange: (statuses: ForecastProjectStatus[]) => void;
   dateMode: 'start' | 'beams';
   onDateModeChange: (mode: 'start' | 'beams') => void;
   sortByDate: 'off' | 'asc' | 'desc' | null;
@@ -53,7 +54,7 @@ export default function MobileForecastFilters({
   selectedContractSteps,
   selectedWorkforce,
   selectedQBTime,
-  filterNotStarted,
+  selectedStatuses,
   years,
   months,
   clients,
@@ -70,7 +71,7 @@ export default function MobileForecastFilters({
   onContractStepsChange,
   onWorkforceChange,
   onQBTimeChange,
-  onFilterNotStartedChange,
+  onStatusesChange,
   dateMode,
   onDateModeChange,
   sortByDate,
@@ -158,11 +159,11 @@ export default function MobileForecastFilters({
     selectedContractSteps !== 'all' ? selectedContractSteps : null,
     selectedWorkforce !== 'all' ? selectedWorkforce : null,
     selectedQBTime !== 'all' ? selectedQBTime : null,
-    filterNotStarted ? 'not-started' : null,
+    selectedStatuses.length > 0 ? 'statuses' : null,
   ].filter(Boolean).length;
 
   const clearAllFilters = () => {
-    onYearChange('');
+    onYearChange(new Date().getFullYear().toString());
     onMonthChange('');
     onClientChange([]);
     onJobSiteChange([]);
@@ -173,7 +174,7 @@ export default function MobileForecastFilters({
     onContractStepsChange('all');
     onWorkforceChange('all');
     onQBTimeChange('all');
-    onFilterNotStartedChange(true);
+    onStatusesChange(['overdue', 'not started']);
   };
 
   // Componente para botões segmentados
@@ -398,72 +399,42 @@ export default function MobileForecastFilters({
                   color: 'var(--color-text-secondary)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
+                  marginTop: '4px',
                   marginBottom: '4px'
                 }}>
                   Basic Filters
                 </div>
                 
-                {/* Filtro de Status Not Started - Container destacado */}
+                {/* Show Open/Closed Toggle */}
                 <div style={{
-                  background: filterNotStarted ? 'rgba(var(--color-accent-primary-rgb, 37, 99, 235), 0.05)' : 'var(--color-background-primary)',
-                  border: `1px solid ${filterNotStarted ? 'var(--color-accent-primary)' : 'var(--color-border-divider)'}`,
-                  borderRadius: '12px',
-                  padding: '10px 14px',
-                  transition: 'all 0.3s'
+                  ...filterButtonStyle,
+                  height: '42px',
+                  padding: '0 4px 0 15px',
+                  cursor: 'default',
+                  background: 'var(--color-background-primary)',
+                  border: '1px solid var(--color-border-divider)',
+                  borderRadius: '8px'
                 }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    color: filterNotStarted ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <i className="bi bi-hourglass-split" style={{ 
-                        color: filterNotStarted ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                        fontSize: '16px'
-                      }} />
-                      <span style={{ fontWeight: filterNotStarted ? 600 : 500 }}>
-                        Show only "Not Started"
-                      </span>
-                    </div>
-                    <label style={{
-                      position: 'relative',
-                      display: 'inline-block',
-                      width: '40px',
-                      height: '22px',
-                      margin: 0,
-                      cursor: 'pointer'
-                    }}>
-                      <input
-                        type="checkbox"
-                        checked={filterNotStarted}
-                        onChange={(e) => onFilterNotStartedChange(e.target.checked)}
-                        style={{ opacity: 0, width: 0, height: 0 }}
-                      />
-                      <span style={{
-                        position: 'absolute',
-                        cursor: 'pointer',
-                        top: 0, left: 0, right: 0, bottom: 0,
-                        backgroundColor: filterNotStarted ? 'var(--color-accent-primary)' : 'var(--color-border-divider)',
-                        transition: '0.3s',
-                        borderRadius: '24px'
-                      }}>
-                        <span style={{
-                          position: 'absolute',
-                          height: '16px', width: '16px',
-                          left: '3px', bottom: '3px',
-                          backgroundColor: 'white',
-                          transition: '0.3s',
-                          borderRadius: '50%',
-                          transform: filterNotStarted ? 'translateX(18px)' : 'translateX(0)'
-                        }} />
-                      </span>
-                    </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-eye" style={{ color: 'var(--color-accent-primary)' }} />
+                    <span style={{ fontWeight: 600, fontSize: '13px' }}>Show only Not Started</span>
+                  </div>
+                  <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)' }}>
+                    <button
+                      style={segmentedButtonStyle(selectedStatuses.length > 0)}
+                      onClick={() => onStatusesChange(['overdue', 'not started'])}
+                    >
+                      ON
+                    </button>
+                    <button
+                      style={segmentedButtonStyle(selectedStatuses.length === 0)}
+                      onClick={() => onStatusesChange([])}
+                    >
+                      OFF
+                    </button>
                   </div>
                 </div>
-                
+
                 <div style={{
                   ...filterButtonStyle,
                   height: isMobile ? 'auto' : '42px',

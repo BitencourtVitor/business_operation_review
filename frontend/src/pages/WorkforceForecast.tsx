@@ -247,10 +247,10 @@ export default function WorkforceForecast({ selectedType: initialSelectedType = 
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Quando filterNotStarted está ativo, filtramos apenas 'not started'
+      // Quando filterNotStarted está ativo, filtramos apenas 'open'
       if (filterNotStarted) {
         const s = (project.status || '').toLowerCase().trim();
-        if (s !== 'not started') return false;
+        if (s !== 'open') return false;
       }
 
       // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)

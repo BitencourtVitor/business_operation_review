@@ -9,7 +9,9 @@ import {
   hasCompleteContract,
   getContractProgress,
   hasActiveFieldwire,
-  getProjectCompletionMetrics
+  getProjectCompletionMetrics,
+  getForecastProjectStatus,
+  type ForecastProjectStatus
 } from './helpers';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
@@ -24,25 +26,36 @@ import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
 interface ForecastProjectCardProps {
   theme?: 'light' | 'dark';
   project: WorkforceProject;
-  filterNotStarted: boolean;
   onCardClick: (project: WorkforceProject) => void;
 }
 
 export default function ForecastProjectCard({
   theme,
   project,
-  filterNotStarted,
   onCardClick
 }: ForecastProjectCardProps) {
   const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
-  const projectStarted = isProjectStartedByStatus(project);
-  const overdue = !!getOverdueType(project);
-  // Três condições mutuamente exclusivas:
-  // 1. Vermelho: status = "Not Started" E StartDate ultrapassada (atrasada)
-  // 2. Verde: status ≠ "Not Started" (iniciada)
-  // 3. Cinza: status = "Not Started" E StartDate não ultrapassada (normal)
-  const borderColor = overdue ? '#e04b4b' : (projectStarted ? '#28a745' : '#6c757d');
-  const shadowColor = overdue ? 'rgba(224, 75, 75, 0.4)' : (projectStarted ? 'rgba(40, 167, 69, 0.3)' : 'rgba(108, 117, 125, 0.25)');
+  const projectStatus = getForecastProjectStatus(project);
+  
+  // Lógica de cores baseada no novo status centralizado
+  const getStatusVisuals = (status: ForecastProjectStatus) => {
+    switch (status) {
+      case 'overdue':
+        return { color: '#e04b4b', shadow: 'rgba(224, 75, 75, 0.4)', icon: 'bi-exclamation-triangle-fill', label: 'Overdue' };
+      case 'open':
+        return { color: '#28a745', shadow: 'rgba(40, 167, 69, 0.3)', icon: 'bi-play-circle-fill', label: 'Open' };
+      case 'not started':
+        return { color: '#3b82f6', shadow: 'rgba(59, 130, 246, 0.3)', icon: 'bi-clock', label: 'Not Started' };
+      case 'closed':
+        return { color: '#6c757d', shadow: 'rgba(108, 117, 125, 0.25)', icon: 'bi-check-circle-fill', label: 'Closed' };
+      default:
+        return { color: '#6c757d', shadow: 'rgba(108, 117, 125, 0.25)', icon: 'bi-clock', label: 'Open' };
+    }
+  };
+
+  const visuals = getStatusVisuals(projectStatus);
+  const borderColor = visuals.color;
+  const shadowColor = visuals.shadow;
   
   const fieldwireProgress = getFieldwireProgress(project);
   const fieldwireComplete = isFieldwireComplete(project);
@@ -55,17 +68,15 @@ export default function ForecastProjectCard({
 
   // Lógica de cores para a barra de progresso baseada no status e completude
   const getProgressBarColor = () => {
-    const status = (project.status || '').toLowerCase().trim();
+    if (projectStatus === 'overdue') return '#e04b4b'; // Overdue: Sempre Vermelho
+    if (projectStatus === 'closed') return '#495057'; // Closed: Cinza Escuro
+    if (projectStatus === 'not started') return '#3b82f6'; // Not Started: Azul (cor do status)
     
-    if (overdue) return '#e04b4b'; // Overdue: Sempre Vermelho (prioridade sobre Not Started)
-    if (status === 'closed') return '#495057'; // Closed: Cinza Escuro
-    if (status === 'not started') return '#6c757d'; // Not Started (não atrasado): Cinza
-    
-    // Para obras "Started" ou outros status ativos (Open, etc)
+    // Para obras "Started" ou status ativos (Open, etc)
     if (metrics.percentage === 100) {
       return '#3b82f6'; // 100% Completo: Azul
     } else {
-      return '#f59e0b'; // Incompleto: Laranja/Amarelo chamativo
+      return '#f59e0b'; // Incompleto: Laranja/Amarelo
     }
   };
 
@@ -183,81 +194,15 @@ export default function ForecastProjectCard({
 
             {/* Status Stickers - Abaixo do Job Site */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
-              {/* Status Principal (Open, Closed, Started, etc) */}
-              {project.status && !overdue && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: project.status.toLowerCase() === 'closed' ? 'rgba(108, 117, 125, 0.1)' : 
-                              project.status.toLowerCase() === 'open' ? 'rgba(59, 130, 246, 0.1)' :
-                              project.status.toLowerCase() === 'started' ? 'rgba(40, 167, 69, 0.1)' :
-                              project.status.toLowerCase() === 'not started' ? 'rgba(108, 117, 125, 0.1)' :
-                              'rgba(59, 130, 246, 0.1)',
-                  color: project.status.toLowerCase() === 'closed' ? '#6c757d' : 
-                         project.status.toLowerCase() === 'open' ? '#3b82f6' :
-                         project.status.toLowerCase() === 'started' ? '#28a745' :
-                         project.status.toLowerCase() === 'not started' ? '#6c757d' :
-                         '#3b82f6',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  border: `1px solid ${
-                    project.status.toLowerCase() === 'closed' ? 'rgba(108, 117, 125, 0.3)' : 
-                    project.status.toLowerCase() === 'open' ? 'rgba(59, 130, 246, 0.3)' :
-                    project.status.toLowerCase() === 'started' ? 'rgba(40, 167, 69, 0.3)' :
-                    project.status.toLowerCase() === 'not started' ? 'rgba(108, 117, 125, 0.3)' :
-                    'rgba(59, 130, 246, 0.3)'
-                  }`,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  <span>{project.status}</span>
-                </div>
-              )}
-
-              {/* Overdue Sticker - Substitui visualmente o Not Started se ativo */}
-              {overdue && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: 'rgba(224, 75, 75, 0.1)',
-                  color: '#e04b4b',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  border: '1px solid rgba(224, 75, 75, 0.3)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 9 }} />
-                  <span>Overdue</span>
-                </div>
-              )}
-
-              {/* Started Sticker (Baseado na lógica de data se necessário, ou se o status principal não for Started) */}
-              {projectStarted && project.status?.toLowerCase() !== 'started' && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  background: 'rgba(40, 167, 69, 0.1)',
-                  color: '#28a745',
-                  padding: '2px 6px',
-                  borderRadius: '10px',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  border: '1px solid rgba(40, 167, 69, 0.3)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  <i className="bi bi-play-circle-fill" style={{ fontSize: 9 }} />
-                  <span>Started</span>
-                </div>
-              )}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                background: `${visuals.color}15`, color: visuals.color,
+                padding: '2px 6px', borderRadius: '10px', fontSize: '10px', fontWeight: 700,
+                border: `1px solid ${visuals.color}40`, textTransform: 'uppercase'
+              }}>
+                <i className={`bi ${visuals.icon}`} style={{ fontSize: 9 }} />
+                <span>{visuals.label}</span>
+              </div>
             </div>
           </div>
           

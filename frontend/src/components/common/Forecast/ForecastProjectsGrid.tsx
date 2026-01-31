@@ -4,14 +4,12 @@ import ForecastProjectCard from './ForecastProjectCard';
 interface ForecastProjectsGridProps {
   theme?: 'light' | 'dark';
   groupedProjects: [string, WorkforceProject[]][];
-  filterNotStarted: boolean;
   onProjectClick: (project: WorkforceProject) => void;
 }
 
 export default function ForecastProjectsGrid({
   theme,
   groupedProjects,
-  filterNotStarted,
   onProjectClick
 }: ForecastProjectsGridProps) {
   return (
@@ -71,7 +69,6 @@ export default function ForecastProjectsGrid({
                   key={project.id}
                   theme={theme}
                   project={project}
-                  filterNotStarted={filterNotStarted}
                   onCardClick={onProjectClick}
                 />
               ))}

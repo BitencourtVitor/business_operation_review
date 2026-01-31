@@ -15,7 +15,6 @@ interface MobileTimelinePlannerProps {
   onSortByDateChange: (sortBy: 'off' | 'asc' | 'desc' | null) => void;
   dateMode: 'start' | 'beams';
   onDateModeChange: (mode: 'start' | 'beams') => void;
-  filterNotStarted: boolean;
 }
 
 export default function MobileTimelinePlanner({
@@ -26,8 +25,7 @@ export default function MobileTimelinePlanner({
   sortByDate,
   onSortByDateChange,
   dateMode,
-  onDateModeChange,
-  filterNotStarted
+  onDateModeChange
 }: MobileTimelinePlannerProps) {
   const [selectedProject, setSelectedProject] = useState<WorkforceProject | null>(null);
 
@@ -140,7 +138,6 @@ export default function MobileTimelinePlanner({
         <ForecastProjectsGrid
           theme={theme}
           groupedProjects={groupedProjects}
-          filterNotStarted={filterNotStarted}
           onProjectClick={setSelectedProject}
         />
                     </div>
@@ -150,7 +147,6 @@ export default function MobileTimelinePlanner({
         <ForecastProjectModal
           theme={theme}
           project={selectedProject}
-          filterNotStarted={filterNotStarted}
           onClose={() => setSelectedProject(null)}
         />
       )}
