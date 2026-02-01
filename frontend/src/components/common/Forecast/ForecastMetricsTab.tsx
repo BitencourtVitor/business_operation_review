@@ -164,8 +164,20 @@ export default function ForecastMetricsTab({ workforceProjects, dateMode }: Fore
               {selectedMonthData.projects.map((project) => (
                 <tr key={project.id} style={{ borderBottom: '1px solid var(--color-border-divider)' }}>
                   <td style={{ padding: '12px 16px' }}>
-                    <div style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>{project.cliente}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>{project.job_site}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500, marginBottom: '2px' }}>{project.cliente}</div>
+                    <div style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: '14px' }}>
+                      {project.job_site} 
+                      <span style={{ 
+                        marginLeft: '8px', 
+                        fontSize: '11px', 
+                        color: 'var(--color-accent-primary)',
+                        background: 'rgba(var(--color-accent-primary-rgb), 0.1)',
+                        padding: '2px 6px',
+                        borderRadius: '4px'
+                      }}>
+                        {project.type} {project.lote_bld}
+                      </span>
+                    </div>
                   </td>
                   <td style={{ padding: '12px 16px', textAlign: 'center' }}>
                     <i className={`bi ${isFieldwireComplete(project) ? 'bi-check-circle-fill' : 'bi-x-circle'}`} style={{ color: isFieldwireComplete(project) ? '#4ade80' : '#f87171', fontSize: '16px' }} />
