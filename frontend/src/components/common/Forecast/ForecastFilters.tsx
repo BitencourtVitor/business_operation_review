@@ -140,6 +140,8 @@ interface ForecastFiltersProps {
   onTypeChange: (type: string) => void;
   onDateModeChange: (mode: 'start' | 'beams') => void;
   onSortByDateChange: (sort: 'off' | 'asc' | 'desc' | null) => void;
+  hideDateMode?: boolean;
+  hideSort?: boolean;
 }
 
 export default function ForecastFilters({
@@ -160,7 +162,9 @@ export default function ForecastFilters({
   onJobSiteChange,
   onTypeChange,
   onDateModeChange,
-  onSortByDateChange
+  onSortByDateChange,
+  hideDateMode = false,
+  hideSort = false
 }: ForecastFiltersProps) {
 
   const selectStyle: React.CSSProperties = {
@@ -317,94 +321,98 @@ export default function ForecastFilters({
         </div>
 
         {/* Date Mode (Segmented Buttons) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-          <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, marginRight: 4 }}>Date Mode</span>
-          <button
-            onClick={() => onDateModeChange('start')}
-            style={{
-              background: dateMode === 'start' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: dateMode === 'start' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: dateMode === 'start' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Start
-          </button>
-          <button
-            onClick={() => onDateModeChange('beams')}
-            style={{
-              background: dateMode === 'beams' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: dateMode === 'beams' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: dateMode === 'beams' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Beams
-          </button>
-        </div>
+        {!hideDateMode && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, marginRight: 4 }}>Date Mode</span>
+            <button
+              onClick={() => onDateModeChange('start')}
+              style={{
+                background: dateMode === 'start' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: dateMode === 'start' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: dateMode === 'start' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Start
+            </button>
+            <button
+              onClick={() => onDateModeChange('beams')}
+              style={{
+                background: dateMode === 'beams' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: dateMode === 'beams' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: dateMode === 'beams' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Beams
+            </button>
+          </div>
+        )}
 
         {/* Sort (Segmented Buttons) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-          <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, marginRight: 4 }}>Sort</span>
-          <button
-            onClick={() => onSortByDateChange(sortByDate === 'asc' ? null : 'asc')}
-            style={{
-              background: sortByDate === 'asc' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: sortByDate === 'asc' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: sortByDate === 'asc' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Asc
-          </button>
-          <button
-            onClick={() => onSortByDateChange(sortByDate === 'desc' ? null : 'desc')}
-            style={{
-              background: sortByDate === 'desc' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: sortByDate === 'desc' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: sortByDate === 'desc' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Desc
-          </button>
-        </div>
+        {!hideSort && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, marginRight: 4 }}>Sort</span>
+            <button
+              onClick={() => onSortByDateChange(sortByDate === 'asc' ? null : 'asc')}
+              style={{
+                background: sortByDate === 'asc' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: sortByDate === 'asc' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: sortByDate === 'asc' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Asc
+            </button>
+            <button
+              onClick={() => onSortByDateChange(sortByDate === 'desc' ? null : 'desc')}
+              style={{
+                background: sortByDate === 'desc' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
+                color: sortByDate === 'desc' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
+                border: sortByDate === 'desc' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
+                borderRadius: 15,
+                padding: '4px 16px',
+                fontWeight: 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                height: 26,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              Desc
+            </button>
+          </div>
+        )}
       </div>
 
     </div>

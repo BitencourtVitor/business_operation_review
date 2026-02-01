@@ -140,6 +140,10 @@ export const hasWorkforce = (project: WorkforceProject): boolean => {
   return !!(project.workforce && project.workforce.trim() !== '');
 };
 
+export const hasStorage = (project: WorkforceProject): boolean => {
+  return isTruthyFlag(project.storage);
+};
+
 const POSITIVE_STRINGS = ['yes', 'sim', 'true', '1', 'y'];
 
 // Helper para verificar se um valor é verdadeiro (booleano ou string)

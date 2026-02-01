@@ -58,7 +58,7 @@ export default function ForecastProjectModal({
     { id: 'buildertrend', icon: null, label: 'BuilderTrend', image: isDarkMode ? iconBuildertrendDark : iconBuildertrend },
     { id: 'qbtime', icon: null, label: 'Quickbooks Time', image: isDarkMode ? iconQBTimeDark : iconQBTime },
     // TODO: Quando iconStorage estiver disponível, atualizar para: { id: 'storage', icon: null, label: 'Storage', image: iconStorage },
-    { id: 'storage', icon: 'bi-box', label: 'Storage', image: null },
+    { id: 'storage', icon: 'bi-box-seam', label: 'Storage', image: null },
     ...(project.contract_steps && project.contract_steps.length > 0 ? [{ id: 'contract', icon: 'bi-file-check', label: 'Contract', image: null }] : []),
     ...(project.machines && project.machines.length > 0 ? [{ id: 'machines', icon: 'bi-truck', label: 'Machines', image: null }] : [])
   ];
