@@ -16,6 +16,7 @@ interface LoadingItem {
 }
 
 const INITIAL_LOADING_ITEMS: LoadingItem[] = [
+  { id: 'jobcosting_timesheet', title: 'New Timesheet Analysis', status: 'pending', progress: 0 },
   { id: 'workforce', title: 'Forecast', status: 'pending', progress: 0 },
   { id: 'timesheet', title: 'Timesheet Analysis', status: 'pending', progress: 0 },
   { id: 'permit', title: 'Permit Control', status: 'pending', progress: 0 },
@@ -29,6 +30,7 @@ const INITIAL_LOADING_ITEMS: LoadingItem[] = [
 ];
 
 const EDGE_FUNCTIONS = [
+  { id: 'jobcosting_timesheet', name: 'jobcosting_timesheet' },
   { id: 'workforce', name: 'forecast' },
   { id: 'timesheet', name: 'timesheet_gsheet' },
   { id: 'permit', name: 'permit_gsheet' },

@@ -18,6 +18,7 @@ import AccountingIndicators from './AccountingIndicators';
 import ProjectMonitoring from './ProjectMonitoring';
 import FuelControl from './FuelControl';
 import WorkforceForecast from './WorkforceForecast';
+import NewTimesheetAnalysis from './NewTimesheetAnalysis';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -285,6 +286,7 @@ export default function Dashboard() {
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
+    'New Timesheet Analysis': 'bi bi-stopwatch',
     'Accounting Indicators': 'bi bi-cash',
     'Fuel Control': 'bi bi-fuel-pump',
     'Permit Control': 'bi bi-file-earmark-check',
@@ -326,6 +328,7 @@ export default function Dashboard() {
       'Accounting Indicators',
       'Fuel Control',
       'Timesheet Analysis', 
+      'New Timesheet Analysis',
       'Permit Control',
       'Takeoff Works',
       'Service Requests',
@@ -468,6 +471,8 @@ export default function Dashboard() {
     switch (tela.descricao) {
       case 'Timesheet Analysis':
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
+      case 'New Timesheet Analysis':
+        return <NewTimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Accounting Indicators':
         return <Projects 
           selectedCompany={selectedCompany}
@@ -735,7 +740,7 @@ export default function Dashboard() {
                     gap: 10, 
                     padding: '8px 12px', 
                     borderRadius: 8, 
-                    fontSize: 14,
+                    fontSize: tela.descricao === 'New Timesheet Analysis' ? 12 : 14,
                     cursor: telaId === tela.id ? 'default' : 'pointer',
                     marginBottom: (tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring') || tela.descricao === 'Forecast') && telaId === tela.id ? 0 : '0.5rem'
                   }}

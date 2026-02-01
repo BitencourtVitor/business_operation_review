@@ -39,7 +39,7 @@ export default function DashboardLayout({
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
-    'New Timesheet Analysis': 'bi bi-clock',
+    'New Timesheet Analysis': 'bi bi-stopwatch',
     'Accounting Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
   };
@@ -214,7 +214,7 @@ export default function DashboardLayout({
               <button
                 key={tela.id}
                 className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: tela.descricao === 'New Timesheet Analysis' ? 12 : 14 }}
                 onClick={() => onSetMainContent(tela.id)}
               >
                 <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />
@@ -236,7 +236,7 @@ export default function DashboardLayout({
               <button
                 key={tela.id}
                 className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2${mainContent === tela.id ? ' btn-sidebar-ativo' : ''}`}
-                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14 }}
+                style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: tela.descricao === 'New Timesheet Analysis' ? 12 : 14 }}
                 onClick={() => onSetMainContent(tela.id)}
               >
                 <i className={telaIcones[tela.descricao] || 'bi bi-window'} style={{ fontSize: 14 }} />

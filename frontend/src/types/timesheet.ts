@@ -40,4 +40,17 @@ export interface TimesheetTooltipExternalProps {
   month: number;
   canvas?: HTMLCanvasElement;
   data: TimesheetRow[];
+}
+
+export interface JobCostingTimesheetRow {
+  id: number;
+  client: string;
+  jobsite: string;
+  lot_building: string | null;
+  worktype: string | null;
+  employee_name: string;
+  regular_rate: number;
+  regular_hours: number;
+  reference_month: string;
+  created_at: string;
 } 
