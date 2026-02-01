@@ -39,6 +39,7 @@ export default function DashboardLayout({
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
+    'New Timesheet Analysis': 'bi bi-clock',
     'Accounting Indicators': 'bi bi-cash',
     'Permit Control': 'bi bi-file-earmark-check',
   };
