@@ -389,7 +389,7 @@ export default function ForecastProjectCard({
               filter: project.storage ? 'none' : 'grayscale(100%)',
               transition: 'all 0.2s ease'
             }}>
-              <i className="bi bi-box" style={{ 
+              <i className="bi bi-box-seam" style={{ 
                 fontSize: 14,
                 color: project.storage ? 'inherit' : 'var(--color-text-secondary)'
               }} />

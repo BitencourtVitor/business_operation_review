@@ -10,7 +10,8 @@ import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 import { 
   getForecastProjectStatus, 
-  type ForecastProjectStatus 
+  type ForecastProjectStatus,
+  hasStorage
 } from '../components/common/Forecast/helpers';
 
 import type { DateMode } from '../components/common/Forecast/types';
@@ -95,11 +96,6 @@ const hasCompleteContract = (project: WorkforceProject): boolean => {
   return project.contract_steps.every(cs => cs.status === true);
 };
 
-// Helper para verificar se tem Workforce
-const hasWorkforce = (project: WorkforceProject): boolean => {
-  return !!(project.workforce && project.workforce.trim() !== '');
-};
-
 interface ForecastData {
   cliente: string;
   job_site: string;
@@ -136,7 +132,7 @@ export default function MobileForecast() {
   const [selectedBuildertrend, setSelectedBuildertrend] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedMachines, setSelectedMachines] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all'); // 'all', 'yes', 'no'
-  const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all'); // 'all', 'yes', 'no'
+  const [selectedStorage, setSelectedStorage] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all'); // 'all', 'yes', 'no'
   const [selectedStatuses, setSelectedStatuses] = useState<ForecastProjectStatus[]>(['overdue', 'not started']); // Inicia mostrando apenas overdue e not started
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
@@ -407,18 +403,18 @@ export default function MobileForecast() {
         (selectedMachines === 'yes' ? isMachinesComplete(project) : !isMachinesComplete(project));
       const contractStepsMatch = selectedContractSteps === 'all' || 
         (selectedContractSteps === 'yes' ? hasCompleteContract(project) : !hasCompleteContract(project));
-      const workforceMatch = selectedWorkforce === 'all' || 
-        (selectedWorkforce === 'yes' ? hasWorkforce(project) : !hasWorkforce(project));
+      const storageMatch = selectedStorage === 'all' || 
+        (selectedStorage === 'yes' ? hasStorage(project) : !hasStorage(project));
       
       const qbtimeMatch = selectedQBTime === 'all' || 
         (selectedQBTime === 'yes' ? project.qbtime === true : project.qbtime !== true);
       
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
-        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch && qbtimeMatch;
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && storageMatch && qbtimeMatch;
     });
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedType, 
-      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
+      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedStorage, selectedQBTime, 
       selectedStatuses, dateMode]);
 
   // Processar dados para o forecast
@@ -741,7 +737,7 @@ export default function MobileForecast() {
             selectedBuildertrend={selectedBuildertrend}
             selectedMachines={selectedMachines}
             selectedContractSteps={selectedContractSteps}
-            selectedWorkforce={selectedWorkforce}
+            selectedStorage={selectedStorage}
             selectedQBTime={selectedQBTime}
             selectedStatuses={selectedStatuses}
             years={years}
@@ -757,7 +753,7 @@ export default function MobileForecast() {
             onBuildertrendChange={setSelectedBuildertrend}
             onMachinesChange={setSelectedMachines}
             onContractStepsChange={setSelectedContractSteps}
-            onWorkforceChange={setSelectedWorkforce}
+            onStorageChange={setSelectedStorage}
             onQBTimeChange={setSelectedQBTime}
             onStatusesChange={setSelectedStatuses}
             dateMode={dateMode}

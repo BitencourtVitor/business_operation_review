@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
 import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep } from '../components/common/Forecast/types';
-import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasWorkforce, getForecastProjectStatus } from '../components/common/Forecast/helpers';
+import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasStorage, getForecastProjectStatus } from '../components/common/Forecast/helpers';
 
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
@@ -113,6 +113,7 @@ const SegmentedButtonGroup = ({
 import ForecastFilters from '../components/common/Forecast/ForecastFilters';
 import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
 import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
+import ForecastMetricsTab from '../components/common/Forecast/ForecastMetricsTab';
 
 type DateMode = 'start' | 'beams';
 
@@ -121,9 +122,10 @@ interface WorkforceForecastProps {
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
+  initialTab?: 'planner' | 'metrics';
 }
 
-export default function WorkforceForecast({}: WorkforceForecastProps) {
+export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceForecastProps) {
   const [rawProjects, setRawProjects] = useState<WorkforceProject[]>([]);
   const [workforceProjects, setWorkforceProjects] = useState<WorkforceProject[]>([]);
   const [loading, setLoading] = useState(true);
@@ -162,7 +164,7 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
   const [selectedBuildertrend, setSelectedBuildertrend] = useState<string>('all');
   const [selectedMachines, setSelectedMachines] = useState<string>('all');
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
-  const [selectedWorkforce, setSelectedWorkforce] = useState<string>('all');
+  const [selectedStorage, setSelectedStorage] = useState<string>('all');
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
   const [showOnlyNotStarted, setShowOnlyNotStarted] = useState(true);
 
@@ -172,6 +174,21 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
   const [isCompanyMenuOpen, setIsCompanyMenuOpen] = useState(false);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'planner' | 'metrics'>(initialTab);
+
+  // Sincronizar activeTab se initialTab mudar
+  useEffect(() => {
+    setActiveTab(initialTab);
+    
+    // Configurações específicas para a aba Metrics
+    if (initialTab === 'metrics') {
+      setShowOnlyNotStarted(false);
+      setSelectedYear('2026');
+    } else {
+      // Configurações padrão para Planner
+      setShowOnlyNotStarted(true);
+    }
+  }, [initialTab]);
 
   useEffect(() => {
     setSelectedYear('');
@@ -379,8 +396,8 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         (selectedMachines === 'yes' ? isMachinesComplete(project) : !isMachinesComplete(project));
       const contractStepsMatch = selectedContractSteps === 'all' || 
         (selectedContractSteps === 'yes' ? hasCompleteContract(project) : !hasCompleteContract(project));
-      const workforceMatch = selectedWorkforce === 'all' || 
-        (selectedWorkforce === 'yes' ? hasWorkforce(project) : !hasWorkforce(project));
+      const storageMatch = selectedStorage === 'all' || 
+        (selectedStorage === 'yes' ? hasStorage(project) : !hasStorage(project));
       
       const qbtimeMatch = selectedQBTime === 'all' || 
         (selectedQBTime === 'yes' ? project.qbtime === true : project.qbtime !== true);
@@ -390,11 +407,11 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         (projectStatus === 'not started' || projectStatus === 'overdue');
       
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
-        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && workforceMatch && qbtimeMatch && notStartedMatch;
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && storageMatch && qbtimeMatch && notStartedMatch;
     });
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType, 
-      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedWorkforce, selectedQBTime, 
+      selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedStorage, selectedQBTime, 
       showOnlyNotStarted, dateMode]);
 
   // Processar dados para o forecast
@@ -542,25 +559,30 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         zIndex: 100 // Garante que fique acima do conteúdo rolável
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img 
-              src={sublogoFraming} 
-              alt="Framing" 
-              style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
-            />
-            <h1 style={{ 
-              color: 'var(--color-text-primary)', 
-              fontSize: 24, 
-              fontWeight: 400, 
-              margin: 0,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>Framing</span>
-              <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>Forecast</span>
-            </h1>
-          </div>
+          <h1 style={{ 
+            color: 'var(--color-text-primary)', 
+            fontSize: 24, 
+            fontWeight: 400, 
+            flex: '0 0 auto',
+            margin: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            {activeTab === 'metrics' ? (
+              'Forecast Metrics'
+            ) : (
+              <>
+                <img 
+                  src={sublogoFraming} 
+                  alt="Framing" 
+                  style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
+                />
+                <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>Framing</span>
+                <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>Forecast</span>
+              </>
+            )}
+          </h1>
 
           <ForecastFilters 
             selectedYear={selectedYear}
@@ -581,6 +603,8 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
             onDateModeChange={setDateMode}
             sortByDate={sortByDate}
             onSortByDateChange={setSortByDate}
+            hideDateMode={activeTab === 'metrics'}
+            hideSort={activeTab === 'metrics'}
           />
         </div>
       </div>
@@ -595,8 +619,8 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         flex: 1,
         overflow: 'hidden' // Esconde overflow geral
       }}>
-        {/* Seção de Filtros Avançados / Stickers */}
-        {isAdvancedFiltersOpen && (
+        {/* Seção de Filtros Avançados / Stickers - Oculto em Metrics */}
+        {isAdvancedFiltersOpen && activeTab !== 'metrics' && (
           <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
             <div style={{ 
               background: 'var(--color-background-secondary)', 
@@ -637,10 +661,10 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
                   icon={<i className="bi bi-truck" style={{ fontSize: '16px' }} />}
                 />
                 <SegmentedButtonGroup
-                  label="Workforce"
-                  value={selectedWorkforce}
-                  onChange={setSelectedWorkforce}
-                  icon={<i className="bi bi-people" style={{ fontSize: '16px' }} />}
+                  label="Storage"
+                  value={selectedStorage}
+                  onChange={setSelectedStorage}
+                  icon={<i className="bi bi-box-seam" style={{ fontSize: '16px' }} />}
                 />
                 <SegmentedButtonGroup
                   label="Contract"
@@ -655,56 +679,58 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
 
         {/* Sumário / Métricas / Filtros Avançados - Estrutura unificada sempre visível */}
         <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-          {/* Botão de Sumário Toggle (Estilo Mobile) */}
-          <button
-            onClick={() => setIsSummaryOpen(!isSummaryOpen)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '20px',
-              background: isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
-              border: isSummaryOpen ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
-              borderRadius: '12px',
-              padding: '0 20px',
-              height: '42px',
-              flex: '1',
-              cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-              e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
-              e.currentTarget.style.background = isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className="bi bi-bar-chart-line-fill" style={{ color: 'var(--color-accent-primary)', fontSize: '16px' }} />
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Summary</span>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: '16px', flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</span>
-                <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Projects</span>
+          {/* Botão de Sumário Toggle (Estilo Mobile) - Oculto em Metrics */}
+          {activeTab !== 'metrics' && (
+            <button
+              onClick={() => setIsSummaryOpen(!isSummaryOpen)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '20px',
+                background: isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
+                border: isSummaryOpen ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
+                borderRadius: '12px',
+                padding: '0 20px',
+                height: '42px',
+                flex: '1',
+                cursor: 'pointer',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
+                e.currentTarget.style.background = isSummaryOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="bi bi-bar-chart-line-fill" style={{ color: 'var(--color-accent-primary)', fontSize: '16px' }} />
+                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Summary</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueClients}</span>
-                <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Clients</span>
+              
+              <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: '16px', flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Projects</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueClients}</span>
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Clients</span>
+                </div>
               </div>
-            </div>
 
-            <i 
-              className={`bi bi-chevron-${isSummaryOpen ? 'up' : 'down'}`} 
-              style={{ 
-                color: isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                fontSize: '12px',
-                transition: 'transform 0.3s ease'
-              }} 
-            />
-          </button>
+              <i 
+                className={`bi bi-chevron-${isSummaryOpen ? 'up' : 'down'}`} 
+                style={{ 
+                  color: isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  fontSize: '12px',
+                  transition: 'transform 0.3s ease'
+                }} 
+              />
+            </button>
+          )}
 
           {/* Filtro Show only Not Started - Centralizado entre os botões */}
           <div style={{
@@ -716,7 +742,7 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
             borderRadius: '12px',
             padding: '0 4px 0 15px',
             height: '42px',
-            flex: '0 1 auto',
+            flex: activeTab === 'metrics' ? '1' : '0 1 auto',
             minWidth: '240px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
@@ -739,51 +765,53 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
             </div>
           </div>
 
-          {/* Botão Stickers (Altura Ajustada) */}
-          <button
-            onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
-            style={{
-              width: '160px',
-              background: isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-divider)',
-              borderRadius: '12px',
-              padding: '0 16px',
-              height: '42px',
-              fontSize: '13px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-              e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
-              e.currentTarget.style.background = isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <i className={`bi bi-sliders${isAdvancedFiltersOpen ? '' : ''}`} style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
-              <span>Stickers</span>
-            </div>
-            <i 
-              className={`bi bi-chevron-${isAdvancedFiltersOpen ? 'up' : 'down'}`} 
-              style={{ 
-                color: isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                fontSize: '12px',
-                transition: 'transform 0.3s ease'
-              }} 
-            />
-          </button>
+          {/* Botão Stickers (Altura Ajustada) - Oculto em Metrics */}
+          {activeTab !== 'metrics' && (
+            <button
+              onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
+              style={{
+                width: '160px',
+                background: isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)',
+                color: 'var(--color-text-primary)',
+                border: '1px solid var(--color-border-divider)',
+                borderRadius: '12px',
+                padding: '0 16px',
+                height: '42px',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                e.currentTarget.style.background = 'rgba(var(--color-accent-primary-rgb), 0.02)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-border-divider)';
+                e.currentTarget.style.background = isAdvancedFiltersOpen ? 'rgba(var(--color-accent-primary-rgb), 0.05)' : 'var(--color-background-primary)';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className={`bi bi-sliders${isAdvancedFiltersOpen ? '' : ''}`} style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+                <span>Stickers</span>
+              </div>
+              <i 
+                className={`bi bi-chevron-${isAdvancedFiltersOpen ? 'up' : 'down'}`} 
+                style={{ 
+                  color: isAdvancedFiltersOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  fontSize: '12px',
+                  transition: 'transform 0.3s ease'
+                }} 
+              />
+            </button>
+          )}
         </div>
 
-        {/* Sumário Expandido - Toggleable */}
-        {isSummaryOpen && (
+        {/* Sumário Expandido - Toggleable - Oculto em Metrics */}
+        {isSummaryOpen && activeTab !== 'metrics' && (
           <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
             <div style={{ 
               width: '100%',
@@ -801,9 +829,10 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
         )}
 
 
-        {/* Conteúdo Principal (Grid/Timeline) */}
+        {/* Conteúdo Principal (Grid/Timeline ou Metrics) */}
         <div style={{ 
           flex: 1, 
+          minHeight: 0,
           width: '100%',
           maxWidth: '1400px',
           margin: '0 auto',
@@ -816,17 +845,24 @@ export default function WorkforceForecast({}: WorkforceForecastProps) {
           boxShadow: 'none',
           marginBottom: '0' // Removido margin bottom
         }}>
-          <TimelinePlanner 
-            theme={theme}
-            forecastData={forecastData}
-            workforceProjects={visibleProjects}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-            groupBy={groupBy}
-            sortByDate={sortByDate}
-            dateMode={dateMode}
-            viewMode={viewMode}
-          />
+          {activeTab === 'planner' ? (
+            <TimelinePlanner 
+              theme={theme}
+              forecastData={forecastData}
+              workforceProjects={visibleProjects}
+              selectedYear={selectedYear}
+              selectedMonth={selectedMonth}
+              groupBy={groupBy}
+              sortByDate={sortByDate}
+              dateMode={dateMode}
+              viewMode={viewMode}
+            />
+          ) : (
+            <ForecastMetricsTab 
+              workforceProjects={visibleProjects}
+              dateMode={dateMode}
+            />
+          )}
         </div>
       </div>
 

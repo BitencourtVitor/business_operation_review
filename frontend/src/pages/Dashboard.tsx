@@ -480,7 +480,13 @@ export default function Dashboard() {
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
       case 'Forecast':
-        return <WorkforceForecast telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        return <WorkforceForecast 
+          telaId={telaId} 
+          usuarioId={usuarioId} 
+          role={role} 
+          isResponsavelPelaTela={isResponsavelPelaTela} 
+          initialTab={selectedForecastType === 'Metrics' ? 'metrics' : 'planner'}
+        />;
       case 'Fuel Control':
         // Verificar permissão financeira antes de mostrar Fuel Control
         if (!financialPass) {
@@ -950,8 +956,8 @@ export default function Dashboard() {
                     animation: isCollapsingForecastSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
                     overflow: 'hidden'
                   }}>
-                    {['Framing'].map(type => {
-                      const isDisabled = false; // Por enquanto apenas Framing está disponível
+                    {['Framing', 'Metrics'].map(type => {
+                      const isDisabled = false;
                       return (
                         <button
                           key={type}
@@ -989,19 +995,22 @@ export default function Dashboard() {
                             }
                           }}
                           
-                          // ===== MOUSE LEAVE (SAINDO COM O MOUSE) =====
-                          onMouseLeave={e => {
-                            if (!isDisabled && selectedForecastType !== type) {
-                              e.currentTarget.style.background = 'transparent';
-                              e.currentTarget.style.color = 'var(--color-text-secondary)';
+                          // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                          onMouseOut={e => {
+                            if (!isDisabled) {
+                              if (selectedForecastType !== type) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                e.currentTarget.style.backdropFilter = 'none';
+                                e.currentTarget.style.borderRight = 'none';
+                              }
                             }
                           }}
                           
                           // ===== MOUSE DOWN (CLICANDO) =====
                           onMouseDown={e => {
                             if (!isDisabled && selectedForecastType !== type) {
-                              e.currentTarget.style.background = 'var(--color-background-secondary)';
-                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                              e.currentTarget.style.color = 'white';
                             }
                           }}
                           
@@ -1013,17 +1022,21 @@ export default function Dashboard() {
                             }
                           }}
                         >
-                           <img 
-                             src={empresaIcones[type] || ''} 
-                             alt={type} 
-                             style={{ 
-                               width: 16, 
-                               height: 16, 
-                               objectFit: 'contain',
-                               marginRight: 8,
-                               opacity: isDisabled ? 0.5 : 1
-                             }} 
-                           />
+                           {type === 'Metrics' ? (
+                             <i className="bi bi-bar-chart" style={{ fontSize: 14, marginRight: 8, color: selectedForecastType === type ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }} />
+                           ) : (
+                             <img 
+                               src={empresaIcones[type] || sublogoFraming} 
+                               alt={type} 
+                               style={{ 
+                                 width: 16, 
+                                 height: 16, 
+                                 objectFit: 'contain',
+                                 marginRight: 8,
+                                 opacity: isDisabled ? 0.5 : 1
+                               }} 
+                             />
+                           )}
                           {type}{isDisabled ? ' (Em breve)' : ''}
                         </button>
                       );

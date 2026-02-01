@@ -19,7 +19,7 @@ interface MobileForecastFiltersProps {
   selectedBuildertrend: string;
   selectedMachines: string;
   selectedContractSteps: string;
-  selectedWorkforce: string;
+  selectedStorage: string;
   selectedQBTime: string;
   selectedStatuses: ForecastProjectStatus[];
   years: string[];
@@ -35,7 +35,7 @@ interface MobileForecastFiltersProps {
   onBuildertrendChange: (value: string) => void;
   onMachinesChange: (value: string) => void;
   onContractStepsChange: (value: string) => void;
-  onWorkforceChange: (value: string) => void;
+  onStorageChange: (value: string) => void;
   onQBTimeChange: (value: string) => void;
   onStatusesChange: (statuses: ForecastProjectStatus[]) => void;
   dateMode: 'start' | 'beams';
@@ -55,7 +55,7 @@ export default function MobileForecastFilters({
   selectedBuildertrend,
   selectedMachines,
   selectedContractSteps,
-  selectedWorkforce,
+  selectedStorage,
   selectedQBTime,
   selectedStatuses,
   years,
@@ -71,7 +71,7 @@ export default function MobileForecastFilters({
   onBuildertrendChange,
   onMachinesChange,
   onContractStepsChange,
-  onWorkforceChange,
+  onStorageChange,
   onQBTimeChange,
   onStatusesChange,
   dateMode,
@@ -148,7 +148,7 @@ export default function MobileForecastFilters({
     selectedBuildertrend !== 'all' ? selectedBuildertrend : null,
     selectedMachines !== 'all' ? selectedMachines : null,
     selectedContractSteps !== 'all' ? selectedContractSteps : null,
-    selectedWorkforce !== 'all' ? selectedWorkforce : null,
+    selectedStorage !== 'all' ? 'storage' : null,
     selectedQBTime !== 'all' ? selectedQBTime : null,
     selectedStatuses.length > 0 ? 'statuses' : null,
   ].filter(Boolean).length;
@@ -163,7 +163,7 @@ export default function MobileForecastFilters({
     onBuildertrendChange('all');
     onMachinesChange('all');
     onContractStepsChange('all');
-    onWorkforceChange('all');
+    onStorageChange('all');
     onQBTimeChange('all');
     onStatusesChange(['overdue', 'not started']);
   };
@@ -688,11 +688,11 @@ export default function MobileForecastFilters({
                   icon={<i className="bi bi-truck" style={{ fontSize: '16px' }} />}
                 />
 
-                <SegmentedButtonGroup
-                  label="Workforce"
-                  value={selectedWorkforce}
-                  onChange={onWorkforceChange}
-                  icon={<i className="bi bi-people" style={{ fontSize: '16px' }} />}
+                <SegmentedButtonGroup 
+                  label="Storage" 
+                  value={selectedStorage} 
+                  onChange={onStorageChange} 
+                  icon={<i className="bi bi-box-seam" style={{ fontSize: '16px' }} />}
                 />
 
                 <SegmentedButtonGroup
