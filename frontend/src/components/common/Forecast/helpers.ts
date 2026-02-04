@@ -1,4 +1,4 @@
-import type { WorkforceProject, ForecastMachine } from './types';
+import type { WorkforceProject, ForecastMachine, ForecastProjectStatus } from './types';
 
 // Helper para verificar se tem Fieldwire ativo
 export const hasActiveFieldwire = (project: WorkforceProject): boolean => {
@@ -53,9 +53,6 @@ export const getMachineByTitle = (project: WorkforceProject, searchTerm: string)
     return machineTitle.includes(normalizedSearch) || normalizedSearch.includes(machineTitle);
   }) || null;
 };
-
-// Tipagem para os 4 status do Forecast
-export type ForecastProjectStatus = 'closed' | 'overdue' | 'open' | 'not started';
 
 // Helper centralizado para determinar o status único de um projeto do Forecast
 export const getForecastProjectStatus = (project: WorkforceProject): ForecastProjectStatus => {

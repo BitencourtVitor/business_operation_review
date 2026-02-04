@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 
-const CLIENT_BUTTON_WIDTH = 180;
-const JOBSITE_BUTTON_WIDTH = 220;
 const DROPDOWN_WIDTH = 200;
 
-function SimpleMultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos', dropdownTitle }: {
+export function SimpleMultiSelectDropdown({ options, selected, setSelected, allLabel = 'Todos', dropdownTitle, height = 38 }: {
   options: string[];
   selected: string[];
   setSelected: (v: string[]) => void;
   allLabel?: string;
   dropdownTitle?: string;
+  height?: number | string;
 }) {
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -99,12 +98,12 @@ function SimpleMultiSelectDropdown({ options, selected, setSelected, allLabel = 
   );
 
   return (
-    <div style={{ position: 'relative', minWidth: 0, width: '100%', height: 38 }}>
+    <div style={{ position: 'relative', minWidth: 0, width: '100%', height: height }}>
       <button
         ref={buttonRef}
         type="button"
         className="form-control d-flex align-items-center justify-content-between"
-        style={{ cursor: 'pointer', width: '100%', height: 38, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: 'none', borderRadius: 0, fontSize: 14, boxShadow: 'none', padding: '0 12px', margin: 0 }}
+        style={{ cursor: 'pointer', width: '100%', height: height, background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', border: 'none', borderRadius: 0, fontSize: 14, boxShadow: 'none', padding: '0 12px', margin: 0 }}
         onClick={() => setOpen(o => !o)}
       >
         <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
@@ -124,20 +123,12 @@ function SimpleMultiSelectDropdown({ options, selected, setSelected, allLabel = 
 interface ForecastFiltersProps {
   selectedYear: string;
   selectedMonth: string;
-  selectedClient: string[];
-  selectedJobSite: string[];
-  selectedType: string;
   years: string[];
   months: string[];
-  clients: string[];
-  jobSites: string[];
   dateMode: 'start' | 'beams';
   sortByDate: 'off' | 'asc' | 'desc' | null;
   onYearChange: (year: string) => void;
   onMonthChange: (month: string) => void;
-  onClientChange: (clients: string[]) => void;
-  onJobSiteChange: (jobSites: string[]) => void;
-  onTypeChange: (type: string) => void;
   onDateModeChange: (mode: 'start' | 'beams') => void;
   onSortByDateChange: (sort: 'off' | 'asc' | 'desc' | null) => void;
   hideDateMode?: boolean;
@@ -147,20 +138,12 @@ interface ForecastFiltersProps {
 export default function ForecastFilters({
   selectedYear,
   selectedMonth,
-  selectedClient,
-  selectedJobSite,
-  selectedType,
   years,
   months,
-  clients,
-  jobSites,
   dateMode,
   sortByDate,
   onYearChange,
   onMonthChange,
-  onClientChange,
-  onJobSiteChange,
-  onTypeChange,
   onDateModeChange,
   onSortByDateChange,
   hideDateMode = false,
@@ -221,103 +204,6 @@ export default function ForecastFilters({
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
-        </div>
-
-        {/* Filtro de Cliente */}
-        <div className="input-group" style={{ minWidth: CLIENT_BUTTON_WIDTH, maxWidth: CLIENT_BUTTON_WIDTH, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, display: 'flex' }}>
-          <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)' }}>
-            <i className="bi bi-person-badge" style={{ fontSize: 16 }} />
-          </span>
-          <div style={{ flex: 1, minWidth: 0, height: 38 }}>
-            <SimpleMultiSelectDropdown 
-              options={clients} 
-              selected={selectedClient} 
-              setSelected={onClientChange} 
-              allLabel="All Clients" 
-              dropdownTitle="Clients" 
-            />
-          </div>
-        </div>
-
-        {/* Filtro de Job Site */}
-        <div className="input-group" style={{ minWidth: JOBSITE_BUTTON_WIDTH, maxWidth: JOBSITE_BUTTON_WIDTH, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, display: 'flex' }}>
-          <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)' }}>
-            <i className="bi bi-building" style={{ fontSize: 16 }} />
-          </span>
-          <div style={{ flex: 1, minWidth: 0, height: 38 }}>
-            <SimpleMultiSelectDropdown 
-              options={jobSites} 
-              selected={selectedJobSite} 
-              setSelected={onJobSiteChange} 
-              allLabel="All Job Sites" 
-              dropdownTitle="Job Sites" 
-            />
-          </div>
-        </div>
-
-        {/* Project Type (Segmented Buttons) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-background-secondary)', borderRadius: 25, padding: '6px 6px 6px 15px', border: '1px solid var(--color-border-divider)', height: 38 }}>
-          <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, marginRight: 4 }}>Type</span>
-          <button
-            onClick={() => onTypeChange('all')}
-            style={{
-              background: selectedType === 'all' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: selectedType === 'all' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: selectedType === 'all' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            All
-          </button>
-          <button
-            onClick={() => onTypeChange('Building')}
-            style={{
-              background: selectedType === 'Building' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: selectedType === 'Building' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: selectedType === 'Building' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Building
-          </button>
-          <button
-            onClick={() => onTypeChange('Lot')}
-            style={{
-              background: selectedType === 'Lot' ? 'var(--color-background-primary)' : 'var(--color-background-secondary)',
-              color: selectedType === 'Lot' ? 'var(--color-brand-blue)' : 'var(--color-text-primary)',
-              border: selectedType === 'Lot' ? '1.5px solid var(--color-brand-blue)' : '1.5px solid var(--color-border-divider)',
-              borderRadius: 15,
-              padding: '4px 16px',
-              fontWeight: 500,
-              fontSize: 14,
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              height: 26,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            Lot
-          </button>
         </div>
 
         {/* Date Mode (Segmented Buttons) */}
