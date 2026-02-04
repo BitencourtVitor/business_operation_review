@@ -391,41 +391,77 @@ export default function MobileForecastFilters({
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
                   marginTop: '4px',
-                  marginBottom: '4px'
+                  marginBottom: '8px'
                 }}>
-                  Basic Filters
+                  Status Filters
                 </div>
                 
-                {/* Show Open/Closed Toggle */}
-                <div style={{
-                  ...filterButtonStyle,
-                  height: '42px',
-                  padding: '0 4px 0 15px',
-                  cursor: 'default',
-                  background: 'var(--color-background-primary)',
-                  border: '1px solid var(--color-border-divider)',
-                  borderRadius: '8px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <i className="bi bi-eye" style={{ color: 'var(--color-accent-primary)' }} />
-                    <span style={{ fontWeight: 600, fontSize: '13px' }}>Show only Not Started</span>
+                {[
+                  { id: 'overdue' as const, label: 'Overdue', icon: 'bi-exclamation-triangle-fill', color: '#e04b4b' },
+                  { id: 'not started' as const, label: 'Not Started', icon: 'bi-clock', color: '#3b82f6' },
+                  { id: 'open' as const, label: 'Open', icon: 'bi-play-circle-fill', color: '#28a745' },
+                  { id: 'closed' as const, label: 'Closed', icon: 'bi-check-circle-fill', color: '#6c757d' }
+                ].map((statusCfg) => (
+                  <div key={statusCfg.id} style={{
+                    ...filterButtonStyle,
+                    height: '42px',
+                    padding: '0 4px 0 15px',
+                    cursor: 'default',
+                    background: 'var(--color-background-primary)',
+                    border: '1px solid var(--color-border-divider)',
+                    borderRadius: '8px',
+                    marginBottom: '4px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className={`bi ${statusCfg.icon}`} style={{ color: statusCfg.color }} />
+                      <span style={{ fontWeight: 600, fontSize: '13px' }}>{statusCfg.label}</span>
+                    </div>
+                    <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)', width: '158px' }}>
+                      <button
+                        style={{
+                          ...segmentedButtonStyle(selectedStatuses.length === 1 && selectedStatuses.includes(statusCfg.id)),
+                          fontSize: '10px',
+                          padding: '4px 8px',
+                          marginRight: '4px' // Pequeno afastamento do botão ON
+                        }}
+                        onClick={() => onStatusesChange([statusCfg.id])}
+                      >
+                        ONLY
+                      </button>
+                      <button
+                        style={segmentedButtonStyle(selectedStatuses.includes(statusCfg.id))}
+                        onClick={() => {
+                          if (!selectedStatuses.includes(statusCfg.id)) {
+                            onStatusesChange([...selectedStatuses, statusCfg.id]);
+                          }
+                        }}
+                      >
+                        ON
+                      </button>
+                      <button
+                        style={segmentedButtonStyle(!selectedStatuses.includes(statusCfg.id))}
+                        onClick={() => {
+                          onStatusesChange(selectedStatuses.filter(s => s !== statusCfg.id));
+                        }}
+                      >
+                        OFF
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)' }}>
-                    <button
-                      style={segmentedButtonStyle(selectedStatuses.length > 0)}
-                      onClick={() => onStatusesChange(['overdue', 'not started'])}
-                    >
-                      ON
-                    </button>
-                    <button
-                      style={segmentedButtonStyle(selectedStatuses.length === 0)}
-                      onClick={() => onStatusesChange([])}
-                    >
-                      OFF
-                    </button>
-                  </div>
-                </div>
+                ))}
 
+                <div style={{
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: 'var(--color-text-secondary)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  marginTop: '12px',
+                  marginBottom: '4px'
+                }}>
+                  Time & Project
+                </div>
+                
                 <div style={{
                   ...filterButtonStyle,
                   height: isMobile ? 'auto' : '42px',
@@ -711,7 +747,7 @@ export default function MobileForecastFilters({
                 paddingTop: '16px',
                 borderTop: '1px solid var(--color-border-divider)',
                 display: 'flex',
-                justifyContent: 'flex-end'
+                justifyContent: 'center' // Centralizado invés de flex-end
               }}>
                 <button
                   onClick={clearAllFilters}

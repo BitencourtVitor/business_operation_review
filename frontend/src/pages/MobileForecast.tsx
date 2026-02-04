@@ -373,11 +373,9 @@ export default function MobileForecast() {
     const selectedJobSiteSet = new Set(selectedJobSite.map(j => j.trim().toLowerCase()))
 
     return workforceProjects.filter(project => {
-      // Quando selectedStatuses está ativo, filtramos pelos status selecionados
-      if (selectedStatuses.length > 0) {
-        const status = getForecastProjectStatus(project);
-        if (!selectedStatuses.includes(status)) return false;
-      }
+      // Filtro de status - Sempre aplica a restrição do array selectedStatuses
+      const status = getForecastProjectStatus(project);
+      if (!selectedStatuses.includes(status)) return false;
 
       // Filtros de busca e seleção (mantemos estes para funcionalidade da UI)
       const referenceDate = getReferenceDate(project, dateMode);
