@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { formatDateUS } from '../utils/formatters';
-import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep } from '../components/common/Forecast/types';
+import type { WorkforceProject, ForecastData, ForecastFieldwire, ForecastMachine, ForecastContractStep, ForecastProjectStatus } from '../components/common/Forecast/types';
 import { isFieldwireComplete, isMachinesComplete, hasCompleteContract, getReferenceDate, hasStorage, getForecastProjectStatus } from '../components/common/Forecast/helpers';
 
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
@@ -109,8 +109,75 @@ const SegmentedButtonGroup = ({
   </div>
 );
 
+// Componente para botões de status [Only] [On] [Off]
+const StatusButtonGroup = ({ 
+  status,
+  label,
+  icon,
+  color,
+  selectedStatuses,
+  onChange
+}: { 
+  status: ForecastProjectStatus;
+  label: string;
+  icon: string;
+  color: string;
+  selectedStatuses: ForecastProjectStatus[];
+  onChange: (statuses: ForecastProjectStatus[]) => void;
+}) => {
+  const isSelected = selectedStatuses.includes(status);
+  const isOnly = selectedStatuses.length === 1 && isSelected;
+
+  return (
+    <div style={{
+      ...filterButtonStyle,
+      height: '42px',
+      padding: '0 4px 0 15px',
+      cursor: 'default',
+      background: 'var(--color-background-primary)',
+      border: '1px solid var(--color-border-divider)',
+      borderRadius: '8px'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <i className={`bi ${icon}`} style={{ color: color, fontSize: '14px' }} />
+        <span style={{ fontWeight: 600, fontSize: '13px' }}>{label}</span>
+      </div>
+      <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)', width: '158px' }}>
+        <button
+          style={{
+            ...segmentedButtonStyle(isOnly),
+            fontSize: '10px',
+            padding: '4px 8px',
+          }}
+          onClick={() => onChange([status])}
+        >
+          ONLY
+        </button>
+        <button
+          style={segmentedButtonStyle(isSelected && !isOnly)}
+          onClick={() => {
+            if (!isSelected) {
+              onChange([...selectedStatuses, status]);
+            }
+          }}
+        >
+          ON
+        </button>
+        <button
+          style={segmentedButtonStyle(!isSelected)}
+          onClick={() => {
+            onChange(selectedStatuses.filter(s => s !== status));
+          }}
+        >
+          OFF
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Componentes modulares
-import ForecastFilters from '../components/common/Forecast/ForecastFilters';
+import ForecastFilters, { SimpleMultiSelectDropdown } from '../components/common/Forecast/ForecastFilters';
 import ForecastMetrics from '../components/common/Forecast/ForecastMetrics';
 import TimelinePlanner from '../components/common/Forecast/TimelinePlanner';
 import ForecastMetricsTab from '../components/common/Forecast/ForecastMetricsTab';
@@ -166,7 +233,7 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
   const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
   const [selectedStorage, setSelectedStorage] = useState<string>('all');
   const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
-  const [showOnlyNotStarted, setShowOnlyNotStarted] = useState(true);
+  const [selectedStatuses, setSelectedStatuses] = useState<ForecastProjectStatus[]>(['not started', 'overdue', 'open']);
 
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
   const [viewMode] = useState<'grid' | 'timeline'>('grid');
@@ -182,11 +249,11 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
     
     // Configurações específicas para a aba Metrics
     if (initialTab === 'metrics') {
-      setShowOnlyNotStarted(false);
+      setSelectedStatuses(['closed', 'open', 'not started', 'overdue']);
       setSelectedYear('2026');
     } else {
       // Configurações padrão para Planner
-      setShowOnlyNotStarted(true);
+      setSelectedStatuses(['not started', 'overdue', 'open']);
     }
   }, [initialTab]);
 
@@ -403,16 +470,15 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
         (selectedQBTime === 'yes' ? project.qbtime === true : project.qbtime !== true);
       
       const projectStatus = getForecastProjectStatus(project);
-      const notStartedMatch = !showOnlyNotStarted || 
-        (projectStatus === 'not started' || projectStatus === 'overdue');
+      const statusMatch = selectedStatuses.includes(projectStatus);
       
       return yearMatch && monthMatch && clientMatch && jobSiteMatch && typeMatch && 
-        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && storageMatch && qbtimeMatch && notStartedMatch;
+        fieldwireMatch && buildertrendMatch && machinesMatch && contractStepsMatch && storageMatch && qbtimeMatch && statusMatch;
     });
 
   }, [workforceProjects, selectedYear, selectedMonth, selectedClient, selectedJobSite, selectedProjectType, 
       selectedFieldwire, selectedBuildertrend, selectedMachines, selectedContractSteps, selectedStorage, selectedQBTime, 
-      showOnlyNotStarted, dateMode]);
+      selectedStatuses, dateMode]);
 
   // Processar dados para o forecast
   const forecastData = useMemo(() => {
@@ -556,49 +622,41 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
         padding: '10px 20px', 
         borderBottom: '1px solid var(--color-border-divider)', 
         background: 'var(--color-background-primary)',
-        zIndex: 100 // Garante que fique acima do conteúdo rolável
+        zIndex: 100
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <h1 style={{ 
-            color: 'var(--color-text-primary)', 
-            fontSize: 24, 
-            fontWeight: 400, 
-            flex: '0 0 auto',
-            margin: 0,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            {activeTab === 'metrics' ? (
-              'Forecast Metrics'
-            ) : (
-              <>
-                <img 
-                  src={sublogoFraming} 
-                  alt="Framing" 
-                  style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
-                />
-                <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>Framing</span>
-                <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>Forecast</span>
-              </>
-            )}
-          </h1>
+        <h1 style={{ 
+          color: 'var(--color-text-primary)', 
+          fontSize: 24, 
+          fontWeight: 400, 
+          flex: '0 0 auto',
+          margin: 0,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          {activeTab === 'metrics' ? (
+            'Forecast Metrics'
+          ) : (
+            <>
+              <img 
+                src={sublogoFraming} 
+                alt="Framing" 
+                style={{ width: '24px', height: '24px', objectFit: 'contain' }} 
+              />
+              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600 }}>Framing</span>
+              <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>Forecast</span>
+            </>
+          )}
+        </h1>
 
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
           <ForecastFilters 
             selectedYear={selectedYear}
             onYearChange={setSelectedYear}
             selectedMonth={selectedMonth}
             onMonthChange={setSelectedMonth}
-            selectedClient={selectedClient}
-            onClientChange={setSelectedClient}
-            selectedJobSite={selectedJobSite}
-            onJobSiteChange={setSelectedJobSite}
-            selectedType={selectedProjectType}
-            onTypeChange={setSelectedProjectType}
             years={years}
             months={months}
-            clients={clients}
-            jobSites={jobSites}
             dateMode={dateMode}
             onDateModeChange={setDateMode}
             sortByDate={sortByDate}
@@ -629,7 +687,129 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
               border: '1px solid var(--color-border-divider)',
               animation: 'slideDown 0.3s ease-out'
             }}>
-              {/* Grid 3x2 de Filtros Segmentados - Sem paddings/margins de grid */}
+              {/* Seção de Stickers */}
+              <div style={{ display: 'flex', gap: '24px', marginBottom: '16px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    color: 'var(--color-text-secondary)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.8px',
+                    marginBottom: '10px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    opacity: 0.8
+                  }}>
+                    <i className="bi bi-funnel-fill" style={{ fontSize: '10px' }} />
+                    Primary Filters
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        ...filterButtonStyle,
+                        height: '42px',
+                        padding: '0 12px',
+                        background: 'var(--color-background-primary)',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                          <i className="bi bi-person-badge" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+                          <SimpleMultiSelectDropdown
+                            options={clients}
+                            selected={selectedClient}
+                            setSelected={setSelectedClient}
+                            allLabel="All Clients"
+                            dropdownTitle="Clients"
+                            height={34}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        ...filterButtonStyle,
+                        height: '42px',
+                        padding: '0 12px',
+                        background: 'var(--color-background-primary)',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                          <i className="bi bi-building" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+                          <SimpleMultiSelectDropdown
+                            options={jobSites}
+                            selected={selectedJobSite}
+                            setSelected={setSelectedJobSite}
+                            allLabel="All Job Sites"
+                            dropdownTitle="Job Sites"
+                            height={34}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        ...filterButtonStyle,
+                        height: '42px',
+                        padding: '0 4px 0 12px',
+                        background: 'var(--color-background-primary)',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="bi bi-grid-3x3-gap" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
+                          <span style={{ fontWeight: 600, fontSize: '13px' }}>Type</span>
+                        </div>
+                        <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)', marginLeft: 'auto' }}>
+                          <button
+                            style={segmentedButtonStyle(selectedProjectType === 'all')}
+                            onClick={() => setSelectedProjectType('all')}
+                          >
+                            All
+                          </button>
+                          <button
+                            style={segmentedButtonStyle(selectedProjectType === 'Building')}
+                            onClick={() => setSelectedProjectType('Building')}
+                          >
+                            Building
+                          </button>
+                          <button
+                            style={segmentedButtonStyle(selectedProjectType === 'Lot')}
+                            onClick={() => setSelectedProjectType('Lot')}
+                          >
+                            Lot
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divisor Horizontal entre Primary e Stickers */}
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--color-border-divider)', 
+                margin: '16px 0',
+                width: '100%',
+                opacity: 0.6
+              }} />
+
+              {/* Seção de Stickers */}
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--color-text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.8px',
+                marginBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: 0.8
+              }}>
+                <i className="bi bi-tag-fill" style={{ fontSize: '10px' }} />
+                Completion Stickers
+              </div>
+
+              {/* Grid 3x2 de Filtros Segmentados (Stickers) */}
               <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: 'repeat(3, 1fr)', 
@@ -673,6 +853,73 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
                   icon={<i className="bi bi-file-earmark-text" style={{ fontSize: '16px' }} />}
                 />
               </div>
+
+              {/* Divisor Horizontal */}
+              <div style={{ 
+                height: '1px', 
+                background: 'var(--color-border-divider)', 
+                margin: '16px 0',
+                width: '100%',
+                opacity: 0.6
+              }} />
+
+              {/* Seção de Status */}
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: 'var(--color-text-secondary)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.8px',
+                marginBottom: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                opacity: 0.8
+              }}>
+                <i className="bi bi-stack" style={{ fontSize: '10px' }} />
+                Project Status
+              </div>
+
+              {/* Filtros de Status */}
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(2, 1fr)', 
+                gap: '8px',
+                width: '100%' 
+              }}>
+                <StatusButtonGroup
+                  status="overdue"
+                  label="Overdue"
+                  icon="bi-exclamation-triangle-fill"
+                  color="#e04b4b"
+                  selectedStatuses={selectedStatuses}
+                  onChange={setSelectedStatuses}
+                />
+                <StatusButtonGroup
+                  status="not started"
+                  label="Not Started"
+                  icon="bi-clock"
+                  color="#3b82f6"
+                  selectedStatuses={selectedStatuses}
+                  onChange={setSelectedStatuses}
+                />
+                <StatusButtonGroup
+                  status="open"
+                  label="Open"
+                  icon="bi-play-circle-fill"
+                  color="#28a745"
+                  selectedStatuses={selectedStatuses}
+                  onChange={setSelectedStatuses}
+                />
+                <StatusButtonGroup
+                  status="closed"
+                  label="Closed"
+                  icon="bi-check-circle-fill"
+                  color="#6c757d"
+                  selectedStatuses={selectedStatuses}
+                  onChange={setSelectedStatuses}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -710,62 +957,56 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
                 <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Summary</span>
               </div>
               
-              <div style={{ display: 'flex', gap: '16px', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: '16px', flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</span>
-                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Projects</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
-                  <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueClients}</span>
-                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Clients</span>
-                </div>
-              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  {/* Projects */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-tools" style={{ color: 'var(--color-accent-primary)', fontSize: '13px' }} />
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-accent-primary)' }}>{stats.totalProjects}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Projects</span>
+                    </div>
+                  </div>
 
-              <i 
-                className={`bi bi-chevron-${isSummaryOpen ? 'up' : 'down'}`} 
-                style={{ 
-                  color: isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-                  fontSize: '12px',
-                  transition: 'transform 0.3s ease'
-                }} 
-              />
+                  <div style={{ width: '1px', height: '14px', background: 'var(--color-border-divider)', opacity: 0.6 }} />
+
+                  {/* Clients */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-building" style={{ color: 'var(--color-text-primary)', fontSize: '13px', opacity: 0.7 }} />
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueClients}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Clients</span>
+                    </div>
+                  </div>
+
+                  <div style={{ width: '1px', height: '14px', background: 'var(--color-border-divider)', opacity: 0.6 }} />
+
+                  {/* Locations */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="bi bi-geo-alt" style={{ color: 'var(--color-text-primary)', fontSize: '13px', opacity: 0.7 }} />
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>{stats.uniqueJobSites}</span>
+                      <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '0.5px' }}>Locations</span>
+                    </div>
+                  </div>
+                </div>
+
+                <i 
+                  className={`bi bi-chevron-${isSummaryOpen ? 'up' : 'down'}`} 
+                  style={{ 
+                    color: isSummaryOpen ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                    fontSize: '12px',
+                    transition: 'transform 0.3s ease',
+                    marginLeft: '4px'
+                  }} 
+                />
+              </div>
             </button>
           )}
 
-          {/* Filtro Show only Not Started - Centralizado entre os botões */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            background: 'var(--color-background-primary)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: '12px',
-            padding: '0 4px 0 15px',
-            height: '42px',
-            flex: activeTab === 'metrics' ? '1' : '0 1 auto',
-            minWidth: '240px'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' }}>
-              <i className="bi bi-eye" style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
-              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>Not Started Only</span>
-            </div>
-            <div style={{ ...segmentedButtonGroupStyle, border: 'none', background: 'rgba(var(--color-text-primary-rgb), 0.08)', marginLeft: 'auto' }}>
-              <button
-                style={segmentedButtonStyle(showOnlyNotStarted)}
-                onClick={() => setShowOnlyNotStarted(true)}
-              >
-                On
-              </button>
-              <button
-                style={segmentedButtonStyle(!showOnlyNotStarted)}
-                onClick={() => setShowOnlyNotStarted(false)}
-              >
-                Off
-              </button>
-            </div>
-          </div>
+          {/* Filtro Show only Not Started - REMOVIDO DAQUI E MOVIDO PARA DENTRO DE FILTERS */}
 
-          {/* Botão Stickers (Altura Ajustada) - Oculto em Metrics */}
+          {/* Botão Filters (Altura Ajustada) - Oculto em Metrics */}
           {activeTab !== 'metrics' && (
             <button
               onClick={() => setIsAdvancedFiltersOpen(!isAdvancedFiltersOpen)}
@@ -796,7 +1037,7 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <i className={`bi bi-sliders${isAdvancedFiltersOpen ? '' : ''}`} style={{ color: 'var(--color-accent-primary)', fontSize: '14px' }} />
-                <span>Stickers</span>
+                <span>Filters</span>
               </div>
               <i 
                 className={`bi bi-chevron-${isAdvancedFiltersOpen ? 'up' : 'down'}`} 
@@ -818,10 +1059,8 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
               animation: 'slideDown 0.3s ease-out'
             }}>
               <ForecastMetrics 
-                stats={stats} 
                 workforceProjects={visibleProjects}
                 groupBy={groupBy}
-                onGroupByChange={setGroupBy}
                 dateMode={dateMode}
               />
             </div>

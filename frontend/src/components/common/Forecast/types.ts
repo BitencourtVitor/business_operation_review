@@ -64,3 +64,6 @@ export interface ForecastData {
   endDate?: string | null;
 }
 
+// Tipagem para os 4 status do Forecast
+export type ForecastProjectStatus = 'closed' | 'overdue' | 'open' | 'not started';
+
