@@ -10,101 +10,22 @@ import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
 import { 
   getForecastProjectStatus, 
-  type ForecastProjectStatus,
-  hasStorage
+  hasStorage,
+  isFieldwireComplete,
+  isMachinesComplete,
+  hasCompleteContract,
+  getReferenceDate
 } from '../components/common/Forecast/helpers';
 
-import type { DateMode } from '../components/common/Forecast/types';
-
-interface ForecastFieldwire {
-  id: number;
-  obra_id: string;
-  category: string | null;
-  document: string | null;
-  status: boolean | null;
-  lastupdate_datetimez: string | null;
-}
-
-interface ForecastMachine {
-  id: number;
-  obra_id: string;
-  category: string | null;
-  subcategory: string | null;
-  equipment_category: string | null;
-  title: string | null;
-  status: boolean | null;
-  unit: string | null;
-  lastupdate_datetimez: string | null;
-}
-
-interface ForecastContractStep {
-  id: number;
-  obra_id: string;
-  step: string | null;
-  status: boolean | null;
-  lastupdate_datetimez: string | null;
-}
-
-interface WorkforceProject {
-  id: string; // Mudou de number para string (ID da obra)
-  cliente: string;
-  job_site: string;
-  type: string | null;
-  lote_bld: string | null; // Mudou de lote_building (number) para lote_bld (string)
-  workforce: string | null;
-  hvac: boolean | null; // Mudou de string para boolean
-  buildertrend: boolean | null; // Novo campo
-  qbtime: boolean | null; // Novo campo
-  storage: boolean | null; // Indica se a obra já foi adicionada ao sistema de estoque
-  machine_provider: string | null; // Novo campo
-  status: string | null;
-  address: string | null;
-  previous_beams_date: string | null;
-  previous_start_date: string | null;
-  previous_end_date: string | null;
-  obs: string | null; // Mudou de observacoes para obs
-  create_datetime: string | null; // Mudou de created_at
-  lastupdate_datetimez: string | null; // Mudou de updated_at
-  // Dados relacionados das tabelas derivadas
-  fieldwire?: ForecastFieldwire[];
-  machines?: ForecastMachine[];
-  contract_steps?: ForecastContractStep[];
-}
-
-const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | null => {
-  if (mode === 'beams') {
-    return project.previous_beams_date || project.previous_start_date || null;
-  }
-  return project.previous_start_date || null;
-};
-
-// Helper para verificar se Fieldwire está completo (todos os documentos com status true)
-const isFieldwireComplete = (project: WorkforceProject): boolean => {
-  if (!project.fieldwire || project.fieldwire.length === 0) return false;
-  return project.fieldwire.every(fw => fw.status === true);
-};
-
-// Helper para verificar se Machines and Attachments está completo
-const isMachinesComplete = (project: WorkforceProject): boolean => {
-  if (!project.machines || project.machines.length === 0) return false;
-  return project.machines.every(m => m.status === true);
-};
-
-// Helper para verificar se tem contrato completo
-const hasCompleteContract = (project: WorkforceProject): boolean => {
-  if (!project.contract_steps || project.contract_steps.length === 0) return false;
-  return project.contract_steps.every(cs => cs.status === true);
-};
-
-interface ForecastData {
-  cliente: string;
-  job_site: string;
-  month: string;
-  year: number;
-  projectCount: number;
-  startDate: string;
-  endDate: string;
-}
+import type { 
+  DateMode, 
+  WorkforceProject, 
+  ForecastFieldwire, 
+  ForecastMachine, 
+  ForecastContractStep, 
+  ForecastProjectStatus,
+  ForecastData
+} from '../components/common/Forecast/types';
 
 const MONTH_NAMES = [
   "January", "February", "March", "April", "May", "June",

@@ -8,7 +8,8 @@ import {
   hasCompleteContract, 
   getReferenceDate, 
   getOverdueType,
-  hasActiveFieldwire
+  hasActiveFieldwire,
+  getProjectTeams
 } from './helpers';
 
 // Importar novos componentes
@@ -669,20 +670,29 @@ export default function TimelinePlanner({
                                       </div>
                                       
                                       {/* Equipe */}
-                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
-                                        <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
-                                        <span style={{ 
-                                          fontSize: 11, 
-                                          opacity: 0.9,
-                                          color: project.workforce ? 'inherit' : '#ffcc00',
-                                          fontWeight: project.workforce ? 'normal' : 'bold'
-                                        }}>
-                                          {project.workforce || 'No team'}
-                                        </span>
-                                        {hasContract && (
-                                          <i className="bi bi-file-earmark-check" style={{ color: '#4ade80', fontSize: 14 }} title="Contract Complete" />
-                                        )}
-                                      </div>
+                                      {(() => {
+                                        const teams = getProjectTeams(project);
+                                        return (
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                                            <i className="bi bi-people" style={{ fontSize: 12, color: 'rgba(255,255,255,0.85)' }} />
+                                            <span style={{ 
+                                                fontSize: 11, 
+                                                opacity: 0.9,
+                                                color: teams.length > 0 ? 'inherit' : '#ffcc00',
+                                                fontWeight: teams.length > 0 ? 'normal' : 'bold'
+                                              }}>
+                                                {(() => {
+                                                  if (teams.length === 0) return 'No team';
+                                                  if (teams.length === 1) return teams[0];
+                                                  return `${teams.length} teams involved`;
+                                                })()}
+                                              </span>
+                                            {hasContract && (
+                                              <i className="bi bi-file-earmark-check" style={{ color: '#4ade80', fontSize: 14 }} title="Contract Complete" />
+                                            )}
+                                          </div>
+                                        );
+                                      })()}
                                       
                                       {/* Datas */}
                                       {project.previous_beams_date && (

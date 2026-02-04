@@ -213,7 +213,6 @@ async function processDataSheet(csvData: any[]) {
       lote_bld: normalizeUtf8String(row['Lote / Bld']) || null,
       status: normalizeUtf8String(row['Status']) || null,
       address: normalizeUtf8String(row['Address']) || null,
-      workforce: normalizeUtf8String(row['Workforce']) || null,
       previous_beams_date: parseDate(row['Previous Beams Date']),
       previous_start_date: parseDate(row['Previous Start Date']),
       previous_end_date: parseDate(row['Previous End Date']),
@@ -278,6 +277,7 @@ async function processContractStepsSheet(csvData: any[]) {
     
     return {
       obra_id: obraId,
+      team: normalizeUtf8String(row['Team_Name']) || null,
       step: normalizeUtf8String(row['Step']) || null,
       status: parseYesNo(row['Status']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
@@ -375,6 +375,8 @@ serve(async (req) => {
     const fetchedData = await Promise.all(fetchPromises);
     
     // Processar dados da planilha Data
+    let validObraIds = new Set<string>();
+    
     if (dataAccessible) {
       try {
         const dataItem = fetchedData.find(item => item.type === 'data');
@@ -391,6 +393,9 @@ serve(async (req) => {
             if (dataError) {
               throw new Error(`Erro ao inserir dados: ${dataError.message}`);
             }
+            
+            // Guardar IDs válidos para filtrar outras tabelas
+            processedData.forEach(row => validObraIds.add(row.id));
             
             results.data.success = true;
             results.data.count = processedData.length;
@@ -414,7 +419,10 @@ serve(async (req) => {
         const fieldwireItem = fetchedData.find(item => item.type === 'fieldwire');
         if (fieldwireItem) {
           console.log('Processando dados da planilha Fieldwire...');
-          const processedFieldwire = await processFieldwireSheet(fieldwireItem.data);
+          let processedFieldwire = await processFieldwireSheet(fieldwireItem.data);
+          
+          // Filtrar por IDs válidos
+          processedFieldwire = processedFieldwire.filter(row => validObraIds.has(row.obra_id));
           
           if (processedFieldwire.length > 0) {
             console.log(`Inserindo ${processedFieldwire.length} registros na tabela forecast_fieldwire...`);
@@ -430,7 +438,7 @@ serve(async (req) => {
             results.fieldwire.count = processedFieldwire.length;
             console.log(`✅ ${processedFieldwire.length} registros da planilha Fieldwire sincronizados com sucesso`);
           } else {
-            console.log('⚠️ Nenhum registro válido encontrado na planilha Fieldwire');
+            console.log('⚠️ Nenhum registro válido (com ID correspondente) encontrado na planilha Fieldwire');
           }
         }
       } catch (error) {
@@ -448,7 +456,10 @@ serve(async (req) => {
         const machinesItem = fetchedData.find(item => item.type === 'machines');
         if (machinesItem) {
           console.log('Processando dados da planilha Machines...');
-          const processedMachines = await processMachinesSheet(machinesItem.data);
+          let processedMachines = await processMachinesSheet(machinesItem.data);
+          
+          // Filtrar por IDs válidos
+          processedMachines = processedMachines.filter(row => validObraIds.has(row.obra_id));
           
           if (processedMachines.length > 0) {
             console.log(`Inserindo ${processedMachines.length} registros na tabela forecast_machines...`);
@@ -464,7 +475,7 @@ serve(async (req) => {
             results.machines.count = processedMachines.length;
             console.log(`✅ ${processedMachines.length} registros da planilha Machines sincronizados com sucesso`);
           } else {
-            console.log('⚠️ Nenhum registro válido encontrado na planilha Machines');
+            console.log('⚠️ Nenhum registro válido (com ID correspondente) encontrado na planilha Machines');
           }
         }
       } catch (error) {
@@ -482,7 +493,10 @@ serve(async (req) => {
         const contractStepsItem = fetchedData.find(item => item.type === 'contractSteps');
         if (contractStepsItem) {
           console.log('Processando dados da planilha ContractSteps...');
-          const processedContractSteps = await processContractStepsSheet(contractStepsItem.data);
+          let processedContractSteps = await processContractStepsSheet(contractStepsItem.data);
+          
+          // Filtrar por IDs válidos
+          processedContractSteps = processedContractSteps.filter(row => validObraIds.has(row.obra_id));
           
           if (processedContractSteps.length > 0) {
             console.log(`Inserindo ${processedContractSteps.length} registros na tabela forecast_contract_steps...`);
@@ -498,7 +512,7 @@ serve(async (req) => {
             results.contractSteps.count = processedContractSteps.length;
             console.log(`✅ ${processedContractSteps.length} registros da planilha ContractSteps sincronizados com sucesso`);
           } else {
-            console.log('⚠️ Nenhum registro válido encontrado na planilha ContractSteps');
+            console.log('⚠️ Nenhum registro válido (com ID correspondente) encontrado na planilha ContractSteps');
           }
         }
       } catch (error) {
