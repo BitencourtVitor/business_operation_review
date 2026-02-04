@@ -132,9 +132,18 @@ export const getReferenceDate = (project: WorkforceProject, mode: 'start' | 'bea
   return project.previous_start_date || null;
 };
 
-// Helper para verificar se tem workforce atribuído
+// Helper para obter os nomes das equipes atribuídas à obra via passos de contrato
+export const getProjectTeams = (project: WorkforceProject): string[] => {
+  if (!project.contract_steps || project.contract_steps.length === 0) return [];
+  const teams = project.contract_steps
+    .map(cs => cs.team)
+    .filter((team): team is string => !!team && team.trim() !== '');
+  return [...new Set(teams)];
+};
+
+// Helper para verificar se tem workforce atribuído (pelo menos uma equipe nos passos de contrato)
 export const hasWorkforce = (project: WorkforceProject): boolean => {
-  return !!(project.workforce && project.workforce.trim() !== '');
+  return getProjectTeams(project).length > 0;
 };
 
 export const hasStorage = (project: WorkforceProject): boolean => {

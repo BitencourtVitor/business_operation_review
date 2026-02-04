@@ -24,6 +24,7 @@ export interface ForecastMachine {
 export interface ForecastContractStep {
   id: number;
   obra_id: string;
+  team: string | null;
   step: string | null;
   status: boolean | null;
   lastupdate_datetimez: string | null;
@@ -35,7 +36,6 @@ export interface WorkforceProject {
   job_site: string;
   type: string | null;
   lote_bld: string | null;
-  workforce: string | null;
   hvac: boolean | null;
   buildertrend: boolean | null;
   storage: boolean | null;

@@ -5,6 +5,7 @@ import {
   getOverdueType,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
+  getProjectTeams,
   type ForecastProjectStatus
 } from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
@@ -31,6 +32,7 @@ export default function ForecastProjectModal({
   const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
   const projectStatus = getForecastProjectStatus(project);
   const metrics = getProjectCompletionMetrics(project);
+  const projectTeams = getProjectTeams(project);
 
   const getProgressBarColor = () => {
     if (projectStatus === 'overdue') return '#e04b4b'; // Overdue: Sempre Vermelho
@@ -298,10 +300,24 @@ export default function ForecastProjectModal({
               color: 'var(--color-text-secondary)',
               display: 'flex',
               alignItems: 'flex-start',
-              gap: '4px'
+              gap: '4px',
+              marginBottom: 4
             }}>
               <i className="bi bi-geo-alt-fill" style={{ fontSize: 10, marginTop: 2 }} />
               <span style={{ textAlign: 'left' }}>{project.address}</span>
+            </div>
+            
+            {/* Equipes / Teams */}
+            <div style={{ 
+              fontSize: 12, 
+              color: projectTeams.length > 0 ? 'var(--color-text-primary)' : '#ffcc00',
+              fontWeight: projectTeams.length > 0 ? 500 : 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              <i className="bi bi-people" style={{ fontSize: 11 }} />
+              <span>{projectTeams.join(', ') || 'No team assigned'}</span>
             </div>
           </div>
           <button
@@ -484,34 +500,72 @@ export default function ForecastProjectModal({
           {/* Contract Steps */}
           {project.contract_steps && project.contract_steps.length > 0 && (
             <div id="modal-section-contract" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 8, textAlign: 'left' }}>Contract Steps</div>
-              {project.workforce && (
-                <div style={{ fontSize: 13, color: 'var(--color-text-secondary)', marginBottom: 12, opacity: 0.7, textAlign: 'left' }}>
-                  Workforce: {project.workforce}
-                </div>
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {project.contract_steps.map((cs) => (
-                  <div key={cs.id} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Contract Steps</div>
+              
+              {(() => {
+                // Agrupar passos por equipe
+                const groupedByTeam: { [team: string]: typeof project.contract_steps } = {};
+                project.contract_steps?.forEach(cs => {
+                  const teamName = cs.team || 'No team assigned';
+                  if (!groupedByTeam[teamName]) {
+                    groupedByTeam[teamName] = [];
+                  }
+                  groupedByTeam[teamName].push(cs);
+                });
+
+                return Object.entries(groupedByTeam).map(([team, steps], index) => (
+                  <div key={team} style={{ 
+                    marginBottom: index < Object.entries(groupedByTeam).length - 1 ? 20 : 0,
                     padding: '12px',
-                    background: 'rgba(0,0,0,0.05)',
                     borderRadius: 8,
-                    border: '1px solid var(--color-border-divider)'
+                    border: '1px solid var(--color-border-divider)',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}>
-                    <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>
-                      {cs.step || 'N/A'}
+                    <div style={{ 
+                      fontSize: 14, 
+                      fontWeight: 600, 
+                      color: 'var(--color-text-primary)',
+                      marginBottom: 12,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      textAlign: 'center'
+                    }}>
+                      <i className="bi bi-people-fill" style={{ fontSize: 16 }} />
+                      {team}
                     </div>
-                    {cs.status ? (
-                      <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80' }} />
-                    ) : (
-                      <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24' }} />
-                    )}
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      gap: 8
+                    }}>
+                      {steps.map((cs) => (
+                        <div key={cs.id} style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '12px',
+                          background: 'rgba(0,0,0,0.05)',
+                          borderRadius: 8,
+                          border: '1px solid var(--color-border-divider)'
+                        }}>
+                          <div style={{ fontSize: 14, color: 'var(--color-text-primary)', fontWeight: 500 }}>
+                            {cs.step || 'N/A'}
+                          </div>
+                          {cs.status ? (
+                            <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80' }} />
+                          ) : (
+                            <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24' }} />
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ))}
-              </div>
+                ));
+              })()}
             </div>
           )}
 

@@ -8,6 +8,7 @@ import {
   getContractProgress,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
+  getProjectTeams,
   type ForecastProjectStatus
 } from './helpers';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
@@ -244,18 +245,25 @@ export default function ForecastProjectCard({
             alignItems: 'center',
             gap: '4px',
             fontSize: '12px',
-            color: project.workforce ? 'var(--color-text-primary)' : '#ffcc00',
-            fontWeight: project.workforce ? 400 : 600
+            color: getProjectTeams(project).length > 0 ? 'var(--color-text-primary)' : '#ffcc00',
+            fontWeight: getProjectTeams(project).length > 0 ? 400 : 600
           }}>
             {hasCompleteContract(project) && (
               <i className="bi bi-file-earmark-check" style={{ fontSize: 13, color: '#20c997' }} />
             )}
             <i className="bi bi-people" style={{ fontSize: 11 }} />
             <span style={{ 
-              overflow: 'hidden', 
-              textOverflow: 'ellipsis', 
-              whiteSpace: 'nowrap' 
-            }}>{project.workforce || 'No team assigned'}</span>
+            overflow: 'hidden', 
+            textOverflow: 'ellipsis', 
+            whiteSpace: 'nowrap' 
+          }}>
+            {(() => {
+              const teams = getProjectTeams(project);
+              if (teams.length === 0) return 'No team assigned';
+              if (teams.length === 1) return teams[0];
+              return `${teams.length} teams involved`;
+            })()}
+          </span>
           </div>
           
           {/* Machine Provider */}
