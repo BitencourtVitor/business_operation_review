@@ -19,6 +19,7 @@ import ProjectMonitoring from './ProjectMonitoring';
 import FuelControl from './FuelControl';
 import WorkforceForecast from './WorkforceForecast';
 import NewTimesheetAnalysis from './NewTimesheetAnalysis';
+import OperationalForecastIndex from './OperationalForecastIndex';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -294,6 +295,8 @@ export default function Dashboard() {
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
     'Forecast': 'bi bi-graph-up',
+    'Operational Forecast Index': 'bi bi-speedometer2',
+    'OFI': 'bi bi-speedometer2',
   };
 
   // Função para obter ícone da tela
@@ -333,7 +336,9 @@ export default function Dashboard() {
       'Takeoff Works',
       'Service Requests',
       'Project Monitoring',
-      'Forecast'
+      'Forecast',
+      'Operational Forecast Index',
+      'OFI'
     ];
 
     return telas.sort((a, b) => {
@@ -492,6 +497,9 @@ export default function Dashboard() {
           isResponsavelPelaTela={isResponsavelPelaTela} 
           initialTab={selectedForecastType === 'Metrics' ? 'metrics' : 'planner'}
         />;
+      case 'Operational Forecast Index':
+      case 'OFI':
+        return <OperationalForecastIndex />;
       case 'Fuel Control':
         // Verificar permissão financeira antes de mostrar Fuel Control
         if (!financialPass) {
