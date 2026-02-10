@@ -66,26 +66,56 @@ export default function OperationalForecastIndex() {
     }
   }, [allData, years, selectedYear]);
 
-  if (loading) {
+  if (loading && allData.length === 0) {
     return (
-      <div className="d-flex align-items-center justify-content-center h-100">
-        <div className="spinner-border text-primary" role="status">
+      <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ background: 'var(--color-background-primary)', gap: 16 }}>
+        <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
           <span className="visually-hidden">Carregando...</span>
+        </div>
+        <div style={{ color: 'var(--color-text-secondary)', fontSize: 16, fontWeight: 500 }}>
+          Coletando dados do OFI...
         </div>
       </div>
     );
   }
 
-  if (error) {
+  if (error && allData.length === 0) {
     return (
-      <div className="alert alert-danger m-4" role="alert">
-        Erro ao carregar dados do OFI: {error}
+      <div className="d-flex flex-column align-items-center justify-content-center h-100" style={{ background: 'var(--color-background-primary)', padding: 40 }}>
+        <div className="alert alert-danger d-flex align-items-center gap-3" role="alert" style={{ maxWidth: 600 }}>
+          <i className="bi bi-exclamation-triangle-fill" style={{ fontSize: 24 }} />
+          <div>
+            <h5 className="alert-heading mb-1">Erro ao carregar dados</h5>
+            <p className="mb-0">{error}</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="custom-scrollbar" style={{ height: '100%', overflowY: 'auto', background: 'var(--color-background-primary)', display: 'flex', flexDirection: 'column' }}>
+    <div className="custom-scrollbar" style={{ height: '100%', overflowY: 'auto', background: 'var(--color-background-primary)', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Overlay de loading para refetch */}
+      {loading && (
+        <div style={{ 
+          position: 'absolute', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          background: 'rgba(var(--color-background-primary-rgb), 0.5)', 
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(2px)'
+        }}>
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Atualizando...</span>
+          </div>
+        </div>
+      )}
+
       {/* Barra superior com título e filtros - Padrão Takeoff Works */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
         <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12, fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
