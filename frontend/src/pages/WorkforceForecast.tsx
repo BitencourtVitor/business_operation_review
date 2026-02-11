@@ -290,6 +290,9 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
   const fetchWorkforceData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('🚀 WorkforceForecast - Iniciando busca de dados...');
       
       // Buscar dados principais da tabela forecast_data
       const { data: projectsData, error: projectsError } = await supabase
@@ -297,7 +300,12 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
         .select('*')
         .order('previous_start_date', { ascending: true });
 
-      if (projectsError) throw projectsError;
+      if (projectsError) {
+        console.error('❌ WorkforceForecast - Erro ao buscar projetos:', projectsError);
+        throw projectsError;
+      }
+
+      console.log(`✅ WorkforceForecast - ${projectsData?.length || 0} projetos encontrados`);
 
       if (!projectsData || projectsData.length === 0) {
         setRawProjects([]);
@@ -308,6 +316,7 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
       // Buscar dados relacionados em paralelo
       const obraIds = projectsData.map(p => p.id);
       
+      console.log('🚀 WorkforceForecast - Buscando dados relacionados...');
       const [fieldwireData, machinesData, contractStepsData] = await Promise.all([
         supabase
           .from('forecast_fieldwire')
@@ -322,6 +331,10 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
           .select('*')
           .in('obra_id', obraIds)
       ]);
+
+      if (fieldwireData.error) console.error('❌ WorkforceForecast - Erro Fieldwire:', fieldwireData.error);
+      if (machinesData.error) console.error('❌ WorkforceForecast - Erro Machines:', machinesData.error);
+      if (contractStepsData.error) console.error('❌ WorkforceForecast - Erro Contract Steps:', contractStepsData.error);
 
       // Agrupar dados relacionados por obra_id
       const fieldwireMap = new Map<string, ForecastFieldwire[]>();
@@ -356,12 +369,14 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
         contract_steps: contractStepsMap.get(project.id) || []
       }));
 
+      console.log('✅ WorkforceForecast - Dados enriquecidos com sucesso');
       setRawProjects(enrichedProjects);
       setWorkforceProjects(enrichedProjects);
 
     } catch (err) {
-      console.error('Erro ao buscar dados do workforce:', err);
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados do forecast';
+      console.error('❌ WorkforceForecast - Erro fatal:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

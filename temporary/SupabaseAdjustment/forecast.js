@@ -324,6 +324,7 @@ serve(async (req) => {
     console.log('🧹 Limpando tabelas existentes...');
     
     // Limpar tabelas derivadas primeiro (devido às FKs)
+    const tableNames = ['forecast_contract_steps', 'forecast_machines', 'forecast_fieldwire'];
     const deletePromises = [
       supabase.from('forecast_contract_steps').delete().not('id', 'is', null),
       supabase.from('forecast_machines').delete().not('id', 'is', null),
@@ -334,7 +335,6 @@ serve(async (req) => {
     
     for (let i = 0; i < deleteResults.length; i++) {
       const { error } = deleteResults[i];
-      const tableNames = ['forecast_contract_steps', 'forecast_machines', 'forecast_fieldwire'];
       if (error) {
         throw new Error(`Erro ao limpar tabela ${tableNames[i]}: ${error.message}`);
       }
