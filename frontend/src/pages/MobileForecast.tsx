@@ -115,6 +115,9 @@ export default function MobileForecast() {
   const fetchWorkforceData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      console.log('🚀 MobileForecast - Iniciando busca de dados...');
       
       // Buscar dados principais da tabela forecast_data
       const { data: projectsData, error: projectsError } = await supabase
@@ -122,7 +125,12 @@ export default function MobileForecast() {
         .select('*')
         .order('previous_start_date', { ascending: true });
 
-      if (projectsError) throw projectsError;
+      if (projectsError) {
+        console.error('❌ MobileForecast - Erro ao buscar projetos:', projectsError);
+        throw projectsError;
+      }
+
+      console.log(`✅ MobileForecast - ${projectsData?.length || 0} projetos encontrados`);
 
       if (!projectsData || projectsData.length === 0) {
         setRawProjects([]);
@@ -133,6 +141,7 @@ export default function MobileForecast() {
       // Buscar dados relacionados em paralelo
       const obraIds = projectsData.map(p => p.id);
       
+      console.log('🚀 MobileForecast - Buscando dados relacionados...');
       const [fieldwireData, machinesData, contractStepsData] = await Promise.all([
         supabase
           .from('forecast_fieldwire')
@@ -147,6 +156,10 @@ export default function MobileForecast() {
           .select('*')
           .in('obra_id', obraIds)
       ]);
+
+      if (fieldwireData.error) console.error('❌ MobileForecast - Erro Fieldwire:', fieldwireData.error);
+      if (machinesData.error) console.error('❌ MobileForecast - Erro Machines:', machinesData.error);
+      if (contractStepsData.error) console.error('❌ MobileForecast - Erro Contract Steps:', contractStepsData.error);
 
       // Agrupar dados relacionados por obra_id
       const fieldwireMap = new Map<string, ForecastFieldwire[]>();
@@ -181,14 +194,14 @@ export default function MobileForecast() {
         contract_steps: contractStepsMap.get(project.id) || []
       }));
 
+      console.log('✅ MobileForecast - Dados enriquecidos com sucesso');
       setRawProjects(enrichedProjects);
-      
-      // Não filtrar por status aqui - será feito no visibleProjects
       setWorkforceProjects(enrichedProjects);
 
     } catch (err) {
-      console.error('Erro ao buscar dados do forecast:', err);
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados do forecast';
+      console.error('❌ MobileForecast - Erro fatal:', errorMessage);
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

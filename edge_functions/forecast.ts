@@ -2,8 +2,8 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.5";
 import Papa from "https://esm.sh/papaparse@5.4.1";
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL");
-const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const supabaseUrl = (Deno as any).env.get("SUPABASE_URL");
+const supabaseKey = (Deno as any).env.get("SUPABASE_SERVICE_ROLE_KEY");
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Base URL da planilha
@@ -183,19 +183,19 @@ async function fetchCsvToJson(url: string, name: string) {
       Papa.parse(csvText, {
         header: true,
         skipEmptyLines: true,
-        complete: (results) => {
+        complete: (results: any) => {
           if (results.errors.length > 0) {
             console.warn(`Avisos no parsing de ${name}:`, results.errors);
           }
           resolve(results.data);
         },
-        error: (error) => {
+        error: (error: any) => {
           reject(new Error(`Erro ao fazer parse do CSV ${name}: ${error.message}`));
         }
       });
     });
   } catch (error) {
-    throw new Error(`Erro ao buscar CSV ${name}: ${error.message}`);
+    throw new Error(`Erro ao buscar CSV ${name}: ${(error as Error).message}`);
   }
 }
 
@@ -225,7 +225,7 @@ async function processDataSheet(csvData: any[]) {
       create_datetime: parseDateTime(row['Create DateTime']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
     };
-  }).filter(row => row !== null && row.id); // Filtrar apenas linhas válidas
+  }).filter((row: any) => row !== null && row.id); // Filtrar apenas linhas válidas
   
   return processedData;
 }
@@ -243,7 +243,7 @@ async function processFieldwireSheet(csvData: any[]) {
       status: parseYesNo(row['Status']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
     };
-  }).filter(row => row !== null && row.obra_id); // Filtrar apenas linhas válidas
+  }).filter((row: any) => row !== null && row.obra_id); // Filtrar apenas linhas válidas
   
   return processedData;
 }
@@ -264,7 +264,7 @@ async function processMachinesSheet(csvData: any[]) {
       unit: normalizeUtf8String(row['Unit']) || null,
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
     };
-  }).filter(row => row !== null && row.obra_id); // Filtrar apenas linhas válidas
+  }).filter((row: any) => row !== null && row.obra_id); // Filtrar apenas linhas válidas
   
   return processedData;
 }
@@ -282,9 +282,22 @@ async function processContractStepsSheet(csvData: any[]) {
       status: parseYesNo(row['Status']),
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
     };
-  }).filter(row => row !== null && row.obra_id); // Filtrar apenas linhas válidas
+  }).filter((row: any) => row !== null && row.obra_id); // Filtrar apenas linhas válidas
   
   return processedData;
+}
+
+interface SyncResult {
+  success: boolean;
+  count: number;
+  error: string | null;
+}
+
+interface SyncResults {
+  data: SyncResult;
+  fieldwire: SyncResult;
+  machines: SyncResult;
+  contractSteps: SyncResult;
 }
 
 const corsHeaders = {
@@ -294,7 +307,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, x-client-info, apikey"
 };
 
-serve(async (req) => {
+(serve as any)(async (req: Request) => {
   // Preflight CORS
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -315,7 +328,13 @@ serve(async (req) => {
   try {
     console.log('Iniciando sincronização do Forecast...');
     
-    const results = {
+    // Validar variáveis de ambiente
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('❌ Variáveis de ambiente SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY não configuradas');
+      throw new Error('Configuração do servidor incompleta (env vars)');
+    }
+
+    const results: SyncResults = {
       data: { success: false, count: 0, error: null },
       fieldwire: { success: false, count: 0, error: null },
       machines: { success: false, count: 0, error: null },
@@ -326,30 +345,26 @@ serve(async (req) => {
     console.log('🧹 Limpando tabelas existentes...');
     
     // Limpar tabelas derivadas primeiro (devido às FKs)
-    const deletePromises = [
-      supabase.from('forecast_contract_steps').delete().not('id', 'is', null),
-      supabase.from('forecast_machines').delete().not('id', 'is', null),
-      supabase.from('forecast_fieldwire').delete().not('id', 'is', null)
-    ];
-    
-    const deleteResults = await Promise.all(deletePromises);
-    
-    for (let i = 0; i < deleteResults.length; i++) {
-      const { error } = deleteResults[i];
-      const tableNames = ['forecast_contract_steps', 'forecast_machines', 'forecast_fieldwire'];
+    const tableNames = ['forecast_contract_steps', 'forecast_machines', 'forecast_fieldwire'];
+    for (const tableName of tableNames) {
+      console.log(`Limpando tabela ${tableName}...`);
+      const { error } = await supabase.from(tableName).delete().not('id', 'is', null);
       if (error) {
-        throw new Error(`Erro ao limpar tabela ${tableNames[i]}: ${error.message}`);
+        console.error(`Erro ao limpar tabela ${tableName}:`, error);
+        throw new Error(`Erro ao limpar tabela ${tableName}: ${error.message}`);
       }
-      console.log(`✅ Tabela ${tableNames[i]} limpa com sucesso`);
+      console.log(`✅ Tabela ${tableName} limpa com sucesso`);
     }
     
     // Limpar tabela principal por último
-    const { error: deleteDataError } = await supabase
+    console.log('Limpando tabela forecast_data...');
+    const { error: deleteDataError } = await (supabase
       .from('forecast_data')
       .delete()
-      .not('id', 'is', null);
+      .not('id', 'is', null) as any);
     
     if (deleteDataError) {
+      console.error('Erro ao limpar tabela forecast_data:', deleteDataError);
       throw new Error(`Erro ao limpar tabela forecast_data: ${deleteDataError.message}`);
     }
     console.log('✅ Tabela forecast_data limpa com sucesso');
@@ -375,27 +390,29 @@ serve(async (req) => {
     const fetchedData = await Promise.all(fetchPromises);
     
     // Processar dados da planilha Data
-    let validObraIds = new Set<string>();
+    const validObraIds = new Set<string>();
     
     if (dataAccessible) {
       try {
         const dataItem = fetchedData.find(item => item.type === 'data');
         if (dataItem) {
           console.log('Processando dados da planilha Data...');
-          const processedData = await processDataSheet(dataItem.data);
+          const processedData = await processDataSheet(dataItem.data as any[]);
           
           if (processedData.length > 0) {
             console.log(`Inserindo ${processedData.length} registros na tabela forecast_data...`);
-            const { error: dataError } = await supabase
+            const { error: dataError } = await (supabase
               .from('forecast_data')
-              .insert(processedData);
+              .insert(processedData) as any);
             
             if (dataError) {
               throw new Error(`Erro ao inserir dados: ${dataError.message}`);
             }
             
             // Guardar IDs válidos para filtrar outras tabelas
-            processedData.forEach(row => validObraIds.add(row.id));
+            processedData.forEach((row: any) => {
+              if (row && row.id) validObraIds.add(row.id);
+            });
             
             results.data.success = true;
             results.data.count = processedData.length;
@@ -406,7 +423,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('❌ Erro ao processar planilha Data:', error);
-        results.data.error = error.message;
+        results.data.error = (error as Error).message;
       }
     } else {
       console.log('⚠️ Pulando processamento da planilha Data - planilha não acessível');
@@ -419,16 +436,16 @@ serve(async (req) => {
         const fieldwireItem = fetchedData.find(item => item.type === 'fieldwire');
         if (fieldwireItem) {
           console.log('Processando dados da planilha Fieldwire...');
-          let processedFieldwire = await processFieldwireSheet(fieldwireItem.data);
+          let processedFieldwire = await processFieldwireSheet(fieldwireItem.data as any[]);
           
           // Filtrar por IDs válidos
-          processedFieldwire = processedFieldwire.filter(row => validObraIds.has(row.obra_id));
+          processedFieldwire = processedFieldwire.filter((row: any) => row && validObraIds.has(row.obra_id));
           
           if (processedFieldwire.length > 0) {
             console.log(`Inserindo ${processedFieldwire.length} registros na tabela forecast_fieldwire...`);
-            const { error: fieldwireError } = await supabase
+            const { error: fieldwireError } = await (supabase
               .from('forecast_fieldwire')
-              .insert(processedFieldwire);
+              .insert(processedFieldwire) as any);
             
             if (fieldwireError) {
               throw new Error(`Erro ao inserir fieldwire: ${fieldwireError.message}`);
@@ -443,7 +460,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('❌ Erro ao processar planilha Fieldwire:', error);
-        results.fieldwire.error = error.message;
+        results.fieldwire.error = (error as Error).message;
       }
     } else {
       console.log('⚠️ Pulando processamento da planilha Fieldwire - planilha não acessível');
@@ -456,16 +473,16 @@ serve(async (req) => {
         const machinesItem = fetchedData.find(item => item.type === 'machines');
         if (machinesItem) {
           console.log('Processando dados da planilha Machines...');
-          let processedMachines = await processMachinesSheet(machinesItem.data);
+          let processedMachines = await processMachinesSheet(machinesItem.data as any[]);
           
           // Filtrar por IDs válidos
-          processedMachines = processedMachines.filter(row => validObraIds.has(row.obra_id));
+          processedMachines = processedMachines.filter((row: any) => row && validObraIds.has(row.obra_id));
           
           if (processedMachines.length > 0) {
             console.log(`Inserindo ${processedMachines.length} registros na tabela forecast_machines...`);
-            const { error: machinesError } = await supabase
+            const { error: machinesError } = await (supabase
               .from('forecast_machines')
-              .insert(processedMachines);
+              .insert(processedMachines) as any);
             
             if (machinesError) {
               throw new Error(`Erro ao inserir machines: ${machinesError.message}`);
@@ -480,7 +497,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('❌ Erro ao processar planilha Machines:', error);
-        results.machines.error = error.message;
+        results.machines.error = (error as Error).message;
       }
     } else {
       console.log('⚠️ Pulando processamento da planilha Machines - planilha não acessível');
@@ -493,16 +510,16 @@ serve(async (req) => {
         const contractStepsItem = fetchedData.find(item => item.type === 'contractSteps');
         if (contractStepsItem) {
           console.log('Processando dados da planilha ContractSteps...');
-          let processedContractSteps = await processContractStepsSheet(contractStepsItem.data);
+          let processedContractSteps = await processContractStepsSheet(contractStepsItem.data as any[]);
           
           // Filtrar por IDs válidos
-          processedContractSteps = processedContractSteps.filter(row => validObraIds.has(row.obra_id));
+          processedContractSteps = processedContractSteps.filter((row: any) => row && validObraIds.has(row.obra_id));
           
           if (processedContractSteps.length > 0) {
             console.log(`Inserindo ${processedContractSteps.length} registros na tabela forecast_contract_steps...`);
-            const { error: contractStepsError } = await supabase
+            const { error: contractStepsError } = await (supabase
               .from('forecast_contract_steps')
-              .insert(processedContractSteps);
+              .insert(processedContractSteps) as any);
             
             if (contractStepsError) {
               throw new Error(`Erro ao inserir contract steps: ${contractStepsError.message}`);
@@ -517,7 +534,7 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('❌ Erro ao processar planilha ContractSteps:', error);
-        results.contractSteps.error = error.message;
+        results.contractSteps.error = (error as Error).message;
       }
     } else {
       console.log('⚠️ Pulando processamento da planilha ContractSteps - planilha não acessível');
@@ -541,13 +558,15 @@ serve(async (req) => {
     );
     
   } catch (error) {
-    console.error('❌ Erro geral na Edge Function:', error);
+    const errorObj = error as Error;
+    console.error('❌ Erro geral na Edge Function:', errorObj);
     
     return new Response(
       JSON.stringify({ 
         success: false,
         error: "Erro interno do servidor",
-        message: error.message,
+        message: errorObj.message,
+        stack: errorObj.stack,
         timestamp: new Date().toISOString()
       }),
       { 
@@ -557,4 +576,3 @@ serve(async (req) => {
     );
   }
 });
-
