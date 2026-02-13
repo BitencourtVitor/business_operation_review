@@ -40,6 +40,7 @@ serve(async (req: Request) => {
     const { data: obras, error: obrasError } = await supabase
       .from('forecast_data')
       .select('id, storage, qbtime, buildertrend')
+      .eq('status', 'Not Started')
       .gte('previous_start_date', startOfMonth)
       .lte('previous_start_date', endOfMonth);
 

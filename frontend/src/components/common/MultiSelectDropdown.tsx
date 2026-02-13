@@ -11,6 +11,7 @@ interface MultiSelectDropdownProps {
   dropdownWidth?: number;
   variant?: 'default' | 'ghost';
   label?: string;
+  isSingleSelect?: boolean;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -22,11 +23,13 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   disablePortal = false,
   dropdownWidth,
   variant = 'default',
-  label
+  label,
+  isSingleSelect = false
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [dropdownPos, setDropdownPos] = useState<{top: number, left: number, width: number}>({top: 0, left: 0, width: 0});
   const [hasPreRendered, setHasPreRendered] = useState(false);
 
@@ -61,7 +64,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         }, allLabel);
         // Rough estimation: 8px per character + padding + checkbox space
         const estimatedWidth = Math.max(rect.width, longestLabel.length * 8 + 60);
-        customWidth = Math.min(estimatedWidth, 300); // Cap at 300px
+        customWidth = Math.min(estimatedWidth, 500); // Cap at 500px instead of 300px
       }
       
       // Calcular posição considerando limites da tela
@@ -117,6 +120,12 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
     }
   };
 
+  // Filter options based on search term
+  const filteredOptions = options.filter(opt => {
+    const labelText = typeof opt === 'string' ? opt : opt.label;
+    return labelText.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   // Dropdown JSX (usado para pré-render e para exibir)
   const dropdownJSX = (
     <div
@@ -132,68 +141,204 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         border: '1.5px solid var(--color-border-divider)',
         borderRadius: 6,
         minWidth: 0,
-        maxHeight: 220,
-        overflowY: 'auto',
+        maxHeight: 280,
+        overflow: 'hidden', // Contain the sticky header
         padding: 0,
         boxShadow: 'none',
         fontSize: 14,
-        display: open ? 'block' : 'none',
+        display: open ? 'flex' : 'none',
+        flexDirection: 'column'
       }}
-      className="custom-scrollbar"
     >
-      {dropdownTitle && (
-        <div style={{ 
-          fontWeight: 500, 
-          fontSize: 13, 
-          color: 'var(--color-accent-primary)', 
-          background: 'var(--color-background-secondary)', 
-          padding: '6px 12px 4px 12px', 
-          borderTopLeftRadius: 6, 
-          borderTopRightRadius: 6, 
-          borderBottom: '1px solid var(--color-border-divider)', 
-          letterSpacing: 0.2 
-        }}>
-          {dropdownTitle}
-        </div>
-      )}
-      <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
-        <label className="d-flex align-items-center" style={{ 
-          gap: 8, 
-          fontSize: 14, 
-          color: 'var(--color-text-secondary)', 
-          cursor: 'pointer', 
-          padding: '6px 12px' 
-        }}>
-          <input 
-            type="checkbox" 
-            checked={allSelected} 
-            onChange={toggleAll} 
-            style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} 
+      {/* Fixed Header: Title and Search */}
+      <div style={{ 
+        flexShrink: 0,
+        background: 'var(--color-background-secondary)',
+        borderBottom: '1px solid var(--color-border-divider)',
+        padding: '8px 12px'
+      }}>
+        <div className="d-flex align-items-center justify-content-between mb-2">
+          {dropdownTitle && (
+             <div style={{ 
+               fontWeight: 600, 
+               fontSize: 12, 
+               color: 'var(--color-accent-primary)', 
+               letterSpacing: '0.2px',
+               margin: 0
+             }}>
+               {dropdownTitle}
+             </div>
+           )}
+           <button
+             onClick={(e) => {
+               if (selectedValues.length === 0) return;
+               e.stopPropagation();
+               onChange([]);
+             }}
+             title="Limpar todos os filtros"
+             disabled={selectedValues.length === 0}
+             style={{
+               background: 'none',
+               border: 'none',
+               padding: 0,
+               width: '24px',
+               height: '24px',
+               fontSize: 14,
+               color: selectedValues.length > 0 ? '#ef4444' : 'var(--color-text-secondary)',
+               cursor: selectedValues.length > 0 ? 'pointer' : 'default',
+               borderRadius: 4,
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               opacity: selectedValues.length > 0 ? 1 : 0.4,
+               transition: 'all 0.2s ease'
+             }}
+             onMouseEnter={(e) => {
+               if (selectedValues.length > 0) {
+                 e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
+               }
+             }}
+             onMouseLeave={(e) => {
+               e.currentTarget.style.background = 'none';
+             }}
+           >
+              <i className="bi bi-eraser" />
+            </button>
+         </div>
+        <div style={{ position: 'relative' }}>
+          <i className="bi bi-search" style={{ 
+            position: 'absolute', 
+            left: 8, 
+            top: '50%', 
+            transform: 'translateY(-50%)', 
+            fontSize: 12, 
+            color: 'var(--color-text-secondary)',
+            opacity: 0.6
+          }} />
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: '100%',
+              background: 'var(--color-background-primary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: 4,
+              padding: '4px 28px 4px 28px',
+              fontSize: 12,
+              color: 'var(--color-text-primary)',
+              outline: 'none'
+            }}
           />
-          <span>{allLabel}</span>
-        </label>
-      </div>
-      {options.map((opt, index) => {
-        const value = typeof opt === 'string' ? opt : opt.value;
-        const label = typeof opt === 'string' ? opt : opt.label;
-        return (
-          <label key={`${value}-${index}`} className="d-flex align-items-center" style={{ 
-            gap: 8, 
-            fontSize: 14, 
-            color: 'var(--color-text-secondary)', 
-            cursor: 'pointer', 
-            padding: '6px 12px' 
-          }}>
-            <input 
-              type="checkbox" 
-              checked={selectedValues.includes(value)} 
-              onChange={() => toggleOption(value)} 
-              style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} 
+          {searchTerm && (
+            <i 
+              className="bi bi-x-lg" 
+              onClick={(e) => {
+                e.stopPropagation();
+                setSearchTerm('');
+              }}
+              style={{ 
+                position: 'absolute', 
+                right: 8, 
+                top: '50%', 
+                transform: 'translateY(-50%)', 
+                fontSize: 12, 
+                color: 'var(--color-text-secondary)',
+                cursor: 'pointer',
+                opacity: 0.8,
+                padding: '4px'
+              }} 
             />
-            <span>{label}</span>
-          </label>
-        );
-      })}
+          )}
+        </div>
+      </div>
+
+      {/* Scrollable List */}
+      <div 
+        className="custom-scrollbar"
+        style={{ 
+          overflowY: 'auto',
+          flexGrow: 1,
+          maxHeight: 200
+        }}
+      >
+        {!isSingleSelect && searchTerm === '' && (
+          <div style={{ padding: 0, borderBottom: '1px solid var(--color-border-divider)' }}>
+            <label className="d-flex align-items-center" style={{ 
+              gap: 8, 
+              fontSize: 13, 
+              color: 'var(--color-text-secondary)', 
+              cursor: 'pointer', 
+              padding: '6px 12px' 
+            }}>
+              <input 
+                type="checkbox" 
+                checked={allSelected} 
+                onChange={toggleAll} 
+                style={{ accentColor: 'var(--color-accent-primary)', margin: 0 }} 
+              />
+              <span style={{ fontWeight: 500 }}>{allLabel}</span>
+            </label>
+          </div>
+        )}
+        
+        {filteredOptions.length === 0 ? (
+          <div style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 12 }}>
+            No results found
+          </div>
+        ) : (
+          filteredOptions.map((opt, index) => {
+            const value = typeof opt === 'string' ? opt : opt.value;
+            const labelText = typeof opt === 'string' ? opt : opt.label;
+            const isSelected = selectedValues.includes(value);
+
+            return (
+              <label 
+                key={`${value}-${index}`} 
+                className="d-flex align-items-start" 
+                style={{ 
+                  gap: 8, 
+                  fontSize: 13, 
+                  color: isSelected && isSingleSelect ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', 
+                  cursor: 'pointer', 
+                  padding: '8px 12px',
+                  background: isSelected && isSingleSelect ? 'var(--color-background-secondary)' : 'transparent',
+                  transition: 'all 0.2s ease'
+                }}
+                onClick={(e) => {
+                  if (isSingleSelect) {
+                    e.preventDefault();
+                    onChange([value]);
+                    setOpen(false);
+                    setSearchTerm('');
+                  }
+                }}
+              >
+                {!isSingleSelect && (
+                  <input 
+                    type="checkbox" 
+                    checked={isSelected} 
+                    onChange={() => toggleOption(value)} 
+                    style={{ accentColor: 'var(--color-accent-primary)', margin: '3px 0 0 0' }} 
+                  />
+                )}
+                <span style={{ 
+                  flex: 1,
+                  minWidth: 0,
+                  fontWeight: isSelected && isSingleSelect ? 600 : 400,
+                  wordBreak: 'break-word',
+                  whiteSpace: 'normal',
+                  lineHeight: '1.4'
+                }}>
+                  {labelText}
+                </span>
+              </label>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 
@@ -216,12 +361,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           height: variant === 'ghost' ? '30px' : 38, 
           background: variant === 'ghost' ? 'transparent' : 'var(--color-background-primary)', 
           color: 'var(--color-text-primary)', 
-          border: variant === 'ghost' ? 'none' : '1px solid var(--color-border-divider)', 
-          borderRadius: 8, 
+          border: variant === 'ghost' ? 'none' : 'none', 
+          borderRadius: 0, 
           fontSize: variant === 'ghost' ? 12 : 13, 
           boxShadow: 'none', 
           padding: variant === 'ghost' ? '0 8px' : '0 10px', 
-          margin: 0 
+          margin: 0,
+          borderTopRightRadius: 8,
+          borderBottomRightRadius: 8
         }}
         onClick={() => setOpen(o => !o)}
       >
@@ -235,30 +382,41 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             justifyContent: variant === 'ghost' ? 'space-between' : 'flex-start',
             gap: '8px'
           }}>
-            {label && (
+            {isSingleSelect ? (
               <span style={{ 
-                color: variant === 'ghost' ? 'var(--color-text-secondary)' : 'inherit', 
-                fontWeight: variant === 'ghost' ? 500 : 'inherit', 
-                fontSize: variant === 'ghost' ? '11px' : 'inherit',
-                opacity: variant === 'ghost' ? 0.8 : 1
+                color: 'var(--color-text-primary)', 
+                fontWeight: 600,
+                fontSize: variant === 'ghost' ? '12px' : '13px'
               }}>
-                {label}
+                {(() => {
+                  const selectedOpt = options.find(opt => (typeof opt === 'string' ? opt : opt.value) === selectedValues[0]);
+                  return selectedOpt ? (typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label) : allLabel;
+                })()}
               </span>
+            ) : (
+              <>
+                {label && (
+                  <span style={{ 
+                    color: variant === 'ghost' ? 'var(--color-text-secondary)' : 'inherit', 
+                    fontWeight: variant === 'ghost' ? 500 : 'inherit', 
+                    fontSize: variant === 'ghost' ? '11px' : 'inherit',
+                    opacity: variant === 'ghost' ? 0.8 : 1
+                  }}>
+                    {label}
+                  </span>
+                )}
+                <span style={{ 
+                  color: selectedValues.length > 0 ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                  fontWeight: selectedValues.length > 0 ? 600 : 400
+                }}>
+                  {selectedValues.length === 0 ? allLabel : 
+                   selectedValues.length === options.length ? 'Todos' : 
+                   `${selectedValues.length} selecionado${selectedValues.length > 1 ? 's' : ''}`}
+                </span>
+              </>
             )}
-            <span style={{ 
-              fontWeight: variant === 'ghost' ? 600 : 400,
-              flex: 1,
-              textAlign: variant === 'ghost' ? 'right' : 'left',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: variant === 'ghost' ? '13px' : '13px'
-            }}>
-              {selectedValues.length === 0 ? allLabel : 
-               `${selectedValues.length} ${selectedValues.length === 1 ? 'selected' : 'selected'}`}
-            </span>
-          </span>
-        <i className={`bi ${open ? 'bi-chevron-up' : 'bi-chevron-down'}`} style={{ marginLeft: 8 }} />
+        </span>
+        <i className={`bi bi-chevron-${open ? 'up' : 'down'}`} style={{ fontSize: 10, opacity: 0.7 }} />
       </button>
       {/* Pré-renderiza o dropdown invisível ao montar, e visível ao abrir */}
       {hasPreRendered && (

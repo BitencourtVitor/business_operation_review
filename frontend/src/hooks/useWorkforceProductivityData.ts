@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import type { JobCostingTimesheetRow } from '../types/timesheet';
 
-export function useJobCostingData() {
+export function useWorkforceProductivityData() {
   const [data, setData] = useState<JobCostingTimesheetRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +22,7 @@ export function useJobCostingData() {
 
       setData(dbData || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar dados de job costing');
+      setError(err instanceof Error ? err.message : 'Erro ao carregar dados de produtividade da mão de obra');
     } finally {
       setLoading(false);
     }

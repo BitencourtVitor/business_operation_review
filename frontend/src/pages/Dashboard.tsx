@@ -18,7 +18,9 @@ import AccountingIndicators from './AccountingIndicators';
 import ProjectMonitoring from './ProjectMonitoring';
 import FuelControl from './FuelControl';
 import WorkforceForecast from './WorkforceForecast';
-import NewTimesheetAnalysis from './NewTimesheetAnalysis';
+import WorkforceProductivity from './WorkforceProductivity';
+import SubcontractorPerformance from './SubcontractorPerformance';
+import MonthlyExecution from './MonthlyExecution';
 import OperationalForecastIndex from './OperationalForecastIndex';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
@@ -50,6 +52,11 @@ export default function Dashboard() {
   const [showProjectMonitoringSubmenu, setShowProjectMonitoringSubmenu] = useState(false);
   const [isCollapsingProjectMonitoringSubmenu, setIsCollapsingProjectMonitoringSubmenu] = useState(false);
   const [selectedProjectMonitoringType, setSelectedProjectMonitoringType] = useState<string>('HVAC');
+  
+  const [showOEISubmenu, setShowOEISubmenu] = useState(false);
+  const [isCollapsingOEISubmenu, setIsCollapsingOEISubmenu] = useState(false);
+  const [selectedOEIType, setSelectedOEIType] = useState<string>('Workforce Productivity');
+
   const [showForecastSubmenu, setShowForecastSubmenu] = useState(false);
   const [isCollapsingForecastSubmenu, setIsCollapsingForecastSubmenu] = useState(false);
   const [selectedForecastType, setSelectedForecastType] = useState<string>('Framing');
@@ -190,19 +197,50 @@ export default function Dashboard() {
       setIsCollapsingSubmenu(false);
       setTelaId(newTelaId);
       setShowAccountingContent(false);
-      // Fechar submenu de Project Monitoring se estiver aberto
+      // Fechar outros submenus se estiverem abertos
       setShowProjectMonitoringSubmenu(false);
       setIsCollapsingProjectMonitoringSubmenu(false);
+      setShowOFISubmenu(false);
+      setIsCollapsingOFISubmenu(false);
     } else if (tela?.descricao?.startsWith('Project Monitoring')) {
       // Se for Project Monitoring, mostrar submenu de tipos
       setSelectedProjectMonitoringType('HVAC'); // Sempre resetar para HVAC
       setShowProjectMonitoringSubmenu(true);
       setIsCollapsingProjectMonitoringSubmenu(false);
       setTelaId(newTelaId);
-      // Fechar submenu de Accounting se estiver aberto
+      // Fechar outros submenus se estiverem abertos
       setShowCompanySubmenu(false);
       setIsCollapsingSubmenu(false);
       setShowAccountingContent(false);
+      setShowOFISubmenu(false);
+      setIsCollapsingOFISubmenu(false);
+    } else if (tela?.descricao === 'Operational Forecast Index' || tela?.descricao === 'OFI') {
+      // Se for OFI, não tem mais submenu
+      setTelaId(newTelaId);
+      // Fechar outros submenus se estiverem abertos
+      setShowCompanySubmenu(false);
+      setIsCollapsingSubmenu(false);
+      setShowAccountingContent(false);
+      setShowProjectMonitoringSubmenu(false);
+      setIsCollapsingProjectMonitoringSubmenu(false);
+      setShowForecastSubmenu(false);
+      setIsCollapsingForecastSubmenu(false);
+      setShowOEISubmenu(false);
+      setIsCollapsingOEISubmenu(false);
+    } else if (tela?.descricao === 'Operational Efficiency Index') {
+      // Se for OEI, mostrar submenu de tipos
+      setSelectedOEIType('Workforce Productivity'); // Sempre resetar para Workforce Productivity
+      setShowOEISubmenu(true);
+      setIsCollapsingOEISubmenu(false);
+      setTelaId(newTelaId);
+      // Fechar outros submenus se estiverem abertos
+      setShowCompanySubmenu(false);
+      setIsCollapsingSubmenu(false);
+      setShowAccountingContent(false);
+      setShowProjectMonitoringSubmenu(false);
+      setIsCollapsingProjectMonitoringSubmenu(false);
+      setShowForecastSubmenu(false);
+      setIsCollapsingForecastSubmenu(false);
     } else if (tela?.descricao === 'Forecast') {
       // Se for Forecast, mostrar submenu de tipos
       setSelectedForecastType('Framing'); // Sempre resetar para Framing
@@ -234,6 +272,14 @@ export default function Dashboard() {
           setIsCollapsingProjectMonitoringSubmenu(false);
           setTelaId(newTelaId);
         }, 300);
+      } else if (currentTela?.descricao === 'Operational Efficiency Index' && showOEISubmenu) {
+        // Se estamos saindo do OEI, fazer animação de saída
+        setIsCollapsingOEISubmenu(true);
+        setTimeout(() => {
+          setShowOEISubmenu(false);
+          setIsCollapsingOEISubmenu(false);
+          setTelaId(newTelaId);
+        }, 300);
       } else if (currentTela?.descricao === 'Forecast' && showForecastSubmenu) {
         // Se estamos saindo do Forecast, fazer animação de saída
         setIsCollapsingForecastSubmenu(true);
@@ -249,6 +295,8 @@ export default function Dashboard() {
         setIsCollapsingProjectMonitoringSubmenu(false);
         setShowForecastSubmenu(false);
         setIsCollapsingForecastSubmenu(false);
+        setShowOEISubmenu(false);
+        setIsCollapsingOEISubmenu(false);
         setTelaId(newTelaId);
         setShowAccountingContent(false);
       }
@@ -283,11 +331,14 @@ export default function Dashboard() {
     // O renderMainContent vai mostrar WorkforceForecast com o tipo selecionado
   };
 
+  const handleSelectOEIType = (type: string) => {
+    setSelectedOEIType(type);
+  };
+
 
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
-    'New Timesheet Analysis': 'bi bi-stopwatch',
     'Accounting Indicators': 'bi bi-cash',
     'Fuel Control': 'bi bi-fuel-pump',
     'Permit Control': 'bi bi-file-earmark-check',
@@ -295,8 +346,9 @@ export default function Dashboard() {
     'Bill Payments': 'bi bi-credit-card',
     'Service Requests': 'bi bi-telephone-inbound',
     'Forecast': 'bi bi-graph-up',
-    'Operational Forecast Index': 'bi bi-speedometer2',
-    'OFI': 'bi bi-speedometer2',
+    'Operational Efficiency Index': 'bi bi-speedometer2',
+    'Operational Forecast Index': 'bi bi-graph-up-arrow',
+    'OFI': 'bi bi-graph-up-arrow',
   };
 
   // Função para obter ícone da tela
@@ -316,13 +368,16 @@ export default function Dashboard() {
 
   // Função para filtrar telas baseado na permissão financeira do usuário
   const filtrarTelasPorPermissao = (telas: Tela[]): Tela[] => {
-    // Se o usuário tem permissão financeira, mostrar todas as telas
+    // Primeiro filtrar Timesheet Analysis
+    let telasFiltradas = telas.filter(tela => tela.descricao !== 'Timesheet Analysis');
+
+    // Se o usuário tem permissão financeira, retornar o restante
     if (financialPass) {
-      return telas;
+      return telasFiltradas;
     }
     
-    // Se não tem permissão financeira, filtrar Accounting Indicators e Fuel Control
-    return telas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
+    // Se não tem permissão financeira, filtrar também Accounting Indicators e Fuel Control
+    return telasFiltradas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
   };
 
   // Função para ordenar telas de acordo com a ordem específica
@@ -331,14 +386,14 @@ export default function Dashboard() {
       'Accounting Indicators',
       'Fuel Control',
       'Timesheet Analysis', 
-      'New Timesheet Analysis',
       'Permit Control',
       'Takeoff Works',
       'Service Requests',
       'Project Monitoring',
       'Forecast',
       'Operational Forecast Index',
-      'OFI'
+      'OFI',
+      'Operational Efficiency Index'
     ];
 
     return telas.sort((a, b) => {
@@ -476,8 +531,6 @@ export default function Dashboard() {
     switch (tela.descricao) {
       case 'Timesheet Analysis':
         return <TimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
-      case 'New Timesheet Analysis':
-        return <NewTimesheetAnalysis telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Accounting Indicators':
         return <Projects 
           selectedCompany={selectedCompany}
@@ -500,6 +553,36 @@ export default function Dashboard() {
       case 'Operational Forecast Index':
       case 'OFI':
         return <OperationalForecastIndex />;
+      case 'Operational Efficiency Index':
+        if (selectedOEIType === 'Workforce Productivity') {
+          return <WorkforceProductivity telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        } else if (selectedOEIType === 'Subcontractor Performance') {
+          return <SubcontractorPerformance telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        } else if (selectedOEIType === 'Monthly Execution') {
+          return <MonthlyExecution telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
+        }
+        return (
+          <div className="container-fluid">
+            <div className="row">
+              <div className="col-12">
+                <div className="card" style={{ 
+                  background: 'var(--color-background-primary)',
+                  border: '1.5px solid var(--color-border-divider)',
+                  borderRadius: 10
+                }}>
+                  <div className="card-body">
+                    <h5 className="card-title" style={{ color: 'var(--color-text-primary)' }}>
+                      Operational Efficiency Index
+                    </h5>
+                    <p style={{ color: 'var(--color-text-secondary)' }}>
+                      Selecione uma subpágina no menu lateral.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       case 'Fuel Control':
         // Verificar permissão financeira antes de mostrar Fuel Control
         if (!financialPass) {
@@ -748,7 +831,7 @@ export default function Dashboard() {
                     gap: 10, 
                     padding: '8px 12px', 
                     borderRadius: 8, 
-                    fontSize: tela.descricao === 'New Timesheet Analysis' ? 12 : 14,
+                    fontSize: 14,
                     cursor: telaId === tela.id ? 'default' : 'pointer',
                     marginBottom: (tela.descricao === 'Accounting Indicators' || tela.descricao?.startsWith('Project Monitoring') || tela.descricao === 'Forecast') && telaId === tela.id ? 0 : '0.5rem'
                   }}
@@ -759,7 +842,11 @@ export default function Dashboard() {
                   }}
                 >
                   <i className={getTelaIcone(tela.descricao)} style={{ fontSize: 14 }} />
-                  {tela.descricao?.startsWith('Project Monitoring') ? 'Project Monitoring' : tela.descricao}
+                  {tela.descricao?.startsWith('Project Monitoring') 
+                    ? 'Project Monitoring' 
+                    : (tela.descricao === 'Operational Forecast Index' || tela.descricao === 'OFI')
+                      ? 'Operational Forecast Index'
+                      : tela.descricao}
                 </button>
                 
                 {/* Submenu de empresas para Accounting Indicators */}
@@ -1051,6 +1138,97 @@ export default function Dashboard() {
                              />
                            )}
                           {type}{isDisabled ? ' (Em breve)' : ''}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Submenu de tipos para OEI */}
+                {tela.descricao === 'Operational Efficiency Index' && (showOEISubmenu || isCollapsingOEISubmenu) && telaId === tela.id && (
+                  <div style={{ 
+                    padding: '2px 0',
+                    marginLeft: '10px',
+                    borderLeft: '1px solid var(--color-border-divider)',
+                    marginBottom: '.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px',
+                    animation: isCollapsingOEISubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
+                    overflow: 'hidden'
+                  }}>
+                    {[
+                      { label: 'Workforce Productivity', icon: 'bi bi-clock-history' },
+                      { label: 'Subcontractor Performance', icon: 'bi bi-award' },
+                      { label: 'Monthly Execution', icon: 'bi bi-calendar-check' }
+                    ].map(type => {
+                      const isDisabled = false;
+                      return (
+                        <button
+                          key={type.label}
+                          className={`btn-sidebar d-flex align-items-center justify-content-start w-100`}
+                          style={{ 
+                            gap: 8, 
+                            padding: '6px 10px', 
+                            borderRadius: 0, 
+                            fontSize: 12,
+                            // ===== ESTADO ATIVO (SELECIONADO) =====
+                            borderLeft: selectedOEIType === type.label ? '3px solid var(--color-brand-blue)' : 'none',
+                            color: isDisabled ? 'var(--color-text-secondary)' : (selectedOEIType === type.label ? 'var(--color-text-primary)' : 'var(--color-text-secondary)'),
+                            fontWeight: selectedOEIType === type.label ? 700 : 400,
+                            transition: 'all 0.2s ease',
+                            cursor: isDisabled ? 'not-allowed' : (selectedOEIType === type.label ? 'default' : 'pointer'),
+                            outline: 'none',
+                            opacity: isDisabled ? 0.5 : 1
+                          }}
+                          onClick={() => {
+                            if (!isDisabled && selectedOEIType !== type.label) {
+                              handleSelectOEIType(type.label);
+                            }
+                          }}
+                          
+                          // ===== HOVER EFFECT (MOUSE POR CIMA) =====
+                          onMouseOver={e => {
+                            if (!isDisabled) {
+                              e.currentTarget.style.background = 'transparent';
+                              if (selectedOEIType !== type.label) {
+                                 e.currentTarget.style.color = 'var(--color-text-primary)';
+                                 e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-background-secondary) 0%, var(--color-background-secondary) 50%, transparent 100%)';
+                                 e.currentTarget.style.backdropFilter = 'blur(4px)';
+                                 e.currentTarget.style.borderRight = 'none';
+                               }
+                            }
+                          }}
+                          
+                          // ===== MOUSE OUT (SAINDO DO BOTÃO) =====
+                          onMouseOut={e => {
+                            if (!isDisabled) {
+                              if (selectedOEIType !== type.label) {
+                                e.currentTarget.style.background = 'transparent';
+                                e.currentTarget.style.color = 'var(--color-text-secondary)';
+                                e.currentTarget.style.backdropFilter = 'none';
+                                e.currentTarget.style.borderRight = 'none';
+                              }
+                            }
+                          }}
+                          
+                          // ===== MOUSE DOWN (CLICANDO) =====
+                          onMouseDown={e => {
+                            if (!isDisabled && selectedOEIType !== type.label) {
+                              e.currentTarget.style.color = 'white';
+                            }
+                          }}
+                          
+                          // ===== MOUSE UP (SOLTANDO O CLIQUE) =====
+                          onMouseUp={e => {
+                            if (!isDisabled && selectedOEIType !== type.label) {
+                              e.currentTarget.style.background = 'transparent';
+                              e.currentTarget.style.color = 'var(--color-text-primary)';
+                            }
+                          }}
+                        >
+                          <i className={type.icon} style={{ fontSize: 14, marginRight: 8, color: selectedOEIType === type.label ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }} />
+                          {type.label}{isDisabled ? ' (Em breve)' : ''}
                         </button>
                       );
                     })}
