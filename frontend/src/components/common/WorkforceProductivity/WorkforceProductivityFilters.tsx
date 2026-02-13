@@ -2,7 +2,7 @@ import React from 'react';
 import MultiSelectDropdown from '../MultiSelectDropdown';
 import { addCurrentMonthIfMissing } from '../../../utils/dataUtils';
 
-interface JobCostingFiltersProps {
+interface WorkforceProductivityFiltersProps {
   selectedYear: string;
   setSelectedYear: (year: string) => void;
   selectedMonth: string;
@@ -20,7 +20,7 @@ interface JobCostingFiltersProps {
   worktypes: string[];
 }
 
-export default function JobCostingFilters({
+export default function WorkforceProductivityFilters({
   selectedYear,
   setSelectedYear,
   selectedMonth,
@@ -36,7 +36,7 @@ export default function JobCostingFilters({
   clients,
   jobsites,
   worktypes
-}: JobCostingFiltersProps) {
+}: WorkforceProductivityFiltersProps) {
   // Estilo para selects customizados
   const selectStyle: React.CSSProperties = {
     background: 'var(--color-background-primary)',
@@ -84,50 +84,48 @@ export default function JobCostingFilters({
       </div>
 
       {/* Clients */}
-      <div className="input-group" style={{ minWidth: 200, maxWidth: 200, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+      <div className="input-group" style={{ minWidth: 200, maxWidth: 200, background: 'var(--color-background-primary)', borderRadius: 8, height: 38, zIndex: 20, display: 'flex', border: '1.5px solid var(--color-border-divider)', overflow: 'hidden' }}>
+        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)' }}>
           <i className="bi bi-person-badge" style={{ fontSize: 17 }} />
         </span>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
+        <div style={{ flex: 1, minWidth: 0, zIndex: 21, height: 38, border: 'none' }}>
           <MultiSelectDropdown 
             options={sortedClients.map(client => ({ value: client, label: client }))}
             selectedValues={selectedClients}
             onChange={setSelectedClients}
-            placeholder="Clients / Others"
             allLabel="Todos"
             dropdownTitle="Clients / Others"
           />
         </div>
       </div>
 
-      {/* Jobsites */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 19, display: 'flex' }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+      {/* Jobsites and Lot */}
+      <div className="input-group" style={{ minWidth: 224, maxWidth: 224, background: 'var(--color-background-primary)', borderRadius: 8, height: 38, zIndex: 19, display: 'flex', border: '1.5px solid var(--color-border-divider)', overflow: 'hidden' }}>
+        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)' }}>
           <i className="bi bi-geo-alt" style={{ fontSize: 17 }} />
         </span>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 20, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
+        <div style={{ flex: 1, minWidth: 0, zIndex: 20, height: 38, border: 'none' }}>
           <MultiSelectDropdown 
             options={jobsites.map(jobsite => ({ value: jobsite, label: jobsite }))}
             selectedValues={selectedJobsites}
             onChange={setSelectedJobsites}
-            placeholder="Jobsites"
             allLabel="Todos"
-            dropdownTitle="Jobsites"
+            dropdownTitle="Jobsite and Lot"
+            dropdownWidth={400}
           />
         </div>
       </div>
 
       {/* Worktypes */}
-      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 18, display: 'flex' }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, height: 38, zIndex: 18, display: 'flex', border: '1.5px solid var(--color-border-divider)', overflow: 'hidden' }}>
+        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)' }}>
           <i className="bi bi-tools" style={{ fontSize: 17 }} />
         </span>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 19, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
+        <div style={{ flex: 1, minWidth: 0, zIndex: 19, height: 38, border: 'none' }}>
           <MultiSelectDropdown 
             options={worktypes.map(wt => ({ value: wt, label: wt }))}
             selectedValues={selectedWorktypes}
             onChange={setSelectedWorktypes}
-            placeholder="Worktypes"
             allLabel="Todos"
             dropdownTitle="Worktypes"
           />
