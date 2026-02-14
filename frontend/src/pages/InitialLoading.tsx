@@ -25,6 +25,7 @@ const INITIAL_LOADING_ITEMS: LoadingItem[] = [
   { id: 'takeoff', title: 'Takeoff Works', status: 'pending', progress: 0 },
   { id: 'service', title: 'Service Requests', status: 'pending', progress: 0 },
   { id: 'monitoring_hvac', title: 'Project Monitoring', status: 'pending', progress: 0 },
+  { id: 'subcontractor_performance', title: 'Subcontractor Performance', status: 'pending', progress: 0 },
   { id: 'fuel_control_schema', title: 'Fuel Control Schema', status: 'pending', progress: 0 },
   { id: 'fuel_control_data', title: 'Fuel Control Data', status: 'pending', progress: 0 }
 ];
@@ -38,7 +39,8 @@ const EDGE_FUNCTIONS = [
   { id: 'payables', name: 'payable_gsheet' },
   { id: 'takeoff', name: 'takeoff_gsheet' },
   { id: 'service', name: 'service_gsheet' },
-  { id: 'monitoring_hvac', name: 'monitoring_hvac_gsheet' }
+  { id: 'monitoring_hvac', name: 'monitoring_hvac_gsheet' },
+  { id: 'subcontractor_performance', name: 'subcontractor_performance' }
 ];
 
 export default function InitialLoading() {
