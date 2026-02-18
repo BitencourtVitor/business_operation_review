@@ -22,6 +22,7 @@ import WorkforceProductivity from './WorkforceProductivity';
 import SubcontractorPerformance from './SubcontractorPerformance';
 import MonthlyExecution from './MonthlyExecution';
 import OperationalForecastIndex from './OperationalForecastIndex';
+import DataControl from './DataControl';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -389,6 +390,8 @@ export default function Dashboard() {
       'Permit Control',
       'Takeoff Works',
       'Service Requests',
+      'Data Control',
+      'Forecast Control',
       'Project Monitoring',
       'Forecast',
       'Operational Forecast Index',
@@ -550,6 +553,9 @@ export default function Dashboard() {
           isResponsavelPelaTela={isResponsavelPelaTela} 
           initialTab={selectedForecastType === 'Metrics' ? 'metrics' : 'planner'}
         />;
+      case 'Data Control':
+      case 'Forecast Control':
+        return <DataControl />;
       case 'Operational Forecast Index':
       case 'OFI':
         return <OperationalForecastIndex />;
@@ -846,7 +852,7 @@ export default function Dashboard() {
                     ? 'Project Monitoring' 
                     : (tela.descricao === 'Operational Forecast Index' || tela.descricao === 'OFI')
                       ? 'Operational Forecast Index'
-                      : tela.descricao}
+                      : (tela.descricao === 'Forecast Control') ? 'Data Control' : tela.descricao}
                 </button>
                 
                 {/* Submenu de empresas para Accounting Indicators */}

@@ -99,158 +99,26 @@ input::placeholder, textarea::placeholder {
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.08);
   transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
-.btn-primary-custom:hover, .btn-primary-custom:focus {
-  background: var(--color-accent-primary) !important;
-  filter: brightness(0.92);
-  color: #fff;
-  outline: none;
-  transform: none;
-}
 
-.btn-secondary-custom {
-  background: var(--color-background-secondary);
-  color: var(--color-accent-primary);
-  border: 1.5px solid var(--color-border-divider);
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 16px;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.btn-secondary-custom:hover, .btn-secondary-custom:focus {
-  background: var(--color-background-primary);
-  color: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
-  outline: none;
-  transform: none;
-}
-
-.btn-tertiary-custom {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--color-text-secondary) !important;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 16px;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-.btn-tertiary-custom:hover {
-  background: var(--color-background-secondary);
-  color: var(--color-accent-primary) !important;
-  outline: none;
-  transform: none;
-}
-
-.btn-sidebar {
-  background: transparent;
-  color: var(--color-text-secondary);
-  border: 1px solid transparent;
-  font-weight: 500;
-  transition: background 0.1s, color 0.1s, border 0.1s;
-}
-.btn-sidebar:hover {
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
-}
-.btn-sidebar-ativo {
-  background: var(--color-background-secondary);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border-divider);
-}
-
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-divider) transparent;
-}
+/* Custom Scrollbar for Textareas and Containers */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-border-divider);
-  border-radius: 10px;
+  border-radius: 3px;
 }
+
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
 }
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 10px;
-}
 
-
-
-.textarea-positive {
-  border-color: var(--positive-color) !important;
-  background: var(--positive-background) !important;
-}
-.textarea-positive:focus {
-  border-color: var(--positive-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25) !important;
-}
-
-.textarea-negative {
-  border-color: var(--negative-color) !important;
-  background: var(--negative-background) !important;
-}
-.textarea-negative:focus {
-  border-color: var(--negative-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
-}
-
-.textarea-challenges {
-  border-color: var(--challenges-color) !important;
-  background: var(--challenges-background) !important;
-}
-.textarea-challenges:focus {
-  border-color: var(--challenges-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.25) !important;
-}
-
-.textarea-improvements {
-  border-color: var(--improvements-color) !important;
-  background: var(--improvements-background) !important;
-}
-.textarea-improvements:focus {
-  border-color: var(--improvements-color) !important;
-  box-shadow: 0 0 0 0.2rem rgba(46, 134, 222, 0.25) !important;
-}
-
-.btn-primary {
-  background: var(--color-brand-blue) !important;
-}
-
-/* Estilização específica para o select de semana */
-#week-select {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-divider) transparent;
-}
-
-#week-select::-webkit-scrollbar {
-  width: 8px;
-}
-
-#week-select::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-#week-select::-webkit-scrollbar-thumb {
-  background: var(--color-border-divider);
-  border-radius: 4px;
-}
-
-#week-select::-webkit-scrollbar-thumb:hover {
-  background: var(--color-text-secondary);
-}
-
-/* Esconder scrollbar do modal */
-.modal-scroll-container {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-}
-
-.modal-scroll-container::-webkit-scrollbar {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
+.hover-card:hover {
+  transform: translateY(-5px);
 }

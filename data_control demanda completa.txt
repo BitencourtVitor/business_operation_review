@@ -1,0 +1,249 @@
+Precisamos abdicar da planilha, segue o padrão de como é o formato das tabelas que utilizamos lá:
+
+planilha Data:
+ID	Cliente	Job Site	Type	Lote / Bld	Status	Address	Previous Beams Date	Previous Start Date	Previous End Date	Obs	HVAC	Buildertrend	MachineProvider	Create DateTime	LastUpdate DatetimeZ	Storage	QBTime	
+e05b2444	Callahan	Baldwinville School Apartments, Templeton, MA	Building	1	closed	12 & 16 School Street, Templeton, MA 01436		10/21/2025	01/09/2026		NO	YES			2026-02-13T18:48:25Z	YES	NO	
+5cfeb1d2	Pulte Homes	Bates Quarry at Walpole, MA	Lot	2	open	10 Sandtrap Circle Walpole, MA 02081	1/14/2026	1/15/2026	03/20/2026	Contrato será assinado pessoalmente	NO	YES	ETS Equipment Rental		2026-02-09T20:13:01Z	YES	YES	
+85dc4785	Pulte Homes	Bates Quarry at Walpole, MA	Lot	3	not started	18 Sandtrap Circle Walpole, MA 02081	2/2/2026	2/3/2026	04/07/2026	Contrato será assinado pessoalmente	NO	YES	ETS Equipment Rental		2026-02-09T20:13:28Z	YES	YES	
+
+planilha Fieldwire:
+ID	Category	Document	Status	LastUpdate DatetimeZ
+e05b2444	Callahan	N/A	NO	2025-12-11T13:13:26Z
+5cfeb1d2	Pulte Homes - House	House Plan	YES	2025-12-11T13:13:26Z
+85dc4785	Pulte Homes - House	House Plan	YES	2025-12-11T13:13:26Z
+
+planilha Machines:
+ID	Category	Subcategory	Equipment Category	Title	Status	Unit	LastUpdate DatetimeZ
+5cfeb1d2	Pulte Homes	House	Machine	Forklift	YES	 F62303	2025-12-24T17:24:48Z
+5cfeb1d2	Pulte Homes	House	Attachment	Truss Boom	YES	T15	2026-01-08T15:30:26Z
+5cfeb1d2	Pulte Homes	House	Attachment	Man Basket	YES	MB01 (PREM)	2026-01-08T15:30:26Z
+
+planilha ContractSteps:
+ID	Team_Name	Step	Status	LastUpdate DatetimeZ
+1a34f6fe	Brothers Construction Panels Inc	Confirmação de seguros e apólices	NO	2025-12-11T13:26:46Z
+1a34f6fe	Brothers Construction Panels Inc	Purchase order	NO	2025-12-11T13:26:46Z
+1a34f6fe	Brothers Construction Panels Inc	Envio do contrato	NO	2025-12-11T13:26:46Z
+
+planilha OEI_Events:
+ID	Event	Estimated_DateType	Subcontractor	Create DateTime	UserEmail
+e05b2444	not started -> open	Start	Yes Construction	2/13/2026 15:48:12	vitorpremiumgroup@gmail.com
+e05b2444	open -> closed	End	Yes Construction	2/13/2026 15:48:25	vitorpremiumgroup@gmail.com
+
+* a partir daqui, planilhas de categorização
+
+planilha Workforce:
+Option
+Abad Construction
+BDS Construction
+
+planilha Fieldwire:
+Category	Document	Where	Notes
+Callahan	N/A	-	-
+Private	House Plan	-	De acordo com o Thiago, apenas o House Plan é necessário.
+Pulte Homes - Building	Architecture Plans	-	Cada Lot tem sua planta específica.
+
+planilha Machines:
+Category	Subcategory	Equipment Category	Title
+Toll Brothers	House	Machine	Forklift
+Toll Brothers	House	Attachment	Truss Boom
+
+planilha ContractSteps:
+Step
+Confirmação de seguros e apólices
+Purchase order
+
+planilha MachineProvider:
+Option
+Premium Group
+ETS Equipment Rental
+
+Daí a gente já tem para essas planilhas (exceto as de categorização que precisarão ser criadas e abastecidas) o padrão no banco de dados que precisa passar a ser nossa única fonte.
+
+Ou seja, ao invés de controlar a planilha e importar dados de lá, vamos tomar o banco de dados como verdade do nosso trabalho. Segue as tabelas usadas:
+
+Tabela forecast_data, que referencia 'Data':
+create table public.forecast_data (
+  id text not null,
+  cliente text not null,
+  job_site text not null,
+  type text null,
+  lote_bld text null,
+  status text null,
+  address text null,
+  previous_beams_date date null,
+  previous_start_date date null,
+  previous_end_date date null,
+  obs text null,
+  hvac boolean null,
+  buildertrend boolean null,
+  machine_provider text null,
+  create_datetime timestamp with time zone null,
+  lastupdate_datetimez timestamp with time zone null,
+  storage boolean null,
+  qbtime boolean null,
+  constraint forecast_data_pkey primary key (id)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_cliente on public.forecast_data using btree (cliente) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_job_site on public.forecast_data using btree (job_site) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_status on public.forecast_data using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_hvac on public.forecast_data using btree (hvac) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_buildertrend on public.forecast_data using btree (buildertrend) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_dates on public.forecast_data using btree (
+  previous_beams_date,
+  previous_start_date,
+  previous_end_date
+) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_data_storage on public.forecast_data using btree (storage) TABLESPACE pg_default;
+
+Tabela forecast_fieldwire, que referencia 'Fieldwire':
+create table public.forecast_fieldwire (
+  id bigserial not null,
+  obra_id text not null,
+  category text null,
+  document text null,
+  status boolean null,
+  lastupdate_datetimez timestamp with time zone null,
+  constraint forecast_fieldwire_pkey primary key (id),
+  constraint forecast_fieldwire_obra_id_fkey foreign KEY (obra_id) references forecast_data (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_fieldwire_obra_id on public.forecast_fieldwire using btree (obra_id) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_fieldwire_status on public.forecast_fieldwire using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_fieldwire_category on public.forecast_fieldwire using btree (category) TABLESPACE pg_default;
+
+Tabela forecast_machines, que referencia 'Machines':
+create table public.forecast_machines (
+  id bigserial not null,
+  obra_id text not null,
+  category text null,
+  subcategory text null,
+  equipment_category text null,
+  title text null,
+  status boolean null,
+  unit text null,
+  lastupdate_datetimez timestamp with time zone null,
+  constraint forecast_machines_pkey primary key (id),
+  constraint forecast_machines_obra_id_fkey foreign KEY (obra_id) references forecast_data (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_machines_obra_id on public.forecast_machines using btree (obra_id) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_machines_status on public.forecast_machines using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_machines_category on public.forecast_machines using btree (category) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_machines_equipment_category on public.forecast_machines using btree (equipment_category) TABLESPACE pg_default;
+
+Tabela forecast_contract_steps, que referencia 'ContractSteps':
+create table public.forecast_contract_steps (
+  id bigserial not null,
+  obra_id text not null,
+  step text null,
+  status boolean null,
+  lastupdate_datetimez timestamp with time zone null,
+  team text null,
+  constraint forecast_contract_steps_pkey primary key (id),
+  constraint forecast_contract_steps_obra_id_fkey foreign KEY (obra_id) references forecast_data (id) on delete CASCADE
+) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_contract_steps_obra_id on public.forecast_contract_steps using btree (obra_id) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_contract_steps_status on public.forecast_contract_steps using btree (status) TABLESPACE pg_default;
+
+create index IF not exists idx_forecast_contract_steps_step on public.forecast_contract_steps using btree (step) TABLESPACE pg_default;
+
+Tabela subcontractor_performance, que referencia 'OEI_Events':
+create table public.subcontractor_performance (
+  id uuid not null default gen_random_uuid (),
+  obra_id text not null,
+  event text not null,
+  estimated_date_type text not null,
+  subcontractor text null,
+  event_datetime timestamp with time zone null,
+  user_email text null,
+  created_at timestamp with time zone null default now(),
+  updated_at timestamp with time zone null default now(),
+  constraint subcontractor_performance_pkey primary key (id),
+  constraint unique_sub_event unique (obra_id, event, event_datetime)
+) TABLESPACE pg_default;
+
+create index IF not exists idx_sub_perf_obra_id on public.subcontractor_performance using btree (obra_id) TABLESPACE pg_default;
+
+create index IF not exists idx_sub_perf_event_datetime on public.subcontractor_performance using btree (event_datetime) TABLESPACE pg_default;
+
+---
+
+CATEGORIZAÇÃO:
+
+Option
+Abad Construction
+BDS Construction
+Breno Construction
+Brothers Construction Panels Inc
+DESA Construction
+Erick
+JA Carpentry
+JCPQ
+Juan
+Martins Rocha Construction
+MMD Services
+Neto Construction
+Team Rodrigo Romão
+Trust Construction Services INC
+W Silva Construction
+Yes Construction
+ES Construction
+DMAC Construction Inc
+Far Construction Corp
+
+Category	Document	Where	Notes
+Callahan	N/A	-	-
+Private	House Plan	-	De acordo com o Thiago, apenas o House Plan é necessário.
+Pulte Homes - Building	Architecture Plans	-	Cada Lot tem sua planta específica.
+Pulte Homes - Building	Cabinets Layout Plans	-	-
+Pulte Homes - Building	Island Dimensions Plans	-	-
+Pulte Homes - Building	Structural Plans	-	Cada Lot tem sua planta específica.
+Pulte Homes - Building	Trusses Plans	-	-
+Pulte Homes - Building	Wall Panels	-	Layout de painel por painel, separados.
+Pulte Homes - Building	Wall Panels Layout	-	Layout do floor inteiro.
+Pulte Homes - House	Architecture Plans	-	
+Pulte Homes - House	House Plan	-	A planta não e por Lot e sim por modelo de casa. Riverview/Concord/Walpole
+Toll Brothers	AOS Diagrams	Supply PRO	Sempre upload o mais atualizado, pode ter mais de uma versão.
+Toll Brothers	MiiTek - Landscape Elevation Report	Solicitar Justin From TIS	-
+Toll Brothers	Panels Layout 1st and 2nd Floor	Solicitar Justin From TIS	Ambos os andares podem estar na mesma pasta do Fieldwire.
+Toll Brothers	Plot Plan	Supply PRO	Cada Lot tem sua planta específica.
+Toll Brothers	SPF	Solicitar Justin From TIS	-
+Toll Brothers	Structural Plan	Supply PRO	Cada Lot tem sua planta específica.
+Toll Brothers	Trusses Placement Plan	Solicitar Justin From TIS	-
+
+Category	Subcategory	Equipment Category	Title
+Toll Brothers	House	Machine	Forklift
+Toll Brothers	House	Attachment	Truss Boom
+Toll Brothers	House	Attachment	Fork Extensions
+Toll Brothers	House	Attachment	Man Basket
+Pulte Homes	House	Machine	Forklift
+Pulte Homes	House	Attachment	Truss Boom
+Pulte Homes	House	Attachment	Man Basket
+Pulte Homes	Building	Machine	Forklift
+Pulte Homes	Building	Machine	Boomlift
+Pulte Homes	Building	Attachment	Fork Extensions
+
+Step
+Confirmação de seguros e apólices
+Purchase order
+Envio do contrato
+Aguardando assinatura
+Assinado
+
+Option
+Premium Group
+ETS Equipment Rental

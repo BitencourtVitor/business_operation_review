@@ -1,6 +1,42 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.C_contract_steps (
+  id integer NOT NULL DEFAULT nextval('"C_contract_steps_id_seq"'::regclass),
+  step text NOT NULL UNIQUE,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT C_contract_steps_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.C_fieldwire (
+  id integer NOT NULL DEFAULT nextval('"C_fieldwire_id_seq"'::regclass),
+  category text NOT NULL,
+  document text NOT NULL,
+  where_location text,
+  notes text,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT C_fieldwire_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.C_machine_provider (
+  id integer NOT NULL DEFAULT nextval('"C_machine_provider_id_seq"'::regclass),
+  name text NOT NULL UNIQUE,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT C_machine_provider_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.C_machines (
+  id integer NOT NULL DEFAULT nextval('"C_machines_id_seq"'::regclass),
+  category text NOT NULL,
+  subcategory text NOT NULL,
+  equipment_category text NOT NULL,
+  title text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT C_machines_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.C_workforce (
+  id integer NOT NULL DEFAULT nextval('"C_workforce_id_seq"'::regclass),
+  name text NOT NULL UNIQUE,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT C_workforce_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.acoes (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   plano_id uuid,
@@ -62,6 +98,7 @@ CREATE TABLE public.forecast_contract_steps (
   step text,
   status boolean,
   lastupdate_datetimez timestamp with time zone,
+  team text,
   CONSTRAINT forecast_contract_steps_pkey PRIMARY KEY (id),
   CONSTRAINT forecast_contract_steps_obra_id_fkey FOREIGN KEY (obra_id) REFERENCES public.forecast_data(id)
 );
@@ -73,7 +110,6 @@ CREATE TABLE public.forecast_data (
   lote_bld text,
   status text,
   address text,
-  workforce text,
   previous_beams_date date,
   previous_start_date date,
   previous_end_date date,
@@ -84,6 +120,7 @@ CREATE TABLE public.forecast_data (
   create_datetime timestamp with time zone,
   lastupdate_datetimez timestamp with time zone,
   storage boolean,
+  qbtime boolean,
   CONSTRAINT forecast_data_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.forecast_fieldwire (
@@ -624,6 +661,35 @@ CREATE TABLE public.melhorias (
   CONSTRAINT melhorias_pkey PRIMARY KEY (id),
   CONSTRAINT melhorias_oportunidade_id_fkey FOREIGN KEY (oportunidade_id) REFERENCES public.oportunidades(id)
 );
+CREATE TABLE public.monthly_execution_history (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  obra_id text NOT NULL,
+  reference_month integer NOT NULL,
+  reference_year integer NOT NULL,
+  actual_status text,
+  actual_start_date date,
+  capture_date timestamp with time zone DEFAULT now(),
+  created_at timestamp with time zone DEFAULT now(),
+  reason text,
+  subcontractor text,
+  actual_end_date date,
+  is_cycle_completed boolean DEFAULT false,
+  CONSTRAINT monthly_execution_history_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.operational_forecast_index (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  obra_id text NOT NULL,
+  reference_month integer NOT NULL,
+  reference_year integer NOT NULL,
+  capture_date timestamp with time zone DEFAULT now(),
+  fieldwire_score numeric DEFAULT 0,
+  machines_score numeric DEFAULT 0,
+  contract_score numeric DEFAULT 0,
+  systems_score numeric DEFAULT 0,
+  total_score numeric DEFAULT 0,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT operational_forecast_index_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.oportunidades (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   usuario_id uuid,
@@ -1029,6 +1095,18 @@ CREATE TABLE public.service_requests (
   additional_visits ARRAY,
   CONSTRAINT service_requests_pkey PRIMARY KEY (id)
 );
+CREATE TABLE public.subcontractor_performance (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  obra_id text NOT NULL,
+  event text NOT NULL,
+  estimated_date_type text NOT NULL,
+  subcontractor text,
+  event_datetime timestamp with time zone,
+  user_email text,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT subcontractor_performance_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.takeoff_works (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   project text,
@@ -1078,6 +1156,19 @@ CREATE TABLE public.timesheet_analysis (
   remove_dollar numeric,
   total numeric,
   CONSTRAINT timesheet_analysis_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.timesheet_data_new (
+  id integer NOT NULL DEFAULT nextval('timesheet_data_id_seq'::regclass),
+  client text,
+  jobsite text,
+  lot_building text,
+  worktype text,
+  employee_name text,
+  regular_rate numeric,
+  regular_hours numeric,
+  reference_month text,
+  created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT timesheet_data_new_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.usuarios (
   id uuid NOT NULL DEFAULT gen_random_uuid(),

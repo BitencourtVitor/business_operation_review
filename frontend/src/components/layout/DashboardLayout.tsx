@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import logoWhite from '../assets/logo_white.png';
-import logoBlack from '../assets/logo_black.png';
+import logoWhite from '../../assets/logo_white.png';
+import logoBlack from '../../assets/logo_black.png';
 import type { Tela, Permissao } from '../../types/common';
 import { ROLES } from '../../utils/constants';
+import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 
 interface DashboardLayoutProps {
   user: { email: string };
@@ -36,6 +37,8 @@ export default function DashboardLayout({
   onRefresh,
   children
 }: DashboardLayoutProps) {
+  const { isLoading: globalLoading, isSuccess: globalSuccess } = useGlobalFeedback();
+
   // Mapeamento de ícones por descrição de tela
   const telaIcones: { [descricao: string]: string } = {
     'Timesheet Analysis': 'bi bi-watch',
@@ -262,6 +265,30 @@ export default function DashboardLayout({
           zIndex: 1,
         }}
       >
+        {/* Global Loading/Success Indicator */}
+        <div 
+          style={{ 
+            position: 'absolute', 
+            top: 10, 
+            left: 10, 
+            zIndex: 9999,
+            pointerEvents: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px'
+          }}
+        >
+          {globalLoading && (
+            <div className="spinner-border text-primary" role="status" style={{ width: '1.2rem', height: '1.2rem', borderWidth: '0.2em' }}>
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          )}
+          {!globalLoading && globalSuccess && (
+            <i className="bi bi-check-circle-fill text-success" style={{ fontSize: '1.2rem' }}></i>
+          )}
+        </div>
         {children}
       </main>
     </div>

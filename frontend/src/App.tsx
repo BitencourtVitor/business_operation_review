@@ -5,24 +5,29 @@ import InitialLoading from './pages/InitialLoading'
 import WorkforceForecast from './pages/WorkforceForecast'
 import MobileForecast from './pages/MobileForecast'
 import OperationalForecastIndex from './pages/OperationalForecastIndex'
+import DataControl from './pages/DataControl'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import { DataCacheProvider } from './contexts/DataCacheContext'
+import { GlobalFeedbackProvider } from './contexts/GlobalFeedbackContext'
 import './App.css'
 
 export default function App() {
   return (
     <DataCacheProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/forecast" element={<MobileForecast />} />
-          <Route path="/workforce-forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
-          <Route path="/ofi" element={<ProtectedRoute><OperationalForecastIndex /></ProtectedRoute>} />
-          <Route path="/" element={<Navigate to="/initial-loading" replace />} />
-        </Routes>
-      </Router>
+      <GlobalFeedbackProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/initial-loading" element={<ProtectedRoute><InitialLoading /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/forecast" element={<MobileForecast />} />
+            <Route path="/workforce-forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
+            <Route path="/data-control" element={<ProtectedRoute><DataControl /></ProtectedRoute>} />
+            <Route path="/ofi" element={<ProtectedRoute><OperationalForecastIndex /></ProtectedRoute>} />
+            <Route path="/" element={<Navigate to="/initial-loading" replace />} />
+          </Routes>
+        </Router>
+      </GlobalFeedbackProvider>
     </DataCacheProvider>
   )
 }
