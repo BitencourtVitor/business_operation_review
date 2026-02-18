@@ -53,11 +53,11 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
   };
 
   // Ensure all categories exist for this project
-  useEffect(() => {
-     if (categories.length > 0 && obraId) {
-         syncItemsWithCategories().catch(console.error);
-     }
-  }, [categories, items, obraId]);
+  // useEffect(() => {
+  //    if (categories.length > 0 && obraId) {
+  //        syncItemsWithCategories().catch(console.error);
+  //    }
+  // }, [categories, items, obraId]);
 
   const syncItemsWithCategories = async () => {
       const missingItems = categories.filter(cat => 

@@ -237,6 +237,80 @@ export default function DataControl() {
       setLoading(false);
       throw error;
     } else {
+      // Auto-populate Fieldwire and Machines based on Client/Type
+      try {
+        const client = projectData.cliente;
+        const type = projectData.type;
+
+        // 1. Fieldwire Logic
+        let fwCategory = '';
+        if (client === 'Callahan') fwCategory = 'Callahan';
+        else if (client === 'Private') fwCategory = 'Private';
+        else if (client === 'Toll Brothers') fwCategory = 'Toll Brothers';
+        else if (client === 'Pulte Homes') {
+            if (type === 'Building') fwCategory = 'Pulte Homes - Building';
+            else if (type === 'Lot') fwCategory = 'Pulte Homes - House';
+        }
+
+        if (fwCategory) {
+            const { data: fwTemplates } = await supabase
+                .from('C_fieldwire')
+                .select('*')
+                .eq('category', fwCategory);
+
+            if (fwTemplates && fwTemplates.length > 0) {
+                const newItems = fwTemplates.map(t => ({
+                    obra_id: newId,
+                    category: t.category,
+                    document: t.document,
+                    status: false,
+                    lastupdate_datetimez: new Date().toISOString()
+                }));
+                await supabase.from('forecast_fieldwire').insert(newItems);
+            }
+        }
+
+        // 2. Machines Logic
+        // Load by Client = Category, and filter by Type = Subcategory (with House/Lot equivalence)
+        if (client) {
+             const { data: machTemplates } = await supabase
+                .from('C_machines')
+                .select('*')
+                .eq('category', client);
+
+             if (machTemplates && machTemplates.length > 0) {
+                 const machItems = machTemplates.filter(t => {
+                     if (!type) return false;
+                     
+                     // Direct match
+                     if (t.subcategory === type) return true;
+                     
+                     // Equivalence House/Lot
+                     if (type === 'Lot' && t.subcategory === 'House') return true;
+                     if (type === 'House' && t.subcategory === 'Lot') return true;
+                     
+                     return false;
+                 }).map(t => ({
+                       obra_id: newId,
+                       category: t.category,
+                       subcategory: t.subcategory,
+                       equipment_category: t.equipment_category,
+                       title: t.title,
+                       status: false,
+                       unit: '',
+                       lastupdate_datetimez: new Date().toISOString()
+                  }));
+
+                 if (machItems.length > 0) {
+                     await supabase.from('forecast_machines').insert(machItems);
+                 }
+             }
+        }
+
+      } catch (err) {
+          console.error('Error auto-populating fieldwire/machines:', err);
+      }
+
       // setMessage({ type: 'success', text: 'Project created successfully!' }); // Removido alerta global
       fetchProjects();
       // Não redirecionar mais

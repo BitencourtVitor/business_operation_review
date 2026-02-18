@@ -292,11 +292,11 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
   // };
 
   // Ensure all categories exist for this project
-  useEffect(() => {
-     if (categories.length > 0 && obraId) {
-         syncItemsWithCategories().catch(console.error);
-     }
-  }, [categories, items, obraId]);
+  // useEffect(() => {
+  //    if (categories.length > 0 && obraId) {
+  //        syncItemsWithCategories().catch(console.error);
+  //    }
+  // }, [categories, items, obraId]);
 
   const syncItemsWithCategories = async () => {
       // Para cada categoria definida, garantir que existe um registro correspondente em forecast_machines para esta obra
