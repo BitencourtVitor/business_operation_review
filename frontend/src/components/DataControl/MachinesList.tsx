@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../../supabaseClient';
-import type { ForecastMachines, C_Machines, ForecastData } from '../../types/dataControl';
+import type { ForecastMachines, ForecastData } from '../../types/dataControl';
 import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 
 const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select..." }: { value: string, onChange: (val: string) => void, options: { label: string, value: string }[], style?: React.CSSProperties, placeholder?: string }) => {
@@ -210,7 +210,7 @@ const StyledUnitInput = ({
 export default function MachinesList({ obraId, project, onLoadingStart, onLoadingStop, onSuccess }: MachinesListProps) {
   const { startLoading, stopLoading, showSuccess } = useGlobalFeedback();
   const [items, setItems] = useState<ForecastMachines[]>([]);
-  const [categories, setCategories] = useState<C_Machines[]>([]);
+  // const [categories, setCategories] = useState<C_Machines[]>([]);
   const [providers, setProviders] = useState<{name: string}[]>([]);
   const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -263,8 +263,7 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
       setItems([]); // Clear items to avoid showing previous project data
       setIsLoading(true);
       Promise.all([
-        fetchItems(),
-        fetchCategories()
+        fetchItems()
       ]).finally(() => setIsLoading(false));
     }
   }, [obraId]);
@@ -277,12 +276,6 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
       .order('id', { ascending: true });
     
     if (data) setItems(data);
-  };
-
-  const fetchCategories = async () => {
-    // Buscar categorias definidas em C_machines
-    const { data } = await supabase.from('C_machines').select('*');
-    if (data) setCategories(data);
   };
 
   // const fetchWorkforce = async () => {
@@ -298,6 +291,7 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
   //    }
   // }, [categories, items, obraId]);
 
+  /*
   const syncItemsWithCategories = async () => {
       // Para cada categoria definida, garantir que existe um registro correspondente em forecast_machines para esta obra
       const missingItems = categories.filter(cat => 
@@ -318,7 +312,7 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
               title: cat.title,
               status: false,
               unit: '',
-              team: '',
+              // team: '',
               lastupdate_datetimez: new Date().toISOString()
           }));
 
@@ -328,8 +322,9 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
           }
       }
   };
+  */
 
-  const handleUpdate = async (id: number, field: keyof ForecastMachines, value: any) => {
+  const handleUpdate = async (id: number, field: keyof ForecastMachines, value: boolean | string | number | null) => {
     startLoading();
     if (onLoadingStart) onLoadingStart();
     

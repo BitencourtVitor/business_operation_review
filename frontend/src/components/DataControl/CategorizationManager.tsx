@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 import MultiSelectDropdown from '../common/MultiSelectDropdown';
@@ -24,14 +24,14 @@ export default function CategorizationManager() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: result, error } = await supabase.from(selectedTable).select('*').order('id', { ascending: true });
+    const { data: result } = await supabase.from(selectedTable).select('*').order('id', { ascending: true });
     if (result) setData(result);
     setLoading(false);
   };
 
   useEffect(() => {
     // Validate selectedTable
-    if (selectedTable === 'C_contracted_steps' as any) {
+    if (selectedTable === 'C_contracted_steps' as string) {
        setSelectedTable('C_contract_steps');
     }
   }, [selectedTable]);
@@ -53,9 +53,9 @@ export default function CategorizationManager() {
         fetchData();
         showSuccess();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding item:', error);
-      alert('Error adding item: ' + (error.message || 'Unknown error'));
+      alert('Error adding item: ' + ((error as Error).message || 'Unknown error'));
       stopLoading();
     } finally {
       setLoading(false);
@@ -73,7 +73,7 @@ export default function CategorizationManager() {
         fetchData();
         showSuccess();
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting item:', error);
       stopLoading();
     }
@@ -186,7 +186,7 @@ export default function CategorizationManager() {
     }
   };
 
-  const renderRow = (item: any) => {
+  const renderRow = (item: Record<string, any>) => {
     switch (selectedTable) {
       case 'C_workforce':
       case 'C_machine_provider':

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
-import type { ForecastFieldwire, C_Fieldwire } from '../../types/dataControl';
+import type { ForecastFieldwire } from '../../types/dataControl';
 import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 
 interface FieldwireListProps {
@@ -13,8 +13,8 @@ interface FieldwireListProps {
 export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, onSuccess }: FieldwireListProps) {
   const { startLoading, stopLoading, showSuccess } = useGlobalFeedback();
   const [items, setItems] = useState<ForecastFieldwire[]>([]);
-  const [categories, setCategories] = useState<C_Fieldwire[]>([]);
-  const [workforceOptions, setWorkforceOptions] = useState<string[]>([]);
+  // const [categories, setCategories] = useState<C_Fieldwire[]>([]);
+  // const [workforceOptions, setWorkforceOptions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // Fetch data
@@ -24,9 +24,11 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
       setIsLoading(true);
       Promise.all([
         fetchItems(),
-        fetchCategories(),
-        fetchWorkforce()
-      ]).finally(() => setIsLoading(false));
+        // fetchCategories(),
+        // fetchWorkforce()
+      ]).finally(() => {
+        setIsLoading(false)
+      });
     }
   }, [obraId]);
 
@@ -40,6 +42,7 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
     if (data) setItems(data);
   };
 
+  /*
   const fetchCategories = async () => {
     // Buscar categorias definidas em C_fieldwire
     const { data } = await supabase.from('C_fieldwire').select('*');
@@ -51,6 +54,7 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
       const { data } = await supabase.from('C_workforce').select('name');
       if (data) setWorkforceOptions(data.map(d => d.name));
   };
+  */
 
   // Ensure all categories exist for this project
   // useEffect(() => {
@@ -59,6 +63,7 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
   //    }
   // }, [categories, items, obraId]);
 
+  /*
   const syncItemsWithCategories = async () => {
       const missingItems = categories.filter(cat => 
           !items.some(item => item.category === cat.category && item.document === cat.document)
@@ -70,7 +75,6 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
               category: cat.category,
               document: cat.document,
               status: false,
-              team: '',
               lastupdate_datetimez: new Date().toISOString()
           }));
 
@@ -80,8 +84,9 @@ export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, o
           }
       }
   };
+  */
 
-  const handleUpdate = async (id: number, field: keyof ForecastFieldwire, value: any) => {
+  const handleUpdate = async (id: number, field: keyof ForecastFieldwire, value: boolean | string | number | null) => {
     startLoading();
     if (onLoadingStart) onLoadingStart();
     // Optimistic update

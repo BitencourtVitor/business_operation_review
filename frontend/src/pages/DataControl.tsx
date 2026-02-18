@@ -4,8 +4,6 @@ import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import { v4 as uuidv4 } from 'uuid';
 import type { ForecastData } from '../types/dataControl';
-import ProjectForm from '../components/DataControl/ProjectForm';
-import ProjectCard from '../components/DataControl/ProjectCard';
 import ProjectContainerModel from '../components/DataControl/ProjectContainerModel';
 import DataControlFilters from '../components/DataControl/DataControlFilters';
 import CategorizationManager from '../components/DataControl/CategorizationManager';
@@ -15,26 +13,6 @@ import logoWhite from '../assets/logo_white.png';
 import logoBlack from '../assets/logo_black.png';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
-
-// Estilos
-const mainContentStyle: React.CSSProperties = {
-  flex: 1,
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-  backgroundColor: 'var(--color-background-secondary)'
-};
-
-const tabButtonStyle = (isActive: boolean): React.CSSProperties => ({
-  padding: '10px 20px',
-  backgroundColor: isActive ? 'var(--color-background-secondary)' : 'transparent',
-  border: 'none',
-  borderBottom: isActive ? '2px solid var(--color-accent-primary)' : '2px solid transparent',
-  color: isActive ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
-  fontWeight: 500,
-  cursor: 'pointer',
-  transition: 'all 0.2s ease'
-});
 
 export default function DataControl() {
   const navigate = useNavigate();
@@ -47,7 +25,7 @@ export default function DataControl() {
 
   // Global State
   const [pageState, setPageState] = useState<'menu' | 'create' | 'list' | 'details' | 'categorization'>('menu');
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   // Projects State
@@ -180,15 +158,15 @@ export default function DataControl() {
 
   // Load Data
   const fetchProjects = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
+    // setLoading(true);
+    const { data } = await supabase
       .from('forecast_data')
       .select('*')
       .order('cliente', { ascending: true })
       .order('job_site', { ascending: true });
     
     if (data) setAllProjects(data);
-    setLoading(false);
+    // setLoading(false);
   };
 
   useEffect(() => {
@@ -213,7 +191,7 @@ export default function DataControl() {
 
   // Handlers
   const handleCreateProject = async (data: Partial<ForecastData>) => {
-    setLoading(true);
+    // setLoading(true);
     const newId = uuidv4().substring(0, 8); // Generate short ID like example
     
     // Sanitize date fields: convert empty strings to null
@@ -234,7 +212,7 @@ export default function DataControl() {
     if (error) {
       console.error('Error creating project:', error);
       setMessage({ type: 'error', text: 'Error creating project: ' + error.message });
-      setLoading(false);
+      // setLoading(false);
       throw error;
     } else {
       // Auto-populate Fieldwire and Machines based on Client/Type
@@ -316,9 +294,10 @@ export default function DataControl() {
       // Não redirecionar mais
       // setPageState('list');
     }
-    setLoading(false);
+    // setLoading(false);
   };
 
+  /*
   const handleUpdateProject = async (id: string, data: Partial<ForecastData>) => {
     const project = allProjects.find(p => p.id === id);
     if (!project) return;
@@ -385,6 +364,7 @@ export default function DataControl() {
     }
     setLoading(false);
   };
+  */
 
   // Render Helpers
   const renderMenu = () => (
