@@ -9,8 +9,11 @@ import MultiSelectDropdown from '../common/MultiSelectDropdown';
 
 import iconFieldwire from '../../assets/fieldwire.png';
 import iconForecastHvac from '../../assets/icon_forecast_hvac.png';
+import iconForecastHvacDark from '../../assets/icon_forecast_hvac_darkmode.png';
 import iconBuildertrend from '../../assets/buildertrend.png';
+import iconBuildertrendDark from '../../assets/buildertrend_darkmode.png';
 import iconQBTime from '../../assets/qbtime_logo.png';
+import iconQBTimeDark from '../../assets/qbtime_darkmode.png';
 
 interface ProjectContainerModelProps {
   status?: 'open' | 'closed' | 'not started' | 'overdue';
@@ -22,6 +25,7 @@ interface ProjectContainerModelProps {
   onCreate?: (data: Partial<ForecastData>) => Promise<void>;
   availableJobSites?: string[];
   availableClients?: string[];
+  theme?: 'light' | 'dark';
 }
 
 const getStatusColor = (status: string) => {
@@ -241,7 +245,19 @@ const StyledTextarea = ({
   );
 };
 
-export default function ProjectContainerModel({ status = 'open', project, onUpdate, availableTypes = [], forcedTab, isCreationMode = false, onCreate, availableJobSites = [], availableClients = [] }: ProjectContainerModelProps) {
+export default function ProjectContainerModel({ 
+  status = 'open', 
+  project, 
+  onUpdate, 
+  availableTypes = [], 
+  forcedTab, 
+  isCreationMode = false, 
+  onCreate, 
+  availableJobSites = [], 
+  availableClients = [],
+  theme
+}: ProjectContainerModelProps) {
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
   const [activeTab, setActiveTab] = useState('Info & Dates');
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteCountDown, setDeleteCountDown] = useState(5);
@@ -316,6 +332,7 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
       case 'Info & Dates':
         return <i className="bi bi-info-circle" style={iconStyle}></i>;
       case 'Fieldwire':
+        // TODO: Add fieldwire_darkmode.png to assets when available
         return <img src={iconFieldwire} alt="Fieldwire" style={{ width: '16px', height: '16px', objectFit: 'contain', marginRight: '6px', filter: isActive ? 'none' : 'grayscale(100%) opacity(0.7)' }} />;
       case 'Machines':
          return <i className="bi bi-truck" style={iconStyle}></i>;
@@ -1048,7 +1065,7 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
                                     />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px' }}>
-                                    <img src={iconForecastHvac} alt="HVAC" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                                    <img src={isDarkMode ? iconForecastHvacDark : iconForecastHvac} alt="HVAC" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
                                 </div>
                                 <span style={{ fontSize: '13px', fontWeight: hvac ? 600 : 400, color: 'var(--color-text-primary)' }}>HVAC</span>
                             </div>
@@ -1081,23 +1098,21 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
                                        height: '30px'
                                    }}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={buildertrend} 
-                                            readOnly 
-                                            style={{ 
-                                                cursor: 'pointer',
-                                                accentColor: 'var(--color-accent-primary)',
-                                                width: '16px',
-                                                height: '16px'
-                                            }} 
-                                        />
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px' }}>
-                                        <img src={iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                                    </div>
-                                    <span style={{ fontSize: '13px', fontWeight: buildertrend ? 600 : 400, color: 'var(--color-text-primary)' }}>Buildertrend</span>
+                                <div style={{ 
+                                    width: '16px', 
+                                    height: '16px', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <img src={isDarkMode ? iconBuildertrendDark : iconBuildertrend} alt="Buildertrend" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
+                                </div>
+                                <span style={{ 
+                                    fontSize: '13px',
+                                    color: 'var(--color-text-primary)',
+                                    fontWeight: 500
+                                }}>Buildertrend</span>
                                 </div>
 
                                 {/* Storage */}
@@ -1136,39 +1151,37 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
                                 </div>
 
                                 {/* QBTime */}
-                                <div 
-                                   onClick={() => handleUpdateOptional('qbtime', !qbtime)}
-                                   style={{
-                                       border: `1px solid ${qbtime ? 'var(--color-accent-primary)' : 'var(--color-border-divider)'}`,
-                                       borderRadius: '4px',
-                                       backgroundColor: qbtime ? 'rgba(59, 130, 246, 0.05)' : 'var(--color-background-primary)',
-                                       display: 'flex',
-                                       alignItems: 'center',
-                                       padding: '0 12px',
-                                       cursor: 'pointer',
-                                       transition: 'all 0.2s',
-                                       gap: '12px',
-                                       height: '30px'
-                                   }}
-                                >
-                                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                                        <input 
-                                            type="checkbox" 
-                                            checked={qbtime} 
-                                            readOnly 
-                                            style={{ 
-                                                cursor: 'pointer',
-                                                accentColor: 'var(--color-accent-primary)',
-                                                width: '16px',
-                                                height: '16px'
-                                            }} 
-                                        />
-                                    </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '24px' }}>
-                                        <img src={iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
-                                    </div>
-                                    <span style={{ fontSize: '13px', fontWeight: qbtime ? 600 : 400, color: 'var(--color-text-primary)' }}>QBTime</span>
+                            <div 
+                               onClick={() => handleUpdateOptional('qbtime', !qbtime)}
+                               style={{
+                                   border: `1px solid ${qbtime ? 'var(--color-accent-primary)' : 'var(--color-border-divider)'}`,
+                                   borderRadius: '4px',
+                                   backgroundColor: qbtime ? 'rgba(59, 130, 246, 0.05)' : 'var(--color-background-primary)',
+                                   display: 'flex',
+                                   alignItems: 'center',
+                                   padding: '0 12px',
+                                   cursor: 'pointer',
+                                   transition: 'all 0.2s',
+                                   gap: '12px',
+                                   height: '30px'
+                               }}
+                            >
+                                <div style={{ 
+                                    width: '16px', 
+                                    height: '16px', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    flexShrink: 0
+                                }}>
+                                    <img src={isDarkMode ? iconQBTimeDark : iconQBTime} alt="QBTime" style={{ width: '16px', height: '16px', objectFit: 'contain' }} />
                                 </div>
+                                <span style={{ 
+                                    fontSize: '13px',
+                                    color: 'var(--color-text-primary)',
+                                    fontWeight: 500
+                                }}>QBTime</span>
+                            </div>
                             </div>
                         </div>
                     </div>
