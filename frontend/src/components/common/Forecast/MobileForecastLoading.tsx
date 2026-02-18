@@ -54,12 +54,16 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
 
       try {
         // Chamar a edge function do forecast (novo modelo)
-        console.log('📊 MobileForecastLoading: Chamando forecast...');
-        const { error } = await supabase.functions.invoke('forecast', {
-          method: 'POST',
-          body: {}
-        });
+        console.log('📊 MobileForecastLoading: Chamando forecast... (DESATIVADO)');
+        // const { error } = await supabase.functions.invoke('forecast', {
+        //   method: 'POST',
+        //   body: {}
+        // });
         
+        // Simular um pequeno delay para UX
+        await new Promise(resolve => setTimeout(resolve, 800));
+        const error = null; // Forçar sucesso sem chamar a função
+
         // Limpar o intervalo de progresso
         clearInterval(progressInterval);
         

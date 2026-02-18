@@ -12,6 +12,9 @@ interface MultiSelectDropdownProps {
   variant?: 'default' | 'ghost';
   label?: string;
   isSingleSelect?: boolean;
+  style?: React.CSSProperties;
+  allowCustomValue?: boolean;
+  placeholder?: string;
 }
 
 const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
@@ -24,7 +27,10 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   dropdownWidth,
   variant = 'default',
   label,
-  isSingleSelect = false
+  isSingleSelect = false,
+  style,
+  allowCustomValue = false,
+  placeholder
 }) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -283,11 +289,36 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             </label>
           </div>
         )}
+
+        {allowCustomValue && searchTerm && !options.some(opt => (typeof opt === 'string' ? opt : opt.label || '').toLowerCase() === searchTerm.toLowerCase()) && (
+             <div 
+               className="d-flex align-items-center"
+               style={{
+                 padding: '8px 12px',
+                 cursor: 'pointer',
+                 color: 'var(--color-accent-primary)',
+                 borderBottom: filteredOptions.length > 0 ? '1px solid var(--color-border-divider)' : 'none',
+                 transition: 'background-color 0.2s ease'
+               }}
+               onClick={() => {
+                  onChange([searchTerm]);
+                  setOpen(false);
+                  setSearchTerm('');
+               }}
+               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-background-secondary)'}
+               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+             >
+               <i className="bi bi-plus-circle" style={{ marginRight: 8 }}></i>
+               Create "{searchTerm}"
+             </div>
+        )}
         
         {filteredOptions.length === 0 ? (
-          <div style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 12 }}>
-            No results found
-          </div>
+          (!allowCustomValue || !searchTerm) && (
+            <div style={{ padding: '12px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: 12 }}>
+              No results found
+            </div>
+          )
         ) : (
           filteredOptions.map((opt, index) => {
             const value = typeof opt === 'string' ? opt : opt.value;
@@ -362,13 +393,12 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           background: variant === 'ghost' ? 'transparent' : 'var(--color-background-primary)', 
           color: 'var(--color-text-primary)', 
           border: variant === 'ghost' ? 'none' : 'none', 
-          borderRadius: 0, 
-          fontSize: variant === 'ghost' ? 12 : 13, 
-          boxShadow: 'none', 
-          padding: variant === 'ghost' ? '0 8px' : '0 10px', 
+          borderRadius: 4,
+          fontSize: variant === 'ghost' ? 12 : 13,
+          boxShadow: 'none',
+          padding: variant === 'ghost' ? '0 8px' : '0 10px',
           margin: 0,
-          borderTopRightRadius: 8,
-          borderBottomRightRadius: 8
+          ...style // Apply custom styles
         }}
         onClick={() => setOpen(o => !o)}
       >
@@ -385,12 +415,12 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             {isSingleSelect ? (
               <span style={{ 
                 color: 'var(--color-text-primary)', 
-                fontWeight: 600,
+                fontWeight: style?.fontWeight || 400,
                 fontSize: variant === 'ghost' ? '12px' : '13px'
               }}>
                 {(() => {
                   const selectedOpt = options.find(opt => (typeof opt === 'string' ? opt : opt.value) === selectedValues[0]);
-                  return selectedOpt ? (typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label) : allLabel;
+                  return selectedOpt ? (typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label) : (placeholder || allLabel);
                 })()}
               </span>
             ) : (
@@ -409,7 +439,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                   color: selectedValues.length > 0 ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
                   fontWeight: selectedValues.length > 0 ? 600 : 400
                 }}>
-                  {selectedValues.length === 0 ? allLabel : 
+                  {selectedValues.length === 0 ? (placeholder || allLabel) : 
                    selectedValues.length === options.length ? 'Todos' : 
                    `${selectedValues.length} selecionado${selectedValues.length > 1 ? 's' : ''}`}
                 </span>

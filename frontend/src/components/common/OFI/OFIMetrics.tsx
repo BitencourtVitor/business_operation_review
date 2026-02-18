@@ -28,17 +28,21 @@ export default function OFIMetrics({ data }: OFIMetricsProps) {
   };
 
   return (
-    <div className="d-flex flex-row align-items-stretch" style={{ 
+    <div className="d-flex flex-row align-items-stretch custom-scrollbar" style={{ 
       borderBottom: '1px solid var(--color-border-divider)', 
       background: 'var(--color-background-primary)',
-      height: '85px'
+      height: '85px',
+      overflowX: 'auto',
+      overflowY: 'hidden'
     }}>
       {/* OFI TOTAL - DESTAQUE PRINCIPAL */}
       <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
         minWidth: '240px',
         borderRight: '2px solid var(--color-border-divider)',
         background: 'rgba(46, 107, 230, 0.04)',
-        position: 'relative'
+        position: 'sticky',
+        left: 0,
+        zIndex: 10
       }}>
         <div style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 4, background: 'var(--color-brand-blue)', borderRadius: '0 4px 4px 0' }} />
         <span style={{ color: 'var(--color-text-secondary)', fontSize: 12, fontWeight: 600, textTransform: 'uppercase', marginBottom: 2, letterSpacing: '0.5px' }}>
