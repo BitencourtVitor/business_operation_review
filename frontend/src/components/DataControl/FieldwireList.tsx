@@ -5,9 +5,12 @@ import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 
 interface FieldwireListProps {
   obraId: string;
+  onLoadingStart?: () => void;
+  onLoadingStop?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function FieldwireList({ obraId }: FieldwireListProps) {
+export default function FieldwireList({ obraId, onLoadingStart, onLoadingStop, onSuccess }: FieldwireListProps) {
   const { startLoading, stopLoading, showSuccess } = useGlobalFeedback();
   const [items, setItems] = useState<ForecastFieldwire[]>([]);
   const [categories, setCategories] = useState<C_Fieldwire[]>([]);
@@ -80,6 +83,7 @@ export default function FieldwireList({ obraId }: FieldwireListProps) {
 
   const handleUpdate = async (id: number, field: keyof ForecastFieldwire, value: any) => {
     startLoading();
+    if (onLoadingStart) onLoadingStart();
     // Optimistic update
     setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i));
 
@@ -93,12 +97,14 @@ export default function FieldwireList({ obraId }: FieldwireListProps) {
           throw error;
       } else {
           showSuccess();
+          if (onSuccess) onSuccess();
       }
     } catch (error) {
         console.error("Error updating", error);
         // If error, revert (fetch items)
         fetchItems();
         stopLoading();
+        if (onLoadingStop) onLoadingStop();
     }
   };
 

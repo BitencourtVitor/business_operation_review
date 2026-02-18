@@ -420,7 +420,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
               }}>
                 {(() => {
                   const selectedOpt = options.find(opt => (typeof opt === 'string' ? opt : opt.value) === selectedValues[0]);
-                  return selectedOpt ? (typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label) : (placeholder || allLabel);
+                  if (selectedOpt) {
+                      return typeof selectedOpt === 'string' ? selectedOpt : selectedOpt.label;
+                  }
+                  // Se não encontrou nas opções, mas tem valor selecionado, mostra o próprio valor
+                  if (selectedValues.length > 0 && selectedValues[0]) {
+                      return selectedValues[0];
+                  }
+                  return placeholder || allLabel;
                 })()}
               </span>
             ) : (

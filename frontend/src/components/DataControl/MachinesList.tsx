@@ -151,6 +151,9 @@ const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select
 interface MachinesListProps {
   obraId: string;
   project?: ForecastData;
+  onLoadingStart?: () => void;
+  onLoadingStop?: () => void;
+  onSuccess?: () => void;
 }
 
 const StyledUnitInput = ({ 
@@ -204,7 +207,7 @@ const StyledUnitInput = ({
   );
 };
 
-export default function MachinesList({ obraId, project }: MachinesListProps) {
+export default function MachinesList({ obraId, project, onLoadingStart, onLoadingStop, onSuccess }: MachinesListProps) {
   const { startLoading, stopLoading, showSuccess } = useGlobalFeedback();
   const [items, setItems] = useState<ForecastMachines[]>([]);
   const [categories, setCategories] = useState<C_Machines[]>([]);
@@ -231,6 +234,7 @@ export default function MachinesList({ obraId, project }: MachinesListProps) {
   // Update provider
   const handleProviderChange = async (newProvider: string) => {
     startLoading();
+    if (onLoadingStart) onLoadingStart();
     setSelectedProvider(newProvider);
     
     if (obraId) {
@@ -242,11 +246,14 @@ export default function MachinesList({ obraId, project }: MachinesListProps) {
       if (error) {
         console.error('Error updating provider:', error);
         stopLoading();
+        if (onLoadingStop) onLoadingStop();
       } else {
         showSuccess();
+        if (onSuccess) onSuccess();
       }
     } else {
       stopLoading();
+      if (onLoadingStop) onLoadingStop();
     }
   };
   
@@ -324,25 +331,35 @@ export default function MachinesList({ obraId, project }: MachinesListProps) {
 
   const handleUpdate = async (id: number, field: keyof ForecastMachines, value: any) => {
     startLoading();
+    if (onLoadingStart) onLoadingStart();
+    
+    const updates: any = { [field]: value };
+    // Se estiver desativando (status = false), limpa o campo unit
+    if (field === 'status' && value === false) {
+      updates.unit = null;
+    }
+
     // Optimistic update
-    setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i));
+    setItems(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
 
     try {
       const { error } = await supabase
         .from('forecast_machines')
-        .update({ [field]: value, lastupdate_datetimez: new Date().toISOString() })
+        .update({ ...updates, lastupdate_datetimez: new Date().toISOString() })
         .eq('id', id);
         
       if (error) {
           throw error;
       } else {
           showSuccess();
+          if (onSuccess) onSuccess();
       }
     } catch (error) {
         console.error("Error updating", error);
         // If error, revert (fetch items)
         fetchItems();
         stopLoading();
+        if (onLoadingStop) onLoadingStop();
     }
   };
 
