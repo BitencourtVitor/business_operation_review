@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { supabase } from '../../supabaseClient';
-import type { ForecastContractSteps, C_ContractedSteps, C_Workforce, ForecastContract } from '../../types/dataControl';
+import type { ForecastContractSteps, C_ContractedSteps, C_Workforce } from '../../types/dataControl';
 import { useGlobalFeedback } from '../../contexts/GlobalFeedbackContext';
 
 const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select..." }: { value: string, onChange: (val: string) => void, options: { label: string, value: string }[], style?: React.CSSProperties, placeholder?: string }) => {
@@ -283,9 +283,9 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
         showSuccess();
         if (onSuccess) onSuccess();
         
-      } catch (error: any) {
+      } catch (error) {
         console.error('Error creating steps for new workforce:', error);
-        alert(`Erro ao adicionar workforce: ${error.message || JSON.stringify(error)}`);
+        alert(`Erro ao adicionar workforce: ${(error as Error).message || JSON.stringify(error)}`);
         stopLoading();
         if (onLoadingStop) onLoadingStop();
       } finally {
@@ -306,7 +306,7 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
       if (directError) throw directError;
 
       // 2. Fetch contract_id from forecast_contracts (Normalized parent)
-      const { data: contractData, error: contractError } = await supabase
+      const { data: contractData } = await supabase
         .from('forecast_contracts')
         .select('id')
         .eq('obra_id', obraId)
@@ -400,11 +400,11 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
     }
   };
 
-  const updateLocal = (id: number, field: keyof ForecastContractSteps, value: any) => {
+  const updateLocal = (id: number, field: keyof ForecastContractSteps, value: boolean | string | number | null) => {
     setItems(prev => prev.map(i => i.id === id ? { ...i, [field]: value } : i));
   };
 
-  const handleUpdate = async (id: number, field: keyof ForecastContractSteps, value: any) => {
+  const handleUpdate = async (id: number, field: keyof ForecastContractSteps, value: boolean | string | number | null) => {
     startLoading();
     if (onLoadingStart) onLoadingStart();
     // Optimistic update
@@ -467,9 +467,9 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
       showSuccess();
       if (onSuccess) onSuccess();
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error deleting workforce:', error);
-      alert(`Erro ao deletar workforce: ${error.message || 'Erro desconhecido'}`);
+      alert(`Erro ao deletar workforce: ${(error as Error).message || 'Erro desconhecido'}`);
       stopLoading();
       if (onLoadingStop) onLoadingStop();
     } finally {
