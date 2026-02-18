@@ -6,14 +6,18 @@ interface DataControlFiltersProps {
   setViewMode: (mode: string) => void;
   filterStatus?: string;
   setFilterStatus?: (status: string) => void;
+  theme?: 'light' | 'dark';
 }
 
 export default function DataControlFilters({
   viewMode,
   setViewMode,
   filterStatus,
-  setFilterStatus
+  setFilterStatus,
+  theme
 }: DataControlFiltersProps) {
+  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
+  
   const viewOptions = [
     { label: 'Info & Dates', value: 'Info & Dates', icon: 'bi-info-circle' },
     { label: 'Fieldwire', value: 'Fieldwire', icon: 'fieldwire' },
@@ -57,6 +61,7 @@ export default function DataControlFilters({
             }}
           >
             {option.icon === 'fieldwire' ? (
+              // TODO: Add fieldwire_darkmode.png to assets when available
               <img 
                 src={iconFieldwire} 
                 alt="Fieldwire" 

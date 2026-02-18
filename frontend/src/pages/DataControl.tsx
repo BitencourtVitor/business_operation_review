@@ -458,6 +458,7 @@ export default function DataControl() {
                 availableClients={clients as string[]}
                 project={{} as any}
                 status="not started"
+                theme={theme}
             />
         </div>
       </div>
@@ -474,6 +475,7 @@ export default function DataControl() {
           setViewMode={setGlobalViewMode} 
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
+          theme={theme}
         />
       </div>
 
@@ -488,6 +490,7 @@ export default function DataControl() {
             availableJobSites={uniqueJobSites as string[]}
             availableClients={clients as string[]}
             forcedTab={globalViewMode}
+            theme={theme}
           />
         ))}
         
