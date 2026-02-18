@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { supabase } from '../supabaseClient';
 import logoWhite from '../assets/logo_white.png';
@@ -8,6 +8,7 @@ import type { Theme } from '../types/common';
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -142,7 +143,8 @@ export default function Login() {
         }
 
         // Navegar para a tela de loading que irá processar todas as edge functions
-        navigate('/initial-loading');
+        const from = (location.state as any)?.from?.pathname || '/initial-loading';
+        navigate(from, { replace: true });
       }
     } catch {
       setError('Erro inesperado ao fazer login');
