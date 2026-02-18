@@ -75,11 +75,11 @@ export default function DataControlFilters({
       </div>
 
       {/* Filter Status */}
-      <div style={{ display: 'flex', alignItems: 'center', height: 38, gap: 8 }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderRadius: 8 }}>
+      <div className="input-group" style={{ minWidth: 180, maxWidth: 180, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38, zIndex: 20, display: 'flex' }}>
+        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0, color: 'var(--color-accent-primary)', borderTopLeftRadius: 8, borderBottomLeftRadius: 8, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
           <i className="bi bi-filter" style={{ fontSize: 17 }} />
         </span>
-        <div style={{ flex: 1, minWidth: 0, zIndex: 21, height: 38 }}>
+        <div style={{ flex: 1, minWidth: 0, zIndex: 21, borderTopRightRadius: 8, borderBottomRightRadius: 8, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, height: 38 }}>
           <MultiSelectDropdown 
             options={statusOptions}
             selectedValues={filterStatus ? [filterStatus] : []}
@@ -90,7 +90,6 @@ export default function DataControlFilters({
             allLabel="All Status"
             dropdownTitle="Status"
             isSingleSelect={true}
-            style={{ borderRadius: 8 }}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '../../supabaseClient';
 import type { ForecastData } from '../../types/dataControl';
 import FieldwireList from './FieldwireList';
@@ -243,7 +243,49 @@ const StyledTextarea = ({
 
 export default function ProjectContainerModel({ status = 'open', project, onUpdate, availableTypes = [], forcedTab, isCreationMode = false, onCreate, availableJobSites = [], availableClients = [] }: ProjectContainerModelProps) {
   const [activeTab, setActiveTab] = useState('Info & Dates');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteCountDown, setDeleteCountDown] = useState(5);
+  const [canDelete, setCanDelete] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(project?.status || status);
+  
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (deleteModalOpen) {
+      setDeleteCountDown(5);
+      setCanDelete(false);
+      timer = setInterval(() => {
+        setDeleteCountDown((prev) => {
+          if (prev <= 1) {
+            setCanDelete(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [deleteModalOpen]);
+
+  const handleDelete = async () => {
+    if (!project?.id) return;
+    
+    try {
+      startLoading();
+      const { error } = await supabase
+        .from('forecast_data')
+        .delete()
+        .eq('id', project.id);
+
+      if (error) throw error;
+      
+      setDeleteModalOpen(false);
+      showSuccess();
+      if (onUpdate) onUpdate(); // Trigger refresh on parent
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      stopLoading();
+    }
+  };
   const statusColor = getStatusColor(currentStatus);
   const tabs = isCreationMode 
     ? ['Info & Dates', 'Optionals'] 
@@ -352,6 +394,43 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
     }, 2000);
   };
 
+  const handleCreate = async () => {
+    if (!onCreate) return;
+
+    try {
+        startLoading();
+        await onCreate({
+            cliente: clientName,
+            job_site: jobSite,
+            type: type,
+            lote_bld: loteBld,
+            status: currentStatus,
+            address: address,
+            obs: obs,
+            previous_beams_date: prevBeamsDate,
+            previous_start_date: prevStartDate,
+            previous_end_date: prevEndDate,
+            hvac,
+            buildertrend,
+            storage,
+            qbtime
+        });
+        
+        showSuccess();
+        
+        // Clear specific fields for next entry as requested
+        setLoteBld('');
+        setAddress('');
+        setPrevBeamsDate('');
+        setPrevStartDate('');
+        setPrevEndDate('');
+        
+    } catch (error) {
+        console.error('Error creating project in component:', error);
+        stopLoading();
+    }
+  };
+
   const handleUpdateProject = async (field: keyof ForecastData, value: any) => {
     if (isCreationMode) {
       if (field === 'cliente') setClientName(value);
@@ -411,7 +490,7 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
 
         const { error } = await supabase
             .from('forecast_data')
-            .update({ [field]: value })
+            .update({ [field]: value, lastupdate_datetimez: new Date().toISOString() })
             .eq('id', project.id);
 
         if (error) throw error;
@@ -531,6 +610,68 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && createPortal(
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            backgroundColor: 'var(--color-background-secondary)',
+            padding: '24px',
+            borderRadius: '12px',
+            width: '400px',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+            border: '1px solid var(--color-border-divider)'
+          }}>
+            <h3 style={{ margin: '0 0 16px 0', color: 'var(--color-text-primary)', fontSize: '18px', fontWeight: 600 }}>Delete Project?</h3>
+            <p style={{ margin: '0 0 24px 0', color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+              Are you sure you want to delete this project? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                onClick={() => setDeleteModalOpen(false)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--color-border-divider)',
+                  backgroundColor: 'transparent',
+                  color: 'var(--color-text-primary)',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={!canDelete}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  backgroundColor: canDelete ? '#ef4444' : '#fee2e2',
+                  color: canDelete ? '#ffffff' : '#ef4444',
+                  cursor: canDelete ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
+                  fontWeight: 500
+                }}
+              >
+                {canDelete ? 'Yes, Delete' : `Wait ${deleteCountDown}s`}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
 
       {/* Main Container */}
       <div 
@@ -699,20 +840,47 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
             {/* Linha 3: Address */}
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
               <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: '2px' }}>Address</span>
-              <StyledInput 
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                onBlur={() => handleUpdateProject('address', address)}
-                style={{
-                  width: '100%',
-                  height: '30px',
-                  fontSize: '12px',
-                  border: '1px solid var(--color-border-divider)',
-                  borderRadius: '4px',
-                  padding: '0 8px',
-                  backgroundColor: 'var(--color-background-primary)'
-                }}
-              />
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', width: '100%' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <StyledInput 
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    onBlur={() => handleUpdateProject('address', address)}
+                    style={{
+                      width: '100%',
+                      height: '30px',
+                      fontSize: '12px',
+                      border: '1px solid var(--color-border-divider)',
+                      borderRadius: '4px',
+                      padding: '0 8px',
+                      backgroundColor: 'var(--color-background-primary)'
+                    }}
+                  />
+                </div>
+                {!isCreationMode && (
+                  <button
+                    onClick={() => setDeleteModalOpen(true)}
+                    style={{
+                      height: '30px',
+                      width: '30px',
+                      flex: '0 0 30px',
+                      backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      borderRadius: '4px',
+                      color: '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      margin: 0
+                    }}
+                    title="Delete Project"
+                  >
+                    <i className="bi bi-trash"></i>
+                  </button>
+                )}
+              </div>
             </div>
          </div>
 
@@ -779,41 +947,26 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
 
                     {isCreationMode && (
                         <button 
-                            onClick={() => onCreate && onCreate({
-                                cliente: clientName,
-                                job_site: jobSite,
-                                type: type,
-                                lote_bld: loteBld,
-                                status: currentStatus,
-                                address: address,
-                                obs: obs,
-                                previous_beams_date: prevBeamsDate,
-                                previous_start_date: prevStartDate,
-                                previous_end_date: prevEndDate,
-                                hvac,
-                                buildertrend,
-                                storage,
-                                qbtime
-                            })}
+                            onClick={handleCreate}
                             style={{
                                 marginTop: 'auto',
+                                alignSelf: 'flex-end',
                                 width: '100%',
-                                height: '30px',
+                                padding: '8px 0',
                                 backgroundColor: 'var(--color-accent-primary)',
-                                color: '#fff',
+                                color: '#ffffff',
                                 border: 'none',
-                                borderRadius: '4px',
-                                fontSize: '12px',
-                                fontWeight: 600,
+                                borderRadius: '6px',
+                                fontSize: '13px',
+                                fontWeight: 500,
                                 cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '6px'
+                                transition: 'background-color 0.2s',
+                                boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)'
                             }}
+                            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-accent-hover, #2563eb)'}
+                            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--color-accent-primary)'}
                         >
-                            <i className="bi bi-plus-lg"></i>
-                            Create
+                            Create Project
                         </button>
                     )}
                  </div>
@@ -824,17 +977,33 @@ export default function ProjectContainerModel({ status = 'open', project, onUpda
               <div style={{ height: '100%', overflowY: 'auto' }}>
                  {/* Fieldwire */}
                  {activeTab === 'Fieldwire' && project?.id && (
-                    <FieldwireList obraId={project.id} />
+                    <FieldwireList 
+                        obraId={project.id} 
+                        onLoadingStart={startLoading}
+                        onLoadingStop={stopLoading}
+                        onSuccess={showSuccess}
+                    />
                  )}
 
                  {/* Machines */}
                  {activeTab === 'Machines' && project?.id && (
-                    <MachinesList obraId={project.id} project={project} />
+                    <MachinesList 
+                        obraId={project.id} 
+                        project={project}
+                        onLoadingStart={startLoading}
+                        onLoadingStop={stopLoading}
+                        onSuccess={showSuccess}
+                    />
                  )}
 
                  {/* Contract */}
                  {activeTab === 'Contract' && project?.id && (
-                    <ContractStepsList obraId={project.id} />
+                    <ContractStepsList 
+                        obraId={project.id} 
+                        onLoadingStart={startLoading}
+                        onLoadingStop={stopLoading}
+                        onSuccess={showSuccess}
+                    />
                  )}
 
                  {/* Optionals (Grid 2 columns) */}

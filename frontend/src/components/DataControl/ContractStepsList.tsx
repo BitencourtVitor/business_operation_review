@@ -76,7 +76,7 @@ const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select
 
       {isOpen && ReactDOM.createPortal(
         <div 
-          className="custom-dropdown-portal"
+          className="custom-dropdown-portal custom-scrollbar"
           style={{
             position: 'absolute',
             top: position.top + 4,
@@ -87,7 +87,7 @@ const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select
             borderRadius: '4px',
             boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             zIndex: 9999,
-            maxHeight: '200px',
+            maxHeight: '300px',
             overflowY: 'auto'
           }}
         >
@@ -113,7 +113,7 @@ const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select
             />
           </div>
 
-          <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
+          <div className="custom-scrollbar" style={{ maxHeight: '250px', overflowY: 'auto' }}>
             {filteredOptions.map((option) => (
               <div
                 key={option.value}
@@ -150,9 +150,12 @@ const CustomDropdown = ({ value, onChange, options, style, placeholder = "Select
 
 interface ContractStepsListProps {
   obraId: string;
+  onLoadingStart?: () => void;
+  onLoadingStop?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function ContractStepsList({ obraId }: ContractStepsListProps) {
+export default function ContractStepsList({ obraId, onLoadingStart, onLoadingStop, onSuccess }: ContractStepsListProps) {
   const { startLoading, stopLoading, showSuccess } = useGlobalFeedback();
   const [teams, setTeams] = useState<string[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
@@ -230,6 +233,7 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
       // If it's a new team, create steps for it
       try {
         startLoading();
+        if (onLoadingStart) onLoadingStart();
         setLoading(true);
         
         let currentSteps = steps;
@@ -277,11 +281,13 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
         });
         setSelectedTeam(workforceName);
         showSuccess();
+        if (onSuccess) onSuccess();
         
       } catch (error: any) {
         console.error('Error creating steps for new workforce:', error);
         alert(`Erro ao adicionar workforce: ${error.message || JSON.stringify(error)}`);
         stopLoading();
+        if (onLoadingStop) onLoadingStop();
       } finally {
         setLoading(false);
       }
@@ -400,6 +406,7 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
 
   const handleUpdate = async (id: number, field: keyof ForecastContractSteps, value: any) => {
     startLoading();
+    if (onLoadingStart) onLoadingStart();
     // Optimistic update
     updateLocal(id, field, value);
 
@@ -416,12 +423,14 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
         throw error;
       } else {
         showSuccess();
+        if (onSuccess) onSuccess();
       }
     } catch (error) {
       console.error('Error updating step:', error);
       // Revert if needed
       if (selectedTeam) fetchItems(selectedTeam);
       stopLoading();
+      if (onLoadingStop) onLoadingStop();
     }
   };
 
@@ -441,6 +450,7 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
 
     try {
       startLoading();
+      if (onLoadingStart) onLoadingStart();
       setLoading(true);
       const { error } = await supabase
         .from('forecast_contract_steps')
@@ -455,11 +465,13 @@ export default function ContractStepsList({ obraId }: ContractStepsListProps) {
       setSelectedTeam(null);
       setItems([]);
       showSuccess();
+      if (onSuccess) onSuccess();
       
     } catch (error: any) {
       console.error('Error deleting workforce:', error);
       alert(`Erro ao deletar workforce: ${error.message || 'Erro desconhecido'}`);
       stopLoading();
+      if (onLoadingStop) onLoadingStop();
     } finally {
       setLoading(false);
     }

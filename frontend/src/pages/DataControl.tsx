@@ -216,8 +216,14 @@ export default function DataControl() {
     setLoading(true);
     const newId = uuidv4().substring(0, 8); // Generate short ID like example
     
+    // Sanitize date fields: convert empty strings to null
+    const sanitizedData = { ...data };
+    if (sanitizedData.previous_beams_date === '') sanitizedData.previous_beams_date = null;
+    if (sanitizedData.previous_start_date === '') sanitizedData.previous_start_date = null;
+    if (sanitizedData.previous_end_date === '') sanitizedData.previous_end_date = null;
+
     const projectData = {
-      ...data,
+      ...sanitizedData,
       id: newId,
       create_datetime: new Date().toISOString(),
       lastupdate_datetimez: new Date().toISOString()
@@ -228,10 +234,13 @@ export default function DataControl() {
     if (error) {
       console.error('Error creating project:', error);
       setMessage({ type: 'error', text: 'Error creating project: ' + error.message });
+      setLoading(false);
+      throw error;
     } else {
-      setMessage({ type: 'success', text: 'Project created successfully!' });
+      // setMessage({ type: 'success', text: 'Project created successfully!' }); // Removido alerta global
       fetchProjects();
-      setPageState('list');
+      // Não redirecionar mais
+      // setPageState('list');
     }
     setLoading(false);
   };
@@ -381,17 +390,23 @@ export default function DataControl() {
   );
 
   const renderCreate = () => (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px', height: '100%', overflowY: 'auto', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h2 style={{ marginBottom: '24px', alignSelf: 'flex-start', color: 'var(--color-text-primary)' }}>Create New Project</h2>
-      <ProjectContainerModel 
-        isCreationMode={true}
-        onCreate={handleCreateProject}
-        availableTypes={uniqueTypes as string[]}
-        availableJobSites={uniqueJobSites as string[]}
-        availableClients={clients as string[]}
-        project={{} as any}
-        status="open"
-      />
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <div className="d-flex flex-row align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Create New Project</h1>
+      </div>
+      <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: '32px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ maxWidth: '1000px', width: '100%' }}>
+            <ProjectContainerModel 
+                isCreationMode={true}
+                onCreate={handleCreateProject}
+                availableTypes={uniqueTypes as string[]}
+                availableJobSites={uniqueJobSites as string[]}
+                availableClients={clients as string[]}
+                project={{} as any}
+                status="not started"
+            />
+        </div>
+      </div>
     </div>
   );
 
@@ -653,31 +668,37 @@ export default function DataControl() {
       >
         <div style={{ height: '100%', backgroundColor: 'var(--color-background-secondary)' }}>
           {message && (
-            <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'} m-3 fixed-top`} style={{ zIndex: 1050, left: '50%', transform: 'translateX(-50%)', width: 'auto', minWidth: '300px' }} role="alert">
+            <div 
+              className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-danger'} shadow-sm`} 
+              style={{ 
+                position: 'fixed', 
+                top: 80, 
+                right: 20, 
+                zIndex: 2000, 
+                minWidth: 300,
+                maxWidth: 400,
+                // Ensure colors are readable regardless of theme
+                color: message.type === 'success' ? '#0f5132' : '#842029',
+                backgroundColor: message.type === 'success' ? '#d1e7dd' : '#f8d7da',
+                borderColor: message.type === 'success' ? '#badbcc' : '#f5c6cb',
+                paddingRight: '3rem'
+              }} 
+              role="alert"
+            >
               {message.text}
-              <button type="button" className="btn-close float-end" onClick={() => setMessage(null)}></button>
+              <button 
+                type="button" 
+                className="btn-close position-absolute" 
+                style={{ top: '1rem', right: '1rem' }}
+                onClick={() => setMessage(null)}
+              ></button>
             </div>
           )}
 
           {pageState === 'menu' && renderMenu()}
           {pageState === 'create' && renderCreate()}
           {pageState === 'list' && renderList()}
-          {pageState === 'categorization' && (
-            <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-               <div style={{ padding: '16px', backgroundColor: 'var(--color-background-primary)', borderBottom: '1px solid var(--color-border-divider)' }}>
-                 <button 
-                    className="btn btn-link text-decoration-none" 
-                    onClick={() => setPageState('menu')}
-                    style={{ paddingLeft: 0, color: 'var(--color-text-secondary)' }}
-                  >
-                    <i className="bi bi-arrow-left"></i> Back to Menu
-                  </button>
-               </div>
-               <div style={{ flex: 1, overflow: 'hidden' }}>
-                 <CategorizationManager />
-               </div>
-            </div>
-          )}
+          {pageState === 'categorization' && <CategorizationManager />}
         </div>
       </main>
     </div>
