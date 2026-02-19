@@ -161,11 +161,27 @@ export default function DataControl() {
     // setLoading(true);
     const { data } = await supabase
       .from('forecast_data')
-      .select('*')
-      .order('cliente', { ascending: true })
-      .order('job_site', { ascending: true });
+      .select('*');
     
-    if (data) setAllProjects(data);
+    if (data) {
+      // Sort: Client -> Job Site -> Number (lote_bld)
+      const sorted = data.sort((a, b) => {
+        const clientA = a.cliente || '';
+        const clientB = b.cliente || '';
+        const clientDiff = clientA.localeCompare(clientB);
+        if (clientDiff !== 0) return clientDiff;
+
+        const jobSiteA = a.job_site || '';
+        const jobSiteB = b.job_site || '';
+        const jobSiteDiff = jobSiteA.localeCompare(jobSiteB);
+        if (jobSiteDiff !== 0) return jobSiteDiff;
+
+        const numA = a.lote_bld || '';
+        const numB = b.lote_bld || '';
+        return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+      setAllProjects(sorted);
+    }
     // setLoading(false);
   };
 
