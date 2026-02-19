@@ -503,6 +503,19 @@ export default function ForecastProjectModal({
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Contract Steps</div>
               
               {(() => {
+                const CONTRACT_STEPS_ORDER = [
+                  'Confirmação de seguros e apólices',
+                  'Purchase order',
+                  'Envio do contrato',
+                  'Aguardando assinatura',
+                  'Assinado'
+                ];
+
+                const getStepOrder = (stepName: string) => {
+                  const index = CONTRACT_STEPS_ORDER.indexOf(stepName);
+                  return index === -1 ? 999 : index;
+                };
+
                 // Agrupar passos por equipe
                 const groupedByTeam: { [team: string]: typeof project.contract_steps } = {};
                 project.contract_steps?.forEach(cs => {
@@ -513,7 +526,12 @@ export default function ForecastProjectModal({
                   groupedByTeam[teamName].push(cs);
                 });
 
-                return Object.entries(groupedByTeam).map(([team, steps], index) => (
+                return Object.entries(groupedByTeam).map(([team, steps], index) => {
+                  const sortedSteps = [...steps].sort((a, b) => {
+                    return getStepOrder(a.step || '') - getStepOrder(b.step || '');
+                  });
+
+                  return (
                   <div key={team} style={{ 
                     marginBottom: index < Object.entries(groupedByTeam).length - 1 ? 20 : 0,
                     padding: '12px',
@@ -542,7 +560,7 @@ export default function ForecastProjectModal({
                       flexDirection: 'column', 
                       gap: 8
                     }}>
-                      {steps.map((cs) => (
+                      {sortedSteps.map((cs) => (
                         <div key={cs.id} style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -564,7 +582,8 @@ export default function ForecastProjectModal({
                       ))}
                     </div>
                   </div>
-                ));
+                );
+              });
               })()}
             </div>
           )}

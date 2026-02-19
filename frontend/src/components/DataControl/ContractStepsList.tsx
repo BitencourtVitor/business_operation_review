@@ -655,7 +655,25 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
                 </div>
              ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {items.map(item => (
+                  {(() => {
+                    const CONTRACT_STEPS_ORDER = [
+                      'Confirmação de seguros e apólices',
+                      'Purchase order',
+                      'Envio do contrato',
+                      'Aguardando assinatura',
+                      'Assinado'
+                    ];
+
+                    const getStepOrder = (stepName: string) => {
+                      const index = CONTRACT_STEPS_ORDER.indexOf(stepName);
+                      return index === -1 ? 999 : index;
+                    };
+
+                    const sortedItems = [...items].sort((a, b) => 
+                      getStepOrder(a.step || '') - getStepOrder(b.step || '')
+                    );
+
+                    return sortedItems.map(item => (
                     <div 
                       key={item.id} 
                       style={{ 
@@ -690,7 +708,8 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
                           {item.step}
                       </div>
                     </div>
-                  ))}
+                  ));
+                  })()}
                   
                   {items.length === 0 && !loading && (
                     <div style={{ padding: '20px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '13px' }}>
