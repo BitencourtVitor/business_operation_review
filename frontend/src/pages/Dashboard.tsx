@@ -23,6 +23,7 @@ import SubcontractorPerformance from './SubcontractorPerformance';
 import MonthlyExecution from './MonthlyExecution';
 import OperationalForecastIndex from './OperationalForecastIndex';
 import DataControl from './DataControl';
+import { InventoryControl } from '../components/InventoryControl/InventoryControl';
 import type { Theme } from '../types/common';
 import type { User } from '@supabase/supabase-js';
 
@@ -350,6 +351,7 @@ export default function Dashboard() {
     'Operational Efficiency Index': 'bi bi-speedometer2',
     'Operational Forecast Index': 'bi bi-graph-up-arrow',
     'OFI': 'bi bi-graph-up-arrow',
+    'Inventory Control Index': 'bi bi-box-seam',
   };
 
   // Função para obter ícone da tela
@@ -559,6 +561,8 @@ export default function Dashboard() {
       case 'Operational Forecast Index':
       case 'OFI':
         return <OperationalForecastIndex />;
+      case 'Inventory Control Index':
+        return <InventoryControl />;
       case 'Operational Efficiency Index':
         if (selectedOEIType === 'Workforce Productivity') {
           return <WorkforceProductivity telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;

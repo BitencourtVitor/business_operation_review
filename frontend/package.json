@@ -18,6 +18,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.5.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "js-cookie": "^3.0.5",
     "node-fetch": "^3.3.2",
@@ -27,6 +28,7 @@
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.3",
     "react-select": "^5.10.1",
+    "recharts": "^3.7.0",
     "tailwindcss": "*",
     "uuid": "^13.0.0"
   },

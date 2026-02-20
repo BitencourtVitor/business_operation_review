@@ -1,6 +1,29 @@
 import { useState, useEffect } from 'react';
 import MonthlyExecutionFilters from '../components/common/MonthlyExecution/MonthlyExecutionFilters';
 import { supabase } from '../supabaseClient';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface MonthlyExecutionProps {
   telaId: string;
@@ -25,6 +48,23 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
   const [savingNote, setSavingNote] = useState(false);
   const [selectedProjectForNote, setSelectedProjectForNote] = useState<any>(null);
   const [noteText, setNoteText] = useState('');
+  
+  const [yearlyData, setYearlyData] = useState<{
+    planned: number[];
+    started: number[];
+  }>({
+    planned: Array(12).fill(0),
+    started: Array(12).fill(0)
+  });
+
+  // State to manage expanded columns. By default, maybe all collapsed or specific ones?
+  // User said "blocks of planned and started will become expandable".
+  // Let's keep track of which are expanded.
+  const [expandedColumns, setExpandedColumns] = useState<Record<string, boolean>>({
+    'Planned Projects': false,
+    'Started Projects': false,
+    'Finished Projects': false
+  });
 
   const [data, setData] = useState<ExecutionData>({
     planned: [],
@@ -38,6 +78,54 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
       fetchData();
     }
   }, [selectedYear, selectedMonth]);
+
+  useEffect(() => {
+    if (selectedYear) {
+      fetchYearlyData();
+    }
+  }, [selectedYear]);
+
+  const fetchYearlyData = async () => {
+    try {
+      const yearNum = parseInt(selectedYear);
+      
+      const { data: plannedData } = await supabase
+        .from('operational_forecast_index')
+        .select('reference_month')
+        .eq('reference_year', yearNum);
+
+      const countsPlanned = Array(12).fill(0);
+      if (plannedData) {
+        plannedData.forEach((item: any) => {
+          if (item.reference_month >= 1 && item.reference_month <= 12) {
+            countsPlanned[item.reference_month - 1]++;
+          }
+        });
+      }
+
+      const { data: historyData } = await supabase
+        .from('monthly_execution_history')
+        .select('reference_month, actual_status')
+        .eq('reference_year', yearNum);
+
+      const countsStarted = Array(12).fill(0);
+      if (historyData) {
+        historyData.forEach((item: any) => {
+          const status = item.actual_status ? item.actual_status.toLowerCase() : '';
+          if (item.reference_month >= 1 && item.reference_month <= 12 && status !== 'not started' && status !== 'cancelled') {
+            countsStarted[item.reference_month - 1]++;
+          }
+        });
+      }
+
+      setYearlyData({
+        planned: countsPlanned,
+        started: countsStarted
+      });
+    } catch (error) {
+      console.error('Error fetching yearly data:', error);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -254,14 +342,50 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
 
       if (error) throw error;
       
-      setData(prev => ({
-        ...prev,
-        planned: prev.planned.map(p => 
-          p.obra_id === selectedProjectForNote.obra_id 
+      setData(prev => {
+        const newData = { ...prev };
+        
+        // Update in planned
+        newData.planned = prev.planned.map(p => 
+          p.obra_id === (selectedProjectForNote.id_obra_real || selectedProjectForNote.obra_id)
             ? { ...p, reason: noteText } 
             : p
-        )
-      }));
+        );
+
+        // Update in all_history
+        const historyIndex = prev.all_history.findIndex(h => h.obra_id === (selectedProjectForNote.id_obra_real || selectedProjectForNote.obra_id));
+        if (historyIndex >= 0) {
+          newData.all_history = prev.all_history.map((h, i) => 
+            i === historyIndex ? { ...h, reason: noteText } : h
+          );
+        } else {
+          // If it wasn't in history, add it
+          newData.all_history = [...prev.all_history, {
+            obra_id: selectedProjectForNote.id_obra_real || selectedProjectForNote.obra_id,
+            reference_month: parseInt(selectedMonth),
+            reference_year: parseInt(selectedYear),
+            reason: noteText,
+            actual_status: 'Not Started', // Default for new notes
+            forecast_data: selectedProjectForNote.forecast_data
+          }];
+        }
+
+        // Update in started
+        newData.started = prev.started.map(s => 
+          s.obra_id === (selectedProjectForNote.id_obra_real || selectedProjectForNote.obra_id)
+            ? { ...s, reason: noteText } 
+            : s
+        );
+
+        // Update in finished
+        newData.finished = prev.finished.map(f => 
+          f.obra_id === (selectedProjectForNote.id_obra_real || selectedProjectForNote.obra_id)
+            ? { ...f, reason: noteText } 
+            : f
+        );
+
+        return newData;
+      });
 
       setSelectedProjectForNote(null);
     } catch (error) {
@@ -404,14 +528,315 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
 
 
 
-      {/* Modal para Observação - Movido para fora para evitar conflito de backdrop */}
+      {/* Modal removed from here */}
+    </div>
+  );
+};
+
+  const toggleColumn = (title: string) => {
+    setExpandedColumns(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
+
+  const renderChart = () => {
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    const allDatasets = [
+      {
+        label: 'Planned',
+        data: yearlyData.planned.map(v => v === 0 ? null : v),
+        borderColor: '#3B82F6',
+        backgroundColor: '#3B82F6',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 3,
+        fill: false,
+        tension: 0.25,
+      },
+      {
+        label: 'Started',
+        data: yearlyData.started.map(v => v === 0 ? null : v),
+        borderColor: '#F59E0B',
+        backgroundColor: '#F59E0B',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 3,
+        fill: false,
+        tension: 0.25,
+      },
+    ];
+
+    const chartData = {
+      labels,
+      datasets: allDatasets.filter(dataset => dataset.data.some((val: number | null) => val !== null)),
+    };
+
+    const options = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        title: {
+          display: false, // Removing internal title as we are using external header
+        },
+      },
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            drawBorder: false,
+          },
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.6)',
+          }
+        },
+        y: {
+          grid: {
+            color: 'rgba(255, 255, 255, 0.1)',
+            drawBorder: false,
+          },
+          ticks: {
+            color: 'rgba(255, 255, 255, 0.6)',
+            stepSize: 1
+          },
+          beginAtZero: true
+        }
+      },
+      layout: {
+        padding: {
+          top: 20,
+          bottom: 20,
+          left: 10,
+          right: 10
+        }
+      }
+    };
+
+    return (
+      <div style={{ padding: '10px 20px', height: '50%', minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+        <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
+          Monthly Execution Overview - {selectedYear}
+        </h4>
+        <div style={{ background: 'var(--color-background-primary)', flex: 1, minHeight: 0, minWidth: 0 }}>
+          <div style={{ width: '100%', height: '100%', minHeight: 250 }}>
+            <Line data={chartData} options={options as any} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderColumn = (title: string, count: number, projects: any[], color: string, icon: string, extraContent?: React.ReactNode, metrics?: React.ReactNode) => {
+    const isFinishedColumn = title === 'Finished Projects';
+    const hasProjects = projects.length > 0 || (extraContent && isFinishedColumn);
+    const isExpanded = expandedColumns[title];
+
+    return (
+      <div className="col-md-4 h-100" style={{ transition: 'all 0.3s ease' }}>
+        <div className="d-flex flex-column h-100" style={{ 
+          borderRight: title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
+          padding: '0 15px',
+          background: isExpanded ? 'rgba(255,255,255,0.02)' : 'transparent'
+        }}>
+          {/* Header Section */}
+          <div 
+            className="d-flex flex-column gap-1" 
+            style={{ 
+              paddingTop: '12px',
+              paddingBottom: '12px',
+              borderBottom: isExpanded ? '1px solid var(--color-border-divider)' : 'none',
+              cursor: 'pointer',
+              userSelect: 'none'
+            }}
+            onClick={() => toggleColumn(title)}
+          >
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex align-items-center gap-2">
+                <i className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`} style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}></i>
+                <i className={`bi ${icon}`} style={{ color: color, fontSize: '14px' }}></i>
+                <h4 className="mb-0" style={{ 
+                  color: 'var(--color-text-secondary)', 
+                  fontSize: '15px', 
+                  fontWeight: 500,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>{title}</h4>
+              </div>
+              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: '15px' }}>{count}</span>
+            </div>
+            {metrics && (
+              <div className="mt-1">
+                {metrics}
+              </div>
+            )}
+          </div>
+
+          {/* Content Section */}
+          {isExpanded && (
+            <div className="overflow-y-auto custom-scrollbar" style={{ 
+              flex: 1, 
+              paddingTop: '12px',
+              paddingRight: '6px',
+              paddingBottom: '0px' 
+            }}>
+              {!hasProjects && !isFinishedColumn ? (
+                <div className="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
+                  <div className="small" style={{ color: 'var(--color-text-secondary)', opacity: 0.6 }}>
+                    No projects in this category.
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {isFinishedColumn && projects.length === 0 && (
+                    <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center mb-3" style={{ 
+                      border: '1px dashed var(--color-border-divider)',
+                      borderRadius: '8px'
+                    }}>
+                      <div className="mb-2" style={{ opacity: 0.2 }}>
+                        <i className="bi bi-clipboard-x" style={{ fontSize: '32px', color: 'var(--color-text-secondary)' }}></i>
+                      </div>
+                      <div className="small px-4" style={{ color: 'var(--color-text-secondary)', opacity: 0.7, maxWidth: '280px', lineHeight: '1.4' }}>
+                        Among the projects started in the observed month, none have been finished yet.
+                      </div>
+                    </div>
+                  )}
+                  {projects.map(p => renderProjectCard(p))}
+                  {extraContent}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const getFinishedProjects = () => {
+    // Obras que terminaram e também iniciaram no mês
+    const finishedAndStarted = allProjects.filter(p => p.isFinished && p.isStarted);
+    // Obras que terminaram mas NÃO iniciaram no mês (iniciaram em meses anteriores)
+    // Precisamos verificar se a obra está no data.started filtrada por status, ou se ela simplesmente não tem o flag isStarted
+    // que foi atribuído na lógica de getAllObras.
+    const finishedNotStartedInMonth = allProjects.filter(p => p.isFinished && !p.isStarted);
+    
+    return { finishedAndStarted, finishedNotStartedInMonth };
+  };
+
+  const getPlannedMetrics = () => {
+    const totalCaptured = data.planned.length;
+    const stillPlanned = allProjects.filter(p => p.isPlanned && !p.isStarted && !p.isFinished).length;
+    return { totalCaptured, stillPlanned };
+  };
+
+  const { totalCaptured, stillPlanned } = getPlannedMetrics();
+  const { finishedAndStarted, finishedNotStartedInMonth } = getFinishedProjects();
+  const finishedPlanned = allProjects.filter(p => p.isFinished && p.isPlanned).length;
+
+  return (
+    <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
+      <style>
+        {`
+          .observation-btn:hover {
+            color: var(--color-accent-primary) !important;
+            opacity: 1 !important;
+            transform: scale(1.1);
+          }
+          .modal-backdrop {
+            z-index: 1040 !important;
+          }
+          .modal {
+            z-index: 1050 !important;
+          }
+        `}
+      </style>
+      {/* Barra superior com título e filtros */}
+      <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', flex: '0 0 auto' }}>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Monthly Execution</h1>
+        <MonthlyExecutionFilters
+          selectedYear={selectedYear}
+          setSelectedYear={setSelectedYear}
+          selectedMonth={selectedMonth}
+          setSelectedMonth={setSelectedMonth}
+          years={years}
+          months={months}
+        />
+      </div>
+
+      {/* Conteúdo principal - Sistema de Colunas */}
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        {loading ? (
+          <div className="d-flex justify-content-center align-items-center h-100">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            {renderChart()}
+            <div className="row g-0" style={{ flex: 1, overflow: 'hidden' }}>
+              {renderColumn(
+              'Planned Projects', 
+              totalCaptured, 
+              allProjects.filter(p => p.isPlanned), 
+              '#3B82F6', 
+              'bi-calendar-event',
+              null,
+              <div className="d-flex align-items-center gap-2">
+                <span style={{ color: 'var(--color-text-secondary)', fontSize: '13px' }}>Remaining:</span>
+                <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600, fontSize: '14px' }}>{stillPlanned}</span>
+              </div>
+            )}
+            
+            {renderColumn(
+              'Started Projects', 
+              allProjects.filter(p => p.isStarted).length, 
+              allProjects.filter(p => p.isStarted), 
+              '#F59E0B', 
+              'bi-play-circle'
+            )}
+            
+            {renderColumn(
+              'Finished Projects', 
+              allProjects.filter(p => p.isFinished).length, 
+              finishedAndStarted, 
+              '#10B981', 
+              'bi-check-circle',
+              finishedNotStartedInMonth.length > 0 && (
+                <div className="mt-4">
+                  <div className="d-flex align-items-center gap-2 mb-3">
+                    <hr className="flex-grow-1" style={{ borderColor: 'var(--color-border-divider)', opacity: 0.3 }} />
+                    <span style={{ 
+                      color: 'var(--color-text-secondary)', 
+                      fontSize: '10px', 
+                      whiteSpace: 'nowrap', 
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.5px', 
+                      fontWeight: 600 
+                    }}>
+                      Finished but not started in month
+                    </span>
+                    <hr className="flex-grow-1" style={{ borderColor: 'var(--color-border-divider)', opacity: 0.3 }} />
+                  </div>
+                  {finishedNotStartedInMonth.map(p => renderProjectCard(p))}
+                </div>
+              )
+            )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Modal para Observação */}
       {selectedProjectForNote && (
         <div 
           className="modal fade show" 
           style={{ 
             display: 'block', 
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            zIndex: 9999
+            backgroundColor: 'rgba(0, 0, 0, 0.4)', // Reduced opacity for less blur effect
+            zIndex: 1060, // Higher z-index to be above header
+            backdropFilter: 'none' // Ensure no blur effect is applied
           }}
           tabIndex={-1}
         >
@@ -475,195 +900,6 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
           </div>
         </div>
       )}
-    </div>
-  );
-};
-
-  const renderColumn = (title: string, count: number, projects: any[], color: string, icon: string, extraContent?: React.ReactNode, metrics?: React.ReactNode) => {
-    const isFinishedColumn = title === 'Finished Projects';
-    const hasProjects = projects.length > 0 || (extraContent && isFinishedColumn);
-
-    return (
-      <div className="col-md-4 h-100">
-        <div className="d-flex flex-column h-100" style={{ 
-          borderRight: title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
-          padding: '0 15px'
-        }}>
-          {/* Header Section */}
-          <div className="d-flex flex-column gap-1" style={{ 
-            paddingTop: '12px',
-            paddingBottom: '12px',
-            borderBottom: '1px solid var(--color-border-divider)' 
-          }}>
-            <div className="d-flex align-items-center justify-content-between">
-              <div className="d-flex align-items-center gap-2">
-                <i className={`bi ${icon}`} style={{ color: color, fontSize: '14px' }}></i>
-                <h4 className="mb-0" style={{ 
-                  color: 'var(--color-text-secondary)', 
-                  fontSize: '15px', 
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>{title}</h4>
-              </div>
-              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: '15px' }}>{count}</span>
-            </div>
-            {metrics && (
-              <div className="mt-1">
-                {metrics}
-              </div>
-            )}
-          </div>
-
-          {/* Content Section */}
-          <div className="overflow-y-auto custom-scrollbar" style={{ 
-            flex: 1, 
-            paddingTop: '12px',
-            paddingRight: '6px',
-            paddingBottom: '0px' 
-          }}>
-            {!hasProjects && !isFinishedColumn ? (
-              <div className="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
-                <div className="small" style={{ color: 'var(--color-text-secondary)', opacity: 0.6 }}>
-                  No projects in this category.
-                </div>
-              </div>
-            ) : (
-              <>
-                {isFinishedColumn && projects.length === 0 && (
-                  <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center mb-3" style={{ 
-                    border: '1px dashed var(--color-border-divider)',
-                    borderRadius: '8px'
-                  }}>
-                    <div className="mb-2" style={{ opacity: 0.2 }}>
-                      <i className="bi bi-clipboard-x" style={{ fontSize: '32px', color: 'var(--color-text-secondary)' }}></i>
-                    </div>
-                    <div className="small px-4" style={{ color: 'var(--color-text-secondary)', opacity: 0.7, maxWidth: '280px', lineHeight: '1.4' }}>
-                      Among the projects started in the observed month, none have been finished yet.
-                    </div>
-                  </div>
-                )}
-                {projects.map(p => renderProjectCard(p))}
-                {extraContent}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const getFinishedProjects = () => {
-    // Obras que terminaram e também iniciaram no mês
-    const finishedAndStarted = allProjects.filter(p => p.isFinished && p.isStarted);
-    // Obras que terminaram mas NÃO iniciaram no mês (iniciaram em meses anteriores)
-    // Precisamos verificar se a obra está no data.started filtrada por status, ou se ela simplesmente não tem o flag isStarted
-    // que foi atribuído na lógica de getAllObras.
-    const finishedNotStartedInMonth = allProjects.filter(p => p.isFinished && !p.isStarted);
-    
-    return { finishedAndStarted, finishedNotStartedInMonth };
-  };
-
-  const getPlannedMetrics = () => {
-    const totalCaptured = data.planned.length;
-    const stillPlanned = allProjects.filter(p => p.isPlanned && !p.isStarted && !p.isFinished).length;
-    return { totalCaptured, stillPlanned };
-  };
-
-  const { totalCaptured, stillPlanned } = getPlannedMetrics();
-  const { finishedAndStarted, finishedNotStartedInMonth } = getFinishedProjects();
-  const finishedPlanned = allProjects.filter(p => p.isFinished && p.isPlanned).length;
-
-  return (
-    <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
-      <style>
-        {`
-          .observation-btn:hover {
-            color: var(--color-accent-primary) !important;
-            opacity: 1 !important;
-            transform: scale(1.1);
-          }
-          .modal-backdrop {
-            z-index: 1040 !important;
-          }
-          .modal {
-            z-index: 1050 !important;
-          }
-        `}
-      </style>
-      {/* Barra superior com título e filtros */}
-      <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', flex: '0 0 auto' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Monthly Execution</h1>
-        <MonthlyExecutionFilters
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          years={years}
-          months={months}
-        />
-      </div>
-
-      {/* Conteúdo principal - Sistema de Colunas */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        {loading ? (
-          <div className="d-flex justify-content-center align-items-center h-100">
-            <div className="spinner-border text-primary" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
-        ) : (
-          <div className="row g-0 h-100">
-            {renderColumn(
-              'Planned Projects', 
-              totalCaptured, 
-              allProjects.filter(p => p.isPlanned), 
-              '#3B82F6', 
-              'bi-calendar-event',
-              null,
-              <div className="d-flex align-items-center gap-2">
-                <span style={{ color: 'var(--color-text-secondary)', fontSize: '13px' }}>Remaining:</span>
-                <span style={{ color: 'var(--color-accent-primary)', fontWeight: 600, fontSize: '14px' }}>{stillPlanned}</span>
-              </div>
-            )}
-            
-            {renderColumn(
-              'Started Projects', 
-              allProjects.filter(p => p.isStarted).length, 
-              allProjects.filter(p => p.isStarted), 
-              '#F59E0B', 
-              'bi-play-circle'
-            )}
-            
-            {renderColumn(
-              'Finished Projects', 
-              allProjects.filter(p => p.isFinished).length, 
-              finishedAndStarted, 
-              '#10B981', 
-              'bi-check-circle',
-              finishedNotStartedInMonth.length > 0 && (
-                <div className="mt-4">
-                  <div className="d-flex align-items-center gap-2 mb-3">
-                    <hr className="flex-grow-1" style={{ borderColor: 'var(--color-border-divider)', opacity: 0.3 }} />
-                    <span style={{ 
-                      color: 'var(--color-text-secondary)', 
-                      fontSize: '10px', 
-                      whiteSpace: 'nowrap', 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.5px', 
-                      fontWeight: 600 
-                    }}>
-                      Finished but not started in month
-                    </span>
-                    <hr className="flex-grow-1" style={{ borderColor: 'var(--color-border-divider)', opacity: 0.3 }} />
-                  </div>
-                  {finishedNotStartedInMonth.map(p => renderProjectCard(p))}
-                </div>
-              )
-            )}
-          </div>
-        )}
-      </div>
       
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {

@@ -82,6 +82,33 @@ serve(async (req: Request) => {
     if (plannedOFI && plannedOFI.length > 0) {
       console.log(`Encontrados ${plannedOFI.length} projetos planejados para este mês. Verificando execução...`);
       
+      // 1.2 PRESERVAR DADOS: Antes de limpar, vamos buscar os dados existentes para preservar o campo 'reason'
+      const { data: existingHistory } = await supabase
+        .from('monthly_execution_history')
+        .select('obra_id, reason')
+        .eq('reference_month', currentMonth)
+        .eq('reference_year', currentYear);
+
+      const reasonMap = new Map();
+      if (existingHistory) {
+        existingHistory.forEach((h: any) => {
+          if (h.reason) reasonMap.set(h.obra_id, h.reason);
+        });
+      }
+
+      // 1.3 LIMPEZA: Remover todos os registros do histórico para este mês antes de recalcular
+      // Isso garante que não sobrem registros de projetos que não deveriam estar mais aqui
+      const { error: deleteError } = await supabase
+        .from('monthly_execution_history')
+        .delete()
+        .eq('reference_month', currentMonth)
+        .eq('reference_year', currentYear);
+
+      if (deleteError) {
+        console.error("Erro ao limpar histórico anterior:", deleteError);
+        throw deleteError;
+      }
+
       const executionRecords = [];
       
       for (const plan of plannedOFI) {
@@ -128,15 +155,17 @@ serve(async (req: Request) => {
           actual_start_date: currentObra.previous_start_date,
           subcontractor: perfData?.subcontractor || null,
           actual_end_date: perfData?.event_datetime ? new Date(perfData.event_datetime).toISOString().split('T')[0] : null,
-          is_cycle_completed: !!(perfData && startEvent && startEvent.length > 0)
+          is_cycle_completed: !!(perfData && startEvent && startEvent.length > 0),
+          reason: reasonMap.get(plan.obra_id) || null // Preservar a reason se existir
         });
       }
 
       if (executionRecords.length > 0) {
         console.log(`Gravando ${executionRecords.length} registros de execução histórica...`);
+        // Usamos insert porque já limpamos a tabela para este mês
         const { error: execInsertError } = await supabase
           .from('monthly_execution_history')
-          .upsert(executionRecords, { onConflict: 'obra_id,reference_month,reference_year' });
+          .insert(executionRecords);
         
         if (execInsertError) {
           console.error("Erro ao gravar execução:", execInsertError);
@@ -201,24 +230,26 @@ serve(async (req: Request) => {
     if (!obras || obras.length === 0) {
       console.log(`Nenhuma obra encontrada com data em ${targetMonth}/${targetYear}.`);
     } else {
-      console.log(`Encontradas ${obras.length} obras para o período. Verificando status e duplicatas...`);
+      console.log(`Encontradas ${obras.length} obras para o período. Recalculando planejamento...`);
       
-      const { data: existingOFI } = await supabase
+      // 2.1 LIMPEZA: Remover todos os registros do OFI para o mês alvo antes de recalcular
+      // Isso garante que o planejamento seja refeito do zero, removendo obras que podem ter mudado de data
+      const { error: deleteOFIError } = await supabase
         .from('operational_forecast_index')
-        .select('obra_id')
+        .delete()
         .eq('reference_month', targetMonth)
         .eq('reference_year', targetYear);
 
-      const existingIds = new Set(existingOFI?.map(r => r.obra_id) || []);
+      if (deleteOFIError) {
+        console.error("Erro ao limpar OFI anterior:", deleteOFIError);
+        throw deleteOFIError;
+      }
+
       const ofiRecords = [];
 
       for (const obra of obras) {
-        // Ignorar se já estiver no OFI deste mês
-        if (existingIds.has(obra.id)) continue;
-        
-        // No planejamento (OFI), geralmente focamos em obras que "Not Started" 
-        // mas vamos permitir todas que estão no período e não foram registradas ainda
-        // para garantir que o count bata com o esperado pelo usuário.
+        // Como limpamos tudo, não precisamos checar se já existe (existingIds)
+        // Apenas calculamos e adicionamos tudo que foi encontrado no range de datas
         
         const scores = await calculateCurrentScores(obra.id, obra);
         ofiRecords.push({
@@ -253,13 +284,8 @@ serve(async (req: Request) => {
           
         ofiCount = count || ofiRecords.length;
       } else {
-        // Se não inseriu nada novo, retorna o que já existe
-        const { count } = await supabase
-          .from('operational_forecast_index')
-          .select('*', { count: 'exact', head: true })
-          .eq('reference_month', targetMonth)
-          .eq('reference_year', targetYear);
-        ofiCount = count || 0;
+        // Se não inseriu nada novo, retorna 0 pois limpamos tudo
+        ofiCount = 0;
       }
     }
 
