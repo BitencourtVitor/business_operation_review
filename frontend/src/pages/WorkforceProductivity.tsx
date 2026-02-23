@@ -41,6 +41,21 @@ interface WorkforceProductivityProps {
   isResponsavelPelaTela: boolean;
 }
 
+const getWorktype = (row: any) => {
+  if (row.worktype) return row.worktype;
+  
+  const hasJobsite = !!row.jobsite;
+  const hasLot = !!row.lot_building;
+  
+  // Rule: If both jobsite and lot_building are missing, use Client as worktype
+  if (!hasJobsite && !hasLot) {
+    return row.client || 'Unknown Client';
+  }
+  
+  // If we have jobsite/lot but no worktype, it's Normal Labor
+  return 'Normal Labor';
+};
+
 export default function WorkforceProductivity({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: WorkforceProductivityProps) {
   const [telaId] = useState<string>(telaIdFromProps);
   const [_usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
@@ -160,7 +175,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         const lot = d.lot_building ? ` - ${d.lot_building}` : '';
         return `${jobsite}${lot}`.trim();
       }))].filter(Boolean).sort();
-      const uniqueWorktypes = [...new Set(data.map(d => d.worktype || 'Unspecified'))].filter(Boolean).sort();
+      const uniqueWorktypes = [...new Set(data.map(d => getWorktype(d)))].filter(Boolean).sort();
 
       setYears(uniqueYears);
       setClients(uniqueClients);
@@ -200,7 +215,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         return selectedJobsites.includes(concatenated);
       });
     }
-    if (selectedWorktypes.length > 0) filtered = filtered.filter(d => selectedWorktypes.includes(d.worktype || 'Unspecified'));
+    if (selectedWorktypes.length > 0) filtered = filtered.filter(d => selectedWorktypes.includes(getWorktype(d)));
     return filtered;
   }, [data, selectedYear, selectedMonth, selectedClients, selectedJobsites, selectedWorktypes]);
 
@@ -211,13 +226,18 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     const monthlyMap = new Map<string, { totalHours: number; employees: Set<string> }>();
 
     filteredData.forEach(row => {
+      // Ensure row and required fields exist
+      if (!row || !row.reference_month) return;
+
       const month = row.reference_month;
       if (!monthlyMap.has(month)) {
         monthlyMap.set(month, { totalHours: 0, employees: new Set() });
       }
       const current = monthlyMap.get(month)!;
-      current.totalHours += row.regular_hours;
-      current.employees.add(row.employee_name);
+      current.totalHours += (typeof row.regular_hours === 'number' ? row.regular_hours : 0);
+      if (row.employee_name) {
+        current.employees.add(row.employee_name);
+      }
     });
 
     return Array.from(monthlyMap.entries())
@@ -230,32 +250,53 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       .sort((a, b) => a.month.localeCompare(b.month));
   }, [filteredData]);
 
-  // Data by Jobsite
+  // Data by Jobsite (Top 5 Projects by Total Hours)
   const jobsiteData = useMemo(() => {
     if (!filteredData.length) return { labels: [], datasets: [] };
 
     const jobsiteMap = new Map<string, { totalHours: number; employees: Set<string> }>();
+    
     filteredData.forEach(row => {
-      const jobsiteName = row.jobsite || 'Unspecified';
-      const lot = row.lot_building ? ` - ${row.lot_building}` : '';
-      const jobsite = `${jobsiteName}${lot}`.trim();
-      
-      if (!jobsiteMap.has(jobsite)) {
-        jobsiteMap.set(jobsite, { totalHours: 0, employees: new Set() });
+      // Ensure row exists
+      if (!row) return;
+
+      const jobsiteName = row.jobsite;
+      const lot = row.lot_building;
+      const clientName = row.client || 'Unknown Client';
+
+      let jobsiteLabel = '';
+
+      // Rule: If both jobsite and lot_building are missing, use Client Name
+      if (!jobsiteName && !lot) {
+        jobsiteLabel = clientName;
+      } else {
+        // Otherwise, use Jobsite - Lot format
+        const displayName = jobsiteName || 'Unspecified';
+        const displayLot = lot ? ` - ${lot}` : '';
+        jobsiteLabel = `${displayName}${displayLot}`.trim();
       }
-      const current = jobsiteMap.get(jobsite)!;
-      current.totalHours += row.regular_hours;
-      current.employees.add(row.employee_name);
+      
+      if (!jobsiteMap.has(jobsiteLabel)) {
+        jobsiteMap.set(jobsiteLabel, { totalHours: 0, employees: new Set() });
+      }
+      const current = jobsiteMap.get(jobsiteLabel)!;
+      current.totalHours += (typeof row.regular_hours === 'number' ? row.regular_hours : 0);
+      if (row.employee_name) {
+        current.employees.add(row.employee_name);
+      }
     });
 
-    const sortedEntries = Array.from(jobsiteMap.entries()).sort((a, b) => b[1].totalHours - a[1].totalHours).slice(0, projectLimit);
+    // Sort by Total Hours DESC and apply dynamic limit
+    const sortedEntries = Array.from(jobsiteMap.entries())
+      .sort((a, b) => b[1].totalHours - a[1].totalHours)
+      .slice(0, projectLimit);
     
     return {
       labels: sortedEntries.map(e => e[0]),
       totalHours: sortedEntries.map(e => Number(e[1].totalHours.toFixed(2))),
       hoursPerEmployee: sortedEntries.map(e => e[1].employees.size > 0 ? Number((e[1].totalHours / e[1].employees.size).toFixed(2)) : 0)
     };
-  }, [filteredData]);
+  }, [filteredData, projectLimit]);
 
   // Data by Worktype
   const worktypeData = useMemo(() => {
@@ -263,13 +304,17 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
 
     const wtMap = new Map<string, { totalHours: number; employees: Set<string> }>();
     filteredData.forEach(row => {
-      const wt = row.worktype || 'Unspecified';
+      // Get worktype using fallback logic
+      const wt = getWorktype(row);
+      
       if (!wtMap.has(wt)) {
         wtMap.set(wt, { totalHours: 0, employees: new Set() });
       }
       const current = wtMap.get(wt)!;
-      current.totalHours += row.regular_hours;
-      current.employees.add(row.employee_name);
+      current.totalHours += (typeof row.regular_hours === 'number' ? row.regular_hours : 0);
+      if (row.employee_name) {
+        current.employees.add(row.employee_name);
+      }
     });
 
     const sortedEntries = Array.from(wtMap.entries()).sort((a, b) => b[1].totalHours - a[1].totalHours);
@@ -305,11 +350,13 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         });
       }
       const current = monthlyMap.get(month)!;
-      current.totalHours += row.regular_hours;
-      current.employees.add(row.employee_name);
+      current.totalHours += (typeof row.regular_hours === 'number' ? row.regular_hours : 0);
+      if (row.employee_name) {
+        current.employees.add(row.employee_name);
+      }
       
-      const wt = row.worktype || 'Unspecified';
-      current.worktypes.set(wt, (current.worktypes.get(wt) || 0) + row.regular_hours);
+      const wt = getWorktype(row);
+      current.worktypes.set(wt, (current.worktypes.get(wt) || 0) + (typeof row.regular_hours === 'number' ? row.regular_hours : 0));
     });
 
     return Array.from(monthlyMap.entries())
@@ -326,7 +373,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   // Unique worktypes for the single project
   const worktypes = useMemo(() => {
     if (!activeProject) return [];
-    return Array.from(new Set(filteredData.map(row => row.worktype || 'Unspecified'))).sort();
+    return Array.from(new Set(filteredData.map(row => getWorktype(row)))).sort();
   }, [filteredData, activeProject]);
 
   // Cores base para os gráficos
@@ -355,7 +402,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
 
     const wtMap = new Map<string, number>();
     filteredData.forEach(row => {
-      const wt = row.worktype || 'Unspecified';
+      const wt = getWorktype(row);
       wtMap.set(wt, (wtMap.get(wt) || 0) + row.regular_hours);
     });
 
@@ -382,7 +429,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     filteredData.forEach(row => {
       const jobsiteName = row.jobsite || 'Unspecified';
       const lot = row.lot_building ? ` - ${row.lot_building}` : '';
-      const key = `${jobsiteName}${lot}`.trim() + ` | ${row.worktype || 'Unspecified'}`;
+      const key = `${jobsiteName}${lot}`.trim() + ` | ${getWorktype(row)}`;
       
       if (!efficiencyMap.has(key)) {
         efficiencyMap.set(key, { totalHours: 0, employees: new Set() });
@@ -848,7 +895,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
                       </div>
                     </div>
                     <div className="flex-grow-1">
-                      <Bar data={jobsiteChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
+                      <Bar key={projectLimit} data={jobsiteChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
                     </div>
                   </div>
                 </ChartCard>
