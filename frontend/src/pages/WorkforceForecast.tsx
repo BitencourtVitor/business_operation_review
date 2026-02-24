@@ -1084,21 +1084,24 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
 
 
         {/* Conteúdo Principal (Grid/Timeline ou Metrics) */}
-        <div style={{ 
-          flex: 1, 
-          minHeight: 0,
-          width: '100%',
-          maxWidth: '1400px',
-          margin: '0 auto',
-          background: 'var(--color-background-primary)',
-          borderRadius: '16px',
-          border: 'none',
-          overflowY: 'auto', // Adicionado overflow vertical apenas aqui
-          display: 'flex', 
-          flexDirection: 'column',
-          boxShadow: 'none',
-          marginBottom: '0' // Removido margin bottom
-        }}>
+        <div 
+          className="custom-scrollbar"
+          style={{ 
+            flex: 1, 
+            minHeight: 0,
+            width: '100%',
+            maxWidth: '1400px',
+            margin: '0 auto',
+            background: 'var(--color-background-primary)',
+            borderRadius: '16px',
+            border: 'none',
+            overflowY: 'auto', // Adicionado overflow vertical apenas aqui
+            display: 'flex', 
+            flexDirection: 'column',
+            boxShadow: 'none',
+            marginBottom: '0' // Removido margin bottom
+          }}
+        >
           {activeTab === 'planner' ? (
             <TimelinePlanner 
               theme={theme}

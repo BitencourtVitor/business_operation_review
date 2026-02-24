@@ -382,7 +382,7 @@ export default function TimelinePlanner({
       )}
 
       <div className="card" style={{ background: 'var(--color-background-primary)', border: 'none', height: '100%', display: 'flex', flexDirection: 'column', margin: 0, padding: 0 }}>
-        <div style={{ flex: 1, overflowY: 'auto', padding: 0 }}>
+        <div className="custom-scrollbar" style={{ flex: 1, overflowY: 'auto', padding: 0 }}>
           {viewMode === 'grid' ? (
             <div style={{ animation: 'fadeIn 0.4s ease-out', padding: 0 }}>
               <ForecastProjectsGrid

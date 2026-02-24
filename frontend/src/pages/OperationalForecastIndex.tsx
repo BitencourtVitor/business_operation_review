@@ -120,7 +120,7 @@ export default function OperationalForecastIndex() {
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
         <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12, fontFamily: '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif' }}>
           <span style={{ color: 'var(--color-text-primary)', fontWeight: 400, letterSpacing: '-0.5px' }}>
-            Operational Forecast Index
+            Operational Index
           </span>
         </h1>
         

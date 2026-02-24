@@ -56,7 +56,77 @@ const getWorktype = (row: any) => {
   return 'Normal Labor';
 };
 
+const ChartCard = ({ title, legendLabel, legendColor, legendType = 'bar', children, style = {}, isEmpty = false }: { 
+  title: string, 
+  legendLabel?: string, 
+  legendColor?: string, 
+  legendType?: 'bar' | 'line',
+  children: React.ReactNode,
+  style?: React.CSSProperties,
+  isEmpty?: boolean
+}) => (
+  <div className="h-100 d-flex flex-column" style={{ 
+    background: 'var(--color-background-primary)', 
+    border: '1px solid var(--color-border-divider)', 
+    borderRadius: '0px',
+    ...style
+  }}>
+    <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ 
+      color: 'var(--color-text-secondary)', 
+      fontSize: 18, 
+      fontWeight: 400, 
+      minHeight: 30
+    }}>
+      {title}
+    </h4>
+    <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
+      {!isEmpty && legendLabel && legendColor && (
+        <div className="ms-4" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 15 }}>
+          <div style={{ 
+            width: legendType === 'bar' ? 24 : 16, 
+            height: 8, 
+            backgroundColor: legendType === 'bar' ? legendColor.replace('rgb', 'rgba').replace(')', ', 0.8)') : 'transparent',
+            border: legendType === 'bar' ? 'none' : `2px solid ${legendColor}`,
+            borderRadius: legendType === 'bar' ? 4 : '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {legendType === 'line' && (
+              <div style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: legendColor }} />
+            )}
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500 }}>{legendLabel}</span>
+        </div>
+      )}
+      <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative' }}>
+        {isEmpty ? (
+          <div style={{ 
+            position: 'absolute', 
+            top: 0, left: 0, right: 0, bottom: 0, 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center', 
+            justifyContent: 'center',
+            color: 'var(--color-text-secondary)',
+            fontSize: '14px',
+            opacity: 0.8,
+            padding: '20px',
+            textAlign: 'center'
+          }}>
+            <i className="bi bi-graph-down mb-2" style={{ fontSize: '28px' }}></i>
+            <span style={{ fontWeight: 500 }}>No data available</span>
+            <span style={{ fontSize: '12px', marginTop: '4px' }}>Try adjusting your filters</span>
+          </div>
+        ) : children}
+      </div>
+    </div>
+  </div>
+);
+
 export default function WorkforceProductivity({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: WorkforceProductivityProps) {
+  const { data, loading, error } = useWorkforceProductivityData();
+  
   const [telaId] = useState<string>(telaIdFromProps);
   const [_usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [_usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
@@ -80,7 +150,18 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   const [worktypesList, setWorktypesList] = useState<string[]>([]);
   const [projectLimit, setProjectLimit] = useState<number>(10);
 
-  const { data, loading, error } = useWorkforceProductivityData();
+  // States for Monthly Notes
+  const [notes, setNotes] = useState<string>('');
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [tempNotes, setTempNotes] = useState<string>('');
+
+  // Log render state
+  console.log('WorkforceProductivity Render:', { 
+    selectedYear, 
+    selectedMonth, 
+    hasData: data.length > 0,
+    loading 
+  });
 
   // Theme observer
   const [themeColors, setThemeColors] = useState({
@@ -91,6 +172,73 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     backgroundSecondary: '#fff',
     isDark: false
   });
+
+  // Fetch monthly notes from Supabase
+  useEffect(() => {
+    const fetchNotes = async () => {
+      // Log for debugging
+      console.log('--- Fetching Notes Debug ---');
+      console.log('selectedYear:', selectedYear);
+      console.log('selectedMonth:', selectedMonth);
+
+      if (!selectedYear || !selectedMonth) {
+        console.log('Missing selectedYear or selectedMonth, clearing notes');
+        setNotes('');
+        return;
+      }
+
+      try {
+        const yearInt = parseInt(selectedYear);
+        const monthInt = parseInt(selectedMonth);
+        console.log('Executing query for year:', yearInt, 'month:', monthInt);
+
+        const { data: noteData, error: noteError } = await supabase
+          .from('workforce_monthly_notes')
+          .select('content')
+          .eq('year', yearInt)
+          .eq('month', monthInt)
+          .maybeSingle();
+
+        if (noteError) {
+          console.error('Supabase error fetching notes:', noteError);
+          throw noteError;
+        }
+        
+        console.log('Fetch success, data:', noteData);
+        setNotes(noteData?.content || '');
+      } catch (err) {
+        console.error('Error fetching monthly notes:', err);
+      }
+    };
+
+    fetchNotes();
+  }, [selectedYear, selectedMonth]);
+
+  const handleSaveNotes = async () => {
+    if (!selectedYear || !selectedMonth) return;
+
+    try {
+      const year = parseInt(selectedYear);
+      const month = parseInt(selectedMonth);
+
+      const { error } = await supabase
+        .from('workforce_monthly_notes')
+        .upsert({
+          year,
+          month,
+          content: tempNotes,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'year,month' });
+
+      if (error) throw error;
+      
+      setNotes(tempNotes);
+      setIsEditingNotes(false);
+    } catch (err) {
+      console.error('Error saving monthly notes:', err);
+      alert('Failed to save notes. Please try again.');
+    }
+  };
 
   useEffect(() => {
     const updateColors = () => {
@@ -167,7 +315,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
 
   // Initialize filter options
   useEffect(() => {
-    if (data.length > 0) {
+    if (data.length > 0 && years.length === 0) {
       const uniqueYears = [...new Set(data.map(d => d.reference_month.split('-')[0]))].sort((a, b) => b.localeCompare(a));
       const uniqueClients = [...new Set(data.map(d => d.client))].filter(Boolean).sort();
       const uniqueJobsites = [...new Set(data.map(d => {
@@ -182,10 +330,12 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       setJobsites(uniqueJobsites);
       setWorktypesList(uniqueWorktypes);
 
-      // Default year to "Todos" (empty string)
-      setSelectedYear('');
+      // Default year to "Todos" (empty string) only if not already set
+      if (!selectedYear) {
+        setSelectedYear('');
+      }
     }
-  }, [data]);
+  }, [data, years.length, selectedYear]);
 
   // Update available months when year changes
   useEffect(() => {
@@ -481,7 +631,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     return { labels, datasets };
   }, [projectMonthlyData, worktypes, themeColors.textPrimary, worktypeColorMap]);
 
-  const efficiencyChartData = {
+  const efficiencyChartData = useMemo(() => ({
     labels: efficiencyData.labels,
     datasets: [
       {
@@ -502,7 +652,201 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         type: 'line' as const,
       }
     ]
-  };
+  }), [efficiencyData]);
+
+  const totalHoursChartData = useMemo(() => ({
+    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
+    datasets: [
+      {
+        label: 'Total Hours',
+        data: globalMonthlyData.map(d => d.totalHours),
+        backgroundColor: 'rgba(46, 107, 230, 0.8)',
+        borderColor: 'rgb(46, 107, 230)',
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  }), [globalMonthlyData]);
+
+  const employeesChartData = useMemo(() => ({
+    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
+    datasets: [
+      {
+        label: 'Employee Count',
+        data: globalMonthlyData.map(d => d.employeeCount),
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: 'rgb(16, 185, 129)',
+        borderWidth: 1,
+        borderRadius: 4,
+        borderSkipped: false,
+      }
+    ]
+  }), [globalMonthlyData]);
+
+  const hoursPerEmployeeChartData = useMemo(() => ({
+    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
+    datasets: [
+      {
+        label: 'Hours per Employee',
+        data: globalMonthlyData.map(d => d.hoursPerEmployee),
+        borderColor: 'rgb(245, 158, 11)',
+        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+        tension: 0.4,
+        fill: true,
+        pointBackgroundColor: 'rgb(245, 158, 11)',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+      }
+    ]
+  }), [globalMonthlyData]);
+
+  const jobsiteChartData = useMemo(() => ({
+    labels: jobsiteData.labels,
+    datasets: [
+      {
+        label: 'Total Hours',
+        data: jobsiteData.totalHours,
+        backgroundColor: 'rgba(46, 107, 230, 0.8)',
+        borderColor: 'rgb(46, 107, 230)',
+        borderWidth: 1,
+        borderRadius: 4,
+      }
+    ]
+  }), [jobsiteData]);
+
+  const worktypeChartData = useMemo(() => ({
+    labels: worktypeData.labels,
+    datasets: [
+      {
+        label: 'Total Hours',
+        data: worktypeData.totalHours,
+        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+        borderColor: 'rgb(16, 185, 129)',
+        borderWidth: 1,
+        borderRadius: 4,
+      }
+    ]
+  }), [worktypeData]);
+
+  const chartOptions: any = useMemo(() => ({
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        mode: 'index' as const,
+        intersect: false,
+        backgroundColor: themeColors.isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+        titleColor: themeColors.isDark ? '#fff' : '#000',
+        bodyColor: themeColors.isDark ? '#fff' : '#000',
+        borderColor: themeColors.border,
+        borderWidth: 1,
+        padding: 10,
+        titleFont: { size: 14, weight: 'bold' },
+        bodyFont: { size: 13 },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: true,
+          color: themeColors.border,
+          drawTicks: false,
+        },
+        ticks: {
+          color: themeColors.textSecondary,
+          maxRotation: 45,
+          minRotation: 45,
+          font: { size: 11 },
+          padding: 10,
+        }
+      },
+      y: {
+        beginAtZero: true,
+        grid: {
+          display: true,
+          color: themeColors.border,
+          drawTicks: false,
+        },
+        ticks: {
+          color: themeColors.textSecondary,
+          font: { size: 11 },
+          padding: 10,
+          callback: (value: any) => value.toLocaleString('pt-BR')
+        },
+        title: {
+          display: true,
+          text: 'Hours',
+          color: themeColors.textSecondary,
+          font: { size: 10, weight: 'bold' }
+        }
+      }
+    }
+  }), [themeColors]);
+
+  const horizontalChartOptions: any = useMemo(() => ({
+    ...chartOptions,
+    indexAxis: 'y' as const,
+    scales: {
+      ...chartOptions.scales,
+      x: {
+        ...chartOptions.scales.x,
+        ticks: {
+          ...chartOptions.scales.x.ticks,
+          maxRotation: 0,
+          minRotation: 0,
+        },
+        title: {
+          display: true,
+          text: 'Hours',
+          color: themeColors.textSecondary,
+          font: { size: 10, weight: 'bold' }
+        }
+      },
+      y: {
+        ...chartOptions.scales.y,
+        title: {
+          display: true,
+          text: 'Month / Year',
+          color: themeColors.textSecondary,
+          font: { size: 10, weight: 'bold' }
+        }
+      }
+    }
+  }), [chartOptions, themeColors.textSecondary]);
+
+  // Simple custom plugin for data labels
+  const datalabelsPlugin = useMemo(() => ({
+    id: 'datalabels',
+    afterDatasetsDraw(chart: any) {
+      const { ctx, data } = chart;
+      ctx.save();
+      data.datasets.forEach((dataset: any, i: number) => {
+        const meta = chart.getDatasetMeta(i);
+        if (meta.type === 'bar') {
+          meta.data.forEach((bar: any, index: number) => {
+            const value = dataset.data[index];
+            if (value !== null && value !== undefined) {
+              const isHorizontal = chart.config.options.indexAxis === 'y';
+              const x = isHorizontal ? bar.x + 5 : bar.x;
+              const y = isHorizontal ? bar.y : bar.y - 8;
+              ctx.fillStyle = themeColors.textSecondary;
+              ctx.font = 'bold 10px Inter, sans-serif';
+              ctx.textAlign = isHorizontal ? 'left' : 'center';
+              ctx.textBaseline = isHorizontal ? 'middle' : 'bottom';
+              ctx.fillText(value.toLocaleString('pt-BR'), x, y);
+            }
+          });
+        }
+      });
+      ctx.restore();
+    }
+  }), [themeColors.textSecondary]);
 
   if (loading || !telaId) {
     return (
@@ -534,268 +878,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     return <div className="alert alert-danger">Error loading data: {error}</div>;
   }
 
-  const chartOptions: ChartOptions<'line' | 'bar'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        mode: 'index' as const,
-        intersect: false,
-        backgroundColor: themeColors.isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-        titleColor: themeColors.isDark ? '#fff' : '#000',
-        bodyColor: themeColors.isDark ? '#fff' : '#000',
-        borderColor: themeColors.borderDivider,
-        borderWidth: 1,
-        padding: 10,
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 13 },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: true,
-          color: themeColors.borderDivider,
-          drawTicks: false,
-        },
-        ticks: {
-          color: themeColors.textSecondary,
-          maxRotation: 45,
-          minRotation: 45,
-          font: { size: 11 },
-          padding: 10,
-        }
-      },
-      y: {
-        beginAtZero: true,
-        grid: {
-          display: true,
-          color: themeColors.borderDivider,
-          drawTicks: false,
-        },
-        ticks: {
-          color: themeColors.textSecondary,
-          font: { size: 11 },
-          padding: 10,
-          callback: (value) => value.toLocaleString('pt-BR')
-        },
-        title: {
-          display: true,
-          text: 'Hours',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
-        }
-      }
-    }
-  };
-
-  const horizontalChartOptions: any = {
-    ...chartOptions,
-    indexAxis: 'y' as const,
-    scales: {
-      ...chartOptions.scales,
-      x: {
-        ...chartOptions.scales.x,
-        ticks: {
-          ...chartOptions.scales.x.ticks,
-          maxRotation: 0,
-          minRotation: 0,
-        },
-        title: {
-          display: true,
-          text: 'Hours',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
-        }
-      },
-      y: {
-        ...chartOptions.scales.y,
-        title: {
-          display: true,
-          text: 'Month / Year',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
-        }
-      }
-    }
-  };
-
-  // Simple custom plugin for data labels
-  const datalabelsPlugin = {
-    id: 'datalabels',
-    afterDatasetsDraw(chart: any) {
-      const { ctx, data } = chart;
-      ctx.save();
-      data.datasets.forEach((dataset: any, i: number) => {
-        const meta = chart.getDatasetMeta(i);
-        if (meta.type === 'bar') {
-          meta.data.forEach((bar: any, index: number) => {
-            const value = dataset.data[index];
-            if (value !== null && value !== undefined) {
-              const isHorizontal = chart.config.options.indexAxis === 'y';
-              const x = isHorizontal ? bar.x + 5 : bar.x;
-              const y = isHorizontal ? bar.y : bar.y - 8;
-              ctx.fillStyle = themeColors.textSecondary;
-              ctx.font = 'bold 10px Inter, sans-serif';
-              ctx.textAlign = isHorizontal ? 'left' : 'center';
-              ctx.textBaseline = isHorizontal ? 'middle' : 'bottom';
-              ctx.fillText(value.toLocaleString('pt-BR'), x, y);
-            }
-          });
-        }
-      });
-      ctx.restore();
-    }
-  };
-
-  const ChartCard = ({ title, legendLabel, legendColor, legendType = 'bar', children, style = {}, isEmpty = false }: { 
-    title: string, 
-    legendLabel?: string, 
-    legendColor?: string, 
-    legendType?: 'bar' | 'line',
-    children: React.ReactNode,
-    style?: React.CSSProperties,
-    isEmpty?: boolean
-  }) => (
-    <div className="h-100 d-flex flex-column" style={{ 
-      background: 'var(--color-background-primary)', 
-      border: '1px solid var(--color-border-divider)', 
-      borderRadius: '0px',
-      ...style
-    }}>
-      <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ 
-        color: 'var(--color-text-secondary)', 
-        fontSize: 18, 
-        fontWeight: 400, 
-        minHeight: 30
-      }}>
-        {title}
-      </h4>
-      <div className="d-flex flex-column flex-grow-1" style={{ minHeight: 0 }}>
-        {!isEmpty && legendLabel && legendColor && (
-          <div className="ms-4" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 15 }}>
-            <div style={{ 
-              width: legendType === 'bar' ? 24 : 16, 
-              height: 8, 
-              backgroundColor: legendType === 'bar' ? legendColor.replace('rgb', 'rgba').replace(')', ', 0.8)') : 'transparent',
-              border: legendType === 'bar' ? 'none' : `2px solid ${legendColor}`,
-              borderRadius: legendType === 'bar' ? 4 : '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              {legendType === 'line' && (
-                <div style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: legendColor }} />
-              )}
-            </div>
-            <span style={{ fontSize: 11, color: 'var(--color-text-secondary)', fontWeight: 500 }}>{legendLabel}</span>
-          </div>
-        )}
-        <div style={{ flex: 1, width: '100%', minHeight: 0, position: 'relative' }}>
-          {isEmpty ? (
-            <div style={{ 
-              position: 'absolute', 
-              top: 0, left: 0, right: 0, bottom: 0, 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center', 
-              justifyContent: 'center',
-              color: 'var(--color-text-secondary)',
-              fontSize: '14px',
-              opacity: 0.8,
-              padding: '20px',
-              textAlign: 'center'
-            }}>
-              <i className="bi bi-graph-down mb-2" style={{ fontSize: '28px' }}></i>
-              <span style={{ fontWeight: 500 }}>No data available</span>
-              <span style={{ fontSize: '12px', marginTop: '4px' }}>Try adjusting your filters</span>
-            </div>
-          ) : children}
-        </div>
-      </div>
-    </div>
-  );
-
-  const totalHoursChartData = {
-    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: globalMonthlyData.map(d => d.totalHours),
-        backgroundColor: 'rgba(46, 107, 230, 0.8)',
-        borderColor: 'rgb(46, 107, 230)',
-        borderWidth: 1,
-        borderRadius: 4,
-        borderSkipped: false,
-      }
-    ]
-  };
-
-  const employeesChartData = {
-    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
-    datasets: [
-      {
-        label: 'Employee Count',
-        data: globalMonthlyData.map(d => d.employeeCount),
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: 'rgb(16, 185, 129)',
-        borderWidth: 1,
-        borderRadius: 4,
-        borderSkipped: false,
-      }
-    ]
-  };
-
-  const hoursPerEmployeeChartData = {
-    labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
-    datasets: [
-      {
-        label: 'Hours per Employee',
-        data: globalMonthlyData.map(d => d.hoursPerEmployee),
-        borderColor: 'rgb(245, 158, 11)',
-        backgroundColor: 'rgba(245, 158, 11, 0.2)',
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: 'rgb(245, 158, 11)',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-      }
-    ]
-  };
-
-  const jobsiteChartData = {
-    labels: jobsiteData.labels,
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: jobsiteData.totalHours,
-        backgroundColor: 'rgba(46, 107, 230, 0.8)',
-        borderColor: 'rgb(46, 107, 230)',
-        borderWidth: 1,
-        borderRadius: 4,
-      }
-    ]
-  };
-
-  const worktypeChartData = {
-    labels: worktypeData.labels,
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: worktypeData.totalHours,
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: 'rgb(16, 185, 129)',
-        borderWidth: 1,
-        borderRadius: 4,
-      }
-    ]
-  };
-
   return (
     <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
       {/* Barra superior com título e filtros */}
@@ -821,261 +903,477 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       </div>
 
       {/* Conteúdo principal: gráficos */}
-      <div className="custom-scrollbar" style={{ flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: 0 }}>
+      <div className="custom-scrollbar" style={{ flex: 1, width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'row', padding: 0 }}>
         
-        {!activeProject ? (
-          <div className="d-flex flex-column h-100" style={{ width: '100%', margin: 0 }}>
-            {/* Linha 1: Total de Horas ao longo do tempo (Largura Total) */}
-            <div style={{ height: '40%', padding: 0 }}>
-              <ChartCard 
-                title="Total Hours by Month/Year" 
-                legendLabel="Total Hours" 
-                legendColor="rgb(46, 107, 230)"
-                legendType="bar"
-                style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
-                isEmpty={globalMonthlyData.length === 0}
-              >
-                <Bar data={totalHoursChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
-              </ChartCard>
-            </div>
-
-            {/* Linha 2: Gráficos por Projeto e Serviço lado a lado */}
-            <div className="d-flex flex-row" style={{ height: '60%', padding: 0 }}>
-              {/* 2. Horas por Projeto com controle Top N */}
-              <div className="col-6 h-100" style={{ padding: 0 }}>
+        {/* Lado Esquerdo: Gráficos */}
+        <div style={{ 
+          flex: 1,
+          minWidth: 0,
+          height: '100%', 
+          display: 'flex', 
+          flexDirection: 'column',
+          transition: 'all 0.3s ease'
+        }}>
+          {!activeProject ? (
+            <div className="d-flex flex-column h-100" style={{ width: '100%', margin: 0 }}>
+              {/* Linha 1: Total de Horas ao longo do tempo (Largura Total) */}
+              <div style={{ height: '40%', padding: 0 }}>
                 <ChartCard 
-                  title="Hours by Project" 
-                  style={{ borderTop: 0, borderLeft: 0, borderBottom: 0 }}
-                  isEmpty={jobsiteData.labels.length === 0}
+                  title="Total Hours by Month/Year" 
+                  legendLabel="Total Hours" 
+                  legendColor="rgb(46, 107, 230)"
+                  legendType="bar"
+                  style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
+                  isEmpty={globalMonthlyData.length === 0}
                 >
-                  <div className="d-flex flex-column h-100">
-                    <div className="ms-4 d-flex justify-content-between align-items-center mb-2 pe-4">
-                      <div className="d-flex align-items-center gap-2">
-                        <div style={{ width: 15, height: 8, backgroundColor: 'rgba(46, 107, 230, 0.8)', borderRadius: 2 }} />
-                        <span style={{ fontSize: 10, color: 'var(--color-text-secondary)' }}>Total Hours</span>
-                      </div>
-                      
-                      {/* Seletor Top N com Assinatura Visual e Dropdown Personalizado */}
-                      <div className="d-flex align-items-center" style={{ 
-                        background: 'var(--color-background-primary)', 
-                        borderRadius: 6, 
-                        height: 28, 
-                        border: '1.5px solid var(--color-border-divider)', 
-                        overflow: 'hidden',
-                        width: 100
-                      }}>
-                        <div className="d-flex align-items-center justify-content-center" style={{ 
-                          background: 'var(--color-background-secondary)', 
-                          height: '100%', 
-                          width: 32, 
-                          color: 'var(--color-accent-primary)',
-                          borderRight: '1.5px solid var(--color-border-divider)'
+                  <Bar data={totalHoursChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
+                </ChartCard>
+              </div>
+
+              {/* Linha 2: Gráficos por Projeto e Serviço lado a lado */}
+              <div className="d-flex flex-row" style={{ height: '60%', padding: 0 }}>
+                {/* 2. Horas por Projeto com controle Top N */}
+                <div className="col-6 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title="Hours by Project" 
+                    style={{ borderTop: 0, borderLeft: 0, borderBottom: 0 }}
+                    isEmpty={jobsiteData.labels.length === 0}
+                  >
+                    <div className="d-flex flex-column h-100">
+                      <div className="ms-4 d-flex justify-content-between align-items-center mb-2 pe-4">
+                        <div className="d-flex align-items-center gap-2">
+                          <div style={{ width: 15, height: 8, backgroundColor: 'rgba(46, 107, 230, 0.8)', borderRadius: 2 }} />
+                          <span style={{ fontSize: 10, color: 'var(--color-text-secondary)' }}>Total Hours</span>
+                        </div>
+                        
+                        {/* Seletor Top N com Assinatura Visual e Dropdown Personalizado */}
+                        <div className="d-flex align-items-center" style={{ 
+                          background: 'var(--color-background-primary)', 
+                          borderRadius: 6, 
+                          height: 28, 
+                          border: '1.5px solid var(--color-border-divider)', 
+                          overflow: 'hidden',
+                          width: 100
                         }}>
-                          <i className="bi bi-filter-left" style={{ fontSize: 18 }} />
-                        </div>
-                        <div style={{ flex: 1, height: '100%' }}>
-                          <MultiSelectDropdown 
-                            variant="ghost"
-                            isSingleSelect={true}
-                            options={[
-                              { value: '5', label: 'Top 5' },
-                              { value: '10', label: 'Top 10' },
-                              { value: '15', label: 'Top 15' },
-                              { value: '20', label: 'Top 20' }
-                            ]}
-                            selectedValues={[projectLimit.toString()]}
-                            onChange={(values) => {
-                              if (values.length > 0) {
-                                setProjectLimit(Number(values[0]));
-                              }
-                            }}
-                            allLabel="Top 10"
-                          />
+                          <div className="d-flex align-items-center justify-content-center" style={{ 
+                            background: 'var(--color-background-secondary)', 
+                            height: '100%', 
+                            width: 32, 
+                            color: 'var(--color-accent-primary)',
+                            borderRight: '1.5px solid var(--color-border-divider)'
+                          }}>
+                            <i className="bi bi-filter-left" style={{ fontSize: 18 }} />
+                          </div>
+                          <div style={{ flex: 1, height: '100%' }}>
+                            <MultiSelectDropdown 
+                              variant="ghost"
+                              isSingleSelect={true}
+                              options={[
+                                { value: '5', label: 'Top 5' },
+                                { value: '10', label: 'Top 10' },
+                                { value: '15', label: 'Top 15' },
+                                { value: '20', label: 'Top 20' }
+                              ]}
+                              selectedValues={[projectLimit.toString()]}
+                              onChange={(values) => {
+                                if (values.length > 0) {
+                                  setProjectLimit(Number(values[0]));
+                                }
+                              }}
+                              allLabel="Top 10"
+                            />
+                          </div>
                         </div>
                       </div>
+                      <div className="flex-grow-1">
+                        <Bar key={projectLimit} data={jobsiteChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
+                      </div>
                     </div>
-                    <div className="flex-grow-1">
-                      <Bar key={projectLimit} data={jobsiteChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
-                    </div>
-                  </div>
-                </ChartCard>
-              </div>
+                  </ChartCard>
+                </div>
 
-              {/* 3. Horas por Tipo de Serviço */}
-              <div className="col-6 h-100" style={{ padding: 0 }}>
-                <ChartCard 
-                  title="Hours by Service Type" 
-                  style={{ borderTop: 0, borderLeft: 0, borderRight: 0, borderBottom: 0 }}
-                  isEmpty={worktypeData.labels.length === 0}
-                >
-                  <div className="d-flex flex-column h-100">
-                    <div className="ms-4 d-flex gap-3 mb-2">
-                      <div className="d-flex align-items-center gap-2">
-                        <div style={{ width: 15, height: 8, backgroundColor: 'rgba(16, 185, 129, 0.8)', borderRadius: 2 }} />
-                        <span style={{ fontSize: 10, color: 'var(--color-text-secondary)' }}>Total Hours</span>
+                {/* 3. Horas por Tipo de Serviço */}
+                <div className="col-6 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title="Hours by Service Type" 
+                    style={{ borderTop: 0, borderLeft: 0, borderRight: 0, borderBottom: 0 }}
+                    isEmpty={worktypeData.labels.length === 0}
+                  >
+                    <div className="d-flex flex-column h-100">
+                      <div className="ms-4 d-flex gap-3 mb-2">
+                        <div className="d-flex align-items-center gap-2">
+                          <div style={{ width: 15, height: 8, backgroundColor: 'rgba(16, 185, 129, 0.8)', borderRadius: 2 }} />
+                          <span style={{ fontSize: 10, color: 'var(--color-text-secondary)' }}>Total Hours</span>
+                        </div>
+                      </div>
+                      <div className="flex-grow-1">
+                        <Bar data={worktypeChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
                       </div>
                     </div>
-                    <div className="flex-grow-1">
-                      <Bar data={worktypeChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
-                    </div>
-                  </div>
-                </ChartCard>
+                  </ChartCard>
+                </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="d-flex flex-column h-100" style={{ width: '100%', margin: 0 }}>
-            <div className="d-flex flex-row" style={{ height: '55%', padding: 0 }}>
-              <div className="col-8 h-100" style={{ padding: 0 }}>
-                <ChartCard 
-                  title={`Hours: Total vs Worktype - ${activeProject}`}
-                  style={{ borderTop: 0, borderLeft: 0 }}
-                  isEmpty={projectMonthlyData.length === 0}
-                >
-                  <div className="d-flex flex-column h-100">
-                    <div className="flex-grow-1">
-                      <Line 
-                        data={{
-                          ...projectComparisonChartData,
-                          datasets: projectComparisonChartData.datasets.map(ds => ({
-                            ...ds,
-                            borderWidth: ds.label === 'Total Hours' ? 3 : 2,
-                            pointRadius: 3,
-                            pointHoverRadius: 5,
-                            tension: 0.3
-                          }))
-                        }} 
-                        options={{
-                          ...chartOptions,
-                          plugins: {
-                            ...chartOptions.plugins,
-                            tooltip: {
-                              ...chartOptions.plugins?.tooltip,
-                              itemSort: (a: any, b: any) => {
-                                // Mantém 'Total Hours' sempre no topo
-                                if (a.dataset.label === 'Total Hours') return -1;
-                                if (b.dataset.label === 'Total Hours') return 1;
-                                // Ordena os demais por valor descendente
-                                return (b.raw as number) - (a.raw as number);
-                              },
-                              callbacks: {
-                                label: (context: any) => {
-                                  const label = context.dataset.label || '';
-                                  const value = context.raw || 0;
-                                  return `${label}: ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}h`;
+          ) : (
+            <div className="d-flex flex-column h-100" style={{ width: '100%', margin: 0 }}>
+              <div className="d-flex flex-row" style={{ height: '55%', padding: 0 }}>
+                <div className="col-8 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title={`Hours: Total vs Worktype - ${activeProject}`}
+                    style={{ borderTop: 0, borderLeft: 0 }}
+                    isEmpty={projectMonthlyData.length === 0}
+                  >
+                    <div className="d-flex flex-column h-100">
+                      <div className="flex-grow-1">
+                        <Line 
+                          data={{
+                            ...projectComparisonChartData,
+                            datasets: projectComparisonChartData.datasets.map(ds => ({
+                              ...ds,
+                              borderWidth: ds.label === 'Total Hours' ? 3 : 2,
+                              pointRadius: 3,
+                              pointHoverRadius: 5,
+                              tension: 0.3
+                            }))
+                          }} 
+                          options={{
+                            ...chartOptions,
+                            plugins: {
+                              ...chartOptions.plugins,
+                              tooltip: {
+                                ...chartOptions.plugins?.tooltip,
+                                itemSort: (a: any, b: any) => {
+                                  // Mantém 'Total Hours' sempre no topo
+                                  if (a.dataset.label === 'Total Hours') return -1;
+                                  if (b.dataset.label === 'Total Hours') return 1;
+                                  // Ordena os demais por valor descendente
+                                  return (b.raw as number) - (a.raw as number);
                                 },
-                                // Adiciona uma linha separadora após o Total Hours
-                                afterLabel: (context: any) => {
-                                  if (context.dataset.label === 'Total Hours') {
-                                    return '--------------------';
+                                callbacks: {
+                                  label: (context: any) => {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw || 0;
+                                    return `${label}: ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}h`;
+                                  },
+                                  // Adiciona uma linha separadora após o Total Hours
+                                  afterLabel: (context: any) => {
+                                    if (context.dataset.label === 'Total Hours') {
+                                      return '--------------------';
+                                    }
+                                    return '';
                                   }
-                                  return '';
                                 }
                               }
+                            }
+                          } as any} 
+                        />
+                      </div>
+                    </div>
+                  </ChartCard>
+                </div>
+
+                <div className="col-4 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title="Work Type Proportion"
+                    style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
+                    isEmpty={worktypeProportionData.labels.length === 0}
+                  >
+                    <div style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <Pie 
+                        data={worktypeProportionData} 
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                          cutout: '70%',
+                          plugins: {
+                            legend: {
+                              display: true,
+                              position: 'bottom',
+                              labels: {
+                                boxWidth: 10,
+                                font: { size: 9 },
+                                color: themeColors.textSecondary,
+                                padding: 10
+                              }
+                            },
+                            tooltip: {
+                              backgroundColor: themeColors.isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                              titleColor: themeColors.isDark ? '#fff' : '#000',
+                              bodyColor: themeColors.isDark ? '#fff' : '#000',
+                              borderColor: themeColors.borderDivider,
+                              borderWidth: 1,
                             }
                           }
                         } as any} 
                       />
                     </div>
-                  </div>
-                </ChartCard>
+                  </ChartCard>
+                </div>
               </div>
 
-              <div className="col-4 h-100" style={{ padding: 0 }}>
-                <ChartCard 
-                  title="Work Type Proportion"
-                  style={{ borderTop: 0, borderLeft: 0, borderRight: 0 }}
-                  isEmpty={worktypeProportionData.labels.length === 0}
-                >
-                  <div style={{ height: '100%', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Pie 
-                      data={worktypeProportionData} 
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '70%',
-                        plugins: {
-                          legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                              boxWidth: 10,
-                              font: { size: 9 },
-                              color: themeColors.textSecondary,
-                              padding: 10
-                            }
-                          },
-                          tooltip: {
-                            backgroundColor: themeColors.isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                            titleColor: themeColors.isDark ? '#fff' : '#000',
-                            bodyColor: themeColors.isDark ? '#fff' : '#000',
-                            borderColor: themeColors.borderDivider,
-                            borderWidth: 1,
-                          }
-                        }
-                      } as any} 
+              <div className="d-flex flex-row" style={{ height: '45%', padding: 0 }}>
+                <div className="col-6 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title={`Hours per Employee`}
+                    legendLabel="Hours per Employee"
+                    legendColor="rgb(245, 158, 11)"
+                    legendType="line"
+                    style={{ borderTop: 0, borderLeft: 0, borderBottom: 0 }}
+                    isEmpty={projectMonthlyData.length === 0}
+                  >
+                    <Line 
+                      data={{
+                        labels: projectMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
+                        datasets: [{
+                          label: 'Hours per Employee',
+                          data: projectMonthlyData.map(d => d.hoursPerEmployee),
+                          borderColor: 'rgb(245, 158, 11)',
+                          backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                          tension: 0.4,
+                          fill: true,
+                          pointBackgroundColor: 'rgb(245, 158, 11)',
+                          pointBorderColor: '#fff',
+                          pointBorderWidth: 2,
+                          pointRadius: 4,
+                        }]
+                      }} 
+                      options={chartOptions} 
                     />
-                  </div>
-                </ChartCard>
+                  </ChartCard>
+                </div>
+                <div className="col-6 h-100" style={{ padding: 0 }}>
+                  <ChartCard 
+                    title={`Employee Count`}
+                    legendLabel="Employees"
+                    legendColor="rgb(16, 185, 129)"
+                    legendType="bar"
+                    style={{ borderTop: 0, borderLeft: 0, borderRight: 0, borderBottom: 0 }}
+                    isEmpty={projectMonthlyData.length === 0}
+                  >
+                    <Bar 
+                      data={{
+                        labels: projectMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
+                        datasets: [{
+                          label: 'Employees',
+                          data: projectMonthlyData.map(d => d.employeeCount),
+                          backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                          borderColor: 'rgb(16, 185, 129)',
+                          borderWidth: 1,
+                          borderRadius: 4,
+                          borderSkipped: false,
+                        }]
+                      }} 
+                      options={chartOptions} 
+                      plugins={[datalabelsPlugin]}
+                    />
+                  </ChartCard>
+                </div>
               </div>
             </div>
+          )}
+        </div>
 
-            <div className="d-flex flex-row" style={{ height: '45%', padding: 0 }}>
-              <div className="col-6 h-100" style={{ padding: 0 }}>
-                <ChartCard 
-                  title={`Hours per Employee`}
-                  legendLabel="Hours per Employee"
-                  legendColor="rgb(245, 158, 11)"
-                  legendType="line"
-                  style={{ borderTop: 0, borderLeft: 0, borderBottom: 0 }}
-                  isEmpty={projectMonthlyData.length === 0}
+        {/* Lado Direito: Monthly Notes (Altura Total) */}
+        {selectedYear && selectedMonth && (
+          <div style={{ 
+            flex: '0 0 320px', 
+            height: '100%', 
+            borderLeft: '1px solid var(--color-border-divider)',
+            background: 'var(--color-background-primary)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              padding: '20px 20px 10px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'transparent'
+            }}>
+              <h4 style={{ 
+                margin: 0, 
+                fontSize: '18px', 
+                fontWeight: 400, 
+                color: 'var(--color-text-secondary)',
+                minHeight: 30,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
+                Notes
+              </h4>
+            </div>
+            
+            <div style={{ flex: 1, padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '12px', overflow: 'hidden' }}>
+              {isEditingNotes ? (
+                <textarea 
+                  className="custom-scrollbar"
+                  value={tempNotes}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    // Garantir que a primeira linha tenha um bullet se houver texto
+                    if (newValue.length > 0 && !newValue.startsWith(' • ')) {
+                      setTempNotes(' • ' + newValue.replace(/^(\s*•\s*)?/, ''));
+                    } else {
+                      setTempNotes(newValue);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const target = e.target as HTMLTextAreaElement;
+                      const start = target.selectionStart;
+                      const end = target.selectionEnd;
+                      const value = target.value;
+
+                      // Insere nova linha com bullet
+                      const newValue = value.substring(0, start) + '\n • ' + value.substring(end);
+                      setTempNotes(newValue);
+
+                      // Ajusta a posição do cursor após o novo bullet
+                      setTimeout(() => {
+                        target.selectionStart = target.selectionEnd = start + 4;
+                      }, 0);
+                    }
+                  }}
+                  placeholder="Write your notes for this month here..."
+                  style={{
+                    width: '100%',
+                    flex: 1,
+                    background: 'var(--color-background-secondary)',
+                    border: '1px solid var(--color-accent-primary)',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    color: 'var(--color-text-primary)',
+                    fontSize: '13px',
+                    lineHeight: '1.6',
+                    resize: 'none',
+                    outline: 'none',
+                    transition: 'all 0.2s'
+                  }}
+                />
+              ) : (
+                <div 
+                  className="custom-scrollbar"
+                  style={{
+                    width: '100%',
+                    flex: 1,
+                    padding: '4px 12px',
+                    color: 'var(--color-text-primary)',
+                    fontSize: '13px',
+                    lineHeight: '1.8',
+                    overflowY: 'auto'
+                  }}
                 >
-                  <Line 
-                    data={{
-                      labels: projectMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
-                      datasets: [{
-                        label: 'Hours per Employee',
-                        data: projectMonthlyData.map(d => d.hoursPerEmployee),
-                        borderColor: 'rgb(245, 158, 11)',
-                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: 'rgb(245, 158, 11)',
-                        pointBorderColor: '#fff',
-                        pointBorderWidth: 2,
-                        pointRadius: 4,
-                      }]
-                    }} 
-                    options={chartOptions} 
-                  />
-                </ChartCard>
-              </div>
-              <div className="col-6 h-100" style={{ padding: 0 }}>
-                <ChartCard 
-                  title={`Employee Count`}
-                  legendLabel="Employees"
-                  legendColor="rgb(16, 185, 129)"
-                  legendType="bar"
-                  style={{ borderTop: 0, borderLeft: 0, borderRight: 0, borderBottom: 0 }}
-                  isEmpty={projectMonthlyData.length === 0}
-                >
-                  <Bar 
-                    data={{
-                      labels: projectMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
-                      datasets: [{
-                        label: 'Employees',
-                        data: projectMonthlyData.map(d => d.employeeCount),
-                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-                        borderColor: 'rgb(16, 185, 129)',
-                        borderWidth: 1,
-                        borderRadius: 4,
-                        borderSkipped: false,
-                      }]
-                    }} 
-                    options={chartOptions} 
-                    plugins={[datalabelsPlugin]}
-                  />
-                </ChartCard>
+                  {notes ? notes.split('\n').filter(line => line.trim() !== '').map((line, idx) => {
+                    // Remove o bullet existente se houver para evitar duplicidade na exibição
+                    const cleanLine = line.replace(/^(\s*•\s*)/, '');
+                    return (
+                      <div key={idx} style={{ marginBottom: '8px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <span style={{ color: 'var(--color-accent-primary)', fontWeight: 'bold' }}>•</span>
+                        <span>{cleanLine}</span>
+                      </div>
+                    );
+                  }) : (
+                    <div style={{ opacity: 0.5, fontStyle: 'italic', fontSize: '12px' }}>
+                      No notes for this period. Click Edit to add.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={{ 
+                display: 'flex',
+                gap: '8px',
+                width: '100%'
+              }}>
+                {!isEditingNotes ? (
+                  <button 
+                    onClick={() => {
+                      // Prepara o texto com bullets se não tiver
+                      const formattedNotes = notes ? notes.split('\n')
+                        .map(line => line.trim() === '' ? '' : (line.startsWith(' • ') ? line : ` • ${line}`))
+                        .join('\n') : ' • ';
+                      setTempNotes(formattedNotes);
+                      setIsEditingNotes(true);
+                    }}
+                    title="Edit Notes"
+                    style={{
+                      background: 'var(--color-background-secondary)',
+                      border: '1px solid var(--color-border-divider)',
+                      color: 'var(--color-text-primary)',
+                      width: '100%',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                      e.currentTarget.style.color = 'var(--color-accent-primary)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                      e.currentTarget.style.color = 'var(--color-text-primary)';
+                    }}
+                  >
+                    <i className="bi bi-pencil-square" style={{ fontSize: '14px' }}></i>
+                  </button>
+                ) : (
+                  <>
+                    <button 
+                      onClick={handleSaveNotes}
+                      title="Save Changes"
+                      style={{
+                        background: 'rgb(16, 185, 129)',
+                        border: 'none',
+                        color: '#fff',
+                        flex: 1,
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'opacity 0.2s'
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = '0.9'}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                      <i className="bi bi-check-lg" style={{ fontSize: '16px' }}></i>
+                    </button>
+                    <button 
+                      onClick={() => setIsEditingNotes(false)}
+                      title="Cancel Edit"
+                      style={{
+                        background: 'var(--color-background-secondary)',
+                        border: '1px solid var(--color-border-divider)',
+                        color: 'var(--color-text-secondary)',
+                        flex: 1,
+                        height: '28px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--color-text-secondary)';
+                        e.currentTarget.style.color = 'var(--color-text-primary)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                        e.currentTarget.style.color = 'var(--color-text-secondary)';
+                      }}
+                    >
+                      <i className="bi bi-x-lg" style={{ fontSize: '14px' }}></i>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
