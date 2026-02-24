@@ -202,8 +202,6 @@ export default function Dashboard() {
       // Fechar outros submenus se estiverem abertos
       setShowProjectMonitoringSubmenu(false);
       setIsCollapsingProjectMonitoringSubmenu(false);
-      setShowOFISubmenu(false);
-      setIsCollapsingOFISubmenu(false);
     } else if (tela?.descricao?.startsWith('Project Monitoring')) {
       // Se for Project Monitoring, mostrar submenu de tipos
       setSelectedProjectMonitoringType('HVAC'); // Sempre resetar para HVAC
@@ -214,9 +212,7 @@ export default function Dashboard() {
       setShowCompanySubmenu(false);
       setIsCollapsingSubmenu(false);
       setShowAccountingContent(false);
-      setShowOFISubmenu(false);
-      setIsCollapsingOFISubmenu(false);
-    } else if (tela?.descricao === 'Operational Forecast Index' || tela?.descricao === 'OFI') {
+    } else if (tela?.descricao === 'Operational Index' || tela?.descricao === 'OFI') {
       // Se for OFI, não tem mais submenu
       setTelaId(newTelaId);
       // Fechar outros submenus se estiverem abertos
@@ -349,8 +345,8 @@ export default function Dashboard() {
     'Service Requests': 'bi bi-telephone-inbound',
     'Forecast': 'bi bi-graph-up',
     'Operational Efficiency Index': 'bi bi-speedometer2',
-    'Operational Forecast Index': 'bi bi-graph-up-arrow',
-    'OFI': 'bi bi-graph-up-arrow',
+    'Operational Index': 'bi bi-bezier2',
+    'OFI': 'bi bi-bezier2',
     'Inventory Control Index': 'bi bi-box-seam',
   };
 
@@ -371,16 +367,23 @@ export default function Dashboard() {
 
   // Função para filtrar telas baseado na permissão financeira do usuário
   const filtrarTelasPorPermissao = (telas: Tela[]): Tela[] => {
-    // Primeiro filtrar Timesheet Analysis
-    let telasFiltradas = telas.filter(tela => tela.descricao !== 'Timesheet Analysis');
+    // Primeiro filtrar Timesheet Analysis, Fuel Control, Takeoff Works e Operational Index (que agora é submenu)
+    let telasFiltradas = telas.filter(tela => 
+      tela.descricao !== 'Timesheet Analysis' && 
+      tela.descricao !== 'Fuel Control' && 
+      tela.descricao !== 'Takeoff Works' && 
+      tela.descricao !== 'Operational Forecast Index' && 
+      tela.descricao !== 'Operational Index' && 
+      tela.descricao !== 'OFI'
+    );
 
     // Se o usuário tem permissão financeira, retornar o restante
     if (financialPass) {
       return telasFiltradas;
     }
     
-    // Se não tem permissão financeira, filtrar também Accounting Indicators e Fuel Control
-    return telasFiltradas.filter(tela => tela.descricao !== 'Accounting Indicators' && tela.descricao !== 'Fuel Control');
+    // Se não tem permissão financeira, filtrar também Accounting Indicators
+    return telasFiltradas.filter(tela => tela.descricao !== 'Accounting Indicators');
   };
 
   // Função para ordenar telas de acordo com a ordem específica
@@ -396,7 +399,7 @@ export default function Dashboard() {
       'Forecast Control',
       'Project Monitoring',
       'Forecast',
-      'Operational Forecast Index',
+      'Operational Index',
       'OFI',
       'Operational Efficiency Index'
     ];
@@ -548,6 +551,9 @@ export default function Dashboard() {
       case 'Service Requests':
         return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
       case 'Forecast':
+        if (selectedForecastType === 'Operational Index') {
+          return <OperationalForecastIndex />;
+        }
         return <WorkforceForecast 
           telaId={telaId} 
           usuarioId={usuarioId} 
@@ -558,7 +564,7 @@ export default function Dashboard() {
       case 'Data Control':
       case 'Forecast Control':
         return <DataControl />;
-      case 'Operational Forecast Index':
+      case 'Operational Index':
       case 'OFI':
         return <OperationalForecastIndex />;
       case 'Inventory Control Index':
@@ -854,8 +860,8 @@ export default function Dashboard() {
                   <i className={getTelaIcone(tela.descricao)} style={{ fontSize: 14 }} />
                   {tela.descricao?.startsWith('Project Monitoring') 
                     ? 'Project Monitoring' 
-                    : (tela.descricao === 'Operational Forecast Index' || tela.descricao === 'OFI')
-                      ? 'Operational Forecast Index'
+                    : (tela.descricao === 'Operational Forecast Index' || tela.descricao === 'Operational Index' || tela.descricao === 'OFI')
+                      ? 'Operational Index'
                       : (tela.descricao === 'Forecast Control') ? 'Data Control' : tela.descricao}
                 </button>
                 
@@ -1066,7 +1072,7 @@ export default function Dashboard() {
                     animation: isCollapsingForecastSubmenu ? 'collapseSubmenu 0.3s ease-out' : 'expandSubmenu 0.3s ease-out',
                     overflow: 'hidden'
                   }}>
-                    {['Framing', 'Metrics'].map(type => {
+                    {['Framing', 'Metrics', 'Operational Index'].map(type => {
                       const isDisabled = false;
                       return (
                         <button
@@ -1132,9 +1138,9 @@ export default function Dashboard() {
                             }
                           }}
                         >
-                           {type === 'Metrics' ? (
-                             <i className="bi bi-bar-chart" style={{ fontSize: 14, marginRight: 8, color: selectedForecastType === type ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }} />
-                           ) : (
+                           {type === 'Metrics' || type === 'Operational Index' ? (
+                              <i className={type === 'Metrics' ? "bi bi-bar-chart" : "bi bi-bezier2"} style={{ fontSize: 14, marginRight: 8, color: selectedForecastType === type ? 'var(--color-text-primary)' : 'var(--color-text-secondary)' }} />
+                            ) : (
                              <img 
                                src={empresaIcones[type] || sublogoFraming} 
                                alt={type} 

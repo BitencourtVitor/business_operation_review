@@ -43,7 +43,7 @@ export interface ForecastMachines {
   subcategory: string | null;
   equipment_category: string | null;
   title: string | null;
-  status: boolean | null;
+  status: string | null;
   unit: string | null;
   lastupdate_datetimez: string | null;
   team?: string | null;

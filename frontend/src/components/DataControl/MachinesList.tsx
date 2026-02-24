@@ -159,28 +159,31 @@ interface MachinesListProps {
 const StyledUnitInput = ({ 
   value, 
   onChange, 
-  placeholder 
+  placeholder,
+  status
 }: { 
   value: string, 
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
-  placeholder?: string
+  placeholder?: string,
+  status?: string | null
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const isDispensed = status === 'Dispensed';
 
   return (
     <div 
         style={{ 
-            width: '100px', 
+            width: isDispensed ? '400px' : '100px', 
             height: '32px',
             display: 'flex', 
             alignItems: 'center',
             padding: '0',
             borderRadius: '4px',
             border: isFocused ? '1px solid var(--color-accent-primary)' : '1px solid var(--color-border-divider)',
-            backgroundColor: 'var(--color-background-primary)',
+            backgroundColor: isDispensed ? 'rgba(230, 46, 46, 0.05)' : 'var(--color-background-primary)',
             overflow: 'hidden',
             boxShadow: isFocused ? '0 0 0 3px rgba(59, 130, 246, 0.1)' : 'none',
-            transition: 'border-color 0.2s, box-shadow 0.2s'
+            transition: 'all 0.2s'
         }}
     >
         <input
@@ -189,7 +192,7 @@ const StyledUnitInput = ({
             onChange={onChange}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
-            placeholder={placeholder}
+            placeholder={isDispensed ? "Justification..." : placeholder}
             style={{
                 width: '100%',
                 height: '100%',
@@ -198,7 +201,7 @@ const StyledUnitInput = ({
                 fontSize: '12px',
                 padding: '0 8px',
                 backgroundColor: 'transparent',
-                textAlign: 'center',
+                textAlign: isDispensed ? 'left' : 'center',
                 color: 'var(--color-text-primary)'
             }}
             onClick={(e) => e.stopPropagation()}
@@ -324,14 +327,17 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
   };
   */
 
-  const handleUpdate = async (id: number, field: keyof ForecastMachines, value: boolean | string | number | null) => {
+  const handleUpdate = async (id: number, field: keyof ForecastMachines, value: string | number | null) => {
     startLoading();
     if (onLoadingStart) onLoadingStart();
     
     const updates: any = { [field]: value };
-    // Se estiver desativando (status = false), limpa o campo unit
-    if (field === 'status' && value === false) {
-      updates.unit = null;
+    
+    // Lógica de status e limpeza
+    if (field === 'status') {
+      if (!value) {
+        updates.unit = null;
+      }
     }
 
     // Optimistic update
@@ -397,25 +403,26 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
                         height: '32px',
                         borderRadius: '4px',
                         border: '1px solid var(--color-border-divider)',
-                        backgroundColor: item.status ? 'rgba(59, 130, 246, 0.05)' : 'var(--color-background-primary)',
+                        backgroundColor: item.status === 'Scheduled' ? 'rgba(59, 130, 246, 0.05)' : (item.status === 'Dispensed' ? 'rgba(230, 46, 46, 0.05)' : 'var(--color-background-primary)'),
                         transition: 'all 0.2s',
-                        cursor: 'pointer',
+                        cursor: item.status === 'Dispensed' ? 'not-allowed' : 'pointer',
                         width: '180px' // Fixed width to match attachments style
                     }}
-                    onClick={() => handleUpdate(item.id, 'status', !item.status)}
+                    onClick={() => item.status !== 'Dispensed' && handleUpdate(item.id, 'status', item.status === 'Scheduled' ? null : 'Scheduled')}
                 >
                     {/* Left Group: Checkbox + Title */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', opacity: item.status === 'Dispensed' ? 0.5 : 1 }}>
                         {/* Checkbox */}
                         <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                             <input 
                             type="checkbox" 
-                            checked={!!item.status} 
+                            checked={item.status === 'Scheduled'} 
+                            disabled={item.status === 'Dispensed'}
                             readOnly
                             style={{
                                 width: '16px',
                                 height: '16px',
-                                cursor: 'pointer',
+                                cursor: item.status === 'Dispensed' ? 'not-allowed' : 'pointer',
                                 accentColor: 'var(--color-accent-primary)'
                             }}
                             />
@@ -431,11 +438,38 @@ export default function MachinesList({ obraId, project, onLoadingStart, onLoadin
                     )}
                 </div>
 
+                {/* Dispensed Toggle */}
+                {item.status !== 'Scheduled' && (
+                    <div 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleUpdate(item.id, 'status', item.status === 'Dispensed' ? null : 'Dispensed');
+                        }}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '4px',
+                            border: '1px solid var(--color-border-divider)',
+                            backgroundColor: item.status === 'Dispensed' ? 'rgba(230, 46, 46, 0.1)' : 'var(--color-background-primary)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            color: item.status === 'Dispensed' ? 'var(--color-accent-secondary)' : 'var(--color-text-secondary)'
+                        }}
+                        title={item.status === 'Dispensed' ? "Machine Dispensed" : "Mark as Dispensed"}
+                    >
+                        <i className={item.status === 'Dispensed' ? "bi bi-x-circle-fill" : "bi bi-x-circle"} style={{ fontSize: '14px' }} />
+                    </div>
+                )}
+
                 {/* Unit Number Container */}
                 <StyledUnitInput 
                     value={item.unit || ''}
                     onChange={e => handleUpdate(item.id, 'unit', e.target.value)}
                     placeholder="Unit #"
+                    status={item.status}
                 />
 
               </div>

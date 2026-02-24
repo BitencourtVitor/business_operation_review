@@ -45,11 +45,33 @@ export function useWorkforceProductivityData() {
       }
 
       // Ensure numeric fields are actually numbers (Supabase/Postgres might return them as strings for 'numeric' type)
-      const formattedData = allData.map((row: any) => ({
-        ...row,
-        regular_hours: typeof row.regular_hours === 'string' ? parseFloat(row.regular_hours) : Number(row.regular_hours || 0),
-        regular_rate: typeof row.regular_rate === 'string' ? parseFloat(row.regular_rate) : Number(row.regular_rate || 0),
-      }));
+      const formattedData = allData
+        .filter((row: any) => {
+          // Helper to get worktype using the same logic as the component
+          const getRowWorktype = (r: any) => {
+            if (r.worktype) return r.worktype;
+            const hasJobsite = !!r.jobsite;
+            const hasLot = !!r.lot_building;
+            if (!hasJobsite && !hasLot) return r.client || 'Unknown Client';
+            return 'Normal Labor';
+          };
+
+          const calculatedWorktype = getRowWorktype(row).trim();
+          
+          // Filter out 'Service Call' (case-insensitive and trimmed)
+           const isServiceCall = calculatedWorktype.toLowerCase() === 'service call';
+           
+           // Filter out August (08) and September (09) of 2025 as requested
+           const monthStr = row.reference_month || '';
+           const isExcludedMonth = monthStr === '2025-08' || monthStr === '2025-09';
+           
+           return !isServiceCall && !isExcludedMonth;
+         })
+        .map((row: any) => ({
+          ...row,
+          regular_hours: typeof row.regular_hours === 'string' ? parseFloat(row.regular_hours) : Number(row.regular_hours || 0),
+          regular_rate: typeof row.regular_rate === 'string' ? parseFloat(row.regular_rate) : Number(row.regular_rate || 0),
+        }));
 
       // DEBUG: Count rows by reference_month as requested
       const monthCounts = formattedData.reduce((acc: Record<string, number>, row) => {
