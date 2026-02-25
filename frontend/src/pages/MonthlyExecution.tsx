@@ -630,15 +630,21 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
 
   const renderColumn = (title: string, count: number, projects: any[], color: string, icon: string, extraContent?: React.ReactNode, metrics?: React.ReactNode) => {
     const isFinishedColumn = title === 'Finished Projects';
-    const hasProjects = projects.length > 0 || (extraContent && isFinishedColumn);
     const isExpanded = expandedColumns[title];
+    const hasProjects = projects.length > 0 || (extraContent && isFinishedColumn && isExpanded);
 
     return (
-      <div className="col-md-4 h-100" style={{ transition: 'all 0.3s ease' }}>
+      <div className={isExpanded ? "col-md-12" : "col-md-4"} style={{ 
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        height: isExpanded ? 'auto' : '100%',
+        minHeight: isExpanded ? '400px' : '0'
+      }}>
         <div className="d-flex flex-column h-100" style={{ 
-          borderRight: title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
+          borderRight: !isExpanded && title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
+          borderBottom: isExpanded ? '1px solid var(--color-border-divider)' : 'none',
           padding: '0 15px',
-          background: isExpanded ? 'rgba(255,255,255,0.02)' : 'transparent'
+          background: isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent',
+          transition: 'all 0.4s ease'
         }}>
           {/* Header Section */}
           <div 
@@ -646,7 +652,7 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
             style={{ 
               paddingTop: '12px',
               paddingBottom: '12px',
-              borderBottom: isExpanded ? '1px solid var(--color-border-divider)' : 'none',
+              borderBottom: '1px solid var(--color-border-divider)',
               cursor: 'pointer',
               userSelect: 'none'
             }}
@@ -654,17 +660,28 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
           >
             <div className="d-flex align-items-center justify-content-between">
               <div className="d-flex align-items-center gap-2">
-                <i className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`} style={{ color: 'var(--color-text-secondary)', fontSize: '12px' }}></i>
+                <i className={`bi ${isExpanded ? 'bi-chevron-down' : 'bi-chevron-right'}`} style={{ 
+                  color: isExpanded ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', 
+                  fontSize: '14px',
+                  transition: 'transform 0.3s ease'
+                }}></i>
                 <i className={`bi ${icon}`} style={{ color: color, fontSize: '14px' }}></i>
                 <h4 className="mb-0" style={{ 
-                  color: 'var(--color-text-secondary)', 
+                  color: isExpanded ? 'var(--color-text-primary)' : 'var(--color-text-secondary)', 
                   fontSize: '15px', 
-                  fontWeight: 500,
+                  fontWeight: isExpanded ? 600 : 500,
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>{title}</h4>
               </div>
-              <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: '15px' }}>{count}</span>
+              <div className="d-flex align-items-center gap-3">
+                {isExpanded && (
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', opacity: 0.6, textTransform: 'uppercase' }}>
+                    Click to collapse
+                  </span>
+                )}
+                <span style={{ color: 'var(--color-text-primary)', fontWeight: 600, fontSize: '15px' }}>{count}</span>
+              </div>
             </div>
             {metrics && (
               <div className="mt-1">
@@ -674,22 +691,26 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
           </div>
 
           {/* Content Section */}
-          {isExpanded && (
-            <div className="overflow-y-auto custom-scrollbar" style={{ 
-              flex: 1, 
-              paddingTop: '12px',
-              paddingRight: '6px',
-              paddingBottom: '0px' 
-            }}>
-              {!hasProjects && !isFinishedColumn ? (
-                <div className="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
-                  <div className="small" style={{ color: 'var(--color-text-secondary)', opacity: 0.6 }}>
-                    No projects in this category.
-                  </div>
+          <div className={`overflow-y-auto custom-scrollbar ${isExpanded ? 'expanded-content' : ''}`} style={{ 
+            flex: 1, 
+            maxHeight: isExpanded ? '600px' : '0',
+            opacity: isExpanded ? 1 : 0,
+            paddingTop: isExpanded ? '16px' : '0',
+            paddingRight: '6px',
+            paddingBottom: isExpanded ? '16px' : '0',
+            transition: 'all 0.4s ease',
+            visibility: isExpanded ? 'visible' : 'hidden'
+          }}>
+            {!hasProjects && !isFinishedColumn ? (
+              <div className="d-flex flex-column align-items-center justify-content-center h-100 text-center py-5">
+                <div className="small" style={{ color: 'var(--color-text-secondary)', opacity: 0.6 }}>
+                  No projects in this category.
                 </div>
-              ) : (
-                <>
-                  {isFinishedColumn && projects.length === 0 && (
+              </div>
+            ) : (
+              <div className={isExpanded ? "row g-3" : ""}>
+                {isFinishedColumn && projects.length === 0 && (
+                  <div className="col-12">
                     <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center mb-3" style={{ 
                       border: '1px dashed var(--color-border-divider)',
                       borderRadius: '8px'
@@ -701,13 +722,21 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
                         Among the projects started in the observed month, none have been finished yet.
                       </div>
                     </div>
-                  )}
-                  {projects.map(p => renderProjectCard(p))}
-                  {extraContent}
-                </>
-              )}
-            </div>
-          )}
+                  </div>
+                )}
+                {projects.map(p => (
+                  <div key={p.obra_id} className={isExpanded ? "col-md-4 col-lg-3" : "col-12"}>
+                    {renderProjectCard(p)}
+                  </div>
+                ))}
+                {extraContent && (
+                  <div className="col-12">
+                    {extraContent}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );

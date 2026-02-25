@@ -40,6 +40,19 @@ interface MaterialUsageData {
   subcontractor?: string; // Mapped from Storage Team
   storageTeamMatched?: string; // The exact team name in Storage
   items_details?: { product: string; quantity: number }[];
+  excessive_details?: { product: string; quantity: number; limit: number; project: string }[];
+}
+
+interface ExcessiveWithdrawalData {
+  subcontractor: string;
+  count: number;
+  details: {
+    product: string;
+    withdrawn: number;
+    limit: number;
+    project: string;
+    date: string;
+  }[];
 }
 
 interface BackchargeStat {
@@ -91,6 +104,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   const [materialUsageData, setMaterialUsageData] = useState<MaterialUsageData[]>([]);
   const [forecastSubcontractors, setForecastSubcontractors] = useState<string[]>([]);
   const [materialView, setMaterialView] = useState<'ranking' | 'details'>('ranking');
+  const [viewMode, setViewMode] = useState<'detailed' | 'consolidated'>('consolidated');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,7 +113,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     visible: boolean; 
     x: number; 
     y: number; 
-    content: any[]; 
+    content: any[] | { items: any[], excessive: any[] }; 
     type: 'execution' | 'backcharge' | 'material'
   }>({
     visible: false,
@@ -260,8 +274,8 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               }
             }
           });
-          const currentForecastSubcontractors = Array.from(uniqueForecastTeams);
-          setForecastSubcontractors(currentForecastSubcontractors);
+          const subcontractorsList = Array.from(uniqueForecastTeams);
+          setForecastSubcontractors(subcontractorsList);
 
           // Create a lookup map using normalized client, jobsite and lot/building
           const subLookup: Record<string, string> = {};
@@ -350,6 +364,18 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             .select(`
               id,
               movement_date,
+              project_id,
+              projects (
+                nome,
+                house_models (
+                  id,
+                  nome,
+                  house_model_products (
+                    product_id,
+                    quantidade_limite
+                  )
+                )
+              ),
               pessoa_destinataria (
                 nome,
                 equipe_destinataria (
@@ -357,6 +383,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 )
               ),
               stock_movement_items (
+                product_id,
                 quantidade,
                 valor_unitario,
                 products (
@@ -369,25 +396,37 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           if (storageError) {
             console.error('Error fetching Storage Material Usage:', storageError);
           } else if (rawMovements) {
-            // Matrix comparison: use the distinct list of subcontractors from forecast_contract_steps
-            // IMPORTANT: use the local variable currentForecastSubcontractors to avoid async state issues
-            const subcontractorsList = currentForecastSubcontractors.length > 0 
-              ? currentForecastSubcontractors 
-              : Array.from(new Set(eventsData?.map(e => e.subcontractor) || []));
-
             // Grouping logic: group by period (mesStr) and storage team (teamName)
             const groupedMap: Record<string, MaterialUsageData> = {};
+            
+            // To track total consumption per project and product across all movements
+            const projectProductConsumption: Record<string, Record<string, number>> = {};
 
             (rawMovements as any[]).forEach(movement => {
+              const projectName = movement.projects?.nome || '';
+              if (projectName.toUpperCase().includes('(TEST)')) return;
+
               const pessoa = movement.pessoa_destinataria;
               const equipe = pessoa?.equipe_destinataria;
               const teamName = equipe?.nome || 'INTERNAL / NO TEAM';
+              const projectId = movement.project_id;
               
+              // 1. Calculate consumption and aggregate by project/product
+              (movement.stock_movement_items || []).forEach((item: any) => {
+                if (projectId && item.product_id) {
+                  if (!projectProductConsumption[projectId]) projectProductConsumption[projectId] = {};
+                  if (!projectProductConsumption[projectId][item.product_id]) projectProductConsumption[projectId][item.product_id] = 0;
+                  projectProductConsumption[projectId][item.product_id] += Math.abs(item.quantidade || 0);
+                }
+              });
+
               const totalValue = (movement.stock_movement_items || []).reduce((acc: number, item: any) => {
                 return acc + (Math.abs(item.quantidade) * (item.valor_unitario || 0));
               }, 0);
 
-              const totalItems = (movement.stock_movement_items || []).length;
+              const totalQuantity = (movement.stock_movement_items || []).reduce((acc: number, item: any) => {
+                return acc + Math.abs(item.quantidade || 0);
+              }, 0);
 
               // Extract product details from this movement
               const currentItemsDetails = (movement.stock_movement_items || []).map((item: any) => ({
@@ -403,7 +442,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
 
               if (groupedMap[groupKey]) {
                 groupedMap[groupKey].valor_total_retirado += totalValue;
-                groupedMap[groupKey].total_retiradas += totalItems;
+                groupedMap[groupKey].total_retiradas += totalQuantity;
                 
                 // Aggregate product details
                 currentItemsDetails.forEach(newItem => {
@@ -422,35 +461,63 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 
                 // 2. Fuzzy Match (Partial) - Only if not "INTERNAL / NO TEAM"
                 if (!matchedSub && teamName !== 'INTERNAL / NO TEAM') {
-                  // Common words to ignore in matching to avoid false positives
                   const ignoreWords = ['CONSTRUCTION', 'SERVICES', 'INC', 'CORP', 'LLC', 'AND', 'THE', 'PANELS', 'SYSTEMS', 'GROUP'];
-                  
-                  // Extract words from the storage team name, filtering out short words and common noise
                   const teamWords = normalizedTeam.split(/[\s,.-]+/)
                     .filter(w => w.length > 2 && !ignoreWords.includes(w));
                   
                   if (teamWords.length > 0) {
-                    // Find a subcontractor that shares at least one significant word
                     matchedSub = subcontractorsList.find(sub => {
                       const normSub = sub.trim().toUpperCase();
                       const subWords = normSub.split(/[\s,.-]+/)
                         .filter(w => w.length > 2 && !ignoreWords.includes(w));
-                      
-                      // Check if any significant word from team name matches any significant word in subcontractor name
                       return teamWords.some(word => subWords.includes(word));
                     });
                   }
                 }
 
                 groupedMap[groupKey] = {
-                  id: groupKey, // Using groupKey as ID since it's now an aggregate
+                  id: groupKey,
                   mes: mesStr,
-                  total_retiradas: totalItems,
+                  total_retiradas: totalQuantity,
                   valor_total_retirado: totalValue,
                   subcontractor: matchedSub || 'NOT IDENTIFIED',
                   storageTeamMatched: teamName,
-                  items_details: [...currentItemsDetails]
+                  items_details: [...currentItemsDetails],
+                  excessive_details: []
                 };
+              }
+
+              // 2. Check for Excessive Withdrawals (comparing accumulated consumption with template limits)
+              if (projectId && movement.projects?.house_models?.house_model_products) {
+                const limits = movement.projects.house_models.house_model_products;
+                const projectName = movement.projects.nome;
+
+                (movement.stock_movement_items || []).forEach((item: any) => {
+                  const productId = item.product_id;
+                  const productName = item.products?.nome || 'Unknown Product';
+                  const limitObj = limits.find((l: any) => l.product_id === productId);
+                  
+                  if (limitObj) {
+                    const limit = limitObj.quantidade_limite;
+                    const totalConsumed = projectProductConsumption[projectId][productId];
+                    
+                    if (totalConsumed > limit) {
+                      // Check if we already added this excessive withdrawal to this group
+                      const existingExcess = groupedMap[groupKey].excessive_details?.find(e => e.product === productName && e.project === projectName);
+                      if (!existingExcess) {
+                        groupedMap[groupKey].excessive_details?.push({
+                          product: productName,
+                          quantity: totalConsumed,
+                          limit: limit,
+                          project: projectName
+                        });
+                      } else {
+                        // Update with latest total consumption
+                        existingExcess.quantity = totalConsumed;
+                      }
+                    }
+                  }
+                });
               }
             });
 
@@ -468,7 +535,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     }
   };
 
-  const rankingData = useMemo(() => {
+  const executionRanking = useMemo(() => {
     if (!rawEvents.length) return [];
 
     // 1. Group events by obra_id
@@ -580,6 +647,8 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     });
 
   }, [rawEvents, projectData, contractData, selectedYear, selectedMonth, sortConfig]);
+
+  const rankingData = executionRanking;
 
   const backchargeRanking = useMemo(() => {
     if (!backchargeData.length) return [];
@@ -701,24 +770,28 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   const materialRanking = useMemo(() => {
     if (!materialUsageData.length) return [];
 
-    const grouped: Record<string, { totalValue: number; totalWithdrawals: number; subcontractors: Set<string> }> = {};
+    const grouped: Record<string, { totalValue: number; totalWithdrawals: number; subcontractors: Set<string>; excessiveCount: number }> = {};
 
     materialUsageData.forEach(item => {
       // Group by the mapped subcontractor
       const sub = item.subcontractor || 'NOT IDENTIFIED';
+      if (sub === 'NOT IDENTIFIED') return;
+      
       if (!grouped[sub]) {
-        grouped[sub] = { totalValue: 0, totalWithdrawals: 0, subcontractors: new Set() };
+        grouped[sub] = { totalValue: 0, totalWithdrawals: 0, subcontractors: new Set(), excessiveCount: 0 };
       }
       grouped[sub].totalValue += item.valor_total_retirado;
       grouped[sub].totalWithdrawals += item.total_retiradas;
-      grouped[sub].subcontractors.add(item.subcontractor || 'NOT IDENTIFIED');
+      grouped[sub].excessiveCount += (item.excessive_details?.length || 0);
+      grouped[sub].subcontractors.add(sub);
     });
 
     return Object.entries(grouped)
       .map(([sub, data]) => ({
         subcontractor: sub,
         totalValue: data.totalValue,
-        totalWithdrawals: data.totalWithdrawals
+        totalWithdrawals: data.totalWithdrawals,
+        excessiveCount: data.excessiveCount
       }))
       .sort((a, b) => b.totalValue - a.totalValue);
   }, [materialUsageData]);
@@ -726,12 +799,114 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   const detailedMaterialList = useMemo(() => {
     return materialUsageData
       .filter(item => {
+        if (item.subcontractor === 'NOT IDENTIFIED' || !item.subcontractor) return false;
         if (selectedYear && !item.mes.startsWith(selectedYear)) return false;
         if (selectedMonth && !item.mes.endsWith(selectedMonth)) return false;
         return true;
       })
       .sort((a, b) => b.mes.localeCompare(a.mes) || b.valor_total_retirado - a.valor_total_retirado);
   }, [materialUsageData, selectedYear, selectedMonth]);
+
+  const excessiveWithdrawalsRanking = useMemo(() => {
+    if (!materialUsageData.length) return [];
+
+    const stats: Record<string, { totalExcess: number; details: any[] }> = {};
+
+    materialUsageData.forEach(item => {
+      const sub = item.subcontractor || 'NOT IDENTIFIED';
+      if (sub === 'NOT IDENTIFIED') return;
+      
+      if (item.excessive_details && item.excessive_details.length > 0) {
+        if (!stats[sub]) {
+          stats[sub] = { totalExcess: 0, details: [] };
+        }
+        
+        item.excessive_details.forEach(ex => {
+          stats[sub].totalExcess++;
+          stats[sub].details.push({
+            ...ex,
+            mes: item.mes,
+            storageTeamMatched: item.storageTeamMatched
+          });
+        });
+      }
+    });
+
+    return Object.entries(stats)
+      .map(([subcontractor, data]) => ({
+        subcontractor,
+        totalExcess: data.totalExcess,
+        details: data.details
+      }))
+      .sort((a, b) => b.totalExcess - a.totalExcess);
+  }, [materialUsageData]);
+
+  const consolidatedScorecard = useMemo(() => {
+    // Collect all unique subcontractors across all data sources
+    const allSubcontractors = new Set<string>();
+    executionRanking.forEach(r => allSubcontractors.add(r.subcontractor));
+    backchargeRanking.forEach(r => allSubcontractors.add(r.subcontractor));
+    materialRanking.forEach(r => allSubcontractors.add(r.subcontractor));
+    excessiveWithdrawalsRanking.forEach(r => allSubcontractors.add(r.subcontractor));
+
+    return Array.from(allSubcontractors).map(sub => {
+      const exec = executionRanking.find(r => r.subcontractor === sub);
+      const back = backchargeRanking.find(r => r.subcontractor === sub);
+      const mat = materialRanking.find(r => r.subcontractor === sub);
+      const exc = excessiveWithdrawalsRanking.find(r => r.subcontractor === sub);
+
+      // 1. Tempo de Execução (Weight: 25%)
+      // Higher avgDuration is worse. Lower is better.
+      // Reference: 20 days is a good average.
+      const avgDuration = exec?.avgDuration || 30;
+      const durationScore = Math.max(0, 100 - (avgDuration * 2.5));
+
+      // 2. Completude de Contrato (Weight: 20%)
+      const contractScore = exec?.avgContractCompletion || 0;
+
+      // 3. Backcharges (Weight: 20%)
+      // Higher totalHours is worse.
+      const backHours = back?.totalHours || 0;
+      const backScore = Math.max(0, 100 - (backHours * 5));
+
+      // 4. Eficiência de Material (Weight: 20%)
+      // Higher value per work is worse.
+      // Adjusted divisor to 250 (zeroing at $25k) to account for varying project sizes
+      const completedWorks = exec?.completedWorks || 1;
+      const matValue = mat?.totalValue || 0;
+      const matPerWork = matValue / completedWorks;
+      const matScore = Math.max(0, 100 - (matPerWork / 250));
+
+      // 5. Alertas de Excesso (Weight: 15%)
+      const excessCount = exc?.totalExcess || 0;
+      const excessScore = Math.max(0, 100 - (excessCount * 10));
+
+      // 6. Safety Level (Weight: 0% - Placeholder)
+      const safetyScore = null;
+      const safetyValue = null;
+
+      const finalScore = (
+        (durationScore * 0.25) +
+        (contractScore * 0.20) +
+        (backScore * 0.20) +
+        (matScore * 0.20) +
+        (excessScore * 0.15)
+      );
+
+      return {
+        subcontractor: sub,
+        finalScore,
+        metrics: {
+          duration: { score: durationScore, value: avgDuration, label: 'Execution Time' },
+          contract: { score: contractScore, value: contractScore, label: 'Contract Completion' },
+          backcharge: { score: backScore, value: backHours, label: 'Backcharges' },
+          material: { score: matScore, value: matValue, label: 'Material Usage' },
+          excess: { score: excessScore, value: excessCount, label: 'Excess Alerts' },
+          safety: { score: safetyScore, value: safetyValue, label: 'Safety Level' }
+        }
+      };
+    }).sort((a, b) => b.finalScore - a.finalScore);
+  }, [executionRanking, backchargeRanking, materialRanking, excessiveWithdrawalsRanking]);
 
   const handleMouseEnter = (e: React.MouseEvent, works: WorkDetail[]) => {
     // Clear any pending hide timeout
@@ -758,6 +933,11 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     // If it goes off bottom, shift it up
     if (y + estimatedHeight > window.innerHeight) {
         y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+    }
+
+    // Safety check for top overflow
+    if (y < 10) {
+        y = 10;
     }
 
     setTooltip({
@@ -796,6 +976,11 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         y = Math.max(10, window.innerHeight - estimatedHeight - 10);
     }
 
+    // Safety check for top overflow
+    if (y < 10) {
+        y = 10;
+    }
+
     setTooltip({
       visible: true,
       x: x,
@@ -805,7 +990,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     });
   };
 
-  const handleMaterialMouseEnter = (e: React.MouseEvent, details: any[]) => {
+  const handleMaterialMouseEnter = (e: React.MouseEvent, details: any[], excessiveDetails?: any[]) => {
     // Clear any pending hide timeout
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
@@ -824,19 +1009,25 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     }
     
     // Estimate height to avoid cutting off at bottom
-    const estimatedHeight = Math.min(300, details.length * 45 + 70);
+    const totalItems = (details?.length || 0) + (excessiveDetails?.length || 0);
+    const estimatedHeight = Math.min(450, totalItems * 65 + 100); // Increased estimate
     let y = rect.top;
     
     // If it goes off bottom, shift it up
     if (y + estimatedHeight > window.innerHeight) {
         y = Math.max(10, window.innerHeight - estimatedHeight - 10);
     }
+    
+    // Safety check for top overflow
+    if (y < 10) {
+        y = 10;
+    }
 
     setTooltip({
       visible: true,
       x: x,
       y: y,
-      content: details,
+      content: { items: details, excessive: excessiveDetails || [] },
       type: 'material'
     });
   };
@@ -865,15 +1056,53 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
       {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', flex: '0 0 auto' }}>
-        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Subcontractor Performance</h1>
-        <SubcontractorPerformanceFilters
-          selectedYear={selectedYear}
-          setSelectedYear={setSelectedYear}
-          selectedMonth={selectedMonth}
-          setSelectedMonth={setSelectedMonth}
-          years={years}
-          months={months}
-        />
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
+          Subcontractor Performance
+        </h1>
+        
+        <div className="d-flex align-items-center gap-3">
+          <SubcontractorPerformanceFilters
+            selectedYear={selectedYear}
+            setSelectedYear={setSelectedYear}
+            selectedMonth={selectedMonth}
+            setSelectedMonth={setSelectedMonth}
+            years={years}
+            months={months}
+          />
+          
+          <div style={{ width: '1px', height: '24px', background: 'var(--color-border-divider)', margin: '0 4px' }}></div>
+
+          <button 
+            onClick={() => setViewMode(prev => prev === 'consolidated' ? 'detailed' : 'consolidated')}
+            style={{
+              background: 'var(--color-background-secondary)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border-divider)',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 600,
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              boxShadow: 'none'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+              e.currentTarget.style.background = 'var(--color-background-tertiary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+              e.currentTarget.style.background = 'var(--color-background-secondary)';
+            }}
+          >
+            <i className={`bi ${viewMode === 'consolidated' ? 'bi-grid-3x3-gap-fill' : 'bi-speedometer2'}`} style={{ fontSize: '14px', color: 'var(--color-accent-primary)' }}></i>
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>
+              {viewMode === 'consolidated' ? 'Detailed View' : 'Scorecard View'}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Conteúdo principal */}
@@ -888,320 +1117,517 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           <div className="alert alert-danger" role="alert">
             {error}
           </div>
-        ) : rankingData.length === 0 ? (
-          <div className="col-12 text-center" style={{ padding: '100px', color: 'var(--color-text-secondary)' }}>
-            <i className="bi bi-clipboard-check" style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}></i>
-            <p>No completed works found for the selected period.</p>
-          </div>
         ) : (
           <>
-            <div className="mx-4 mb-4" style={{ 
-              background: 'var(--color-background-primary)', 
+            <div className="container-fluid px-2 py-2">
+            {/* Help Container: Entendendo as Notas */}
+            <div className="mx-0 mb-4" style={{ 
+              background: 'transparent', 
               border: '1px solid var(--color-border-divider)', 
-              borderRadius: '8px',
-              padding: '16px 20px'
+              borderRadius: '12px',
+              padding: '20px',
+              position: 'relative'
             }}>
-              <div className="d-flex align-items-center mb-3">
-                <i className="bi bi-info-circle me-2" style={{ color: 'var(--color-accent-primary)', fontSize: '1rem' }}></i>
-                <h6 style={{ margin: 0, fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '14px' }}>
-                  Performance Evaluation Criteria
-                </h6>
+              <div className="d-flex align-items-start mb-4" style={{ textAlign: 'start' }}>
+                <i className="bi bi-info-circle me-3 mt-1" style={{ color: 'var(--color-text-secondary)', fontSize: '1.1rem', opacity: 0.7 }}></i>
+                <div>
+                  <h6 style={{ margin: 0, fontWeight: 700, color: 'var(--color-text-primary)', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', textAlign: 'start' }}>
+                    Entendendo o Cálculo das Notas
+                  </h6>
+                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--color-text-secondary)', opacity: 0.8, textAlign: 'start' }}>
+                    As métricas abaixo compõem a nota final de cada subcontractor, garantindo transparência no processo.
+                  </p>
+                </div>
               </div>
               
               <div style={{ 
                 display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
-                gap: '16px',
-                fontSize: '11px' 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                gap: '24px 32px' 
               }}>
                 {[
                   { 
-                    label: 'Avg Execution Time', 
+                    label: 'Execution Time', 
                     icon: 'bi-clock-history', 
-                    desc: 'Média de dias entre o início e fim das obras concluídas.',
-                    completed: true 
+                    desc: 'Mede a rapidez em relação à média: quanto menor o tempo médio de entrega comparado ao padrão de 40 dias, maior a pontuação.',
+                    weight: '25%'
                   },
                   { 
                     label: 'Contract Completion', 
                     icon: 'bi-file-text-fill', 
-                    desc: 'Percentual de etapas do contrato finalizadas no sistema.',
-                    completed: true 
+                    desc: 'Proporção de completude das etapas necessárias para o cumprimento dos contratos das obras onde a equipe é direcionada.',
+                    weight: '20%'
                   },
                   { 
-                    label: 'Back Charges', 
+                    label: 'Backcharges', 
                     icon: 'bi-exclamation-triangle-fill', 
-                    desc: 'Custos extras por retrabalho ou erros (Identificados por Fuzzy Join).',
-                    completed: true 
-                  },
-                  { 
-                    label: 'Safety Level', 
-                    icon: 'bi-shield-check', 
-                    desc: 'Conformidade com normas de segurança (Em breve).',
-                    completed: false 
+                    desc: 'Penaliza custos extras por retrabalho. Nota zero acima de 20h de erros acumulados.',
+                    weight: '20%'
                   },
                   { 
                     label: 'Material Usage', 
                     icon: 'bi-box-seam', 
-                    desc: 'Eficiência no uso de materiais alocados (Integrado com Storage).',
-                    completed: true 
+                    desc: 'Valor total de materiais gasto vs número de obras concluídas, considerando a complexidade de cada projeto.',
+                    weight: '20%'
                   },
                   { 
-                    label: 'Excessive Withdrawals', 
+                    label: 'Excess Alerts', 
                     icon: 'bi-cart-x-fill', 
-                    desc: 'Alertas de retiradas acima do planejado (Em breve).',
-                    completed: false 
+                    desc: 'Cada retirada acima do limite planejado deduz 10 pontos da nota total.',
+                    weight: '15%'
+                  },
+                  { 
+                    label: 'Safety Level', 
+                    icon: 'bi-shield-check', 
+                    desc: 'Em breve: Avaliação do cumprimento de normas e uso de EPIs no canteiro.',
+                    weight: '0%'
                   }
                 ].map((criterion, idx) => (
-                  <div key={idx} className="d-flex flex-column gap-1">
-                    <div className="d-flex align-items-center px-2 py-1" style={{ 
-                      background: criterion.completed 
-                        ? 'rgba(27, 191, 92, 0.12)' 
-                        : 'var(--color-background-secondary)', 
-                      borderRadius: '4px', 
-                      border: criterion.completed 
-                        ? '1.5px solid #1BBF5C' 
-                        : '1px dashed var(--color-border-divider)',
-                      width: 'fit-content' 
-                    }}>
-                      <i className={`bi ${criterion.icon} me-2`} style={{ 
-                        color: criterion.completed ? '#1BBF5C' : 'var(--color-text-secondary)',
-                        WebkitTextStroke: criterion.completed ? '0.5px #1BBF5C' : 'none'
-                      }}></i>
-                      <span style={{ 
-                        fontWeight: 700, 
-                        color: criterion.completed ? '#1BBF5C' : 'var(--color-text-secondary)' 
+                  <div key={idx} className="d-flex gap-2" style={{ textAlign: 'start' }}>
+                    <div style={{ flex: 1, textAlign: 'start' }}>
+                      <div className="d-flex align-items-center gap-2 mb-1" style={{ textAlign: 'start' }}>
+                        <i className={`bi ${criterion.icon}`} style={{ 
+                          fontSize: '12px', 
+                          color: criterion.label === 'Safety Level' ? 'var(--color-text-secondary)' : 'var(--color-accent-primary)', 
+                          opacity: criterion.label === 'Safety Level' ? 0.4 : 0.8 
+                        }}></i>
+                        <span style={{ 
+                          fontWeight: 600, 
+                          fontSize: '12px', 
+                          color: criterion.label === 'Safety Level' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+                          opacity: criterion.label === 'Safety Level' ? 0.6 : 1,
+                          textAlign: 'start'
+                        }}>
+                          {criterion.label}
+                        </span>
+                        <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)', marginLeft: 'auto', opacity: 0.6 }}>
+                          PESO {criterion.weight}
+                        </span>
+                      </div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--color-text-secondary)', 
+                        lineHeight: '1.5', 
+                        paddingLeft: '20px', 
+                        borderLeft: '1px solid var(--color-border-divider)', 
+                        marginLeft: '6px',
+                        opacity: criterion.label === 'Safety Level' ? 0.5 : 1,
+                        textAlign: 'start'
                       }}>
-                        {criterion.label}
-                      </span>
+                        {criterion.desc}
+                      </div>
                     </div>
-                    <span style={{ 
-                      color: criterion.completed ? 'var(--color-text-primary)' : 'var(--color-text-secondary)', 
-                      paddingLeft: '4px', 
-                      fontSize: '10px', 
-                      lineHeight: '1.2',
-                      fontWeight: criterion.completed ? 600 : 400
-                    }}>
-                      {criterion.desc}
-                    </span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Navigation Bar for Segments */}
-            <div className="mx-4 mb-4 px-3 py-2" style={{ 
-              background: 'var(--color-background-secondary)', 
-              borderRadius: '8px',
-              border: '1px solid var(--color-border-divider)',
-              display: 'flex',
-              gap: '12px',
-              alignItems: 'center'
-            }}>
-              {[
-                { id: 'avg-execution', label: 'Avg Execution Time', icon: 'bi-clock-history' },
-                { id: 'contract-completion', label: 'Contract Completion', icon: 'bi-file-text-fill' },
-                { id: 'back-charges', label: 'Back Charges', icon: 'bi-exclamation-triangle-fill' },
-                { id: 'material-usage', label: 'Material Usage', icon: 'bi-box-seam' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  style={{
-                    background: activeTab === tab.id ? 'var(--color-background-primary)' : 'transparent',
-                    color: activeTab === tab.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                    border: activeTab === tab.id ? '1px solid var(--color-border-divider)' : '1px solid transparent',
-                    padding: '6px 16px',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: activeTab === tab.id ? 600 : 500,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    transition: 'all 0.2s ease',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <i className={`bi ${tab.icon}`} style={{ 
-                    color: activeTab === tab.id ? (tab.id === 'back-charges' ? 'var(--color-status-error-text)' : 'var(--color-status-success-text)') : 'inherit' 
-                  }}></i>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+            {viewMode === 'consolidated' ? (
+              <div className="d-flex flex-column gap-3">
+                {/* Ranking Header Bar */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  padding: '0 8px',
+                  marginBottom: '12px'
+                }}>
+                  <span style={{ 
+                    fontSize: '11px', 
+                    fontWeight: 800, 
+                    color: 'var(--color-text-secondary)', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '2px',
+                    opacity: 0.8
+                  }}>
+                    Ranking
+                  </span>
+                  <div style={{ 
+                    height: '1px', 
+                    flex: 1, 
+                    background: 'linear-gradient(to left, transparent, var(--color-border-divider))' 
+                  }}></div>
+                </div>
 
-            <div className="mx-4 mb-4">
-              <div className="border-0 p-0 d-flex justify-content-between align-items-center" style={{ background: 'var(--color-background-primary)' }}>
-                <h4 className='my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-                  {activeTab === 'back-charges' ? (backchargeView === 'ranking' ? 'RANKING - BACK CHARGES' : 'DETAILED BACK CHARGE LIST') : 
-                   activeTab === 'material-usage' ? (materialView === 'ranking' ? 'RANKING - MATERIAL USAGE' : 'DETAILED MATERIAL USAGE LIST') :
-                   (activeTab === 'avg-execution' ? 'RANKING - AVG EXECUTION TIME' : 'RANKING - CONTRACT COMPLETION')}
-                </h4>
-                
-                {activeTab === 'back-charges' && (
-                  <div className="d-flex gap-2">
-                    <button 
-                      onClick={() => setBackchargeView('ranking')}
-                      className="btn btn-sm"
-                      style={{
-                        background: backchargeView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
-                        color: backchargeView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                        border: '1px solid var(--color-border-divider)',
-                        fontSize: '12px',
-                        fontWeight: backchargeView === 'ranking' ? 600 : 400
-                      }}
-                    >
-                      <i className="bi bi-list-ol me-1"></i> Ranking
-                    </button>
-                    <button 
-                      onClick={() => setBackchargeView('details')}
-                      className="btn btn-sm"
-                      style={{
-                        background: backchargeView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
-                        color: backchargeView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                        border: '1px solid var(--color-border-divider)',
-                        fontSize: '12px',
-                        fontWeight: backchargeView === 'details' ? 600 : 400
-                      }}
-                    >
-                      <i className="bi bi-search me-1"></i> Debug List
-                    </button>
+                {consolidatedScorecard.length === 0 ? (
+                  <div className="col-12 text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
+                    <i className="bi bi-speedometer2" style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}></i>
+                    <p>No performance data available for the selected period.</p>
                   </div>
-                )}
+                ) : (
+                  consolidatedScorecard.map((item, idx) => (
+                    <div key={item.subcontractor} className="col-12">
+                      <div style={{ 
+                        background: 'var(--color-background-secondary)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--color-border-divider)',
+                        padding: '12px 16px',
+                        transition: 'all 0.2s ease',
+                        cursor: 'default',
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
+                      >
+                        {/* LADO ESQUERDO: RANK E NOME */}
+                        <div style={{ flex: '0 0 190px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ 
+                            fontSize: '14px', 
+                            fontWeight: 900, 
+                            color: idx === 0 ? '#fbbf24' : // Ouro
+                                   idx === 1 ? '#94a3b8' : // Prata
+                                   idx === 2 ? '#cd7f32' : // Bronze
+                                   'var(--color-text-secondary)',
+                            background: idx === 0 ? 'rgba(251, 191, 36, 0.1)' : 
+                                        idx === 1 ? 'rgba(148, 163, 184, 0.1)' : 
+                                        idx === 2 ? 'rgba(205, 127, 50, 0.1)' : 
+                                        'var(--color-background-tertiary)',
+                            border: `1px solid ${
+                              idx === 0 ? '#fbbf24' : 
+                              idx === 1 ? '#94a3b8' : 
+                              idx === 2 ? '#cd7f32' : 
+                              'var(--color-border-divider)'
+                            }`,
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0,
+                            position: 'relative',
+                            boxShadow: idx < 3 ? `0 0 10px ${
+                              idx === 0 ? 'rgba(251, 191, 36, 0.2)' : 
+                              idx === 1 ? 'rgba(148, 163, 184, 0.2)' : 
+                              'rgba(205, 127, 50, 0.2)'
+                            }` : 'none'
+                          }}>
+                            <span style={{ position: 'relative', top: '-0.5px' }}>{idx + 1}</span>
+                          </div>
+                          <div style={{ overflow: 'hidden', flex: 1, textAlign: 'left' }}>
+                            <h3 style={{ 
+                              margin: 0, 
+                              marginRight: '10px',
+                              fontSize: '15px', 
+                              fontWeight: 600, 
+                              color: 'var(--color-text-primary)', 
+                              wordBreak: 'break-word',
+                              overflowWrap: 'anywhere',
+                              lineHeight: '1.2',
+                              letterSpacing: '-0.2px'
+                            }}>
+                              {item.subcontractor}
+                            </h3>
+                          </div>
+                        </div>
 
-                {activeTab === 'material-usage' && (
-                  <div className="d-flex gap-2">
-                    <button 
-                      onClick={() => setMaterialView('ranking')}
-                      className="btn btn-sm"
-                      style={{
-                        background: materialView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
-                        color: materialView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                        border: '1px solid var(--color-border-divider)',
-                        fontSize: '12px',
-                        fontWeight: materialView === 'ranking' ? 600 : 400
-                      }}
-                    >
-                      <i className="bi bi-list-ol me-1"></i> Ranking
-                    </button>
-                    <button 
-                      onClick={() => setMaterialView('details')}
-                      className="btn btn-sm"
-                      style={{
-                        background: materialView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
-                        color: materialView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                        border: '1px solid var(--color-border-divider)',
-                        fontSize: '12px',
-                        fontWeight: materialView === 'details' ? 600 : 400
-                      }}
-                    >
-                      <i className="bi bi-search me-1"></i> Debug List
-                    </button>
-                  </div>
+                        {/* CENTRO: MÉTRICAS E NOTAS */}
+                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
+                          {Object.entries(item.metrics).map(([key, metric]: [string, any], mIdx) => {
+                            const hasScore = metric.score !== null;
+                            const scoreColor = !hasScore ? 'var(--color-text-primary)' :
+                                             metric.score >= 80 ? '#22c55e' : 
+                                             metric.score >= 60 ? '#f59e0b' : 
+                                             '#ef4444';
+                            
+                            return (
+                              <div key={key} style={{ 
+                                textAlign: 'left',
+                                borderRight: mIdx < 5 ? '1px solid var(--color-border-divider)' : 'none',
+                                padding: '0 4px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center'
+                              }}>
+                                <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                                  {metric.label}
+                                </div>
+                                
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                  {/* Valor Real */}
+                                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1 }}>
+                                    {!hasScore ? '---' :
+                                     key === 'duration' ? `${Math.round(metric.value)}d` :
+                                     key === 'contract' ? `${metric.value.toFixed(0)}%` :
+                                     key === 'backcharge' ? `${metric.value.toFixed(2)}h` :
+                                     key === 'material' ? `$${(metric.value / 1000).toFixed(1)}k` :
+                                     `${metric.value}`}
+                                  </div>
+
+                                  {/* Nota 0-100 */}
+                                  <div style={{ 
+                                    fontSize: '11px', 
+                                    fontWeight: 900, 
+                                    color: scoreColor,
+                                    letterSpacing: '0.2px',
+                                    paddingTop: '3px',
+                                    borderTop: '1px solid var(--color-border-divider)',
+                                    width: 'fit-content',
+                                    opacity: hasScore ? 1 : 0.5
+                                  }}>
+                                    {hasScore ? Math.round(metric.score) : 'PENDING'}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* LADO DIREITO: OVERALL SCORE */}
+                        <div style={{ flex: '0 0 80px', textAlign: 'center', paddingLeft: '8px' }}>
+                          <div style={{ 
+                            fontSize: '28px', 
+                            fontWeight: 900, 
+                            color: item.finalScore >= 80 ? '#22c55e' : 
+                                   item.finalScore >= 60 ? '#f59e0b' : 
+                                   '#ef4444',
+                            lineHeight: 1,
+                            marginBottom: '2px'
+                          }}>
+                            {Math.round(item.finalScore)}
+                          </div>
+                          <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            OVERALL
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
                 )}
               </div>
-              <div style={{ 
-                background: 'var(--color-background-primary)',
-                border: '1px solid var(--color-border-divider)',
-                borderRadius: 0,
-                overflow: 'hidden',
-                boxShadow: 'var(--shadow-sm)'
-              }}>
-                <div className="table-responsive custom-scrollbar" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                  {activeTab === 'back-charges' ? (
-                    backchargeView === 'ranking' ? (
+            ) : (
+              <div className="container-fluid px-2">
+                {/* Navigation Bar for Segments */}
+                <div className="mx-0 mb-4 px-3 py-2" style={{ 
+                  background: 'var(--color-background-secondary)', 
+                  borderRadius: '12px',
+                  border: '1px solid var(--color-border-divider)',
+                  display: 'flex',
+                  gap: '12px',
+                  alignItems: 'center',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  {[
+                    { id: 'avg-execution', label: 'Avg Execution Time', icon: 'bi-clock-history' },
+                    { id: 'contract-completion', label: 'Contract Completion', icon: 'bi-file-text-fill' },
+                    { id: 'back-charges', label: 'Back Charges', icon: 'bi-exclamation-triangle-fill' },
+                    { id: 'material-usage', label: 'Material Usage', icon: 'bi-box-seam' },
+                    { id: 'excessive-withdrawals', label: 'Excessive Withdrawals', icon: 'bi-cart-x-fill' }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      style={{
+                        background: activeTab === tab.id ? 'var(--color-background-primary)' : 'transparent',
+                        color: activeTab === tab.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                        border: activeTab === tab.id ? '1px solid var(--color-border-divider)' : '1px solid transparent',
+                        padding: '6px 16px',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: activeTab === tab.id ? 600 : 500,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <i className={`bi ${tab.icon}`} style={{ 
+                        color: activeTab === tab.id ? (tab.id === 'back-charges' ? 'var(--color-status-error-text)' : 'var(--color-status-success-text)') : 'inherit' 
+                      }}></i>
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="mx-0 mb-4">
+                  <div className="border-0 p-0 d-flex justify-content-between align-items-center" style={{ background: 'var(--color-background-primary)' }}>
+                    <h4 className='my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
+                      {activeTab === 'back-charges' ? (backchargeView === 'ranking' ? 'RANKING - BACK CHARGES' : 'DETAILED BACK CHARGE LIST') : 
+                       activeTab === 'material-usage' ? (materialView === 'ranking' ? 'RANKING - MATERIAL USAGE' : 'DETAILED MATERIAL USAGE LIST') :
+                       activeTab === 'excessive-withdrawals' ? 'EXCESSIVE WITHDRAWALS ALERTS' :
+                       (activeTab === 'avg-execution' ? 'RANKING - AVG EXECUTION TIME' : 'RANKING - CONTRACT COMPLETION')}
+                    </h4>
+                    
+                    {activeTab === 'back-charges' && (
+                      <div className="d-flex gap-2">
+                        <button 
+                          onClick={() => setBackchargeView('ranking')}
+                          className="btn btn-sm"
+                          style={{
+                            background: backchargeView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
+                            color: backchargeView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                            border: '1px solid var(--color-border-divider)',
+                            fontSize: '12px',
+                            fontWeight: backchargeView === 'ranking' ? 600 : 400
+                          }}
+                        >
+                          <i className="bi bi-list-ol me-1"></i> Ranking
+                        </button>
+                        <button 
+                          onClick={() => setBackchargeView('details')}
+                          className="btn btn-sm"
+                          style={{
+                            background: backchargeView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
+                            color: backchargeView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                            border: '1px solid var(--color-border-divider)',
+                            fontSize: '12px',
+                            fontWeight: backchargeView === 'details' ? 600 : 400
+                          }}
+                        >
+                          <i className="bi bi-search me-1"></i> Debug List
+                        </button>
+                      </div>
+                    )}
+
+                    {activeTab === 'material-usage' && (
+                      <div className="d-flex gap-2">
+                        <button 
+                          onClick={() => setMaterialView('ranking')}
+                          className="btn btn-sm"
+                          style={{
+                            background: materialView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
+                            color: materialView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                            border: '1px solid var(--color-border-divider)',
+                            fontSize: '12px',
+                            fontWeight: materialView === 'ranking' ? 600 : 400
+                          }}
+                        >
+                          <i className="bi bi-list-ol me-1"></i> Ranking
+                        </button>
+                        <button 
+                          onClick={() => setMaterialView('details')}
+                          className="btn btn-sm"
+                          style={{
+                            background: materialView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
+                            color: materialView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+                            border: '1px solid var(--color-border-divider)',
+                            fontSize: '12px',
+                            fontWeight: materialView === 'details' ? 600 : 400
+                          }}
+                        >
+                          <i className="bi bi-search me-1"></i> Debug List
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ 
+                    background: 'var(--color-background-secondary)',
+                    border: '1px solid var(--color-border-divider)',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}>
+                    <div className="table-responsive custom-scrollbar" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+                    {activeTab === 'back-charges' ? (
+                      backchargeView === 'ranking' ? (
+                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
+                          <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
+                            <tr>
+                              <th style={headerStyle}>RANK</th>
+                              <th style={headerStyle}>SUBCONTRACTOR</th>
+                              <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL COST</th>
+                              <th style={{ ...headerStyle, textAlign: 'center' }}>WORKS</th>
+                              <th style={{ ...headerStyle, textAlign: 'center' }}>AVG COST BY WORK</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {backchargeRanking.length === 0 ? (
+                              <tr>
+                                <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
+                                  No backcharge records found for the selected period.
+                                </td>
+                              </tr>
+                            ) : (
+                              backchargeRanking.map((item, index) => (
+                                <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
+                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                                      {index + 1}
+                                      {index === 0 && <i className="bi bi-exclamation-octagon-fill ms-2" style={{ color: 'var(--color-status-error-text)' }}></i>}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                                    <div 
+                                      style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px', cursor: 'pointer', display: 'inline-block' }}
+                                      onMouseEnter={(e) => handleBackchargeMouseEnter(e, item.details)}
+                                      onMouseLeave={handleMouseLeave}
+                                    >
+                                      {item.subcontractor}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                                      {item.totalHours.toFixed(1)} h
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                                    <div 
+                                      style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px', cursor: 'pointer', display: 'inline-block', padding: '4px' }}
+                                      onMouseEnter={(e) => handleBackchargeMouseEnter(e, item.details)}
+                                      onMouseLeave={handleMouseLeave}
+                                    >
+                                      {item.worksCount}
+                                    </div>
+                                  </td>
+                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
+                                      {item.avgHours.toFixed(1)} h
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                      </table>
+                    ) : (
                       <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
                         <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
                           <tr>
-                            <th style={headerStyle}>RANK</th>
+                            <th style={headerStyle}>DATE</th>
+                            <th style={headerStyle}>JOBSITE</th>
                             <th style={headerStyle}>SUBCONTRACTOR</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL BACKCHARGE HOURS</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>WORKS</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>AVG HOURS BY WORK</th>
+                            <th style={{ ...headerStyle, textAlign: 'center' }}>HOURS</th>
+                            <th style={headerStyle}>DESCRIPTION</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {backchargeRanking.length === 0 ? (
+                          {backchargeData.length === 0 ? (
                             <tr>
                               <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
                                 No backcharge records found for the selected period.
                               </td>
                             </tr>
                           ) : (
-                            backchargeRanking.map((item, index) => (
-                              <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                    {index + 1}
-                                    {index === 0 && <i className="bi bi-exclamation-octagon-fill ms-2" style={{ color: 'var(--color-status-error-text)' }}></i>}
-                                  </div>
+                            backchargeData.map((item, index) => (
+                              <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                                  {item.date}
                                 </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div 
-                                    style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px', cursor: 'pointer', display: 'inline-block' }}
-                                    onMouseEnter={(e) => handleBackchargeMouseEnter(e, item.details)}
-                                    onMouseLeave={handleMouseLeave}
-                                  >
-                                    {item.subcontractor}
-                                  </div>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px', fontWeight: 500 }}>
+                                  {item.jobsite}
                                 </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                    {item.totalHours.toFixed(1)} h
-                                  </div>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px' }}>
+                                  {item.subcontractor}
                                 </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                    {item.worksCount}
-                                  </div>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600, color: 'var(--color-status-error-text)' }}>
+                                  {item.regular_hours.toFixed(1)} h
                                 </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                    {item.avgHoursPerWork.toFixed(1)} h/work
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)', maxWidth: '300px' }}>
+                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
+                                    {item.description}
                                   </div>
                                 </td>
                               </tr>
                             ))
-                          )}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                        <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                          <tr>
-                            <th style={{ ...headerStyle, width: '120px' }}>PERIOD (YEAR-MO)</th>
-                            <th style={{ ...headerStyle, width: '350px' }}>TIMESHEET JOBSITE (ORIGINAL)</th>
-                            <th style={{ ...headerStyle, width: '350px' }}>FORECAST IDENTIFIED (FUZZY)</th>
-                            <th style={{ ...headerStyle, textAlign: 'center', width: '100px' }}>HOURS</th>
-                            <th style={headerStyle}>RESPONSIBLE TEAM</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {detailedBackchargeList.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                No raw backcharge records found.
-                              </td>
-                            </tr>
-                          ) : (
-                            detailedBackchargeList.map((item, index) => (
-                                <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.period}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.tsJobsite}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: item.forecastJobsite === 'NOT IDENTIFIED' ? 'var(--color-status-error-text)' : 'var(--color-text-primary)' }}>
-                                    {item.forecastJobsite}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.totalHours.toFixed(1)} h
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.subcontractor}
-                                  </td>
-                                </tr>
-                              ))
                           )}
                         </tbody>
                       </table>
@@ -1213,14 +1639,15 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                           <tr>
                             <th style={headerStyle}>RANK</th>
                             <th style={headerStyle}>SUBCONTRACTOR</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL MATERIAL VALUE</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL WITHDRAWALS</th>
+                            <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL ITEMS</th>
+                            <th style={{ ...headerStyle, textAlign: 'center' }}>EXCESSIVE ALERTS</th>
+                            <th style={{ ...headerStyle, textAlign: 'center' }}>STATUS</th>
                           </tr>
                         </thead>
                         <tbody>
                           {materialRanking.length === 0 ? (
                             <tr>
-                              <td colSpan={4} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
+                              <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
                                 No material usage records found for the selected period.
                               </td>
                             </tr>
@@ -1228,24 +1655,38 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                             materialRanking.map((item, index) => (
                               <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
                                 <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
                                     {index + 1}
+                                    {item.excessiveAlerts > 0 && <i className="bi bi-exclamation-triangle-fill ms-2" style={{ color: '#ef4444' }}></i>}
                                   </div>
                                 </td>
                                 <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
+                                  <div 
+                                    style={{ fontWeight: 500, color: 'var(--color-text-primary)', cursor: 'pointer', display: 'inline-block' }}
+                                    onMouseEnter={(e) => handleMaterialMouseEnter(e, { items: item.details, excessive: item.excessiveDetails })}
+                                    onMouseLeave={handleMouseLeave}
+                                  >
                                     {item.subcontractor}
                                   </div>
                                 </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 600, color: 'var(--positive-color)', fontSize: '13px' }}>
-                                    ${item.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </div>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 500 }}>
+                                  {item.totalItems}
+                                </td>
+                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600, color: item.excessiveAlerts > 0 ? '#ef4444' : 'var(--color-text-secondary)' }}>
+                                  {item.excessiveAlerts}
                                 </td>
                                 <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                    {item.totalWithdrawals}
-                                  </div>
+                                  <span style={{ 
+                                    padding: '4px 10px', 
+                                    borderRadius: '12px', 
+                                    fontSize: '11px', 
+                                    fontWeight: 700,
+                                    background: item.excessiveAlerts > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                                    color: item.excessiveAlerts > 0 ? '#ef4444' : '#22c55e',
+                                    textTransform: 'uppercase'
+                                  }}>
+                                    {item.excessiveAlerts > 0 ? 'Review Needed' : 'Compliant'}
+                                  </span>
                                 </td>
                               </tr>
                             ))
@@ -1256,58 +1697,92 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                       <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
                         <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
                           <tr>
-                            <th style={{ ...headerStyle, width: '120px' }}>PERIOD</th>
-                            <th style={{ ...headerStyle, width: '350px' }}>STORAGE TEAM</th>
-                            <th style={{ ...headerStyle, width: '350px' }}>SUBCONTRACTOR</th>
-                            <th style={{ ...headerStyle, textAlign: 'center', width: '150px' }}>VALUE</th>
-                            <th style={{ ...headerStyle, textAlign: 'center', width: '100px' }}>ITEMS</th>
+                            <th style={headerStyle}>DATE</th>
+                            <th style={headerStyle}>SUBCONTRACTOR</th>
+                            <th style={headerStyle}>PRODUCT</th>
+                            <th style={{ ...headerStyle, textAlign: 'center' }}>QUANTITY</th>
+                            <th style={headerStyle}>PROJECT</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {detailedMaterialList.length === 0 ? (
+                          {materialData.length === 0 ? (
                             <tr>
                               <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                No raw material usage records found.
+                                No material withdrawal records found.
                               </td>
                             </tr>
                           ) : (
-                            detailedMaterialList.map((item, index) => (
-                                <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.mes}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.storageTeamMatched}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: item.subcontractor === 'NOT IDENTIFIED' ? 'var(--color-status-error-text)' : 'var(--color-text-primary)' }}>
-                                    {item.subcontractor}
-                                  </td>
-                                  <td 
-                                    style={{ 
-                                      padding: '12px 24px', 
-                                      fontSize: '12px', 
-                                      fontFamily: 'monospace', 
-                                      textAlign: 'center', 
-                                      borderBottom: '1px solid var(--color-border-divider)', 
-                                      background: 'var(--color-background-primary)', 
-                                      color: 'var(--positive-color)', 
-                                      fontWeight: 600,
-                                      cursor: 'pointer'
-                                    }}
-                                    onMouseEnter={(e) => handleMaterialMouseEnter(e, item.items_details || [])}
-                                    onMouseLeave={handleMouseLeave}
-                                  >
-                                    ${item.valor_total_retirado.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                  </td>
-                                  <td style={{ padding: '12px 24px', fontSize: '12px', fontFamily: 'monospace', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}>
-                                    {item.total_retiradas}
-                                  </td>
-                                </tr>
-                              ))
+                            materialData.map((item, index) => (
+                              <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
+                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                                  {item.date}
+                                </td>
+                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px', fontWeight: 500 }}>
+                                  {item.subcontractor}
+                                </td>
+                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px' }}>
+                                  {item.product}
+                                </td>
+                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600 }}>
+                                  {item.quantity}
+                                </td>
+                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                                  {item.project}
+                                </td>
+                              </tr>
+                            ))
                           )}
                         </tbody>
                       </table>
                     )
+                  ) : activeTab === 'execution' ? (
+                    <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
+                      <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
+                        <tr>
+                          <th style={headerStyle} onClick={() => handleSort('rank')}>
+                            RANK <SortIcon columnKey="rank" />
+                          </th>
+                          <th style={headerStyle} onClick={() => handleSort('subcontractor')}>
+                            SUBCONTRACTOR <SortIcon columnKey="subcontractor" />
+                          </th>
+                          <th style={{ ...headerStyle, textAlign: 'center' }}>
+                            COMPLETED WORKS
+                          </th>
+                          <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('avgDuration')}>
+                            AVG DURATION (DAYS) <SortIcon columnKey="avgDuration" />
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rankingData.map((item, index) => (
+                          <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                                {index + 1}
+                                {index === 0 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-warning-text)' }}></i>}
+                                {index === 1 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-text-secondary)' }}></i>}
+                                {index === 2 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-pending-text)' }}></i>}
+                              </div>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.subcontractor}</div>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <span 
+                                style={{ color: 'var(--color-text-primary)', fontSize: 14, cursor: 'pointer', display: 'inline-block', padding: '4px' }}
+                                onMouseEnter={(e) => handleMouseEnter(e, item.works)}
+                                onMouseLeave={handleMouseLeave}
+                              >
+                                {item.completedWorks}
+                              </span>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
+                                {item.avgDuration.toFixed(1)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   ) : (
                     <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
                       <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
@@ -1318,231 +1793,54 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                           <th style={headerStyle} onClick={() => handleSort('subcontractor')}>
                             SUBCONTRACTOR <SortIcon columnKey="subcontractor" />
                           </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('completedWorks')}>
-                            COMPLETED WORKS <SortIcon columnKey="completedWorks" />
-                          </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('avgDuration')}>
-                            AVG DURATION (DAYS) <SortIcon columnKey="avgDuration" />
+                          <th style={{ ...headerStyle, textAlign: 'center' }}>
+                            COMPLETED WORKS
                           </th>
                           <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('avgContractCompletion')}>
-                            CONTRACT COMPLETION <SortIcon columnKey="avgContractCompletion" />
+                            CONTRACT COMPLETION <SortIcon columnKey="avgContractCompletion" /> <SortIcon columnKey="avgContractCompletion" />
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {rankingData.map((item, index) => {
-                           return (
-                            <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                              <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                  {index + 1}
-                                  {index === 0 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-warning-text)' }}></i>}
-                                  {index === 1 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-text-secondary)' }}></i>}
-                                  {index === 2 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-pending-text)' }}></i>}
-                                </div>
-                              </td>
-                              <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.subcontractor}</div>
-                              </td>
-                              <td 
-                                style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}
+                        {[...rankingData].sort((a, b) => b.avgContractCompletion - a.avgContractCompletion).map((item, index) => (
+                          <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
+                                {index + 1}
+                                {index === 0 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-warning-text)' }}></i>}
+                                {index === 1 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-text-secondary)' }}></i>}
+                                {index === 2 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-pending-text)' }}></i>}
+                              </div>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.subcontractor}</div>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
+                              <span 
+                                style={{ color: 'var(--color-text-primary)', fontSize: 14, cursor: 'pointer', display: 'inline-block', padding: '4px' }}
+                                onMouseEnter={(e) => handleMouseEnter(e, item.works)}
+                                onMouseLeave={handleMouseLeave}
                               >
-                                <span 
-                                  style={{ color: 'var(--color-text-primary)', fontSize: 14, cursor: 'pointer', display: 'inline-block', padding: '4px' }}
-                                  onMouseEnter={(e) => handleMouseEnter(e, item.works)}
-                                  onMouseLeave={handleMouseLeave}
-                                >
-                                  {item.completedWorks}
-                                </span>
-                              </td>
-                              <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                  {item.avgDuration.toFixed(1)}
-                              </td>
-                              <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                  {item.avgContractCompletion.toFixed(1)}%
-                              </td>
-                            </tr>
-                          );
-                        })}
+                                {item.completedWorks}
+                              </span>
+                            </td>
+                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
+                                {item.avgContractCompletion.toFixed(1)}%
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   )}
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
-
-      {/* Tooltip */}
-      {tooltip.visible && (
-        <div 
-          onMouseEnter={handleTooltipMouseEnter}
-          onMouseLeave={handleTooltipMouseLeave}
-          style={{
-            position: 'fixed',
-            top: tooltip.y,
-            left: tooltip.x,
-            background: 'var(--color-background-secondary)',
-            border: '1px solid var(--color-border-divider)',
-            borderRadius: '8px',
-            padding: '0',
-            zIndex: 9999,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
-            width: '320px',
-            maxHeight: '300px',
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'fadeIn 0.2s ease-in-out'
-          }}
-        >
-          <div style={{ 
-            padding: '12px 16px', 
-            borderBottom: '1px solid var(--color-border-divider)', 
-            background: 'var(--color-background-tertiary)',
-            borderTopLeftRadius: '8px',
-            borderTopRightRadius: '8px'
-          }}>
-            <h6 style={{ margin: 0, fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
-              {tooltip.type === 'execution' ? 'Completed Works Details' : 
-               tooltip.type === 'material' ? 'Material Usage Details' : 'Backcharge Works Details'}
-            </h6>
-          </div>
-          <div className="custom-scrollbar" style={{ 
-            padding: '12px', 
-            overflowY: 'auto', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '8px' 
-          }}>
-            {tooltip.type === 'execution' ? (
-              tooltip.content.map((work, idx) => (
-                <div key={idx} style={{ 
-                  fontSize: '12px', 
-                  color: 'var(--color-text-secondary)', 
-                  padding: '10px', 
-                  background: 'var(--color-background-primary)', 
-                  borderRadius: '6px', 
-                  border: '1px solid var(--color-border-divider)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px',
-                  transition: 'border-color 0.2s',
-                  cursor: 'default'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}
-                >
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '8px', alignItems: 'center' }}>
-                     <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                       {work.jobsite}
-                     </div>
-                     <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                       {work.type}
-                     </div>
-                     <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                       {work.building}
-                     </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-divider)', paddingTop: '8px', marginTop: '2px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
-                    <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                      <span title="Start Date"><i className="bi bi-calendar-event me-1" style={{ color: 'var(--color-text-tertiary)' }}></i>
-                        {new Date(work.start).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
-                      </span>
-                      <span title="End Date"><i className="bi bi-calendar-check me-1" style={{ color: 'var(--color-text-tertiary)' }}></i>
-                        {new Date(work.end).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                      <span title="Duration" style={{ fontWeight: 600, color: 'var(--color-text-primary)' }}>
-                        <i className="bi bi-clock me-1" style={{ color: 'var(--color-text-tertiary)' }}></i>
-                        {work.duration} days
-                      </span>
-                      <span title="Contract Completion" style={{ 
-                        fontWeight: 600, 
-                        color: work.contractCompletion >= 100 ? 'var(--color-status-success-text)' : 'var(--color-text-secondary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        <i className="bi bi-file-text" style={{ fontSize: '10px' }}></i>
-                        {work.contractCompletion.toFixed(0)}%
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : tooltip.type === 'material' ? (
-              tooltip.content.map((item, idx) => (
-                <div key={idx} style={{ 
-                  fontSize: '12px', 
-                  color: 'var(--color-text-secondary)', 
-                  padding: '10px', 
-                  background: 'var(--color-background-primary)', 
-                  borderRadius: '6px', 
-                  border: '1px solid var(--color-border-divider)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'border-color 0.2s',
-                  cursor: 'default'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-accent-primary)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}
-                >
-                  <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1 }}>
-                    {item.product}
-                  </div>
-                  <div style={{ fontWeight: 700, color: 'var(--color-accent-primary)', background: 'var(--color-background-secondary)', padding: '2px 8px', borderRadius: '4px', minWidth: '40px', textAlign: 'center' }}>
-                    {item.quantity}
-                  </div>
-                </div>
-              ))
-            ) : (
-              tooltip.content.map((item, idx) => (
-                <div key={idx} style={{ 
-                  fontSize: '12px', 
-                  color: 'var(--color-text-secondary)', 
-                  padding: '10px', 
-                  background: 'var(--color-background-primary)', 
-                  borderRadius: '6px', 
-                  border: '1px solid var(--color-border-divider)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px',
-                  transition: 'border-color 0.2s',
-                  cursor: 'default'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--color-status-error-border)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--color-border-divider)'}
-                >
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'center' }}>
-                     <div style={{ fontWeight: 600, color: 'var(--color-text-primary)', fontSize: '13px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                       {item.jobsite}
-                     </div>
-                     <div style={{ fontWeight: 600, color: 'var(--color-status-error-text)' }}>
-                       {item.regular_hours.toFixed(1)} h
-                     </div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--color-border-divider)', paddingTop: '8px', marginTop: '2px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px' }}>
-                    <div style={{ color: 'var(--color-text-secondary)' }}>
-                      <i className="bi bi-building me-1"></i>
-                      {item.lot_building || 'N/A'}
-                    </div>
-                    <div style={{ color: 'var(--color-text-tertiary)' }}>
-                      <i className="bi bi-calendar3 me-1"></i>
-                      {item.date}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+    </>
+  )}
+      </div>
     </div>
   );
 }
