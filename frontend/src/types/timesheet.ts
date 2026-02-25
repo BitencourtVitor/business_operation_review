@@ -13,6 +13,10 @@ export interface TimesheetRow {
   add_dollar: string;
   remove_dollar: string;
   total: string;
+  jobsite?: string;
+  lot_building?: string;
+  worktype?: string;
+  regular_hours?: string;
 }
 
 export interface TimesheetChartData {

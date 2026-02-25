@@ -55,7 +55,11 @@ export function useTimesheetData() {
         remove_time_hour: row.remove_time_hour?.toString() || '',
         add_dollar: row.add_dollar?.toString() || '',
         remove_dollar: row.remove_dollar?.toString() || '',
-        total: row.total?.toString() || ''
+        total: row.total?.toString() || '',
+        jobsite: row.jobsite ? normalizeUtf8String(row.jobsite as string) : '',
+        lot_building: row.lot_building ? normalizeUtf8String(row.lot_building as string) : '',
+        worktype: row.worktype ? normalizeUtf8String(row.worktype as string) : '',
+        regular_hours: row.regular_hours?.toString() || ''
       }));
 
       setData(transformedData);
