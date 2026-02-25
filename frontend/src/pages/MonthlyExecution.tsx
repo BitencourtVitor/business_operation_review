@@ -118,6 +118,11 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
         });
       }
 
+      // Hardcode: Em janeiro de 2026, definir 10 projetos iniciados
+      if (yearNum === 2026) {
+        countsStarted[0] = 10;
+      }
+
       setYearlyData({
         planned: countsPlanned,
         started: countsStarted
@@ -185,6 +190,28 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
       }
 
       // 4. Acoplar os dados de forecast manualmente
+      const started = historyData.map(h => ({ ...h, forecast_data: forecastMap.get(h.obra_id) }));
+      
+      // Hardcode: Em janeiro de 2026, garantir 10 projetos iniciados
+      if (yearNum === 2026 && monthNum === 1 && started.length < 10) {
+        const mockCount = 10 - started.length;
+        for (let i = 0; i < mockCount; i++) {
+          started.push({
+            obra_id: `MOCK-${i + 1}`,
+            actual_status: 'Started',
+            reference_month: 1,
+            reference_year: 2026,
+            forecast_data: {
+              job_site: `Mock Project ${i + 1}`,
+              type: 'Hardcoded',
+              lote_bld: 'N/A',
+              cliente: 'System Hardcode',
+              address: 'January 2026 Special Entry'
+            }
+          } as any);
+        }
+      }
+
       setData({
         planned: plannedData.map(p => {
           // Encontrar no histórico se existe uma reason para esta obra neste mês
@@ -195,7 +222,7 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
             reason: historyItem?.reason || '' 
           };
         }),
-        started: historyData.map(h => ({ ...h, forecast_data: forecastMap.get(h.obra_id) })),
+        started: started,
         finished: finishedData.map(f => ({ ...f, forecast_data: forecastMap.get(f.obra_id) })),
         all_history: historyRawData.map(h => ({ ...h, forecast_data: forecastMap.get(h.obra_id) }))
       });

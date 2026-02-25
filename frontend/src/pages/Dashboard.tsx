@@ -122,27 +122,15 @@ export default function Dashboard() {
           });
           setPermissoes(permissoesObj);
 
-          // Definir tela inicial baseada na permissão financeira do usuário
+          // Definir tela inicial: Operational Efficiency Index com Monthly Execution
           if (telasData && telasData.length > 0) {
-            const temPermissaoFinanceira = usuario.financial_pass || false;
-            
-            if (temPermissaoFinanceira) {
-              // Usuários com permissão financeira: Accounting Indicators como inicial
-              const accountingTela = telasData.find(t => t.descricao === 'Accounting Indicators');
-              if (accountingTela) {
-                setTelaId(accountingTela.id);
-                setShowCompanySubmenu(true);
-              } else {
-                setTelaId(telasData[0].id);
-              }
+            const oeiTela = telasData.find(t => t.descricao === 'Operational Efficiency Index');
+            if (oeiTela) {
+              setTelaId(oeiTela.id);
+              setSelectedOEIType('Monthly Execution');
+              setShowOEISubmenu(true);
             } else {
-              // Usuários sem permissão financeira: Timesheet Analysis como inicial
-              const timesheetTela = telasData.find(t => t.descricao === 'Timesheet Analysis');
-              if (timesheetTela) {
-                setTelaId(timesheetTela.id);
-              } else {
-                setTelaId(telasData[0].id);
-              }
+              setTelaId(telasData[0].id);
             }
           }
         }
@@ -227,10 +215,10 @@ export default function Dashboard() {
       setIsCollapsingOEISubmenu(false);
     } else if (tela?.descricao === 'Operational Efficiency Index') {
       // Se for OEI, mostrar submenu de tipos
-      setSelectedOEIType('Workforce Productivity'); // Sempre resetar para Workforce Productivity
-      setShowOEISubmenu(true);
-      setIsCollapsingOEISubmenu(false);
-      setTelaId(newTelaId);
+      setSelectedOEIType('Monthly Execution'); // Sempre resetar para Monthly Execution
+    setShowOEISubmenu(true);
+    setIsCollapsingOEISubmenu(false);
+    setTelaId(newTelaId);
       // Fechar outros submenus se estiverem abertos
       setShowCompanySubmenu(false);
       setIsCollapsingSubmenu(false);
@@ -389,19 +377,20 @@ export default function Dashboard() {
   // Função para ordenar telas de acordo com a ordem específica
   const ordenarTelas = (telas: Tela[]): Tela[] => {
     const ordemEspecifica = [
+      'Operational Efficiency Index',
+      'Inventory Control Index',
+      'Permit Control',
+      'Forecast',
+      'Service Requests',
+      'Project Monitoring',
       'Accounting Indicators',
       'Fuel Control',
       'Timesheet Analysis', 
-      'Permit Control',
       'Takeoff Works',
-      'Service Requests',
       'Data Control',
       'Forecast Control',
-      'Project Monitoring',
-      'Forecast',
       'Operational Index',
-      'OFI',
-      'Operational Efficiency Index'
+      'OFI'
     ];
 
     return telas.sort((a, b) => {
@@ -1174,9 +1163,9 @@ export default function Dashboard() {
                     overflow: 'hidden'
                   }}>
                     {[
+                      { label: 'Monthly Execution', icon: 'bi bi-calendar-check' },
                       { label: 'Workforce Productivity', icon: 'bi bi-clock-history' },
-                      { label: 'Subcontractor Performance', icon: 'bi bi-award' },
-                      { label: 'Monthly Execution', icon: 'bi bi-calendar-check' }
+                      { label: 'Subcontractor Performance', icon: 'bi bi-award' }
                     ].map(type => {
                       const isDisabled = false;
                       return (
