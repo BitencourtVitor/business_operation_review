@@ -65,7 +65,12 @@ export function useWorkforceProductivityData() {
            const monthStr = row.reference_month || '';
            const isExcludedMonth = monthStr === '2025-08' || monthStr === '2025-09';
            
-           return !isServiceCall && !isExcludedMonth;
+           // Filter: If company is PCG, only allow client 'Callahan'
+           const isPCG = (row.company || '').trim().toUpperCase() === 'PCG';
+           const isCallahan = (row.client || '').trim().toUpperCase() === 'CALLAHAN';
+           const failsPCGFilter = isPCG && !isCallahan;
+
+           return !isServiceCall && !isExcludedMonth && !failsPCGFilter;
          })
         .map((row: any) => ({
           ...row,
