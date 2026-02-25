@@ -86,6 +86,24 @@ export function normalizeUtf8String(str: string | null | undefined): string {
   }
 }
 
+export function normalizeLotBuilding(str: string | null | undefined): string {
+  if (!str) return '';
+  // Remove "Lot", "Building", "Lot ", "Building " (case insensitive) e zeros à esquerda
+  return str.toLowerCase()
+    .replace(/lot|building|lote|bld/g, '')
+    .trim()
+    .replace(/^0+/, '');
+}
+
+export function normalizeJobSite(str: string | null | undefined): string {
+  if (!str) return '';
+  // Remove vírgulas, pontos e padroniza para minúsculas
+  return str.toLowerCase()
+    .replace(/[.,]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /**
  * Adiciona o mês atual à lista de meses se não estiver presente
  * @param months Lista de meses existentes (formato MM)

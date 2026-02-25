@@ -208,7 +208,12 @@ serve(async (req) => {
       remove_time_hour: getField(row, "Remove time/hour") ? parseFloat(getField(row, "Remove time/hour")) : null,
       add_dollar: getField(row, "ADD $") ? parseFloat(getField(row, "ADD $")) : null,
       remove_dollar: getField(row, "REMOVE $") ? parseFloat(getField(row, "REMOVE $")) : null,
-      total: getField(row, "TOTAL") ? parseFloat(getField(row, "TOTAL")) : null
+      total: getField(row, "TOTAL") ? parseFloat(getField(row, "TOTAL")) : null,
+      jobsite: getField(row, "Jobsite") || getField(row, "Project"),
+      lot_building: getField(row, "Lot/Building") || getField(row, "Lot") || getField(row, "Building"),
+      worktype: getField(row, "Worktype") || getField(row, "Type"),
+      regular_hours: getField(row, "Regular Hours") ? parseFloat(getField(row, "Regular Hours")) : 
+                     (getField(row, "Regular hours") ? parseFloat(getField(row, "Regular hours")) : null)
     }));
     
     // 4. Inserir novos dados
