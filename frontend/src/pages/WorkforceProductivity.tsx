@@ -45,15 +45,49 @@ const getWorktype = (row: any) => {
   if (row.worktype) return row.worktype;
   
   const hasJobsite = !!row.jobsite;
-  const hasLot = !!row.lot_building;
+  const hasLotBuilding = !!row.lot_building;
   
   // Rule: If both jobsite and lot_building are missing, use Client as worktype
-  if (!hasJobsite && !hasLot) {
+  if (!hasJobsite && !hasLotBuilding) {
     return row.client || 'Unknown Client';
   }
   
   // If we have jobsite/lot but no worktype, it's Normal Labor
   return 'Normal Labor';
+};
+
+const getJobsiteLabel = (row: any) => {
+  const jobsiteName = row.jobsite;
+  const lot_building = row.lot_building;
+  const worktype = row.worktype;
+  const company = row.company;
+  const clientName = row.client || 'Unknown Client';
+
+  // Rule: For specific jobsites, if both lot_building and worktype are missing, use Jobsite - Name format
+  if (!lot_building && !worktype) {
+    // Canton logic
+    if (jobsiteName === 'Canton, Coppersmith') {
+      return `Jobsite - ${jobsiteName}`;
+    }
+
+    // Baldwinville logic - Only for Framing company
+    if (
+      (jobsiteName === 'Baldwinville Scholl' || jobsiteName === 'Baldwinville School Apartments') &&
+      company === 'Framing'
+    ) {
+      return `Jobsite - ${jobsiteName}`;
+    }
+  }
+
+  // Rule: If both jobsite and lot_building are missing, use Client Name
+  if (!jobsiteName && !lot_building) {
+    return clientName;
+  }
+  
+  // Otherwise, use Jobsite - Lot format
+  const displayName = jobsiteName || 'Unspecified';
+  const displayLot = lot_building ? ` - ${lot_building}` : '';
+  return `${displayName}${displayLot}`.trim();
 };
 
 const ChartCard = ({ title, legendLabel, legendColor, legendType = 'bar', children, style = {}, isEmpty = false }: { 
@@ -318,11 +352,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     if (data.length > 0 && years.length === 0) {
       const uniqueYears = [...new Set(data.map(d => d.reference_month.split('-')[0]))].sort((a, b) => b.localeCompare(a));
       const uniqueClients = [...new Set(data.map(d => d.client))].filter(Boolean).sort();
-      const uniqueJobsites = [...new Set(data.map(d => {
-        const jobsite = d.jobsite || 'Unspecified';
-        const lot = d.lot_building ? ` - ${d.lot_building}` : '';
-        return `${jobsite}${lot}`.trim();
-      }))].filter(Boolean).sort();
+      const uniqueJobsites = [...new Set(data.map(d => getJobsiteLabel(d)))].filter(Boolean).sort();
       const uniqueWorktypes = [...new Set(data.map(d => getWorktype(d)))].filter(Boolean).sort();
 
       setYears(uniqueYears);
@@ -359,9 +389,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     if (selectedClients.length > 0) filtered = filtered.filter(d => selectedClients.includes(d.client));
     if (selectedJobsites.length > 0) {
       filtered = filtered.filter(d => {
-        const jobsite = d.jobsite || 'Unspecified';
-        const lot = d.lot_building ? ` - ${d.lot_building}` : '';
-        const concatenated = `${jobsite}${lot}`.trim();
+        const concatenated = getJobsiteLabel(d);
         return selectedJobsites.includes(concatenated);
       });
     }
@@ -410,21 +438,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       // Ensure row exists
       if (!row) return;
 
-      const jobsiteName = row.jobsite;
-      const lot = row.lot_building;
-      const clientName = row.client || 'Unknown Client';
-
-      let jobsiteLabel = '';
-
-      // Rule: If both jobsite and lot_building are missing, use Client Name
-      if (!jobsiteName && !lot) {
-        jobsiteLabel = clientName;
-      } else {
-        // Otherwise, use Jobsite - Lot format
-        const displayName = jobsiteName || 'Unspecified';
-        const displayLot = lot ? ` - ${lot}` : '';
-        jobsiteLabel = `${displayName}${displayLot}`.trim();
-      }
+      const jobsiteLabel = getJobsiteLabel(row);
       
       if (!jobsiteMap.has(jobsiteLabel)) {
         jobsiteMap.set(jobsiteLabel, { totalHours: 0, employees: new Set() });

@@ -51,8 +51,8 @@ export function useWorkforceProductivityData() {
           const getRowWorktype = (r: any) => {
             if (r.worktype) return r.worktype;
             const hasJobsite = !!r.jobsite;
-            const hasLot = !!r.lot_building;
-            if (!hasJobsite && !hasLot) return r.client || 'Unknown Client';
+            const hasLotBuilding = !!r.lot_building;
+            if (!hasJobsite && !hasLotBuilding) return r.client || 'Unknown Client';
             return 'Normal Labor';
           };
 
