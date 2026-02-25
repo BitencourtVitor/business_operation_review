@@ -540,21 +540,40 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     return Array.from(new Set(filteredData.map(row => getWorktype(row)))).sort();
   }, [filteredData, activeProject]);
 
-  // Cores base para os gráficos
+  // Paleta de cores expandida e com alto contraste para categorias
   const colors = useMemo(() => [
-    'rgb(46, 107, 230)',
-    'rgb(16, 185, 129)',
-    'rgb(245, 158, 11)',
-    'rgb(239, 68, 68)',
-    'rgb(139, 92, 246)',
-    'rgb(236, 72, 153)',
-    'rgb(20, 184, 166)',
+    '#2E6BE6', // Blue
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#EF4444', // Red
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#14B8A6', // Teal
+    '#F97316', // Orange
+    '#06B6D4', // Cyan
+    '#6366F1', // Indigo
+    '#A855F7', // Purple
+    '#D946EF', // Fuchsia
+    '#F43F5E', // Rose
+    '#84CC16', // Lime
+    '#EAB308', // Yellow
+    '#3B82F6', // Light Blue
+    '#22C55E', // Green
+    '#64748B', // Slate
+    '#94A3B8', // Light Slate
   ], []);
 
   // Cores fixas para worktypes para garantir consistência entre gráficos
   const worktypeColorMap = useMemo(() => {
     const map: Record<string, string> = {};
-    worktypesList.forEach((wt, idx) => {
+    // Garante que 'Normal Labor' sempre tenha uma cor consistente se existir
+    const sortedWorktypes = [...worktypesList].sort((a, b) => {
+      if (a === 'Normal Labor') return -1;
+      if (b === 'Normal Labor') return 1;
+      return a.localeCompare(b);
+    });
+
+    sortedWorktypes.forEach((wt, idx) => {
       map[wt] = colors[idx % colors.length];
     });
     return map;
@@ -737,13 +756,13 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       {
         label: 'Total Hours',
         data: worktypeData.totalHours,
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: 'rgb(16, 185, 129)',
+        backgroundColor: worktypeData.labels.map(label => worktypeColorMap[label] || '#10B981'),
+        borderColor: worktypeData.labels.map(label => worktypeColorMap[label] || '#10B981'),
         borderWidth: 1,
         borderRadius: 4,
       }
     ]
-  }), [worktypeData]);
+  }), [worktypeData, worktypeColorMap]);
 
   const chartOptions: any = useMemo(() => ({
     responsive: true,
