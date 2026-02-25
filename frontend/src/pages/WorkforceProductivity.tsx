@@ -1,6 +1,9 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { useWorkforceProductivityData } from '../hooks/useWorkforceProductivityData';
 import { supabase } from '../supabaseClient';
+import type { WorkforceProject } from '../components/common/Forecast/types';
+import { normalizeLotBuilding, normalizeJobSite } from '../utils/dataUtils';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -184,6 +187,10 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   const [worktypesList, setWorktypesList] = useState<string[]>([]);
   const [projectLimit, setProjectLimit] = useState<number>(10);
 
+  // Forecast data for back charge tooltips
+  const [forecastProjects, setForecastProjects] = useState<WorkforceProject[]>([]);
+  const [forecastContractSteps, setForecastContractSteps] = useState<any[]>([]);
+
   // States for Monthly Notes
   const [notes, setNotes] = useState<string>('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -196,6 +203,29 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     hasData: data.length > 0,
     loading 
   });
+
+  // Fetch forecast data
+  useEffect(() => {
+    const fetchForecastData = async () => {
+      try {
+        const { data: projects, error } = await supabase
+          .from('forecast_data')
+          .select('*');
+        if (error) throw error;
+        setForecastProjects(projects || []);
+
+        const { data: steps, error: stepsError } = await supabase
+          .from('forecast_contract_steps')
+          .select('obra_id, team')
+          .not('team', 'is', null);
+        if (stepsError) throw stepsError;
+        setForecastContractSteps(steps || []);
+      } catch (err) {
+        console.error('Error fetching forecast data:', err);
+      }
+    };
+    fetchForecastData();
+  }, []);
 
   // Theme observer
   const [themeColors, setThemeColors] = useState({
@@ -764,63 +794,277 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     ]
   }), [worktypeData, worktypeColorMap]);
 
-  const chartOptions: any = useMemo(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        mode: 'index' as const,
-        intersect: false,
-        backgroundColor: themeColors.isDark ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-        titleColor: themeColors.isDark ? '#fff' : '#000',
-        bodyColor: themeColors.isDark ? '#fff' : '#000',
-        borderColor: themeColors.border,
-        borderWidth: 1,
-        padding: 10,
-        titleFont: { size: 14, weight: 'bold' },
-        bodyFont: { size: 13 },
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: true,
-          color: themeColors.border,
-          drawTicks: false,
-        },
-        ticks: {
-          color: themeColors.textSecondary,
-          maxRotation: 45,
-          minRotation: 45,
-          font: { size: 11 },
-          padding: 10,
+  const [customTooltip, setCustomTooltip] = useState<any>({ opacity: 0, top: 0, left: 0, title: '', body: [], afterBody: [], yAlign: 'top' });
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const chartOptions: any = useMemo(() => {
+    const isBackChargeFiltered = selectedWorktypes.includes('Back Charge');
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 20,
+          right: 25,
+          bottom: 10,
+          left: 10
         }
       },
-      y: {
-        beginAtZero: true,
-        grid: {
-          display: true,
-          color: themeColors.border,
-          drawTicks: false,
+      plugins: {
+        legend: {
+          display: false,
         },
-        ticks: {
-          color: themeColors.textSecondary,
-          font: { size: 11 },
-          padding: 10,
-          callback: (value: any) => value.toLocaleString('pt-BR')
+        tooltip: {
+          enabled: false,
+          external: (context: any) => {
+            const { tooltip } = context;
+            if (tooltip.opacity === 0) {
+              setCustomTooltip((prev: any) => ({ ...prev, opacity: 0 }));
+              return;
+            }
+
+            const position = context.chart.canvas.getBoundingClientRect();
+            
+            // Coordinates relative to viewport
+             const viewportLeft = position.left + tooltip.caretX;
+             const viewportTop = position.top + tooltip.caretY;
+             
+             // Threshold for flipping (if tooltip would go above viewport)
+             // Estimated tooltip height is around 250px-350px depending on content
+             const flipThreshold = 300;
+             const yAlign = viewportTop < flipThreshold ? 'bottom' : 'top';
+ 
+             // Horizontal adjustment to prevent clipping on edges
+             const tooltipWidthEstimate = 280;
+             let adjustedLeft = viewportLeft;
+             const padding = 20;
+             
+             if (viewportLeft - tooltipWidthEstimate / 2 < padding) {
+               adjustedLeft = tooltipWidthEstimate / 2 + padding;
+             } else if (viewportLeft + tooltipWidthEstimate / 2 > window.innerWidth - padding) {
+               adjustedLeft = window.innerWidth - tooltipWidthEstimate / 2 - padding;
+             }
+
+            // Replicar a lógica de geração de conteúdo do afterBody aqui para o estado
+            const findChartTitle = (canvas: HTMLCanvasElement) => {
+              let current: HTMLElement | null = canvas;
+              while (current && current !== document.body) {
+                const title = current.querySelector('h4');
+                if (title) return title.textContent || '';
+                current = current.parentElement;
+              }
+              return '';
+            };
+
+            const chartTitle = findChartTitle(context.chart.canvas);
+            const isMonthYearChart = chartTitle.includes('Month/Year');
+            const isServiceTypeChart = chartTitle.includes('Service Type');
+            const isProjectChart = chartTitle.includes('Project');
+
+            // MAPPING LOGIC
+            const obraToTeam: Record<string, string> = {};
+            forecastContractSteps.forEach(step => {
+              if (step.team && !obraToTeam[step.obra_id]) {
+                obraToTeam[step.obra_id] = step.team;
+              }
+            });
+
+            const subLookup: Record<string, string> = {};
+            forecastProjects.forEach(f => {
+              const team = obraToTeam[f.id];
+              if (team) {
+                const key = `${normalizeJobSite(f.cliente)}|${normalizeJobSite(f.job_site)}|${normalizeLotBuilding(f.lote_bld)}`;
+                subLookup[key] = team;
+              }
+            });
+
+            const findSubcontractor = (row: any) => {
+              if (row.obra_id && obraToTeam[row.obra_id]) return { name: obraToTeam[row.obra_id], isMapped: true };
+              const key = `${normalizeJobSite(row.client)}|${normalizeJobSite(row.jobsite)}|${normalizeLotBuilding(row.lot_building)}`;
+              if (subLookup[key]) return { name: subLookup[key], isMapped: true };
+              const normTsClient = normalizeJobSite(row.client);
+              const normTsJob = normalizeJobSite(row.jobsite);
+              const normTsLot = normalizeLotBuilding(row.lot_building);
+              const tsWords = normTsJob.split(' ').filter(w => w.length > 2);
+              let bestMatch: { team: string; score: number } | null = null;
+              forecastProjects.forEach(f => {
+                const team = obraToTeam[f.id];
+                if (!team || normalizeLotBuilding(f.lote_bld) !== normTsLot) return;
+                let currentScore = 0;
+                const normFJob = normalizeJobSite(f.job_site);
+                const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
+                currentScore += wordScore * 2;
+                if (normalizeJobSite(f.cliente) === normTsClient && normTsClient !== '') currentScore += 3;
+                if (currentScore >= 4 && (!bestMatch || currentScore > bestMatch.score)) {
+                  bestMatch = { team, score: currentScore };
+                }
+              });
+              if (bestMatch?.team) return { name: bestMatch.team, isMapped: true };
+              return { 
+                name: `${row.jobsite || ''}${row.lot_building ? ' - ' + row.lot_building : ''}` || 'Obra não identificada', 
+                isMapped: false 
+              };
+            };
+
+            let afterBodyContent: any[] = [];
+            const firstItem = tooltip.dataPoints[0];
+
+            if (isMonthYearChart || isServiceTypeChart) {
+              let relevantRows = [];
+              if (isMonthYearChart) {
+                const referenceMonth = globalMonthlyData[firstItem.dataIndex]?.month;
+                relevantRows = filteredData.filter(d => d.reference_month === referenceMonth);
+              } else {
+                const worktype = worktypeData.labels[firstItem.dataIndex];
+                relevantRows = filteredData.filter(d => getWorktype(d) === worktype);
+              }
+
+              const mappedSubsMap = new Map<string, number>();
+              const unmappedProjectsMap = new Map<string, number>();
+
+              relevantRows.forEach(row => {
+                const result = findSubcontractor(row);
+                if (result.isMapped) {
+                  mappedSubsMap.set(result.name, (mappedSubsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                } else {
+                  unmappedProjectsMap.set(result.name, (unmappedProjectsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                }
+              });
+
+              const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1] - a[1]);
+              const sortedUnmapped = Array.from(unmappedProjectsMap.entries()).sort((a, b) => b[1] - a[1]);
+
+              if (sortedMapped.length > 0) {
+                afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR SUBCONTRATADO:' });
+                sortedMapped.forEach(([sub, hours]) => {
+                  afterBodyContent.push({ type: 'item', text: `${sub}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                });
+              }
+              if (sortedUnmapped.length > 0) {
+                afterBodyContent.push({ type: 'header', text: 'SUBCONTRATADO NÃO IDENTIFICADO:' });
+                sortedUnmapped.forEach(([proj, hours]) => {
+                  afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                });
+              }
+            } else if (isProjectChart) {
+              const jobsiteLabel = jobsiteData.labels[firstItem.dataIndex];
+              const relevantRows = filteredData.filter(d => getJobsiteLabel(d) === jobsiteLabel);
+              
+              const mappedSubsMap = new Map<string, { total: number; months: Map<string, number> }>();
+              let unmappedHours = 0;
+
+              relevantRows.forEach(row => {
+                const result = findSubcontractor(row);
+                const hours = Number(row.regular_hours || 0);
+                const month = row.reference_month || 'N/A';
+
+                if (result.isMapped) {
+                  if (!mappedSubsMap.has(result.name)) {
+                    mappedSubsMap.set(result.name, { total: 0, months: new Map() });
+                  }
+                  const subData = mappedSubsMap.get(result.name)!;
+                  subData.total += hours;
+                  subData.months.set(month, (subData.months.get(month) || 0) + hours);
+                } else {
+                  unmappedHours += hours;
+                }
+              });
+
+              const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1].total - a[1].total);
+
+              if (sortedMapped.length > 0) {
+                afterBodyContent.push({ type: 'header', text: 'RESPONSÁVEIS (SUBCONTRATADO):' });
+                sortedMapped.forEach(([sub, data]) => {
+                  afterBodyContent.push({ 
+                    type: 'item', 
+                    text: `${sub}: ${Number(data.total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                  });
+                  
+                  // Monthly breakdown for this sub
+                  const sortedMonths = Array.from(data.months.entries()).sort((a, b) => {
+                    // Simple sort by date string (YYYY-MM)
+                    return a[0].localeCompare(b[0]);
+                  });
+
+                  sortedMonths.forEach(([month, hours]) => {
+                    // Format month from YYYY-MM to MM/YYYY
+                    let displayMonth = month;
+                    try {
+                      const [year, monthNum] = month.split('-');
+                      displayMonth = `${monthNum}/${year}`;
+                    } catch (e) {}
+                    
+                    afterBodyContent.push({ 
+                      type: 'sub-item', 
+                      text: `${displayMonth}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                    });
+                  });
+                });
+              }
+
+              if (unmappedHours > 0) {
+                afterBodyContent.push({ 
+                  type: 'info', 
+                  text: `Outras horas: ${Number(unmappedHours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h (Subcontratado não identificado)` 
+                });
+              }
+              
+              if (sortedMapped.length === 0 && unmappedHours === 0) {
+                afterBodyContent.push({ type: 'info', text: 'Sem informações de subcontratado' });
+              }
+            }
+
+            setCustomTooltip({
+              opacity: 1,
+              left: adjustedLeft,
+              top: viewportTop,
+              yAlign,
+              title: tooltip.title?.[0] || '',
+              body: tooltip.body.map((b: any) => b.lines[0]),
+              afterBody: afterBodyContent
+            });
+          }
         },
-        title: {
-          display: true,
-          text: 'Hours',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: true,
+            color: themeColors.border,
+            drawTicks: false,
+          },
+          ticks: {
+            color: themeColors.textSecondary,
+            maxRotation: 45,
+            minRotation: 45,
+            font: { size: 11 },
+            padding: 10,
+          }
+        },
+        y: {
+          beginAtZero: true,
+          grid: {
+            display: true,
+            color: themeColors.border,
+            drawTicks: false,
+          },
+          ticks: {
+            color: themeColors.textSecondary,
+            font: { size: 11 },
+            padding: 10,
+            callback: (value: any) => value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+          },
+          title: {
+            display: true,
+            text: 'Hours',
+            color: themeColors.textSecondary,
+            font: { size: 10, weight: 'bold' }
+          }
         }
       }
-    }
-  }), [themeColors]);
+    };
+  }, [themeColors, selectedWorktypes, globalMonthlyData, filteredData, forecastProjects, forecastContractSteps, worktypeData.labels, jobsiteData.labels]);
 
   const horizontalChartOptions: any = useMemo(() => ({
     ...chartOptions,
@@ -872,7 +1116,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
               ctx.font = 'bold 10px Inter, sans-serif';
               ctx.textAlign = isHorizontal ? 'left' : 'center';
               ctx.textBaseline = isHorizontal ? 'middle' : 'bottom';
-              ctx.fillText(value.toLocaleString('pt-BR'), x, y);
+              ctx.fillText(value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }), x, y);
             }
           });
         }
@@ -912,7 +1156,74 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   }
 
   return (
-    <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
+    <div id="content" ref={containerRef} style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)', position: 'relative' }}>
+      {/* Custom Tooltip Portal */}
+      {customTooltip.opacity > 0 && ReactDOM.createPortal(
+        <div style={{
+          position: 'fixed',
+          top: customTooltip.top,
+          left: customTooltip.left,
+          transform: customTooltip.yAlign === 'top' ? 'translate(-50%, -100%)' : 'translate(-50%, 0%)',
+          marginTop: customTooltip.yAlign === 'top' ? '-10px' : '15px',
+          backgroundColor: themeColors.isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+          color: themeColors.isDark ? '#cbd5e1' : '#475569',
+          border: `1px solid ${themeColors.border}`,
+          borderRadius: '8px',
+          padding: '12px',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+          minWidth: '220px',
+          maxWidth: '350px',
+          fontFamily: "'Inter', sans-serif"
+        }}>
+          {customTooltip.title && (
+            <div style={{ fontWeight: 700, fontSize: '14px', marginBottom: '8px', color: themeColors.isDark ? '#f8fafc' : '#1e293b' }}>
+              {customTooltip.title}
+            </div>
+          )}
+          {customTooltip.body.map((line: string, i: number) => (
+            <div key={i} style={{ fontSize: '13px', marginBottom: customTooltip.afterBody.length > 0 ? '8px' : '0' }}>
+              {line}
+            </div>
+          ))}
+          {customTooltip.afterBody.map((item: any, i: number) => (
+            <div key={i} style={{ 
+              marginTop: item.type === 'header' ? '12px' : '4px',
+              fontWeight: item.type === 'header' ? 700 : 400,
+              fontSize: item.type === 'header' ? '11px' : (item.type === 'sub-item' ? '12px' : '13px'),
+              textTransform: item.type === 'header' ? 'uppercase' : 'none',
+              color: item.type === 'header' ? (themeColors.isDark ? '#94a3b8' : '#64748b') : (themeColors.isDark ? '#cbd5e1' : '#475569'),
+              display: 'flex',
+              alignItems: 'center',
+              paddingLeft: item.type === 'sub-item' ? '14px' : '0',
+              position: 'relative'
+            }}>
+              {item.type === 'sub-item' && (
+                <div style={{
+                  position: 'absolute',
+                  left: '4px',
+                  top: '-4px',
+                  bottom: i === customTooltip.afterBody.length - 1 || customTooltip.afterBody[i+1]?.type !== 'sub-item' ? '50%' : '-4px',
+                  width: '1px',
+                  backgroundColor: themeColors.isDark ? '#475569' : '#cbd5e1'
+                }} />
+              )}
+              {item.type === 'sub-item' && (
+                <div style={{
+                  width: '6px',
+                  height: '1px',
+                  backgroundColor: themeColors.isDark ? '#475569' : '#cbd5e1',
+                  marginRight: '6px'
+                }} />
+              )}
+              {item.text}
+            </div>
+          ))}
+        </div>,
+        document.body
+      )}
+
       {/* Barra superior com título e filtros */}
       <div className="d-flex flex-row justify-content-between align-items-center" style={{ padding: '10px 20px', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', flex: '0 0 auto' }}>
         <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>Workforce Productivity</h1>
@@ -950,7 +1261,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
           {!activeProject ? (
             <div className="d-flex flex-column h-100" style={{ width: '100%', margin: 0 }}>
               {/* Linha 1: Total de Horas ao longo do tempo (Largura Total) */}
-              <div style={{ height: '40%', padding: 0 }}>
+              <div style={{ height: '40%', padding: '0 20px' }}>
                 <ChartCard 
                   title="Total Hours by Month/Year" 
                   legendLabel="Total Hours" 
@@ -964,9 +1275,9 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
               </div>
 
               {/* Linha 2: Gráficos por Projeto e Serviço lado a lado */}
-              <div className="d-flex flex-row" style={{ height: '60%', padding: 0 }}>
+              <div className="d-flex flex-row" style={{ height: '60%', padding: '0 10px' }}>
                 {/* 2. Horas por Projeto com controle Top N */}
-                <div className="col-6 h-100" style={{ padding: 0 }}>
+                <div className="col-6 h-100" style={{ padding: '0 10px' }}>
                   <ChartCard 
                     title="Hours by Project" 
                     style={{ borderTop: 0, borderLeft: 0, borderBottom: 0 }}
@@ -1026,7 +1337,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
                 </div>
 
                 {/* 3. Horas por Tipo de Serviço */}
-                <div className="col-6 h-100" style={{ padding: 0 }}>
+                <div className="col-6 h-100" style={{ padding: '0 10px' }}>
                   <ChartCard 
                     title="Hours by Service Type" 
                     style={{ borderTop: 0, borderLeft: 0, borderRight: 0, borderBottom: 0 }}
@@ -1086,7 +1397,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
                                   label: (context: any) => {
                                     const label = context.dataset.label || '';
                                     const value = context.raw || 0;
-                                    return `${label}: ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}h`;
+                                    return `${label}: ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h`;
                                   },
                                   // Adiciona uma linha separadora após o Total Hours
                                   afterLabel: (context: any) => {
