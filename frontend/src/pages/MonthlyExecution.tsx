@@ -642,12 +642,12 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
     };
 
     return (
-      <div style={{ padding: '10px 20px', height: '50%', minHeight: '300px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ padding: '10px 20px', height: '40%', minHeight: '250px', display: 'flex', flexDirection: 'column' }}>
         <h4 className='ms-4 my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
           Monthly Execution Overview - {selectedYear}
         </h4>
         <div style={{ background: 'var(--color-background-primary)', flex: 1, minHeight: 0, minWidth: 0 }}>
-          <div style={{ width: '100%', height: '100%', minHeight: 250 }}>
+          <div style={{ width: '100%', height: '100%', minHeight: 200 }}>
             <Line data={chartData} options={options as any} />
           </div>
         </div>
@@ -661,14 +661,12 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
     const hasProjects = projects.length > 0 || (extraContent && isFinishedColumn && isExpanded);
 
     return (
-      <div className={isExpanded ? "col-md-12" : "col-md-4"} style={{ 
+      <div className="col-md-4 h-100" style={{ 
         transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-        height: isExpanded ? 'auto' : '100%',
-        minHeight: isExpanded ? '400px' : '0'
+        display: 'block'
       }}>
         <div className="d-flex flex-column h-100" style={{ 
-          borderRight: !isExpanded && title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
-          borderBottom: isExpanded ? '1px solid var(--color-border-divider)' : 'none',
+          borderRight: title !== 'Finished Projects' ? '1px solid var(--color-border-divider)' : 'none',
           padding: '0 15px',
           background: isExpanded ? 'rgba(255,255,255,0.03)' : 'transparent',
           transition: 'all 0.4s ease'
@@ -720,7 +718,7 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
           {/* Content Section */}
           <div className={`overflow-y-auto custom-scrollbar ${isExpanded ? 'expanded-content' : ''}`} style={{ 
             flex: 1, 
-            maxHeight: isExpanded ? '600px' : '0',
+            maxHeight: isExpanded ? '2000px' : '0',
             opacity: isExpanded ? 1 : 0,
             paddingTop: isExpanded ? '16px' : '0',
             paddingRight: '6px',
@@ -735,7 +733,7 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
                 </div>
               </div>
             ) : (
-              <div className={isExpanded ? "row g-3" : ""}>
+              <div className="row g-2">
                 {isFinishedColumn && projects.length === 0 && (
                   <div className="col-12">
                     <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center mb-3" style={{ 
@@ -752,7 +750,7 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
                   </div>
                 )}
                 {projects.map(p => (
-                  <div key={p.obra_id} className={isExpanded ? "col-md-4 col-lg-3" : "col-12"}>
+                  <div key={p.obra_id} className="col-12">
                     {renderProjectCard(p)}
                   </div>
                 ))}
