@@ -128,7 +128,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     x: number; 
     y: number; 
     content: any[] | { items: any[], excessive: any[] }; 
-    type: 'execution' | 'backcharge' | 'material' | 'overall'
+    type: 'execution' | 'backcharge' | 'excess' | 'overall'
   }>({
     visible: false,
     x: 0,
@@ -138,27 +138,24 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   });
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sorting state
-  type SortConfig = {
-    key: keyof SubcontractorStat | 'rank';
+  // Sorting state for the execution ranking table (deprecated, using rankingSort instead)
+  const [rankingSort, setRankingSort] = useState<{
+    key: 'finalScore' | 'completedWorks' | 'duration' | 'contract' | 'backcharge' | 'excess' | 'subcontractor' | 'avgDuration' | 'rank' | 'avgContractCompletion';
     direction: 'asc' | 'desc';
-  } | null;
+  }>({ key: 'finalScore', direction: 'desc' });
 
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'avgDuration', direction: 'asc' });
-
-  const handleSort = (key: keyof SubcontractorStat | 'rank') => {
-    let direction: 'asc' | 'desc' = 'asc';
-    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
+  const handleRankingSort = (key: typeof rankingSort.key) => {
+    setRankingSort(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc'
+    }));
   };
 
   const SortIcon = ({ columnKey }: { columnKey: string }) => {
-    if (!sortConfig || sortConfig.key !== columnKey) {
+    if (!rankingSort || rankingSort.key !== columnKey) {
       return <i className="bi bi-arrow-down-up ms-2" style={{ fontSize: '10px', opacity: 0.3 }} />;
     }
-    return sortConfig.direction === 'asc' 
+    return rankingSort.direction === 'asc' 
       ? <i className="bi bi-arrow-up ms-2" style={{ fontSize: '12px', color: 'var(--color-accent-primary)' }} />
       : <i className="bi bi-arrow-down ms-2" style={{ fontSize: '12px', color: 'var(--color-accent-primary)' }} />;
   };
@@ -659,26 +656,26 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     }));
 
     // Default sort by avgDuration ascending (ranking logic)
-    if (!sortConfig) {
+    if (!rankingSort) {
       return formattedData.sort((a, b) => a.avgDuration - b.avgDuration);
     }
 
     return formattedData.sort((a, b) => {
-      let aValue: any = a[sortConfig.key as keyof SubcontractorStat];
-      let bValue: any = b[sortConfig.key as keyof SubcontractorStat];
+      let aValue: any = a[rankingSort.key as keyof SubcontractorStat];
+      let bValue: any = b[rankingSort.key as keyof SubcontractorStat];
 
       // Special case for Rank (which is based on avgDuration ascending)
-      if (sortConfig.key === 'rank') {
+      if (rankingSort.key === 'rank') {
         aValue = a.avgDuration;
         bValue = b.avgDuration;
       }
 
-      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      if (aValue < bValue) return rankingSort.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return rankingSort.direction === 'asc' ? 1 : -1;
       return 0;
     });
 
-  }, [rawEvents, projectData, contractData, selectedYear, selectedMonth, sortConfig]);
+  }, [rawEvents, projectData, contractData, selectedYear, selectedMonth, rankingSort]);
 
   const rankingData = executionRanking;
 
@@ -756,67 +753,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     return formatted.sort((a, b) => b.totalHours - a.totalHours);
   }, [backchargeData, selectedYear, selectedMonth]);
 
-  const materialRanking = useMemo(() => {
-    if (!materialUsageData.length) return [];
-
-    const grouped: Record<string, { totalValue: number; totalWithdrawals: number; subcontractors: Set<string>; excessiveCount: number; details: any[]; projects: any[] }> = {};
-
-    materialUsageData.forEach(item => {
-      // Group by the mapped subcontractor
-      const sub = item.subcontractor || 'NOT IDENTIFIED';
-      if (sub === 'NOT IDENTIFIED') return;
-      
-      if (!grouped[sub]) {
-        grouped[sub] = { totalValue: 0, totalWithdrawals: 0, subcontractors: new Set(), excessiveCount: 0, details: [], projects: [] };
-      }
-      grouped[sub].totalValue += item.valor_total_retirado;
-      grouped[sub].totalWithdrawals += item.total_retiradas;
-      grouped[sub].excessiveCount += (item.excessive_details?.length || 0);
-      grouped[sub].subcontractors.add(sub);
-
-      // Aggregate project details
-      if (item.project_details) {
-        item.project_details.forEach(proj => {
-          const existing = grouped[sub].projects.find(p => p.name === proj.name);
-          if (existing) {
-            existing.value += proj.value;
-          } else {
-            grouped[sub].projects.push({ ...proj });
-          }
-        });
-      }
-
-      // Aggregate product details for the tooltip (products and quantities)
-      if (item.items_details) {
-        item.items_details.forEach(detail => {
-          // Add details for grouped view (by project and lot)
-          grouped[sub].details.push({
-            ...detail,
-            date: item.mes,
-            value: detail.value || 0
-          });
-        });
-      }
-    });
-
-    return Object.entries(grouped)
-      .map(([sub, data]) => ({
-        subcontractor: sub,
-        totalValue: data.totalValue,
-        totalWithdrawals: data.totalWithdrawals,
-        totalQuantity: data.details.reduce((sum, d) => sum + (d.quantity || 0), 0),
-        excessiveCount: data.excessiveCount,
-        details: data.details.sort((a, b) => {
-          // Sort by project then by lot_building
-          const projCompare = (a.project || '').localeCompare(b.project || '');
-          if (projCompare !== 0) return projCompare;
-          return (a.lot_building || '').localeCompare(b.lot_building || '');
-        }),
-        projects: data.projects
-      }))
-      .sort((a, b) => b.totalValue - a.totalValue);
-  }, [materialUsageData]);
-
   const excessiveWithdrawalsRanking = useMemo(() => {
     if (!materialUsageData.length) return [];
 
@@ -862,7 +798,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     const allSubcontractors = new Set<string>();
     executionRanking.forEach(r => allSubcontractors.add(r.subcontractor));
     backchargeRanking.forEach(r => allSubcontractors.add(r.subcontractor));
-    materialRanking.forEach(r => allSubcontractors.add(r.subcontractor));
     excessiveWithdrawalsRanking.forEach(r => allSubcontractors.add(r.subcontractor));
 
     // Calculate Global Average Duration for all works in the selected period
@@ -871,87 +806,130 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       ? allWorks.reduce((sum, w) => sum + w.duration, 0) / allWorks.length 
       : 30; // Fallback if no works at all
 
-    return Array.from(allSubcontractors).map(sub => {
-      const exec = executionRanking.find(r => r.subcontractor === sub);
-      const back = backchargeRanking.find(r => r.subcontractor === sub);
-      const mat = materialRanking.find(r => r.subcontractor === sub);
-      const exc = excessiveWithdrawalsRanking.find(r => r.subcontractor === sub);
+    return Array.from(allSubcontractors)
+      .map(sub => {
+        const exec = executionRanking.find(r => r.subcontractor === sub);
+        const back = backchargeRanking.find(r => r.subcontractor === sub);
+        const exc = excessiveWithdrawalsRanking.find(r => r.subcontractor === sub);
 
-      // 1. Tempo de Execução (Weight: 25%)
-      // Comparamos a média da equipe com a média GLOBAL de todas as equipes no período.
-      // Se a equipe for mais rápida que a média global, a nota é alta.
-      const hasExecData = exec && exec.works && exec.works.length > 0;
-      const avgDuration = hasExecData ? exec.avgDuration : 0;
-      
-      let durationScore = 0;
-      if (hasExecData) {
-        // Se a duração for igual à média global, ganha 70 pontos.
-        // Se for metade da média (muito rápido), ganha 100.
-        // Se for o dobro da média (muito lento), ganha 0.
-        const performanceRatio = avgDuration / globalAvgDuration;
-        durationScore = Math.max(0, Math.min(100, 100 - (performanceRatio - 0.5) * 60));
-      }
+        // 1. Tempo de Execução (Weight: 25%)
+        // Comparamos a média da equipe com a média GLOBAL de todas as equipes no período.
+        // Se a equipe for mais rápida que a média global, a nota é alta.
+        const hasExecData = exec && exec.works && exec.works.length > 0;
+        const avgDuration = hasExecData ? exec.avgDuration : 0;
+        const completedWorks = exec?.completedWorks || 0;
+        
+        let durationScore = 0;
+        if (hasExecData) {
+          // Se a duração for igual à média global, ganha 70 pontos.
+          // Se for metade da média (muito rápido), ganha 100.
+          // Se for o dobro da média (muito lento), ganha 0.
+          const performanceRatio = avgDuration / globalAvgDuration;
+          durationScore = Math.max(0, Math.min(100, 100 - (performanceRatio - 0.5) * 60));
+        }
 
-      // 2. Completude de Contrato (Weight: 20%)
-      const contractScore = exec?.avgContractCompletion || 0;
+        // 2. Completude de Contrato (Weight: 20%)
+        const contractScore = exec?.avgContractCompletion || 0;
 
-      // 3. Backcharges (Weight: 20%)
-      // Higher totalHours is worse.
-      const backHours = back?.totalHours || 0;
-      const backScore = Math.max(0, 100 - (backHours * 5));
+        // 3. Backcharges (Weight: 20%)
+        // Higher totalHours is worse.
+        const backHours = back?.totalHours || 0;
+        const backScore = Math.max(0, 100 - (backHours * 5));
 
-      // 4. Eficiência de Material (Weight: 20%)
-      // Higher value per work is worse.
-      // Adjusted divisor to 250 (zeroing at $25k) to account for varying project sizes
-      const completedWorks = exec?.completedWorks || 1;
-      const matValue = mat?.totalValue || 0;
-      const matPerWork = matValue / completedWorks;
-      const matScore = Math.max(0, 100 - (matPerWork / 250));
+        // 4. Alertas de Excesso (Weight: 35%)
+        // Redistributed 20% from Material Usage to Excess Alerts (15% + 20% = 35%)
+        const excessCount = exc?.totalExcess || 0;
+        const excessScore = Math.max(0, 100 - (excessCount * 10));
 
-      // 5. Alertas de Excesso (Weight: 15%)
-      const excessCount = exc?.totalExcess || 0;
-      const excessScore = Math.max(0, 100 - (excessCount * 10));
+        // 5. Safety Level (Weight: 0% - Placeholder)
+        const safetyScore = null;
+        const safetyValue = null;
 
-      // 6. Safety Level (Weight: 0% - Placeholder)
-      const safetyScore = null;
-      const safetyValue = null;
+        const finalScore = (
+          (durationScore * 0.25) +
+          (contractScore * 0.25) +
+          (backScore * 0.25) +
+          (excessScore * 0.25)
+        );
 
-      const finalScore = (
-        (durationScore * 0.25) +
-        (contractScore * 0.20) +
-        (backScore * 0.20) +
-        (matScore * 0.20) +
-        (excessScore * 0.15)
-      );
+        return {
+          subcontractor: sub,
+          finalScore,
+          completedWorks,
+          metrics: {
+              duration: { 
+                score: durationScore, 
+                value: avgDuration, 
+                label: 'Execution Time', 
+                details: exec?.works || []
+              },
+              contract: { 
+                score: contractScore, 
+                value: contractScore, 
+                label: 'Contract Completion', 
+                details: exec?.works || [] 
+              },
+              backcharge: { 
+                score: backScore, 
+                value: backHours, 
+                label: 'Backcharges', 
+                details: back?.details || [] 
+              },
+              excess: { 
+                score: excessScore, 
+                value: excessCount, 
+                label: 'Excess Alerts', 
+                details: exc?.details || [] 
+              },
+              safety: { 
+                score: safetyScore, 
+                value: safetyValue, 
+                label: 'Safety Level' 
+              }
+            }
+          };
+      })
+      .filter(item => item.completedWorks > 0) // Filter out subcontractors with zero completed works
+      .sort((a, b) => {
+        const { key, direction } = rankingSort;
+        const isAsc = direction === 'asc';
+        
+        let comparison = 0;
+        
+        switch (key) {
+          case 'finalScore':
+            comparison = a.finalScore - b.finalScore;
+            break;
+          case 'completedWorks':
+            comparison = a.completedWorks - b.completedWorks;
+            break;
+          case 'duration':
+            comparison = a.metrics.duration.score - b.metrics.duration.score;
+            break;
+          case 'contract':
+            comparison = a.metrics.contract.score - b.metrics.contract.score;
+            break;
+          case 'backcharge':
+            comparison = a.metrics.backcharge.score - b.metrics.backcharge.score;
+            break;
+          case 'excess':
+            comparison = a.metrics.excess.score - b.metrics.excess.score;
+            break;
+          case 'subcontractor':
+            comparison = b.subcontractor.localeCompare(a.subcontractor);
+            break;
+        }
 
-      return {
-        subcontractor: sub,
-        finalScore,
-        completedWorks,
-        metrics: {
-            duration: { 
-              score: durationScore, 
-              value: avgDuration, 
-              label: 'Execution Time', 
-              details: exec?.works || []
-            },
-            contract: { score: contractScore, value: contractScore, label: 'Contract Completion', details: exec?.works || [] },
-            backcharge: { score: backScore, value: backHours, label: 'Backcharges', details: back?.details || [] },
-            material: { 
-              score: matScore, 
-              value: matValue, 
-              quantity: mat?.totalQuantity || 0,
-              label: 'Material Usage', 
-              details: mat?.details || [], 
-              excessiveDetails: exc?.details || [], 
-              projects: mat?.projects || [] 
-            },
-            excess: { score: excessScore, value: excessCount, label: 'Excess Alerts', details: exc?.details || [] },
-            safety: { score: safetyScore, value: safetyValue, label: 'Safety Level' }
-          }
-        };
-      }).sort((a, b) => b.finalScore - a.finalScore);
-    }, [executionRanking, backchargeRanking, materialRanking, excessiveWithdrawalsRanking, projectData, contractData]);
+        if (comparison !== 0) {
+          return isAsc ? comparison : -comparison;
+        }
+
+        // Default tie-breakers if chosen criterion is equal
+        if (b.finalScore !== a.finalScore) return b.finalScore - a.finalScore;
+        if (b.completedWorks !== a.completedWorks) return b.completedWorks - a.completedWorks;
+        return a.subcontractor.localeCompare(b.subcontractor);
+      });
+    }, [executionRanking, backchargeRanking, excessiveWithdrawalsRanking, projectData, contractData, rankingSort]);
 
   const handleMouseEnter = (e: React.MouseEvent, works: WorkDetail[]) => {
     // Clear any pending hide timeout
@@ -960,27 +938,27 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       tooltipTimeoutRef.current = null;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
     const tooltipWidth = 320;
+    const offset = 15;
     
-    // Position to the right by default
-    let x = rect.right + 10;
+    // Position to the right of mouse by default
+    let x = mouseX + offset;
     
-    // If it doesn't fit on the right, flip to left
+    // If it doesn't fit on the right, flip to left of mouse
     if (x + tooltipWidth > window.innerWidth) {
-        x = Math.max(10, rect.left - tooltipWidth - 10);
+        x = mouseX - tooltipWidth - offset;
     }
     
-    // Estimate height to avoid cutting off at bottom
+    // Position vertically centered with mouse
     const estimatedHeight = Math.min(300, works.length * 90 + 70);
-    let y = rect.top;
+    let y = mouseY - (estimatedHeight / 2);
     
-    // If it goes off bottom, shift it up
+    // Keep within viewport vertically
     if (y + estimatedHeight > window.innerHeight) {
-        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+        y = window.innerHeight - estimatedHeight - 10;
     }
-
-    // Safety check for top overflow
     if (y < 10) {
         y = 10;
     }
@@ -1001,27 +979,27 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       tooltipTimeoutRef.current = null;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
     const tooltipWidth = 320;
+    const offset = 15;
     
-    // Position to the right by default
-    let x = rect.right + 10;
+    // Position to the right of mouse by default
+    let x = mouseX + offset;
     
-    // If it doesn't fit on the right, flip to left
+    // If it doesn't fit on the right, flip to left of mouse
     if (x + tooltipWidth > window.innerWidth) {
-        x = Math.max(10, rect.left - tooltipWidth - 10);
+        x = mouseX - tooltipWidth - offset;
     }
     
-    // Estimate height to avoid cutting off at bottom
+    // Position vertically centered with mouse
     const estimatedHeight = Math.min(300, works.length * 70 + 70);
-    let y = rect.top;
+    let y = mouseY - (estimatedHeight / 2);
     
-    // If it goes off bottom, shift it up
+    // Keep within viewport vertically
     if (y + estimatedHeight > window.innerHeight) {
-        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+        y = window.innerHeight - estimatedHeight - 10;
     }
-
-    // Safety check for top overflow
     if (y < 10) {
         y = 10;
     }
@@ -1042,27 +1020,27 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       tooltipTimeoutRef.current = null;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
     const tooltipWidth = 320;
+    const offset = 15;
     
-    // Position to the right by default
-    let x = rect.right + 10;
+    // Position to the right of mouse by default
+    let x = mouseX + offset;
     
-    // If it doesn't fit on the right, flip to left
+    // If it doesn't fit on the right, flip to left of mouse
     if (x + tooltipWidth > window.innerWidth) {
-        x = Math.max(10, rect.left - tooltipWidth - 10);
+        x = mouseX - tooltipWidth - offset;
     }
     
-    // Estimate height to avoid cutting off at bottom
+    // Position vertically centered with mouse
     const estimatedHeight = Math.min(300, details.length * 70 + 70);
-    let y = rect.top;
+    let y = mouseY - (estimatedHeight / 2);
     
-    // If it goes off bottom, shift it up
+    // Keep within viewport vertically
     if (y + estimatedHeight > window.innerHeight) {
-        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+        y = window.innerHeight - estimatedHeight - 10;
     }
-
-    // Safety check for top overflow
     if (y < 10) {
         y = 10;
     }
@@ -1083,27 +1061,30 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       tooltipTimeoutRef.current = null;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
     const tooltipWidth = 320;
+    const offset = 15;
     
-    // Position to the right by default
-    let x = rect.right + 10;
+    // Position to the right of mouse by default
+    let x = mouseX + offset;
     
-    // If it doesn't fit on the right, flip to left
+    // If it doesn't fit on the right, flip to left of mouse
     if (x + tooltipWidth > window.innerWidth) {
-        x = Math.max(10, rect.left - tooltipWidth - 10);
+        x = mouseX - tooltipWidth - offset;
     }
     
-    // Estimate height
+    // Position vertically centered with mouse
     const estimatedHeight = Math.min(450, details.length * 65 + 70);
-    let y = rect.top;
+    let y = mouseY - (estimatedHeight / 2);
     
-    // If it goes off bottom, shift it up
+    // Keep within viewport vertically
     if (y + estimatedHeight > window.innerHeight) {
-        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+        y = window.innerHeight - estimatedHeight - 10;
     }
-
-    if (y < 10) y = 10;
+    if (y < 10) {
+        y = 10;
+    }
 
     setTooltip({
       visible: true,
@@ -1111,45 +1092,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       y: y,
       content: details,
       type: 'excess'
-    });
-  };
-
-  const handleMaterialMouseEnter = (e: React.MouseEvent, details: any[], projects?: any[]) => {
-    // Clear any pending hide timeout
-    if (tooltipTimeoutRef.current) {
-      clearTimeout(tooltipTimeoutRef.current);
-      tooltipTimeoutRef.current = null;
-    }
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const tooltipWidth = 320;
-    
-    // Position to the right by default
-    let x = rect.right + 10;
-    
-    // If it doesn't fit on the right, flip to left
-    if (x + tooltipWidth > window.innerWidth) {
-        x = Math.max(10, rect.left - tooltipWidth - 10);
-    }
-    
-    // Estimate height
-    const totalItems = (details?.length || 0) + (projects?.length || 0);
-    const estimatedHeight = Math.min(450, totalItems * 65 + 100);
-    let y = rect.top;
-    
-    // If it goes off bottom, shift it up
-    if (y + estimatedHeight > window.innerHeight) {
-        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
-    }
-    
-    if (y < 10) y = 10;
-
-    setTooltip({
-      visible: true,
-      x: x,
-      y: y,
-      content: { items: details, projects: projects || [] },
-      type: 'material'
     });
   };
 
@@ -1179,18 +1121,35 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       tooltipTimeoutRef.current = null;
     }
 
-    const rect = e.currentTarget.getBoundingClientRect();
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
     const tooltipWidth = 280;
+    const offset = 15;
     
-    let x = rect.left - tooltipWidth - 10;
-    if (x < 10) {
-        x = rect.right + 10;
+    // Position to the right of mouse by default
+    let x = mouseX + offset;
+    
+    // If it doesn't fit on the right, flip to left of mouse
+    if (x + tooltipWidth > window.innerWidth) {
+        x = mouseX - tooltipWidth - offset;
+    }
+    
+    // Position vertically centered with mouse
+    const estimatedHeight = 220; // Fixed estimate for overall breakdown
+    let y = mouseY - (estimatedHeight / 2);
+    
+    // Keep within viewport vertically
+    if (y + estimatedHeight > window.innerHeight) {
+        y = window.innerHeight - estimatedHeight - 10;
+    }
+    if (y < 10) {
+        y = 10;
     }
 
     setTooltip({
       visible: true,
       x: x,
-      y: rect.top,
+      y: y,
       content: metrics,
       type: 'overall'
     });
@@ -1261,33 +1220,27 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 {[
                   { 
                     label: 'Execution Time', 
-                    icon: 'bi-clock-history', 
+                    icon: 'bi-clock-fill', 
                     desc: 'Avalia a agilidade da equipe em relação ao coletivo. Calculamos a média de tempo de todas as equipes no período e comparamos com o desempenho individual. Se a equipe entregar mais rápido que a média das outras, a nota sobe. Se não houver trabalhos no período, a nota é zero para manter a competitividade justa.',
                     weight: '25%'
                   },
                   { 
                     label: 'Contract Completion', 
-                    icon: 'bi-file-text-fill', 
+                    icon: 'bi-file-earmark-check-fill', 
                     desc: 'Mede o engajamento administrativo da equipe. Antes da obra começar, o subcontratado precisa colaborar com diversas etapas burocráticas e assinaturas. Esta nota reflete quantas dessas etapas obrigatórias foram concluídas, garantindo que a equipe esteja regularizada e pronta para trabalhar.',
-                    weight: '20%'
+                    weight: '25%'
                   },
                   { 
                     label: 'Backcharges', 
                     icon: 'bi-exclamation-triangle-fill', 
                     desc: 'Mede a qualidade e o cuidado. Toda vez que precisamos gastar horas extras para corrigir erros ou retrabalhos da equipe, isso gera um "Backcharge". Cada hora de erro reduz a nota, e acumular mais de 20 horas zera este critério.',
-                    weight: '20%'
-                  },
-                  { 
-                    label: 'Material Usage', 
-                    icon: 'bi-box-seam', 
-                    desc: 'Monitora o uso consciente de recursos. Calculamos a média de gasto de material por cada obra concluída. Se o custo total de materiais for excessivo em relação à quantidade de obras entregues, a nota cai. O objetivo é premiar quem produz mais com menos desperdício.',
-                    weight: '20%'
+                    weight: '25%'
                   },
                   { 
                     label: 'Excess Alerts', 
                     icon: 'bi-cart-x-fill', 
                     desc: 'Penaliza a falta de planejamento. Cada vez que a equipe solicita material acima do limite planejado na lista de materiais da obra (feita a partir do template original), ela perde 10 pontos nesta nota. Menos alertas significam melhor controle e fidelidade ao projeto.',
-                    weight: '15%'
+                    weight: '25%'
                   },
                   { 
                     label: 'Safety Level', 
@@ -1340,25 +1293,66 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               <div style={{ 
                 display: 'flex', 
                 alignItems: 'center', 
-                gap: '12px', 
+                justifyContent: 'space-between',
                 padding: '0 8px',
-                marginBottom: '12px'
+                marginBottom: '4px'
               }}>
-                <span style={{ 
-                  fontSize: '11px', 
-                  fontWeight: 800, 
-                  color: 'var(--color-text-secondary)', 
-                  textTransform: 'uppercase', 
-                  letterSpacing: '2px',
-                  opacity: 0.8
-                }}>
-                  Ranking
-                </span>
-                <div style={{ 
-                  height: '1px', 
-                  flex: 1, 
-                  background: 'linear-gradient(to left, transparent, var(--color-border-divider))' 
-                }}></div>
+                <div className="d-flex align-items-center gap-2">
+                  <span style={{ 
+                    fontSize: '11px', 
+                    fontWeight: 800, 
+                    color: 'var(--color-text-secondary)', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '2px',
+                    opacity: 0.8
+                  }}>
+                    Ranking
+                  </span>
+                  <div style={{ 
+                    height: '1px', 
+                    width: '40px', 
+                    background: 'linear-gradient(to left, transparent, var(--color-border-divider))' 
+                  }}></div>
+                </div>
+
+                <div className="d-flex gap-1 flex-wrap justify-content-end">
+                  {[
+                    { key: 'finalScore', label: 'Score', icon: 'bi-star-fill' },
+                    { key: 'completedWorks', label: 'Works', icon: 'bi-briefcase-fill' },
+                    { key: 'duration', label: 'Execution Time', icon: 'bi-clock-fill' },
+                    { key: 'contract', label: 'Contract Completion', icon: 'bi-file-earmark-check-fill' },
+                    { key: 'backcharge', label: 'Backcharges', icon: 'bi-exclamation-triangle-fill' },
+                    { key: 'excess', label: 'Excess Alerts', icon: 'bi-cart-x-fill' },
+                    { key: 'subcontractor', label: 'Name', icon: 'bi-person-fill' }
+                  ].map((btn) => (
+                    <button
+                      key={btn.key}
+                      onClick={() => handleRankingSort(btn.key as any)}
+                      style={{
+                        padding: '4px 10px',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        borderRadius: '20px',
+                        border: '1px solid',
+                        borderColor: rankingSort.key === btn.key ? 'var(--color-accent-primary)' : 'var(--color-border-divider)',
+                        background: rankingSort.key === btn.key ? 'rgba(var(--color-accent-primary-rgb), 0.1)' : 'transparent',
+                        color: rankingSort.key === btn.key ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        transition: 'all 0.2s ease',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      <i className={`bi ${btn.icon}`} style={{ fontSize: '10px' }}></i>
+                      {btn.label}
+                      {rankingSort.key === btn.key && (
+                        <i className={`bi bi-arrow-${rankingSort.direction === 'asc' ? 'up' : 'down'}`} style={{ fontSize: '10px' }}></i>
+                      )}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {consolidatedScorecard.length === 0 ? (
@@ -1454,7 +1448,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                       </div>
 
                       {/* CENTRO: MÉTRICAS E NOTAS */}
-                      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
+                      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
                         {Object.entries(item.metrics).map(([key, metric]: [string, any], mIdx) => {
                           const hasScore = metric.score !== null;
                           const scoreColor = !hasScore ? 'var(--color-text-primary)' :
@@ -1465,7 +1459,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                           return (
                             <div key={key} style={{ 
                               textAlign: 'left',
-                              borderRight: mIdx < 5 ? '1px solid var(--color-border-divider)' : 'none',
+                              borderRight: mIdx < 4 ? '1px solid var(--color-border-divider)' : 'none',
                               padding: '0 4px',
                               display: 'flex',
                               flexDirection: 'column',
@@ -1481,8 +1475,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                                 handleContractMouseEnter(e, metric.details);
                               } else if (key === 'backcharge') {
                                 handleBackchargeMouseEnter(e, metric.details);
-                              } else if (key === 'material') {
-                                handleMaterialMouseEnter(e, metric.details, metric.projects);
                               } else if (key === 'excess') {
                                 handleExcessMouseEnter(e, metric.details);
                               }
@@ -1505,15 +1497,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                                    ) :
                                    key === 'contract' ? `${metric.value.toFixed(0)}%` :
                                    key === 'backcharge' ? `${metric.value.toFixed(2)}h` :
-                                   key === 'material' ? (
-                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                         <span style={{ fontSize: '14px', fontWeight: 700 }}>${(metric.value / 1000).toFixed(1)}k</span>
-                                         <span style={{ color: 'var(--color-border-divider)', fontWeight: 300 }}>|</span>
-                                         <span style={{ fontSize: '14px', color: 'var(--color-text-secondary)', fontWeight: 400 }}>
-                                           {metric.quantity.toLocaleString()}
-                                         </span>
-                                       </div>
-                                   ) :
                                    `${metric.value}`}
                                 </div>
 
@@ -1544,7 +1527,11 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                           paddingLeft: '8px',
                           cursor: 'help',
                           transition: 'all 0.2s ease',
-                          borderRadius: '8px'
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.background = 'var(--color-background-tertiary)';
@@ -1562,12 +1549,15 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                                  item.finalScore >= 60 ? '#f59e0b' : 
                                  '#ef4444',
                           lineHeight: 1,
-                          marginBottom: '2px'
+                          marginBottom: '2px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
                         }}>
                           {Math.round(item.finalScore)}
                         </div>
                         <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          OVERALL
+                          SCORE
                         </div>
                       </div>
                     </div>
@@ -1605,7 +1595,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               tooltip.type === 'execution' ? 'bi-clock-history' :
               tooltip.type === 'contract' ? 'bi-file-text-fill' :
               tooltip.type === 'backcharge' ? 'bi-exclamation-triangle-fill' :
-            tooltip.type === 'material' ? 'bi-box-seam' : 
             tooltip.type === 'excess' ? 'bi-cart-x-fill' :
             tooltip.type === 'overall' ? 'bi-speedometer2' : 'bi-info-circle'
           }`} style={{ color: 'var(--color-accent-primary)' }}></i>
@@ -1613,7 +1602,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             {tooltip.type === 'execution' ? 'Execution Details' :
              tooltip.type === 'contract' ? 'Contract Steps' :
              tooltip.type === 'backcharge' ? 'Backcharge Details' :
-             tooltip.type === 'material' ? 'Material Usage Details' : 
              tooltip.type === 'excess' ? 'Excess Withdrawal Alerts' : 
              tooltip.type === 'overall' ? 'Score Breakdown' : 'Details'}
           </span>
@@ -1624,10 +1612,9 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
                 { label: 'Execution', weight: '25%', score: tooltip.content.duration.score },
-                { label: 'Contract', weight: '20%', score: tooltip.content.contract.score },
-                { label: 'Backcharges', weight: '20%', score: tooltip.content.backcharge.score },
-                { label: 'Material', weight: '20%', score: tooltip.content.material.score },
-                { label: 'Excess', weight: '15%', score: tooltip.content.excess.score },
+                { label: 'Contract', weight: '25%', score: tooltip.content.contract.score },
+                { label: 'Backcharges', weight: '25%', score: tooltip.content.backcharge.score },
+                { label: 'Excess', weight: '25%', score: tooltip.content.excess.score },
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'var(--color-background-tertiary)', borderRadius: '6px' }}>
                   <div>
@@ -1841,77 +1828,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               </div>
             )}
 
-            {tooltip.type === 'material' && tooltip.content && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* Grouped by Project/Lot */}
-                {Array.isArray(tooltip.content.items) && tooltip.content.items.length > 0 ? (
-                  (() => {
-                    const groups: Record<string, any[]> = {};
-                    tooltip.content.items.forEach((item: any) => {
-                      const key = item.project || 'Unknown';
-                      if (!groups[key]) groups[key] = { products: [] };
-                      groups[key].products.push(item);
-                    });
-
-                    return Object.entries(groups).map(([groupKey, groupData]: [string, any], idx) => (
-                      <div key={idx} style={{ 
-                        background: 'var(--color-background-tertiary)', 
-                        borderRadius: '8px', 
-                        padding: '10px',
-                        borderLeft: '4px solid var(--color-accent-primary)'
-                      }}>
-                        <div style={{ 
-                          fontSize: '11px', 
-                          fontWeight: 800, 
-                          color: 'var(--color-text-primary)',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}>
-                          <i className="bi bi-geo-alt-fill" style={{ color: 'var(--color-accent-primary)' }}></i>
-                          {groupKey}
-                        </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          {groupData.products.map((p: any, pIdx: number) => (
-                            <div key={pIdx} style={{ 
-                              padding: '6px 8px', 
-                              background: 'rgba(255,255,255,0.03)', 
-                              borderRadius: '4px',
-                              display: 'flex',
-                              alignItems: 'center'
-                            }}>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', alignItems: 'baseline', gap: '12px', width: '100%' }}>
-                                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {p.product}
-                                </span>
-                                {p.date ? (
-                                  <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', opacity: 0.8, whiteSpace: 'nowrap' }}>
-                                    Last Withdrawal: {p.date}
-                                  </span>
-                                ) : (
-                                  <span></span>
-                                )}
-                                <div style={{ display: 'flex', justifyContent: 'flex-end', minWidth: '40px' }}>
-                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-                                    {p.quantity.toLocaleString()}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ));
-                  })()
-                ) : (
-                  <div style={{ padding: '10px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '11px' }}>
-                    No material usage details recorded.
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
       )}

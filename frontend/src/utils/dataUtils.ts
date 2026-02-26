@@ -98,10 +98,17 @@ export function normalizeLotBuilding(str: string | null | undefined): string {
 export function normalizeJobSite(str: string | null | undefined): string {
   if (!str) return '';
   // Remove vírgulas, pontos e padroniza para minúsculas
-  return str.toLowerCase()
+  let normalized = str.toLowerCase()
     .replace(/[.,]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
+
+  // Correção específica para Baldwinville Scholl -> School
+  if (normalized.includes('baldwinville scholl')) {
+    normalized = normalized.replace('baldwinville scholl', 'baldwinville school');
+  }
+
+  return normalized;
 }
 
 /**

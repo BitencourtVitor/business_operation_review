@@ -60,7 +60,11 @@ const getWorktype = (row: any) => {
 };
 
 const getJobsiteLabel = (row: any) => {
-  const jobsiteName = row.jobsite;
+  let jobsiteName = row.jobsite;
+  // Specific fix for Baldwinville Scholl
+  if (jobsiteName && jobsiteName.includes('Baldwinville Scholl')) {
+    jobsiteName = jobsiteName.replace('Baldwinville Scholl', 'Baldwinville School');
+  }
   const lot_building = row.lot_building;
   const worktype = row.worktype;
   const company = row.company;
@@ -75,7 +79,7 @@ const getJobsiteLabel = (row: any) => {
 
     // Baldwinville logic - Only for Framing company
     if (
-      (jobsiteName === 'Baldwinville Scholl' || jobsiteName === 'Baldwinville School Apartments') &&
+      (jobsiteName === 'Baldwinville School' || jobsiteName === 'Baldwinville School Apartments') &&
       company === 'Framing'
     ) {
       return `Jobsite - ${jobsiteName}`;
@@ -869,7 +873,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
             };
 
             const chartTitle = findChartTitle(context.chart.canvas);
-            const isMonthYearChart = chartTitle.includes('Month/Year');
             const isServiceTypeChart = chartTitle.includes('Service Type');
             const isProjectChart = chartTitle.includes('Project');
 
@@ -884,7 +887,12 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
               let bestMatch: { team: string; score: number } | null = null;
               forecastProjects.forEach(f => {
                 const team = obraToTeam[f.id];
-                if (!team || normalizeLotBuilding(f.lote_bld) !== normTsLot) return;
+                const fLot = normalizeLotBuilding(f.lote_bld);
+                
+                // Se o timesheet tem lote, ele deve bater com o do Forecast.
+                // Se o timesheet NÃO tem lote, permitimos o match com qualquer lote do Forecast para essa obra.
+                if (!team || (normTsLot !== '' && fLot !== normTsLot)) return;
+                
                 let currentScore = 0;
                 const normFJob = normalizeJobSite(f.job_site);
                 const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
@@ -906,44 +914,59 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
 
             // Only show detailed breakdown if a worktype filter is active (not "Todos")
             if (selectedWorktypes.length > 0) {
-              if (isMonthYearChart || isServiceTypeChart) {
-                let relevantRows = [];
-                if (isMonthYearChart) {
-                  const referenceMonth = globalMonthlyData[firstItem.dataIndex]?.month;
-                  relevantRows = filteredData.filter(d => d.reference_month === referenceMonth);
-                } else {
-                  const worktype = worktypeData.labels[firstItem.dataIndex];
-                  relevantRows = filteredData.filter(d => getWorktype(d) === worktype);
-                }
+              const isBackCharge = selectedWorktypes.includes('Back Charge');
+              
+              if (isServiceTypeChart) {
+                const worktype = worktypeData.labels[firstItem.dataIndex];
+                const relevantRows = filteredData.filter(d => getWorktype(d) === worktype);
 
-                const mappedSubsMap = new Map<string, number>();
-                const unmappedProjectsMap = new Map<string, number>();
+                if (isBackCharge) {
+                  // Back Charge -> Show Subcontractors
+                  const mappedSubsMap = new Map<string, number>();
+                  const unmappedProjectsMap = new Map<string, number>();
 
-                relevantRows.forEach(row => {
-                  const result = findSubcontractor(row);
-                  if (result.isMapped) {
-                    mappedSubsMap.set(result.name, (mappedSubsMap.get(result.name) || 0) + (row.regular_hours || 0));
-                  } else {
-                    unmappedProjectsMap.set(result.name, (unmappedProjectsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                  relevantRows.forEach(row => {
+                    const result = findSubcontractor(row);
+                    if (result.isMapped) {
+                      mappedSubsMap.set(result.name, (mappedSubsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                    } else {
+                      unmappedProjectsMap.set(result.name, (unmappedProjectsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                    }
+                  });
+
+                  const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1] - a[1]);
+                  const sortedUnmapped = Array.from(unmappedProjectsMap.entries()).sort((a, b) => b[1] - a[1]);
+
+                  if (sortedMapped.length > 0) {
+                    afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR SUBCONTRATADO:' });
+                    sortedMapped.forEach(([sub, hours]) => {
+                      afterBodyContent.push({ type: 'item', text: `${sub}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                    });
                   }
-                });
-
-                const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1] - a[1]);
-                const sortedUnmapped = Array.from(unmappedProjectsMap.entries()).sort((a, b) => b[1] - a[1]);
-
-                if (sortedMapped.length > 0) {
-                  afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR SUBCONTRATADO:' });
-                  sortedMapped.forEach(([sub, hours]) => {
-                    afterBodyContent.push({ type: 'item', text: `${sub}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                  if (sortedUnmapped.length > 0) {
+                    afterBodyContent.push({ type: 'header', text: 'SUBCONTRATADO NÃO IDENTIFICADO:' });
+                    sortedUnmapped.forEach(([proj, hours]) => {
+                      afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                    });
+                  }
+                } else {
+                  // Other Worktypes -> Show Projects
+                  const projectsMap = new Map<string, number>();
+                  relevantRows.forEach(row => {
+                    const projectLabel = getJobsiteLabel(row);
+                    projectsMap.set(projectLabel, (projectsMap.get(projectLabel) || 0) + (row.regular_hours || 0));
                   });
+
+                  const sortedProjects = Array.from(projectsMap.entries()).sort((a, b) => b[1] - a[1]);
+                  if (sortedProjects.length > 0) {
+                    afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR PROJETO:' });
+                    sortedProjects.forEach(([proj, hours]) => {
+                      afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                    });
+                  }
                 }
-                if (sortedUnmapped.length > 0) {
-                  afterBodyContent.push({ type: 'header', text: 'SUBCONTRATADO NÃO IDENTIFICADO:' });
-                  sortedUnmapped.forEach(([proj, hours]) => {
-                    afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
-                  });
-                }
-              } else if (isProjectChart) {
+              } else if (isProjectChart && isBackCharge) {
+                // For Project Chart, only show breakdown if it's Back Charge (subcontractor details)
                 const jobsiteLabel = jobsiteData.labels[firstItem.dataIndex];
                 const relevantRows = filteredData.filter(d => getJobsiteLabel(d) === jobsiteLabel);
                 
