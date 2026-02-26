@@ -33,15 +33,16 @@ interface BackchargeData {
 }
 
 interface MaterialUsageData {
-  id: string;
-  mes: string;
-  total_retiradas: number;
-  valor_total_retirado: number;
-  subcontractor?: string; // Mapped from Storage Team
-  storageTeamMatched?: string; // The exact team name in Storage
-  items_details?: { product: string; quantity: number }[];
-  excessive_details?: { product: string; quantity: number; limit: number; project: string }[];
-}
+    id: string;
+    mes: string;
+    total_retiradas: number;
+    valor_total_retirado: number;
+    subcontractor?: string; // Mapped from Storage Team
+    storageTeamMatched?: string; // The exact team name in Storage
+    items_details?: { product: string; quantity: number }[];
+    excessive_details?: { product: string; quantity: number; limit: number; project: string }[];
+    project_details?: { name: string; value: number }[];
+  }
 
 interface ExcessiveWithdrawalData {
   subcontractor: string;
@@ -90,10 +91,25 @@ interface SubcontractorStat {
 }
 
 export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _usuarioId, role: _role, isResponsavelPelaTela: _isResponsavelPelaTela }: SubcontractorPerformanceProps) {
-  const [selectedYear, setSelectedYear] = useState<string>('');
-  const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [activeTab, setActiveTab] = useState('avg-execution');
-  const [backchargeView, setBackchargeView] = useState<'ranking' | 'details'>('ranking');
+  const [selectedYear, setSelectedYear] = useState<string>(() => localStorage.getItem('subcontractor_performance_year') || '');
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => localStorage.getItem('subcontractor_performance_month') || '');
+
+  // Persist filters to localStorage
+  useEffect(() => {
+    if (selectedYear) {
+      localStorage.setItem('subcontractor_performance_year', selectedYear);
+    } else {
+      localStorage.removeItem('subcontractor_performance_year');
+    }
+  }, [selectedYear]);
+
+  useEffect(() => {
+    if (selectedMonth) {
+      localStorage.setItem('subcontractor_performance_month', selectedMonth);
+    } else {
+      localStorage.removeItem('subcontractor_performance_month');
+    }
+  }, [selectedMonth]);
   const [years] = useState<string[]>(['2026', '2025']);
   const [months] = useState<string[]>(['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']);
   
@@ -103,8 +119,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   const [backchargeData, setBackchargeData] = useState<BackchargeData[]>([]);
   const [materialUsageData, setMaterialUsageData] = useState<MaterialUsageData[]>([]);
   const [forecastSubcontractors, setForecastSubcontractors] = useState<string[]>([]);
-  const [materialView, setMaterialView] = useState<'ranking' | 'details'>('ranking');
-  const [viewMode, setViewMode] = useState<'detailed' | 'consolidated'>('consolidated');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,7 +128,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     x: number; 
     y: number; 
     content: any[] | { items: any[], excessive: any[] }; 
-    type: 'execution' | 'backcharge' | 'material'
+    type: 'execution' | 'backcharge' | 'material' | 'overall'
   }>({
     visible: false,
     x: 0,
@@ -431,7 +445,10 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               // Extract product details from this movement
               const currentItemsDetails = (movement.stock_movement_items || []).map((item: any) => ({
                 product: item.products?.nome || 'Unknown Product',
-                quantity: Math.abs(item.quantidade || 0)
+                quantity: Math.abs(item.quantidade || 0),
+                project: projectName,
+                lot_building: movement.projects?.lot_building || 'N/A',
+                type: movement.projects?.type || 'N/A'
               }));
 
               const date = movement.movement_date ? new Date(movement.movement_date) : new Date();
@@ -444,6 +461,14 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 groupedMap[groupKey].valor_total_retirado += totalValue;
                 groupedMap[groupKey].total_retiradas += totalQuantity;
                 
+                // Aggregate project details
+                const existingProject = groupedMap[groupKey].project_details?.find(p => p.name === projectName);
+                if (existingProject) {
+                  existingProject.value += totalValue;
+                } else {
+                  groupedMap[groupKey].project_details?.push({ name: projectName, value: totalValue });
+                }
+
                 // Aggregate product details
                 currentItemsDetails.forEach(newItem => {
                   const existingItem = groupedMap[groupKey].items_details?.find(i => i.product === newItem.product);
@@ -483,6 +508,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                   subcontractor: matchedSub || 'NOT IDENTIFIED',
                   storageTeamMatched: teamName,
                   items_details: [...currentItemsDetails],
+                  project_details: [{ name: projectName, value: totalValue }],
                   excessive_details: []
                 };
               }
@@ -542,20 +568,21 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     const works: Record<string, { start?: string; end?: string; subcontractor?: string }> = {};
 
     rawEvents.forEach(event => {
-      if (!works[event.obra_id]) {
-        works[event.obra_id] = {};
+      const obraId = event.obra_id?.toString().trim();
+      if (!obraId) return;
+
+      if (!works[obraId]) {
+        works[obraId] = {};
       }
       
-      // Assume subcontractor is consistent across events for the same obra_id
-      // If not, we might need logic to handle it, but for now take the first non-null
-      if (event.subcontractor && !works[event.obra_id].subcontractor) {
-        works[event.obra_id].subcontractor = event.subcontractor;
+      if (event.subcontractor && !works[obraId].subcontractor) {
+        works[obraId].subcontractor = event.subcontractor.trim();
       }
 
       if (event.estimated_date_type === 'Start') {
-        works[event.obra_id].start = event.event_datetime;
+        works[obraId].start = event.event_datetime;
       } else if (event.estimated_date_type === 'End') {
-        works[event.obra_id].end = event.event_datetime;
+        works[obraId].end = event.event_datetime;
       }
     });
 
@@ -567,11 +594,10 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         const startDate = new Date(work.start);
         const endDate = new Date(work.end);
         
-        // Use UTC methods to avoid timezone shifts when filtering by year/month
-        const itemYear = endDate.getUTCFullYear().toString();
-        const itemMonth = (endDate.getUTCMonth() + 1).toString().padStart(2, '0');
-
         // Filter by selected Year/Month based on End Date
+        const itemYear = endDate.getFullYear().toString();
+        const itemMonth = (endDate.getMonth() + 1).toString().padStart(2, '0');
+
         if (selectedYear && itemYear !== selectedYear) return;
         if (selectedMonth && itemMonth !== selectedMonth) return;
 
@@ -593,25 +619,31 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     const stats: Record<string, { totalDuration: number; count: number; totalContractPct: number; works: WorkDetail[] }> = {};
 
     completedWorks.forEach(work => {
+      const cleanObraId = work.obra_id.trim();
+      const pData = projectData[cleanObraId];
+      const cData = contractData[cleanObraId];
+      
+      // ONLY count if we have project data (jobsite name)
+      if (!pData || !pData.job_site) {
+        return; 
+      }
+
       if (!stats[work.subcontractor]) {
         stats[work.subcontractor] = { totalDuration: 0, count: 0, totalContractPct: 0, works: [] };
       }
       stats[work.subcontractor].totalDuration += work.duration;
       stats[work.subcontractor].count += 1;
       
-      const pData = projectData[work.obra_id];
-      const cData = contractData[work.obra_id];
       const contractPct = cData && cData.total > 0 ? (cData.completed / cData.total) * 100 : 0;
-      
       stats[work.subcontractor].totalContractPct += contractPct;
 
       stats[work.subcontractor].works.push({
-        id: work.obra_id,
+        id: cleanObraId,
         start: work.start,
         end: work.end,
-        jobsite: pData?.job_site || 'Unknown',
-        type: pData?.type || 'Unknown',
-        building: pData?.lote_bld || 'Unknown',
+        jobsite: pData.job_site,
+        type: pData.type || 'Unknown',
+        building: pData.lote_bld || 'Unknown',
         duration: work.duration,
         contractCompletion: contractPct
       });
@@ -724,53 +756,10 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     return formatted.sort((a, b) => b.totalHours - a.totalHours);
   }, [backchargeData, selectedYear, selectedMonth]);
 
-  const detailedBackchargeList = useMemo(() => {
-    if (!backchargeData.length) return [];
-
-    const aggregated: Record<string, any> = {};
-
-    backchargeData
-      .filter(item => {
-        // Filter by selected year/month
-        // Use string splitting instead of new Date() to avoid timezone shifts for "YYYY-MM" strings
-        const dateParts = item.date.split('-');
-        const itemYear = dateParts[0];
-        const itemMonth = dateParts[1];
-        
-        if (selectedYear && itemYear !== selectedYear) return false;
-        if (selectedMonth && itemMonth !== selectedMonth) return false;
-        return true;
-      })
-      .forEach(item => {
-        const period = item.date;
-        const tsJobsite = `${item.jobsite} ${item.lot_building || ''}`;
-        const forecastJobsite = item.forecastJobsite || 'NOT IDENTIFIED';
-        const subcontractor = item.subcontractor || 'Unknown Subcontractor';
-        
-        // Key to group by: period, tsJobsite, forecastJobsite, subcontractor
-        const key = `${period}|${tsJobsite}|${forecastJobsite}|${subcontractor}`;
-        
-        if (!aggregated[key]) {
-          aggregated[key] = {
-            period,
-            tsJobsite,
-            forecastJobsite,
-            totalHours: 0,
-            subcontractor
-          };
-        }
-        
-        aggregated[key].totalHours += item.regular_hours;
-      });
-
-    return Object.values(aggregated)
-      .sort((a, b) => b.period.localeCompare(a.period) || b.totalHours - a.totalHours);
-  }, [backchargeData, selectedYear, selectedMonth]);
-
   const materialRanking = useMemo(() => {
     if (!materialUsageData.length) return [];
 
-    const grouped: Record<string, { totalValue: number; totalWithdrawals: number; subcontractors: Set<string>; excessiveCount: number }> = {};
+    const grouped: Record<string, { totalValue: number; totalWithdrawals: number; subcontractors: Set<string>; excessiveCount: number; details: any[]; projects: any[] }> = {};
 
     materialUsageData.forEach(item => {
       // Group by the mapped subcontractor
@@ -778,12 +767,36 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       if (sub === 'NOT IDENTIFIED') return;
       
       if (!grouped[sub]) {
-        grouped[sub] = { totalValue: 0, totalWithdrawals: 0, subcontractors: new Set(), excessiveCount: 0 };
+        grouped[sub] = { totalValue: 0, totalWithdrawals: 0, subcontractors: new Set(), excessiveCount: 0, details: [], projects: [] };
       }
       grouped[sub].totalValue += item.valor_total_retirado;
       grouped[sub].totalWithdrawals += item.total_retiradas;
       grouped[sub].excessiveCount += (item.excessive_details?.length || 0);
       grouped[sub].subcontractors.add(sub);
+
+      // Aggregate project details
+      if (item.project_details) {
+        item.project_details.forEach(proj => {
+          const existing = grouped[sub].projects.find(p => p.name === proj.name);
+          if (existing) {
+            existing.value += proj.value;
+          } else {
+            grouped[sub].projects.push({ ...proj });
+          }
+        });
+      }
+
+      // Aggregate product details for the tooltip (products and quantities)
+      if (item.items_details) {
+        item.items_details.forEach(detail => {
+          // Add details for grouped view (by project and lot)
+          grouped[sub].details.push({
+            ...detail,
+            date: item.mes,
+            value: detail.value || 0
+          });
+        });
+      }
     });
 
     return Object.entries(grouped)
@@ -791,21 +804,18 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         subcontractor: sub,
         totalValue: data.totalValue,
         totalWithdrawals: data.totalWithdrawals,
-        excessiveCount: data.excessiveCount
+        totalQuantity: data.details.reduce((sum, d) => sum + (d.quantity || 0), 0),
+        excessiveCount: data.excessiveCount,
+        details: data.details.sort((a, b) => {
+          // Sort by project then by lot_building
+          const projCompare = (a.project || '').localeCompare(b.project || '');
+          if (projCompare !== 0) return projCompare;
+          return (a.lot_building || '').localeCompare(b.lot_building || '');
+        }),
+        projects: data.projects
       }))
       .sort((a, b) => b.totalValue - a.totalValue);
   }, [materialUsageData]);
-
-  const detailedMaterialList = useMemo(() => {
-    return materialUsageData
-      .filter(item => {
-        if (item.subcontractor === 'NOT IDENTIFIED' || !item.subcontractor) return false;
-        if (selectedYear && !item.mes.startsWith(selectedYear)) return false;
-        if (selectedMonth && !item.mes.endsWith(selectedMonth)) return false;
-        return true;
-      })
-      .sort((a, b) => b.mes.localeCompare(a.mes) || b.valor_total_retirado - a.valor_total_retirado);
-  }, [materialUsageData, selectedYear, selectedMonth]);
 
   const excessiveWithdrawalsRanking = useMemo(() => {
     if (!materialUsageData.length) return [];
@@ -815,6 +825,12 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     materialUsageData.forEach(item => {
       const sub = item.subcontractor || 'NOT IDENTIFIED';
       if (sub === 'NOT IDENTIFIED') return;
+      
+      // Strict date filter: Only show data for the selected period
+      if (selectedYear && selectedMonth) {
+        const selectedPeriod = `${selectedYear}-${selectedMonth}`;
+        if (item.mes !== selectedPeriod) return;
+      }
       
       if (item.excessive_details && item.excessive_details.length > 0) {
         if (!stats[sub]) {
@@ -839,7 +855,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         details: data.details
       }))
       .sort((a, b) => b.totalExcess - a.totalExcess);
-  }, [materialUsageData]);
+  }, [materialUsageData, selectedYear, selectedMonth]);
 
   const consolidatedScorecard = useMemo(() => {
     // Collect all unique subcontractors across all data sources
@@ -849,6 +865,12 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     materialRanking.forEach(r => allSubcontractors.add(r.subcontractor));
     excessiveWithdrawalsRanking.forEach(r => allSubcontractors.add(r.subcontractor));
 
+    // Calculate Global Average Duration for all works in the selected period
+    const allWorks = executionRanking.flatMap(r => r.works);
+    const globalAvgDuration = allWorks.length > 0 
+      ? allWorks.reduce((sum, w) => sum + w.duration, 0) / allWorks.length 
+      : 30; // Fallback if no works at all
+
     return Array.from(allSubcontractors).map(sub => {
       const exec = executionRanking.find(r => r.subcontractor === sub);
       const back = backchargeRanking.find(r => r.subcontractor === sub);
@@ -856,10 +878,19 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       const exc = excessiveWithdrawalsRanking.find(r => r.subcontractor === sub);
 
       // 1. Tempo de Execução (Weight: 25%)
-      // Higher avgDuration is worse. Lower is better.
-      // Reference: 20 days is a good average.
-      const avgDuration = exec?.avgDuration || 30;
-      const durationScore = Math.max(0, 100 - (avgDuration * 2.5));
+      // Comparamos a média da equipe com a média GLOBAL de todas as equipes no período.
+      // Se a equipe for mais rápida que a média global, a nota é alta.
+      const hasExecData = exec && exec.works && exec.works.length > 0;
+      const avgDuration = hasExecData ? exec.avgDuration : 0;
+      
+      let durationScore = 0;
+      if (hasExecData) {
+        // Se a duração for igual à média global, ganha 70 pontos.
+        // Se for metade da média (muito rápido), ganha 100.
+        // Se for o dobro da média (muito lento), ganha 0.
+        const performanceRatio = avgDuration / globalAvgDuration;
+        durationScore = Math.max(0, Math.min(100, 100 - (performanceRatio - 0.5) * 60));
+      }
 
       // 2. Completude de Contrato (Weight: 20%)
       const contractScore = exec?.avgContractCompletion || 0;
@@ -896,17 +927,31 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       return {
         subcontractor: sub,
         finalScore,
+        completedWorks,
         metrics: {
-          duration: { score: durationScore, value: avgDuration, label: 'Execution Time' },
-          contract: { score: contractScore, value: contractScore, label: 'Contract Completion' },
-          backcharge: { score: backScore, value: backHours, label: 'Backcharges' },
-          material: { score: matScore, value: matValue, label: 'Material Usage' },
-          excess: { score: excessScore, value: excessCount, label: 'Excess Alerts' },
-          safety: { score: safetyScore, value: safetyValue, label: 'Safety Level' }
-        }
-      };
-    }).sort((a, b) => b.finalScore - a.finalScore);
-  }, [executionRanking, backchargeRanking, materialRanking, excessiveWithdrawalsRanking]);
+            duration: { 
+              score: durationScore, 
+              value: avgDuration, 
+              label: 'Execution Time', 
+              details: exec?.works || []
+            },
+            contract: { score: contractScore, value: contractScore, label: 'Contract Completion', details: exec?.works || [] },
+            backcharge: { score: backScore, value: backHours, label: 'Backcharges', details: back?.details || [] },
+            material: { 
+              score: matScore, 
+              value: matValue, 
+              quantity: mat?.totalQuantity || 0,
+              label: 'Material Usage', 
+              details: mat?.details || [], 
+              excessiveDetails: exc?.details || [], 
+              projects: mat?.projects || [] 
+            },
+            excess: { score: excessScore, value: excessCount, label: 'Excess Alerts', details: exc?.details || [] },
+            safety: { score: safetyScore, value: safetyValue, label: 'Safety Level' }
+          }
+        };
+      }).sort((a, b) => b.finalScore - a.finalScore);
+    }, [executionRanking, backchargeRanking, materialRanking, excessiveWithdrawalsRanking, projectData, contractData]);
 
   const handleMouseEnter = (e: React.MouseEvent, works: WorkDetail[]) => {
     // Clear any pending hide timeout
@@ -946,6 +991,47 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       y: y,
       content: works,
       type: 'execution'
+    });
+  };
+
+  const handleContractMouseEnter = (e: React.MouseEvent, works: any[]) => {
+    // Clear any pending hide timeout
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 320;
+    
+    // Position to the right by default
+    let x = rect.right + 10;
+    
+    // If it doesn't fit on the right, flip to left
+    if (x + tooltipWidth > window.innerWidth) {
+        x = Math.max(10, rect.left - tooltipWidth - 10);
+    }
+    
+    // Estimate height to avoid cutting off at bottom
+    const estimatedHeight = Math.min(300, works.length * 70 + 70);
+    let y = rect.top;
+    
+    // If it goes off bottom, shift it up
+    if (y + estimatedHeight > window.innerHeight) {
+        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+    }
+
+    // Safety check for top overflow
+    if (y < 10) {
+        y = 10;
+    }
+
+    setTooltip({
+      visible: true,
+      x: x,
+      y: y,
+      content: works,
+      type: 'contract'
     });
   };
 
@@ -990,7 +1076,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     });
   };
 
-  const handleMaterialMouseEnter = (e: React.MouseEvent, details: any[], excessiveDetails?: any[]) => {
+  const handleExcessMouseEnter = (e: React.MouseEvent, details: any[]) => {
     // Clear any pending hide timeout
     if (tooltipTimeoutRef.current) {
       clearTimeout(tooltipTimeoutRef.current);
@@ -1008,9 +1094,47 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         x = Math.max(10, rect.left - tooltipWidth - 10);
     }
     
-    // Estimate height to avoid cutting off at bottom
-    const totalItems = (details?.length || 0) + (excessiveDetails?.length || 0);
-    const estimatedHeight = Math.min(450, totalItems * 65 + 100); // Increased estimate
+    // Estimate height
+    const estimatedHeight = Math.min(450, details.length * 65 + 70);
+    let y = rect.top;
+    
+    // If it goes off bottom, shift it up
+    if (y + estimatedHeight > window.innerHeight) {
+        y = Math.max(10, window.innerHeight - estimatedHeight - 10);
+    }
+
+    if (y < 10) y = 10;
+
+    setTooltip({
+      visible: true,
+      x: x,
+      y: y,
+      content: details,
+      type: 'excess'
+    });
+  };
+
+  const handleMaterialMouseEnter = (e: React.MouseEvent, details: any[], projects?: any[]) => {
+    // Clear any pending hide timeout
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 320;
+    
+    // Position to the right by default
+    let x = rect.right + 10;
+    
+    // If it doesn't fit on the right, flip to left
+    if (x + tooltipWidth > window.innerWidth) {
+        x = Math.max(10, rect.left - tooltipWidth - 10);
+    }
+    
+    // Estimate height
+    const totalItems = (details?.length || 0) + (projects?.length || 0);
+    const estimatedHeight = Math.min(450, totalItems * 65 + 100);
     let y = rect.top;
     
     // If it goes off bottom, shift it up
@@ -1018,16 +1142,13 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         y = Math.max(10, window.innerHeight - estimatedHeight - 10);
     }
     
-    // Safety check for top overflow
-    if (y < 10) {
-        y = 10;
-    }
+    if (y < 10) y = 10;
 
     setTooltip({
       visible: true,
       x: x,
       y: y,
-      content: { items: details, excessive: excessiveDetails || [] },
+      content: { items: details, projects: projects || [] },
       type: 'material'
     });
   };
@@ -1052,6 +1173,29 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     }, 300);
   };
 
+  const handleOverallMouseEnter = (e: React.MouseEvent, metrics: any) => {
+    if (tooltipTimeoutRef.current) {
+      clearTimeout(tooltipTimeoutRef.current);
+      tooltipTimeoutRef.current = null;
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 280;
+    
+    let x = rect.left - tooltipWidth - 10;
+    if (x < 10) {
+        x = rect.right + 10;
+    }
+
+    setTooltip({
+      visible: true,
+      x: x,
+      y: rect.top,
+      content: metrics,
+      type: 'overall'
+    });
+  };
+
   return (
     <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>
       {/* Barra superior com título e filtros */}
@@ -1071,37 +1215,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           />
           
           <div style={{ width: '1px', height: '24px', background: 'var(--color-border-divider)', margin: '0 4px' }}></div>
-
-          <button 
-            onClick={() => setViewMode(prev => prev === 'consolidated' ? 'detailed' : 'consolidated')}
-            style={{
-              background: 'var(--color-background-secondary)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-divider)',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              fontSize: '13px',
-              fontWeight: 600,
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: 'none'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-              e.currentTarget.style.background = 'var(--color-background-tertiary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-              e.currentTarget.style.background = 'var(--color-background-secondary)';
-            }}
-          >
-            <i className={`bi ${viewMode === 'consolidated' ? 'bi-grid-3x3-gap-fill' : 'bi-speedometer2'}`} style={{ fontSize: '14px', color: 'var(--color-accent-primary)' }}></i>
-            <span style={{ textTransform: 'uppercase', letterSpacing: '0.5px', fontSize: '11px' }}>
-              {viewMode === 'consolidated' ? 'Detailed View' : 'Scorecard View'}
-            </span>
-          </button>
         </div>
       </div>
 
@@ -1149,37 +1262,37 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                   { 
                     label: 'Execution Time', 
                     icon: 'bi-clock-history', 
-                    desc: 'Mede a rapidez em relação à média: quanto menor o tempo médio de entrega comparado ao padrão de 40 dias, maior a pontuação.',
+                    desc: 'Avalia a agilidade da equipe em relação ao coletivo. Calculamos a média de tempo de todas as equipes no período e comparamos com o desempenho individual. Se a equipe entregar mais rápido que a média das outras, a nota sobe. Se não houver trabalhos no período, a nota é zero para manter a competitividade justa.',
                     weight: '25%'
                   },
                   { 
                     label: 'Contract Completion', 
                     icon: 'bi-file-text-fill', 
-                    desc: 'Proporção de completude das etapas necessárias para o cumprimento dos contratos das obras onde a equipe é direcionada.',
+                    desc: 'Mede o engajamento administrativo da equipe. Antes da obra começar, o subcontratado precisa colaborar com diversas etapas burocráticas e assinaturas. Esta nota reflete quantas dessas etapas obrigatórias foram concluídas, garantindo que a equipe esteja regularizada e pronta para trabalhar.',
                     weight: '20%'
                   },
                   { 
                     label: 'Backcharges', 
                     icon: 'bi-exclamation-triangle-fill', 
-                    desc: 'Penaliza custos extras por retrabalho. Nota zero acima de 20h de erros acumulados.',
+                    desc: 'Mede a qualidade e o cuidado. Toda vez que precisamos gastar horas extras para corrigir erros ou retrabalhos da equipe, isso gera um "Backcharge". Cada hora de erro reduz a nota, e acumular mais de 20 horas zera este critério.',
                     weight: '20%'
                   },
                   { 
                     label: 'Material Usage', 
                     icon: 'bi-box-seam', 
-                    desc: 'Valor total de materiais gasto vs número de obras concluídas, considerando a complexidade de cada projeto.',
+                    desc: 'Monitora o uso consciente de recursos. Calculamos a média de gasto de material por cada obra concluída. Se o custo total de materiais for excessivo em relação à quantidade de obras entregues, a nota cai. O objetivo é premiar quem produz mais com menos desperdício.',
                     weight: '20%'
                   },
                   { 
                     label: 'Excess Alerts', 
                     icon: 'bi-cart-x-fill', 
-                    desc: 'Cada retirada acima do limite planejado deduz 10 pontos da nota total.',
+                    desc: 'Penaliza a falta de planejamento. Cada vez que a equipe solicita material acima do limite planejado na lista de materiais da obra (feita a partir do template original), ela perde 10 pontos nesta nota. Menos alertas significam melhor controle e fidelidade ao projeto.',
                     weight: '15%'
                   },
                   { 
                     label: 'Safety Level', 
                     icon: 'bi-shield-check', 
-                    desc: 'Em breve: Avaliação do cumprimento de normas e uso de EPIs no canteiro.',
+                    desc: 'Em breve: Este critério avaliará o compromisso integral com a vida. Mediremos o cumprimento rigoroso de todas as normas de segurança, o uso correto de EPIs e a adoção de boas práticas no canteiro. Manter um ambiente seguro é a regra número um para qualquer parceria.',
                     weight: '0%'
                   }
                 ].map((criterion, idx) => (
@@ -1222,625 +1335,586 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               </div>
             </div>
 
-            {viewMode === 'consolidated' ? (
-              <div className="d-flex flex-column gap-3">
-                {/* Ranking Header Bar */}
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '12px', 
-                  padding: '0 8px',
-                  marginBottom: '12px'
+            <div className="d-flex flex-column gap-3">
+              {/* Ranking Header Bar */}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '12px', 
+                padding: '0 8px',
+                marginBottom: '12px'
+              }}>
+                <span style={{ 
+                  fontSize: '11px', 
+                  fontWeight: 800, 
+                  color: 'var(--color-text-secondary)', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '2px',
+                  opacity: 0.8
                 }}>
-                  <span style={{ 
-                    fontSize: '11px', 
-                    fontWeight: 800, 
-                    color: 'var(--color-text-secondary)', 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '2px',
-                    opacity: 0.8
-                  }}>
-                    Ranking
-                  </span>
-                  <div style={{ 
-                    height: '1px', 
-                    flex: 1, 
-                    background: 'linear-gradient(to left, transparent, var(--color-border-divider))' 
-                  }}></div>
-                </div>
+                  Ranking
+                </span>
+                <div style={{ 
+                  height: '1px', 
+                  flex: 1, 
+                  background: 'linear-gradient(to left, transparent, var(--color-border-divider))' 
+                }}></div>
+              </div>
 
-                {consolidatedScorecard.length === 0 ? (
-                  <div className="col-12 text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                    <i className="bi bi-speedometer2" style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}></i>
-                    <p>No performance data available for the selected period.</p>
-                  </div>
-                ) : (
-                  consolidatedScorecard.map((item, idx) => (
-                    <div key={item.subcontractor} className="col-12">
-                      <div style={{ 
-                        background: 'var(--color-background-secondary)',
-                        borderRadius: '12px',
-                        border: '1px solid var(--color-border-divider)',
-                        padding: '12px 16px',
-                        transition: 'all 0.2s ease',
-                        cursor: 'default',
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = 'var(--color-border-divider)';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
-                      >
-                        {/* LADO ESQUERDO: RANK E NOME */}
-                        <div style={{ flex: '0 0 190px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{ 
-                            fontSize: '14px', 
-                            fontWeight: 900, 
-                            color: idx === 0 ? '#fbbf24' : // Ouro
-                                   idx === 1 ? '#94a3b8' : // Prata
-                                   idx === 2 ? '#cd7f32' : // Bronze
-                                   'var(--color-text-secondary)',
-                            background: idx === 0 ? 'rgba(251, 191, 36, 0.1)' : 
-                                        idx === 1 ? 'rgba(148, 163, 184, 0.1)' : 
-                                        idx === 2 ? 'rgba(205, 127, 50, 0.1)' : 
-                                        'var(--color-background-tertiary)',
-                            border: `1px solid ${
-                              idx === 0 ? '#fbbf24' : 
-                              idx === 1 ? '#94a3b8' : 
-                              idx === 2 ? '#cd7f32' : 
-                              'var(--color-border-divider)'
-                            }`,
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            position: 'relative',
-                            boxShadow: idx < 3 ? `0 0 10px ${
-                              idx === 0 ? 'rgba(251, 191, 36, 0.2)' : 
-                              idx === 1 ? 'rgba(148, 163, 184, 0.2)' : 
-                              'rgba(205, 127, 50, 0.2)'
-                            }` : 'none'
+              {consolidatedScorecard.length === 0 ? (
+                <div className="col-12 text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
+                  <i className="bi bi-speedometer2" style={{ fontSize: '48px', marginBottom: '16px', display: 'block' }}></i>
+                  <p>No performance data available for the selected period.</p>
+                </div>
+              ) : (
+                consolidatedScorecard.map((item, idx) => (
+                  <div key={item.subcontractor} className="col-12">
+                    <div style={{ 
+                      background: 'var(--color-background-secondary)',
+                      borderRadius: '12px',
+                      border: '1px solid var(--color-border-divider)',
+                      padding: '12px 16px',
+                      transition: 'all 0.2s ease',
+                      cursor: 'default',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-accent-primary)';
+                      e.currentTarget.style.transform = 'translateY(-1px)';
+                      e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = 'var(--color-border-divider)';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                    >
+                      {/* LADO ESQUERDO: RANK E NOME */}
+                      <div style={{ flex: '0 0 190px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ 
+                          fontSize: '14px', 
+                          fontWeight: 900, 
+                          color: idx === 0 ? '#fbbf24' : // Ouro
+                                 idx === 1 ? '#94a3b8' : // Prata
+                                 idx === 2 ? '#cd7f32' : // Bronze
+                                 'var(--color-text-secondary)',
+                          background: idx === 0 ? 'rgba(251, 191, 36, 0.1)' : 
+                                      idx === 1 ? 'rgba(148, 163, 184, 0.1)' : 
+                                      idx === 2 ? 'rgba(205, 127, 50, 0.1)' : 
+                                      'var(--color-background-tertiary)',
+                          border: `1px solid ${
+                            idx === 0 ? '#fbbf24' : 
+                            idx === 1 ? '#94a3b8' : 
+                            idx === 2 ? '#cd7f32' : 
+                            'var(--color-border-divider)'
+                          }`,
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                          position: 'relative',
+                          boxShadow: idx < 3 ? `0 0 10px ${
+                            idx === 0 ? 'rgba(251, 191, 36, 0.2)' : 
+                            idx === 1 ? 'rgba(148, 163, 184, 0.2)' : 
+                            'rgba(205, 127, 50, 0.2)'
+                          }` : 'none'
+                        }}>
+                          <span style={{ position: 'relative', top: '-0.5px' }}>{idx + 1}</span>
+                        </div>
+                        <div style={{ overflow: 'hidden', flex: 1, textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <h3 style={{ 
+                            margin: 0, 
+                            fontSize: '15px', 
+                            fontWeight: 600, 
+                            color: 'var(--color-text-primary)', 
+                            wordBreak: 'break-word',
+                            overflowWrap: 'anywhere',
+                            lineHeight: '1.2',
+                            letterSpacing: '-0.2px'
                           }}>
-                            <span style={{ position: 'relative', top: '-0.5px' }}>{idx + 1}</span>
-                          </div>
-                          <div style={{ overflow: 'hidden', flex: 1, textAlign: 'left' }}>
-                            <h3 style={{ 
-                              margin: 0, 
-                              marginRight: '10px',
-                              fontSize: '15px', 
-                              fontWeight: 600, 
-                              color: 'var(--color-text-primary)', 
-                              wordBreak: 'break-word',
-                              overflowWrap: 'anywhere',
-                              lineHeight: '1.2',
-                              letterSpacing: '-0.2px'
-                            }}>
-                              {item.subcontractor}
-                            </h3>
+                            {item.subcontractor}
+                          </h3>
+                          <div style={{ 
+                            padding: '2px 6px',
+                            color: 'var(--color-text-secondary)',
+                            fontSize: '11px',
+                            fontWeight: 400,
+                            whiteSpace: 'nowrap',
+                            fontStyle: 'italic',
+                            opacity: 0.8
+                          }}>
+                            {item.completedWorks} {item.completedWorks === 1 ? 'work' : 'works'}
                           </div>
                         </div>
+                      </div>
 
-                        {/* CENTRO: MÉTRICAS E NOTAS */}
-                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
-                          {Object.entries(item.metrics).map(([key, metric]: [string, any], mIdx) => {
-                            const hasScore = metric.score !== null;
-                            const scoreColor = !hasScore ? 'var(--color-text-primary)' :
-                                             metric.score >= 80 ? '#22c55e' : 
-                                             metric.score >= 60 ? '#f59e0b' : 
-                                             '#ef4444';
-                            
-                            return (
-                              <div key={key} style={{ 
-                                textAlign: 'left',
-                                borderRight: mIdx < 5 ? '1px solid var(--color-border-divider)' : 'none',
-                                padding: '0 4px',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'center'
-                              }}>
-                                <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
-                                  {metric.label}
+                      {/* CENTRO: MÉTRICAS E NOTAS */}
+                      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
+                        {Object.entries(item.metrics).map(([key, metric]: [string, any], mIdx) => {
+                          const hasScore = metric.score !== null;
+                          const scoreColor = !hasScore ? 'var(--color-text-primary)' :
+                                           metric.score >= 80 ? '#22c55e' : 
+                                           metric.score >= 60 ? '#f59e0b' : 
+                                           '#ef4444';
+                          
+                          return (
+                            <div key={key} style={{ 
+                              textAlign: 'left',
+                              borderRight: mIdx < 5 ? '1px solid var(--color-border-divider)' : 'none',
+                              padding: '0 4px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'center',
+                              cursor: 'help',
+                              transition: 'background-color 0.2s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = 'var(--color-background-tertiary)';
+                              if (key === 'duration') {
+                                handleMouseEnter(e, metric.details);
+                              } else if (key === 'contract') {
+                                handleContractMouseEnter(e, metric.details);
+                              } else if (key === 'backcharge') {
+                                handleBackchargeMouseEnter(e, metric.details);
+                              } else if (key === 'material') {
+                                handleMaterialMouseEnter(e, metric.details, metric.projects);
+                              } else if (key === 'excess') {
+                                handleExcessMouseEnter(e, metric.details);
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = 'transparent';
+                              handleMouseLeave();
+                            }}
+                            >
+                              <div style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+                                {metric.label}
+                              </div>
+                              
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                {/* Valor Real */}
+                                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1 }}>
+                                  {!hasScore ? '---' :
+                                   key === 'duration' ? (
+                                     metric.details.length > 0 ? `${Math.round(metric.value)}d/work` : '—'
+                                   ) :
+                                   key === 'contract' ? `${metric.value.toFixed(0)}%` :
+                                   key === 'backcharge' ? `${metric.value.toFixed(2)}h` :
+                                   key === 'material' ? (
+                                     <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                         <span style={{ fontSize: '14px', fontWeight: 700 }}>${(metric.value / 1000).toFixed(1)}k</span>
+                                         <span style={{ color: 'var(--color-border-divider)', fontWeight: 300 }}>|</span>
+                                         <span style={{ fontSize: '14px', color: 'var(--color-text-secondary)', fontWeight: 400 }}>
+                                           {metric.quantity.toLocaleString()}
+                                         </span>
+                                       </div>
+                                   ) :
+                                   `${metric.value}`}
                                 </div>
-                                
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                  {/* Valor Real */}
-                                  <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1 }}>
-                                    {!hasScore ? '---' :
-                                     key === 'duration' ? `${Math.round(metric.value)}d` :
-                                     key === 'contract' ? `${metric.value.toFixed(0)}%` :
-                                     key === 'backcharge' ? `${metric.value.toFixed(2)}h` :
-                                     key === 'material' ? `$${(metric.value / 1000).toFixed(1)}k` :
-                                     `${metric.value}`}
-                                  </div>
 
-                                  {/* Nota 0-100 */}
-                                  <div style={{ 
-                                    fontSize: '11px', 
-                                    fontWeight: 900, 
-                                    color: scoreColor,
-                                    letterSpacing: '0.2px',
-                                    paddingTop: '3px',
-                                    borderTop: '1px solid var(--color-border-divider)',
-                                    width: 'fit-content',
-                                    opacity: hasScore ? 1 : 0.5
-                                  }}>
-                                    {hasScore ? Math.round(metric.score) : 'PENDING'}
-                                  </div>
+                                {/* Nota 0-100 */}
+                                <div style={{ 
+                                  fontSize: '11px', 
+                                  fontWeight: 900, 
+                                  color: scoreColor,
+                                  letterSpacing: '0.2px',
+                                  paddingTop: '3px',
+                                  borderTop: '1px solid var(--color-border-divider)',
+                                  width: 'fit-content',
+                                  opacity: hasScore ? 1 : 0.5
+                                }}>
+                                  {hasScore ? Math.round(metric.score) : 'PENDING'}
                                 </div>
                               </div>
-                            );
-                          })}
-                        </div>
+                            </div>
+                          );
+                        })}
+                      </div>
 
-                        {/* LADO DIREITO: OVERALL SCORE */}
-                        <div style={{ flex: '0 0 80px', textAlign: 'center', paddingLeft: '8px' }}>
-                          <div style={{ 
-                            fontSize: '28px', 
-                            fontWeight: 900, 
-                            color: item.finalScore >= 80 ? '#22c55e' : 
-                                   item.finalScore >= 60 ? '#f59e0b' : 
-                                   '#ef4444',
-                            lineHeight: 1,
-                            marginBottom: '2px'
-                          }}>
-                            {Math.round(item.finalScore)}
-                          </div>
-                          <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            OVERALL
-                          </div>
+                      {/* LADO DIREITO: OVERALL SCORE */}
+                      <div 
+                        style={{ 
+                          flex: '0 0 80px', 
+                          textAlign: 'center', 
+                          paddingLeft: '8px',
+                          cursor: 'help',
+                          transition: 'all 0.2s ease',
+                          borderRadius: '8px'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'var(--color-background-tertiary)';
+                          handleOverallMouseEnter(e, item.metrics);
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'transparent';
+                          handleMouseLeave();
+                        }}
+                      >
+                        <div style={{ 
+                          fontSize: '28px', 
+                          fontWeight: 900, 
+                          color: item.finalScore >= 80 ? '#22c55e' : 
+                                 item.finalScore >= 60 ? '#f59e0b' : 
+                                 '#ef4444',
+                          lineHeight: 1,
+                          marginBottom: '2px'
+                        }}>
+                          {Math.round(item.finalScore)}
+                        </div>
+                        <div style={{ fontSize: '9px', fontWeight: 800, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          OVERALL
                         </div>
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
-            ) : (
-              <div className="container-fluid px-2">
-                {/* Navigation Bar for Segments */}
-                <div className="mx-0 mb-4 px-3 py-2" style={{ 
-                  background: 'var(--color-background-secondary)', 
-                  borderRadius: '12px',
-                  border: '1px solid var(--color-border-divider)',
-                  display: 'flex',
-                  gap: '12px',
-                  alignItems: 'center',
-                  boxShadow: 'var(--shadow-sm)'
-                }}>
-                  {[
-                    { id: 'avg-execution', label: 'Avg Execution Time', icon: 'bi-clock-history' },
-                    { id: 'contract-completion', label: 'Contract Completion', icon: 'bi-file-text-fill' },
-                    { id: 'back-charges', label: 'Back Charges', icon: 'bi-exclamation-triangle-fill' },
-                    { id: 'material-usage', label: 'Material Usage', icon: 'bi-box-seam' },
-                    { id: 'excessive-withdrawals', label: 'Excessive Withdrawals', icon: 'bi-cart-x-fill' }
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      style={{
-                        background: activeTab === tab.id ? 'var(--color-background-primary)' : 'transparent',
-                        color: activeTab === tab.id ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                        border: activeTab === tab.id ? '1px solid var(--color-border-divider)' : '1px solid transparent',
-                        padding: '6px 16px',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: activeTab === tab.id ? 600 : 500,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        transition: 'all 0.2s ease',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      <i className={`bi ${tab.icon}`} style={{ 
-                        color: activeTab === tab.id ? (tab.id === 'back-charges' ? 'var(--color-status-error-text)' : 'var(--color-status-success-text)') : 'inherit' 
-                      }}></i>
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mx-0 mb-4">
-                  <div className="border-0 p-0 d-flex justify-content-between align-items-center" style={{ background: 'var(--color-background-primary)' }}>
-                    <h4 className='my-2 d-flex justify-content-start align-items-center' style={{ color: 'var(--color-text-secondary)', fontSize: 18, fontWeight: 400, minHeight: 30 }}>
-                      {activeTab === 'back-charges' ? (backchargeView === 'ranking' ? 'RANKING - BACK CHARGES' : 'DETAILED BACK CHARGE LIST') : 
-                       activeTab === 'material-usage' ? (materialView === 'ranking' ? 'RANKING - MATERIAL USAGE' : 'DETAILED MATERIAL USAGE LIST') :
-                       activeTab === 'excessive-withdrawals' ? 'EXCESSIVE WITHDRAWALS ALERTS' :
-                       (activeTab === 'avg-execution' ? 'RANKING - AVG EXECUTION TIME' : 'RANKING - CONTRACT COMPLETION')}
-                    </h4>
-                    
-                    {activeTab === 'back-charges' && (
-                      <div className="d-flex gap-2">
-                        <button 
-                          onClick={() => setBackchargeView('ranking')}
-                          className="btn btn-sm"
-                          style={{
-                            background: backchargeView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
-                            color: backchargeView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                            border: '1px solid var(--color-border-divider)',
-                            fontSize: '12px',
-                            fontWeight: backchargeView === 'ranking' ? 600 : 400
-                          }}
-                        >
-                          <i className="bi bi-list-ol me-1"></i> Ranking
-                        </button>
-                        <button 
-                          onClick={() => setBackchargeView('details')}
-                          className="btn btn-sm"
-                          style={{
-                            background: backchargeView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
-                            color: backchargeView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                            border: '1px solid var(--color-border-divider)',
-                            fontSize: '12px',
-                            fontWeight: backchargeView === 'details' ? 600 : 400
-                          }}
-                        >
-                          <i className="bi bi-search me-1"></i> Debug List
-                        </button>
-                      </div>
-                    )}
-
-                    {activeTab === 'material-usage' && (
-                      <div className="d-flex gap-2">
-                        <button 
-                          onClick={() => setMaterialView('ranking')}
-                          className="btn btn-sm"
-                          style={{
-                            background: materialView === 'ranking' ? 'var(--color-background-secondary)' : 'transparent',
-                            color: materialView === 'ranking' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                            border: '1px solid var(--color-border-divider)',
-                            fontSize: '12px',
-                            fontWeight: materialView === 'ranking' ? 600 : 400
-                          }}
-                        >
-                          <i className="bi bi-list-ol me-1"></i> Ranking
-                        </button>
-                        <button 
-                          onClick={() => setMaterialView('details')}
-                          className="btn btn-sm"
-                          style={{
-                            background: materialView === 'details' ? 'var(--color-background-secondary)' : 'transparent',
-                            color: materialView === 'details' ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
-                            border: '1px solid var(--color-border-divider)',
-                            fontSize: '12px',
-                            fontWeight: materialView === 'details' ? 600 : 400
-                          }}
-                        >
-                          <i className="bi bi-search me-1"></i> Debug List
-                        </button>
-                      </div>
-                    )}
                   </div>
-                  <div style={{ 
-                    background: 'var(--color-background-secondary)',
-                    border: '1px solid var(--color-border-divider)',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    boxShadow: 'var(--shadow-sm)'
-                  }}>
-                    <div className="table-responsive custom-scrollbar" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-                    {activeTab === 'back-charges' ? (
-                      backchargeView === 'ranking' ? (
-                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                          <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                            <tr>
-                              <th style={headerStyle}>RANK</th>
-                              <th style={headerStyle}>SUBCONTRACTOR</th>
-                              <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL COST</th>
-                              <th style={{ ...headerStyle, textAlign: 'center' }}>WORKS</th>
-                              <th style={{ ...headerStyle, textAlign: 'center' }}>AVG COST BY WORK</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {backchargeRanking.length === 0 ? (
-                              <tr>
-                                <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                  No backcharge records found for the selected period.
-                                </td>
-                              </tr>
-                            ) : (
-                              backchargeRanking.map((item, index) => (
-                                <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                      {index + 1}
-                                      {index === 0 && <i className="bi bi-exclamation-octagon-fill ms-2" style={{ color: 'var(--color-status-error-text)' }}></i>}
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                    <div 
-                                      style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px', cursor: 'pointer', display: 'inline-block' }}
-                                      onMouseEnter={(e) => handleBackchargeMouseEnter(e, item.details)}
-                                      onMouseLeave={handleMouseLeave}
-                                    >
-                                      {item.subcontractor}
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                    <div style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px' }}>
-                                      {item.totalHours.toFixed(1)} h
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                    <div 
-                                      style={{ fontWeight: 500, color: 'var(--color-text-primary)', fontSize: '13px', cursor: 'pointer', display: 'inline-block', padding: '4px' }}
-                                      onMouseEnter={(e) => handleBackchargeMouseEnter(e, item.details)}
-                                      onMouseLeave={handleMouseLeave}
-                                    >
-                                      {item.worksCount}
-                                    </div>
-                                  </td>
-                                  <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                      {item.avgHours.toFixed(1)} h
-                                  </td>
-                                </tr>
-                              ))
-                            )}
-                          </tbody>
-                      </table>
-                    ) : (
-                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                        <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                          <tr>
-                            <th style={headerStyle}>DATE</th>
-                            <th style={headerStyle}>JOBSITE</th>
-                            <th style={headerStyle}>SUBCONTRACTOR</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>HOURS</th>
-                            <th style={headerStyle}>DESCRIPTION</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {backchargeData.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                No backcharge records found for the selected period.
-                              </td>
-                            </tr>
-                          ) : (
-                            backchargeData.map((item, index) => (
-                              <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                                  {item.date}
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                  {item.jobsite}
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px' }}>
-                                  {item.subcontractor}
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600, color: 'var(--color-status-error-text)' }}>
-                                  {item.regular_hours.toFixed(1)} h
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)', maxWidth: '300px' }}>
-                                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
-                                    {item.description}
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    )
-                  ) : activeTab === 'material-usage' ? (
-                    materialView === 'ranking' ? (
-                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                        <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                          <tr>
-                            <th style={headerStyle}>RANK</th>
-                            <th style={headerStyle}>SUBCONTRACTOR</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>TOTAL ITEMS</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>EXCESSIVE ALERTS</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>STATUS</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {materialRanking.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                No material usage records found for the selected period.
-                              </td>
-                            </tr>
-                          ) : (
-                            materialRanking.map((item, index) => (
-                              <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                    {index + 1}
-                                    {item.excessiveAlerts > 0 && <i className="bi bi-exclamation-triangle-fill ms-2" style={{ color: '#ef4444' }}></i>}
-                                  </div>
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <div 
-                                    style={{ fontWeight: 500, color: 'var(--color-text-primary)', cursor: 'pointer', display: 'inline-block' }}
-                                    onMouseEnter={(e) => handleMaterialMouseEnter(e, { items: item.details, excessive: item.excessiveDetails })}
-                                    onMouseLeave={handleMouseLeave}
-                                  >
-                                    {item.subcontractor}
-                                  </div>
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 500 }}>
-                                  {item.totalItems}
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600, color: item.excessiveAlerts > 0 ? '#ef4444' : 'var(--color-text-secondary)' }}>
-                                  {item.excessiveAlerts}
-                                </td>
-                                <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                                  <span style={{ 
-                                    padding: '4px 10px', 
-                                    borderRadius: '12px', 
-                                    fontSize: '11px', 
-                                    fontWeight: 700,
-                                    background: item.excessiveAlerts > 0 ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
-                                    color: item.excessiveAlerts > 0 ? '#ef4444' : '#22c55e',
-                                    textTransform: 'uppercase'
-                                  }}>
-                                    {item.excessiveAlerts > 0 ? 'Review Needed' : 'Compliant'}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    ) : (
-                      <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                        <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                          <tr>
-                            <th style={headerStyle}>DATE</th>
-                            <th style={headerStyle}>SUBCONTRACTOR</th>
-                            <th style={headerStyle}>PRODUCT</th>
-                            <th style={{ ...headerStyle, textAlign: 'center' }}>QUANTITY</th>
-                            <th style={headerStyle}>PROJECT</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {materialData.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="text-center py-5" style={{ color: 'var(--color-text-secondary)' }}>
-                                No material withdrawal records found.
-                              </td>
-                            </tr>
-                          ) : (
-                            materialData.map((item, index) => (
-                              <tr key={index} style={{ transition: 'background-color 0.2s ease' }}>
-                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                                  {item.date}
-                                </td>
-                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                  {item.subcontractor}
-                                </td>
-                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '13px' }}>
-                                  {item.product}
-                                </td>
-                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontWeight: 600 }}>
-                                  {item.quantity}
-                                </td>
-                                <td style={{ padding: '12px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-                                  {item.project}
-                                </td>
-                              </tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    )
-                  ) : activeTab === 'execution' ? (
-                    <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                      <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                        <tr>
-                          <th style={headerStyle} onClick={() => handleSort('rank')}>
-                            RANK <SortIcon columnKey="rank" />
-                          </th>
-                          <th style={headerStyle} onClick={() => handleSort('subcontractor')}>
-                            SUBCONTRACTOR <SortIcon columnKey="subcontractor" />
-                          </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }}>
-                            COMPLETED WORKS
-                          </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('avgDuration')}>
-                            AVG DURATION (DAYS) <SortIcon columnKey="avgDuration" />
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rankingData.map((item, index) => (
-                          <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                {index + 1}
-                                {index === 0 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-warning-text)' }}></i>}
-                                {index === 1 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-text-secondary)' }}></i>}
-                                {index === 2 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-pending-text)' }}></i>}
-                              </div>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.subcontractor}</div>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <span 
-                                style={{ color: 'var(--color-text-primary)', fontSize: 14, cursor: 'pointer', display: 'inline-block', padding: '4px' }}
-                                onMouseEnter={(e) => handleMouseEnter(e, item.works)}
-                                onMouseLeave={handleMouseLeave}
-                              >
-                                {item.completedWorks}
-                              </span>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                {item.avgDuration.toFixed(1)}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <table className="table table-hover mb-0" style={{ color: 'var(--color-text-primary)', borderCollapse: 'separate', borderSpacing: 0 }}>
-                      <thead style={{ position: 'sticky', top: 0, background: 'var(--color-background-secondary)', zIndex: 1 }}>
-                        <tr>
-                          <th style={headerStyle} onClick={() => handleSort('rank')}>
-                            RANK <SortIcon columnKey="rank" />
-                          </th>
-                          <th style={headerStyle} onClick={() => handleSort('subcontractor')}>
-                            SUBCONTRACTOR <SortIcon columnKey="subcontractor" />
-                          </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }}>
-                            COMPLETED WORKS
-                          </th>
-                          <th style={{ ...headerStyle, textAlign: 'center' }} onClick={() => handleSort('avgContractCompletion')}>
-                            CONTRACT COMPLETION <SortIcon columnKey="avgContractCompletion" /> <SortIcon columnKey="avgContractCompletion" />
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[...rankingData].sort((a, b) => b.avgContractCompletion - a.avgContractCompletion).map((item, index) => (
-                          <tr key={item.subcontractor} style={{ transition: 'background-color 0.2s ease' }}>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>
-                                {index + 1}
-                                {index === 0 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-warning-text)' }}></i>}
-                                {index === 1 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-text-secondary)' }}></i>}
-                                {index === 2 && <i className="bi bi-trophy-fill ms-2" style={{ color: 'var(--color-status-pending-text)' }}></i>}
-                              </div>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <div style={{ fontWeight: 500, color: 'var(--color-text-primary)' }}>{item.subcontractor}</div>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)' }}>
-                              <span 
-                                style={{ color: 'var(--color-text-primary)', fontSize: 14, cursor: 'pointer', display: 'inline-block', padding: '4px' }}
-                                onMouseEnter={(e) => handleMouseEnter(e, item.works)}
-                                onMouseLeave={handleMouseLeave}
-                              >
-                                {item.completedWorks}
-                              </span>
-                            </td>
-                            <td style={{ padding: '14px 24px', verticalAlign: 'middle', textAlign: 'center', borderBottom: '1px solid var(--color-border-divider)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', fontSize: '13px', fontWeight: 500 }}>
-                                {item.avgContractCompletion.toFixed(1)}%
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </div>
+                ))
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </>
-  )}
-      </div>
+        </>
+      )}
+    </div>
+
+      {/* TOOLTIP DINÂMICO */}
+      {tooltip.visible && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: tooltip.y,
+            left: tooltip.x,
+            width: '320px',
+            background: 'var(--color-background-secondary)',
+            border: '1px solid var(--color-border-divider)',
+            borderRadius: '12px',
+            boxShadow: 'var(--shadow-lg)',
+            zIndex: 9999,
+            padding: '16px',
+            pointerEvents: 'auto',
+            transition: 'opacity 0.2s ease'
+          }}
+          onMouseEnter={handleTooltipMouseEnter}
+          onMouseLeave={handleTooltipMouseLeave}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', borderBottom: '1px solid var(--color-border-divider)', paddingBottom: '8px' }}>
+            <i className={`bi ${
+              tooltip.type === 'execution' ? 'bi-clock-history' :
+              tooltip.type === 'contract' ? 'bi-file-text-fill' :
+              tooltip.type === 'backcharge' ? 'bi-exclamation-triangle-fill' :
+            tooltip.type === 'material' ? 'bi-box-seam' : 
+            tooltip.type === 'excess' ? 'bi-cart-x-fill' :
+            tooltip.type === 'overall' ? 'bi-speedometer2' : 'bi-info-circle'
+          }`} style={{ color: 'var(--color-accent-primary)' }}></i>
+          <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--color-text-primary)' }}>
+            {tooltip.type === 'execution' ? 'Execution Details' :
+             tooltip.type === 'contract' ? 'Contract Steps' :
+             tooltip.type === 'backcharge' ? 'Backcharge Details' :
+             tooltip.type === 'material' ? 'Material Usage Details' : 
+             tooltip.type === 'excess' ? 'Excess Withdrawal Alerts' : 
+             tooltip.type === 'overall' ? 'Score Breakdown' : 'Details'}
+          </span>
+        </div>
+
+        <div className="custom-scrollbar" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+          {tooltip.type === 'overall' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                { label: 'Execution', weight: '25%', score: tooltip.content.duration.score },
+                { label: 'Contract', weight: '20%', score: tooltip.content.contract.score },
+                { label: 'Backcharges', weight: '20%', score: tooltip.content.backcharge.score },
+                { label: 'Material', weight: '20%', score: tooltip.content.material.score },
+                { label: 'Excess', weight: '15%', score: tooltip.content.excess.score },
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'var(--color-background-tertiary)', borderRadius: '6px' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.label}</div>
+                    <div style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>Weight: {item.weight}</div>
+                  </div>
+                  <div style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 800, 
+                    color: item.score >= 80 ? '#22c55e' : item.score >= 60 ? '#f59e0b' : '#ef4444' 
+                  }}>
+                    {Math.round(item.score)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {tooltip.type === 'execution' && Array.isArray(tooltip.content) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {tooltip.content.length > 0 ? (
+                  tooltip.content.map((work: any, i: number) => (
+                    <div key={i} style={{ padding: '8px', background: 'var(--color-background-tertiary)', borderRadius: '6px', borderLeft: '3px solid var(--color-accent-primary)' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                        {work.jobsite} {work.building && work.building !== 'Unknown' ? `- ${work.type === 'building' ? 'Bld' : 'Lot'} ${work.building}` : ''}
+                      </div>
+                      <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', marginBottom: '4px', textTransform: 'capitalize' }}>
+                        {work.type}
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                        <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)' }}>
+                          {new Date(work.start).toLocaleDateString()} - {new Date(work.end).toLocaleDateString()}
+                        </div>
+                        <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--color-accent-primary)' }}>
+                           {work.duration}d / work
+                         </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ 
+                    padding: '16px', 
+                    textAlign: 'center', 
+                    background: 'rgba(255, 255, 255, 0.02)', 
+                    borderRadius: '8px', 
+                    border: '1px dashed rgba(255, 255, 255, 0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <i className="bi bi-calendar-x" style={{ fontSize: '24px', color: 'var(--color-text-secondary)' }}></i>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      No works found!
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+                      No identified projects match the execution time records for this period.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tooltip.type === 'contract' && Array.isArray(tooltip.content) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {tooltip.content.map((work: any, i: number) => (
+                  <div key={i} style={{ padding: '8px', background: 'var(--color-background-tertiary)', borderRadius: '6px', borderLeft: '3px solid var(--color-accent-primary)' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      {work.jobsite} {work.building && work.building !== 'Unknown' ? `- ${work.type === 'building' ? 'Bld' : 'Lot'} ${work.building}` : ''}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--color-text-secondary)', marginBottom: '4px', textTransform: 'capitalize' }}>
+                      {work.type}
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                      <div style={{ flex: 1, marginRight: '10px' }}>
+                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.05)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ 
+                            height: '100%', 
+                            width: `${work.contractCompletion}%`, 
+                            background: work.contractCompletion >= 80 ? '#22c55e' : work.contractCompletion >= 50 ? '#f59e0b' : '#ef4444',
+                            borderRadius: '3px'
+                          }}></div>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                         {Math.round(work.contractCompletion)}%
+                       </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {tooltip.type === 'backcharge' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {Array.isArray(tooltip.content) && tooltip.content.length > 0 ? (
+                  tooltip.content.map((item: any, i: number) => (
+                    <div key={i} style={{ padding: '8px', background: 'var(--color-background-tertiary)', borderRadius: '6px', borderLeft: '3px solid #ef4444' }}>
+                      <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.jobsite} {item.lot_building || ''}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)' }}>Occurrence: {item.date}</span>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#ef4444' }}>{item.regular_hours.toFixed(1)}h</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ 
+                    padding: '16px', 
+                    textAlign: 'center', 
+                    background: 'rgba(34, 197, 94, 0.05)', 
+                    borderRadius: '8px', 
+                    border: '1px dashed rgba(34, 197, 94, 0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <i className="bi bi-check-circle-fill" style={{ fontSize: '24px', color: '#22c55e' }}></i>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      No backcharges found!
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+                      The subcontractor has no recorded issues for this period.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tooltip.type === 'excess' && Array.isArray(tooltip.content) && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {tooltip.content.length > 0 ? (
+                  (() => {
+                    const groups: Record<string, any[]> = {};
+                    tooltip.content.forEach((ex: any) => {
+                      const key = ex.project || 'Unknown Project';
+                      if (!groups[key]) groups[key] = [];
+                      groups[key].push(ex);
+                    });
+
+                    return Object.entries(groups).map(([project, items], idx) => (
+                      <div key={idx} style={{ 
+                        padding: '10px', 
+                        background: 'rgba(239, 68, 68, 0.05)', 
+                        borderRadius: '8px', 
+                        border: '1px solid rgba(239, 68, 68, 0.2)', 
+                        borderLeft: '4px solid #ef4444' 
+                      }}>
+                        <div style={{ 
+                          fontSize: '12px', 
+                          fontWeight: 800, 
+                          color: 'var(--color-text-primary)',
+                          marginBottom: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <i className="bi bi-geo-alt-fill" style={{ color: '#ef4444' }}></i>
+                          {project}
+                        </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            {items.map((ex: any, i: number) => (
+                              <div key={i} style={{ 
+                                padding: '6px 8px', 
+                                background: 'rgba(255,255,255,0.03)', 
+                                borderRadius: '4px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, overflow: 'hidden' }}>
+                                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {ex.product}
+                                  </span>
+                                  <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', opacity: 0.8, whiteSpace: 'nowrap' }}>
+                                    Last Withdrawal: {ex.mes}
+                                  </span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', minWidth: '60px', marginLeft: '12px' }}>
+                                  <span style={{ color: '#ef4444', fontWeight: 800, fontSize: '11px' }}>
+                                    {ex.quantity} / {ex.limit}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                      </div>
+                    ));
+                  })()
+                ) : (
+                  <div style={{ 
+                    padding: '16px', 
+                    textAlign: 'center', 
+                    background: 'rgba(34, 197, 94, 0.05)', 
+                    borderRadius: '8px', 
+                    border: '1px dashed rgba(34, 197, 94, 0.3)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <i className="bi bi-cart-x-fill" style={{ fontSize: '24px', color: '#22c55e' }}></i>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)' }}>
+                      No excess withdrawals!
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>
+                      All material usage is within the established limits for this period.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {tooltip.type === 'material' && tooltip.content && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* Grouped by Project/Lot */}
+                {Array.isArray(tooltip.content.items) && tooltip.content.items.length > 0 ? (
+                  (() => {
+                    const groups: Record<string, any[]> = {};
+                    tooltip.content.items.forEach((item: any) => {
+                      const key = item.project || 'Unknown';
+                      if (!groups[key]) groups[key] = { products: [] };
+                      groups[key].products.push(item);
+                    });
+
+                    return Object.entries(groups).map(([groupKey, groupData]: [string, any], idx) => (
+                      <div key={idx} style={{ 
+                        background: 'var(--color-background-tertiary)', 
+                        borderRadius: '8px', 
+                        padding: '10px',
+                        borderLeft: '4px solid var(--color-accent-primary)'
+                      }}>
+                        <div style={{ 
+                          fontSize: '11px', 
+                          fontWeight: 800, 
+                          color: 'var(--color-text-primary)',
+                          marginBottom: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}>
+                          <i className="bi bi-geo-alt-fill" style={{ color: 'var(--color-accent-primary)' }}></i>
+                          {groupKey}
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {groupData.products.map((p: any, pIdx: number) => (
+                            <div key={pIdx} style={{ 
+                              padding: '6px 8px', 
+                              background: 'rgba(255,255,255,0.03)', 
+                              borderRadius: '4px',
+                              display: 'flex',
+                              alignItems: 'center'
+                            }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', alignItems: 'baseline', gap: '12px', width: '100%' }}>
+                                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {p.product}
+                                </span>
+                                {p.date ? (
+                                  <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', opacity: 0.8, whiteSpace: 'nowrap' }}>
+                                    Last Withdrawal: {p.date}
+                                  </span>
+                                ) : (
+                                  <span></span>
+                                )}
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', minWidth: '40px' }}>
+                                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-primary)' }}>
+                                    {p.quantity.toLocaleString()}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ));
+                  })()
+                ) : (
+                  <div style={{ padding: '10px', textAlign: 'center', color: 'var(--color-text-secondary)', fontSize: '11px' }}>
+                    No material usage details recorded.
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
