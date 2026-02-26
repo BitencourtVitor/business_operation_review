@@ -831,8 +831,8 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
              const viewportTop = position.top + tooltip.caretY;
              
              // Threshold for flipping (if tooltip would go above viewport)
-             // Estimated tooltip height is around 250px-350px depending on content
-             const flipThreshold = 300;
+             // Estimated tooltip height is around 250px-450px depending on content
+             const flipThreshold = 450;
              const yAlign = viewportTop < flipThreshold ? 'bottom' : 'top';
  
              // Horizontal adjustment to prevent clipping on edges
@@ -910,108 +910,111 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
             let afterBodyContent: any[] = [];
             const firstItem = tooltip.dataPoints[0];
 
-            if (isMonthYearChart || isServiceTypeChart) {
-              let relevantRows = [];
-              if (isMonthYearChart) {
-                const referenceMonth = globalMonthlyData[firstItem.dataIndex]?.month;
-                relevantRows = filteredData.filter(d => d.reference_month === referenceMonth);
-              } else {
-                const worktype = worktypeData.labels[firstItem.dataIndex];
-                relevantRows = filteredData.filter(d => getWorktype(d) === worktype);
-              }
-
-              const mappedSubsMap = new Map<string, number>();
-              const unmappedProjectsMap = new Map<string, number>();
-
-              relevantRows.forEach(row => {
-                const result = findSubcontractor(row);
-                if (result.isMapped) {
-                  mappedSubsMap.set(result.name, (mappedSubsMap.get(result.name) || 0) + (row.regular_hours || 0));
+            // Only show detailed breakdown if a worktype filter is active (not "Todos")
+            if (selectedWorktypes.length > 0) {
+              if (isMonthYearChart || isServiceTypeChart) {
+                let relevantRows = [];
+                if (isMonthYearChart) {
+                  const referenceMonth = globalMonthlyData[firstItem.dataIndex]?.month;
+                  relevantRows = filteredData.filter(d => d.reference_month === referenceMonth);
                 } else {
-                  unmappedProjectsMap.set(result.name, (unmappedProjectsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                  const worktype = worktypeData.labels[firstItem.dataIndex];
+                  relevantRows = filteredData.filter(d => getWorktype(d) === worktype);
                 }
-              });
 
-              const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1] - a[1]);
-              const sortedUnmapped = Array.from(unmappedProjectsMap.entries()).sort((a, b) => b[1] - a[1]);
+                const mappedSubsMap = new Map<string, number>();
+                const unmappedProjectsMap = new Map<string, number>();
 
-              if (sortedMapped.length > 0) {
-                afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR SUBCONTRATADO:' });
-                sortedMapped.forEach(([sub, hours]) => {
-                  afterBodyContent.push({ type: 'item', text: `${sub}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
-                });
-              }
-              if (sortedUnmapped.length > 0) {
-                afterBodyContent.push({ type: 'header', text: 'SUBCONTRATADO NÃO IDENTIFICADO:' });
-                sortedUnmapped.forEach(([proj, hours]) => {
-                  afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
-                });
-              }
-            } else if (isProjectChart) {
-              const jobsiteLabel = jobsiteData.labels[firstItem.dataIndex];
-              const relevantRows = filteredData.filter(d => getJobsiteLabel(d) === jobsiteLabel);
-              
-              const mappedSubsMap = new Map<string, { total: number; months: Map<string, number> }>();
-              let unmappedHours = 0;
-
-              relevantRows.forEach(row => {
-                const result = findSubcontractor(row);
-                const hours = Number(row.regular_hours || 0);
-                const month = row.reference_month || 'N/A';
-
-                if (result.isMapped) {
-                  if (!mappedSubsMap.has(result.name)) {
-                    mappedSubsMap.set(result.name, { total: 0, months: new Map() });
+                relevantRows.forEach(row => {
+                  const result = findSubcontractor(row);
+                  if (result.isMapped) {
+                    mappedSubsMap.set(result.name, (mappedSubsMap.get(result.name) || 0) + (row.regular_hours || 0));
+                  } else {
+                    unmappedProjectsMap.set(result.name, (unmappedProjectsMap.get(result.name) || 0) + (row.regular_hours || 0));
                   }
-                  const subData = mappedSubsMap.get(result.name)!;
-                  subData.total += hours;
-                  subData.months.set(month, (subData.months.get(month) || 0) + hours);
-                } else {
-                  unmappedHours += hours;
+                });
+
+                const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1] - a[1]);
+                const sortedUnmapped = Array.from(unmappedProjectsMap.entries()).sort((a, b) => b[1] - a[1]);
+
+                if (sortedMapped.length > 0) {
+                  afterBodyContent.push({ type: 'header', text: 'DETALHAMENTO POR SUBCONTRATADO:' });
+                  sortedMapped.forEach(([sub, hours]) => {
+                    afterBodyContent.push({ type: 'item', text: `${sub}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
+                  });
                 }
-              });
-
-              const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1].total - a[1].total);
-
-              if (sortedMapped.length > 0) {
-                afterBodyContent.push({ type: 'header', text: 'RESPONSÁVEIS (SUBCONTRATADO):' });
-                sortedMapped.forEach(([sub, data]) => {
-                  afterBodyContent.push({ 
-                    type: 'item', 
-                    text: `${sub}: ${Number(data.total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                if (sortedUnmapped.length > 0) {
+                  afterBodyContent.push({ type: 'header', text: 'SUBCONTRATADO NÃO IDENTIFICADO:' });
+                  sortedUnmapped.forEach(([proj, hours]) => {
+                    afterBodyContent.push({ type: 'item', text: `${proj}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` });
                   });
-                  
-                  // Monthly breakdown for this sub
-                  const sortedMonths = Array.from(data.months.entries()).sort((a, b) => {
-                    // Simple sort by date string (YYYY-MM)
-                    return a[0].localeCompare(b[0]);
-                  });
+                }
+              } else if (isProjectChart) {
+                const jobsiteLabel = jobsiteData.labels[firstItem.dataIndex];
+                const relevantRows = filteredData.filter(d => getJobsiteLabel(d) === jobsiteLabel);
+                
+                const mappedSubsMap = new Map<string, { total: number; months: Map<string, number> }>();
+                let unmappedHours = 0;
 
-                  sortedMonths.forEach(([month, hours]) => {
-                    // Format month from YYYY-MM to MM/YYYY
-                    let displayMonth = month;
-                    try {
-                      const [year, monthNum] = month.split('-');
-                      displayMonth = `${monthNum}/${year}`;
-                    } catch (e) {}
-                    
+                relevantRows.forEach(row => {
+                  const result = findSubcontractor(row);
+                  const hours = Number(row.regular_hours || 0);
+                  const month = row.reference_month || 'N/A';
+
+                  if (result.isMapped) {
+                    if (!mappedSubsMap.has(result.name)) {
+                      mappedSubsMap.set(result.name, { total: 0, months: new Map() });
+                    }
+                    const subData = mappedSubsMap.get(result.name)!;
+                    subData.total += hours;
+                    subData.months.set(month, (subData.months.get(month) || 0) + hours);
+                  } else {
+                    unmappedHours += hours;
+                  }
+                });
+
+                const sortedMapped = Array.from(mappedSubsMap.entries()).sort((a, b) => b[1].total - a[1].total);
+
+                if (sortedMapped.length > 0) {
+                  afterBodyContent.push({ type: 'header', text: 'RESPONSÁVEIS (SUBCONTRATADO):' });
+                  sortedMapped.forEach(([sub, data]) => {
                     afterBodyContent.push({ 
-                      type: 'sub-item', 
-                      text: `${displayMonth}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                      type: 'item', 
+                      text: `${sub}: ${Number(data.total).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                    });
+                    
+                    // Monthly breakdown for this sub
+                    const sortedMonths = Array.from(data.months.entries()).sort((a, b) => {
+                      // Simple sort by date string (YYYY-MM)
+                      return a[0].localeCompare(b[0]);
+                    });
+
+                    sortedMonths.forEach(([month, hours]) => {
+                      // Format month from YYYY-MM to MM/YYYY
+                      let displayMonth = month;
+                      try {
+                        const [year, monthNum] = month.split('-');
+                        displayMonth = `${monthNum}/${year}`;
+                      } catch (e) {}
+                      
+                      afterBodyContent.push({ 
+                        type: 'sub-item', 
+                        text: `${displayMonth}: ${Number(hours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h` 
+                      });
                     });
                   });
-                });
-              }
+                }
 
-              if (unmappedHours > 0) {
-                afterBodyContent.push({ 
-                  type: 'info', 
-                  text: `Outras horas: ${Number(unmappedHours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h (Subcontratado não identificado)` 
-                });
-              }
-              
-              if (sortedMapped.length === 0 && unmappedHours === 0) {
-                afterBodyContent.push({ type: 'info', text: 'Sem informações de subcontratado' });
+                if (unmappedHours > 0) {
+                  afterBodyContent.push({ 
+                    type: 'info', 
+                    text: `Outras horas: ${Number(unmappedHours).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}h (Subcontratado não identificado)` 
+                  });
+                }
+                
+                if (sortedMapped.length === 0 && unmappedHours === 0) {
+                  afterBodyContent.push({ type: 'info', text: 'Sem informações de subcontratado' });
+                }
               }
             }
 
@@ -1170,11 +1173,13 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
           border: `1px solid ${themeColors.border}`,
           borderRadius: '8px',
           padding: '12px',
-          pointerEvents: 'none',
+          pointerEvents: 'auto',
           zIndex: 9999,
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           minWidth: '220px',
           maxWidth: '350px',
+          maxHeight: 'calc(100vh - 100px)',
+          overflowY: 'auto',
           fontFamily: "'Inter', sans-serif"
         }}>
           {customTooltip.title && (
