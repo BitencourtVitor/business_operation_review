@@ -196,14 +196,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [tempNotes, setTempNotes] = useState<string>('');
 
-  // Log render state
-  console.log('WorkforceProductivity Render:', { 
-    selectedYear, 
-    selectedMonth, 
-    hasData: data.length > 0,
-    loading 
-  });
-
   // Fetch forecast data
   useEffect(() => {
     const fetchForecastData = async () => {
@@ -800,6 +792,23 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   const chartOptions: any = useMemo(() => {
     const isBackChargeFiltered = selectedWorktypes.includes('Back Charge');
 
+    // Pre-calculate mapping logic for tooltip to avoid heavy processing on every mouse move
+    const obraToTeam: Record<string, string> = {};
+    forecastContractSteps.forEach(step => {
+      if (step.team && !obraToTeam[step.obra_id]) {
+        obraToTeam[step.obra_id] = step.team;
+      }
+    });
+
+    const subLookup: Record<string, string> = {};
+    forecastProjects.forEach(f => {
+      const team = obraToTeam[f.id];
+      if (team) {
+        const key = `${normalizeJobSite(f.cliente)}|${normalizeJobSite(f.job_site)}|${normalizeLotBuilding(f.lote_bld)}`;
+        subLookup[key] = team;
+      }
+    });
+
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -817,10 +826,12 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         },
         tooltip: {
           enabled: false,
+          mode: 'index',
+          intersect: false,
           external: (context: any) => {
             const { tooltip } = context;
             if (tooltip.opacity === 0) {
-              setCustomTooltip((prev: any) => ({ ...prev, opacity: 0 }));
+              setCustomTooltip((prev: any) => prev.opacity === 0 ? prev : { ...prev, opacity: 0 });
               return;
             }
 
@@ -861,23 +872,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
             const isMonthYearChart = chartTitle.includes('Month/Year');
             const isServiceTypeChart = chartTitle.includes('Service Type');
             const isProjectChart = chartTitle.includes('Project');
-
-            // MAPPING LOGIC
-            const obraToTeam: Record<string, string> = {};
-            forecastContractSteps.forEach(step => {
-              if (step.team && !obraToTeam[step.obra_id]) {
-                obraToTeam[step.obra_id] = step.team;
-              }
-            });
-
-            const subLookup: Record<string, string> = {};
-            forecastProjects.forEach(f => {
-              const team = obraToTeam[f.id];
-              if (team) {
-                const key = `${normalizeJobSite(f.cliente)}|${normalizeJobSite(f.job_site)}|${normalizeLotBuilding(f.lote_bld)}`;
-                subLookup[key] = team;
-              }
-            });
 
             const findSubcontractor = (row: any) => {
               if (row.obra_id && obraToTeam[row.obra_id]) return { name: obraToTeam[row.obra_id], isMapped: true };
@@ -1018,14 +1012,32 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
               }
             }
 
-            setCustomTooltip({
-              opacity: 1,
-              left: adjustedLeft,
-              top: viewportTop,
-              yAlign,
-              title: tooltip.title?.[0] || '',
-              body: tooltip.body.map((b: any) => b.lines[0]),
-              afterBody: afterBodyContent
+            setCustomTooltip((prev: any) => {
+              const newTitle = tooltip.title?.[0] || '';
+              const newBody = tooltip.body.map((b: any) => b.lines[0]);
+              
+              // Verifica se algo mudou significativamente para evitar re-render desnecessário
+               // Usamos uma margem de 1px para movimento do mouse para evitar micro-ajustes
+               const hasChanged = 
+                 prev.opacity !== 1 ||
+                 Math.abs(prev.left - adjustedLeft) > 1 ||
+                 Math.abs(prev.top - viewportTop) > 1 ||
+                 prev.yAlign !== yAlign ||
+                 prev.title !== newTitle ||
+                 JSON.stringify(prev.body) !== JSON.stringify(newBody) ||
+                 JSON.stringify(prev.afterBody) !== JSON.stringify(afterBodyContent);
+
+              if (!hasChanged) return prev;
+
+              return {
+                opacity: 1,
+                left: adjustedLeft,
+                top: viewportTop,
+                yAlign,
+                title: newTitle,
+                body: newBody,
+                afterBody: afterBodyContent
+              };
             });
           }
         },
@@ -1173,7 +1185,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
           border: `1px solid ${themeColors.border}`,
           borderRadius: '8px',
           padding: '12px',
-          pointerEvents: 'auto',
+          pointerEvents: 'none',
           zIndex: 9999,
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
           minWidth: '220px',
