@@ -26,7 +26,6 @@ export default function InventoryControlFilters({
     fontSize: 14,
     transition: 'background 0.3s, color 0.3s',
     height: 38,
-    width: 75,
   };
 
   return (
@@ -37,24 +36,24 @@ export default function InventoryControlFilters({
       </span>
       
       {/* Filtro de Ano/Mês */}
-      <div className="input-group" style={{ minWidth: 197, maxWidth: 197, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
-        <span className="input-group-text d-flex align-items-center justify-content-center" style={{ background: 'var(--color-background-secondary)', border: 'none', borderRight: '1.5px solid var(--color-border-divider)', height: 38, width: 42, padding: 0 }}>
-          <i className="bi bi-calendar-range" style={{ color: 'var(--color-accent-primary)', fontSize: 16 }} />
-        </span>
+      <div className="input-group" style={{ width: 197, background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 38 }}>
+        <div className="d-flex align-items-center justify-content-center" style={{ width: 42, height: '100%', background: 'var(--color-background-secondary)', borderRight: '1.5px solid var(--color-border-divider)', color: 'var(--color-accent-primary)' }}>
+          <i className="bi bi-calendar-range" style={{ fontSize: 16 }} />
+        </div>
         <select 
           value={selectedYear} 
           onChange={e => setSelectedYear(e.target.value)} 
-          style={{ ...selectStyle, borderRight: '1.5px solid var(--color-border-divider)', borderRadius: 0 }}
+          style={{ ...selectStyle, borderRight: '1.5px solid var(--color-border-divider)', width: 75, height: '100%', borderRadius: 0 }}
         >
-          <option value="">Todos</option>
+          <option value="">All</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select 
           value={selectedMonth} 
           onChange={e => setSelectedMonth(e.target.value)} 
-          style={{ ...selectStyle, borderRadius: 0 }}
+          style={{ ...selectStyle, width: 80, height: '100%', borderRadius: 0 }}
         >
-          <option value="">Todos</option>
+          <option value="">All</option>
           {months.map(m => <option key={m} value={m}>{m}</option>)}
         </select>
       </div>

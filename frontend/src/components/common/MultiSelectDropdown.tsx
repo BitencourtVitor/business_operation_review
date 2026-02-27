@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface MultiSelectDropdownProps {
-  options: ({ value: string; label: string } | string)[];
+  options: ({ value: string; label: string; color?: string } | string)[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
   allLabel?: string;
@@ -323,6 +323,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           filteredOptions.map((opt, index) => {
             const value = typeof opt === 'string' ? opt : opt.value;
             const labelText = typeof opt === 'string' ? opt : opt.label;
+            const customColor = typeof opt === 'string' ? undefined : opt.color;
             const isSelected = selectedValues.includes(value);
 
             return (
@@ -332,11 +333,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 style={{ 
                   gap: 8, 
                   fontSize: 13, 
-                  color: isSelected && isSingleSelect ? 'var(--color-accent-primary)' : 'var(--color-text-secondary)', 
+                  color: isSelected && isSingleSelect 
+                    ? 'var(--color-accent-primary)' 
+                    : (customColor || 'var(--color-text-secondary)'), 
                   cursor: 'pointer', 
                   padding: '8px 12px',
                   background: isSelected && isSingleSelect ? 'var(--color-background-secondary)' : 'transparent',
-                  transition: 'all 0.2s ease'
+                  transition: 'all 0.2s ease',
+                  fontWeight: customColor ? 700 : 400
                 }}
                 onClick={(e) => {
                   if (isSingleSelect) {

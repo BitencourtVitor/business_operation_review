@@ -557,7 +557,7 @@ export default function Dashboard() {
       case 'OFI':
         return <OperationalForecastIndex />;
       case 'Inventory Control Index':
-        return <InventoryControl />;
+        return <InventoryControl theme={theme} />;
       case 'Operational Efficiency Index':
         if (selectedOEIType === 'Workforce Productivity') {
           return <WorkforceProductivity telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
