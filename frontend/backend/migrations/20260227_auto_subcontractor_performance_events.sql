@@ -18,7 +18,7 @@ BEGIN
     END IF;
 
     -- Caso 1: not started -> open (Início da obra)
-    IF (OLD.status = 'not started' OR OLD.status IS NULL) AND NEW.status = 'open' THEN
+    IF (LOWER(OLD.status) = 'not started' OR OLD.status IS NULL) AND LOWER(NEW.status) = 'open' THEN
         -- Buscar todos os times (subempreiteiros) vinculados a esta obra
         FOR team_record IN 
             SELECT DISTINCT team 
@@ -68,7 +68,7 @@ BEGIN
     END IF;
 
     -- Caso 2: open -> closed (Fim da obra)
-    IF OLD.status = 'open' AND NEW.status = 'closed' THEN
+    IF LOWER(OLD.status) = 'open' AND LOWER(NEW.status) = 'closed' THEN
         -- Buscar todos os times (subempreiteiros) vinculados a esta obra
         FOR team_record IN 
             SELECT DISTINCT team 
@@ -118,13 +118,13 @@ BEGIN
     END IF;
 
     -- Caso 3: Reversão open -> not started (Deleta Start event)
-    IF OLD.status = 'open' AND NEW.status = 'not started' THEN
+    IF LOWER(OLD.status) = 'open' AND LOWER(NEW.status) = 'not started' THEN
         DELETE FROM public.subcontractor_performance 
         WHERE obra_id = NEW.id AND estimated_date_type = 'Start';
     END IF;
 
     -- Caso 4: Reversão closed -> open (Deleta End event)
-    IF OLD.status = 'closed' AND NEW.status = 'open' THEN
+    IF LOWER(OLD.status) = 'closed' AND LOWER(NEW.status) = 'open' THEN
         DELETE FROM public.subcontractor_performance 
         WHERE obra_id = NEW.id AND estimated_date_type = 'End';
     END IF;
