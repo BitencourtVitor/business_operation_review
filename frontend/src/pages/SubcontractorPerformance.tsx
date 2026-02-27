@@ -255,7 +255,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
       // 4. Fetch Backcharge data from timesheet_data_new
       const { data: tsData, error: tsError } = await supabase
         .from('timesheet_data_new')
-        .select('id, reference_month, employee_name, regular_hours, jobsite, lot_building, worktype')
+        .select('id, reference_month, employee_name, regular_hours, jobsite, lot_building, worktype, client')
         .eq('worktype', 'Back Charge'); // Filter ONLY 'Back Charge' as requested
 
       if (tsError) {
@@ -264,7 +264,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         // Fetch forecast data and contract steps to map subcontractors
         const { data: forecastData, error: fError } = await supabase
           .from('forecast_data')
-          .select('id, job_site, lote_bld, type');
+          .select('id, job_site, lote_bld, type, cliente');
 
         const { data: stepsData, error: sError } = await supabase
           .from('forecast_contract_steps')
@@ -329,19 +329,23 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               const team = obraToTeam[f.id];
               if (!team) return;
 
-              // REQUIRE EXACT LOT MATCH (considering only leading zeros removal by normalizeLotBuilding)
-              if (normFLot !== normTsLot) return;
-
               let currentScore = 0;
+
+              // Check lot match
+              if (normFLot === normTsLot) {
+                currentScore += 10; // High score for exact lot match
+              } else if (normTsLot && normFLot && (normTsLot.includes(normFLot) || normFLot.includes(normTsLot))) {
+                currentScore += 3; // Partial lot match
+              }
 
               // Check jobsite words match
               const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
-              currentScore += wordScore * 2;
+              currentScore += wordScore * 5;
 
               // Check client match (Low priority, as it might be an employee name in timesheet)
               const normFClient = normalizeJobSite(f.cliente);
               if (normFClient === normTsClient && normTsClient !== '') {
-                currentScore += 3;
+                currentScore += 2;
               }
 
               if (currentScore > 0 && (!bestMatch || currentScore > bestMatch.score)) {
@@ -350,7 +354,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             });
 
             // Minimum score threshold to avoid false positives
-            return (bestMatch && bestMatch.score >= 4) ? { team: bestMatch.team, forecastJobsite: bestMatch.forecastJobsite } : null;
+            return (bestMatch && bestMatch.score >= 5) ? { team: bestMatch.team, forecastJobsite: bestMatch.forecastJobsite } : null;
           };
 
           const mappedBackcharges: BackchargeData[] = tsData?.map(ts => {
@@ -796,9 +800,16 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
   const consolidatedScorecard = useMemo(() => {
     // Collect all unique subcontractors across all data sources
     const allSubcontractors = new Set<string>();
-    executionRanking.forEach(r => allSubcontractors.add(r.subcontractor));
-    backchargeRanking.forEach(r => allSubcontractors.add(r.subcontractor));
-    excessiveWithdrawalsRanking.forEach(r => allSubcontractors.add(r.subcontractor));
+    
+    // 1. Add all subcontractors from the master list (Forecast)
+    forecastSubcontractors
+      .filter(sub => !sub.toLowerCase().startsWith('team'))
+      .forEach(sub => allSubcontractors.add(sub));
+    
+    // 2. Add any others that might appear in current month's rankings (just in case)
+    executionRanking.filter(r => !r.subcontractor.toLowerCase().startsWith('team')).forEach(r => allSubcontractors.add(r.subcontractor));
+    backchargeRanking.filter(r => !r.subcontractor.toLowerCase().startsWith('team')).forEach(r => allSubcontractors.add(r.subcontractor));
+    excessiveWithdrawalsRanking.filter(r => !r.subcontractor.toLowerCase().startsWith('team')).forEach(r => allSubcontractors.add(r.subcontractor));
 
     // Calculate Global Average Duration for all works in the selected period
     const allWorks = executionRanking.flatMap(r => r.works);
@@ -813,31 +824,30 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         const exc = excessiveWithdrawalsRanking.find(r => r.subcontractor === sub);
 
         // 1. Tempo de Execução (Weight: 25%)
-        // Comparamos a média da equipe com a média GLOBAL de todas as equipes no período.
-        // Se a equipe for mais rápida que a média global, a nota é alta.
         const hasExecData = exec && exec.works && exec.works.length > 0;
         const avgDuration = hasExecData ? exec.avgDuration : 0;
         const completedWorks = exec?.completedWorks || 0;
         
-        let durationScore = 0;
+        let durationScore: number | null = null;
         if (hasExecData) {
-          // Se a duração for igual à média global, ganha 70 pontos.
-          // Se for metade da média (muito rápido), ganha 100.
-          // Se for o dobro da média (muito lento), ganha 0.
           const performanceRatio = avgDuration / globalAvgDuration;
           durationScore = Math.max(0, Math.min(100, 100 - (performanceRatio - 0.5) * 60));
         }
 
-        // 2. Completude de Contrato (Weight: 20%)
-        const contractScore = exec?.avgContractCompletion || 0;
+        // 2. Completude de Contrato (Weight: 25%)
+        // Se não tem obras completadas, não faz sentido ter nota de contrato
+        let contractScore: number | null = null;
+        if (hasExecData) {
+          contractScore = exec?.avgContractCompletion || 0;
+        }
 
-        // 3. Backcharges (Weight: 20%)
-        // Higher totalHours is worse.
+        // 3. Backcharges (Weight: 25%)
+        // Backcharges podem existir mesmo sem obras completadas no mês
         const backHours = back?.totalHours || 0;
         const backScore = Math.max(0, 100 - (backHours * 5));
 
-        // 4. Alertas de Excesso (Weight: 35%)
-        // Redistributed 20% from Material Usage to Excess Alerts (15% + 20% = 35%)
+        // 4. Alertas de Excesso (Weight: 25%)
+        // Alertas de excesso podem existir mesmo sem obras completadas no mês
         const excessCount = exc?.totalExcess || 0;
         const excessScore = Math.max(0, 100 - (excessCount * 10));
 
@@ -845,12 +855,16 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         const safetyScore = null;
         const safetyValue = null;
 
-        const finalScore = (
-          (durationScore * 0.25) +
-          (contractScore * 0.25) +
-          (backScore * 0.25) +
-          (excessScore * 0.25)
-        );
+        // Cálculo da Nota Final baseado nos critérios (nulo em Execution/Contract = 50)
+        const scores = [
+          { score: durationScore ?? 50, weight: 0.25, isDefault: durationScore === null },
+          { score: contractScore ?? 50, weight: 0.25, isDefault: contractScore === null },
+          { score: backScore, weight: 0.25, isDefault: false },
+          { score: excessScore, weight: 0.25, isDefault: false }
+        ];
+
+        // Todos os 4 critérios agora sempre terão uma nota (real ou default 50)
+        const finalScore = scores.reduce((sum, s) => sum + (s.score * s.weight), 0);
 
         return {
           subcontractor: sub,
@@ -858,28 +872,32 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           completedWorks,
           metrics: {
               duration: { 
-                score: durationScore, 
-                value: avgDuration, 
+                score: durationScore ?? 50, 
+                value: hasExecData ? avgDuration : null, 
                 label: 'Execution Time', 
-                details: exec?.works || []
+                details: exec?.works || [],
+                isDefault: durationScore === null
               },
               contract: { 
-                score: contractScore, 
+                score: contractScore ?? 50, 
                 value: contractScore, 
                 label: 'Contract Completion', 
-                details: exec?.works || [] 
+                details: exec?.works || [],
+                isDefault: contractScore === null
               },
               backcharge: { 
                 score: backScore, 
                 value: backHours, 
                 label: 'Backcharges', 
-                details: back?.details || [] 
+                details: back?.details || [],
+                isDefault: false
               },
               excess: { 
                 score: excessScore, 
                 value: excessCount, 
                 label: 'Excess Alerts', 
-                details: exc?.details || [] 
+                details: exc?.details || [],
+                isDefault: false
               },
               safety: { 
                 score: safetyScore, 
@@ -889,7 +907,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             }
           };
       })
-      .filter(item => item.completedWorks > 0) // Filter out subcontractors with zero completed works
       .sort((a, b) => {
         const { key, direction } = rankingSort;
         const isAsc = direction === 'asc';
@@ -929,7 +946,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         if (b.completedWorks !== a.completedWorks) return b.completedWorks - a.completedWorks;
         return a.subcontractor.localeCompare(b.subcontractor);
       });
-    }, [executionRanking, backchargeRanking, excessiveWithdrawalsRanking, projectData, contractData, rankingSort]);
+    }, [executionRanking, backchargeRanking, excessiveWithdrawalsRanking, forecastSubcontractors, projectData, contractData, rankingSort]);
 
   const handleMouseEnter = (e: React.MouseEvent, works: WorkDetail[]) => {
     // Clear any pending hide timeout
@@ -1221,32 +1238,27 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                   { 
                     label: 'Execution Time', 
                     icon: 'bi-clock-fill', 
-                    desc: 'Avalia a agilidade da equipe em relação ao coletivo. Calculamos a média de tempo de todas as equipes no período e comparamos com o desempenho individual. Se a equipe entregar mais rápido que a média das outras, a nota sobe. Se não houver trabalhos no período, a nota é zero para manter a competitividade justa.',
-                    weight: '25%'
+                    desc: 'Avalia a agilidade da equipe em relação ao coletivo. Calculamos a média de tempo de todas as equipes no período e comparamos com o desempenho individual. Se a equipe entregar mais rápido que a média das outras, a nota sobe. Se não houver trabalhos no período, a nota é atribuída como 50 para manter o equilíbrio.'
                   },
                   { 
                     label: 'Contract Completion', 
                     icon: 'bi-file-earmark-check-fill', 
-                    desc: 'Mede o engajamento administrativo da equipe. Antes da obra começar, o subcontratado precisa colaborar com diversas etapas burocráticas e assinaturas. Esta nota reflete quantas dessas etapas obrigatórias foram concluídas, garantindo que a equipe esteja regularizada e pronta para trabalhar.',
-                    weight: '25%'
+                    desc: 'Mede o engajamento administrativo da equipe. Antes da obra começar, o subcontratado precisa colaborar com diversas etapas burocráticas e assinaturas. Esta nota reflete quantas dessas etapas obrigatórias foram concluídas. Se não houver atividade no mês, a nota é atribuída como 50.'
                   },
                   { 
                     label: 'Backcharges', 
                     icon: 'bi-exclamation-triangle-fill', 
-                    desc: 'Mede a qualidade e o cuidado. Toda vez que precisamos gastar horas extras para corrigir erros ou retrabalhos da equipe, isso gera um "Backcharge". Cada hora de erro reduz a nota, e acumular mais de 20 horas zera este critério.',
-                    weight: '25%'
+                    desc: 'Mede a qualidade e o cuidado. Toda vez que precisamos gastar horas extras para corrigir erros ou retrabalhos da equipe, isso gera um "Backcharge". Cada hora de erro reduz a nota, e acumular mais de 20 horas zera este critério.'
                   },
                   { 
                     label: 'Excess Alerts', 
                     icon: 'bi-cart-x-fill', 
-                    desc: 'Penaliza a falta de planejamento. Cada vez que a equipe solicita material acima do limite planejado na lista de materiais da obra (feita a partir do template original), ela perde 10 pontos nesta nota. Menos alertas significam melhor controle e fidelidade ao projeto.',
-                    weight: '25%'
+                    desc: 'Penaliza a falta de planejamento. Cada vez que a equipe solicita material acima do limite planejado na lista de materiais da obra (feita a partir do template original), ela perde 10 pontos nesta nota. Menos alertas significam melhor controle e fidelidade ao projeto.'
                   },
                   { 
                     label: 'Safety Level', 
                     icon: 'bi-shield-check', 
-                    desc: 'Em breve: Este critério avaliará o compromisso integral com a vida. Mediremos o cumprimento rigoroso de todas as normas de segurança, o uso correto de EPIs e a adoção de boas práticas no canteiro. Manter um ambiente seguro é a regra número um para qualquer parceria.',
-                    weight: '0%'
+                    desc: 'Em breve: Este critério avaliará o compromisso integral com a vida. Mediremos o cumprimento rigoroso de todas as normas de segurança, o uso correto de EPIs e a adoção de boas práticas no canteiro. Manter um ambiente seguro é a regra número um para qualquer parceria.'
                   }
                 ].map((criterion, idx) => (
                   <div key={idx} className="d-flex gap-2" style={{ textAlign: 'start' }}>
@@ -1265,9 +1277,6 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                           textAlign: 'start'
                         }}>
                           {criterion.label}
-                        </span>
-                        <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)', marginLeft: 'auto', opacity: 0.6 }}>
-                          PESO {criterion.weight}
                         </span>
                       </div>
                       <div style={{ 
@@ -1450,8 +1459,8 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                       {/* CENTRO: MÉTRICAS E NOTAS */}
                       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', padding: '0 6px', borderLeft: '1px solid var(--color-border-divider)', borderRight: '1px solid var(--color-border-divider)' }}>
                         {Object.entries(item.metrics).map(([key, metric]: [string, any], mIdx) => {
-                          const hasScore = metric.score !== null;
-                          const scoreColor = !hasScore ? 'var(--color-text-primary)' :
+                          const isDefault = metric.isDefault;
+                          const scoreColor = isDefault ? 'var(--color-text-secondary)' :
                                            metric.score >= 80 ? '#22c55e' : 
                                            metric.score >= 60 ? '#f59e0b' : 
                                            '#ef4444';
@@ -1491,7 +1500,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                               <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                 {/* Valor Real */}
                                 <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1 }}>
-                                  {!hasScore ? '---' :
+                                  {isDefault || metric.value === null ? '—' :
                                    key === 'duration' ? (
                                      metric.details.length > 0 ? `${Math.round(metric.value)}d/work` : '—'
                                    ) :
@@ -1504,14 +1513,14 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                                 <div style={{ 
                                   fontSize: '11px', 
                                   fontWeight: 900, 
-                                  color: scoreColor,
+                                  color: isDefault || metric.score === null ? 'var(--color-text-secondary)' : scoreColor,
                                   letterSpacing: '0.2px',
                                   paddingTop: '3px',
                                   borderTop: '1px solid var(--color-border-divider)',
                                   width: 'fit-content',
-                                  opacity: hasScore ? 1 : 0.5
+                                  opacity: isDefault || metric.score === null ? 0.5 : 1
                                 }}>
-                                  {hasScore ? Math.round(metric.score) : 'PENDING'}
+                                  {metric.score === null ? '—' : Math.round(metric.score)}
                                 </div>
                               </div>
                             </div>
@@ -1611,25 +1620,43 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           {tooltip.type === 'overall' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
-                { label: 'Execution', weight: '25%', score: tooltip.content.duration.score },
-                { label: 'Contract', weight: '25%', score: tooltip.content.contract.score },
-                { label: 'Backcharges', weight: '25%', score: tooltip.content.backcharge.score },
-                { label: 'Excess', weight: '25%', score: tooltip.content.excess.score },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 8px', background: 'var(--color-background-tertiary)', borderRadius: '6px' }}>
-                  <div>
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.label}</div>
-                    <div style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>Weight: {item.weight}</div>
-                  </div>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    fontWeight: 800, 
-                    color: item.score >= 80 ? '#22c55e' : item.score >= 60 ? '#f59e0b' : '#ef4444' 
+                { key: 'duration', label: 'Execution', score: tooltip.content.duration.score, isDefault: tooltip.content.duration.isDefault },
+                { key: 'contract', label: 'Contract', score: tooltip.content.contract.score, isDefault: tooltip.content.contract.isDefault },
+                { key: 'backcharge', label: 'Backcharges', score: tooltip.content.backcharge.score, isDefault: tooltip.content.backcharge.isDefault },
+                { key: 'excess', label: 'Excess', score: tooltip.content.excess.score, isDefault: tooltip.content.excess.isDefault },
+              ].map((item, i) => {
+                const isDefault = item.isDefault;
+                return (
+                  <div key={i} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    padding: '6px 8px', 
+                    background: 'var(--color-background-tertiary)', 
+                    borderRadius: '6px',
+                    opacity: isDefault ? 0.5 : 1
                   }}>
-                    {Math.round(item.score)}
+                    <div>
+                      <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-primary)' }}>{item.label}</div>
+                      {isDefault && (
+                        <div style={{ fontSize: '9px', color: 'var(--color-text-secondary)' }}>
+                          (Default Score)
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ 
+                      fontSize: '13px', 
+                      fontWeight: 800, 
+                      color: isDefault ? 'var(--color-text-secondary)' : 
+                             item.score >= 80 ? '#22c55e' : 
+                             item.score >= 60 ? '#f59e0b' : 
+                             '#ef4444' 
+                    }}>
+                      {Math.round(item.score)}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 

@@ -878,30 +878,47 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
 
             const findSubcontractor = (row: any) => {
               if (row.obra_id && obraToTeam[row.obra_id]) return { name: obraToTeam[row.obra_id], isMapped: true };
-              const key = `${normalizeJobSite(row.client)}|${normalizeJobSite(row.jobsite)}|${normalizeLotBuilding(row.lot_building)}`;
-              if (subLookup[key]) return { name: subLookup[key], isMapped: true };
+              
               const normTsClient = normalizeJobSite(row.client);
               const normTsJob = normalizeJobSite(row.jobsite);
               const normTsLot = normalizeLotBuilding(row.lot_building);
+
+              const key = `${normTsClient}|${normTsJob}|${normTsLot}`;
+              if (subLookup[key]) return { name: subLookup[key], isMapped: true };
+
               const tsWords = normTsJob.split(' ').filter(w => w.length > 2);
               let bestMatch: { team: string; score: number } | null = null;
+
               forecastProjects.forEach(f => {
                 const team = obraToTeam[f.id];
+                if (!team) return;
+
                 const fLot = normalizeLotBuilding(f.lote_bld);
-                
-                // Se o timesheet tem lote, ele deve bater com o do Forecast.
-                // Se o timesheet NÃO tem lote, permitimos o match com qualquer lote do Forecast para essa obra.
-                if (!team || (normTsLot !== '' && fLot !== normTsLot)) return;
-                
                 let currentScore = 0;
+
+                // Check lot match
+                if (fLot === normTsLot) {
+                  currentScore += 10; // High score for exact lot match
+                } else if (normTsLot && fLot && (normTsLot.includes(fLot) || fLot.includes(normTsLot))) {
+                  currentScore += 3; // Partial lot match
+                }
+
+                // Check jobsite words match
                 const normFJob = normalizeJobSite(f.job_site);
                 const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
-                currentScore += wordScore * 2;
-                if (normalizeJobSite(f.cliente) === normTsClient && normTsClient !== '') currentScore += 3;
-                if (currentScore >= 4 && (!bestMatch || currentScore > bestMatch.score)) {
+                currentScore += wordScore * 5;
+
+                // Check client match
+                const normFClient = normalizeJobSite(f.cliente);
+                if (normFClient === normTsClient && normTsClient !== '') {
+                  currentScore += 2;
+                }
+
+                if (currentScore >= 5 && (!bestMatch || currentScore > bestMatch.score)) {
                   bestMatch = { team, score: currentScore };
                 }
               });
+
               if (bestMatch?.team) return { name: bestMatch.team, isMapped: true };
               return { 
                 name: `${row.jobsite || ''}${row.lot_building ? ' - ' + row.lot_building : ''}` || 'Obra não identificada', 
