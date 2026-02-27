@@ -26,12 +26,11 @@ interface InventoryControlProps {
 }
 
 export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'light' }) => {
-  const { historicoSaldo, detalhesExcesso, gastosUsuario, loading: storageLoading, error } = usePremiumStorageData();
+  const { historicoSaldo, detalhesExcesso, gastosUsuario, productPrices, loading: storageLoading, error } = usePremiumStorageData();
   
   // State for Filters
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>('');
-  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
   const loading = storageLoading;
 
@@ -90,6 +89,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
         return {
           fullDate: monthKey,
           displayDate: format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMM'),
+          fullMonthName: format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMMM'),
           adherence: data.total > 0 ? ((data.total - data.below) / data.total) * 100 : null,
           total: data.total,
           below: data.below
@@ -98,38 +98,51 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
       .sort((a, b) => a.fullDate.localeCompare(b.fullDate));
   }, [historicoSaldo, selectedYear]);
 
-  // 2. Product Variation Data
-  const productVariationData = useMemo(() => {
-    if (!selectedProduct || !selectedYear) return [];
+  // 2. Financial Impact Data (Month-by-Month)
+  const financialImpactData = useMemo(() => {
+    if (!selectedYear) return [];
     
     const fullYearData = Array.from({ length: 12 }, (_, i) => {
       const monthDate = new Date(parseInt(selectedYear), i, 1);
       return {
         mes: format(monthDate, 'MMM'),
+        fullMonth: format(monthDate, 'MMMM'),
         fullDate: format(monthDate, 'yyyy-MM-dd'),
-        saldo: null as number | null,
-        minimo: null as number | null
+        totalCost: 0,
+        excessCost: 0,
+        normalCost: 0
       };
     });
 
-    historicoSaldo
-      .filter(h => h.product_nome === selectedProduct)
-      .forEach(h => {
-        const match = h.mes.match(/^(\d{4})-(\d{2})/);
-        if (!match) return;
+    // Fill cost totals from detalhesExcesso
+    detalhesExcesso.forEach(d => {
+      const date = parseISO(d.movement_date);
+      const year = format(date, 'yyyy');
+      const monthIndex = parseInt(format(date, 'MM')) - 1;
+
+      if (year === selectedYear) {
+        const withdrawn = d.quantidade_retirada;
+        const totalAtMoment = d.consumo_acumulado_momento;
+        const limit = d.quantidade_limite;
+        const price = d.valor_unitario || productPrices[d.product_id] || productPrices[d.product_nome] || 0;
         
-        const year = match[1];
-        const month = match[2];
-        
-        if (year === selectedYear) {
-          const monthIndex = parseInt(month) - 1;
-          fullYearData[monthIndex].saldo = h.saldo_acumulado;
-          fullYearData[monthIndex].minimo = h.saldo_minimo;
-        }
-      });
+        // Calculate excess portion of THIS withdrawal
+        const previousTotal = totalAtMoment - withdrawn;
+        const excessUnits = Math.max(0, totalAtMoment - Math.max(limit, previousTotal));
+        const normalUnits = withdrawn - excessUnits;
+
+        const excessCost = excessUnits * price;
+        const normalCost = normalUnits * price;
+        const totalCost = withdrawn * price;
+
+        fullYearData[monthIndex].totalCost += totalCost;
+        fullYearData[monthIndex].excessCost += excessCost;
+        fullYearData[monthIndex].normalCost += normalCost;
+      }
+    });
 
     return fullYearData;
-  }, [historicoSaldo, selectedProduct, selectedYear]);
+  }, [detalhesExcesso, selectedYear, productPrices]);
 
   const uniqueProducts = useMemo(() => {
     return Array.from(new Set(historicoSaldo.map(h => h.product_nome))).sort();
@@ -208,16 +221,20 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
       const existingViolation = grouped[key].violations.find((v: any) => v.product_nome === d.product_nome);
       if (!existingViolation) {
         grouped[key].violations.push({
+          product_id: d.product_id,
           product_nome: d.product_nome,
           consumo_acumulado_momento: d.consumo_acumulado_momento,
           quantidade_limite: d.quantidade_limite,
-          movement_date: d.movement_date
+          movement_date: d.movement_date,
+          valor_unitario: d.valor_unitario
         });
       } else if (new Date(d.movement_date) > new Date(existingViolation.movement_date)) {
         // Keep the most recent violation for the same product in the grouped view
+        existingViolation.product_id = d.product_id;
         existingViolation.consumo_acumulado_momento = d.consumo_acumulado_momento;
         existingViolation.quantidade_limite = d.quantidade_limite;
         existingViolation.movement_date = d.movement_date;
+        existingViolation.valor_unitario = d.valor_unitario;
       }
     });
 
@@ -227,6 +244,19 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
   // 4. Spending Data (Filtered)
   const spendingData = useMemo(() => {
     return gastosUsuario
+      .filter(u => {
+        const match = u.mes.match(/^(\d{4})-(\d{2})/);
+        if (!match) return true;
+        
+        const year = match[1];
+        const month = match[2];
+        const monthName = format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMMM');
+        
+        if (selectedYear && year !== selectedYear) return false;
+        if (selectedMonth && monthName !== selectedMonth) return false;
+        
+        return true;
+      })
       .map(u => ({
         name: u.usuario_nome,
         value: u.valor_total_retirado,
@@ -234,11 +264,11 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [gastosUsuario]);
+  }, [gastosUsuario, selectedYear, selectedMonth]);
 
   const averageAdherence = useMemo(() => {
     if (selectedMonth) {
-      const monthData = adherenceData.find(d => d.displayDate === selectedMonth);
+      const monthData = adherenceData.find(d => d.fullMonthName === selectedMonth);
       return monthData?.adherence ?? 100;
     }
 
@@ -249,19 +279,34 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return sum / dataWithAdherence.length;
   }, [adherenceData, selectedMonth]);
 
-  const totalExcessCount = useMemo(() => {
-    return filteredExcess.reduce((acc, curr) => acc + curr.violations.length, 0);
-  }, [filteredExcess]);
-
-  const totalExcessCost = useMemo(() => {
+  const totalExcessUnits = useMemo(() => {
     return filteredExcess.reduce((acc, project) => {
       return acc + project.violations.reduce((vAcc: number, v: any) => {
         const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
-        // Assuming a fallback cost of $10 per unit if we don't have item prices
-        return vAcc + (excess * 10);
+        return vAcc + excess;
       }, 0);
     }, 0);
   }, [filteredExcess]);
+
+  const { totalExcessCost, totalWithdrawnCost } = useMemo(() => {
+    return filteredExcess.reduce((acc, project) => {
+      const projectTotals = project.violations.reduce((vAcc: { excess: number, withdrawn: number }, v: any) => {
+        const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
+        const withdrawn = v.consumo_acumulado_momento;
+        const price = v.valor_unitario || productPrices[v.product_id] || productPrices[v.product_nome] || 0;
+        
+        return {
+          excess: vAcc.excess + (excess * price),
+          withdrawn: vAcc.withdrawn + (withdrawn * price)
+        };
+      }, { excess: 0, withdrawn: 0 });
+
+      return {
+        totalExcessCost: acc.totalExcessCost + projectTotals.excess,
+        totalWithdrawnCost: acc.totalWithdrawnCost + projectTotals.withdrawn
+      };
+    }, { totalExcessCost: 0, totalWithdrawnCost: 0 });
+  }, [filteredExcess, productPrices]);
   
   if (loading) return (
     <div className="d-flex align-items-center justify-content-center" style={{ height: '100%', background: 'var(--color-background-primary)' }}>
@@ -312,6 +357,61 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     if (value >= 85) return 'var(--positive-color)';
     if (value >= 65) return 'var(--challenges-color)';
     return 'var(--negative-color)';
+  };
+
+  const InventoryTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div style={{
+          background: 'var(--color-background-primary)',
+          border: '1px solid var(--color-border-divider)',
+          padding: '12px',
+          borderRadius: '4px',
+          boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+          color: 'var(--color-text-primary)',
+          zIndex: 1000,
+          minWidth: '200px'
+        }}>
+          <div style={{ 
+            fontSize: '10px', 
+            fontWeight: 800, 
+            marginBottom: '10px', 
+            color: 'var(--color-text-secondary)', 
+            textTransform: 'uppercase', 
+            letterSpacing: '1px',
+            borderBottom: '1px solid var(--color-border-divider)',
+            paddingBottom: '6px'
+          }}>
+            {data.fullMonth} {selectedYear}
+          </div>
+
+          <div className="d-flex flex-column gap-2">
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Excess Portion</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: data.excessCost > 0 ? 'var(--negative-color)' : 'inherit' }}>
+                ${data.excessCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Normal Portion</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-brand-blue)' }}>
+                ${data.normalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center mt-1 pt-2" style={{ borderTop: '1px solid var(--color-border-divider)' }}>
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Total Withdrawn</span>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                ${data.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -497,34 +597,34 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
 
           {/* Secondary Metrics */}
           <div className="d-flex flex-row align-items-stretch flex-grow-1">
-          {/* Template Violations */}
+          {/* Excess Units */}
           <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
             flex: 1,
             borderRight: '1px solid var(--color-border-divider)',
             minWidth: '180px'
           }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginBottom: 4, letterSpacing: '0.3px' }}>
-              Template Violations
+              Excess Units
             </span>
             <div className="d-flex align-items-center gap-2">
               <span style={{ 
-                color: totalExcessCount > 0 ? 'var(--negative-color)' : 'var(--positive-color)', 
+                color: totalExcessUnits > 0 ? 'var(--negative-color)' : 'var(--positive-color)', 
                 fontWeight: 700, 
                 fontSize: 20,
                 lineHeight: 1
               }}>
-                {totalExcessCount}
+                {totalExcessUnits}
               </span>
               <div style={{ height: 4, background: 'var(--color-background-secondary)', borderRadius: 2, overflow: 'hidden', width: 60 }}>
                 <div style={{ 
-                  width: `${Math.min(100, (totalExcessCount / 20) * 100)}%`, 
+                  width: `${Math.min(100, (totalExcessUnits / 50) * 100)}%`, 
                   height: '100%', 
                   background: 'var(--negative-color)',
                   transition: 'width 0.6s ease'
                 }} />
               </div>
               <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 500, opacity: 0.7 }}>
-                Alerts
+                Units
               </span>
             </div>
           </div>
@@ -532,21 +632,37 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
           {/* Excess Cost Impact */}
           <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
             flex: 1,
-            minWidth: '180px'
+            minWidth: '220px'
           }}>
             <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginBottom: 4, letterSpacing: '0.3px' }}>
-              Excess Cost Impact
+              Financial Impact (Excess | Total)
             </span>
             <div className="d-flex align-items-center gap-2">
-              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', opacity: 0.5 }}>$</span>
-              <span style={{ 
-                color: totalExcessCost > 0 ? 'var(--challenges-color)' : 'var(--color-text-secondary)', 
-                fontWeight: 700, 
-                fontSize: 20,
-                lineHeight: 1
-              }}>
-                {totalExcessCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-              </span>
+              <div className="d-flex align-items-baseline gap-1">
+                <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--negative-color)' }}>$</span>
+                <span style={{ 
+                  color: 'var(--negative-color)', 
+                  fontWeight: 700, 
+                  fontSize: 20,
+                  lineHeight: 1
+                }}>
+                  {totalExcessCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
+              
+              <span style={{ color: 'var(--color-border-divider)', fontWeight: 300, fontSize: 18 }}>|</span>
+              
+              <div className="d-flex align-items-baseline gap-1">
+                <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)', opacity: 0.6 }}>$</span>
+                <span style={{ 
+                  color: 'var(--color-text-primary)', 
+                  fontWeight: 700, 
+                  fontSize: 20,
+                  lineHeight: 1
+                }}>
+                  {totalWithdrawnCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </span>
+              </div>
             </div>
           </div>
           </div>
@@ -583,7 +699,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
                       unit="%" 
                       tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} 
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip cursor={{ stroke: 'var(--color-border-divider)', strokeWidth: 1 }} content={<CustomTooltip />} />
                     <Area 
                       type="monotone" 
                       dataKey="adherence" 
@@ -612,28 +728,54 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
                 {filteredExcess.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {filteredExcess.map((project: any, idx) => (
-                      <div key={idx} style={{ 
-                        padding: '16px', 
-                        border: '1px solid var(--color-border-divider)',
+                      <div key={idx} className="d-flex flex-column mb-4" style={{ 
+                        border: '1.5px solid var(--color-border-divider)', 
+                        borderRadius: '8px', 
+                        padding: '16px',
                         background: 'var(--color-background-primary)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                        position: 'relative',
-                        borderLeft: '4px solid var(--negative-color)'
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                       }}>
-                        {/* Header: Project Info */}
-                        <div className="d-flex flex-column" style={{ gap: '2px' }}>
-                          <div className="d-flex align-items-center gap-2">
-                            <i className="bi bi-geo-alt" style={{ fontSize: '14px', color: 'var(--color-accent-primary)' }}></i>
-                            <span className="fw-bold" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
-                              {project.project_nome}
-                            </span>
+                        <div className="d-flex justify-content-between align-items-start mb-2">
+                          <div className="d-flex flex-column" style={{ gap: '2px' }}>
+                            <div className="d-flex align-items-center gap-2">
+                              <i className="bi bi-geo-alt" style={{ fontSize: '14px', color: 'var(--color-accent-primary)' }}></i>
+                              <span className="fw-bold" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                                {project.project_nome}
+                              </span>
+                            </div>
+                            <div className="d-flex align-items-center gap-2" style={{ marginLeft: '22px' }}>
+                              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                                {project.house_model_nome}
+                              </span>
+                            </div>
                           </div>
-                          <div className="d-flex align-items-center gap-2" style={{ marginLeft: '22px' }}>
-                            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                              {project.house_model_nome}
-                            </span>
+
+                          <div className="d-flex gap-3 text-end">
+                            <div className="d-flex flex-column align-items-end">
+                              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--negative-color)' }}>
+                                ${project.violations.reduce((sum: number, v: any) => {
+                                  const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
+                                  const price = v.valor_unitario || productPrices[v.product_id] || productPrices[v.product_nome] || 0;
+                                  return sum + (excess * price);
+                                }, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </div>
+                              <div style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
+                                Excess Cost
+                              </div>
+                            </div>
+
+                            <div className="d-flex flex-column align-items-end" style={{ borderLeft: '1.5px solid var(--color-border-divider)', paddingLeft: '12px' }}>
+                              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-text-primary)' }}>
+                                ${project.violations.reduce((sum: number, v: any) => {
+                                  const total = v.consumo_acumulado_momento;
+                                  const price = v.valor_unitario || productPrices[v.product_id] || productPrices[v.product_nome] || 0;
+                                  return sum + (total * price);
+                                }, 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </div>
+                              <div style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
+                                Total Cost
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -668,9 +810,11 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
                                       / {violation.quantidade_limite}
                                     </span>
                                   </div>
-                                  <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
-                                    Withdrawn / Limit
-                                  </span>
+                                  <div className="d-flex flex-column align-items-end">
+                                    <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
+                                      Withdrawn / Limit
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -689,81 +833,56 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
             </div>
           </div>
 
-          {/* Bottom Row: Inventory Level (Full Width) */}
+          {/* Bottom Row: Financial Impact (Full Width) */}
           <div className="d-flex flex-column" style={{ flex: '1 1 50%', minHeight: 0 }}>
             <div style={{ ...flatCardStyle, flex: 1, display: 'flex', flexDirection: 'column', borderBottom: 'none', height: '100%' }}>
               <div className="d-flex justify-content-between align-items-center mb-3 pe-4">
                   <h4 style={chartTitleStyle}>
-                    Inventory Level Analysis
+                    Monthly Financial Impact Analysis
                   </h4>
-                  <div className="input-group" style={{ width: '280px', background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 32 }}>
-                  <div className="d-flex align-items-center justify-content-center" style={{ width: 40, height: '100%', background: 'var(--color-background-secondary)', borderRight: '1.5px solid var(--color-border-divider)', color: 'var(--color-accent-primary)' }}>
-                    <i className="bi bi-box-seam" style={{ fontSize: 14 }} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <MultiSelectDropdown
-                      options={uniqueProducts.map(p => ({ 
-                        value: p, 
-                        label: p,
-                        color: productStatus.get(p) ? 'var(--negative-color)' : undefined
-                      }))}
-                      selectedValues={selectedProduct ? [selectedProduct] : []}
-                      onChange={(values) => setSelectedProduct(values[0] || null)}
-                      isSingleSelect={true}
-                      dropdownTitle="Select Product"
-                      placeholder="Choose a product..."
-                      variant="ghost"
-                      style={{ 
-                        border: 'none', 
-                        borderRadius: '0',
-                        background: 'transparent',
-                        height: '100%',
-                        width: '100%'
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div style={{ flex: 1, padding: '0 24px', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  {selectedProduct ? (
-                    <div style={{ height: '230px', width: '100%' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={productVariationData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" opacity="0.3" />
-                        <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} />
-                        <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Line 
-                          type="monotone" 
-                          dataKey="saldo" 
-                          name="Current Stock" 
-                          stroke="var(--color-accent-primary)" 
-                          strokeWidth={2.5}
-                          dot={{ r: 4, fill: 'var(--color-accent-primary)', strokeWidth: 0 }}
-                          activeDot={{ r: 6, strokeWidth: 0 }}
-                          animationDuration={1500}
-                        />
-                        <Line 
-                          type="stepAfter" 
-                          dataKey="minimo" 
-                          name="Min Stock" 
-                          stroke="var(--negative-color)" 
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={false}
-                          animationDuration={1500}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="d-flex align-items-center justify-content-center h-100" style={{ background: 'rgba(var(--color-text-primary-rgb), 0.02)', borderRadius: '0', border: '1px dashed var(--color-border-divider)' }}>
-                    <div className="text-center opacity-50">
-                      <i className="bi bi-box-seam fs-2 mb-2 d-block"></i>
-                      <span className="small fw-bold">Select a product to view history</span>
+                  <div className="d-flex gap-4">
+                    <div className="d-flex align-items-center gap-2">
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--negative-color)' }} />
+                      <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Excess Withdrawal Cost</span>
+                    </div>
+                    <div className="d-flex align-items-center gap-2">
+                      <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--color-brand-blue)' }} />
+                      <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)', textTransform: 'uppercase' }}>Normal Withdrawal Cost</span>
                     </div>
                   </div>
-                )}
+              </div>
+              <div style={{ flex: 1, padding: '0 24px', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ height: '230px', width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={financialImpactData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" opacity="0.3" />
+                        <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} />
+                        <YAxis 
+                          axisLine={false} 
+                          tickLine={false} 
+                          tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }}
+                          tickFormatter={(value) => `$${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
+                        />
+                        <Tooltip cursor={{ fill: 'rgba(var(--color-text-primary-rgb), 0.05)' }} content={<InventoryTooltip />} />
+                        <Bar 
+                          dataKey="normalCost" 
+                          name="Normal Withdrawal Cost" 
+                          stackId="a" 
+                          fill="var(--color-brand-blue)" 
+                          radius={[0, 0, 0, 0]}
+                          animationDuration={1500}
+                        />
+                        <Bar 
+                          dataKey="excessCost" 
+                          name="Excess Withdrawal Cost" 
+                          stackId="a" 
+                          fill="var(--negative-color)" 
+                          radius={[4, 4, 0, 0]}
+                          animationDuration={1500}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
               </div>
             </div>
           </div>

@@ -28,6 +28,7 @@ export interface DetalheExcesso {
   project_id: string;
   project_nome: string;
   house_model_nome: string;
+  product_id: string;
   product_nome: string;
   recipiente_responsavel: string;
   movement_date: string;
@@ -35,6 +36,7 @@ export interface DetalheExcesso {
   quantidade_limite: number;
   consumo_acumulado_momento: number;
   excedeu_neste_momento: boolean;
+  valor_unitario?: number;
 }
 
 export interface GastoUsuario {
@@ -51,6 +53,7 @@ export const usePremiumStorageData = () => {
   const [historicoSaldo, setHistoricoSaldo] = useState<HistoricoSaldo[]>([]);
   const [detalhesExcesso, setDetalhesExcesso] = useState<DetalheExcesso[]>([]);
   const [gastosUsuario, setGastosUsuario] = useState<GastoUsuario[]>([]);
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,23 +66,52 @@ export const usePremiumStorageData = () => {
     try {
       setLoading(true);
       
-      // Busca paralela de todas as views
+      // Busca paralela de todas as views e a tabela de produtos para preços
       const [
         consumoRes,
         historicoRes,
         excessoRes,
-        gastosRes
+        gastosRes,
+        productsRes,
+        movementItemsRes
       ] = await Promise.all([
         premiumStorageClient.from('vw_consumo_vs_limite').select('*'),
         premiumStorageClient.from('vw_historico_saldo_mensal').select('*'),
         premiumStorageClient.from('vw_detalhes_excesso_limite').select('*'),
-        premiumStorageClient.from('vw_gasto_por_usuario').select('*')
+        premiumStorageClient.from('vw_gasto_por_usuario').select('*'),
+        // Fetch products for names (fallback lookup)
+        premiumStorageClient.from('products').select('id, nome'),
+        // Fetch latest prices from movement items
+        premiumStorageClient.from('stock_movement_items').select('product_id, valor_unitario').order('id', { ascending: false }).limit(2000)
       ]);
 
       if (consumoRes.error) throw consumoRes.error;
       if (historicoRes.error) throw historicoRes.error;
       if (excessoRes.error) throw excessoRes.error;
       if (gastosRes.error) throw gastosRes.error;
+      
+      const productNames: Record<string, string> = {};
+      if (productsRes.data) {
+        productsRes.data.forEach((p: any) => {
+          productNames[p.id] = p.nome;
+        });
+      }
+
+      // Map product prices from stock_movement_items (latest first)
+      const prices: Record<string, number> = {};
+      if (movementItemsRes.data) {
+        movementItemsRes.data.forEach((p: any) => {
+          if (p.valor_unitario && !prices[p.product_id]) {
+            prices[p.product_id] = p.valor_unitario;
+            // Also map by name as fallback
+            const name = productNames[p.product_id];
+            if (name && !prices[name]) {
+              prices[name] = p.valor_unitario;
+            }
+          }
+        });
+      }
+      setProductPrices(prices);
 
       setData(consumoRes.data || []);
       setHistoricoSaldo(historicoRes.data || []);
@@ -99,6 +131,7 @@ export const usePremiumStorageData = () => {
     historicoSaldo,
     detalhesExcesso,
     gastosUsuario,
+    productPrices,
     loading, 
     error, 
     refetch: fetchData 
