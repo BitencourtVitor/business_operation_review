@@ -29,7 +29,7 @@ export interface DetalheExcesso {
   project_nome: string;
   house_model_nome: string;
   product_nome: string;
-  usuario_responsavel: string;
+  recipiente_responsavel: string;
   movement_date: string;
   quantidade_retirada: number;
   quantidade_limite: number;

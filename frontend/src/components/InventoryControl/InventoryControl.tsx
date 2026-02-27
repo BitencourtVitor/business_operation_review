@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { usePremiumStorageData } from '../../hooks/usePremiumStorageData';
+import { supabase } from '../../supabaseClient';
 import { 
   ResponsiveContainer, 
   LineChart, 
@@ -10,23 +11,42 @@ import {
   Tooltip, 
   Legend, 
   BarChart, 
-  Bar 
+  Bar,
+  AreaChart,
+  Area,
+  Cell,
+  LabelList
 } from 'recharts';
-import { format, parseISO, startOfYear, endOfYear, eachMonthOfInterval } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import InventoryControlFilters from './InventoryControlFilters';
+import MultiSelectDropdown from '../common/MultiSelectDropdown';
 
-export const InventoryControl: React.FC = () => {
-  const { historicoSaldo, detalhesExcesso, gastosUsuario, loading, error } = usePremiumStorageData();
+interface InventoryControlProps {
+  theme?: 'light' | 'dark';
+}
+
+export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'light' }) => {
+  const { historicoSaldo, detalhesExcesso, gastosUsuario, loading: storageLoading, error } = usePremiumStorageData();
   
   // State for Filters
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
+  const loading = storageLoading;
+
   // Generate Year/Month options
   const years = useMemo(() => {
-    const uniqueYears = new Set(historicoSaldo.map(h => format(parseISO(h.mes), 'yyyy')));
-    return Array.from(uniqueYears).sort().reverse();
+    const currentYear = new Date().getFullYear().toString();
+    const uniqueYears = new Set<string>();
+    
+    historicoSaldo.forEach(h => {
+      const match = h.mes.match(/^(\d{4})/);
+      if (match) uniqueYears.add(match[1]);
+    });
+    
+    uniqueYears.add(currentYear); 
+    return Array.from(uniqueYears).sort((a, b) => b.localeCompare(a));
   }, [historicoSaldo]);
 
   const months = useMemo(() => {
@@ -39,15 +59,23 @@ export const InventoryControl: React.FC = () => {
   const adherenceData = useMemo(() => {
     const grouped = new Map<string, { total: number, below: number }>();
     
-    historicoSaldo.forEach(h => {
-      const date = parseISO(h.mes);
-      const year = format(date, 'yyyy');
-      const monthName = format(date, 'MMMM');
+    if (selectedYear) {
+      for (let i = 0; i < 12; i++) {
+        const monthKey = `${selectedYear}-${String(i + 1).padStart(2, '0')}`;
+        grouped.set(monthKey, { total: 0, below: 0 });
+      }
+    }
 
-      // Filter by Year if selected
+    historicoSaldo.forEach(h => {
+      const match = h.mes.match(/^(\d{4})-(\d{2})/);
+      if (!match) return;
+
+      const year = match[1];
+      const month = match[2];
+      const monthKey = `${year}-${month}`;
+
       if (selectedYear && year !== selectedYear) return;
 
-      const monthKey = format(date, 'yyyy-MM');
       if (!grouped.has(monthKey)) {
         grouped.set(monthKey, { total: 0, below: 0 });
       }
@@ -57,61 +85,147 @@ export const InventoryControl: React.FC = () => {
     });
 
     return Array.from(grouped.entries())
-      .map(([monthKey, data]) => ({
-        fullDate: monthKey,
-        displayDate: format(parseISO(monthKey + '-01'), 'MMM'),
-        adherence: ((data.total - data.below) / data.total) * 100,
-        total: data.total,
-        below: data.below
-      }))
+      .map(([monthKey, data]) => {
+        const [year, month] = monthKey.split('-');
+        return {
+          fullDate: monthKey,
+          displayDate: format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMM'),
+          adherence: data.total > 0 ? ((data.total - data.below) / data.total) * 100 : null,
+          total: data.total,
+          below: data.below
+        };
+      })
       .sort((a, b) => a.fullDate.localeCompare(b.fullDate));
   }, [historicoSaldo, selectedYear]);
 
   // 2. Product Variation Data
   const productVariationData = useMemo(() => {
-    if (!selectedProduct) return [];
+    if (!selectedProduct || !selectedYear) return [];
     
-    return historicoSaldo
+    const fullYearData = Array.from({ length: 12 }, (_, i) => {
+      const monthDate = new Date(parseInt(selectedYear), i, 1);
+      return {
+        mes: format(monthDate, 'MMM'),
+        fullDate: format(monthDate, 'yyyy-MM-dd'),
+        saldo: null as number | null,
+        minimo: null as number | null
+      };
+    });
+
+    historicoSaldo
       .filter(h => h.product_nome === selectedProduct)
-      .filter(h => {
-        const date = parseISO(h.mes);
-        const year = format(date, 'yyyy');
-        return !selectedYear || year === selectedYear;
-      })
-      .map(h => ({
-        mes: format(parseISO(h.mes), 'MMM'),
-        fullDate: h.mes,
-        saldo: h.saldo_acumulado,
-        minimo: h.saldo_minimo
-      }))
-      .sort((a, b) => a.fullDate.localeCompare(b.fullDate));
+      .forEach(h => {
+        const match = h.mes.match(/^(\d{4})-(\d{2})/);
+        if (!match) return;
+        
+        const year = match[1];
+        const month = match[2];
+        
+        if (year === selectedYear) {
+          const monthIndex = parseInt(month) - 1;
+          fullYearData[monthIndex].saldo = h.saldo_acumulado;
+          fullYearData[monthIndex].minimo = h.saldo_minimo;
+        }
+      });
+
+    return fullYearData;
   }, [historicoSaldo, selectedProduct, selectedYear]);
 
-  // Unique Products for Dropdown
   const uniqueProducts = useMemo(() => {
     return Array.from(new Set(historicoSaldo.map(h => h.product_nome))).sort();
   }, [historicoSaldo]);
 
-  // 3. Excess Projects Data (Filtered)
+  // Determine products below minimum for the selected month/year
+  const productStatus = useMemo(() => {
+    const statusMap = new Map<string, boolean>();
+    
+    // Sort historicoSaldo by date to ensure we get the latest status if no month is selected
+    const sortedHistory = [...historicoSaldo].sort((a, b) => a.mes.localeCompare(b.mes));
+
+    sortedHistory.forEach(h => {
+      const match = h.mes.match(/^(\d{4})-(\d{2})/);
+      if (!match) return;
+      
+      const year = match[1];
+      const month = match[2];
+      const monthName = format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMMM');
+
+      if (selectedYear && year !== selectedYear) return;
+      
+      // If month is selected, only consider that month. 
+      // If not, we keep updating the map so the last month's status (latest) wins.
+      if (selectedMonth) {
+        if (monthName === selectedMonth) {
+          statusMap.set(h.product_nome, h.abaixo_minimo);
+        }
+      } else {
+        statusMap.set(h.product_nome, h.abaixo_minimo);
+      }
+    });
+    
+    return statusMap;
+  }, [historicoSaldo, selectedYear, selectedMonth]);
+
+  // 3. Excess Projects Data (Filtered) - Matching Subcontractor Performance logic
   const filteredExcess = useMemo(() => {
-    return detalhesExcesso
+    const filtered = detalhesExcesso
       .filter(d => {
         const date = parseISO(d.movement_date);
         const year = format(date, 'yyyy');
-        const monthName = format(date, 'MMMM');
+        const month = format(date, 'MM'); 
         
         if (selectedYear && year !== selectedYear) return false;
-        if (selectedMonth && monthName !== selectedMonth) return false;
-        return true;
-      })
-      .sort((a, b) => new Date(b.movement_date).getTime() - new Date(a.movement_date).getTime());
-  }, [detalhesExcesso, selectedYear, selectedMonth]);
+        
+        if (selectedMonth) {
+          const selectedMonthIndex = months.indexOf(selectedMonth) + 1;
+          const selectedMonthNum = String(selectedMonthIndex).padStart(2, '0');
+          const itemMonth = format(date, 'MMMM');
+          
+          if (itemMonth !== selectedMonth && month !== selectedMonthNum) return false;
+        }
+        
+        if (d.project_nome?.toUpperCase().includes('(TEST)')) return false;
+
+        return d.consumo_acumulado_momento > d.quantidade_limite;
+      });
+
+    // Group by project_id (or project_nome if id is missing)
+    const grouped: Record<string, any> = {};
+    
+    filtered.forEach(d => {
+      const key = d.project_id || d.project_nome;
+      if (!grouped[key]) {
+        grouped[key] = {
+          project_id: d.project_id,
+          project_nome: d.project_nome,
+          house_model_nome: d.house_model_nome,
+          violations: []
+        };
+      }
+      
+      // Add violation if not already present (to avoid duplicates if the same product exceeded multiple times in the filtered period)
+      // Or we can just show all of them. Let's show all unique product violations for that project.
+      const existingViolation = grouped[key].violations.find((v: any) => v.product_nome === d.product_nome);
+      if (!existingViolation) {
+        grouped[key].violations.push({
+          product_nome: d.product_nome,
+          consumo_acumulado_momento: d.consumo_acumulado_momento,
+          quantidade_limite: d.quantidade_limite,
+          movement_date: d.movement_date
+        });
+      } else if (new Date(d.movement_date) > new Date(existingViolation.movement_date)) {
+        // Keep the most recent violation for the same product in the grouped view
+        existingViolation.consumo_acumulado_momento = d.consumo_acumulado_momento;
+        existingViolation.quantidade_limite = d.quantidade_limite;
+        existingViolation.movement_date = d.movement_date;
+      }
+    });
+
+    return Object.values(grouped).sort((a: any, b: any) => a.project_nome.localeCompare(b.project_nome));
+  }, [detalhesExcesso, selectedYear, selectedMonth, months]);
 
   // 4. Spending Data (Filtered)
   const spendingData = useMemo(() => {
-    // Filter raw spending data first if possible, but 'gastosUsuario' might be pre-aggregated. 
-    // Assuming 'gastosUsuario' is a summary, we might need to filter raw movements if we want time-based filtering here.
-    // For now, let's use the provided view data but limit to top 10.
     return gastosUsuario
       .map(u => ({
         name: u.usuario_nome,
@@ -119,35 +233,224 @@ export const InventoryControl: React.FC = () => {
         role: u.role
       }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 10);
+      .slice(0, 8);
   }, [gastosUsuario]);
 
-  // Current Metrics (based on latest available month or filtered selection)
-  const latestAdherence = adherenceData.length > 0 ? adherenceData[adherenceData.length - 1].adherence : 100;
-  const totalExcessCount = filteredExcess.length;
-  
-  if (loading) return <div className="p-4 text-center" style={{ color: 'var(--color-text-primary)' }}>Loading Inventory Data...</div>;
-  if (error) return <div className="p-4 text-center text-red-600">Error loading data: {error}</div>;
+  const averageAdherence = useMemo(() => {
+    if (selectedMonth) {
+      const monthData = adherenceData.find(d => d.displayDate === selectedMonth);
+      return monthData?.adherence ?? 100;
+    }
 
-  const cardStyle = {
+    const dataWithAdherence = adherenceData.filter(d => d.adherence !== null);
+    if (dataWithAdherence.length === 0) return 100;
+    
+    const sum = dataWithAdherence.reduce((acc, curr) => acc + curr.adherence!, 0);
+    return sum / dataWithAdherence.length;
+  }, [adherenceData, selectedMonth]);
+
+  const totalExcessCount = useMemo(() => {
+    return filteredExcess.reduce((acc, curr) => acc + curr.violations.length, 0);
+  }, [filteredExcess]);
+
+  const totalExcessCost = useMemo(() => {
+    return filteredExcess.reduce((acc, project) => {
+      return acc + project.violations.reduce((vAcc: number, v: any) => {
+        const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
+        // Assuming a fallback cost of $10 per unit if we don't have item prices
+        return vAcc + (excess * 10);
+      }, 0);
+    }, 0);
+  }, [filteredExcess]);
+  
+  if (loading) return (
+    <div className="d-flex align-items-center justify-content-center" style={{ height: '100%', background: 'var(--color-background-primary)' }}>
+      <div className="text-center">
+        <div className="spinner-border text-primary mb-3" role="status"></div>
+        <div style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>Loading Inventory Data...</div>
+      </div>
+    </div>
+  );
+
+  if (error) return (
+    <div className="d-flex align-items-center justify-content-center" style={{ height: '100%', background: 'var(--color-background-primary)' }}>
+      <div className="alert alert-danger shadow-sm border-0 rounded-4 p-4 text-center" style={{ maxWidth: '400px' }}>
+        <i className="bi bi-exclamation-triangle-fill fs-1 d-block mb-3"></i>
+        <h5 className="alert-heading">Connection Error</h5>
+        <p className="mb-0 opacity-75">{error}</p>
+      </div>
+    </div>
+  );
+
+  // --- STYLES ---
+  const flatCardStyle: React.CSSProperties = {
     background: 'var(--color-background-primary)',
-    border: '1px solid var(--color-border-divider)',
-    color: 'var(--color-text-primary)'
+    borderRight: '1.5px solid var(--color-border-divider)',
+    borderBottom: '1.5px solid var(--color-border-divider)',
+    borderRadius: '0',
+    boxShadow: 'none',
+    transition: 'background 0.3s, color 0.3s',
+    overflow: 'hidden',
+    padding: '12px 0',
+    minHeight: 0,
+    flex: 1
   };
 
-  const cardHeaderStyle = {
-    background: 'var(--color-background-primary)',
-    borderBottom: '1px solid var(--color-border-divider)',
-    color: 'var(--color-text-primary)'
+  const chartTitleStyle: React.CSSProperties = {
+    color: 'var(--color-text-secondary)',
+    fontSize: '16px',
+    fontWeight: 400,
+    minHeight: '24px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginLeft: '24px',
+    marginBottom: '8px'
+  };
+
+  const getAdherenceColor = (value: number) => {
+    if (value >= 85) return 'var(--positive-color)';
+    if (value >= 65) return 'var(--challenges-color)';
+    return 'var(--negative-color)';
+  };
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div style={{
+          background: 'var(--color-background-primary)',
+          border: '1px solid var(--color-border-divider)',
+          padding: '12px',
+          borderRadius: '4px',
+          boxShadow: '0 8px 16px rgba(0,0,0,0.15)',
+          color: 'var(--color-text-primary)',
+          zIndex: 1000,
+          minWidth: '180px'
+        }}>
+          <div style={{ 
+            fontSize: '10px', 
+            fontWeight: 800, 
+            marginBottom: '10px', 
+            color: 'var(--color-text-secondary)', 
+            textTransform: 'uppercase', 
+            letterSpacing: '1px',
+            borderBottom: '1px solid var(--color-border-divider)',
+            paddingBottom: '6px'
+          }}>
+            {label}
+          </div>
+
+          <div className="d-flex flex-column gap-2">
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Adherence</span>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: getAdherenceColor(data.adherence) }}>
+                {data.adherence?.toFixed(1)}%
+              </span>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Total items</span>
+              <span style={{ fontSize: '11px', fontWeight: 700 }}>{data.total}</span>
+            </div>
+
+            <div className="d-flex justify-content-between align-items-center">
+              <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--color-text-secondary)' }}>Below min</span>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: data.below > 0 ? 'var(--negative-color)' : 'inherit' }}>{data.below}</span>
+            </div>
+
+            <div style={{ 
+              marginTop: '8px', 
+              paddingTop: '10px', 
+              borderTop: '1.5px solid var(--color-border-divider)',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <div style={{ 
+                background: 'rgba(var(--color-brand-blue-rgb), 0.08)',
+                padding: '4px 12px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: 800,
+                color: 'var(--color-brand-blue)'
+              }}>
+                {data.total - data.below} / {data.total}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const CustomXAxisTick = ({ x, y, payload }: any) => {
+    const data = adherenceData.find(d => d.displayDate === payload.value);
+    if (!data) return null;
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={0} dy={16} textAnchor="middle" fill="var(--color-text-secondary)" fontSize={10} fontWeight={600}>
+          {data.displayDate}
+        </text>
+      </g>
+    );
+  };
+
+  const CustomLabel = (props: any) => {
+    const { x, y, value, index } = props;
+    const data = adherenceData[index];
+    if (!data || data.total === 0) return null;
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <rect 
+          x="-20" 
+          y="-30" 
+          width="40" 
+          height="18" 
+          rx="4" 
+          fill="var(--color-background-primary)" 
+          stroke="var(--color-border-divider)"
+          strokeWidth="1"
+          style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.1))' }}
+        />
+        <text 
+          x="0" 
+          y="-17" 
+          textAnchor="middle" 
+          fill="var(--color-text-primary)" 
+          fontSize={9} 
+          fontWeight={800}
+        >
+          {data.below}/{data.total}
+        </text>
+      </g>
+    );
   };
 
   return (
-    <div className="d-flex flex-column" style={{ height: '100%', overflowY: 'auto', background: 'var(--color-background-primary)' }}>
-      {/* Header & Filters */}
-      <div className="d-flex justify-content-between align-items-center p-3 sticky-top z-10" 
-           style={{ background: 'var(--color-background-primary)', borderBottom: '1px solid var(--color-border-divider)' }}>
+    <div className={`d-flex flex-column ${theme === 'dark' ? 'dark' : ''}`} style={{ 
+      height: '100%', 
+      overflow: 'hidden', 
+      background: 'var(--color-background-primary)', 
+      color: 'var(--color-text-primary)',
+      scrollBehavior: 'smooth'
+    }}>
+      
+      {/* Header */}
+      <div className="d-flex flex-row justify-content-between align-items-center" style={{ 
+        padding: '12px 24px', 
+        borderBottom: '1px solid var(--color-border-divider)', 
+        background: 'var(--color-background-primary)', 
+        flex: '0 0 auto',
+        zIndex: 100
+      }}>
+        <h1 style={{ color: 'var(--color-text-primary)', fontSize: 24, fontWeight: 400, flex: '0 0 auto', marginBottom: 0 }}>
+          Inventory Control Index
+        </h1>
+        
         <div className="d-flex align-items-center gap-3">
-          <h2 className="m-0 fs-5 fw-bold" style={{ color: 'var(--color-text-primary)' }}>Inventory Control Index</h2>
           <InventoryControlFilters 
             selectedYear={selectedYear}
             setSelectedYear={setSelectedYear}
@@ -159,115 +462,305 @@ export const InventoryControl: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-4 container-fluid">
-        {/* KPI Cards Row */}
-        <div className="row g-4 mb-4">
-          <div className="col-md-4">
-            <div className="card h-100 shadow-sm" style={cardStyle}>
-              <div className="card-body">
-                <h6 className="card-subtitle mb-2" style={{ color: 'var(--color-text-secondary)' }}>Stock Service Level (Adherence)</h6>
-                <h2 className="card-title fw-bold" style={{ color: 'var(--color-accent-primary)' }}>{latestAdherence.toFixed(1)}%</h2>
-                <p className="card-text small" style={{ color: 'var(--color-text-secondary)' }}>
-                  Percentage of products above minimum stock level.
-                </p>
-              </div>
+      <div className="container-fluid p-0 flex-grow-1 d-flex flex-column" style={{ overflow: 'hidden', minHeight: 0 }}>
+        
+        {/* KPI Grid - Takeoff Works Style */}
+        <div className="d-flex flex-row align-items-stretch" style={{ 
+          borderBottom: '1px solid var(--color-border-divider)', 
+          background: 'var(--color-background-primary)',
+          height: '80px',
+          flexShrink: 0
+        }}>
+          {/* Stock Service Level - Primary Highlight */}
+          <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
+            minWidth: '220px',
+            borderRight: '2px solid var(--color-border-divider)',
+            background: 'rgba(var(--color-brand-blue-rgb), 0.04)',
+            position: 'relative'
+          }}>
+            <div style={{ position: 'absolute', left: 0, top: '20%', bottom: '20%', width: 4, background: 'var(--color-brand-blue)', borderRadius: '0 4px 4px 0' }} />
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginBottom: 0, letterSpacing: '0.5px' }}>
+              Stock Service Level
+            </span>
+            <div className="d-flex align-items-baseline gap-2">
+              <span style={{ 
+                color: getAdherenceColor(averageAdherence), 
+                fontWeight: 800, 
+                fontSize: 28, 
+                lineHeight: 1 
+              }}>
+                {averageAdherence.toFixed(1)}
+              </span>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 14, fontWeight: 500, opacity: 0.8 }}>%</span>
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="card h-100 shadow-sm" style={cardStyle}>
-              <div className="card-body">
-                <h6 className="card-subtitle mb-2" style={{ color: 'var(--color-text-secondary)' }}>Projects Exceeding Limits</h6>
-                <h2 className="card-title fw-bold text-danger">{totalExcessCount}</h2>
-                <p className="card-text small" style={{ color: 'var(--color-text-secondary)' }}>
-                  Number of withdrawals that exceeded the template limit in the selected period.
-                </p>
+
+          {/* Secondary Metrics */}
+          <div className="d-flex flex-row align-items-stretch flex-grow-1">
+          {/* Template Violations */}
+          <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
+            flex: 1,
+            borderRight: '1px solid var(--color-border-divider)',
+            minWidth: '180px'
+          }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginBottom: 4, letterSpacing: '0.3px' }}>
+              Template Violations
+            </span>
+            <div className="d-flex align-items-center gap-2">
+              <span style={{ 
+                color: totalExcessCount > 0 ? 'var(--negative-color)' : 'var(--positive-color)', 
+                fontWeight: 700, 
+                fontSize: 20,
+                lineHeight: 1
+              }}>
+                {totalExcessCount}
+              </span>
+              <div style={{ height: 4, background: 'var(--color-background-secondary)', borderRadius: 2, overflow: 'hidden', width: 60 }}>
+                <div style={{ 
+                  width: `${Math.min(100, (totalExcessCount / 20) * 100)}%`, 
+                  height: '100%', 
+                  background: 'var(--negative-color)',
+                  transition: 'width 0.6s ease'
+                }} />
               </div>
+              <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 500, opacity: 0.7 }}>
+                Alerts
+              </span>
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="card h-100 shadow-sm" style={cardStyle}>
-              <div className="card-body">
-                <h6 className="card-subtitle mb-2" style={{ color: 'var(--color-text-secondary)' }}>Total Excess Cost</h6>
-                <h2 className="card-title fw-bold text-warning">
-                  ${filteredExcess.reduce((acc, curr) => acc + (curr.quantidade_retirada * 10), 0).toFixed(2)}
-                </h2>
-                <p className="card-text small" style={{ color: 'var(--color-text-secondary)' }}>Estimated cost of excess withdrawals.</p>
-              </div>
+
+          {/* Excess Cost Impact */}
+          <div className="d-flex flex-column justify-content-center align-items-center px-4" style={{ 
+            flex: 1,
+            minWidth: '180px'
+          }}>
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600, textTransform: 'uppercase', marginBottom: 4, letterSpacing: '0.3px' }}>
+              Excess Cost Impact
+            </span>
+            <div className="d-flex align-items-center gap-2">
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-text-secondary)', opacity: 0.5 }}>$</span>
+              <span style={{ 
+                color: totalExcessCost > 0 ? 'var(--challenges-color)' : 'var(--color-text-secondary)', 
+                fontWeight: 700, 
+                fontSize: 20,
+                lineHeight: 1
+              }}>
+                {totalExcessCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </span>
             </div>
+          </div>
           </div>
         </div>
 
-        {/* Chart Row 1: Adherence Over Time */}
-        <div className="row mb-4">
-          <div className="col-12">
-            <div className="card shadow-sm" style={cardStyle}>
-              <div className="card-header py-3" style={cardHeaderStyle}>
-                <h5 className="m-0 fw-bold fs-6">Stock Adherence Evolution (Month by Month)</h5>
-              </div>
-              <div className="card-body" style={{ height: '350px' }}>
+        <div className="flex-grow-1 d-flex flex-column" style={{ minHeight: 0, overflow: 'hidden' }}>
+          {/* Top Row: Adherence (60%) & Details (40%) */}
+          <div className="d-flex flex-row" style={{ flex: '1 1 50%', borderBottom: '1px solid var(--color-border-divider)', minHeight: 0 }}>
+            {/* Main Adherence Chart - 60% */}
+            <div style={{ ...flatCardStyle, width: '60%', borderRight: '1.5px solid var(--color-border-divider)', display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <h4 style={chartTitleStyle}>
+                Stock Adherence Trend
+              </h4>
+              <div style={{ flex: 1, padding: '0 24px', minHeight: 0 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={adherenceData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" />
-                    <XAxis dataKey="displayDate" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)' }} />
-                    <YAxis domain={[0, 100]} axisLine={false} tickLine={false} unit="%" tick={{ fill: 'var(--color-text-secondary)' }} />
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-border-divider)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}
+                  <AreaChart data={adherenceData} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="colorAdh" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-accent-primary)" stopOpacity={0.1}/>
+                        <stop offset="95%" stopColor="var(--color-accent-primary)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" opacity="0.3" />
+                    <XAxis 
+                      dataKey="displayDate" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={<CustomXAxisTick />} 
                     />
-                    <Legend wrapperStyle={{ color: 'var(--color-text-primary)' }} />
-                    <Line 
+                    <YAxis 
+                      domain={[0, 100]} 
+                      axisLine={false} 
+                      tickLine={false} 
+                      unit="%" 
+                      tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} 
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area 
                       type="monotone" 
                       dataKey="adherence" 
-                      name="% Adherence" 
                       stroke="var(--color-accent-primary)" 
-                      strokeWidth={3}
-                      dot={{ r: 4, fill: 'var(--color-accent-primary)', strokeWidth: 2, stroke: '#fff' }}
-                      activeDot={{ r: 6 }} 
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#colorAdh)"
+                      dot={{ r: 4, fill: 'var(--color-accent-primary)', strokeWidth: 0 }}
+                      activeDot={{ r: 6, strokeWidth: 0 }}
+                      animationDuration={1500}
+                      label={<CustomLabel />}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Chart Row 2: Product Variation */}
-        <div className="row mb-4">
-          <div className="col-12">
-            <div className="card shadow-sm" style={cardStyle}>
-              <div className="card-header py-3 d-flex justify-content-between align-items-center" style={cardHeaderStyle}>
-                <h5 className="m-0 fw-bold fs-6">Product Stock Variation vs Minimum</h5>
-                <div style={{ width: '250px' }}>
-                  <select 
-                    className="form-select form-select-sm"
-                    value={selectedProduct || ''}
-                    onChange={(e) => setSelectedProduct(e.target.value)}
-                    style={{ background: 'var(--color-background-primary)', color: 'var(--color-text-primary)', borderColor: 'var(--color-border-divider)' }}
-                  >
-                    <option value="">Select a product to view history...</option>
-                    {uniqueProducts.map(p => (
-                      <option key={p} value={p}>{p}</option>
+            {/* Violation Details - 40% */}
+            <div style={{ ...flatCardStyle, width: '40%', display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div className="d-flex justify-content-between align-items-center mb-0 pe-4">
+                <h4 style={chartTitleStyle}>
+                  Limit Violations Details
+                </h4>
+              </div>
+              <div className="flex-grow-1 custom-scrollbar" style={{ padding: '0 24px', overflowY: 'auto', minHeight: 0 }}>
+                {filteredExcess.length > 0 ? (
+                  <div className="d-flex flex-column gap-3">
+                    {filteredExcess.map((project: any, idx) => (
+                      <div key={idx} style={{ 
+                        padding: '16px', 
+                        border: '1px solid var(--color-border-divider)',
+                        background: 'var(--color-background-primary)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        position: 'relative',
+                        borderLeft: '4px solid var(--negative-color)'
+                      }}>
+                        {/* Header: Project Info */}
+                        <div className="d-flex flex-column" style={{ gap: '2px' }}>
+                          <div className="d-flex align-items-center gap-2">
+                            <i className="bi bi-geo-alt" style={{ fontSize: '14px', color: 'var(--color-accent-primary)' }}></i>
+                            <span className="fw-bold" style={{ fontSize: '15px', color: 'var(--color-text-primary)' }}>
+                              {project.project_nome}
+                            </span>
+                          </div>
+                          <div className="d-flex align-items-center gap-2" style={{ marginLeft: '22px' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                              {project.house_model_nome}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* List of Material Violations */}
+                        <div className="d-flex flex-column gap-2 mt-2">
+                          {project.violations.map((violation: any, vIdx: number) => (
+                            <div key={vIdx} style={{ 
+                              padding: '10px 12px', 
+                              background: 'rgba(var(--color-text-primary-rgb), 0.02)',
+                              border: '1px solid var(--color-border-divider)',
+                              borderRadius: '4px'
+                            }}>
+                              <div className="d-flex justify-content-between align-items-start">
+                                <div className="d-flex align-items-center gap-2">
+                                  <i className="bi bi-box" style={{ fontSize: '12px', color: 'var(--color-brand-blue)' }}></i>
+                                  <div className="d-flex flex-column">
+                                    <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-brand-blue)' }}>
+                                      {violation.product_nome}
+                                    </span>
+                                    <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                                      {format(parseISO(violation.movement_date), 'dd MMM yyyy')}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <div className="text-end">
+                                  <div className="d-flex align-items-baseline justify-content-end gap-1">
+                                    <span style={{ color: 'var(--negative-color)', fontWeight: 800, fontSize: '16px' }}>
+                                      {violation.consumo_acumulado_momento}
+                                    </span>
+                                    <span style={{ color: 'var(--color-text-secondary)', fontSize: '11px', fontWeight: 600 }}>
+                                      / {violation.quantidade_limite}
+                                    </span>
+                                  </div>
+                                  <span style={{ fontSize: '9px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
+                                    Withdrawn / Limit
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     ))}
-                  </select>
+                  </div>
+                ) : (
+                  <div className="d-flex flex-column align-items-center justify-content-center h-100 opacity-50">
+                    <i className="bi bi-shield-check fs-2 mb-2"></i>
+                    <span className="small fw-bold">No violations found</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row: Inventory Level (Full Width) */}
+          <div className="d-flex flex-column" style={{ flex: '1 1 50%', minHeight: 0 }}>
+            <div style={{ ...flatCardStyle, flex: 1, display: 'flex', flexDirection: 'column', borderBottom: 'none', height: '100%' }}>
+              <div className="d-flex justify-content-between align-items-center mb-3 pe-4">
+                  <h4 style={chartTitleStyle}>
+                    Inventory Level Analysis
+                  </h4>
+                  <div className="input-group" style={{ width: '280px', background: 'var(--color-background-primary)', borderRadius: 8, border: '1.5px solid var(--color-border-divider)', overflow: 'hidden', height: 32 }}>
+                  <div className="d-flex align-items-center justify-content-center" style={{ width: 40, height: '100%', background: 'var(--color-background-secondary)', borderRight: '1.5px solid var(--color-border-divider)', color: 'var(--color-accent-primary)' }}>
+                    <i className="bi bi-box-seam" style={{ fontSize: 14 }} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <MultiSelectDropdown
+                      options={uniqueProducts.map(p => ({ 
+                        value: p, 
+                        label: p,
+                        color: productStatus.get(p) ? 'var(--negative-color)' : undefined
+                      }))}
+                      selectedValues={selectedProduct ? [selectedProduct] : []}
+                      onChange={(values) => setSelectedProduct(values[0] || null)}
+                      isSingleSelect={true}
+                      dropdownTitle="Select Product"
+                      placeholder="Choose a product..."
+                      variant="ghost"
+                      style={{ 
+                        border: 'none', 
+                        borderRadius: '0',
+                        background: 'transparent',
+                        height: '100%',
+                        width: '100%'
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="card-body" style={{ height: '350px' }}>
-                {selectedProduct ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={productVariationData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" />
-                      <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)' }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)' }} />
-                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-border-divider)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }} />
-                      <Legend wrapperStyle={{ color: 'var(--color-text-primary)' }} />
-                      <Line type="monotone" dataKey="saldo" name="Current Stock" stroke="#8884d8" strokeWidth={2} />
-                      <Line type="step" dataKey="minimo" name="Minimum Required" stroke="#ff0000" strokeDasharray="5 5" strokeWidth={2} />
-                    </LineChart>
-                  </ResponsiveContainer>
+              <div style={{ flex: 1, padding: '0 24px', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  {selectedProduct ? (
+                    <div style={{ height: '230px', width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={productVariationData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" opacity="0.3" />
+                        <XAxis dataKey="mes" axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} />
+                        <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--color-text-secondary)', fontSize: 10, fontWeight: 600 }} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Line 
+                          type="monotone" 
+                          dataKey="saldo" 
+                          name="Current Stock" 
+                          stroke="var(--color-accent-primary)" 
+                          strokeWidth={2.5}
+                          dot={{ r: 4, fill: 'var(--color-accent-primary)', strokeWidth: 0 }}
+                          activeDot={{ r: 6, strokeWidth: 0 }}
+                          animationDuration={1500}
+                        />
+                        <Line 
+                          type="stepAfter" 
+                          dataKey="minimo" 
+                          name="Min Stock" 
+                          stroke="var(--negative-color)" 
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={false}
+                          animationDuration={1500}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 ) : (
-                  <div className="d-flex align-items-center justify-content-center h-100" style={{ color: 'var(--color-text-secondary)' }}>
-                    <div className="text-center">
-                      <i className="bi bi-box-seam fs-1 mb-2 d-block"></i>
-                      Select a product above to visualize its stock history
+                  <div className="d-flex align-items-center justify-content-center h-100" style={{ background: 'rgba(var(--color-text-primary-rgb), 0.02)', borderRadius: '0', border: '1px dashed var(--color-border-divider)' }}>
+                    <div className="text-center opacity-50">
+                      <i className="bi bi-box-seam fs-2 mb-2 d-block"></i>
+                      <span className="small fw-bold">Select a product to view history</span>
                     </div>
                   </div>
                 )}
@@ -275,77 +768,57 @@ export const InventoryControl: React.FC = () => {
             </div>
           </div>
         </div>
-
-        {/* Row 3: Split View - Excess Table & Spending Chart */}
-        <div className="row g-4">
-          {/* Left Column: Excess Details */}
-          <div className="col-lg-7">
-            <div className="card shadow-sm h-100" style={cardStyle}>
-              <div className="card-header py-3" style={cardHeaderStyle}>
-                <h5 className="m-0 fw-bold fs-6">Projects Exceeding Template Limits</h5>
-              </div>
-              <div className="card-body p-0">
-                <div className="table-responsive" style={{ maxHeight: '400px' }}>
-                  <table className="table table-hover align-middle mb-0" style={{ color: 'var(--color-text-primary)', backgroundColor: 'transparent' }}>
-                    <thead className="sticky-top" style={{ background: 'var(--color-background-secondary)' }}>
-                      <tr>
-                        <th className="border-0 small fw-bold px-3 py-2" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-background-secondary)' }}>Date</th>
-                        <th className="border-0 small fw-bold px-3 py-2" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-background-secondary)' }}>Project</th>
-                        <th className="border-0 small fw-bold px-3 py-2" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-background-secondary)' }}>Product</th>
-                        <th className="border-0 small fw-bold px-3 py-2" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-background-secondary)' }}>Resp.</th>
-                        <th className="border-0 small fw-bold px-3 py-2 text-end" style={{ color: 'var(--color-text-secondary)', background: 'var(--color-background-secondary)' }}>Qty</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredExcess.length > 0 ? (
-                        filteredExcess.map((item, idx) => (
-                          <tr key={idx} style={{ borderBottom: '1px solid var(--color-border-divider)' }}>
-                            <td className="px-3 py-2 small" style={{ color: 'var(--color-text-primary)', background: 'transparent' }}>{format(parseISO(item.movement_date), 'dd/MM/yyyy')}</td>
-                            <td className="px-3 py-2 small fw-medium" style={{ color: 'var(--color-text-primary)', background: 'transparent' }}>{item.project_nome}</td>
-                            <td className="px-3 py-2 small text-truncate" style={{ maxWidth: '150px', color: 'var(--color-text-primary)', background: 'transparent' }} title={item.product_nome}>{item.product_nome}</td>
-                            <td className="px-3 py-2 small" style={{ color: 'var(--color-text-primary)', background: 'transparent' }}>{item.usuario_responsavel?.split(' ')[0]}</td>
-                            <td className="px-3 py-2 small text-end fw-bold" style={{ color: 'var(--negative-color)', background: 'transparent' }}>{item.quantidade_retirada}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={5} className="text-center py-4" style={{ color: 'var(--color-text-secondary)', background: 'transparent' }}>
-                            No excesses recorded for the selected period.
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Spending Chart */}
-          <div className="col-lg-5">
-            <div className="card shadow-sm h-100" style={cardStyle}>
-              <div className="card-header py-3" style={cardHeaderStyle}>
-                <h5 className="m-0 fw-bold fs-6">Top Spending Teams/Users</h5>
-              </div>
-              <div className="card-body" style={{ height: '400px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={spendingData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--color-border-divider)" />
-                    <XAxis type="number" hide />
-                    <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }} />
-                    <Tooltip 
-                      cursor={{ fill: 'transparent' }}
-                      contentStyle={{ borderRadius: '8px', border: '1px solid var(--color-border-divider)', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', background: 'var(--color-background-primary)', color: 'var(--color-text-primary)' }}
-                      formatter={(value: any) => [`$${Number(value).toFixed(2)}`, 'Total Value']}
-                    />
-                    <Bar dataKey="value" fill="var(--positive-color)" radius={[0, 4, 4, 0]} barSize={20} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
+
+      <style>{`
+        .custom-premium-table {
+          background: transparent !important;
+          color: var(--color-text-primary) !important;
+          border-color: var(--color-border-divider) !important;
+        }
+        .custom-premium-table thead tr {
+          background: rgba(var(--color-text-primary-rgb), 0.05) !important;
+          border-bottom: 1px solid var(--color-border-divider) !important;
+        }
+        .custom-premium-table thead th {
+          background: transparent !important;
+          color: var(--color-text-primary) !important;
+          padding: 12px 16px !important;
+        }
+        .custom-premium-table td {
+          color: var(--color-text-primary) !important;
+          background: transparent !important;
+          background-color: transparent !important;
+          border-bottom: 1px solid var(--color-border-divider) !important;
+        }
+        .custom-premium-table tbody tr {
+          background: transparent !important;
+          background-color: transparent !important;
+        }
+        .custom-premium-table tbody tr:hover {
+          background: rgba(var(--color-text-primary-rgb), 0.02) !important;
+          transform: scale(1.002);
+        }
+        .tracking-widest {
+          letter-spacing: 0.15em;
+        }
+        .fw-black {
+          font-weight: 900;
+        }
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(var(--color-text-primary-rgb), 0.1);
+          border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: rgba(var(--color-text-primary-rgb), 0.2);
+        }
+      `}</style>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import type { ForecastData } from '../types/dataControl';
 import ProjectContainerModel from '../components/DataControl/ProjectContainerModel';
 import DataControlFilters from '../components/DataControl/DataControlFilters';
 import CategorizationManager from '../components/DataControl/CategorizationManager';
+import SubcontractorPerformanceManager from '../components/DataControl/SubcontractorPerformanceManager';
 import MultiSelectDropdown from '../components/common/MultiSelectDropdown';
 
 import logoWhite from '../assets/logo_white.png';
@@ -24,7 +25,7 @@ export default function DataControl() {
   const [role, setRole] = useState('');
 
   // Global State
-  const [pageState, setPageState] = useState<'menu' | 'create' | 'list' | 'details' | 'categorization'>('menu');
+  const [pageState, setPageState] = useState<'menu' | 'create' | 'list' | 'details' | 'categorization' | 'performance'>('menu');
   // const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
@@ -455,6 +456,29 @@ export default function DataControl() {
           <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Manage Options</h3>
           <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Configure categorization settings</p>
         </div>
+
+        <div 
+          onClick={() => setPageState('performance')}
+          style={{ 
+            width: '250px', 
+            height: '200px', 
+            backgroundColor: 'var(--color-background-primary)', 
+            border: '1px solid var(--color-border-divider)', 
+            borderRadius: '12px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            cursor: 'pointer',
+            boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+            transition: 'transform 0.2s'
+          }}
+          className="hover-card"
+        >
+          <i className="bi bi-speedometer2" style={{ fontSize: '48px', color: 'var(--color-accent-primary)', marginBottom: '16px' }}></i>
+          <h3 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--color-text-primary)' }}>Performance Data</h3>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>Edit subcontractor dates</p>
+        </div>
       </div>
     </div>
   );
@@ -672,6 +696,16 @@ export default function DataControl() {
               Categorization
             </button>
 
+            {/* Performance Data */}
+            <button
+              className={`btn-sidebar d-flex align-items-center justify-content-start w-100 mb-2 ${pageState === 'performance' ? 'btn-sidebar-ativo' : ''}`}
+              style={{ gap: 10, padding: '8px 12px', borderRadius: 8, fontSize: 14, cursor: 'pointer' }}
+              onClick={() => setPageState('performance')}
+            >
+              <i className="bi bi-speedometer2" style={{ fontSize: 14 }} />
+              Performance Data
+            </button>
+
             <div style={{ width: '100%', height: '1px', backgroundColor: 'var(--color-border-divider)', margin: '16px 0 8px 0' }}></div>
             
             {/* Filters */}
@@ -772,6 +806,7 @@ export default function DataControl() {
           {pageState === 'create' && renderCreate()}
           {pageState === 'list' && renderList()}
           {pageState === 'categorization' && <CategorizationManager />}
+          {pageState === 'performance' && <SubcontractorPerformanceManager />}
         </div>
       </main>
     </div>

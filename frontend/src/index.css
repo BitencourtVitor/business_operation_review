@@ -37,21 +37,35 @@ html, body {
 
   /* Tema Light (Padrão) */
   --color-background-primary: var(--color-brand-white);
+  --color-background-primary-rgb: 252, 252, 252;
   --color-background-secondary: #F5F5F5; /* Branco Gelo */
+  --color-background-secondary-rgb: 245, 245, 245;
   --color-text-primary: var(--color-brand-dark-gray);
+  --color-text-primary-rgb: 52, 58, 64;
   --color-text-secondary: #6C757D; /* Cinza Médio */
+  --color-text-secondary-rgb: 108, 117, 125;
   --color-accent-primary: var(--color-brand-blue);
+  --color-accent-primary-rgb: 46, 107, 230;
   --color-accent-secondary: var(--color-brand-red);
+  --color-accent-secondary-rgb: 230, 46, 46;
   --color-border-divider: #DEE2E6; /* Cinza claro */
+  --color-border-divider-rgb: 222, 226, 230;
 
   /* Tema Dark (Valores padrão para caso a classe .dark-theme não seja aplicada) */
   --color-dark-background-primary: #1c1c1c;
+  --color-dark-background-primary-rgb: 28, 28, 28;
   --color-dark-background-secondary: #282828;
+  --color-dark-background-secondary-rgb: 40, 40, 40;
   --color-dark-text-primary: #F8F9FA;
+  --color-dark-text-primary-rgb: 248, 249, 250;
   --color-dark-text-secondary: #ADB5BD;
+  --color-dark-text-secondary-rgb: 173, 181, 189;
   --color-dark-accent-primary: #4285F4; /* Ligeiramente mais vibrante que o azul do logo para dark theme */
+  --color-dark-accent-primary-rgb: 66, 133, 244;
   --color-dark-accent-secondary: #DC3545; /* Ligeiramente mais vibrante que o vermelho do logo para dark theme */
+  --color-dark-accent-secondary-rgb: 220, 53, 69;
   --color-dark-border-divider: #495057;
+  --color-dark-border-divider-rgb: 73, 80, 87;
 
   --color-placeholder: #adb5bd; /* Placeholder padrão (light) */
   --color-dark-placeholder: #6c757d; /* Placeholder para dark */
@@ -74,12 +88,19 @@ html, body {
 /* Classe para aplicar o Tema Dark */
 .dark {
   --color-background-primary: var(--color-dark-background-primary);
+  --color-background-primary-rgb: var(--color-dark-background-primary-rgb);
   --color-background-secondary: var(--color-dark-background-secondary);
+  --color-background-secondary-rgb: var(--color-dark-background-secondary-rgb);
   --color-text-primary: var(--color-dark-text-primary);
+  --color-text-primary-rgb: var(--color-dark-text-primary-rgb);
   --color-text-secondary: var(--color-dark-text-secondary);
+  --color-text-secondary-rgb: var(--color-dark-text-secondary-rgb);
   --color-accent-primary: var(--color-dark-accent-primary);
+  --color-accent-primary-rgb: var(--color-dark-accent-primary-rgb);
   --color-accent-secondary: var(--color-dark-accent-secondary);
+  --color-accent-secondary-rgb: var(--color-dark-accent-secondary-rgb);
   --color-border-divider: var(--color-dark-border-divider);
+  --color-border-divider-rgb: var(--color-dark-border-divider-rgb);
   --color-placeholder: var(--color-dark-placeholder);
 }
 

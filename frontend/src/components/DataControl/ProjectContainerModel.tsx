@@ -470,9 +470,30 @@ export default function ProjectContainerModel({
 
     try {
         startLoading();
+        
+        // Prepare update object
+        const updateData: any = { [field]: value, lastupdate_datetimez: new Date().toISOString() };
+        
+        // If reopening a closed project, we should clear the performance End date
+        if (field === 'status' && value === 'open' && project.status === 'closed') {
+            // Also clear previous_end_date in forecast_data
+            updateData.previous_end_date = null;
+            setPrevEndDate('');
+            
+            const { error: deleteError } = await supabase
+                .from('subcontractor_performance')
+                .delete()
+                .eq('obra_id', project.id)
+                .eq('estimated_date_type', 'End');
+            
+            if (deleteError) {
+                console.error('Error deleting end date performance record:', deleteError);
+            }
+        }
+
         const { error } = await supabase
             .from('forecast_data')
-            .update({ [field]: value, lastupdate_datetimez: new Date().toISOString() })
+            .update(updateData)
             .eq('id', project.id);
 
         if (error) throw error;
