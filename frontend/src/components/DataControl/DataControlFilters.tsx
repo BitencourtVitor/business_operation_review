@@ -25,7 +25,7 @@ export default function DataControlFilters({
     { label: 'Contract', value: 'Contract', icon: 'bi-file-earmark-text' },
     { label: 'Optionals', value: 'Optionals', icon: 'bi-ui-checks-grid' }
   ];
-  const statusOptions = ['open', 'closed', 'not started'];
+  const statusOptions = ['not started', 'open', 'closed'];
 
   return (
     <div className="d-flex flex-row align-items-center" style={{ gap: 16, flexWrap: 'wrap', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: 16 }}>
