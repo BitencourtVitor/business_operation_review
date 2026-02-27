@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
 interface MultiSelectDropdownProps {
-  options: ({ value: string; label: string; color?: string } | string)[];
+  options: ({ value: string; label: string; color?: string; disabled?: boolean } | string)[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
   allLabel?: string;
@@ -324,6 +324,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             const value = typeof opt === 'string' ? opt : opt.value;
             const labelText = typeof opt === 'string' ? opt : opt.label;
             const customColor = typeof opt === 'string' ? undefined : opt.color;
+            const isDisabled = typeof opt === 'string' ? false : !!opt.disabled;
             const isSelected = selectedValues.includes(value);
 
             return (
@@ -333,16 +334,24 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 style={{ 
                   gap: 8, 
                   fontSize: 13, 
-                  color: isSelected && isSingleSelect 
-                    ? 'var(--color-accent-primary)' 
-                    : (customColor || 'var(--color-text-secondary)'), 
-                  cursor: 'pointer', 
+                  color: isDisabled 
+                    ? 'var(--color-text-secondary)' 
+                    : (isSelected && isSingleSelect 
+                      ? 'var(--color-accent-primary)' 
+                      : (customColor || 'var(--color-text-secondary)')), 
+                  cursor: isDisabled ? 'not-allowed' : 'pointer', 
                   padding: '8px 12px',
                   background: isSelected && isSingleSelect ? 'var(--color-background-secondary)' : 'transparent',
                   transition: 'all 0.2s ease',
-                  fontWeight: customColor ? 700 : 400
+                  fontWeight: customColor ? 700 : 400,
+                  opacity: isDisabled ? 0.5 : 1
                 }}
                 onClick={(e) => {
+                  if (isDisabled) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
                   if (isSingleSelect) {
                     e.preventDefault();
                     onChange([value]);
@@ -355,7 +364,8 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                   <input 
                     type="checkbox" 
                     checked={isSelected} 
-                    onChange={() => toggleOption(value)} 
+                    disabled={isDisabled}
+                    onChange={() => !isDisabled && toggleOption(value)} 
                     style={{ accentColor: 'var(--color-accent-primary)', margin: '3px 0 0 0' }} 
                   />
                 )}

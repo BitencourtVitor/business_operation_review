@@ -853,9 +853,9 @@ export default function ProjectContainerModel({
                           handleUpdateProject('status', val);
                       }}
                       options={[
+                        { label: 'Not Started', value: 'not started', disabled: currentStatus === 'closed' },
                         { label: 'Open', value: 'open' },
-                        { label: 'Closed', value: 'closed' },
-                        { label: 'Not Started', value: 'not started' }
+                        { label: 'Closed', value: 'closed', disabled: currentStatus === 'not started' }
                       ]}
                       isSingleSelect={true}
                       placeholder="Select Status"
