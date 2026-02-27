@@ -64,8 +64,13 @@ function normalizeUtf8String(str: string | null | undefined): string {
       .replace(/&Ugrave;/g, 'Ù')
       .replace(/&Ccedil;/g, 'Ç');
     
+    // Normaliza nomes de obras específicos (correção de digitação)
+    const normalizedJobsite = decoded
+      .replace(/Baldwinville Scholl/gi, 'Baldwinville School')
+      .replace(/Baldwinville Schooll/gi, 'Baldwinville School');
+
     // Normaliza espaços e remove caracteres problemáticos
-    return decoded
+    return normalizedJobsite
       .replace(/\s+/g, ' ') // Normaliza espaços múltiplos
       .trim();
   } catch (error) {
