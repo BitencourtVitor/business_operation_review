@@ -2,6 +2,7 @@ import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject } from './types';
 import {
   isFieldwireComplete,
+  isMachinesComplete,
   getFieldwireProgress,
   getMachinesProgress,
   hasCompleteContract,
@@ -47,7 +48,7 @@ export default function ForecastProjectCard({
       case 'closed':
         return { color: '#6c757d', shadow: 'rgba(108, 117, 125, 0.25)', icon: 'bi-check-circle-fill', label: 'Closed' };
       default:
-        return { color: '#6c757d', shadow: 'rgba(108, 117, 125, 0.25)', icon: 'bi-clock', label: 'Open' };
+        return { color: '#3b82f6', shadow: 'rgba(59, 130, 246, 0.3)', icon: 'bi-clock', label: 'Not Started' };
     }
   };
 
@@ -58,7 +59,7 @@ export default function ForecastProjectCard({
   const fieldwireProgress = getFieldwireProgress(project);
   const fieldwireComplete = isFieldwireComplete(project);
   const machinesProgress = getMachinesProgress(project);
-  const machinesComplete = project.machines && project.machines.length > 0 && project.machines.every(m => m.status === true);
+  const machinesComplete = isMachinesComplete(project);
   const contractProgress = getContractProgress(project);
   const contractComplete = hasCompleteContract(project);
 

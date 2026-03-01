@@ -61,9 +61,9 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
   // User said "blocks of planned and started will become expandable".
   // Let's keep track of which are expanded.
   const [expandedColumns, setExpandedColumns] = useState<Record<string, boolean>>({
-    'Planned Projects': false,
-    'Started Projects': false,
-    'Finished Projects': false
+    'Planned Projects': true,
+    'Started Projects': true,
+    'Finished Projects': true
   });
 
   const [data, setData] = useState<ExecutionData>({
@@ -192,26 +192,6 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
       // 4. Acoplar os dados de forecast manualmente
       const started = historyData.map(h => ({ ...h, forecast_data: forecastMap.get(h.obra_id) }));
       
-      // Hardcode: Em janeiro de 2026, garantir 10 projetos iniciados
-      if (yearNum === 2026 && monthNum === 1 && started.length < 10) {
-        const mockCount = 10 - started.length;
-        for (let i = 0; i < mockCount; i++) {
-          started.push({
-            obra_id: `MOCK-${i + 1}`,
-            actual_status: 'Started',
-            reference_month: 1,
-            reference_year: 2026,
-            forecast_data: {
-              job_site: `Mock Project ${i + 1}`,
-              type: 'Hardcoded',
-              lote_bld: 'N/A',
-              cliente: 'System Hardcode',
-              address: 'January 2026 Special Entry'
-            }
-          } as any);
-        }
-      }
-
       setData({
         planned: plannedData.map(p => {
           // Encontrar no histórico se existe uma reason para esta obra neste mês

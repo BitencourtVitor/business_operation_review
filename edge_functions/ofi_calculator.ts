@@ -25,7 +25,7 @@ async function calculateCurrentScores(obraId: string, obraData: any) {
   // CALCULAR MÁQUINAS (Peso 2)
   const { data: machineItems } = await supabase.from('forecast_machines').select('status').eq('obra_id', obraId);
   const machineScore = machineItems && machineItems.length > 0 
-    ? (machineItems.filter((i: any) => i.status === true).length / machineItems.length) * 2 
+    ? (machineItems.filter((i: any) => i.status === 'Scheduled' || i.status === 'Dispensed').length / machineItems.length) * 2 
     : 0;
 
   // CALCULAR CONTRATOS (Peso 2)
@@ -60,10 +60,14 @@ serve(async (req: Request) => {
 
     const now = new Date();
     
+    // Tentar ler o body apenas se houver conteúdo
+    const body = await req.json().catch(() => ({}));
+
     // --- PARTE 1: MONTHLY EXECUTION (Mês que está acabando) ---
     // O mês atual é o mês de execução que queremos salvar o histórico
-    const currentMonth = now.getMonth() + 1;
-    const currentYear = now.getFullYear();
+    // Permitimos override via body para casos de re-processamento (ex: rodar dia 1 para fechar o mês anterior)
+    const currentMonth = body.execution_month || now.getMonth() + 1;
+    const currentYear = body.execution_year || now.getFullYear();
     
     let executionCount = 0;
     let ofiCount = 0;
@@ -126,37 +130,30 @@ serve(async (req: Request) => {
         const startOfMonth = new Date(currentYear, currentMonth - 1, 1).toISOString();
         const endOfMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59).toISOString();
 
-        const { data: perfData } = await supabase
-          .from('subcontractor_performance')
-          .select('subcontractor, event_datetime, estimated_date_type')
-          .eq('obra_id', plan.obra_id)
-          .eq('estimated_date_type', 'End')
-          .gte('event_datetime', startOfMonth)
-          .lte('event_datetime', endOfMonth)
-          .order('event_datetime', { ascending: false })
-          .limit(1)
-          .single();
+        // 1. Verificar o status atual no forecast_data (para pegar o que foi sincronizado agora)
+        const isStarted = ['open', 'started', 'closed'].includes((currentObra.status || '').toLowerCase().trim());
+        const isCompleted = (currentObra.status || '').toLowerCase().trim() === 'closed';
 
-        // Verificar se a obra também teve um início no mesmo mês
-        const { data: startEvent } = await supabase
+        // 2. Buscar o último subcontratado conhecido para esta obra
+        const { data: latestSubData } = await supabase
           .from('subcontractor_performance')
-          .select('id')
+          .select('subcontractor')
           .eq('obra_id', plan.obra_id)
-          .eq('estimated_date_type', 'Start')
-          .gte('event_datetime', startOfMonth)
-          .lte('event_datetime', endOfMonth)
+          .order('event_datetime', { ascending: false })
           .limit(1);
+        
+        const subcontractor = latestSubData && latestSubData.length > 0 ? latestSubData[0].subcontractor : null;
 
         executionRecords.push({
           obra_id: plan.obra_id,
           reference_month: currentMonth,
           reference_year: currentYear,
           actual_status: currentObra.status,
-          actual_start_date: currentObra.previous_start_date,
-          subcontractor: perfData?.subcontractor || null,
-          actual_end_date: perfData?.event_datetime ? new Date(perfData.event_datetime).toISOString().split('T')[0] : null,
-          is_cycle_completed: !!(perfData && startEvent && startEvent.length > 0),
-          reason: reasonMap.get(plan.obra_id) || null // Preservar a reason se existir
+          actual_start_date: isStarted ? (currentObra.previous_start_date || new Date().toISOString().split('T')[0]) : null,
+          subcontractor: subcontractor,
+          actual_end_date: isCompleted ? (currentObra.previous_end_date || new Date().toISOString().split('T')[0]) : null,
+          is_cycle_completed: isCompleted, // Agora baseado apenas no status CLOSED
+          reason: reasonMap.get(plan.obra_id) || null
         });
       }
 
@@ -182,27 +179,11 @@ serve(async (req: Request) => {
     // IMPORTANTE: Se o usuário enviou month/year no body, usamos esses valores
     let targetMonth: number, targetYear: number;
     
-    try {
-      // Tentar ler o body apenas se houver conteúdo
-      const body = await req.json().catch(() => ({}));
+    // Se não vieram no body, calculamos o padrão (próximo mês)
+    if (body.month && body.year) {
       targetMonth = body.month;
       targetYear = body.year;
-      
-      // Se não vieram no body, calculamos o padrão (próximo mês)
-      if (!targetMonth || !targetYear) {
-        let nextMonth = now.getMonth() + 2; 
-        let nextYear = now.getFullYear();
-        if (nextMonth > 12) {
-          nextMonth = 1;
-          nextYear++;
-        }
-        targetMonth = targetMonth || nextMonth;
-        targetYear = targetYear || nextYear;
-      }
-      
-      console.log(`Período alvo definido: mês ${targetMonth}, ano ${targetYear}`);
-    } catch (e) {
-      console.error("Erro ao processar body, usando padrão:", e);
+    } else {
       let nextMonth = now.getMonth() + 2; 
       let nextYear = now.getFullYear();
       if (nextMonth > 12) {
@@ -212,6 +193,8 @@ serve(async (req: Request) => {
       targetMonth = nextMonth;
       targetYear = nextYear;
     }
+    
+    console.log(`Período alvo definido para planejamento: mês ${targetMonth}, ano ${targetYear}`);
 
     console.log(`Calculando OFI (Planejamento) para ${targetMonth}/${targetYear}`);
 

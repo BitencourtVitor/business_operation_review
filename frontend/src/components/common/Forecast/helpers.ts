@@ -14,7 +14,7 @@ export const isFieldwireComplete = (project: WorkforceProject): boolean => {
 // Helper para verificar se Machines and Attachments está completo
 export const isMachinesComplete = (project: WorkforceProject): boolean => {
   if (!project.machines || project.machines.length === 0) return false;
-  return project.machines.every(m => m.status === true);
+  return project.machines.every(m => m.status === 'Scheduled' || m.status === 'Dispensed');
 };
 
 // Helper para verificar se tem contrato completo
@@ -40,7 +40,7 @@ export const getFieldwireProgress = (project: WorkforceProject): number => {
 // Helper para calcular porcentagem de máquinas ativas
 export const getMachinesProgress = (project: WorkforceProject): number => {
   if (!project.machines || project.machines.length === 0) return 0;
-  const active = project.machines.filter(m => m.status === true).length;
+  const active = project.machines.filter(m => m.status === 'Scheduled' || m.status === 'Dispensed').length;
   return (active / project.machines.length) * 100;
 };
 
@@ -199,7 +199,7 @@ export const getProjectCompletionMetrics = (project: WorkforceProject) => {
   // 6. Machines and Attachments
   if (project.machines && project.machines.length > 0) {
     totalPoints += project.machines.length;
-    completedPoints += project.machines.filter(m => m.status === true).length;
+    completedPoints += project.machines.filter(m => m.status === 'Scheduled' || m.status === 'Dispensed').length;
   }
 
   const percentage = totalPoints > 0 ? Math.round((completedPoints / totalPoints) * 100) : 0;
