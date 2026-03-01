@@ -260,7 +260,7 @@ async function processMachinesSheet(csvData: any[]) {
       subcategory: normalizeUtf8String(row['Subcategory']) || null,
       equipment_category: normalizeUtf8String(row['Equipment Category']) || null,
       title: normalizeUtf8String(row['Title']) || null,
-      status: parseYesNo(row['Status']),
+      status: parseYesNo(row['Status']) ? 'Scheduled' : null,
       unit: normalizeUtf8String(row['Unit']) || null,
       lastupdate_datetimez: parseDateTime(row['LastUpdate DatetimeZ'])
     };
