@@ -363,34 +363,40 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return sum / dataWithAdherence.length;
   }, [adherenceData, selectedMonth]);
 
-  const totalExcessUnits = useMemo(() => {
-    return filteredExcess.reduce((acc, project) => {
-      return acc + project.violations.reduce((vAcc: number, v: any) => {
-        const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
-        return vAcc + excess;
-      }, 0);
+  const { totalExcessCost, totalWithdrawnCost, totalExcessUnits } = useMemo(() => {
+    // Determine the data subset based on selected year/month
+    const relevantData = selectedMonth 
+      ? [financialImpactData[parseInt(selectedMonth) - 1]]
+      : financialImpactData;
+
+    const costs = relevantData.reduce((acc, curr) => ({
+      excess: acc.excess + (curr?.excessCost || 0),
+      withdrawn: acc.withdrawn + (curr?.totalCost || 0)
+    }), { excess: 0, withdrawn: 0 });
+
+    // Calculate total excess units for the selected period (raw data to avoid deduplication)
+    const units = detalhesExcesso.reduce((acc, d) => {
+      const date = parseISO(d.movement_date);
+      const year = format(date, 'yyyy');
+      const month = format(date, 'M');
+      
+      if (year === selectedYear && (!selectedMonth || month === selectedMonth)) {
+        const withdrawn = d.quantidade_retirada;
+        const totalAtMoment = d.consumo_acumulado_momento;
+        const limit = d.quantidade_limite;
+        const previousTotal = totalAtMoment - withdrawn;
+        const excessUnits = Math.max(0, totalAtMoment - Math.max(limit, previousTotal));
+        return acc + excessUnits;
+      }
+      return acc;
     }, 0);
-  }, [filteredExcess]);
 
-  const { totalExcessCost, totalWithdrawnCost } = useMemo(() => {
-    return filteredExcess.reduce((acc, project) => {
-      const projectTotals = project.violations.reduce((vAcc: { excess: number, withdrawn: number }, v: any) => {
-        const excess = Math.max(0, v.consumo_acumulado_momento - v.quantidade_limite);
-        const withdrawn = v.consumo_acumulado_momento;
-        const price = v.valor_unitario || productPrices[v.product_id] || productPrices[v.product_nome] || 0;
-        
-        return {
-          excess: vAcc.excess + (excess * price),
-          withdrawn: vAcc.withdrawn + (withdrawn * price)
-        };
-      }, { excess: 0, withdrawn: 0 });
-
-      return {
-        totalExcessCost: acc.totalExcessCost + projectTotals.excess,
-        totalWithdrawnCost: acc.totalWithdrawnCost + projectTotals.withdrawn
-      };
-    }, { totalExcessCost: 0, totalWithdrawnCost: 0 });
-  }, [filteredExcess, productPrices]);
+    return {
+      totalExcessCost: costs.excess,
+      totalWithdrawnCost: costs.withdrawn,
+      totalExcessUnits: Math.round(units)
+    };
+  }, [financialImpactData, selectedMonth, selectedYear, detalhesExcesso]);
   
   if (loading) return (
     <div className="d-flex align-items-center justify-content-center" style={{ height: '100%', background: 'var(--color-background-primary)' }}>
