@@ -17,6 +17,10 @@ export default function InventoryControlFilters({
   years,
   months,
 }: InventoryControlFiltersProps) {
+  const monthNames = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+  ];
   
   const selectStyle: React.CSSProperties = {
     background: 'var(--color-background-primary)',
@@ -36,7 +40,7 @@ export default function InventoryControlFilters({
     <div className="d-flex flex-row align-items-center" style={{ gap: 10, flexWrap: 'wrap', borderLeft: '1px solid var(--color-border-divider)', paddingLeft: 12 }}>
       <span style={{ fontSize: 14, fontWeight: 500, gap: 8, display: 'flex', alignItems: 'center', color: 'var(--color-text-secondary)' }}>
         <i className="bi bi-funnel" />
-        Filters
+        Filtros
       </span>
       
       {/* Filtro de Ano/Mês */}
@@ -49,7 +53,7 @@ export default function InventoryControlFilters({
           onChange={e => setSelectedYear(e.target.value)} 
           style={{ ...selectStyle, borderRight: '1.5px solid var(--color-border-divider)', width: 78, height: '100%', borderRadius: 0, paddingRight: 4 }}
         >
-          <option value="">All</option>
+          <option value="">Todos</option>
           {years.map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         <select 
@@ -57,8 +61,12 @@ export default function InventoryControlFilters({
           onChange={e => setSelectedMonth(e.target.value)} 
           style={{ ...selectStyle, width: 90, height: '100%', borderRadius: 0, paddingRight: 4 }}
         >
-          <option value="">All</option>
-          {months.map(m => <option key={m} value={m}>{m}</option>)}
+          <option value="">Todos</option>
+          {months.map(m => (
+            <option key={m} value={m}>
+              {monthNames[parseInt(m) - 1]}
+            </option>
+          ))}
         </select>
       </div>
     </div>
