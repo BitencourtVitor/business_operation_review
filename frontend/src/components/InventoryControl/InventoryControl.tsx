@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { usePremiumStorageData } from '../../hooks/usePremiumStorageData';
 import { supabase } from '../../supabaseClient';
+import { premiumStorageClient } from '../../premiumStorageClient';
 import { 
   ResponsiveContainer, 
   LineChart, 
@@ -31,10 +32,49 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
   // State for Filters
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [selectedMonth, setSelectedMonth] = useState<string>('');
+  const [teams, setTeams] = useState<Record<string, string>>({});
+  const [people, setPeople] = useState<Record<string, { teamId: string, name: string }>>({});
+  const [nameToTeam, setNameToTeam] = useState<Record<string, string>>({});
 
   const loading = storageLoading;
 
-  // Generate Year/Month options
+  // Fetch teams and people for team mapping
+  useEffect(() => {
+    const fetchTeamMappings = async () => {
+      try {
+        const [peopleRes, teamsRes] = await Promise.all([
+          premiumStorageClient.from('pessoa_destinataria').select('id, nome, equipe_destinataria_id'),
+          premiumStorageClient.from('equipe_destinataria').select('id, nome')
+        ]);
+
+        if (peopleRes.data) {
+          const peopleMap: Record<string, { teamId: string, name: string }> = {};
+          const nameMap: Record<string, string> = {};
+          
+          peopleRes.data.forEach(p => {
+            peopleMap[p.id] = { teamId: p.equipe_destinataria_id, name: p.nome };
+            nameMap[p.nome.trim().toLowerCase()] = p.equipe_destinataria_id;
+          });
+          setPeople(peopleMap);
+          setNameToTeam(nameMap);
+        }
+
+        if (teamsRes.data) {
+          const teamsMap: Record<string, string> = {};
+          teamsRes.data.forEach(t => {
+            teamsMap[t.id] = t.nome;
+          });
+          setTeams(teamsMap);
+        }
+      } catch (err) {
+        console.error('Error fetching team mappings from premiumStorageClient:', err);
+      }
+    };
+
+    fetchTeamMappings();
+  }, []);
+
+  // Generate Year options
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear().toString();
     const uniqueYears = new Set<string>();
@@ -48,9 +88,55 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return Array.from(uniqueYears).sort((a, b) => b.localeCompare(a));
   }, [historicoSaldo]);
 
+  // Generate Month options dynamically based on available data
   const months = useMemo(() => {
-    return Array.from({ length: 12 }, (_, i) => format(new Date(2024, i, 1), 'MMMM'));
-  }, []);
+    const uniqueMonths = new Set<string>();
+    
+    // From historicoSaldo (YYYY-MM)
+    historicoSaldo.forEach(h => {
+      const match = h.mes.match(/^(\d{4})-(\d{2})/);
+      if (match) {
+        const [_, year, month] = match;
+        if (!selectedYear || year === selectedYear) {
+          uniqueMonths.add(parseInt(month).toString());
+        }
+      }
+    });
+
+    // From detalhesExcesso (ISO string)
+    detalhesExcesso.forEach(d => {
+      try {
+        const date = parseISO(d.movement_date);
+        const year = format(date, 'yyyy');
+        const month = format(date, 'M');
+        if (!selectedYear || year === selectedYear) {
+          uniqueMonths.add(month);
+        }
+      } catch (e) {
+        // Ignore invalid dates
+      }
+    });
+
+    // From gastosUsuario (YYYY-MM)
+    gastosUsuario.forEach(u => {
+      const match = u.mes.match(/^(\d{4})-(\d{2})/);
+      if (match) {
+        const [_, year, month] = match;
+        if (!selectedYear || year === selectedYear) {
+          uniqueMonths.add(parseInt(month).toString());
+        }
+      }
+    });
+
+    return Array.from(uniqueMonths).sort((a, b) => Number(a) - Number(b));
+  }, [historicoSaldo, detalhesExcesso, gastosUsuario, selectedYear]);
+
+  // Reset month if it's not available for the selected year
+  useEffect(() => {
+    if (selectedMonth && !months.includes(selectedMonth)) {
+      setSelectedMonth('');
+    }
+  }, [selectedYear, months, selectedMonth]);
 
   // --- DATA PROCESSING ---
 
@@ -161,14 +247,11 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
       
       const year = match[1];
       const month = match[2];
-      const monthName = format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMMM');
 
       if (selectedYear && year !== selectedYear) return;
       
-      // If month is selected, only consider that month. 
-      // If not, we keep updating the map so the last month's status (latest) wins.
       if (selectedMonth) {
-        if (monthName === selectedMonth) {
+        if (parseInt(month) === parseInt(selectedMonth)) {
           statusMap.set(h.product_nome, h.abaixo_minimo);
         }
       } else {
@@ -181,7 +264,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
 
   // 3. Excess Projects Data (Filtered) - Matching Subcontractor Performance logic
   const filteredExcess = useMemo(() => {
-    const filtered = detalhesExcesso
+      const filtered = detalhesExcesso
       .filter(d => {
         const date = parseISO(d.movement_date);
         const year = format(date, 'yyyy');
@@ -190,11 +273,8 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
         if (selectedYear && year !== selectedYear) return false;
         
         if (selectedMonth) {
-          const selectedMonthIndex = months.indexOf(selectedMonth) + 1;
-          const selectedMonthNum = String(selectedMonthIndex).padStart(2, '0');
-          const itemMonth = format(date, 'MMMM');
-          
-          if (itemMonth !== selectedMonth && month !== selectedMonthNum) return false;
+          const selectedMonthNum = selectedMonth.padStart(2, '0');
+          if (month !== selectedMonthNum) return false;
         }
         
         if (d.project_nome?.toUpperCase().includes('(TEST)')) return false;
@@ -226,7 +306,9 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
           consumo_acumulado_momento: d.consumo_acumulado_momento,
           quantidade_limite: d.quantidade_limite,
           movement_date: d.movement_date,
-          valor_unitario: d.valor_unitario
+          valor_unitario: d.valor_unitario,
+          destinatario_id: d.destinatario_id,
+          usuario_responsavel: d.usuario_responsavel
         });
       } else if (new Date(d.movement_date) > new Date(existingViolation.movement_date)) {
         // Keep the most recent violation for the same product in the grouped view
@@ -235,6 +317,8 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
         existingViolation.quantidade_limite = d.quantidade_limite;
         existingViolation.movement_date = d.movement_date;
         existingViolation.valor_unitario = d.valor_unitario;
+        existingViolation.destinatario_id = d.destinatario_id;
+        existingViolation.usuario_responsavel = d.usuario_responsavel;
       }
     });
 
@@ -250,10 +334,9 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
         
         const year = match[1];
         const month = match[2];
-        const monthName = format(new Date(parseInt(year), parseInt(month) - 1, 1), 'MMMM');
         
         if (selectedYear && year !== selectedYear) return false;
-        if (selectedMonth && monthName !== selectedMonth) return false;
+        if (selectedMonth && parseInt(month) !== parseInt(selectedMonth)) return false;
         
         return true;
       })
@@ -268,7 +351,8 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
 
   const averageAdherence = useMemo(() => {
     if (selectedMonth) {
-      const monthData = adherenceData.find(d => d.fullMonthName === selectedMonth);
+      const selectedMonthNum = selectedMonth.padStart(2, '0');
+      const monthData = adherenceData.find(d => d.fullDate.endsWith(`-${selectedMonthNum}`));
       return monthData?.adherence ?? 100;
     }
 
@@ -748,6 +832,31 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
                                 {project.house_model_nome}
                               </span>
                             </div>
+                            {/* Equipe do Destinatário */}
+                            <div className="d-flex align-items-center gap-2" style={{ marginLeft: '22px' }}>
+                            <i className="bi bi-people" style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}></i>
+                            <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 600, textTransform: 'uppercase' }}>
+                              {(() => {
+                                const violation = project.violations[0];
+                                if (!violation) return 'Sem detalhes';
+                                
+                                // 1. Try by destinatario_id
+                                if (violation.destinatario_id && people[violation.destinatario_id]) {
+                                  const teamId = people[violation.destinatario_id].teamId;
+                                  return teams[teamId] || 'Equipe não identificada';
+                                }
+                                
+                                // 2. Try by usuario_responsavel (name)
+                                 if (violation.usuario_responsavel) {
+                                   const name = violation.usuario_responsavel.trim().toLowerCase();
+                                   const teamId = nameToTeam[name];
+                                   if (teamId) return teams[teamId];
+                                 }
+                                
+                                return 'Equipe não identificada';
+                              })()}
+                            </span>
+                          </div>
                           </div>
 
                           <div className="d-flex gap-3 text-end">
@@ -851,8 +960,8 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
                     </div>
                   </div>
               </div>
-              <div style={{ flex: 1, padding: '0 24px', minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                    <div style={{ height: '230px', width: '100%' }}>
+              <div style={{ flex: 1, padding: '0 24px', minHeight: '230px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ height: '230px', width: '100%', minWidth: '100px' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={financialImpactData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border-divider)" opacity="0.3" />

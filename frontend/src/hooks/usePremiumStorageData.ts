@@ -30,7 +30,8 @@ export interface DetalheExcesso {
   house_model_nome: string;
   product_id: string;
   product_nome: string;
-  recipiente_responsavel: string;
+  usuario_responsavel: string;
+  destinatario_id?: string;
   movement_date: string;
   quantidade_retirada: number;
   quantidade_limite: number;
@@ -73,7 +74,8 @@ export const usePremiumStorageData = () => {
         excessoRes,
         gastosRes,
         productsRes,
-        movementItemsRes
+        movementItemsRes,
+        movementsRes
       ] = await Promise.all([
         premiumStorageClient.from('vw_consumo_vs_limite').select('*'),
         premiumStorageClient.from('vw_historico_saldo_mensal').select('*'),
@@ -82,7 +84,9 @@ export const usePremiumStorageData = () => {
         // Fetch products for names (fallback lookup)
         premiumStorageClient.from('products').select('id, nome'),
         // Fetch latest prices from movement items
-        premiumStorageClient.from('stock_movement_items').select('product_id, valor_unitario').order('id', { ascending: false }).limit(2000)
+        premiumStorageClient.from('stock_movement_items').select('product_id, valor_unitario').order('id', { ascending: false }).limit(2000),
+        // Fetch movements to get recipient information
+        premiumStorageClient.from('stock_movements').select('movement_date, destinatario_id').order('movement_date', { ascending: false }).limit(2000)
       ]);
 
       if (consumoRes.error) throw consumoRes.error;
@@ -94,6 +98,16 @@ export const usePremiumStorageData = () => {
       if (productsRes.data) {
         productsRes.data.forEach((p: any) => {
           productNames[p.id] = p.nome;
+        });
+      }
+
+      // Create mapping of movement_date to destinatario_id
+      const movementRecipients: Record<string, string> = {};
+      if (movementsRes.data) {
+        movementsRes.data.forEach((m: any) => {
+          if (m.movement_date && m.destinatario_id) {
+            movementRecipients[m.movement_date] = m.destinatario_id;
+          }
         });
       }
 
@@ -115,7 +129,14 @@ export const usePremiumStorageData = () => {
 
       setData(consumoRes.data || []);
       setHistoricoSaldo(historicoRes.data || []);
-      setDetalhesExcesso(excessoRes.data || []);
+
+      // Attach destinatario_id to excess details by matching movement_date
+      const mappedExcesso = (excessoRes.data || []).map((d: any) => ({
+        ...d,
+        destinatario_id: movementRecipients[d.movement_date] || d.destinatario_id
+      }));
+      setDetalhesExcesso(mappedExcesso);
+
       setGastosUsuario(gastosRes.data || []);
 
     } catch (err: any) {
