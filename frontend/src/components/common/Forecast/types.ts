@@ -24,7 +24,7 @@ export interface ForecastMachine {
 export interface ForecastContractStep {
   id: number;
   obra_id: string;
-  team: string | null;
+  team: string;
   step: string | null;
   status: boolean | null;
   lastupdate_datetimez: string | null;
