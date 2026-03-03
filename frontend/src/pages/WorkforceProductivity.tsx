@@ -218,7 +218,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         if (stepsError) throw stepsError;
         setForecastContractSteps(steps || []);
       } catch (err) {
-        console.error('Error fetching forecast data:', err);
+        // Error already handled or silent
       }
     };
     fetchForecastData();
@@ -235,16 +235,9 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     isDark: false
   });
 
-  // Fetch monthly notes from Supabase
   useEffect(() => {
     const fetchNotes = async () => {
-      // Log for debugging
-      console.log('--- Fetching Notes Debug ---');
-      console.log('selectedYear:', selectedYear);
-      console.log('selectedMonth:', selectedMonth);
-
       if (!selectedYear || !selectedMonth) {
-        console.log('Missing selectedYear or selectedMonth, clearing notes');
         setNotes('');
         return;
       }
@@ -252,7 +245,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       try {
         const yearInt = parseInt(selectedYear);
         const monthInt = parseInt(selectedMonth);
-        console.log('Executing query for year:', yearInt, 'month:', monthInt);
 
         const { data: noteData, error: noteError } = await supabase
           .from('workforce_monthly_notes')
@@ -262,14 +254,12 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
           .maybeSingle();
 
         if (noteError) {
-          console.error('Supabase error fetching notes:', noteError);
           throw noteError;
         }
         
-        console.log('Fetch success, data:', noteData);
         setNotes(noteData?.content || '');
       } catch (err) {
-        console.error('Error fetching monthly notes:', err);
+        // Error already handled or silent
       }
     };
 
@@ -297,7 +287,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       setNotes(tempNotes);
       setIsEditingNotes(false);
     } catch (err) {
-      console.error('Error saving monthly notes:', err);
       alert('Failed to save notes. Please try again.');
     }
   };
@@ -343,7 +332,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         .eq('tela_id', telaId);
 
       if (usuariosTelasError) {
-        console.error('Erro ao buscar usuarios_telas:', usuariosTelasError);
         return;
       }
 

@@ -78,18 +78,6 @@ export function useWorkforceProductivityData() {
           regular_rate: typeof row.regular_rate === 'string' ? parseFloat(row.regular_rate) : Number(row.regular_rate || 0),
         }));
 
-      // DEBUG: Count rows by reference_month as requested
-      const monthCounts = formattedData.reduce((acc: Record<string, number>, row) => {
-        const month = row.reference_month || 'UNKNOWN/NULL';
-        acc[month] = (acc[month] || 0) + 1;
-        return acc;
-      }, {});
-
-      console.group('Workforce Productivity Data Debug');
-      console.log('Total rows loaded from timesheet_data_new (Recursive Fetch):', formattedData.length);
-      console.log('Rows by reference_month:', monthCounts);
-      console.groupEnd();
-
       setData(formattedData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao carregar dados de produtividade da mão de obra');

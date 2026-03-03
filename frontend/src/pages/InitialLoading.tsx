@@ -63,12 +63,10 @@ export default function InitialLoading() {
     const processAllFunctions = async () => {
       // Evitar execuções múltiplas com useRef (mais imediato)
       if (hasProcessed.current) {
-        console.log('⚠️ InitialLoading: Já foi processado, ignorando chamada duplicada...');
         return;
       }
       
       hasProcessed.current = true;
-      console.log('🚀 InitialLoading: Iniciando processamento das edge functions...');
       
       // Verificar se o usuário já tem uma sessão válida
       const { data: { session } } = await supabase.auth.getSession();
@@ -77,8 +75,8 @@ export default function InitialLoading() {
       setHasValidSession(hasValidSession);
       
       // Se tem sessão válida, fazer loading mais rápido
-      const progressSpeed = hasValidSession ? 25 : 15;
-      const progressInterval = hasValidSession ? 150 : 200;
+      const progressSpeed = hasValidSession ? 30 : 20;
+      const progressInterval = hasValidSession ? 100 : 150;
       
       // Atualizar todos os itens para loading
       setLoadingItems(prev => prev.map(item => ({
@@ -91,145 +89,107 @@ export default function InitialLoading() {
       const progressIntervals = EDGE_FUNCTIONS.map(func => {
         return setInterval(() => {
           setLoadingItems(prev => prev.map(item => 
-            item.id === func.id && item.progress < 90 
-              ? { ...item, progress: item.progress + Math.random() * progressSpeed }
+            item.id === func.id && item.progress < 95 
+              ? { ...item, progress: Math.min(95, item.progress + Math.random() * progressSpeed) }
               : item
           ));
         }, progressInterval);
       });
 
+      // Intervalo extra para fuel_control_data que não está em EDGE_FUNCTIONS
+      const fuelDataProgressInterval = setInterval(() => {
+        setLoadingItems(prev => prev.map(item => 
+          item.id === 'fuel_control_data' && item.progress < 95
+            ? { ...item, progress: Math.min(95, item.progress + Math.random() * 20) }
+            : item
+        ));
+      }, 150);
+
       try {
-        // Executar todas as edge functions em paralelo
+        // Restaurar execução assíncrona paralela para máxima performance
         const promises = EDGE_FUNCTIONS.map(async (func, index) => {
           try {
-            if (func.name === 'forecast') {
-              console.log('📊 InitialLoading: Chamando forecast...');
-            }
+            // Chamada direta sem delays artificiais para performance máxima
             const { data, error } = await supabase.functions.invoke(func.name, {
               body: { userId: 'loading-process' }
             });
             
-            // Limpar o intervalo de progresso
             clearInterval(progressIntervals[index]);
             
             if (error) {
-              console.error(`❌ Erro ao invocar ${func.name}:`, error);
+              // Retry imediato apenas em erro de rede/CORS para resiliência
+              if (error.message?.includes('Failed to send a request') || error.message?.includes('fetch')) {
+                const retry = await supabase.functions.invoke(func.name, {
+                  body: { userId: 'loading-process' }
+                });
+                
+                if (!retry.error) {
+                  setLoadingItems(prev => prev.map(item => 
+                    item.id === func.id ? { ...item, status: 'completed', progress: 100 } : item
+                  ));
+                  return;
+                }
+              }
+
               setLoadingItems(prev => prev.map(item => 
-                item.id === func.id 
-                  ? { ...item, status: 'error', progress: 100, error: error.message }
-                  : item
+                item.id === func.id ? { ...item, status: 'error', progress: 100, error: error.message } : item
               ));
             } else if (data && data.error) {
-              console.error(`❌ Erro no retorno da function ${func.name}:`, data.error);
               setLoadingItems(prev => prev.map(item => 
-                item.id === func.id 
-                  ? { ...item, status: 'error', progress: 100, error: typeof data.error === 'string' ? data.error : JSON.stringify(data.error) }
-                  : item
+                item.id === func.id ? { ...item, status: 'error', progress: 100, error: String(data.error) } : item
               ));
             } else {
               setLoadingItems(prev => prev.map(item => 
-                item.id === func.id 
-                  ? { ...item, status: 'completed', progress: 100 }
-                  : item
+                item.id === func.id ? { ...item, status: 'completed', progress: 100 } : item
               ));
             }
           } catch (error) {
-            console.error(`❌ Exceção ao invocar ${func.name}:`, error);
             clearInterval(progressIntervals[index]);
             setLoadingItems(prev => prev.map(item => 
-              item.id === func.id 
-                ? { ...item, status: 'error', progress: 100, error: error instanceof Error ? error.message : 'Unknown error' }
-                : item
+              item.id === func.id ? { ...item, status: 'error', progress: 100, error: error instanceof Error ? error.message : 'Unknown error' } : item
             ));
           }
         });
 
-        // Carregar esquema de Fuel Control
+        // Carregar esquema de Fuel Control em paralelo
         const fuelSchemaPromise = (async () => {
           try {
-            const fuelSchemaIndex = INITIAL_LOADING_ITEMS.findIndex(item => item.id === 'fuel_control_schema');
-            if (fuelSchemaIndex !== -1) {
-              const success = await loadFuelControlSchema();
-              
-              if (!success) {
-                setLoadingItems(prev => prev.map(item => 
-                  item.id === 'fuel_control_schema'
-                    ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar esquema' }
-                    : item
-                ));
-              } else {
-                setLoadingItems(prev => prev.map(item => 
-                  item.id === 'fuel_control_schema'
-                    ? { ...item, status: 'completed', progress: 100 }
-                    : item
-                ));
-              }
-            }
+            const success = await loadFuelControlSchema();
+            setLoadingItems(prev => prev.map(item => 
+              item.id === 'fuel_control_schema' ? { ...item, status: success ? 'completed' : 'error', progress: 100 } : item
+            ));
           } catch {
             setLoadingItems(prev => prev.map(item => 
-              item.id === 'fuel_control_schema'
-                ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar esquema' }
-                : item
+              item.id === 'fuel_control_schema' ? { ...item, status: 'error', progress: 100 } : item
             ));
           }
         })();
 
-        // Carregar dados de combustível (Samsara + WEX)
+        // Carregar dados de combustível em paralelo
         const fuelDataPromise = (async () => {
           try {
-            const fuelDataIndex = INITIAL_LOADING_ITEMS.findIndex(item => item.id === 'fuel_control_data');
-            if (fuelDataIndex !== -1) {
-              // Atualizar status para loading
-              setLoadingItems(prev => prev.map(item => 
-                item.id === 'fuel_control_data'
-                  ? { ...item, status: 'loading', progress: 0 }
-                  : item
-              ));
-
-              // Simular progresso durante carregamento
-              const progressInterval = setInterval(() => {
-                setLoadingItems(prev => prev.map(item => 
-                  item.id === 'fuel_control_data' && item.progress < 90
-                    ? { ...item, progress: item.progress + Math.random() * 15 }
-                    : item
-                ));
-              }, 200);
-
-              // Aguardar um tempo para simular carregamento dos dados
-              await new Promise(resolve => setTimeout(resolve, 3000));
-
-              // Limpar intervalo e marcar como completo
-              clearInterval(progressInterval);
-              setLoadingItems(prev => prev.map(item => 
-                item.id === 'fuel_control_data'
-                  ? { ...item, status: 'completed', progress: 100 }
-                  : item
-              ));
-            }
+            setLoadingItems(prev => prev.map(item => item.id === 'fuel_control_data' ? { ...item, status: 'loading', progress: 0 } : item));
+            await new Promise(resolve => setTimeout(resolve, 1500)); // Simulação rápida
+            clearInterval(fuelDataProgressInterval);
+            setLoadingItems(prev => prev.map(item => item.id === 'fuel_control_data' ? { ...item, status: 'completed', progress: 100 } : item));
           } catch {
-            setLoadingItems(prev => prev.map(item => 
-              item.id === 'fuel_control_data'
-                ? { ...item, status: 'error', progress: 100, error: 'Erro ao carregar dados' }
-                : item
-            ));
+            clearInterval(fuelDataProgressInterval);
+            setLoadingItems(prev => prev.map(item => item.id === 'fuel_control_data' ? { ...item, status: 'error', progress: 100 } : item));
           }
         })();
 
-        // Aguardar todas as promises incluindo o esquema de Fuel Control e dados de combustível
+        // Aguardar todos em paralelo
         await Promise.allSettled([...promises, fuelSchemaPromise, fuelDataPromise]);
         
-        // Limpar todos os intervalos restantes
-        progressIntervals.forEach(interval => clearInterval(interval));
+        // Limpeza e navegação rápida
+        progressIntervals.forEach(clearInterval);
+        clearInterval(fuelDataProgressInterval);
         
-        // Aguardar um pouco antes de navegar para o dashboard
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+        setTimeout(() => navigate('/dashboard'), 500);
         
       } catch (error) {
-        console.error('Erro geral no processamento:', error);
-        // Limpar todos os intervalos em caso de erro
-        progressIntervals.forEach(interval => clearInterval(interval));
+        progressIntervals.forEach(clearInterval);
+        clearInterval(fuelDataProgressInterval);
       }
     };
 

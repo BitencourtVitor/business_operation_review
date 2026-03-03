@@ -27,7 +27,6 @@ export function useOFIData() {
       setError(null);
 
       // Buscar dados do OFI
-      console.log('🚀 useOFIData - Iniciando busca de dados...');
       const { data: ofiResult, error: sqlError } = await supabase
         .from('operational_forecast_index')
         .select('*')
@@ -35,22 +34,13 @@ export function useOFIData() {
         .order('reference_month', { ascending: false });
 
       if (sqlError) {
-        console.error('❌ OFIData - Erro SQL:', sqlError);
         throw sqlError;
       }
 
-      console.log(`✅ useOFIData - ${ofiResult?.length || 0} registros encontrados no OFI`);
-
       // Buscar mapeamento de obras para pegar os nomes legíveis da tabela forecast_data
-      const { data: forecastResult, error: forecastError } = await supabase
+      const { data: forecastResult } = await supabase
         .from('forecast_data')
         .select('id, job_site, type, lote_bld');
-
-      if (forecastError) {
-        console.warn('⚠️ useOFIData - Não foi possível carregar nomes dos projetos de forecast_data:', forecastError);
-      }
-
-      console.log(`✅ useOFIData - ${forecastResult?.length || 0} registros encontrados em forecast_data`);
 
       // Mapear os dados para incluir o nome do projeto concatenado (Job Site - Type - Lote)
       const mappedData = (ofiResult || []).map(item => {
@@ -73,7 +63,6 @@ export function useOFIData() {
       setData(mappedData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados do OFI';
-      console.error('❌ OFIData - Erro:', errorMessage);
       setError(errorMessage);
     } finally {
       setLoading(false);
