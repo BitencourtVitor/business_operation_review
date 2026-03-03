@@ -1,8 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { supabase } from '../../../supabaseClient';
+import { useState, useEffect, useRef } from 'react';
 import logoWhite from '../../../assets/logo_white.png';
 import logoBlack from '../../../assets/logo_black.png';
-import type { Theme } from '../../../types/common';
 
 interface LoadingItem {
   id: string;
@@ -21,7 +19,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
   const [loadingItems, setLoadingItems] = useState<LoadingItem[]>([
     { id: 'workforce', title: 'Forecast Data', status: 'pending', progress: 0 }
   ]);
-  const [isProcessing, setIsProcessing] = useState(false);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -33,7 +30,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
       }
       
       hasProcessed.current = true;
-      setIsProcessing(true);
       console.log('🚀 MobileForecastLoading: Iniciando carregamento dos dados do Forecast...');
       
       // Atualizar item para loading
@@ -62,7 +58,7 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
         
         // Simular um pequeno delay para UX
         await new Promise(resolve => setTimeout(resolve, 800));
-        const error = null; // Forçar sucesso sem chamar a função
+        const error: any = null; // Forçar sucesso sem chamar a função
 
         // Limpar o intervalo de progresso
         clearInterval(progressInterval);
@@ -71,7 +67,7 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
           console.error('❌ Erro na edge function forecast:', error);
           setLoadingItems(prev => prev.map(item => 
             item.id === 'workforce' 
-              ? { ...item, status: 'error', progress: 100, error: error.message }
+              ? { ...item, status: 'error', progress: 100, error: error.message || 'Error' }
               : item
           ));
           
@@ -106,7 +102,7 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
           onComplete();
         }, 2000);
       } finally {
-        setIsProcessing(false);
+        // Nada a fazer no momento
       }
     };
 

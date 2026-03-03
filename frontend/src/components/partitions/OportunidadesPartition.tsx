@@ -5,19 +5,7 @@ import PartitionCard from './PartitionCard';
 import EmptyMessage from './EmptyMessage';
 import PartitionLoading from './PartitionLoading';
 
-// Tipos para os dados
-interface Oportunidade {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  titulo: string;
-  criado_em: string;
-  desafios: string[];
-  melhorias: string[];
-  usuario_nome?: string; // Nome do usuário que criou a oportunidade
-}
+import { type Oportunidade } from '../../types/partitions';
 
 // Função para formatar *...*, **...**, ***...***
 function parseAsterisksFormatting(text: string): React.ReactNode {
@@ -69,8 +57,8 @@ interface OportunidadesPartitionProps {
   usuarioResponsavelId: string | string[];
   usuariosParaBuscar?: string[];
   telaId: string;
-  selectedYear?: number;
-  selectedMonth?: number;
+  selectedYear?: string | number;
+  selectedMonth?: string | number;
   isAdmin: boolean;
   usuarioLogadoId?: string; // ID do usuário atualmente logado
   onEdit?: (mes: string | number, ano: string | number, usuarioId?: string) => void;

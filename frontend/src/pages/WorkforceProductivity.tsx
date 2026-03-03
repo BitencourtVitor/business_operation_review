@@ -181,7 +181,8 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
   const [selectedWorktypes, setSelectedWorktypes] = useState<string[]>([]);
 
   // Efficiency control
-  const [efficiencyLimit, setEfficiencyLimit] = useState<number>(10);
+  const [_efficiencyLimit, _setEfficiencyLimit] = useState<number>(10);
+  // const efficiencyLimit = 10; // (removed unused)
 
   // Filter options states
   const [years, setYears] = useState<string[]>([]);
@@ -213,7 +214,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
         const { data: steps, error: stepsError } = await supabase
           .from('forecast_contract_steps')
           .select('obra_id, team')
-          .not('team', 'is', null);
+          .neq('team', ''); // Filter out any accidental empty strings
         if (stepsError) throw stepsError;
         setForecastContractSteps(steps || []);
       } catch (err) {
@@ -228,6 +229,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     textPrimary: '#1e293b',
     textSecondary: '#64748b',
     border: '#e2e8f0',
+    borderDivider: '#e2e8f0',
     background: '#ffffff',
     backgroundSecondary: '#fff',
     isDark: false
@@ -308,9 +310,10 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       setThemeColors({
         textPrimary: style.getPropertyValue('--color-text-primary').trim() || (isDark ? '#f8fafc' : '#1e293b'),
         textSecondary: style.getPropertyValue('--color-text-secondary').trim() || (isDark ? '#94a3b8' : '#64748b'),
-        border: style.getPropertyValue('--color-border-divider').trim() || (isDark ? '#334155' : '#e2e8f0'),
-        background: style.getPropertyValue('--color-background-primary').trim() || (isDark ? '#0f172a' : '#ffffff'),
-        backgroundSecondary: style.getPropertyValue('--color-background-secondary').trim() || '#fff',
+        border: style.getPropertyValue('--color-border').trim() || (isDark ? '#334155' : '#e2e8f0'),
+        borderDivider: style.getPropertyValue('--color-border').trim() || (isDark ? '#334155' : '#e2e8f0'),
+        background: style.getPropertyValue('--color-bg-primary').trim() || (isDark ? '#0f172a' : '#ffffff'),
+        backgroundSecondary: style.getPropertyValue('--color-bg-secondary').trim() || (isDark ? '#1e293b' : '#fff'),
         isDark
       });
     };
@@ -481,12 +484,62 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       .sort((a, b) => b[1].totalHours - a[1].totalHours)
       .slice(0, projectLimit);
     
+    const labels = sortedEntries.map(e => e[0]);
+    const totalHours = sortedEntries.map(e => Number(e[1].totalHours.toFixed(2)));
+
     return {
-      labels: sortedEntries.map(e => e[0]),
-      totalHours: sortedEntries.map(e => Number(e[1].totalHours.toFixed(2))),
-      hoursPerEmployee: sortedEntries.map(e => e[1].employees.size > 0 ? Number((e[1].totalHours / e[1].employees.size).toFixed(2)) : 0)
+      labels,
+      datasets: [
+        {
+          label: 'Total Hours',
+          data: totalHours,
+          backgroundColor: 'rgba(46, 107, 230, 0.8)',
+          borderColor: 'rgb(46, 107, 230)',
+          borderWidth: 1,
+          borderRadius: 4,
+        }
+      ]
     };
   }, [filteredData, projectLimit]);
+
+  // Paleta de cores expandida e com alto contraste para categorias
+  const colors = useMemo(() => [
+    '#2E6BE6', // Blue
+    '#10B981', // Emerald
+    '#F59E0B', // Amber
+    '#EF4444', // Red
+    '#8B5CF6', // Violet
+    '#EC4899', // Pink
+    '#14B8A6', // Teal
+    '#F97316', // Orange
+    '#06B6D4', // Cyan
+    '#6366F1', // Indigo
+    '#A855F7', // Purple
+    '#D946EF', // Fuchsia
+    '#F43F5E', // Rose
+    '#84CC16', // Lime
+    '#EAB308', // Yellow
+    '#3B82F6', // Light Blue
+    '#22C55E', // Green
+    '#64748B', // Slate
+    '#94A3B8', // Light Slate
+  ], []);
+
+  // Cores fixas para worktypes para garantir consistência entre gráficos
+  const worktypeColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    // Garante que 'Normal Labor' sempre tenha uma cor consistente se existir
+    const sortedWorktypes = [...worktypesList].sort((a, b) => {
+      if (a === 'Normal Labor') return -1;
+      if (b === 'Normal Labor') return 1;
+      return a.localeCompare(b);
+    });
+
+    sortedWorktypes.forEach((wt, idx) => {
+      map[wt] = colors[idx % colors.length];
+    });
+    return map;
+  }, [worktypesList, colors]);
 
   // Data by Worktype
   const worktypeData = useMemo(() => {
@@ -508,13 +561,23 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     });
 
     const sortedEntries = Array.from(wtMap.entries()).sort((a, b) => b[1].totalHours - a[1].totalHours);
-    
+    const labels = sortedEntries.map(e => e[0]);
+    const totalHours = sortedEntries.map(e => Number(e[1].totalHours.toFixed(2)));
+
     return {
-      labels: sortedEntries.map(e => e[0]),
-      totalHours: sortedEntries.map(e => Number(e[1].totalHours.toFixed(2))),
-      hoursPerEmployee: sortedEntries.map(e => e[1].employees.size > 0 ? Number((e[1].totalHours / e[1].employees.size).toFixed(2)) : 0)
+      labels,
+      datasets: [
+        {
+          label: 'Total Hours',
+          data: totalHours,
+          backgroundColor: labels.map(label => worktypeColorMap[label] || '#10B981'),
+          borderColor: labels.map(label => worktypeColorMap[label] || '#10B981'),
+          borderWidth: 1,
+          borderRadius: 4,
+        }
+      ]
     };
-  }, [filteredData]);
+  }, [filteredData, worktypeColorMap]);
 
   // Determine if we are in a single project view
   const isSingleProject = selectedJobsites.length === 1;
@@ -566,45 +629,6 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     return Array.from(new Set(filteredData.map(row => getWorktype(row)))).sort();
   }, [filteredData, activeProject]);
 
-  // Paleta de cores expandida e com alto contraste para categorias
-  const colors = useMemo(() => [
-    '#2E6BE6', // Blue
-    '#10B981', // Emerald
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#8B5CF6', // Violet
-    '#EC4899', // Pink
-    '#14B8A6', // Teal
-    '#F97316', // Orange
-    '#06B6D4', // Cyan
-    '#6366F1', // Indigo
-    '#A855F7', // Purple
-    '#D946EF', // Fuchsia
-    '#F43F5E', // Rose
-    '#84CC16', // Lime
-    '#EAB308', // Yellow
-    '#3B82F6', // Light Blue
-    '#22C55E', // Green
-    '#64748B', // Slate
-    '#94A3B8', // Light Slate
-  ], []);
-
-  // Cores fixas para worktypes para garantir consistência entre gráficos
-  const worktypeColorMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    // Garante que 'Normal Labor' sempre tenha uma cor consistente se existir
-    const sortedWorktypes = [...worktypesList].sort((a, b) => {
-      if (a === 'Normal Labor') return -1;
-      if (b === 'Normal Labor') return 1;
-      return a.localeCompare(b);
-    });
-
-    sortedWorktypes.forEach((wt, idx) => {
-      map[wt] = colors[idx % colors.length];
-    });
-    return map;
-  }, [worktypesList, colors]);
-
   // Process data for worktype proportion
   const worktypeProportionData = useMemo(() => {
     if (!filteredData.length) return { labels: [], datasets: [] };
@@ -628,7 +652,8 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     };
   }, [filteredData, themeColors, worktypeColorMap]);
 
-  // Efficiency Data: Worktype Hours vs Employees (Ratio Efficiency)
+  // const efficiencyData = ... (removed unused)
+  /* 
   const efficiencyData = useMemo(() => {
     if (!filteredData.length) return { labels: [], datasets: [] };
 
@@ -659,6 +684,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       hoursPerEmployee: sortedEntries.map(e => e[1].employees.size > 0 ? Number((e[1].totalHours / e[1].employees.size).toFixed(2)) : 0)
     };
   }, [filteredData, efficiencyLimit]);
+  */
 
   const projectComparisonChartData = useMemo(() => {
     const labels = projectMonthlyData.map(d => dayjs(d.month).format('MMM YYYY'));
@@ -690,29 +716,8 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     return { labels, datasets };
   }, [projectMonthlyData, worktypes, themeColors.textPrimary, worktypeColorMap]);
 
-  const efficiencyChartData = useMemo(() => ({
-    labels: efficiencyData.labels,
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: efficiencyData.totalHours,
-        backgroundColor: 'rgba(99, 102, 241, 0.7)',
-        borderColor: 'rgb(99, 102, 241)',
-        borderWidth: 1,
-        borderRadius: 4,
-      },
-      {
-        label: 'Ratio (Hrs/Emp)',
-        data: efficiencyData.hoursPerEmployee,
-        borderColor: 'rgb(244, 63, 94)',
-        backgroundColor: 'transparent',
-        borderWidth: 2,
-        pointRadius: 4,
-        type: 'line' as const,
-      }
-    ]
-  }), [efficiencyData]);
-
+  // const efficiencyChartData = ... (removed unused)
+  
   const totalHoursChartData = useMemo(() => ({
     labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
     datasets: [
@@ -728,6 +733,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     ]
   }), [globalMonthlyData]);
 
+  /* 
   const employeesChartData = useMemo(() => ({
     labels: globalMonthlyData.map(d => dayjs(d.month).format('MMM YYYY')),
     datasets: [
@@ -761,40 +767,17 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
       }
     ]
   }), [globalMonthlyData]);
+  */
 
-  const jobsiteChartData = useMemo(() => ({
-    labels: jobsiteData.labels,
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: jobsiteData.totalHours,
-        backgroundColor: 'rgba(46, 107, 230, 0.8)',
-        borderColor: 'rgb(46, 107, 230)',
-        borderWidth: 1,
-        borderRadius: 4,
-      }
-    ]
-  }), [jobsiteData]);
+  const jobsiteChartData = useMemo(() => jobsiteData, [jobsiteData]);
 
-  const worktypeChartData = useMemo(() => ({
-    labels: worktypeData.labels,
-    datasets: [
-      {
-        label: 'Total Hours',
-        data: worktypeData.totalHours,
-        backgroundColor: worktypeData.labels.map(label => worktypeColorMap[label] || '#10B981'),
-        borderColor: worktypeData.labels.map(label => worktypeColorMap[label] || '#10B981'),
-        borderWidth: 1,
-        borderRadius: 4,
-      }
-    ]
-  }), [worktypeData, worktypeColorMap]);
+  const worktypeChartData = useMemo(() => worktypeData, [worktypeData]);
 
   const [customTooltip, setCustomTooltip] = useState<any>({ opacity: 0, top: 0, left: 0, title: '', body: [], afterBody: [], yAlign: 'top' });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const chartOptions: any = useMemo(() => {
-    const isBackChargeFiltered = selectedWorktypes.includes('Back Charge');
+    // const isBackChargeFiltered = selectedWorktypes.includes('Back Charge'); (removed unused)
 
     // Pre-calculate mapping logic for tooltip to avoid heavy processing on every mouse move
     const obraToTeam: Record<string, string> = {};
@@ -886,40 +869,40 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
               const key = `${normTsClient}|${normTsJob}|${normTsLot}`;
               if (subLookup[key]) return { name: subLookup[key], isMapped: true };
 
-              const tsWords = normTsJob.split(' ').filter(w => w.length > 2);
-              let bestMatch: { team: string; score: number } | null = null;
-
-              forecastProjects.forEach(f => {
-                const team = obraToTeam[f.id];
-                if (!team) return;
-
-                const fLot = normalizeLotBuilding(f.lote_bld);
-                let currentScore = 0;
-
-                // Check lot match
-                if (fLot === normTsLot) {
-                  currentScore += 10; // High score for exact lot match
-                } else if (normTsLot && fLot && (normTsLot.includes(fLot) || fLot.includes(normTsLot))) {
-                  currentScore += 3; // Partial lot match
-                }
-
-                // Check jobsite words match
-                const normFJob = normalizeJobSite(f.job_site);
-                const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
-                currentScore += wordScore * 5;
-
-                // Check client match
-                const normFClient = normalizeJobSite(f.cliente);
-                if (normFClient === normTsClient && normTsClient !== '') {
-                  currentScore += 2;
-                }
-
-                if (currentScore >= 5 && (!bestMatch || currentScore > bestMatch.score)) {
-                  bestMatch = { team, score: currentScore };
-                }
-              });
-
-              if (bestMatch?.team) return { name: bestMatch.team, isMapped: true };
+              const tsWords = normTsJob.split(' ').filter((w: string) => w.length > 2);
+                let bestMatch: { team: string; score: number } | null = null;
+  
+                forecastProjects.forEach(f => {
+                  const team = (obraToTeam as any)[f.id];
+                  if (!team) return;
+  
+                  const fLot = normalizeLotBuilding(f.lote_bld);
+                  let currentScore = 0;
+  
+                  // Check lot match
+                  if (fLot === normTsLot) {
+                    currentScore += 10; // High score for exact lot match
+                  } else if (normTsLot && fLot && (normTsLot.includes(fLot) || fLot.includes(normTsLot))) {
+                    currentScore += 3; // Partial lot match
+                  }
+  
+                  // Check jobsite words match
+                  const normFJob = normalizeJobSite(f.job_site);
+                  const wordScore = tsWords.filter((word: string) => normFJob.includes(word)).length;
+                  currentScore += wordScore * 5;
+  
+                  // Check client match
+                  const normFClient = normalizeJobSite(f.cliente);
+                  if (normFClient === normTsClient && normTsClient !== '') {
+                    currentScore += 2;
+                  }
+  
+                  if (currentScore >= 5 && (!bestMatch || currentScore > (bestMatch as any).score)) {
+                    bestMatch = { team, score: currentScore };
+                  }
+                });
+  
+                if (bestMatch && (bestMatch as any).team) return { name: (bestMatch as any).team, isMapped: true };
               return { 
                 name: `${row.jobsite || ''}${row.lot_building ? ' - ' + row.lot_building : ''}` || 'Obra não identificada', 
                 isMapped: false 
@@ -1121,36 +1104,7 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
     };
   }, [themeColors, selectedWorktypes, globalMonthlyData, filteredData, forecastProjects, forecastContractSteps, worktypeData.labels, jobsiteData.labels]);
 
-  const horizontalChartOptions: any = useMemo(() => ({
-    ...chartOptions,
-    indexAxis: 'y' as const,
-    scales: {
-      ...chartOptions.scales,
-      x: {
-        ...chartOptions.scales.x,
-        ticks: {
-          ...chartOptions.scales.x.ticks,
-          maxRotation: 0,
-          minRotation: 0,
-        },
-        title: {
-          display: true,
-          text: 'Hours',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
-        }
-      },
-      y: {
-        ...chartOptions.scales.y,
-        title: {
-          display: true,
-          text: 'Month / Year',
-          color: themeColors.textSecondary,
-          font: { size: 10, weight: 'bold' }
-        }
-      }
-    }
-  }), [chartOptions, themeColors.textSecondary]);
+  // const horizontalChartOptions: any = ... (removed unused)
 
   // Simple custom plugin for data labels
   const datalabelsPlugin = useMemo(() => ({
@@ -1387,7 +1341,15 @@ export default function WorkforceProductivity({ telaId: telaIdFromProps, usuario
                         </div>
                       </div>
                       <div className="flex-grow-1">
-                        <Bar key={projectLimit} data={jobsiteChartData} options={chartOptions} plugins={[datalabelsPlugin]} />
+                  <Bar 
+                    key={projectLimit} 
+                    data={{
+                      labels: jobsiteChartData.labels,
+                      datasets: jobsiteChartData.datasets
+                    } as any} 
+                    options={chartOptions} 
+                    plugins={[datalabelsPlugin]} 
+                  />
                       </div>
                     </div>
                   </ChartCard>

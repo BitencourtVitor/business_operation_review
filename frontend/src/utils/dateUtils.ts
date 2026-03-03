@@ -20,7 +20,7 @@ export const formatDateUSShort = (dateString?: string | null): string => {
     
     // Se está no formato YYYY-MM-DD, converter para MM/DD
     if (dateString.includes('-')) {
-      const [year, month, day] = dateString.split('-');
+      const [_year, month, day] = dateString.split('-');
       return `${month}/${day}`;
     }
     
@@ -134,7 +134,7 @@ export const isValidDate = (dateString: string): boolean => {
   
   try {
     const date = new Date(dateString + 'T00:00:00Z');
-    return !isNaN(date.getTime()) && dateString.match(/^\d{4}-\d{2}-\d{2}$/);
+    return !isNaN(date.getTime()) && !!dateString.match(/^\d{4}-\d{2}-\d{2}$/);
   } catch {
     return false;
   }

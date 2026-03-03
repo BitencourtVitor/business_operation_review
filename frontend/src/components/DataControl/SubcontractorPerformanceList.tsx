@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../../supabaseClient';
 import type { SubcontractorPerformance } from '../../types/dataControl';
 
@@ -8,10 +8,8 @@ interface SubcontractorPerformanceListProps {
 
 export default function SubcontractorPerformanceList({ obraId }: SubcontractorPerformanceListProps) {
   const [items, setItems] = useState<SubcontractorPerformance[]>([]);
-  const [loading, setLoading] = useState(false);
 
   const fetchItems = async () => {
-    setLoading(true);
     const { data } = await supabase
       .from('subcontractor_performance')
       .select('*')
@@ -19,7 +17,6 @@ export default function SubcontractorPerformanceList({ obraId }: SubcontractorPe
       .order('event_datetime', { ascending: false });
     
     if (data) setItems(data);
-    setLoading(false);
   };
 
   useEffect(() => {

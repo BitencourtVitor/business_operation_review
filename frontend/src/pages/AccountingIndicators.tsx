@@ -29,53 +29,8 @@ import AccountingTableModal from '../components/modals/AccountingTableModal';
 // Hooks
 import { useAccountingDataCached } from '../hooks/useAccountingDataCached';
 
-// Interfaces para os dados das partições (igual ao TimesheetAnalysis)
-interface Destaque {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  criado_em: string;
-  positivos: string[];
-  negativos: string[];
-}
-
-interface Oportunidade {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  titulo: string;
-  criado_em: string;
-  desafios: string[];
-  melhorias: string[];
-}
-
-
-
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
-
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  status: string;
-  data_limite: string;
-}
+import type { PlanoAcao } from '../types/planoAcao';
+import type { Destaque, Oportunidade } from '../types/partitions';
 
 interface AccountingIndicatorsProps {
   telaId: string;
@@ -755,11 +710,9 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                 setModalOpen(true);
                 return;
               }
+              
               // Se temos um usuarioId específico, usar apenas ele para buscar dados
-              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : 
-                (usuariosParaBuscar && usuariosParaBuscar.length > 0 
-                  ? usuariosParaBuscar 
-                  : (Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId : [usuarioResponsavelId]));
+              const usuariosParaBuscarDados = usuarioId ? [usuarioId] : usuariosParaBuscar;
               
               if (!usuariosParaBuscarDados || usuariosParaBuscarDados.length === 0) {
                 console.error('Nenhum usuário disponível para buscar dados');
@@ -793,8 +746,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                   id: '',
                   usuario_id: usuarioResponsavelId,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   criado_em: new Date().toISOString(),
                   positivos: [],
                   negativos: [],
@@ -804,7 +757,7 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
             }}
             onView={async (destaque) => {
               setModalType('destaque');
-              setModalData(destaque);
+              setModalData(destaque as Destaque);
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}
@@ -852,8 +805,8 @@ const AccountingIndicators: React.FC<AccountingIndicatorsProps> = ({ telaId: tel
                   id: '',
                   usuario_id: usuarioResponsavelId,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   titulo: '',
                   criado_em: new Date().toISOString(),
                   desafios: [],

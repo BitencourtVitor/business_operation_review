@@ -1,26 +1,19 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { usePremiumStorageData } from '../../hooks/usePremiumStorageData';
-import { supabase } from '../../supabaseClient';
 import { premiumStorageClient } from '../../premiumStorageClient';
 import { 
   ResponsiveContainer, 
-  LineChart, 
-  Line, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
-  Legend, 
   BarChart, 
   Bar,
   AreaChart,
   Area,
-  Cell,
-  LabelList
 } from 'recharts';
 import { format, parseISO } from 'date-fns';
 import InventoryControlFilters from './InventoryControlFilters';
-import MultiSelectDropdown from '../common/MultiSelectDropdown';
 
 interface InventoryControlProps {
   theme?: 'light' | 'dark';
@@ -230,39 +223,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return fullYearData;
   }, [detalhesExcesso, selectedYear, productPrices]);
 
-  const uniqueProducts = useMemo(() => {
-    return Array.from(new Set(historicoSaldo.map(h => h.product_nome))).sort();
-  }, [historicoSaldo]);
-
-  // Determine products below minimum for the selected month/year
-  const productStatus = useMemo(() => {
-    const statusMap = new Map<string, boolean>();
-    
-    // Sort historicoSaldo by date to ensure we get the latest status if no month is selected
-    const sortedHistory = [...historicoSaldo].sort((a, b) => a.mes.localeCompare(b.mes));
-
-    sortedHistory.forEach(h => {
-      const match = h.mes.match(/^(\d{4})-(\d{2})/);
-      if (!match) return;
-      
-      const year = match[1];
-      const month = match[2];
-
-      if (selectedYear && year !== selectedYear) return;
-      
-      if (selectedMonth) {
-        if (parseInt(month) === parseInt(selectedMonth)) {
-          statusMap.set(h.product_nome, h.abaixo_minimo);
-        }
-      } else {
-        statusMap.set(h.product_nome, h.abaixo_minimo);
-      }
-    });
-    
-    return statusMap;
-  }, [historicoSaldo, selectedYear, selectedMonth]);
-
-  // 3. Excess Projects Data (Filtered) - Matching Subcontractor Performance logic
+  // Filters and transformations
   const filteredExcess = useMemo(() => {
       const filtered = detalhesExcesso
       .filter(d => {
@@ -325,30 +286,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return Object.values(grouped).sort((a: any, b: any) => a.project_nome.localeCompare(b.project_nome));
   }, [detalhesExcesso, selectedYear, selectedMonth, months]);
 
-  // 4. Spending Data (Filtered)
-  const spendingData = useMemo(() => {
-    return gastosUsuario
-      .filter(u => {
-        const match = u.mes.match(/^(\d{4})-(\d{2})/);
-        if (!match) return true;
-        
-        const year = match[1];
-        const month = match[2];
-        
-        if (selectedYear && year !== selectedYear) return false;
-        if (selectedMonth && parseInt(month) !== parseInt(selectedMonth)) return false;
-        
-        return true;
-      })
-      .map(u => ({
-        name: u.usuario_nome,
-        value: u.valor_total_retirado,
-        role: u.role
-      }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 8);
-  }, [gastosUsuario, selectedYear, selectedMonth]);
-
+  // Chart Data Preparation
   const averageAdherence = useMemo(() => {
     if (selectedMonth) {
       const selectedMonthNum = selectedMonth.padStart(2, '0');
@@ -449,7 +387,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return 'var(--negative-color)';
   };
 
-  const InventoryTooltip = ({ active, payload, label }: any) => {
+  const InventoryTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
@@ -588,7 +526,7 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
   };
 
   const CustomLabel = (props: any) => {
-    const { x, y, value, index } = props;
+    const { x, y, index } = props;
     const data = adherenceData[index];
     if (!data || data.total === 0) return null;
 

@@ -43,13 +43,13 @@ export function useTimesheetData() {
       const timesheetData = await fetchAllData('timesheet_analysis');
       
       // Transformar os dados para o formato esperado
-      const transformedData: TimesheetRow[] = (timesheetData || []).map((row: Record<string, unknown>) => ({
-        id: row.id.toString(),
-        date: row.date,
-        nome: normalizeUtf8String(row.nome),
-        error: normalizeUtf8String(row.error),
-        team: normalizeUtf8String(row.team),
-        corporation: normalizeUtf8String(row.corporation),
+      const transformedData: TimesheetRow[] = (timesheetData || []).map((row: any) => ({
+        id: row.id?.toString() || '',
+        date: row.date?.toString() || '',
+        nome: normalizeUtf8String(row.nome as string),
+        error: normalizeUtf8String(row.error as string),
+        team: normalizeUtf8String(row.team as string),
+        corporation: normalizeUtf8String(row.corporation as string),
         payrate: row.payrate?.toString() || '',
         add_time_hour: row.add_time_hour?.toString() || '',
         remove_time_hour: row.remove_time_hour?.toString() || '',

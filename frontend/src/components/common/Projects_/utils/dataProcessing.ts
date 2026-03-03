@@ -103,7 +103,7 @@ export function processProjectData({
     billLinksByTxnId.get(link.txn_id)!.push(link);
   });
 
-  return estimates.map((est) => {
+  return estimates.map((est): ProjectRelational => {
     // Linhas do estimate
     const lines = estimate_lines.filter((l) => l.estimate_id === est.id);
     // Bills: buscar bill_lines com mesmo customer_id OU customer_name
@@ -178,29 +178,29 @@ export function processProjectData({
       billLinesByBillId.get(line.bill_id)!.push(line);
     });
     // Para cada bill, pegar todas as suas bill_lines
-    const billsArr = Array.from(billLinesByBillId.entries()).map(([billId, lines]) => {
+    const billsArr = Array.from(billLinesByBillId.entries()).map(([billId, lines]): Bill | null => {
       const bill = billsById.get(billId);
       if (!bill) return null;
       // Bill payments
       const billPaymentLinks = billPaymentLinksByTxnId.get(bill.external_id) || [];
       const billPayments = billPaymentLinks.map((link) => {
         const billPayment = billPaymentsById.get(link.bill_payment_id);
-        return billPayment ? {
+        if (!billPayment) return null;
+        const bp: { id: string; doc_number?: string | null; total_amount?: number | null; txn_date?: string | null; private_note?: string | null } = {
           id: billPayment.id,
           doc_number: billPayment.doc_number,
           total_amount: billPayment.total_amount,
           txn_date: billPayment.txn_date,
           private_note: billPayment.private_note
-        } : null;
-      }).filter((bp) => bp !== null);
+        };
+        return bp;
+      }).filter((bp): bp is NonNullable<typeof bp> => bp !== null);
       return {
-        bill: {
-          id: bill.id,
-          doc_number: bill.doc_number || '',
-          external_id: bill.external_id,
-          total_amount: bill.total_amount || 0,
-          txn_date: bill.txn_date
-        },
+        id: bill.id,
+        doc_number: bill.doc_number || '',
+        external_id: bill.external_id,
+        total_amount: bill.total_amount || 0,
+        txn_date: bill.txn_date,
         lines: lines.map((line) => ({
           id: line.id,
           description: line.description,
@@ -209,18 +209,30 @@ export function processProjectData({
         })),
         bill_payments: billPayments
       };
-    }).filter((b) => b !== null);
+    }).filter((b): b is Bill => b !== null);
     // Invoices
-    const invoicesArr = (invoicesByCustomer.get(est.customer_id + '|' + est.customer_name) || []).map((inv) => {
+    const invoicesArr = (invoicesByCustomer.get(est.customer_id + '|' + est.customer_name) || []).map((inv): Invoice => {
       const paymentLinks = paymentLinksByTxnIdType.get(inv.external_id + '|Invoice') || [];
       const paymentsArr = paymentLinks.map((pl) => pl.payment_id ? paymentsById.get(pl.payment_id) : undefined).filter((p) => !!p);
-      return { ...inv, payments: paymentsArr };
+      return { 
+        id: inv.id,
+        doc_number: inv.doc_number,
+        total_amount: inv.total_amount,
+        txn_date: inv.txn_date,
+        payments: paymentsArr.map(p => ({
+          id: p.id,
+          total_amount: p.total_amount,
+          txn_date: p.txn_date,
+          payment_ref: p.doc_number,
+          private_note: p.private_note
+        }))
+      };
     });
     // Payments dos invoices deste estimate
     const paymentsArr: any[] = [];
-    invoicesArr.forEach((inv) => {
+    invoicesArr.forEach((inv: Invoice) => {
       if (Array.isArray(inv.payments)) {
-        inv.payments.forEach((p: any) => {
+        inv.payments.forEach((p) => {
           if (!paymentsArr.find(x => x.id === p.id)) paymentsArr.push(p);
         });
       }

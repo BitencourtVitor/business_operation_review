@@ -90,17 +90,6 @@ export default function ProjectMonitoringFilters({
 
   const availableWeeks = getAvailableWeeks();
   
-  // Debug temporário para verificar semanas
-  if (selectedYear) {
-    // Debug das semanas
-    const weekDebug = {
-      selectedYear,
-      selectedMonth,
-      availableWeeks,
-      uniqueWeeks: [...new Set(availableWeeks)]
-    };
-  }
-  
   // Garantir que as semanas sejam únicas
   const uniqueWeeks = [...new Set(availableWeeks)].sort((a, b) => a - b);
   

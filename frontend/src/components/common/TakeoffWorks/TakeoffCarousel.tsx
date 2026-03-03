@@ -450,7 +450,7 @@ export default function TakeoffCarousel({ filteredData }: { filteredData: Takeof
                       pointerEvents: isDisabled ? 'none' : undefined,
                     }}
                   >
-                    <span style={{ fontSize: 7, color: getTakeoffStatusColor(status as 'Not Started' | 'In Progress' | 'Completed' | 'Pending') }}>
+                    <span style={{ fontSize: 7, color: draggedStatus === status ? '#fff' : getTakeoffStatusColor(status as 'Not Started' | 'In Progress' | 'Completed' | 'Pending') }}>
                       <i className="bi bi-circle-fill" />
                     </span>
                     {status}

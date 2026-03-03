@@ -1,4 +1,3 @@
-import React from 'react';
 import MetricTooltip from '../../tooltips/MetricTooltip';
 import type { ServiceRequestRow } from '../../../types/service';
 

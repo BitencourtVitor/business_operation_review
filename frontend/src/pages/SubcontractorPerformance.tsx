@@ -44,6 +44,7 @@ interface MaterialUsageData {
     project_details?: { name: string; value: number }[];
   }
 
+/* 
 interface ExcessiveWithdrawalData {
   subcontractor: string;
   count: number;
@@ -55,7 +56,9 @@ interface ExcessiveWithdrawalData {
     date: string;
   }[];
 }
+*/
 
+/*
 interface BackchargeStat {
   subcontractor: string;
   totalHours: number;
@@ -63,6 +66,7 @@ interface BackchargeStat {
   avgHoursPerOccurrence: number;
   details: BackchargeData[];
 }
+*/
 
 interface ProjectData {
   id: string;
@@ -127,8 +131,8 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     visible: boolean; 
     x: number; 
     y: number; 
-    content: any[] | { items: any[], excessive: any[] }; 
-    type: 'execution' | 'backcharge' | 'excess' | 'overall'
+    content: any; 
+    type: 'execution' | 'backcharge' | 'excess' | 'overall' | 'contract'
   }>({
     visible: false,
     x: 0,
@@ -151,6 +155,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     }));
   };
 
+  /* 
   const SortIcon = ({ columnKey }: { columnKey: string }) => {
     if (!rankingSort || rankingSort.key !== columnKey) {
       return <i className="bi bi-arrow-down-up ms-2" style={{ fontSize: '10px', opacity: 0.3 }} />;
@@ -176,6 +181,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
     top: 0,
     zIndex: 10
   };
+  */
 
   useEffect(() => {
     fetchData();
@@ -269,7 +275,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
         const { data: stepsData, error: sError } = await supabase
           .from('forecast_contract_steps')
           .select('obra_id, team')
-          .not('team', 'is', null);
+          .neq('team', ''); // Filter out any accidental empty strings
 
         if (fError || sError) {
           console.error('Error fetching forecast mapping data:', fError || sError);
@@ -320,7 +326,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
             }
 
             // 2. Try partial match
-            const tsWords = normTsJob.split(' ').filter(w => w.length > 2);
+            const tsWords = normTsJob.split(' ').filter((w: string) => w.length > 2);
             let bestMatch: { team: string; score: number; forecastJobsite?: string } | null = null;
 
             forecastData?.forEach(f => {
@@ -339,7 +345,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
               }
 
               // Check jobsite words match
-              const wordScore = tsWords.filter(word => normFJob.includes(word)).length;
+              const wordScore = tsWords.filter((word: string) => normFJob.includes(word)).length;
               currentScore += wordScore * 5;
 
               // Check client match (Low priority, as it might be an employee name in timesheet)
@@ -348,13 +354,16 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 currentScore += 2;
               }
 
-              if (currentScore > 0 && (!bestMatch || currentScore > bestMatch.score)) {
+              if (currentScore > 0 && (!bestMatch || currentScore > (bestMatch as any).score)) {
                 bestMatch = { team, score: currentScore, forecastJobsite: `${f.job_site} ${f.lote_bld || ''}` };
               }
             });
 
             // Minimum score threshold to avoid false positives
-            return (bestMatch && bestMatch.score >= 5) ? { team: bestMatch.team, forecastJobsite: bestMatch.forecastJobsite } : null;
+            if (bestMatch && (bestMatch as any).score >= 5) {
+              return { team: (bestMatch as any).team, forecastJobsite: (bestMatch as any).forecastJobsite };
+            }
+            return null;
           };
 
           const mappedBackcharges: BackchargeData[] = tsData?.map(ts => {
@@ -471,7 +480,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 }
 
                 // Aggregate product details
-                currentItemsDetails.forEach(newItem => {
+                currentItemsDetails.forEach((newItem: any) => {
                   const existingItem = groupedMap[groupKey].items_details?.find(i => i.product === newItem.product);
                   if (existingItem) {
                     existingItem.quantity += newItem.quantity;
@@ -489,14 +498,14 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                 if (!matchedSub && teamName !== 'INTERNAL / NO TEAM') {
                   const ignoreWords = ['CONSTRUCTION', 'SERVICES', 'INC', 'CORP', 'LLC', 'AND', 'THE', 'PANELS', 'SYSTEMS', 'GROUP'];
                   const teamWords = normalizedTeam.split(/[\s,.-]+/)
-                    .filter(w => w.length > 2 && !ignoreWords.includes(w));
+                    .filter((w: string) => w.length > 2 && !ignoreWords.includes(w));
                   
                   if (teamWords.length > 0) {
                     matchedSub = subcontractorsList.find(sub => {
                       const normSub = sub.trim().toUpperCase();
                       const subWords = normSub.split(/[\s,.-]+/)
-                        .filter(w => w.length > 2 && !ignoreWords.includes(w));
-                      return teamWords.some(word => subWords.includes(word));
+                        .filter((w: string) => w.length > 2 && !ignoreWords.includes(w));
+                      return teamWords.some((word: string) => subWords.includes(word));
                     });
                   }
                 }
@@ -681,7 +690,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
 
   }, [rawEvents, projectData, contractData, selectedYear, selectedMonth, rankingSort]);
 
-  const rankingData = executionRanking;
+  // const rankingData = executionRanking; // removed unused
 
   const backchargeRanking = useMemo(() => {
     if (!backchargeData.length) return [];
@@ -1620,10 +1629,10 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
           {tooltip.type === 'overall' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {[
-                { key: 'duration', label: 'Execution', score: tooltip.content.duration.score, isDefault: tooltip.content.duration.isDefault },
-                { key: 'contract', label: 'Contract', score: tooltip.content.contract.score, isDefault: tooltip.content.contract.isDefault },
-                { key: 'backcharge', label: 'Backcharges', score: tooltip.content.backcharge.score, isDefault: tooltip.content.backcharge.isDefault },
-                { key: 'excess', label: 'Excess', score: tooltip.content.excess.score, isDefault: tooltip.content.excess.isDefault },
+                { key: 'duration', label: 'Execution', score: (tooltip.content as any).duration.score, isDefault: (tooltip.content as any).duration.isDefault },
+                { key: 'contract', label: 'Contract', score: (tooltip.content as any).contract.score, isDefault: (tooltip.content as any).contract.isDefault },
+                { key: 'backcharge', label: 'Backcharges', score: (tooltip.content as any).backcharge.score, isDefault: (tooltip.content as any).backcharge.isDefault },
+                { key: 'excess', label: 'Excess', score: (tooltip.content as any).excess.score, isDefault: (tooltip.content as any).excess.isDefault },
               ].map((item, i) => {
                 const isDefault = item.isDefault;
                 return (

@@ -17,6 +17,8 @@ import DestaquesPartition from '../components/partitions/DestaquesPartition';
 import OportunidadesPartition from '../components/partitions/OportunidadesPartition';
 import PlanoAcaoPartition from '../components/partitions/PlanoAcaoPartition';
 
+import type { PlanoAcao } from '../types/planoAcao';
+
 dayjs.extend(isBetween);
 
 // Interfaces para os dados das partições
@@ -43,37 +45,14 @@ interface Oportunidade {
   melhorias: string[];
 }
 
-interface PlanoAcao {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  titulo: string;
-  descricao: string;
-  criado_em: string;
-  data_inicio: string;
-  data_fim: string;
-  acoes: Acao[];
-  deletado?: boolean;
-}
-
-interface Acao {
-  id: string;
-  plano_id: string;
-  titulo: string;
-  responsavel: string;
-  status: string;
-  data_limite: string;
-}
-
 interface ServiceRequestsProps {
   telaId: string;
   usuarioId: string;
   role: string;
   isResponsavelPelaTela: boolean;
-  financialPass: boolean;
 }
 
-export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela, financialPass }: ServiceRequestsProps) {
+export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, role, isResponsavelPelaTela }: ServiceRequestsProps) {
   const [telaId] = useState<string>(telaIdFromProps);
   const [usuarioResponsavelId, setUsuarioResponsavelId] = useState<string>('');
   const [usuariosParaBuscar, setUsuariosParaBuscar] = useState<string[]>([]);
@@ -416,8 +395,8 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
                 id: '',
                 usuario_id: usuariosParaBuscarDados[0],
                 tela_id: telaId,
-                mes: mesRef,
-                ano: anoRef,
+                mes: mesRef.toString(),
+                ano: anoRef.toString(),
                 criado_em: new Date().toISOString(),
                 positivos: [],
                 negativos: [],
@@ -426,7 +405,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
             }}
             onView={async (destaque) => {
               setModalType('destaque');
-              setModalData(destaque);
+              setModalData(destaque as Destaque);
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}
@@ -435,8 +414,8 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             telaId={telaId}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
+            selectedYear={Number(selectedYear)}
+            selectedMonth={Number(selectedMonth)}
             isAdmin={podeEditar}
             onEdit={async (mes, ano) => {
               setModalType('oportunidade');
@@ -449,10 +428,10 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               }
               setModalData({
                 id: '',
-                usuario_id: usuarioResponsavelId,
+                usuario_id: Array.isArray(usuarioResponsavelId) ? usuarioResponsavelId[0] : usuarioResponsavelId,
                 tela_id: telaId,
-                mes: mesRef,
-                ano: anoRef,
+                mes: mesRef.toString(),
+                ano: anoRef.toString(),
                 titulo: '',
                 criado_em: new Date().toISOString(),
                 desafios: [],
@@ -491,15 +470,16 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               setModalType('plano');
               setModalData({
                 id: '',
-                usuario_id: usuarioResponsavelId,
+                usuario_id: usuarioId,
                 tela_id: telaId,
                 titulo: '',
                 descricao: '',
                 criado_em: new Date().toISOString(),
-                data_inicio: '',
+                data_inicio: new Date().toISOString().split('T')[0],
                 data_fim: '',
+                status: 'open',
                 acoes: [],
-              });
+              } as PlanoAcao);
               setModalOpen(true);
             }}
             onView={async (plano) => {
@@ -507,7 +487,7 @@ export default function ServiceRequests({ telaId: telaIdFromProps, usuarioId, ro
               setModalData({
                 ...plano,
                 tela_id: telaId,
-              });
+              } as PlanoAcao);
               setViewModalOpen(true);
             }}
             refreshTrigger={refreshTrigger}

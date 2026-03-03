@@ -1,5 +1,5 @@
 import { formatDateUS } from '../../../utils/formatters';
-import type { WorkforceProject } from './types';
+import type { WorkforceProject, ForecastProjectStatus } from './types';
 import {
   isFieldwireComplete,
   isMachinesComplete,
@@ -9,8 +9,7 @@ import {
   getContractProgress,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
-  getProjectTeams,
-  type ForecastProjectStatus
+  getProjectTeams
 } from './helpers';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { formatDate } from '../../../utils/formatters';
 
 interface ForecastData {
@@ -54,7 +53,7 @@ export default function ForecastTable({ forecastData }: ForecastTableProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {forecastData.map((item, index) => (
+                  {forecastData.map((item) => (
                     <tr key={`${item.cliente}-${item.job_site}-${item.month}-${item.year}`} style={{ borderBottom: '1px solid var(--color-border-divider)' }}>
                       <td style={{ color: 'var(--color-text-primary)', fontSize: 14, padding: '12px', fontWeight: 500 }}>
                         {item.cliente}

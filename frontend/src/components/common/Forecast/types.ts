@@ -5,7 +5,7 @@ export interface ForecastFieldwire {
   obra_id: string;
   category: string | null;
   document: string | null;
-  status: boolean | null;
+  status: string | null;
   lastupdate_datetimez: string | null;
 }
 
@@ -16,7 +16,7 @@ export interface ForecastMachine {
   subcategory: string | null;
   equipment_category: string | null;
   title: string | null;
-  status: boolean | null;
+  status: string | null;
   unit: string | null;
   lastupdate_datetimez: string | null;
 }
@@ -26,7 +26,7 @@ export interface ForecastContractStep {
   obra_id: string;
   team: string;
   step: string | null;
-  status: boolean | null;
+  status: string | null;
   lastupdate_datetimez: string | null;
 }
 

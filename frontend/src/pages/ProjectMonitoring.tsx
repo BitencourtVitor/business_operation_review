@@ -24,32 +24,9 @@ import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 import sublogoPcg from '../assets/submenu/sublogo_pcg.png';
 
 import type { PlanoAcao } from '../types/planoAcao';
+import type { Destaque, Oportunidade } from '../types/partitions';
 
 dayjs.extend(isBetween);
-
-// Interfaces para os dados das partições
-interface Destaque {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  criado_em: string;
-  positivos: string[];
-  negativos: string[];
-}
-
-interface Oportunidade {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  titulo: string;
-  criado_em: string;
-  desafios: string[];
-  melhorias: string[];
-}
 
 interface ProjectMonitoringProps {
   telaId: string;
@@ -521,8 +498,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
                   id: '',
                   usuario_id: usuarioResponsavelId,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   criado_em: new Date().toISOString(),
                   positivos: [],
                   negativos: [],
@@ -579,8 +556,8 @@ export default function ProjectMonitoring({ telaId: telaIdFromProps, usuarioId, 
                   id: '',
                   usuario_id: usuarioResponsavelId,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   titulo: '',
                   criado_em: new Date().toISOString(),
                   desafios: [],

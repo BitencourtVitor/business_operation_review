@@ -6,18 +6,14 @@ interface DataControlFiltersProps {
   setViewMode: (mode: string) => void;
   filterStatus?: string;
   setFilterStatus?: (status: string) => void;
-  theme?: 'light' | 'dark';
 }
 
 export default function DataControlFilters({
   viewMode,
   setViewMode,
   filterStatus,
-  setFilterStatus,
-  theme
+  setFilterStatus
 }: DataControlFiltersProps) {
-  const isDarkMode = theme !== undefined ? theme === 'dark' : document.documentElement.classList.contains('dark');
-  
   const viewOptions = [
     { label: 'Info & Dates', value: 'Info & Dates', icon: 'bi-info-circle' },
     { label: 'Fieldwire', value: 'Fieldwire', icon: 'fieldwire' },

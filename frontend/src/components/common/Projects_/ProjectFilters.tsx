@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '../../../supabaseClient';
-import MultiSelectDropdown from '../MultiSelectDropdown';
 import Tooltip from '../../tooltips/MetricTooltip';
 
 const JOBSITE_BUTTON_WIDTH = 180;

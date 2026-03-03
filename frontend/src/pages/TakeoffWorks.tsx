@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../supabaseClient';
-import { addCurrentMonthIfMissing, getAllMonths } from '../utils/dataUtils';
+import { getAllMonths } from '../utils/dataUtils';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import DestaqueModal from '../components/modals/DestaqueModal';
@@ -489,8 +489,9 @@ export default function TakeoffWorks({ telaId: telaIdFromProps, usuarioId, role,
                 criado_em: new Date().toISOString(),
                 data_inicio: '',
                 data_fim: null,
+                status: 'open',
                 acoes: [],
-              });
+              } as PlanoAcao);
               setModalOpen(true);
             }}
             onView={async (plano) => {

@@ -214,6 +214,7 @@ export default function FuelControl({ telaId: telaIdFromProps, financialPass }: 
       
       // Combinar e ordenar anos únicos
       const allYears = [...new Set([...samsaraYears, ...wexYears])]
+        .filter((y): y is string => !!y)
         .sort((a, b) => Number(b) - Number(a));
       
       setYears(allYears);
@@ -222,7 +223,7 @@ export default function FuelControl({ telaId: telaIdFromProps, financialPass }: 
       if (!hasSetDefaultYearRef.current && allYears.length > 0 && !selectedYear) {
         // Priorizar 2025 se existir dados de setembro, caso contrário usar o primeiro ano
         const hasSeptember2025Data = (samsaraSeptember2025.length > 0 || wexSeptember2025.length > 0);
-        const defaultYear = (allYears.includes('2025') && hasSeptember2025Data) ? '2025' : allYears[0];
+        const defaultYear = (allYears.includes('2025') && hasSeptember2025Data) ? '2025' : (allYears[0] || '');
         setSelectedYear(defaultYear);
         hasSetDefaultYearRef.current = true;
       }

@@ -115,7 +115,6 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
             // Determina qual é o maior valor para definir o comportamento
             const isInvoiceLargest = invoicesTotal >= estimateTotal && invoicesTotal >= expensesTotal;
             const isEstimateLargest = estimateTotal >= expensesTotal && estimateTotal >= invoicesTotal;
-            const isExpenseLargest = expensesTotal >= estimateTotal && expensesTotal >= invoicesTotal;
             
             // Calcula as porcentagens baseado no cenário
             let expensePercentage, estimatePercentage, invoicePercentage;

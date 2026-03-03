@@ -766,7 +766,6 @@ export default function MonthlyExecution({ telaId: _telaId, usuarioId: _usuarioI
 
   const { totalCaptured, stillPlanned } = getPlannedMetrics();
   const { finishedAndStarted, finishedNotStartedInMonth } = getFinishedProjects();
-  const finishedPlanned = allProjects.filter(p => p.isFinished && p.isPlanned).length;
 
   return (
     <div id="content" style={{ height: 'calc(100vh - 65px)', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'var(--color-background-primary)' }}>

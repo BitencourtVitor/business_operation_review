@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { WorkforceProject, DateMode } from './types';
 import { 
   isFieldwireComplete, 
