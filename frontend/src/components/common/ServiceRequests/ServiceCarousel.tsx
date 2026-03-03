@@ -16,12 +16,6 @@ const STATUS = {
   'Completed': { color: '#1bbf5c', icon: 'bi-circle-fill' },
 };
 
-const formatDate = (date?: string | null) => {
-  if (!date) return '-';
-  const d = new Date(date);
-  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-};
-
 // Função para calcular tempo de resolução considerando todas as condições
 const calculateResolutionTimeAdvanced = (service: ServiceRequestRow): { days: number; isOnTime: boolean; startDate: string; endDate: string; reason: string } => {
   if (!service.date_received) return { days: 0, isOnTime: false, startDate: '', endDate: '', reason: 'No start date' };

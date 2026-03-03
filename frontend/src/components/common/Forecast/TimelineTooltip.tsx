@@ -1,4 +1,3 @@
-import React from 'react';
 import iconForecastHvac from '../../../assets/icon_forecast_hvac.png';
 import iconForecastHvacDark from '../../../assets/icon_forecast_hvac_darkmode.png';
 import iconFieldwire from '../../../assets/fieldwire.png';

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import logoWhite from '../../assets/logo_white.png';
 import logoBlack from '../../assets/logo_black.png';
 import type { Tela, Permissao } from '../../types/common';

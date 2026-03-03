@@ -538,7 +538,7 @@ export default function Dashboard() {
       case 'Takeoff Works':
         return <TakeoffWorks telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Service Requests':
-        return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} financialPass={financialPass && showFinancialData} />;
+        return <ServiceRequests telaId={telaId} usuarioId={usuarioId} role={role} isResponsavelPelaTela={isResponsavelPelaTela} />;
       case 'Forecast':
         if (selectedForecastType === 'Operational Index') {
           return <OperationalForecastIndex />;

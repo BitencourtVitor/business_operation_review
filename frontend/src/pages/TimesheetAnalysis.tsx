@@ -10,7 +10,8 @@ import DestaqueViewModal from '../components/modals/DestaqueViewModal';
 import OportunidadeViewModal from '../components/modals/OportunidadeViewModal';
 import PlanoAcaoViewModal from '../components/modals/PlanoAcaoViewModal';
 import type { TimesheetRow } from '../types/timesheet';
-import type { PlanoAcao, Acao } from '../types/planoAcao';
+import type { PlanoAcao } from '../types/planoAcao';
+import type { Destaque, Oportunidade } from '../types/partitions';
 import { useTimesheetData } from '../hooks/useTimesheetData';
 import TimesheetFilters from '../components/common/TimesheetAnalysis/TimesheetFilters';
 import TimesheetMetrics from '../components/common/TimesheetAnalysis/TimesheetMetrics';
@@ -20,33 +21,8 @@ import DestaquesPartition from '../components/partitions/DestaquesPartition';
 import OportunidadesPartition from '../components/partitions/OportunidadesPartition';
 import PlanoAcaoPartition from '../components/partitions/PlanoAcaoPartition';
 
+// dayjs plugin
 dayjs.extend(isBetween);
-
-// Interfaces para os dados das partições
-interface Destaque {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  criado_em: string;
-  positivos: string[];
-  negativos: string[];
-}
-
-interface Oportunidade {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  titulo: string;
-  criado_em: string;
-  desafios: string[];
-  melhorias: string[];
-}
-
-
 
 interface TimesheetAnalysisProps {
   telaId: string;
@@ -387,8 +363,8 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
                   id: '',
                   usuario_id: usuarioIdParaNovo,
                   tela_id: telaId,
-                  mes: mesRef,
-                  ano: anoRef,
+                  mes: mesRef.toString(),
+                  ano: anoRef.toString(),
                   criado_em: new Date().toISOString(),
                   positivos: [],
                   negativos: [],
@@ -407,8 +383,8 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
             usuarioResponsavelId={usuarioResponsavelId}
             usuariosParaBuscar={usuariosParaBuscar}
             telaId={telaId}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
+            selectedYear={Number(selectedYear)}
+            selectedMonth={Number(selectedMonth)}
             isAdmin={podeEditar}
             usuarioLogadoId={usuarioId}
             onEdit={async (mes, ano, usuarioId) => {
@@ -549,8 +525,9 @@ export default function TimesheetAnalysis({ telaId: telaIdFromProps, usuarioId, 
                 criado_em: new Date().toISOString(),
                 data_inicio: '',
                 data_fim: null,
+                status: 'open',
                 acoes: [],
-              });
+              } as PlanoAcao);
               setModalOpen(true);
             }}
             onView={async (plano) => {

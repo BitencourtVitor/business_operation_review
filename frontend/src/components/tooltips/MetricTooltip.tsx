@@ -6,9 +6,10 @@ interface TooltipProps {
   content: string;
   placement?: 'bottom-right' | 'top' | 'bottom' | 'left' | 'right';
   style?: React.CSSProperties;
+  agingDetails?: { interval: string; value: number; percentage: number }[];
 }
 
-const Tooltip: React.FC<TooltipProps> = ({ children, title, content, placement = 'bottom-right', style }) => {
+const Tooltip: React.FC<TooltipProps> = ({ children, title, content, placement = 'bottom-right', style, agingDetails }) => {
   const [showTooltip, setShowTooltip] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
@@ -59,6 +60,20 @@ const Tooltip: React.FC<TooltipProps> = ({ children, title, content, placement =
           <div style={{ fontWeight: 600, color: 'var(--color-accent-primary)', marginBottom: 8 }}>{title}</div>
           <div style={{ borderTop: '1px solid var(--color-border-divider)', margin: '0 -12px', width: 'calc(100% + 24px)' }} />
           <div style={{ paddingTop: 10, color: 'var(--color-text-secondary)', lineHeight: 1.5 }}>{content}</div>
+          {agingDetails && agingDetails.length > 0 && (
+            <div style={{ marginTop: 12, borderTop: '1px solid var(--color-border-divider)', paddingTop: 8 }}>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', color: 'var(--color-text-secondary)', marginBottom: 6, fontWeight: 600 }}>Aging Detail</div>
+              {agingDetails.map((detail, idx) => (
+                <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                  <span style={{ fontSize: 12 }}>{detail.interval}</span>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <span style={{ fontSize: 12, fontWeight: 500 }}>${detail.value.toLocaleString()}</span>
+                    <span style={{ fontSize: 11, color: 'var(--color-accent-primary)', minWidth: 40, textAlign: 'right' }}>{detail.percentage.toFixed(0)}%</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

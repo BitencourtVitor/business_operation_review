@@ -507,24 +507,11 @@ export function AccountingChart({
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
-        // Log da adição do dataset
-        const datasetSummary = {
-          selectedGroup,
-          separateAging,
-          message: 'Adicionando dataset de payables'
-        };
-        
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(dia => {
           const value = payablesSumByDay[dia] || 0;
           payablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
-        
-        // Log dos dados do dataset
-        const dataSummary = {
-          dataArray: payablesData,
-          message: 'Payables data array'
-        };
         
         chartDatasets.push({
           label: 'Payables',
@@ -540,18 +527,6 @@ export function AccountingChart({
           tension: 0.25,
           spanGaps: true, // conectar pontos mesmo quando há gaps
         });
-        
-        // Log de confirmação
-        const confirmSummary = {
-          message: 'Dataset de payables adicionado'
-        };
-      } else {
-        // Log quando não adiciona dataset
-        const skipSummary = {
-          selectedGroup,
-          separateAging,
-          message: 'NÃO adicionando dataset de payables'
-        };
       }
     } else if (selectedYear) {
       // Gráfico mês a mês do ano selecionado
@@ -804,24 +779,11 @@ export function AccountingChart({
       
       // Adicionar payables apenas se não estiver filtrando por receivables e não estiver separando por aging
       if (selectedGroup !== 'receivables' && !separateAging) {
-        // Log da adição do dataset
-        const datasetSummary = {
-          selectedGroup,
-          separateAging,
-          message: 'Adicionando dataset de payables'
-        };
-        
         const payablesData: (number | null)[] = [];
         chartLabels.forEach(mes => {
           const value = payablesSumByMonth[mes] || 0;
           payablesData.push(value > 0 ? value : 0); // 0 se não há dados
         });
-        
-        // Log dos dados do dataset
-        const dataSummary = {
-          dataArray: payablesData,
-          message: 'Payables data array'
-        };
         
         chartDatasets.push({
           label: 'Payables',
@@ -837,18 +799,6 @@ export function AccountingChart({
           tension: 0.25,
           spanGaps: true, // conectar pontos mesmo quando há gaps
         });
-        
-        // Log de confirmação
-        const confirmSummary = {
-          message: 'Dataset de payables adicionado'
-        };
-      } else {
-        // Log quando não adiciona dataset
-        const skipSummary = {
-          selectedGroup,
-          separateAging,
-          message: 'NÃO adicionando dataset de payables'
-        };
       }
     }
 
@@ -966,7 +916,7 @@ export function AccountingChart({
 
     // Verificar se há dados válidos
     const hasData = chartDatasets.length > 0 && chartDatasets.some(dataset => 
-      dataset.data.some(value => value > 0)
+      dataset.data.some(value => value !== null && value > 0)
     );
 
     return { chartData, chartOptions, hasData };

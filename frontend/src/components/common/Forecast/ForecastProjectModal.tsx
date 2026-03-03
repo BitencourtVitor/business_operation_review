@@ -1,12 +1,10 @@
 import { useState, useRef } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
-import type { WorkforceProject } from './types';
+import type { WorkforceProject, ForecastProjectStatus } from './types';
 import { 
-  getOverdueType,
   getProjectCompletionMetrics,
   getForecastProjectStatus,
-  getProjectTeams,
-  type ForecastProjectStatus
+  getProjectTeams
 } from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';

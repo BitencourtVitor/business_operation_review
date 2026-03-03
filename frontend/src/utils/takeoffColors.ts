@@ -6,6 +6,7 @@ export const TAKEOFF_STATUS_COLORS = {
   'Not Started': '#dc3545', // Vermelho - não iniciado
   'In Progress': '#ffb300', // Amarelo mais escuro - em progresso (mais legível)
   'Completed': '#1bbf5c', // Verde - concluído
+  'Pending': '#6c757d', // Cinza - pendente
 } as const;
 
 // Função para obter cor do status

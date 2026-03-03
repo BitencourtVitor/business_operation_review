@@ -49,7 +49,7 @@ const PlanoAcaoViewModal: React.FC<PlanoAcaoViewModalProps> = ({ show, onClose, 
     }
     
     // Caso contrário, mantém o status original
-    return acao.status;
+    return acao.status || 'pending';
   };
 
   const formatDate = (dateString: string | null) => {

@@ -5,18 +5,7 @@ import PartitionCard from './PartitionCard';
 import EmptyMessage from './EmptyMessage';
 import PartitionLoading from './PartitionLoading';
 
-// Tipos para os dados
-interface Destaque {
-  id: string;
-  usuario_id: string;
-  tela_id: string;
-  mes: string;
-  ano: string;
-  criado_em: string;
-  positivos: string[];
-  negativos: string[];
-  usuario_nome?: string; // Nome do usuário que criou o destaque
-}
+import { type Destaque } from '../../types/partitions';
 
 // Função para formatar *...*, **...**, ***...***
 function parseAsterisksFormatting(text: string): React.ReactNode {
@@ -68,11 +57,11 @@ interface DestaquesPartitionProps {
   usuarioResponsavelId: string | string[];
   usuariosParaBuscar?: string[];
   telaId: string;
-  selectedYear?: string;
-  selectedMonth?: string;
+  selectedYear?: string | number;
+  selectedMonth?: string | number;
   isAdmin: boolean;
   usuarioLogadoId?: string; // ID do usuário atualmente logado
-  onEdit?: (mes?: string, ano?: string, usuarioId?: string) => void;
+  onEdit?: (mes?: string | number, ano?: string | number, usuarioId?: string) => void;
   onView?: (destaque: Destaque) => void;
   refreshTrigger?: number;
 }

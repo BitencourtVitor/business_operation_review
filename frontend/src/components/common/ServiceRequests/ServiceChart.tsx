@@ -363,7 +363,7 @@ export function ServiceChart({
            ticks: { 
              color: '#6c757d',
              stepSize: 1,
-             callback: function(value) {
+             callback: function(value: any) {
                if (Number.isInteger(value)) {
                  return value;
                }

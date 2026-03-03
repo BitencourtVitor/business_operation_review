@@ -2,45 +2,53 @@ import type { WorkforceProject, ForecastMachine, ForecastProjectStatus } from '.
 
 // Helper para verificar se tem Fieldwire ativo
 export const hasActiveFieldwire = (project: WorkforceProject): boolean => {
-  return project.fieldwire?.some(fw => fw.status === true) || false;
+  return project.fieldwire?.some(fw => isTruthyFlag(fw.status)) || false;
 };
 
 // Helper para verificar se Fieldwire está completo (todos os documentos com status true)
 export const isFieldwireComplete = (project: WorkforceProject): boolean => {
   if (!project.fieldwire || project.fieldwire.length === 0) return false;
-  return project.fieldwire.every(fw => fw.status === true);
+  return project.fieldwire.every(fw => isTruthyFlag(fw.status));
 };
 
 // Helper para verificar se Machines and Attachments está completo
 export const isMachinesComplete = (project: WorkforceProject): boolean => {
   if (!project.machines || project.machines.length === 0) return false;
-  return project.machines.every(m => m.status === 'Scheduled' || m.status === 'Dispensed');
+  return project.machines.every(m => {
+    if (!m.status) return false;
+    const s = m.status.toString().toLowerCase().trim();
+    return s === 'scheduled' || s === 'dispensed' || s === 'true' || s === 'yes' || s === '1';
+  });
 };
 
 // Helper para verificar se tem contrato completo
 export const hasCompleteContract = (project: WorkforceProject): boolean => {
   if (!project.contract_steps || project.contract_steps.length === 0) return false;
-  return project.contract_steps.every(cs => cs.status === true);
+  return project.contract_steps.every(cs => isTruthyFlag(cs.status));
 };
 
 // Helper para calcular porcentagem de contratos completos
 export const getContractProgress = (project: WorkforceProject): number => {
   if (!project.contract_steps || project.contract_steps.length === 0) return 0;
-  const completed = project.contract_steps.filter(cs => cs.status === true).length;
+  const completed = project.contract_steps.filter(cs => isTruthyFlag(cs.status)).length;
   return (completed / project.contract_steps.length) * 100;
 };
 
 // Helper para calcular porcentagem de Fieldwire completo
 export const getFieldwireProgress = (project: WorkforceProject): number => {
   if (!project.fieldwire || project.fieldwire.length === 0) return 0;
-  const completed = project.fieldwire.filter(fw => fw.status === true).length;
+  const completed = project.fieldwire.filter(fw => isTruthyFlag(fw.status)).length;
   return (completed / project.fieldwire.length) * 100;
 };
 
 // Helper para calcular porcentagem de máquinas ativas
 export const getMachinesProgress = (project: WorkforceProject): number => {
   if (!project.machines || project.machines.length === 0) return 0;
-  const active = project.machines.filter(m => m.status === 'Scheduled' || m.status === 'Dispensed').length;
+  const active = project.machines.filter(m => {
+    if (!m.status) return false;
+    const s = m.status.toString().toLowerCase().trim();
+    return s === 'scheduled' || s === 'dispensed' || s === 'true' || s === 'yes' || s === '1';
+  }).length;
   return (active / project.machines.length) * 100;
 };
 
@@ -169,37 +177,41 @@ export const getProjectCompletionMetrics = (project: WorkforceProject) => {
   // 1. Fieldwire Documents
   if (project.fieldwire && project.fieldwire.length > 0) {
     totalPoints += project.fieldwire.length;
-    completedPoints += project.fieldwire.filter(fw => fw.status === true).length;
+    completedPoints += project.fieldwire.filter(fw => isTruthyFlag(fw.status)).length;
   }
 
   // 2. BuilderTrend
   totalPoints += 1;
-  if (project.buildertrend === true) {
+  if (isTruthyFlag(project.buildertrend)) {
     completedPoints += 1;
   }
 
   // 3. QuickBooks Time
   totalPoints += 1;
-  if (project.qbtime === true) {
+  if (isTruthyFlag(project.qbtime)) {
     completedPoints += 1;
   }
 
   // 4. Storage
   totalPoints += 1;
-  if (project.storage === true) {
+  if (isTruthyFlag(project.storage)) {
     completedPoints += 1;
   }
 
   // 5. Contract Status
   if (project.contract_steps && project.contract_steps.length > 0) {
     totalPoints += project.contract_steps.length;
-    completedPoints += project.contract_steps.filter(cs => cs.status === true).length;
+    completedPoints += project.contract_steps.filter(cs => isTruthyFlag(cs.status)).length;
   }
 
   // 6. Machines and Attachments
   if (project.machines && project.machines.length > 0) {
     totalPoints += project.machines.length;
-    completedPoints += project.machines.filter(m => m.status === 'Scheduled' || m.status === 'Dispensed').length;
+    completedPoints += project.machines.filter(m => {
+      if (!m.status) return false;
+      const s = m.status.toString().toLowerCase().trim();
+      return s === 'scheduled' || s === 'dispensed' || s === 'true' || s === 'yes' || s === '1';
+    }).length;
   }
 
   const percentage = totalPoints > 0 ? Math.round((completedPoints / totalPoints) * 100) : 0;

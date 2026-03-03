@@ -43,22 +43,22 @@ export function useServiceRequestData() {
       const serviceRequestData = await fetchAllData('service_requests');
       
       // Transformar os dados para o formato esperado
-      const transformedData: ServiceRequestRow[] = (serviceRequestData || []).map((row: Record<string, unknown>) => ({
+      const transformedData: ServiceRequestRow[] = (serviceRequestData || []).map((row: any) => ({
         id: row.id?.toString() || '',
-        contractor: normalizeUtf8String(row.contractor),
-        job_site: normalizeUtf8String(row.job_site),
-        city: normalizeUtf8String(row.city),
-        lot: normalizeUtf8String(row.lot),
-        address: normalizeUtf8String(row.address),
+        contractor: normalizeUtf8String(row.contractor as string),
+        job_site: normalizeUtf8String(row.job_site as string),
+        city: normalizeUtf8String(row.city as string),
+        lot: normalizeUtf8String(row.lot as string),
+        address: normalizeUtf8String(row.address as string),
         close_date: row.close_date?.toString() || '',
         date_received: row.date_received?.toString() || '',
         material_available_date: row.material_available_date?.toString() || '',
         resident_available_date: row.resident_available_date?.toString() || '',
         date_completed: row.date_completed?.toString() || '',
         additional_visits: Array.isArray(row.additional_visits) ? row.additional_visits.map((date: unknown) => date?.toString() || '') : [],
-        issue: normalizeUtf8String(row.issue),
+        issue: normalizeUtf8String(row.issue as string),
         warranty: Boolean(row.warranty),
-        tech: normalizeUtf8String(row.tech),
+        tech: normalizeUtf8String(row.tech as string),
         created_at: row.created_at?.toString() || ''
       }));
 

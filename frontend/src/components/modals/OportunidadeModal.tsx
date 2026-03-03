@@ -383,7 +383,7 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
             // Filtrar campos vazios
             const oportunidadePrincipal = Object.fromEntries(
               Object.entries(dadosParaAtualizar)
-                .filter(([k, v]) => v !== undefined && v !== '' && v !== null)
+                .filter(([, v]) => v !== undefined && v !== '' && v !== null)
             );
             
     
@@ -446,7 +446,7 @@ const OportunidadeModal: React.FC<OportunidadeModalProps> = ({ show, onClose, da
           // Filtrar campos vazios
           const oportunidadePrincipal = Object.fromEntries(
             Object.entries(dadosParaInserir)
-              .filter(([k, v]) => v !== undefined && v !== '' && v !== null)
+              .filter(([, v]) => v !== undefined && v !== '' && v !== null)
           );
           
   

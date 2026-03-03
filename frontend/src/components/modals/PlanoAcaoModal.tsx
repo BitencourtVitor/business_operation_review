@@ -320,7 +320,11 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
     }
     
     // Caso contrário, mantém o status original
-    return acao.status;
+    return acao.status || 'pending';
+  };
+
+  const getAcaoResponsaveis = (acao: Acao): string[] => {
+    return acao.responsaveis || [];
   };
 
   // Função para comparar dois planos e retornar apenas as diferenças
@@ -418,6 +422,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
           criado_em: '',
           data_inicio: '',
           data_fim: null,
+          status: 'open',
           acoes: [],
         };
         setPlano(novoPlano);
@@ -1049,7 +1054,7 @@ const PlanoAcaoModal: React.FC<PlanoAcaoModalProps> = ({ show, onClose, data, on
                                   Responsável
                                 </label>
                                 <MultiSelectResponsavel
-                                  selectedValues={acao.responsaveis}
+                                  selectedValues={getAcaoResponsaveis(acao)}
                                   onChange={(values) => updateAcao(index, { responsaveis: values })}
                                 />
                               </div>

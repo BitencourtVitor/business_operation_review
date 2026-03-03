@@ -242,68 +242,6 @@ export function ProjectMonitoringChart({
     return true;
   };
 
-  // Função para obter a data relevante baseada no percentual de conclusão (mesma lógica da página)
-  const getRelevantDate = (row: ProjectMonitoringHvacData): string | null => {
-    if (!row.start_date || !row.finish_date) {
-      return null;
-    }
-    
-    // Calcular status baseado nos stages (mesma lógica usada em outros lugares)
-    const stages = [
-      row.s1_rough,
-      row.s2_machines, 
-      row.s3_condenser,
-      row.s4_finish
-    ];
-
-    // Se não há stages definidos, considerar como não iniciado
-    if (stages.every(stage => !stage)) {
-      return row.start_date; // Data de início para projetos não iniciados
-    }
-
-    const completedCount = stages.filter(stage => stage === 'Completed').length;
-    const noStartedCount = stages.filter(stage => stage === 'Not Started' || stage === 'No started').length;
-
-    // Se todas as 4 colunas são completed, o projeto está completo
-    if (completedCount === 4) {
-      return row.finish_date; // Data de fim para projetos concluídos
-    } else if (noStartedCount === 4) {
-      // Se todas as 4 colunas são no started, o projeto não foi iniciado
-      return row.start_date; // Data de início para projetos não iniciados
-    } else {
-      // Qualquer outra combinação = projeto em progresso
-      return row.start_date; // Data de início para projetos em andamento
-    }
-  };
-
-  // Função para verificar se um projeto foi concluído no período observado
-  const isProjectCompletedInPeriod = (project: ProjectMonitoringHvacData): boolean => {
-    if (!project.finish_date) return false;
-    
-    const finishDate = new Date(project.finish_date);
-    
-    // Se há filtro de ano, verificar se o projeto foi concluído nesse ano
-    if (selectedYear) {
-      const year = parseInt(selectedYear);
-      if (finishDate.getFullYear() !== year) return false;
-    }
-    
-    // Se há filtro de mês, verificar se o projeto foi concluído nesse mês
-    if (selectedMonth) {
-      const month = parseInt(selectedMonth);
-      if (finishDate.getMonth() + 1 !== month) return false;
-    }
-    
-    // Se há filtro de semana, verificar se o projeto foi concluído nessa semana
-    if (selectedWeek) {
-      const week = parseInt(selectedWeek);
-      const finishWeek = getISOWeek(finishDate);
-      if (finishWeek !== week) return false;
-    }
-    
-    return true;
-  };
-
      // Preparar dados do gráfico de pizza
    const { chartData, chartOptions, hasData, statusAverages } = useMemo(() => {
      if (filteredData.length === 0) {

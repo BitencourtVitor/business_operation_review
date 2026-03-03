@@ -187,8 +187,8 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
       .eq('obra_id', obraId);
     
     if (data) {
-      // Get unique team names from steps
-      const uniqueTeams = Array.from(new Set(data.map(d => d.team).filter(Boolean)));
+      // Get unique team names from steps (filter empty strings)
+      const uniqueTeams = Array.from(new Set(data.map(d => d.team).filter(t => t && t.trim() !== '')));
       setTeams(uniqueTeams);
     }
   };
@@ -263,10 +263,13 @@ export default function ContractStepsList({ obraId, onLoadingStart, onLoadingSto
         if (newItems.length > 0) {
           const { error } = await supabase
             .from('forecast_contract_steps')
-            .insert(newItems);
+            .upsert(newItems, { 
+              onConflict: 'obra_id, step, team',
+              ignoreDuplicates: true 
+            });
 
           if (error) {
-              console.error('Supabase insert error:', error);
+              console.error('Supabase upsert error:', error);
               throw error;
           }
           

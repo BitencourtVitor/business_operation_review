@@ -6,7 +6,7 @@ import iconBuildertrend from '../../../assets/buildertrend.png';
 import iconBuildertrendDark from '../../../assets/buildertrend_darkmode.png';
 import iconQBTime from '../../../assets/qbtime_logo.png';
 import iconQBTimeDark from '../../../assets/qbtime_darkmode.png';
-import { type ForecastProjectStatus } from './helpers';
+import { type ForecastProjectStatus } from './types';
 
 interface MobileForecastFiltersProps {
   theme?: 'light' | 'dark';

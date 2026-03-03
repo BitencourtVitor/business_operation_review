@@ -331,7 +331,7 @@ export default function DataControl() {
         .from('forecast_contract_steps')
         .select('team')
         .eq('obra_id', id)
-        .neq('team', null)
+        .neq('team', '') // Already NOT NULL, but let's be safe against empty strings
         .limit(1);
         
       const subcontractor = contracts && contracts.length > 0 ? contracts[0].team : null;
@@ -515,7 +515,6 @@ export default function DataControl() {
           setViewMode={setGlobalViewMode} 
           filterStatus={filterStatus}
           setFilterStatus={setFilterStatus}
-          theme={theme}
         />
       </div>
 

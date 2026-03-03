@@ -3,8 +3,8 @@ export interface Acao {
   plano_id: string;
   titulo: string;
   responsavel: string;
-  responsaveis: string[];
-  status: string;
+  responsaveis?: string[];
+  status?: string;
   data_limite: string;
 }
 
@@ -17,6 +17,7 @@ export interface PlanoAcao {
   criado_em: string;
   data_inicio: string;
   data_fim: string | null;
+  status?: string;
   acoes: Acao[];
   deletado?: boolean;
-} 
+}

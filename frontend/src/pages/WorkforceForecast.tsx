@@ -237,7 +237,7 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
 
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
   const [viewMode] = useState<'grid' | 'timeline'>('grid');
-  const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
+  const [groupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [isCompanyMenuOpen, setIsCompanyMenuOpen] = useState(false);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
@@ -407,11 +407,7 @@ export default function WorkforceForecast({ initialTab = 'planner' }: WorkforceF
     )].sort();
     setJobSites(uniqueJobSites);
 
-    const uniqueTypes = [...new Set(
-      rawProjects
-        .map(p => p.type)
-        .filter((type): type is string => !!type)
-    )].sort();
+    // const _uniqueTypes = ... (removed unused)
   }, [rawProjects]);
 
   useEffect(() => {

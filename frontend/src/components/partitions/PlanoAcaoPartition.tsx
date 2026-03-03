@@ -54,7 +54,7 @@ export default function PlanoAcaoPartition({
     }
     
     // Caso contrário, mantém o status original
-    return acao.status;
+    return acao.status || 'pending';
   };
 
   // Buscar planos de ação e ações do usuário responsável pela tela

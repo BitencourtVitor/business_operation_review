@@ -9,27 +9,7 @@ import MobileForecastMetrics from '../components/common/Forecast/MobileForecastM
 import MobileTimelinePlanner from '../components/common/Forecast/MobileTimelinePlanner';
 import sublogoFraming from '../assets/submenu/sublogo_framing.png';
 
-type DateMode = 'start' | 'beams';
-
-interface WorkforceProject {
-  id: number;
-  cliente: string;
-  job_site: string;
-  type: string | null;
-  lote_building: number;
-  workforce: string;
-  hvac: string | null;
-  fieldwire?: boolean | string | null;
-  tem_contrato?: boolean | string | null;
-  status?: string | null;
-  address?: string | null;
-  previous_start_date: string;
-  previous_end_date: string;
-  previous_beams_date: string | null;
-  observacoes: string;
-  created_at: string;
-  updated_at: string;
-}
+import { type DateMode, type WorkforceProject, type ForecastProjectStatus } from '../components/common/Forecast/types';
 
 const getReferenceDate = (project: WorkforceProject, mode: DateMode): string | null => {
   if (mode === 'beams') {
@@ -44,8 +24,8 @@ interface ForecastData {
   month: string;
   year: number;
   projectCount: number;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
 }
 
 export default function ForecastImprovement() {
@@ -64,6 +44,13 @@ export default function ForecastImprovement() {
   const [selectedClient, setSelectedClient] = useState<string[]>([]);
   const [selectedJobSite, setSelectedJobSite] = useState<string[]>([]);
   const [selectedType, setSelectedType] = useState<string>('all'); // 'all', 'Lot', 'Building'
+  const [selectedFieldwire, setSelectedFieldwire] = useState<string>('all');
+  const [selectedBuildertrend, setSelectedBuildertrend] = useState<string>('all');
+  const [selectedMachines, setSelectedMachines] = useState<string>('all');
+  const [selectedContractSteps, setSelectedContractSteps] = useState<string>('all');
+  const [selectedStorage, setSelectedStorage] = useState<string>('all');
+  const [selectedQBTime, setSelectedQBTime] = useState<string>('all');
+  const [selectedStatuses, setSelectedStatuses] = useState<ForecastProjectStatus[]>([]);
   const [groupBy, setGroupBy] = useState<'cliente' | 'job_site'>('cliente');
   const [sortByDate, setSortByDate] = useState<'off' | 'asc' | 'desc' | null>(null);
 
@@ -77,7 +64,6 @@ export default function ForecastImprovement() {
   const [months, setMonths] = useState<string[]>([]);
   const [clients, setClients] = useState<string[]>([]);
   const [jobSites, setJobSites] = useState<string[]>([]);
-  const [availableTypes, setAvailableTypes] = useState<string[]>([]);
 
   // Mapeamento de empresas e logos
   const companies = [
@@ -142,7 +128,6 @@ export default function ForecastImprovement() {
     if (!rawProjects.length) {
       setClients([]);
       setJobSites([]);
-      setAvailableTypes([]);
       return;
     }
 
@@ -160,12 +145,6 @@ export default function ForecastImprovement() {
     )].sort();
     setJobSites(uniqueJobSites);
 
-    const uniqueTypes = [...new Set(
-      rawProjects
-        .map(p => p.type)
-        .filter(type => !!type)
-    )].sort();
-    setAvailableTypes(uniqueTypes);
   }, [rawProjects]);
 
   useEffect(() => {
@@ -543,28 +522,33 @@ export default function ForecastImprovement() {
             selectedClient={selectedClient}
             selectedJobSite={selectedJobSite}
             selectedType={selectedType}
-            selectedFieldwire="all"
-            selectedBuildertrend="all"
-            selectedMachines="all"
-            selectedContractSteps="all"
-            selectedWorkforce="all"
-            filterNotStarted={true}
+            selectedFieldwire={selectedFieldwire}
+            selectedBuildertrend={selectedBuildertrend}
+            selectedMachines={selectedMachines}
+            selectedContractSteps={selectedContractSteps}
+            selectedStorage={selectedStorage}
+            selectedQBTime={selectedQBTime}
+            selectedStatuses={selectedStatuses}
             years={years}
             months={months}
             clients={clients}
             jobSites={jobSites}
-            availableTypes={availableTypes}
             onYearChange={setSelectedYear}
             onMonthChange={setSelectedMonth}
             onClientChange={setSelectedClient}
             onJobSiteChange={setSelectedJobSite}
             onTypeChange={setSelectedType}
-            onFieldwireChange={() => {}}
-            onBuildertrendChange={() => {}}
-            onMachinesChange={() => {}}
-            onContractStepsChange={() => {}}
-            onWorkforceChange={() => {}}
-            onFilterNotStartedChange={() => {}}
+            onFieldwireChange={setSelectedFieldwire}
+            onBuildertrendChange={setSelectedBuildertrend}
+            onMachinesChange={setSelectedMachines}
+            onContractStepsChange={setSelectedContractSteps}
+            onStorageChange={setSelectedStorage}
+            onQBTimeChange={setSelectedQBTime}
+            onStatusesChange={setSelectedStatuses}
+            dateMode={dateMode}
+            onDateModeChange={setDateMode}
+            sortByDate={sortByDate}
+            onSortByDateChange={setSortByDate}
           />
         </div>
 
@@ -573,12 +557,8 @@ export default function ForecastImprovement() {
           <MobileForecastMetrics 
             stats={stats} 
             workforceProjects={workforceProjects}
-            selectedYear={selectedYear}
-            selectedMonth={selectedMonth}
-            selectedClient={selectedClient}
-            selectedJobSite={selectedJobSite}
             groupBy={groupBy}
-            onGroupByChange={setGroupBy}
+            dateMode={dateMode}
           />
         </div>
         
@@ -592,9 +572,7 @@ export default function ForecastImprovement() {
             groupBy={groupBy}
             onGroupByChange={setGroupBy}
             sortByDate={sortByDate}
-            onSortByDateChange={setSortByDate}
             dateMode={dateMode}
-            onDateModeChange={setDateMode}
           />
         </div>
       </div>
