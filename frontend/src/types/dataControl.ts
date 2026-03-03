@@ -56,7 +56,7 @@ export interface ForecastContractSteps {
   step: string | null;
   status: boolean | null;
   lastupdate_datetimez: string | null;
-  team: string | null;
+  team: string;
 }
 
 export interface SubcontractorPerformance {
