@@ -110,7 +110,6 @@ export default function ForecastImprovement() {
       setWorkforceProjects((projectsData || []) as WorkforceProject[]);
 
     } catch (err) {
-      console.error('Erro ao buscar dados do workforce:', err);
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
       setLoading(false);

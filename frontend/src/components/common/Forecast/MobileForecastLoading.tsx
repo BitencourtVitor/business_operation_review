@@ -25,12 +25,10 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
     const processForecastData = async () => {
       // Evitar execuções múltiplas
       if (hasProcessed.current) {
-        console.log('⚠️ MobileForecastLoading: Já foi processado, ignorando chamada duplicada...');
         return;
       }
       
       hasProcessed.current = true;
-      console.log('🚀 MobileForecastLoading: Iniciando carregamento dos dados do Forecast...');
       
       // Atualizar item para loading
       setLoadingItems(prev => prev.map(item => ({
@@ -50,7 +48,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
 
       try {
         // Chamar a edge function do forecast (novo modelo)
-        console.log('📊 MobileForecastLoading: Chamando forecast... (DESATIVADO)');
         // const { error } = await supabase.functions.invoke('forecast', {
         //   method: 'POST',
         //   body: {}
@@ -64,7 +61,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
         clearInterval(progressInterval);
         
         if (error) {
-          console.error('❌ Erro na edge function forecast:', error);
           setLoadingItems(prev => prev.map(item => 
             item.id === 'workforce' 
               ? { ...item, status: 'error', progress: 100, error: error.message || 'Error' }
@@ -76,7 +72,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
             onComplete();
           }, 2000);
         } else {
-          console.log('✅ MobileForecastLoading: Dados do Forecast carregados com sucesso');
           setLoadingItems(prev => prev.map(item => 
             item.id === 'workforce' 
               ? { ...item, status: 'completed', progress: 100 }
@@ -89,7 +84,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
           }, 1000);
         }
       } catch (error) {
-        console.error('❌ Erro geral no carregamento:', error);
         clearInterval(progressInterval);
         setLoadingItems(prev => prev.map(item => 
           item.id === 'workforce' 
@@ -101,8 +95,6 @@ export default function MobileForecastLoading({ onComplete, theme = 'light' }: M
         setTimeout(() => {
           onComplete();
         }, 2000);
-      } finally {
-        // Nada a fazer no momento
       }
     };
 
