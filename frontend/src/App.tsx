@@ -6,6 +6,7 @@ import WorkforceForecast from './pages/WorkforceForecast'
 import MobileForecast from './pages/MobileForecast'
 import OperationalForecastIndex from './pages/OperationalForecastIndex'
 import DataControl from './pages/DataControl'
+import AutoLog from './pages/AutoLog'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import { DataCacheProvider } from './contexts/DataCacheContext'
 import { GlobalFeedbackProvider } from './contexts/GlobalFeedbackContext'
@@ -24,6 +25,7 @@ export default function App() {
             <Route path="/workforce-forecast" element={<ProtectedRoute><WorkforceForecast telaId="" usuarioId="" role="" isResponsavelPelaTela={false} /></ProtectedRoute>} />
             <Route path="/data-control" element={<ProtectedRoute><DataControl /></ProtectedRoute>} />
             <Route path="/ofi" element={<ProtectedRoute><OperationalForecastIndex /></ProtectedRoute>} />
+            <Route path="/auto-log" element={<ProtectedRoute><AutoLog /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/initial-loading" replace />} />
           </Routes>
         </Router>
