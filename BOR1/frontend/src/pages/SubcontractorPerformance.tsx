@@ -1810,25 +1810,24 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                     });
 
                     return Object.entries(groups).map(([project, items], idx) => (
-                      <div key={idx} style={{ 
-                        padding: '10px', 
-                        background: 'rgba(239, 68, 68, 0.05)', 
-                        borderRadius: '8px', 
-                        border: '1px solid rgba(239, 68, 68, 0.2)', 
-                        borderLeft: '4px solid #ef4444' 
+                      <div key={idx} style={{
+                        padding: '10px',
+                        background: 'rgba(239, 68, 68, 0.05)',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(239, 68, 68, 0.2)',
+                        borderLeft: '4px solid #ef4444'
                       }}>
-                        <div style={{ 
-                          fontSize: '12px', 
-                          fontWeight: 800, 
+                        <div style={{
+                          fontSize: '12px',
+                          fontWeight: 800,
                           color: 'var(--color-text-primary)',
                           marginBottom: '8px',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '6px'
                         }}>
-                          <i className="bi bi-geo-alt-fill" style={{ color: '#ef4444' }}></i>
-                          {/* Provisório: ocultar "Lot/Building" e nomes de condomínio (ex: Emerald Run) no tooltip de Excess Withdrawal */}
-                          {removeLotFromProjectName(project)}
+                          <i className="bi bi-building" style={{ color: '#ef4444' }}></i>
+                          {`Project ${idx + 1}`}
                         </div>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {items.map((ex: any, i: number) => (
