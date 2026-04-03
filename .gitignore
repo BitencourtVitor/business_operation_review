@@ -99,3 +99,11 @@ public
 # Temporary folders
 tmp/
 temp/ 
+# BOR2 env files
+BOR2/.env
+BOR2/apps/api/.env
+BOR2/apps/web/.env.local
+
+# Backups
+BOR1/fuel-pipeline/backup/
+BOR1/quickbooks-pipeline/backup/
