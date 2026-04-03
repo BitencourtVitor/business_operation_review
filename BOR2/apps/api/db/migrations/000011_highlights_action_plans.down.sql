@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS payables_accounting;
+DROP TABLE IF EXISTS receivables_accounting;
+DROP TABLE IF EXISTS acoes;
+DROP TABLE IF EXISTS planos_de_acao;
+DROP TABLE IF EXISTS melhorias;
+DROP TABLE IF EXISTS desafios;
+DROP TABLE IF EXISTS oportunidades;
+DROP TABLE IF EXISTS destaques_negativos;
+DROP TABLE IF EXISTS destaques_positivos;
+DROP TABLE IF EXISTS destaques;

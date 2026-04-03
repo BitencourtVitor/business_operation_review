@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "BOR2/apps/web"],
+      "port": 3000
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd BOR2\\apps\\api && go run ./cmd/api/..."],
+      "port": 8080
+    }
+  ]
+}
