@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"C:\\\\Users\\\\Ryzen\\\\Documents\\\\trae_projects\\\\Premium - BOR\\\\frontend\\\\src\" -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec wc -l {} +)",
+      "Bash(xargs wc:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:8080/)",
+      "Bash(curl -s --connect-timeout 3 http://localhost:8080/)"
+    ]
+  }
+}

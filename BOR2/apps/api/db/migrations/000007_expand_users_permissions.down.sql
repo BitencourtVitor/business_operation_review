@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS usuarios_telas;
+DROP TABLE IF EXISTS telas;
+ALTER TABLE users DROP COLUMN IF EXISTS financial_pass;

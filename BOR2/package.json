@@ -1,0 +1,23 @@
+{
+  "name": "bor2",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "clean": "turbo clean"
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3"
+  },
+  "packageManager": "bun@1.1.42",
+  "engines": {
+    "node": ">=20"
+  }
+}
