@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd BOR1/frontend && npm run build",
+  "outputDirectory": "BOR1/frontend/dist",
+  "installCommand": "cd BOR1/frontend && npm install",
+  "framework": "vite"
+}
