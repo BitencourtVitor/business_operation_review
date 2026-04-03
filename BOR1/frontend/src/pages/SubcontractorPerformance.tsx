@@ -1817,18 +1817,7 @@ export default function SubcontractorPerformance({ telaId: _telaId, usuarioId: _
                         border: '1px solid rgba(239, 68, 68, 0.2)',
                         borderLeft: '4px solid #ef4444'
                       }}>
-                        <div style={{
-                          fontSize: '12px',
-                          fontWeight: 800,
-                          color: 'var(--color-text-primary)',
-                          marginBottom: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
-                        }}>
-                          <i className="bi bi-building" style={{ color: '#ef4444' }}></i>
-                          {`Project ${idx + 1}`}
-                        </div>
+                        {/* Project identification hidden by request */}
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {items.map((ex: any, i: number) => (
                               <div key={i} style={{ 
