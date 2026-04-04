@@ -355,8 +355,8 @@ export function AppSidebar() {
         </div>
       </SidebarContent>
 
-      <SidebarFooter className="overflow-x-hidden">
-        <SidebarSeparator className="mx-0" />
+      <SidebarFooter className="overflow-x-hidden p-0">
+        <div className="h-px w-full bg-sidebar-border" />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
