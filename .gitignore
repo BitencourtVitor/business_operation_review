@@ -91,6 +91,7 @@ jspm_packages/
 # Gatsby files
 .cache/
 public
+!BOR2/apps/web/public/**
 
 # Storybook build outputs
 .out
