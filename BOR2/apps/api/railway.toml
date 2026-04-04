@@ -1,8 +1,9 @@
 [build]
-buildCommand = "go build -o bin/api ./cmd/api/..."
+builder = "dockerfile"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "./bin/api"
+startCommand = "./api"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
