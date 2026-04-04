@@ -16,26 +16,28 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import {
-  Activity,
-  Award,
-  BarChart3,
-  Box,
+  Banknote,
+  BarChart2,
   CalendarCheck,
   ChevronDown,
+  ClipboardCheck,
   ClipboardList,
-  FileText,
+  FileCheck,
   Fuel,
   Gauge,
   LayoutDashboard,
   LineChart,
+  Package,
   PanelLeftClose,
   PanelLeftOpen,
   Ruler,
   Settings,
+  ShieldCheck,
   Timer,
   TrendingUp,
   Upload,
   Users,
+  Watch,
   Wrench,
 } from "lucide-react"
 import Link from "next/link"
@@ -65,11 +67,11 @@ const navItems: NavItem[] = [
     children: [
       { title: "Monthly Execution", href: "/monthly-execution", icon: CalendarCheck },
       { title: "Workforce Productivity", href: "/workforce", icon: Users },
-      { title: "Subcontractor Performance", href: "/subcontractors", icon: Award },
+      { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
     ],
   },
-  { title: "Inventory Control", href: "/inventory", icon: Box },
-  { title: "Permit Control", href: "/permits", icon: FileText },
+  { title: "Inventory Control", href: "/inventory", icon: Package },
+  { title: "Permit Control", href: "/permits", icon: FileCheck },
   {
     title: "Forecast",
     href: "/forecast",
@@ -77,14 +79,14 @@ const navItems: NavItem[] = [
     children: [
       { title: "Framing", href: "/forecast", icon: TrendingUp },
       { title: "Metrics", href: "/forecast?tab=metrics", icon: LineChart },
-      { title: "Operational Index", href: "/ofi", icon: Gauge },
+      { title: "Operational Index", href: "/ofi", icon: BarChart2 },
     ],
   },
   { title: "Service Requests", href: "/service-requests", icon: Wrench },
   {
     title: "Project Monitoring",
     href: "/project-monitoring",
-    icon: Activity,
+    icon: ShieldCheck,
     children: [
       { title: "HVAC", href: "/project-monitoring", image: "/images/sublogo_hvac.png" },
     ],
@@ -92,7 +94,7 @@ const navItems: NavItem[] = [
   {
     title: "Accounting",
     href: "/accounting",
-    icon: BarChart3,
+    icon: Banknote,
     children: [
       { title: "HVAC", href: "/accounting?company=hvac", image: "/images/sublogo_hvac.png" },
       { title: "Framing", href: "/accounting?company=framing", image: "/images/sublogo_framing.png" },
@@ -100,7 +102,7 @@ const navItems: NavItem[] = [
     ],
   },
   { title: "Fuel Control", href: "/fuel", icon: Fuel },
-  { title: "Timesheet", href: "/timesheet", icon: Timer },
+  { title: "Timesheet", href: "/timesheet", icon: Watch },
   { title: "Takeoff Works", href: "/takeoff", icon: Ruler },
   { title: "Data Control", href: "/data-control", icon: ClipboardList },
   { title: "Upload Timesheet", href: "/upload-timesheet", icon: Upload },

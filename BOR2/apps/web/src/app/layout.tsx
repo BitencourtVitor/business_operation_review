@@ -10,7 +10,7 @@ const geist = Geist({
 })
 
 export const metadata: Metadata = {
-  title: "BOR2 — Business Operations Review",
+  title: "Business Operations Review",
   description: "Operational intelligence platform",
   icons: {
     icon: "/favicon.png",
