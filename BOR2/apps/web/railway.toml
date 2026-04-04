@@ -1,8 +1,8 @@
 [build]
-buildCommand = "bun install && bun run build"
+buildCommand = "npm install && npm run build"
 
 [deploy]
-startCommand = "bun run start"
+startCommand = "npm start"
 healthcheckPath = "/"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
