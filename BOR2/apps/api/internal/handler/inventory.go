@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -145,17 +146,36 @@ func fetchPremiumStorageData(storageURL, storageKey, table string, target interf
 		return nil, fmt.Errorf("premium storage error: %d - %s", resp.StatusCode, string(body))
 	}
 
-	// Return empty array - in production, would parse JSON into target
-	// For now, return empty result to avoid parsing complexity
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
 	switch v := target.(type) {
 	case []ConsumoVsLimite:
-		return []ConsumoVsLimite{}, nil
+		var data []ConsumoVsLimite
+		if err := json.Unmarshal(body, &data); err != nil {
+			return []ConsumoVsLimite{}, nil
+		}
+		return data, nil
 	case []HistoricoSaldo:
-		return []HistoricoSaldo{}, nil
+		var data []HistoricoSaldo
+		if err := json.Unmarshal(body, &data); err != nil {
+			return []HistoricoSaldo{}, nil
+		}
+		return data, nil
 	case []DetalheExcesso:
-		return []DetalheExcesso{}, nil
+		var data []DetalheExcesso
+		if err := json.Unmarshal(body, &data); err != nil {
+			return []DetalheExcesso{}, nil
+		}
+		return data, nil
 	case []GastoUsuario:
-		return []GastoUsuario{}, nil
+		var data []GastoUsuario
+		if err := json.Unmarshal(body, &data); err != nil {
+			return []GastoUsuario{}, nil
+		}
+		return data, nil
 	default:
 		return v, nil
 	}
