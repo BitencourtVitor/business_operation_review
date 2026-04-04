@@ -6,6 +6,7 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,6 +14,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar"
 import {
@@ -33,7 +35,6 @@ import {
   Ruler,
   Settings,
   ShieldCheck,
-  Timer,
   TrendingUp,
   Upload,
   Users,
@@ -41,7 +42,7 @@ import {
   Wrench,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { useRef, useState } from "react"
 
 type SubItem = {
@@ -58,55 +59,79 @@ type NavItem = {
   children?: SubItem[]
 }
 
-const navItems: NavItem[] = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+type NavGroup = {
+  label?: string
+  items: NavItem[]
+}
+
+const navGroups: NavGroup[] = [
   {
-    title: "Operational Efficiency",
-    href: "/monthly-execution",
-    icon: Gauge,
-    children: [
-      { title: "Monthly Execution", href: "/monthly-execution", icon: CalendarCheck },
-      { title: "Workforce Productivity", href: "/workforce", icon: Users },
-      { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
-    ],
-  },
-  { title: "Inventory Control", href: "/inventory", icon: Package },
-  { title: "Permit Control", href: "/permits", icon: FileCheck },
-  {
-    title: "Forecast",
-    href: "/forecast",
-    icon: TrendingUp,
-    children: [
-      { title: "Framing", href: "/forecast", icon: TrendingUp },
-      { title: "Metrics", href: "/forecast?tab=metrics", icon: LineChart },
-      { title: "Operational Index", href: "/ofi", icon: BarChart2 },
-    ],
-  },
-  { title: "Service Requests", href: "/service-requests", icon: Wrench },
-  {
-    title: "Project Monitoring",
-    href: "/project-monitoring",
-    icon: ShieldCheck,
-    children: [
-      { title: "HVAC", href: "/project-monitoring", image: "/images/sublogo_hvac.png" },
+    items: [
+      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     ],
   },
   {
-    title: "Accounting",
-    href: "/accounting",
-    icon: Banknote,
-    children: [
-      { title: "HVAC", href: "/accounting?company=hvac", image: "/images/sublogo_hvac.png" },
-      { title: "Framing", href: "/accounting?company=framing", image: "/images/sublogo_framing.png" },
-      { title: "PCG", href: "/accounting?company=pcg", image: "/images/sublogo_pcg.png" },
+    label: "Operations",
+    items: [
+      {
+        title: "Operational Efficiency",
+        href: "/monthly-execution",
+        icon: Gauge,
+        children: [
+          { title: "Monthly Execution", href: "/monthly-execution", icon: CalendarCheck },
+          { title: "Workforce Productivity", href: "/workforce", icon: Users },
+          { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
+        ],
+      },
+      { title: "Inventory Control", href: "/inventory", icon: Package },
+      { title: "Permit Control", href: "/permits", icon: FileCheck },
+      { title: "Service Requests", href: "/service-requests", icon: Wrench },
+      {
+        title: "Project Monitoring",
+        href: "/project-monitoring",
+        icon: ShieldCheck,
+        children: [
+          { title: "HVAC", href: "/project-monitoring", image: "/images/sublogo_hvac.png" },
+        ],
+      },
     ],
   },
-  { title: "Fuel Control", href: "/fuel", icon: Fuel },
-  { title: "Timesheet", href: "/timesheet", icon: Watch },
-  { title: "Takeoff Works", href: "/takeoff", icon: Ruler },
-  { title: "Data Control", href: "/data-control", icon: ClipboardList },
-  { title: "Upload Timesheet", href: "/upload-timesheet", icon: Upload },
-  { title: "Settings", href: "/settings", icon: Settings },
+  {
+    label: "Finance & Analytics",
+    items: [
+      {
+        title: "Forecast",
+        href: "/forecast",
+        icon: TrendingUp,
+        children: [
+          { title: "Framing", href: "/forecast", icon: TrendingUp },
+          { title: "Metrics", href: "/forecast?tab=metrics", icon: LineChart },
+          { title: "Operational Index", href: "/ofi", icon: BarChart2 },
+        ],
+      },
+      {
+        title: "Accounting",
+        href: "/accounting",
+        icon: Banknote,
+        children: [
+          { title: "HVAC", href: "/accounting?company=hvac", image: "/images/sublogo_hvac.png" },
+          { title: "Framing", href: "/accounting?company=framing", image: "/images/sublogo_framing.png" },
+          { title: "PCG", href: "/accounting?company=pcg", image: "/images/sublogo_pcg.png" },
+        ],
+      },
+      { title: "Fuel Control", href: "/fuel", icon: Fuel },
+      { title: "Timesheet", href: "/timesheet", icon: Watch },
+      { title: "Takeoff Works", href: "/takeoff", icon: Ruler },
+    ],
+  },
+  {
+    label: "Data Management",
+    items: [
+      { title: "Data Control", href: "/data-control", icon: ClipboardList },
+      { title: "Upload Timesheet", href: "/upload-timesheet", icon: Upload },
+      { title: "Settings", href: "/settings", icon: Settings },
+    ],
+  },
 ]
 
 function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: string) => boolean }) {
@@ -125,9 +150,7 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
 
   return (
     <div ref={ref} className="relative" onMouseEnter={enter} onMouseLeave={leave}>
-      <SidebarMenuButton
-        isActive={item.children?.some((c) => isActive(c.href)) ?? false}
-      >
+      <SidebarMenuButton isActive={item.children?.some((c) => isActive(c.href)) ?? false}>
         <item.icon />
         <span>{item.title}</span>
       </SidebarMenuButton>
@@ -142,9 +165,7 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
           onMouseEnter={enter}
           onMouseLeave={leave}
         >
-          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-            {item.title}
-          </div>
+          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{item.title}</div>
           {item.children.map((child) => (
             <Link
               key={child.href + child.title}
@@ -155,7 +176,7 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
               onClick={() => setShow(false)}
             >
               {child.image ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
               ) : child.icon ? (
                 <child.icon className="h-3.5 w-3.5" />
@@ -169,9 +190,85 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
   )
 }
 
+function NavGroupItems({
+  items,
+  open,
+  isActive,
+  isGroupActive,
+  isItemExpanded,
+  toggleExpanded,
+}: {
+  items: NavItem[]
+  open: boolean
+  isActive: (href: string) => boolean
+  isGroupActive: (item: NavItem) => boolean
+  isItemExpanded: (item: NavItem) => boolean
+  toggleExpanded: (title: string) => void
+}) {
+  return (
+    <SidebarMenu>
+      {items.map((item) =>
+        item.children ? (
+          <SidebarMenuItem key={item.title}>
+            {!open ? (
+              <CollapsedSubmenu item={item} isActive={isActive} />
+            ) : (
+              <>
+                <SidebarMenuButton
+                  isActive={isGroupActive(item)}
+                  tooltip={item.title}
+                  onClick={() => toggleExpanded(item.title)}
+                >
+                  <item.icon />
+                  <span>{item.title}</span>
+                  <ChevronDown
+                    className={`ml-auto h-4 w-4 transition-transform ${
+                      isItemExpanded(item) ? "rotate-0" : "-rotate-90"
+                    }`}
+                  />
+                </SidebarMenuButton>
+                {isItemExpanded(item) && (
+                  <SidebarMenuSub>
+                    {item.children.map((child) => (
+                      <SidebarMenuSubItem key={child.title + child.href}>
+                        <SidebarMenuSubButton
+                          isActive={isActive(child.href)}
+                          render={<Link href={child.href} />}
+                        >
+                          {child.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+                          ) : child.icon ? (
+                            <child.icon className="h-3.5 w-3.5" />
+                          ) : null}
+                          <span>{child.title}</span>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    ))}
+                  </SidebarMenuSub>
+                )}
+              </>
+            )}
+          </SidebarMenuItem>
+        ) : (
+          <SidebarMenuItem key={item.title + item.href}>
+            <SidebarMenuButton
+              isActive={isActive(item.href)}
+              render={<Link href={item.href} />}
+              tooltip={item.title}
+            >
+              <item.icon />
+              <span>{item.title}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        )
+      )}
+    </SidebarMenu>
+  )
+}
+
 export function AppSidebar() {
   const pathname = usePathname()
-  const router = useRouter()
   const { open, toggleSidebar } = useSidebar()
   const [expanded, setExpanded] = useState<string[]>([])
 
@@ -207,80 +304,38 @@ export function AppSidebar() {
         ) : (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/minilogo_black.png" alt="BOR2" className="h-6 w-6 object-contain dark:hidden" />
+            <img src="/images/minilogo_black.png" alt="Premium" className="h-6 w-6 object-contain dark:hidden" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/minilogo_white.png" alt="BOR2" className="hidden h-6 w-6 object-contain dark:block" />
+            <img src="/images/minilogo_white.png" alt="Premium" className="hidden h-6 w-6 object-contain dark:block" />
           </>
         )}
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) =>
-                item.children ? (
-                  <SidebarMenuItem key={item.title}>
-                    {/* Collapsed: show popover on hover */}
-                    {!open ? (
-                      <CollapsedSubmenu item={item} isActive={isActive} />
-                    ) : (
-                      <>
-                        <SidebarMenuButton
-                          isActive={isGroupActive(item)}
-                          tooltip={item.title}
-                          onClick={() => toggleExpanded(item.title)}
-                        >
-                          <item.icon />
-                          <span>{item.title}</span>
-                          <ChevronDown
-                            className={`ml-auto h-4 w-4 transition-transform ${
-                              isItemExpanded(item) ? "rotate-0" : "-rotate-90"
-                            }`}
-                          />
-                        </SidebarMenuButton>
-                        {isItemExpanded(item) && (
-                          <SidebarMenuSub>
-                            {item.children.map((child) => (
-                              <SidebarMenuSubItem key={child.title + child.href}>
-                                <SidebarMenuSubButton
-                                  isActive={isActive(child.href)}
-                                  render={<Link href={child.href} />}
-                                >
-                                  {child.image ? (
-                                    /* eslint-disable-next-line @next/next/no-img-element */
-                                    <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-                                  ) : child.icon ? (
-                                    <child.icon className="h-3.5 w-3.5" />
-                                  ) : null}
-                                  <span>{child.title}</span>
-                                </SidebarMenuSubButton>
-                              </SidebarMenuSubItem>
-                            ))}
-                          </SidebarMenuSub>
-                        )}
-                      </>
-                    )}
-                  </SidebarMenuItem>
-                ) : (
-                  <SidebarMenuItem key={item.title + item.href}>
-                    <SidebarMenuButton
-                      isActive={isActive(item.href)}
-                      render={<Link href={item.href} />}
-                      tooltip={item.title}
-                    >
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
+        {navGroups.map((group, index) => (
+          <div key={index}>
+            {index > 0 && <SidebarSeparator />}
+            <SidebarGroup>
+              {group.label && open && (
+                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
               )}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+              <SidebarGroupContent>
+                <NavGroupItems
+                  items={group.items}
+                  open={open}
+                  isActive={isActive}
+                  isGroupActive={isGroupActive}
+                  isItemExpanded={isItemExpanded}
+                  toggleExpanded={toggleExpanded}
+                />
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </div>
+        ))}
       </SidebarContent>
 
       <SidebarFooter>
+        <SidebarSeparator />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
