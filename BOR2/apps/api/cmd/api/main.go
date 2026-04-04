@@ -99,10 +99,16 @@ func main() {
 	planoDeAcaoHandler       := handler.NewPlanoDeAcaoHandler(planoDeAcaoService)
 	receivableHandler        := handler.NewReceivableHandler(receivableService)
 	payableHandler           := handler.NewPayableHandler(payableService)
+	timesheetUploadHandler   := handler.NewTimesheetUploadHandler(db)
+	ofiHandler               := handler.NewOFIHandler(db)
+	workforceHandler         := handler.NewWorkforceHandler(db)
+	settingsHandler          := handler.NewSettingsHandler(db)
+	inventoryHandler         := handler.NewInventoryHandler(db)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
 		AppName:      "BOR2 API v1.0.0",
+		BodyLimit:    10 * 1024 * 1024, // 10MB for CSV uploads
 		ErrorHandler: errorHandler,
 	})
 
@@ -181,6 +187,13 @@ func main() {
 	timesheets.Post("/", timesheetRowHandler.Create)
 	timesheets.Put("/:id", timesheetRowHandler.Update)
 	timesheets.Delete("/:id", timesheetRowHandler.Delete)
+	timesheets.Post("/upload-csv", timesheetUploadHandler.UploadCSV)
+
+	// OFI
+	api.Get("/ofi", ofiHandler.List)
+
+	// Workforce (timesheet_data_new)
+	api.Get("/workforce", workforceHandler.List)
 
 	// Project Monitoring HVAC
 	monitoring := api.Group("/project-monitoring")
@@ -245,6 +258,15 @@ func main() {
 	payables.Post("/", payableHandler.Create)
 	payables.Put("/:id", payableHandler.Update)
 	payables.Delete("/:id", payableHandler.Delete)
+
+	// Settings (Admin/Dev only)
+	settings := api.Group("/settings")
+	settings.Get("/screens", settingsHandler.GetScreens)
+	settings.Get("/users", settingsHandler.GetUsers)
+	settings.Patch("/users/:id/permissions", settingsHandler.UpdateUserPermissions)
+
+	// Inventory (queries Premium Storage)
+	api.Get("/inventory", inventoryHandler.GetInventory)
 
 	// ── Background Jobs ──────────────────────────────────────────────────────
 	jobCtx, jobCancel := context.WithCancel(context.Background())
