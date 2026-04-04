@@ -56,6 +56,7 @@ type NavItem = {
   title: string
   href: string
   icon: React.ElementType
+  disabled?: boolean
   children?: SubItem[]
 }
 
@@ -64,7 +65,7 @@ type NavGroup = {
   items: NavItem[]
 }
 
-const navGroups: NavGroup[] = [
+const mainGroups: NavGroup[] = [
   {
     items: [
       { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -113,6 +114,7 @@ const navGroups: NavGroup[] = [
         title: "Accounting",
         href: "/accounting",
         icon: Banknote,
+        disabled: true,
         children: [
           { title: "HVAC", href: "/accounting?company=hvac", image: "/images/sublogo_hvac.png" },
           { title: "Framing", href: "/accounting?company=framing", image: "/images/sublogo_framing.png" },
@@ -124,15 +126,16 @@ const navGroups: NavGroup[] = [
       { title: "Takeoff Works", href: "/takeoff", icon: Ruler },
     ],
   },
-  {
-    label: "Data Management",
-    items: [
-      { title: "Data Control", href: "/data-control", icon: ClipboardList },
-      { title: "Upload Timesheet", href: "/upload-timesheet", icon: Upload },
-      { title: "Settings", href: "/settings", icon: Settings },
-    ],
-  },
 ]
+
+const bottomGroup: NavGroup = {
+  label: "Data Management",
+  items: [
+    { title: "Data Control", href: "/data-control", icon: ClipboardList },
+    { title: "Upload Timesheet", href: "/upload-timesheet", icon: Upload },
+    { title: "Settings", href: "/settings", icon: Settings },
+  ],
+}
 
 function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: string) => boolean }) {
   const [show, setShow] = useState(false)
@@ -211,7 +214,20 @@ function NavGroupItems({
         item.children ? (
           <SidebarMenuItem key={item.title}>
             {!open ? (
-              <CollapsedSubmenu item={item} isActive={isActive} />
+              item.disabled ? (
+                <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon — QuickBooks integration pending">
+                  <item.icon />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+              ) : (
+                <CollapsedSubmenu item={item} isActive={isActive} />
+              )
+            ) : item.disabled ? (
+              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon — QuickBooks integration pending">
+                <item.icon />
+                <span>{item.title}</span>
+                <ChevronDown className="ml-auto h-4 w-4 -rotate-90" />
+              </SidebarMenuButton>
             ) : (
               <>
                 <SidebarMenuButton
@@ -291,8 +307,10 @@ export function AppSidebar() {
     return expanded.includes(item.title) || isGroupActive(item)
   }
 
+  const groupProps = { open, isActive, isGroupActive, isItemExpanded, toggleExpanded }
+
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="overflow-x-hidden">
       <SidebarHeader className="flex h-14 items-center justify-center border-b bg-background p-0">
         {open ? (
           <>
@@ -311,31 +329,34 @@ export function AppSidebar() {
         )}
       </SidebarHeader>
 
-      <SidebarContent>
-        {navGroups.map((group, index) => (
+      <SidebarContent className="overflow-x-hidden">
+        {/* Main groups */}
+        {mainGroups.map((group, index) => (
           <div key={index}>
-            {index > 0 && <SidebarSeparator />}
+            {index > 0 && <SidebarSeparator className="mx-0" />}
             <SidebarGroup>
-              {group.label && open && (
-                <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-              )}
+              {group.label && open && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
               <SidebarGroupContent>
-                <NavGroupItems
-                  items={group.items}
-                  open={open}
-                  isActive={isActive}
-                  isGroupActive={isGroupActive}
-                  isItemExpanded={isItemExpanded}
-                  toggleExpanded={toggleExpanded}
-                />
+                <NavGroupItems items={group.items} {...groupProps} />
               </SidebarGroupContent>
             </SidebarGroup>
           </div>
         ))}
+
+        {/* Bottom group — Data Management pinned to bottom */}
+        <div className="mt-auto">
+          <SidebarSeparator className="mx-0" />
+          <SidebarGroup>
+            {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
+            <SidebarGroupContent>
+              <NavGroupItems items={bottomGroup.items} {...groupProps} />
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
       </SidebarContent>
 
-      <SidebarFooter>
-        <SidebarSeparator />
+      <SidebarFooter className="overflow-x-hidden">
+        <SidebarSeparator className="mx-0" />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
