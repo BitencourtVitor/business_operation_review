@@ -27,7 +27,6 @@ import {
   FileCheck,
   Fuel,
   Gauge,
-  LayoutDashboard,
   LineChart,
   Package,
   PanelLeftClose,
@@ -66,11 +65,6 @@ type NavGroup = {
 }
 
 const mainGroups: NavGroup[] = [
-  {
-    items: [
-      { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    ],
-  },
   {
     label: "Operations",
     items: [
