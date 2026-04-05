@@ -5,19 +5,15 @@
     "": {
       "name": "bor2",
       "devDependencies": {
+        "postgres": "^3.4.8",
         "turbo": "^2.3.3",
       },
-    },
-    "apps/api": {
-      "name": "@bor2/api",
-      "version": "1.0.0",
     },
     "apps/web": {
       "name": "@bor2/web",
       "version": "0.1.0",
       "dependencies": {
         "@base-ui/react": "^1.3.0",
-        "@bor2/shared": "workspace:*",
         "@hookform/resolvers": "^5.2.2",
         "@radix-ui/react-label": "^2.1.8",
         "@radix-ui/react-slot": "^1.2.4",
@@ -38,7 +34,7 @@
         "react-dom": "19.2.4",
         "react-hook-form": "^7.72.0",
         "react-resizable-panels": "^4.9.0",
-        "recharts": "3.8.0",
+        "recharts": "^3.8.0",
         "shadcn": "^4.1.2",
         "sonner": "^2.0.7",
         "tailwind-merge": "^3.5.0",
@@ -185,8 +181,6 @@
     "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@1.9.4", "", { "os": "win32", "cpu": "arm64" }, "sha512-tlbhLk+WXZmgwoIKwHIHEBZUwxml7bRJgk0X2sPyNR3S93cdRq6XulAZRQJ17FYGGzWne0fgrXBKpl7l4M87Hg=="],
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@1.9.4", "", { "os": "win32", "cpu": "x64" }, "sha512-8Y5wMhVIPaWe6jw2H+KlEm4wP/f7EW3810ZLmDlrEEy5KvBsb9ECEfu/kMWD484ijfQ8+nIi0giMgu9g1UAuuA=="],
-
-    "@bor2/api": ["@bor2/api@workspace:apps/api"],
 
     "@bor2/shared": ["@bor2/shared@workspace:packages/shared"],
 
@@ -1399,6 +1393,8 @@
     "postcss": ["postcss@8.5.8", "", { "dependencies": { "nanoid": "^3.3.11", "picocolors": "^1.1.1", "source-map-js": "^1.2.1" } }, "sha512-OW/rX8O/jXnm82Ey1k44pObPtdblfiuWnrd8X7GJ7emImCOstunGbXUpp7HdBrFQX6rJzn3sPT397Wp5aCwCHg=="],
 
     "postcss-selector-parser": ["postcss-selector-parser@7.1.1", "", { "dependencies": { "cssesc": "^3.0.0", "util-deprecate": "^1.0.2" } }, "sha512-orRsuYpJVw8LdAwqqLykBj9ecS5/cRHlI5+nvTo8LcCKmzDmqVORXtOIYEEQuL9D4BxtA1lm5isAqzQZCoQ6Eg=="],
+
+    "postgres": ["postgres@3.4.8", "", {}, "sha512-d+JFcLM17njZaOLkv6SCev7uoLaBtfK86vMUXhW1Z4glPWh4jozno9APvW/XKFJ3CCxVoC7OL38BqRydtu5nGg=="],
 
     "powershell-utils": ["powershell-utils@0.1.0", "", {}, "sha512-dM0jVuXJPsDN6DvRpea484tCUaMiXWjuCn++HGTqUWzGDjv5tZkEZldAJ/UMlqRYGFrD/etByo4/xOuC/snX2A=="],
 

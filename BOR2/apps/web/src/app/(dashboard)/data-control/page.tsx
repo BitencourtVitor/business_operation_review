@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -30,12 +30,19 @@ import {
   useDeleteCatalogItem,
 } from "@/hooks/use-catalog"
 import type { CatalogTable } from "@/services/catalog.service"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { NewProjectCard, ProjectCard, type ViewTab } from "@/components/features/data-control/project-card"
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
-import { Database, FilePlus2, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import { Building2, CircleDot, Database, FilePlus2, FileText, Info, MapPin, Pencil, Plus, Search, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import React, { useMemo, useState } from "react"
 
-// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const STATUSES: ForecastStatus[] = ["planned", "active", "completed", "cancelled"]
 const PROJECT_TYPES = ["Building", "Lot", "House"]
@@ -48,17 +55,17 @@ const STATUS_BADGE: Record<ForecastStatus, string> = {
 }
 
 function fmtDate(val: string | null | undefined) {
-  if (!val) return "â€”"
+  if (!val) return "—"
   const [y, m, d] = val.slice(0, 10).split("-").map(Number)
   return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 function fmtCurrency(val: number) {
-  if (!val) return "â€”"
+  if (!val) return "—"
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val)
 }
 
-// â”€â”€â”€ Form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Form state ───────────────────────────────────────────────────────────────
 
 type FormState = Omit<ForecastProject, "id" | "createdAt" | "updatedAt" | "fieldwire" | "machines" | "contractSteps">
 
@@ -91,7 +98,32 @@ function dateVal(v: string | null | undefined): string {
   return v.slice(0, 10)
 }
 
-// â”€â”€â”€ Delete dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// Builds a searchable string from a date value covering multiple formats
+function dateSearchStr(v: string | null | undefined): string {
+  if (!v || v.length < 10) return ""
+  const iso = v.slice(0, 10)
+  const [y, m, d] = iso.split("-").map(Number)
+  const mm = String(m).padStart(2, "0")
+  const dd = String(d).padStart(2, "0")
+  const mmddyyyy = `${mm}/${dd}/${y}`
+  const localized = new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+  return `${iso} ${mmddyyyy} ${localized}`.toLowerCase()
+}
+
+const STATUS_SEARCH: Record<string, string> = {
+  active:    "open",
+  planned:   "not started",
+  completed: "closed",
+  cancelled: "cancelled",
+}
+
+const STATUS_OPTS: { value: ForecastStatus; label: string }[] = [
+  { value: "planned",   label: "Not started" },
+  { value: "active",    label: "Open"        },
+  { value: "completed", label: "Closed"      },
+]
+
+// ─── Delete dialog ────────────────────────────────────────────────────────────
 
 function DeleteDialog({
   project, onClose, onConfirm, deleting,
@@ -119,7 +151,7 @@ function DeleteDialog({
   )
 }
 
-// â”€â”€â”€ Catalog tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Catalog tab ──────────────────────────────────────────────────────────────
 
 const CATALOG_TABS: { key: CatalogTable; label: string; cols: { field: string; label: string }[] }[] = [
   { key: "workforce",      label: "Workforce",          cols: [{ field: "name",               label: "Name"                }] },
@@ -223,7 +255,7 @@ function CatalogSection() {
               <TableRow key={String(row.id ?? i)}>
                 <TableCell className="text-xs text-muted-foreground">{String(row.id)}</TableCell>
                 {tableDef.cols.map(c => (
-                  <TableCell key={c.field} className="text-sm">{String(row[c.field] ?? "â€”")}</TableCell>
+                  <TableCell key={c.field} className="text-sm">{String(row[c.field] ?? "—")}</TableCell>
                 ))}
                 <TableCell>
                   <Button
@@ -245,17 +277,17 @@ function CatalogSection() {
   )
 }
 
-// â”€â”€â”€ View mode tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── View mode tabs ───────────────────────────────────────────────────────────
 
-const VIEW_TABS: { key: ViewTab; label: string }[] = [
-  { key: "info",      label: "Info & Dates" },
-  { key: "fieldwire", label: "Fieldwire"    },
-  { key: "machines",  label: "Machines"     },
-  { key: "contract",  label: "Contract"     },
-  { key: "optionals", label: "Optionals"    },
+const VIEW_TABS: { key: ViewTab; label: string; icon: React.ReactNode }[] = [
+  { key: "info",      label: "Info & Dates", icon: <Info              className="h-3.5 w-3.5" /> },
+  { key: "fieldwire", label: "Fieldwire",    icon: <img src="/images/icon_fieldwire.png" alt="Fieldwire" className="h-3.5 w-3.5 object-contain" /> },
+  { key: "machines",  label: "Machines",     icon: <Truck             className="h-3.5 w-3.5" /> },
+  { key: "contract",  label: "Contract",     icon: <FileText          className="h-3.5 w-3.5" /> },
+  { key: "optionals", label: "Optionals",    icon: <SlidersHorizontal className="h-3.5 w-3.5" /> },
 ]
 
-// â”€â”€â”€ New Project section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── New Project section ──────────────────────────────────────────────────────
 
 function NewProjectSection({ onCreated }: { onCreated: () => void }) {
   const createMutation = useCreateForecast()
@@ -293,24 +325,29 @@ function NewProjectSection({ onCreated }: { onCreated: () => void }) {
   )
 }
 
-// â”€â”€â”€ Edit Projects section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Edit Projects section ────────────────────────────────────────────────────
 
-function EditProjectSection() {
+function EditProjectSection({
+  clientFilter,
+  jobSiteFilter,
+  statusFilter,
+  onClientFilter,
+  onJobSiteFilter,
+  onStatusFilter,
+}: {
+  clientFilter:    string
+  jobSiteFilter:   string
+  statusFilter:    ForecastStatus | "all"
+  onClientFilter:  (v: string) => void
+  onJobSiteFilter: (v: string) => void
+  onStatusFilter:  (v: ForecastStatus | "all") => void
+}) {
   const { data: projects, isLoading } = useForecast()
   const deleteMutation = useDeleteForecast()
 
-  const [search, setSearch]               = useState("")
-  const [clientFilter, setClientFilter]   = useState("all")
-  const [jobSiteFilter, setJobSiteFilter] = useState("all")
-  const [statusFilter, setStatusFilter]   = useState<ForecastStatus | "all">("all")
-  const [viewMode, setViewMode]           = useState<ViewTab>("info")
+  const [search, setSearch] = useState("")
+  const [viewMode, setViewMode] = useState<ViewTab>("info")
   const [deletingProject, setDeletingProject] = useState<ForecastProject | null>(null)
-
-  const clientOpts  = useMemo(() => ["all", ...Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort()], [projects])
-  const jobSiteOpts = useMemo(() => {
-    const base = projects?.filter(p => clientFilter === "all" || p.cliente === clientFilter) ?? []
-    return ["all", ...Array.from(new Set(base.map(p => p.jobSite).filter(Boolean) as string[])).sort()]
-  }, [projects, clientFilter])
 
   const filtered = useMemo(() => {
     if (!projects) return []
@@ -320,13 +357,20 @@ function EditProjectSection() {
       if (statusFilter  !== "all" && p.status  !== statusFilter)  return false
       if (search) {
         const q = search.toLowerCase()
-        if (
-          !(p.cliente  || "").toLowerCase().includes(q) &&
-          !(p.jobSite  || "").toLowerCase().includes(q) &&
-          !(p.loteBld  || "").toLowerCase().includes(q) &&
-          !(p.team     || "").toLowerCase().includes(q) &&
-          !(p.address  || "").toLowerCase().includes(q)
-        ) return false
+        const haystack = [
+          p.cliente,
+          p.jobSite,
+          p.type,
+          p.loteBld,
+          p.address,
+          p.obs,
+          p.team,
+          STATUS_SEARCH[p.status] ?? p.status,
+          dateSearchStr(p.previousBeamsDate),
+          dateSearchStr(p.previousStartDate),
+          dateSearchStr(p.previousEndDate),
+        ].map(v => (v || "").toLowerCase())
+        if (!haystack.some(v => v.includes(q))) return false
       }
       return true
     })
@@ -335,56 +379,47 @@ function EditProjectSection() {
   const availableClients  = useMemo(() => Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort(), [projects])
   const availableJobSites = useMemo(() => Array.from(new Set(projects?.map(p => p.jobSite).filter(Boolean)  as string[])).sort(), [projects])
 
-  const active    = projects?.filter(p => p.status === "active").length ?? 0
-  const planned   = projects?.filter(p => p.status === "planned").length ?? 0
-  const completed = projects?.filter(p => p.status === "completed").length ?? 0
-
   if (isLoading) return <PageSkeleton />
 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Edit Project</h1>
-        <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-green-600">{active}</span> active Â·{" "}
-          <span className="font-medium text-blue-600">{planned}</span> planned Â·{" "}
-          <span className="font-medium">{completed}</span> completed Â·{" "}
-          <span className="font-medium text-foreground">{projects?.length ?? 0} total</span>
-        </p>
-      </div>
-
-      {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="h-7 pl-7 text-xs w-44" />
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Edit Project</h1>
+          <p className="text-sm text-muted-foreground">Select a view and edit project details inline.</p>
         </div>
-        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={clientFilter} onChange={e => { setClientFilter(e.target.value); setJobSiteFilter("all") }}>
-          <option value="all">All clients</option>
-          {clientOpts.filter(c => c !== "all").map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={jobSiteFilter} onChange={e => setJobSiteFilter(e.target.value)}>
-          <option value="all">All job sites</option>
-          {jobSiteOpts.filter(j => j !== "all").map(j => <option key={j} value={j}>{j}</option>)}
-        </select>
-        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={statusFilter} onChange={e => setStatusFilter(e.target.value as ForecastStatus | "all")}>
-          <option value="all">All statuses</option>
-          {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
-        </select>
-        {(search || clientFilter !== "all" || jobSiteFilter !== "all" || statusFilter !== "all") && (
-          <button className="text-xs text-muted-foreground underline hover:text-foreground" onClick={() => { setSearch(""); setClientFilter("all"); setJobSiteFilter("all"); setStatusFilter("all") }}>
-            Clear
-          </button>
-        )}
-        <span className="ml-auto text-xs text-muted-foreground">{filtered.length} project{filtered.length !== 1 ? "s" : ""}</span>
-        <div className="ml-4 flex items-center gap-1 rounded-md border border-border bg-background p-0.5">
-          {VIEW_TABS.map(t => (
-            <button key={t.key} onClick={() => setViewMode(t.key)}
-              className={`rounded px-2.5 py-1 text-[11px] font-medium transition-colors ${viewMode === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
-              {t.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">{filtered.length} project{filtered.length !== 1 ? "s" : ""}</span>
+          <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
+            {VIEW_TABS.map(t => (
+              <button
+                key={t.key}
+                title={t.label}
+                onClick={() => setViewMode(t.key)}
+                className={`flex items-center justify-center rounded-md p-1.5 transition-all ${viewMode === t.key ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {t.icon}
+              </button>
+            ))}
+          </div>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className={`h-7 text-xs w-44 pl-7 ${search ? "pr-7" : ""}`}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -414,13 +449,13 @@ function EditProjectSection() {
   )
 }
 
-// â”€â”€â”€ Inner sidebar nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Inner sidebar nav ────────────────────────────────────────────────────────
 
 type DCSection = "new-project" | "edit-project" | "catalog"
 
 const DC_GROUPS: { label: string; items: { key: DCSection; label: string; icon: React.ElementType }[] }[] = [
   {
-    label: "Forecast",
+    label: "Options",
     items: [
       { key: "new-project",  label: "New Project",    icon: FilePlus2 },
       { key: "edit-project", label: "Edit Project",   icon: Pencil    },
@@ -430,17 +465,34 @@ const DC_GROUPS: { label: string; items: { key: DCSection; label: string; icon: 
 ]
 
 function DataControlSidebar({
-  active, onSelect,
+  active,
+  onSelect,
+  clientFilter,
+  jobSiteFilter,
+  statusFilter,
+  clientOpts,
+  jobSiteOpts,
+  onClientFilter,
+  onJobSiteFilter,
+  onStatusFilter,
 }: {
-  active: DCSection
-  onSelect: (s: DCSection) => void
+  active:          DCSection
+  onSelect:        (s: DCSection) => void
+  clientFilter:    string
+  jobSiteFilter:   string
+  statusFilter:    ForecastStatus | "all"
+  clientOpts:      string[]
+  jobSiteOpts:     string[]
+  onClientFilter:  (v: string) => void
+  onJobSiteFilter: (v: string) => void
+  onStatusFilter:  (v: ForecastStatus | "all") => void
 }) {
   return (
     <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
       {/* Header */}
       <div className="px-4 py-3 border-b border-sidebar-border">
         <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
-          Forecast Controls
+          Forecast Data Controls
         </p>
       </div>
 
@@ -473,23 +525,144 @@ function DataControlSidebar({
             </div>
           </div>
         ))}
+
+        {/* Edit Filters — only visible in edit-project mode */}
+        {active === "edit-project" && (
+          <>
+            <div className="my-3 border-t border-sidebar-border" />
+            <div className="px-3 space-y-3">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 px-1">
+                Edit Filters
+              </p>
+
+              {/* Client filter */}
+              <div className="space-y-1">
+                <p className="px-1 text-xs font-medium text-sidebar-foreground/70">Client</p>
+                <Select
+                  value={clientFilter === "all" ? "" : clientFilter}
+                  onValueChange={v => onClientFilter(v || "all")}
+                >
+                  <SelectTrigger size="sm" className="w-full bg-sidebar-accent/30 border-sidebar-border text-xs">
+                    <Building2 className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientOpts.filter(c => c !== "all").map(c => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Job site filter */}
+              <div className="space-y-1">
+                <p className="px-1 text-xs font-medium text-sidebar-foreground/70">Job Site</p>
+                <Select
+                  value={jobSiteFilter === "all" ? "" : jobSiteFilter}
+                  onValueChange={v => onJobSiteFilter(v || "all")}
+                >
+                  <SelectTrigger size="sm" className="w-full bg-sidebar-accent/30 border-sidebar-border text-xs">
+                    <MapPin className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobSiteOpts.filter(j => j !== "all").map(j => (
+                      <SelectItem key={j} value={j}>{j}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status filter */}
+              <div className="space-y-1">
+                <p className="px-1 text-xs font-medium text-sidebar-foreground/70">Status</p>
+                <Select
+                  value={statusFilter === "all" ? "" : (STATUS_OPTS.find(o => o.value === statusFilter)?.label ?? "")}
+                  onValueChange={v => {
+                    const opt = STATUS_OPTS.find(o => o.label === v)
+                    onStatusFilter(opt ? opt.value : "all")
+                  }}
+                >
+                  <SelectTrigger size="sm" className="w-full bg-sidebar-accent/30 border-sidebar-border text-xs">
+                    <CircleDot className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <SelectValue placeholder="All" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUS_OPTS.map(o => (
+                      <SelectItem key={o.value} value={o.label}>{o.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(clientFilter !== "all" || jobSiteFilter !== "all" || statusFilter !== "all") && (
+                <button
+                  className="flex w-full items-center justify-center gap-1.5 text-[11px] text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors"
+                  onClick={() => { onClientFilter("all"); onJobSiteFilter("all"); onStatusFilter("all") }}
+                >
+                  <X className="h-3 w-3" />
+                  Clear filters
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </aside>
   )
 }
 
-// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function DataControlPage() {
   const [section, setSection] = useState<DCSection>("edit-project")
+  const { data: projects } = useForecast()
+
+  const [clientFilter, setClientFilter]   = useState("all")
+  const [jobSiteFilter, setJobSiteFilter] = useState("all")
+  const [statusFilter, setStatusFilter]   = useState<ForecastStatus | "all">("all")
+
+  const clientOpts = useMemo(
+    () => ["all", ...Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort()],
+    [projects]
+  )
+  const jobSiteOpts = useMemo(() => {
+    const base = projects?.filter(p => clientFilter === "all" || p.cliente === clientFilter) ?? []
+    return ["all", ...Array.from(new Set(base.map(p => p.jobSite).filter(Boolean) as string[])).sort()]
+  }, [projects, clientFilter])
+
+  function handleClientFilter(v: string) {
+    setClientFilter(v)
+    setJobSiteFilter("all")
+  }
 
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
-      <DataControlSidebar active={section} onSelect={setSection} />
+      <DataControlSidebar
+        active={section}
+        onSelect={setSection}
+        clientFilter={clientFilter}
+        jobSiteFilter={jobSiteFilter}
+        statusFilter={statusFilter}
+        clientOpts={clientOpts}
+        jobSiteOpts={jobSiteOpts}
+        onClientFilter={handleClientFilter}
+        onJobSiteFilter={setJobSiteFilter}
+        onStatusFilter={setStatusFilter}
+      />
       <div className="flex-1 overflow-y-auto p-6">
         {section === "new-project"  && <NewProjectSection onCreated={() => setSection("edit-project")} />}
-        {section === "edit-project" && <EditProjectSection />}
-        {section === "catalog"      && <CatalogSection />}
+        {section === "edit-project" && (
+          <EditProjectSection
+            clientFilter={clientFilter}
+            jobSiteFilter={jobSiteFilter}
+            statusFilter={statusFilter}
+            onClientFilter={handleClientFilter}
+            onJobSiteFilter={setJobSiteFilter}
+            onStatusFilter={setStatusFilter}
+          />
+        )}
+        {section === "catalog" && <CatalogSection />}
       </div>
     </div>
   )

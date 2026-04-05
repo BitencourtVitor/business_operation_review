@@ -49,3 +49,27 @@ func (s *ForecastService) Delete(ctx context.Context, id string) error {
 	}
 	return s.repo.Delete(ctx, id)
 }
+
+func (s *ForecastService) ToggleFieldwire(ctx context.Context, fwID int64, status bool) error {
+	return s.repo.UpdateFieldwireStatus(ctx, fwID, status)
+}
+
+func (s *ForecastService) ToggleMachine(ctx context.Context, machID int64, status bool) error {
+	return s.repo.UpdateMachineStatus(ctx, machID, status)
+}
+
+func (s *ForecastService) ToggleContractStep(ctx context.Context, stepID int64, status bool) error {
+	return s.repo.UpdateContractStepStatus(ctx, stepID, status)
+}
+
+func (s *ForecastService) CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error) {
+	return s.repo.CreateContractStep(ctx, projectID, team, step)
+}
+
+func (s *ForecastService) DeleteContractTeam(ctx context.Context, projectID string, team string) error {
+	return s.repo.DeleteContractTeam(ctx, projectID, team)
+}
+
+func (s *ForecastService) AddContractTeam(ctx context.Context, projectID string, team string) error {
+	return s.repo.AddContractTeam(ctx, projectID, team)
+}

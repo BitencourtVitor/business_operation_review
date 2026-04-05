@@ -107,6 +107,7 @@ func main() {
 	workforceHandler         := handler.NewWorkforceHandler(db)
 	settingsHandler          := handler.NewSettingsHandler(db)
 	inventoryHandler         := handler.NewInventoryHandler(db)
+	catalogHandler           := handler.NewForecastCatalogHandler(db)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
@@ -145,6 +146,18 @@ func main() {
 	forecast.Post("/", forecastHandler.Create)
 	forecast.Put("/:id", forecastHandler.Update)
 	forecast.Delete("/:id", forecastHandler.Delete)
+	forecast.Patch("/fieldwire/:fwid", forecastHandler.ToggleFieldwire)
+	forecast.Patch("/machine/:mid", forecastHandler.ToggleMachine)
+	forecast.Patch("/contract/:stepid", forecastHandler.ToggleContractStep)
+	forecast.Post("/contract", forecastHandler.CreateContractStep)
+	forecast.Delete("/contract/team", forecastHandler.DeleteContractTeam)
+	forecast.Post("/contract/team", forecastHandler.AddContractTeam)
+
+	// Forecast Catalog (C_ tables)
+	catalog := api.Group("/forecast/catalog")
+	catalog.Get("/:table", catalogHandler.List)
+	catalog.Post("/:table", catalogHandler.Add)
+	catalog.Delete("/:table/:id", catalogHandler.Delete)
 
 	// Accounting
 	accounting := api.Group("/accounting")

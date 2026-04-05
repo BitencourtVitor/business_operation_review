@@ -1,8 +1,9 @@
 [build]
-buildCommand = "bun install && bun run build"
+builder = "dockerfile"
+dockerfilePath = "apps/web/Dockerfile"
 
 [deploy]
-startCommand = "bun run start"
+startCommand = "bun server.js"
 healthcheckPath = "/"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"

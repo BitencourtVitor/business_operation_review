@@ -27,4 +27,22 @@ export const forecastService = {
 
   delete: (id: string) =>
     api.delete<void>(`/api/v1/forecast/${id}`, getToken()),
+
+  toggleFieldwire: (fwId: number, status: boolean) =>
+    api.patch<{ ok: boolean }>(`/api/v1/forecast/fieldwire/${fwId}`, { status }, getToken()),
+
+  toggleMachine: (machId: number, status: boolean) =>
+    api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}`, { status }, getToken()),
+
+  toggleContractStep: (stepId: number, status: boolean) =>
+    api.patch<{ ok: boolean }>(`/api/v1/forecast/contract/${stepId}`, { status }, getToken()),
+
+  createContractStep: (projectId: string, team: string, step: string) =>
+    api.post<{ id: number }>(`/api/v1/forecast/contract`, { projectId, team, step }, getToken()),
+
+  deleteContractTeam: (projectId: string, team: string) =>
+    api.delete<{ ok: boolean }>(`/api/v1/forecast/contract/team?projectId=${encodeURIComponent(projectId)}&team=${encodeURIComponent(team)}`, getToken()),
+
+  addContractTeam: (projectId: string, team: string) =>
+    api.post<{ ok: boolean }>(`/api/v1/forecast/contract/team`, { projectId, team }, getToken()),
 }

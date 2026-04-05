@@ -13,13 +13,16 @@ const (
 // Lightweight sub-resource types (from BOR1 migration tables)
 
 type ForecastFieldwireDoc struct {
-	ID     int64   `json:"id"`
-	Status *string `json:"status"`
+	ID       int64   `json:"id"`
+	Status   *string `json:"status"`
+	Category string  `json:"category"`
+	Document string  `json:"document"`
 }
 
 type ForecastMachineDoc struct {
 	ID     int64   `json:"id"`
 	Title  *string `json:"title"`
+	Unit   *string `json:"unit"`
 	Status *string `json:"status"`
 }
 

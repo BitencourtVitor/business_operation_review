@@ -10,7 +10,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <AppSidebar />
         <SidebarInset>
           <Header />
-          <main className="h-[calc(100vh-3.5rem)] overflow-y-auto p-6">
+          <main className="h-[calc(100vh-3.5rem)] overflow-hidden p-6">
             {children}
           </main>
         </SidebarInset>

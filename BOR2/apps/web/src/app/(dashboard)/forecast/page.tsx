@@ -54,7 +54,7 @@ const STATUS_ROWS: { key: keyof StatusToggles; label: string; color: string }[] 
   { key: "completed", label: "Closed",      color: "#6b7280" },
 ]
 
-const DEFAULT_STATUS: StatusToggles = { overdue: "on", planned: "on", active: "on", completed: "on" }
+const DEFAULT_STATUS: StatusToggles = { overdue: "on", planned: "on", active: "off", completed: "off" }
 const DEFAULT_INTEG: IntegFilters   = { fieldwire: "all", buildertrend: "all", qbTime: "all", machines: "all", storage: "all", contract: "all" }
 
 const STATUS_METRIC_COLORS: Record<ForecastDisplayStatus, string> = {
@@ -319,7 +319,7 @@ function FiltersPopover(props: FiltersPopoverProps) {
 
 export default function ForecastPage() {
   const [year, setYear]         = useState<number | "all">(CURRENT_YEAR)
-  const [month, setMonth]       = useState<number | "all">("all")
+  const [month, setMonth]       = useState<number | "all">(new Date().getMonth())
   const [dateMode, setDateMode] = useState<DateMode>("start")
   const [status, setStatus]     = useState<StatusToggles>(DEFAULT_STATUS)
   const [integ, setInteg]       = useState<IntegFilters>(DEFAULT_INTEG)
@@ -338,7 +338,7 @@ export default function ForecastPage() {
   // Active filter count
   const activeCount = useMemo(() => {
     let n = 0
-    Object.values(status).forEach(v => { if (v !== "on") n++ })
+    ;(Object.keys(DEFAULT_STATUS) as (keyof StatusToggles)[]).forEach(k => { if (status[k] !== DEFAULT_STATUS[k]) n++ })
     Object.values(integ).forEach(v => { if (v !== "all") n++ })
     if (client !== "all") n++
     if (location !== "all") n++

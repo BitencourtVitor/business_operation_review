@@ -4,7 +4,7 @@ import { catalogService, type CatalogTable } from "@/services/catalog.service"
 export function useCatalogTable(table: CatalogTable) {
   return useQuery({
     queryKey: ["catalog", table],
-    queryFn: () => catalogService.list(table).then(d => (d as unknown as { data: Record<string, unknown>[] }).data ?? []),
+    queryFn: () => catalogService.list(table).then(d => Array.isArray(d) ? d : []),
   })
 }
 
