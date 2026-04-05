@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { settingsService, type CreateUserInput, type UpdateUserInput } from "@/services/settings.service"
+import { settingsService, type CreateUserInput, type UpdateUserInput, type PermissionLevel } from "@/services/settings.service"
 
 export function useScreens() {
   return useQuery({
@@ -46,10 +46,19 @@ export function useResetPassword() {
   })
 }
 
+export function useMyPermissions() {
+  return useQuery({
+    queryKey: ["settings", "my-permissions"],
+    queryFn:  () => settingsService.getMyPermissions().catch(() => null),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  })
+}
+
 export function useUpdateUserPermissions() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ userId, permissions }: { userId: string; permissions: Record<string, boolean> }) =>
+    mutationFn: ({ userId, permissions }: { userId: string; permissions: Record<string, PermissionLevel> }) =>
       settingsService.updateUserPermissions(userId, permissions),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["settings", "users"] }),
   })

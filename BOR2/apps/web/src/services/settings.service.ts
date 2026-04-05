@@ -6,12 +6,14 @@ export interface Screen {
   description: string
 }
 
+export type PermissionLevel = "read" | "write"
+
 export interface UserWithPermissions {
   id:          string
   email:       string
   name:        string
   role:        string
-  permissions: Record<string, boolean>
+  permissions: Record<string, PermissionLevel>
 }
 
 export interface CreateUserInput {
@@ -51,6 +53,9 @@ export const settingsService = {
   resetPassword: (id: string) =>
     api.post<{ provisionalPassword: string }>(`/api/v1/settings/users/${id}/reset-password`, {}, getToken()),
 
-  updateUserPermissions: (userId: string, permissions: Record<string, boolean>) =>
+  updateUserPermissions: (userId: string, permissions: Record<string, PermissionLevel>) =>
     api.patch<{ message: string }>(`/api/v1/settings/users/${userId}/permissions`, { permissions }, getToken()),
+
+  getMyPermissions: () =>
+    api.get<{ role: string; permissions: Record<string, string> }>("/api/v1/settings/me/permissions", getToken()),
 }

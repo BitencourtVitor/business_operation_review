@@ -17,15 +17,21 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
 import {
-  Activity, ArrowLeft, Award, BarChart2, Banknote,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table"
+import {
+  Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
+} from "@/components/ui/tooltip"
+import {
+  Activity, ArrowLeft, Award, BarChart2, Banknote, Bell,
   CalendarCheck, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
-  Compass, Database, FileCheck, Fuel, Gauge,
-  Gem, KeyRound, LayoutDashboard, Loader2,
+  Compass, Eye, FileCheck, Fuel, Gauge,
+  Gem, KeyRound, Loader2,
   Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
-  Upload, User, UserCog, UserPlus, Users, Watch, Wrench,
+  User, UserCog, UserPlus, Users, Watch, Wrench,
 } from "lucide-react"
-import type { UserWithPermissions } from "@/services/settings.service"
+import type { UserWithPermissions, PermissionLevel } from "@/services/settings.service"
 
 // ─── Shared input class ───────────────────────────────────────────────────────
 
@@ -34,15 +40,25 @@ const inputCls =
 
 // ─── Role metadata ────────────────────────────────────────────────────────────
 
-const ROLES = ["admin", "manager", "user", "viewer"] as const
+// Roles available in the "Add / Edit User" form
+const ROLES = ["owner", "manager", "user"] as const
+
+// Role hierarchy — higher number = more authority
+const ROLE_RANK: Record<string, number> = {
+  dev: 100, owner: 80, admin: 70, manager: 60, gestor: 40, user: 10,
+}
+
+function canManage(myRole: string, targetRole: string): boolean {
+  return (ROLE_RANK[myRole] ?? 0) > (ROLE_RANK[targetRole] ?? 0)
+}
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
   dev:     { label: "Developer", icon: Gem,     className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
   admin:   { label: "Admin",     icon: Award,   className: "border-primary/40 bg-primary/10 text-primary" },
   owner:   { label: "Owner",     icon: Compass, className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   manager: { label: "Manager",   icon: Gauge,   className: "border-primary/40 bg-primary/10 text-primary" },
+  gestor:  { label: "Gestor",    icon: Users,   className: "border-sky-500/40 bg-sky-500/10 text-sky-600 dark:text-sky-400" },
   user:    { label: "User",      icon: User,    className: "border-border bg-secondary text-foreground" },
-  viewer:  { label: "Viewer",    icon: User,    className: "border-border bg-secondary text-foreground" },
 }
 
 function RoleBadge({ role }: { role: string }) {
@@ -57,47 +73,45 @@ function RoleBadge({ role }: { role: string }) {
 
 // ─── Permission groups ────────────────────────────────────────────────────────
 
-type PermDef = { key: string; label: string; icon: React.ElementType }
+type PermDef = { key: string; label: string; icon?: React.ElementType; image?: string }
 type PermGroup = { label: string; permissions: PermDef[] }
 
 const PERMISSION_GROUPS: PermGroup[] = [
   {
-    label: "System",
+    label: "Settings",
     permissions: [
-      { key: "dashboard", label: "Dashboard",  icon: LayoutDashboard },
-      { key: "autolog",   label: "AutoLog",    icon: Activity        },
-      { key: "settings",  label: "Settings",   icon: Settings        },
+      { key: "settings",               label: "Settings",            icon: Settings },
+      { key: "settings_users",         label: "Manage Users",        icon: UserCog  },
+      { key: "settings_notifications", label: "Manage Notifications", icon: Bell    },
     ],
   },
   {
     label: "Operations",
     permissions: [
-      { key: "monthly_execution",  label: "Monthly Execution",        icon: CalendarCheck  },
-      { key: "workforce",          label: "Workforce Productivity",    icon: Users          },
-      { key: "subcontractors",     label: "Subcontractor Performance", icon: ClipboardCheck },
-      { key: "inventory",          label: "Inventory Control",         icon: Package        },
-      { key: "permits",            label: "Permit Control",            icon: FileCheck      },
-      { key: "service_requests",   label: "Service Requests",          icon: Wrench         },
-      { key: "project_monitoring", label: "HVAC Project Monitoring",   icon: Gauge          },
+      { key: "monthly_execution", label: "Monthly Execution",        icon: CalendarCheck  },
+      { key: "workforce",         label: "Workforce Productivity",    icon: Users          },
+      { key: "subcontractors",    label: "Subcontractor Performance", icon: ClipboardCheck },
+      { key: "inventory",         label: "Inventory Control",         icon: Package        },
     ],
   },
   {
     label: "Finance & Analytics",
     permissions: [
-      { key: "forecast",   label: "Framing Forecast",  icon: BarChart2  },
-      { key: "ofi",        label: "Operational Index", icon: BarChart2  },
-      { key: "accounting", label: "Accounting",        icon: Banknote   },
-      { key: "fuel",       label: "Fuel Control",      icon: Fuel       },
-      { key: "timesheet",  label: "Timesheet",         icon: Watch      },
-      { key: "takeoff",    label: "Takeoff Works",     icon: Ruler      },
+      { key: "forecast",   label: "Framing Forecast",  image: "/images/sublogo_framing.png" },
+      { key: "ofi",        label: "Operational Index", icon: BarChart2 },
+      { key: "accounting", label: "Accounting",        icon: Banknote  },
+      { key: "fuel",       label: "Fuel Control",      icon: Fuel      },
     ],
   },
   {
     label: "Data Management",
     permissions: [
-      { key: "data_control",     label: "Data Control",     icon: ClipboardList },
-      { key: "bor1_explorer",    label: "BOR1 Explorer",    icon: Database      },
-      { key: "upload_timesheet", label: "Upload Timesheet", icon: Upload        },
+      { key: "autolog",          label: "Quickbooks Time Auto Log", icon: Activity   },
+      { key: "data_control",     label: "Forecast Data Control", icon: ClipboardList },
+      { key: "permits",          label: "Permit Control",        icon: FileCheck     },
+      { key: "project_monitoring", label: "HVAC Project Monitoring", image: "/images/sublogo_hvac.png" },
+      { key: "service_requests", label: "Service Requests",      icon: Wrench        },
+      { key: "takeoff",          label: "Takeoff Works",         icon: Ruler         },
     ],
   },
 ]
@@ -120,18 +134,18 @@ function UserFormModal({
 
   const [name,        setName]        = useState(existing?.name  ?? "")
   const [email,       setEmail]       = useState(existing?.email ?? "")
-  const [role,        setRole]        = useState<string>(existing?.role ?? "viewer")
+  const [role,        setRole]        = useState<string>(existing?.role ?? "user")
   const [provisional, setProvisional] = useState<string | null>(null)
 
   useEffect(() => {
     setName(existing?.name  ?? "")
     setEmail(existing?.email ?? "")
-    setRole(existing?.role  ?? "viewer")
+    setRole(existing?.role  ?? "user")
     setProvisional(null)
   }, [existing])
 
   function reset() {
-    setName(""); setEmail(""); setRole("viewer"); setProvisional(null)
+    setName(""); setEmail(""); setRole("user"); setProvisional(null)
   }
 
   async function handleSubmit() {
@@ -205,16 +219,22 @@ function UserFormModal({
               <label className="text-xs font-medium text-muted-foreground">Role</label>
               <Select value={role} onValueChange={v => v && setRole(v)}>
                 <SelectTrigger className="w-full">
-                  <span className="flex-1 text-left text-sm">
-                    {roleMeta[role]?.label ?? role}
+                  <span className="flex items-center gap-1.5 flex-1 text-sm">
+                    {(() => { const m = roleMeta[role]; return m ? <><m.icon className="h-3 w-3 shrink-0" />{m.label}</> : role })()}
                   </span>
                 </SelectTrigger>
                 <SelectContent alignItemWithTrigger={false}>
-                  {ROLES.map(r => (
-                    <SelectItem key={r} value={r}>
-                      {roleMeta[r]?.label ?? r}
-                    </SelectItem>
-                  ))}
+                  {ROLES.map(r => {
+                    const m = roleMeta[r]
+                    return (
+                      <SelectItem key={r} value={r}>
+                        <span className="flex items-center gap-1.5">
+                          {m && <m.icon className="h-3 w-3 shrink-0" />}
+                          {m?.label ?? r}
+                        </span>
+                      </SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -248,15 +268,20 @@ function DeleteUserModal({
   user:    UserWithPermissions | null
 }) {
   const deleteUser = useDeleteUser()
+  const [typed, setTyped] = useState("")
+
+  function handleClose() { setTyped(""); onClose() }
 
   async function confirm() {
-    if (!target) return
+    if (!target || typed !== target.name) return
     await deleteUser.mutateAsync(target.id)
-    onClose()
+    handleClose()
   }
 
+  const confirmed = typed === target?.name
+
   return (
-    <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
+    <Dialog open={open} onOpenChange={v => { if (!v) handleClose() }}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -264,14 +289,32 @@ function DeleteUserModal({
             Delete User
           </DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-muted-foreground">
-          Are you sure you want to delete{" "}
-          <span className="font-medium text-foreground">{target?.name}</span>?
-          This action cannot be undone.
-        </p>
-        <div className="flex justify-end gap-2 pt-2">
-          <Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-          <Button variant="destructive" size="sm" onClick={confirm} disabled={deleteUser.isPending}>
+
+        <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2.5 text-sm text-destructive">
+          This action is <span className="font-semibold">permanent and irreversible</span>. The user will lose all access immediately.
+        </div>
+
+        <div className="space-y-1.5">
+          <p className="text-sm text-muted-foreground">
+            Type <span className="font-medium text-foreground">{target?.name}</span> to confirm.
+          </p>
+          <input
+            className={inputCls}
+            placeholder={target?.name ?? ""}
+            value={typed}
+            onChange={e => setTyped(e.target.value)}
+            onPaste={e => e.preventDefault()}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-1">
+          <Button variant="ghost" size="sm" onClick={handleClose}>Cancel</Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={confirm}
+            disabled={!confirmed || deleteUser.isPending}
+          >
             {deleteUser.isPending
               ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
               : <><Trash2 className="h-3.5 w-3.5" />Delete</>
@@ -353,6 +396,12 @@ function ResetPasswordModal({
 
 // ─── Permissions modal ────────────────────────────────────────────────────────
 
+function cycleLevel(current: PermissionLevel | undefined): PermissionLevel | undefined {
+  if (!current)          return "read"
+  if (current === "read") return "write"
+  return undefined
+}
+
 function PermissionsModal({
   open, onClose, user: target,
 }: {
@@ -361,20 +410,29 @@ function PermissionsModal({
   user:    UserWithPermissions | null
 }) {
   const updatePerms = useUpdateUserPermissions()
-  const [permissions, setPermissions] = useState<Record<string, boolean>>(target?.permissions ?? {})
+  const [permissions, setPermissions] = useState<Record<string, PermissionLevel>>(target?.permissions ?? {})
 
   useEffect(() => {
     setPermissions(target?.permissions ?? {})
   }, [target])
 
-  function toggle(key: string) {
-    setPermissions(prev => ({ ...prev, [key]: !prev[key] }))
-  }
-
-  function toggleGroup(group: PermGroup, value: boolean) {
+  function cycle(key: string) {
     setPermissions(prev => {
       const next = { ...prev }
-      group.permissions.forEach(p => { next[p.key] = value })
+      const nextLevel = cycleLevel(prev[key])
+      if (nextLevel) next[key] = nextLevel
+      else delete next[key]
+      return next
+    })
+  }
+
+  function setGroupLevel(group: PermGroup, level: PermissionLevel | undefined) {
+    setPermissions(prev => {
+      const next = { ...prev }
+      group.permissions.forEach(p => {
+        if (level) next[p.key] = level
+        else delete next[p.key]
+      })
       return next
     })
   }
@@ -385,11 +443,12 @@ function PermissionsModal({
     onClose()
   }
 
-  const grantedCount = Object.values(permissions).filter(Boolean).length
+  const grantedCount = Object.keys(permissions).length
+  const writeCount   = Object.values(permissions).filter(v => v === "write").length
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-none w-[min(90vw,60rem)]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4" />
@@ -400,27 +459,31 @@ function PermissionsModal({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Counter */}
-        <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
-          <ShieldCheck className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">{grantedCount}</span> of{" "}
-            <span className="font-semibold text-foreground">{TOTAL_PERMISSIONS}</span> screens granted
-          </span>
-          <div className="ml-auto flex items-center gap-2">
-            <div className="h-1.5 w-24 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-primary transition-all"
-                style={{ width: `${(grantedCount / TOTAL_PERMISSIONS) * 100}%` }}
-              />
-            </div>
+        {/* Legend + counter */}
+        <div className="flex items-center gap-4 rounded-lg border bg-muted/30 px-3 py-2">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Eye className="h-3.5 w-3.5 text-primary" />
+              Read — view the page
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Pencil className="h-3.5 w-3.5 text-emerald-500" />
+              Write — edit page data
+            </span>
+          </div>
+          <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
+            <span><span className="font-semibold text-foreground">{grantedCount}</span>/{TOTAL_PERMISSIONS} screens</span>
+            <span className="text-border">·</span>
+            <span><span className="font-semibold text-emerald-500">{writeCount}</span> with write</span>
           </div>
         </div>
 
-        <ScrollArea className="max-h-[420px]">
-          <div className="space-y-5 pr-1">
+        <ScrollArea className="max-h-[520px]">
+          <div className="space-y-5 pr-2">
             {PERMISSION_GROUPS.map(group => {
-              const allChecked = group.permissions.every(p => permissions[p.key])
+              const levels    = group.permissions.map(p => permissions[p.key])
+              const allWrite  = levels.every(l => l === "write")
+              const allRead   = levels.every(l => !!l)
               return (
                 <div key={group.label}>
                   {/* Group header */}
@@ -429,47 +492,55 @@ function PermissionsModal({
                       {group.label}
                     </span>
                     <div className="h-px flex-1 bg-border" />
-                    <button
-                      type="button"
-                      className="text-[11px] text-muted-foreground transition-colors hover:text-primary"
-                      onClick={() => toggleGroup(group, !allChecked)}
-                    >
-                      {allChecked ? "Deselect all" : "Select all"}
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button type="button"
+                        className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] transition-colors ${allRead && !allWrite ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-primary"}`}
+                        onClick={() => setGroupLevel(group, allRead && !allWrite ? undefined : "read")}>
+                        <Eye className="h-3 w-3" />Read
+                      </button>
+                      <button type="button"
+                        className={`flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] transition-colors ${allWrite ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "text-muted-foreground hover:text-emerald-500"}`}
+                        onClick={() => setGroupLevel(group, allWrite ? undefined : "write")}>
+                        <Pencil className="h-3 w-3" />Write
+                      </button>
+                    </div>
                   </div>
 
                   {/* Permission cards */}
-                  <div className="grid grid-cols-3 gap-1.5">
+                  <div className="grid grid-cols-4 gap-1.5">
                     {group.permissions.map(perm => {
-                      const Icon  = perm.icon
-                      const on    = permissions[perm.key] ?? false
+                      const Icon  = perm.icon ?? null
+                      const level = permissions[perm.key]
+                      const isRead  = !!level
+                      const isWrite = level === "write"
                       return (
                         <div
                           key={perm.key}
-                          onClick={() => toggle(perm.key)}
-                          className={`flex cursor-pointer select-none items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-all ${
-                            on
-                              ? "border-primary/30 bg-primary/5"
-                              : "border-border hover:bg-muted/40"
+                          onClick={() => cycle(perm.key)}
+                          className={`flex min-w-0 cursor-pointer select-none items-center gap-2 rounded-lg border px-2.5 py-2 transition-all ${
+                            isWrite ? "border-emerald-500/30 bg-emerald-500/5"
+                            : isRead ? "border-primary/30 bg-primary/5"
+                            : "border-border hover:bg-muted/40"
                           }`}
                         >
-                          <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                            on
-                              ? "border-primary/40 bg-primary/10 text-primary"
-                              : "border-border bg-background text-muted-foreground"
+                          <div className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                            isWrite ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            : isRead ? "border-primary/40 bg-primary/10 text-primary"
+                            : "border-border bg-background text-muted-foreground"
                           }`}>
-                            <Icon className="h-3.5 w-3.5" />
+                            {perm.image
+                              ? <img src={perm.image} alt={perm.label} className="h-3 w-3 object-contain" />
+                              : Icon && <Icon className="h-3 w-3" />
+                            }
                           </div>
-                          <span className={`flex-1 text-xs font-medium leading-tight ${
-                            on ? "text-foreground" : "text-muted-foreground"
-                          }`}>
+                          <span className={`min-w-0 flex-1 line-clamp-2 text-xs font-medium leading-tight ${
+                            isRead ? "text-foreground" : "text-muted-foreground"
+                          }`} title={perm.label}>
                             {perm.label}
                           </span>
-                          {/* custom checkbox indicator */}
-                          <div className={`h-4 w-4 shrink-0 rounded border-2 transition-colors ${
-                            on ? "border-primary bg-primary" : "border-input"
-                          }`}>
-                            {on && <Check className="h-full w-full p-[1px] text-primary-foreground" />}
+                          <div className="flex shrink-0 flex-col items-center gap-0.5">
+                            <Eye    className={`h-2.5 w-2.5 ${isRead  ? "text-primary"     : "text-muted-foreground/20"}`} />
+                            <Pencil className={`h-2.5 w-2.5 ${isWrite ? "text-emerald-500" : "text-muted-foreground/20"}`} />
                           </div>
                         </div>
                       )
@@ -588,35 +659,32 @@ export default function UsersPage() {
           {/* Role filter */}
           <Select value={roleFilter} onValueChange={v => v && setRoleFilter(v)}>
             <SelectTrigger className="w-36">
-              <span className="flex-1 text-left text-sm text-muted-foreground">
-                {roleFilter === "all" ? "All roles" : (roleMeta[roleFilter]?.label ?? roleFilter)}
+              <span className="flex items-center gap-1.5 flex-1 text-sm text-muted-foreground">
+                {roleFilter === "all" ? "All roles" : (() => {
+                  const m = roleMeta[roleFilter]
+                  return m ? <><m.icon className="h-3 w-3 shrink-0" />{m.label}</> : roleFilter
+                })()}
               </span>
             </SelectTrigger>
             <SelectContent alignItemWithTrigger={false}>
               <SelectItem value="all">All roles</SelectItem>
-              {allRoles.map(r => (
-                <SelectItem key={r} value={r}>{roleMeta[r]?.label ?? r}</SelectItem>
-              ))}
+              {allRoles.map(r => {
+                const m = roleMeta[r]
+                return (
+                  <SelectItem key={r} value={r}>
+                    <span className="flex items-center gap-1.5">
+                      {m && <m.icon className="h-3 w-3 shrink-0" />}
+                      {m?.label ?? r}
+                    </span>
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
         </div>
 
         {/* Table */}
-        <div className="overflow-hidden rounded-xl border bg-card">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 border-b bg-muted/40 px-4 py-2.5">
-            {([["name","User"],["role","Role"]] as [SortKey,string][]).map(([col, label]) => (
-              <button key={col} onClick={() => toggleSort(col)}
-                className={`flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${sortKey === col ? "text-foreground" : "text-muted-foreground"}`}>
-                {label}
-                {sortKey === col
-                  ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
-                  : <ChevronUp className="h-3 w-3 opacity-20" />}
-              </button>
-            ))}
-            <span className="w-28 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Permissions</span>
-            <span className="w-24 text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Actions</span>
-          </div>
-
+        <div className="overflow-y-auto rounded-xl border bg-card" style={{ maxHeight: "calc(100vh - 16rem)" }}>
           {ul ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -626,69 +694,92 @@ export default function UsersPage() {
               {users.length === 0 ? "No users yet" : "No users match your search"}
             </p>
           ) : (
-            <div>
-              {filtered.map((u, i) => {
-                const granted = Object.values(u.permissions).filter(Boolean).length
-                return (
-                  <div
-                    key={u.id}
-                    className={`grid grid-cols-[1fr_auto_auto_auto] items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/30 ${i < filtered.length - 1 ? "border-b border-border/50" : ""}`}
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{u.name}</p>
-                      <p className="truncate text-xs text-muted-foreground">{u.email}</p>
-                    </div>
-
-                    <RoleBadge role={u.role} />
-
-                    <div className="flex w-28 items-center justify-end gap-2">
-                      <span className="text-xs tabular-nums text-muted-foreground">
-                        {granted}/{TOTAL_PERMISSIONS}
-                      </span>
-                      <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full rounded-full bg-primary transition-all"
-                          style={{ width: `${(granted / TOTAL_PERMISSIONS) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex w-24 items-center justify-end gap-1">
-                      <button
-                        className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        title="Edit permissions"
-                        onClick={() => setPermsTarget(u)}
-                      >
-                        <UserCog className="h-3.5 w-3.5" />
+              <Table className="[&_th]:py-2.5 [&_td]:py-2">
+                <TableHeader className="bg-muted/40">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="w-full border-r border-border">
+                      <button onClick={() => toggleSort("name")}
+                        className={`flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${sortKey === "name" ? "text-foreground" : "text-muted-foreground"}`}>
+                        User
+                        {sortKey === "name" ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3 opacity-20" />}
                       </button>
-                      <button
-                        className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        title="Edit user"
-                        onClick={() => { setEditing(u); setFormOpen(true) }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
+                    </TableHead>
+                    <TableHead className="border-r border-border text-center">
+                      <button onClick={() => toggleSort("role")}
+                        className={`mx-auto flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide transition-colors hover:text-foreground ${sortKey === "role" ? "text-foreground" : "text-muted-foreground"}`}>
+                        Role
+                        {sortKey === "role" ? sortDir === "asc" ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" /> : <ChevronUp className="h-3 w-3 opacity-20" />}
                       </button>
-                      <button
-                        className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                        title="Reset password"
-                        onClick={() => setResetTarget(u)}
-                      >
-                        <KeyRound className="h-3.5 w-3.5" />
-                      </button>
-                      {u.id !== me?.id && (
-                        <button
-                          className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                          title="Delete user"
-                          onClick={() => setDeleteTarget(u)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+                    </TableHead>
+                    <TableHead className="border-r border-border text-right text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Permissions
+                    </TableHead>
+                    <TableHead className="bg-muted/60 text-center text-muted-foreground">
+                      <Settings className="mx-auto h-3.5 w-3.5" />
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(u => {
+                    const granted = Object.values(u.permissions).filter(Boolean).length
+                    return (
+                      <TableRow key={u.id}>
+                        <TableCell className="border-r border-border">
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium">{u.name}</span>
+                            <span className="text-xs text-muted-foreground">{u.email}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="border-r border-border text-center">
+                          <RoleBadge role={u.role} />
+                        </TableCell>
+                        <TableCell className="border-r border-border text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-xs tabular-nums text-muted-foreground">{granted}/{TOTAL_PERMISSIONS}</span>
+                            <div className="h-1.5 w-12 overflow-hidden rounded-full bg-muted">
+                              <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(granted / TOTAL_PERMISSIONS) * 100}%` }} />
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="bg-muted/20">
+                          <TooltipProvider>
+                            <div className="flex items-center justify-center gap-1">
+                              {canManage(me?.role ?? "", u.role) && (<>
+                                <Tooltip>
+                                  <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => setPermsTarget(u)} />}>
+                                    <UserCog className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="left">Edit permissions</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => { setEditing(u); setFormOpen(true) }} />}>
+                                    <Pencil className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="left">Edit user</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => setResetTarget(u)} />}>
+                                    <KeyRound className="h-3.5 w-3.5" />
+                                  </TooltipTrigger>
+                                  <TooltipContent side="left">Reset password</TooltipContent>
+                                </Tooltip>
+                                {u.id !== me?.id && (
+                                  <Tooltip>
+                                    <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" onClick={() => setDeleteTarget(u)} />}>
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left">Delete user</TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </>)}
+                            </div>
+                          </TooltipProvider>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
           )}
         </div>
       </div>

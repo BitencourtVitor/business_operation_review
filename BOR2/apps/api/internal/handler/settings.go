@@ -38,16 +38,16 @@ type Screen struct {
 
 // UserWithPermissions represents a user and their screen permissions
 type UserWithPermissions struct {
-	ID          string          `json:"id"`
-	Email       string          `json:"email"`
-	Name        string          `json:"name"`
-	Role        string          `json:"role"`
-	Permissions map[string]bool `json:"permissions"`
+	ID          string            `json:"id"`
+	Email       string            `json:"email"`
+	Name        string            `json:"name"`
+	Role        string            `json:"role"`
+	Permissions map[string]string `json:"permissions"` // values: "read" | "write"
 }
 
 // PermissionUpdateReq is the request body for updating user permissions
 type PermissionUpdateReq struct {
-	Permissions map[string]bool `json:"permissions"`
+	Permissions map[string]string `json:"permissions"` // values: "read" | "write"
 }
 
 // GetScreens returns all available screens/telas
@@ -94,7 +94,7 @@ func (h *SettingsHandler) GetUsers(c *fiber.Ctx) error {
 		if err := rows.Scan(&u.ID, &u.Email, &u.Name, &u.Role); err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("scan error: %v", err)})
 		}
-		u.Permissions = map[string]bool{}
+		u.Permissions = map[string]string{}
 		idxByID[u.ID] = len(users)
 		users = append(users, u)
 	}
@@ -117,7 +117,7 @@ func (h *SettingsHandler) GetUsers(c *fiber.Ctx) error {
 				continue
 			}
 			if idx, ok := idxByID[userID]; ok {
-				var perms map[string]bool
+				var perms map[string]string
 				if json.Unmarshal(permJSON, &perms) == nil && perms != nil {
 					users[idx].Permissions = perms
 				}
@@ -293,6 +293,34 @@ func (h *SettingsHandler) ResetUserPassword(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": fiber.Map{"provisionalPassword": tempPass}})
 }
 
+// GetMyPermissions returns the authenticated user's own screen permissions.
+// GET /api/v1/settings/me/permissions
+func (h *SettingsHandler) GetMyPermissions(c *fiber.Ctx) error {
+	token, _ := c.Locals("token").(string)
+	var userID, role string
+	err := h.db.QueryRow(c.Context(), `
+		SELECT u.id, u.role FROM users u
+		JOIN sessions s ON s.user_id = u.id
+		WHERE s.token = $1 AND s.expires_at > NOW()
+	`, token).Scan(&userID, &role)
+	if err != nil {
+		return c.Status(401).JSON(fiber.Map{"error": "invalid session"})
+	}
+
+	permissions := map[string]string{}
+	var permJSON []byte
+	if err := h.db.QueryRow(c.Context(), `
+		SELECT permissions FROM user_permissions WHERE user_id = $1
+	`, userID).Scan(&permJSON); err == nil && permJSON != nil {
+		json.Unmarshal(permJSON, &permissions) //nolint:errcheck
+	}
+
+	return c.JSON(fiber.Map{"data": fiber.Map{
+		"role":        role,
+		"permissions": permissions,
+	}})
+}
+
 func generateSettingsPassword(length int) (string, error) {
 	const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$"
 	result := make([]byte, length)
@@ -309,19 +337,22 @@ func generateSettingsPassword(length int) (string, error) {
 // UpdateUserPermissions updates the screens a user can access
 // PATCH /api/v1/settings/users/:id/permissions
 func (h *SettingsHandler) UpdateUserPermissions(c *fiber.Ctx) error {
-	userID := c.Params("id")
-
-	authUser := c.Locals("user").(*domain.User)
-	if authUser.Role != "admin" && authUser.Role != "dev" && authUser.Role != "owner" {
-		return c.Status(403).JSON(fiber.Map{"error": "forbidden"})
+	if _, err := h.requireAdminRole(c); err != nil {
+		code := fiber.StatusForbidden
+		if err.Error() == "invalid session" {
+			code = fiber.StatusUnauthorized
+		}
+		return c.Status(code).JSON(fiber.Map{"error": err.Error()})
 	}
+
+	userID := c.Params("id")
 
 	var req PermissionUpdateReq
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": fmt.Sprintf("invalid request: %v", err)})
 	}
 	if req.Permissions == nil {
-		req.Permissions = map[string]bool{}
+		req.Permissions = map[string]string{}
 	}
 
 	permJSON, err := json.Marshal(req.Permissions)
