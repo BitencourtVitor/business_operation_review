@@ -203,7 +203,7 @@ function UserFormModal({
             </div>
             <div className="space-y-1.5">
               <label className="text-xs font-medium text-muted-foreground">Role</label>
-              <Select value={role} onValueChange={setRole}>
+              <Select value={role} onValueChange={v => v && setRole(v)}>
                 <SelectTrigger className="w-full">
                   <span className="flex-1 text-left text-sm">
                     {roleMeta[role]?.label ?? role}
@@ -586,7 +586,7 @@ export default function UsersPage() {
           </div>
 
           {/* Role filter */}
-          <Select value={roleFilter} onValueChange={setRoleFilter}>
+          <Select value={roleFilter} onValueChange={v => v && setRoleFilter(v)}>
             <SelectTrigger className="w-36">
               <span className="flex-1 text-left text-sm text-muted-foreground">
                 {roleFilter === "all" ? "All roles" : (roleMeta[roleFilter]?.label ?? roleFilter)}
