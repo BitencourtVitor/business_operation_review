@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"strconv"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
@@ -51,13 +52,16 @@ func (h *ForecastHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *ForecastHandler) Update(c *fiber.Ctx) error {
-	var p domain.ForecastProject
-	if err := c.BodyParser(&p); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
-	}
-	updated, err := h.svc.Update(c.Context(), c.Params("id"), &p)
+	existing, err := h.svc.FindByID(c.Context(), c.Params("id"))
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
+	}
+	if err := json.Unmarshal(c.Body(), existing); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	updated, err := h.svc.Update(c.Context(), c.Params("id"), existing)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
 	return c.JSON(fiber.Map{"data": updated})
 }
