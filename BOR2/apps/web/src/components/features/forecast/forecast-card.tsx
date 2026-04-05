@@ -60,9 +60,15 @@ const STATUS_CONFIG: Record<
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function parseLocalDate(d: string): Date {
+  // Slice to "YYYY-MM-DD" and build as local time to avoid UTC-offset day shift
+  const [y, m, day] = d.slice(0, 10).split("-").map(Number)
+  return new Date(y, m - 1, day)
+}
+
 function fmt(d?: string | null) {
   if (!d) return "N/A"
-  return new Date(d).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })
+  return parseLocalDate(d).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "numeric" })
 }
 
 function isTruthy(v?: string | boolean | null): boolean {

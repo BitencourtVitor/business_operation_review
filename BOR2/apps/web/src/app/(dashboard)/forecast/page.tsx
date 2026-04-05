@@ -67,8 +67,14 @@ const STATUS_METRIC_COLORS: Record<ForecastDisplayStatus, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function parseLocalDate(d: string): Date {
+  const [y, m, day] = d.slice(0, 10).split("-").map(Number)
+  return new Date(y, m - 1, day)
+}
+
 function getProjectMonth(p: ForecastProject, mode: DateMode) {
-  const d = new Date(mode === "beams" && p.previousBeamsDate ? p.previousBeamsDate : p.startDate)
+  const raw = mode === "beams" && p.previousBeamsDate ? p.previousBeamsDate : p.startDate
+  const d = parseLocalDate(typeof raw === "string" ? raw : new Date(raw).toISOString())
   return { year: d.getFullYear(), month: d.getMonth() }
 }
 
