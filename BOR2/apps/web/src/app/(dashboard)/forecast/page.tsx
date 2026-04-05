@@ -454,7 +454,9 @@ export default function ForecastPage() {
               </div>
               <Select value={String(year)} onValueChange={(v) => { setYear(v === "all" ? "all" : Number(v)); setMonth("all") }}>
                 <SelectTrigger className="h-8 w-[72px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <SelectValue placeholder="Year" />
+                  <span className="flex-1 truncate text-left text-sm">
+                    {year === "all" ? "All" : year}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
