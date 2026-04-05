@@ -5,6 +5,8 @@ export type ForecastStatus = "planned" | "active" | "completed" | "cancelled"
 export interface ForecastFieldwireDoc {
   id?: number
   status?: boolean | string | null
+  category?: string
+  document?: string
 }
 
 export interface ForecastMachineItem {

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://schema.railway.app/railway-schema.json",
+  "services": {
+    "api": {
+      "watchPaths": ["apps/api/**", "packages/**"]
+    },
+    "web": {
+      "watchPaths": ["apps/web/**", "packages/**"]
+    }
+  }
+}

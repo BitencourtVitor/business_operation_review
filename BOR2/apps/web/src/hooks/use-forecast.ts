@@ -49,3 +49,57 @@ export function useDeleteForecast() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
   })
 }
+
+export function useToggleFieldwire() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ fwId, status }: { fwId: number; status: boolean }) =>
+      forecastService.toggleFieldwire(fwId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useToggleMachine() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ machId, status }: { machId: number; status: boolean }) =>
+      forecastService.toggleMachine(machId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useToggleContractStep() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ stepId, status }: { stepId: number; status: boolean }) =>
+      forecastService.toggleContractStep(stepId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useCreateContractStep() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ projectId, team, step }: { projectId: string; team: string; step: string }) =>
+      forecastService.createContractStep(projectId, team, step),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useDeleteContractTeam() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ projectId, team }: { projectId: string; team: string }) =>
+      forecastService.deleteContractTeam(projectId, team),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useAddContractTeam() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ projectId, team }: { projectId: string; team: string }) =>
+      forecastService.addContractTeam(projectId, team),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}

@@ -72,3 +72,102 @@ func (h *ForecastHandler) Delete(c *fiber.Ctx) error {
 	}
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *ForecastHandler) ToggleFieldwire(c *fiber.Ctx) error {
+	fwID, err := strconv.ParseInt(c.Params("fwid"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	var body struct {
+		Status bool `json:"status"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.ToggleFieldwire(c.Context(), fwID, body.Status); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+func (h *ForecastHandler) ToggleMachine(c *fiber.Ctx) error {
+	machID, err := strconv.ParseInt(c.Params("mid"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	var body struct {
+		Status bool `json:"status"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.ToggleMachine(c.Context(), machID, body.Status); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+func (h *ForecastHandler) ToggleContractStep(c *fiber.Ctx) error {
+	stepID, err := strconv.ParseInt(c.Params("stepid"), 10, 64)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid id", "code": "BAD_REQUEST"})
+	}
+	var body struct {
+		Status bool `json:"status"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.ToggleContractStep(c.Context(), stepID, body.Status); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+func (h *ForecastHandler) CreateContractStep(c *fiber.Ctx) error {
+	var body struct {
+		ProjectID string `json:"projectId"`
+		Team      string `json:"team"`
+		Step      string `json:"step"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if body.ProjectID == "" || body.Team == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "projectId and team required", "code": "BAD_REQUEST"})
+	}
+	id, err := h.svc.CreateContractStep(c.Context(), body.ProjectID, body.Team, body.Step)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": fiber.Map{"id": id}})
+}
+
+func (h *ForecastHandler) DeleteContractTeam(c *fiber.Ctx) error {
+	projectID := c.Query("projectId")
+	team := c.Query("team")
+	if projectID == "" || team == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "projectId and team required", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.DeleteContractTeam(c.Context(), projectID, team); err != nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": err.Error(), "code": "CONFLICT"})
+	}
+	return c.JSON(fiber.Map{"ok": true})
+}
+
+func (h *ForecastHandler) AddContractTeam(c *fiber.Ctx) error {
+	var body struct {
+		ProjectID string `json:"projectId"`
+		Team      string `json:"team"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid body", "code": "BAD_REQUEST"})
+	}
+	if body.ProjectID == "" || body.Team == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "projectId and team required", "code": "BAD_REQUEST"})
+	}
+	if err := h.svc.AddContractTeam(c.Context(), body.ProjectID, body.Team); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"ok": true})
+}

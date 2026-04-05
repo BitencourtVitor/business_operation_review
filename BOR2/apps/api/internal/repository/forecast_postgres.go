@@ -16,6 +16,12 @@ type ForecastRepository interface {
 	Create(ctx context.Context, p *domain.ForecastProject) error
 	Update(ctx context.Context, p *domain.ForecastProject) error
 	Delete(ctx context.Context, id string) error
+	UpdateFieldwireStatus(ctx context.Context, fwID int64, status bool) error
+	UpdateMachineStatus(ctx context.Context, machID int64, status bool) error
+	UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error
+	CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error)
+	DeleteContractTeam(ctx context.Context, projectID string, team string) error
+	AddContractTeam(ctx context.Context, projectID string, team string) error
 }
 
 type PostgresForecastRepository struct {
@@ -76,12 +82,17 @@ SELECT
 	m.previous_beams_date, m.previous_start_date, m.previous_end_date,
 	m.created_at, m.updated_at,
 	COALESCE(
-		(SELECT json_agg(json_build_object('id', fw.id, 'status', fw.status::text))
+		(SELECT json_agg(json_build_object(
+			'id',       fw.id,
+			'status',   fw.status::text,
+			'category', COALESCE(fw.category, ''),
+			'document', COALESCE(fw.document, '')
+		) ORDER BY fw.id)
 		 FROM forecast_fieldwire fw WHERE fw.project_id = m.id),
 		'[]'::json
 	) AS fieldwire,
 	COALESCE(
-		(SELECT json_agg(json_build_object('id', mac.id, 'title', mac.title, 'status', mac.status))
+		(SELECT json_agg(json_build_object('id', mac.id, 'title', mac.title, 'unit', COALESCE(mac.unit,''), 'status', mac.status))
 		 FROM forecast_machines mac WHERE mac.project_id = m.id),
 		'[]'::json
 	) AS machines,
@@ -197,6 +208,66 @@ func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.Forec
 
 func (r *PostgresForecastRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.db.Exec(ctx, "DELETE FROM forecast_core WHERE id=$1", id)
+	return err
+}
+
+func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, fwID int64, status bool) error {
+	_, err := r.db.Exec(ctx,
+		"UPDATE forecast_fieldwire SET status=$1 WHERE id=$2",
+		status, fwID,
+	)
+	return err
+}
+
+func (r *PostgresForecastRepository) UpdateMachineStatus(ctx context.Context, machID int64, status bool) error {
+	_, err := r.db.Exec(ctx,
+		"UPDATE forecast_machines SET status=$1 WHERE id=$2",
+		status, machID,
+	)
+	return err
+}
+
+func (r *PostgresForecastRepository) UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error {
+	_, err := r.db.Exec(ctx,
+		"UPDATE forecast_contract_steps SET status=$1 WHERE id=$2",
+		status, stepID,
+	)
+	return err
+}
+
+func (r *PostgresForecastRepository) CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error) {
+	var id int64
+	err := r.db.QueryRow(ctx,
+		"INSERT INTO forecast_contract_steps (project_id, team, step, status) VALUES ($1, $2, $3, false) RETURNING id",
+		projectID, team, step,
+	).Scan(&id)
+	return id, err
+}
+
+func (r *PostgresForecastRepository) DeleteContractTeam(ctx context.Context, projectID string, team string) error {
+	var count int
+	if err := r.db.QueryRow(ctx,
+		"SELECT COUNT(*) FROM forecast_contract_steps WHERE project_id=$1 AND team=$2 AND status=true",
+		projectID, team,
+	).Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		return fmt.Errorf("cannot delete team with active steps")
+	}
+	_, err := r.db.Exec(ctx,
+		"DELETE FROM forecast_contract_steps WHERE project_id=$1 AND team=$2",
+		projectID, team,
+	)
+	return err
+}
+
+func (r *PostgresForecastRepository) AddContractTeam(ctx context.Context, projectID string, team string) error {
+	_, err := r.db.Exec(ctx, `
+		INSERT INTO forecast_contract_steps (project_id, team, step, status)
+		SELECT $1, $2, cs.step, false
+		FROM catalog_forecast_contract_steps cs
+	`, projectID, team)
 	return err
 }
 
