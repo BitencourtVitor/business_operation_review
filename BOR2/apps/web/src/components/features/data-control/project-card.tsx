@@ -19,7 +19,7 @@ import { useUpdateForecast } from "@/hooks/use-forecast"
 import { useCatalogTable } from "@/hooks/use-catalog"
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { CalendarIcon, CheckCircle2, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, Wind, X } from "lucide-react"
+import { CalendarIcon, Check, CheckCircle2, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, Wind, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useToggleFieldwire, useToggleMachine, useToggleContractStep, useCreateContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
@@ -421,22 +421,30 @@ function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v:
 }
 
 function ContractTab({ p }: { p: ForecastProject }) {
-  const steps       = p.contractSteps ?? []
-  const toggleStep  = useToggleContractStep()
-  const addTeam     = useAddContractTeam()
-  const deleteTeam  = useDeleteContractTeam()
-  const { data: workforceRows = [] } = useCatalogTable("workforce")
-  const catalogTeams = (workforceRows as { name?: string }[]).map(r => r.name ?? "").filter(Boolean)
+  const steps      = p.contractSteps ?? []
+  const toggleStep = useToggleContractStep()
+  const addTeam    = useAddContractTeam()
+  const deleteTeam = useDeleteContractTeam()
+
+  const { data: workforceRows   = [] } = useCatalogTable("workforce")
+  const { data: catalogStepRows = [] } = useCatalogTable("contract-steps")
+
+  const catalogTeams     = (workforceRows   as { name?: string }[]).map(r => r.name ?? "").filter(Boolean)
+  const catalogStepOrder = (catalogStepRows as { step?: string }[]).map(r => r.step ?? "")
 
   const isOk = (s: typeof steps[0]) =>
-    s.status === "true" || s.status === true as unknown as string || s.status === "t" || s.status === "1"
+    s.status === "true" || (s.status as unknown) === true || s.status === "t" || s.status === "1"
 
-  const dbTeams = useMemo(() => [...new Set(steps.map(s => s.team).filter(Boolean))] as string[], [steps])
+  const dbTeams = useMemo(
+    () => [...new Set(steps.map(s => s.team).filter(Boolean))] as string[],
+    [steps],
+  )
 
-  const [selectedTeam, setSelectedTeam] = useState<string | null>(null)
-  const [addingTeam,   setAddingTeam]   = useState(false)
-  const addTriggerRef                   = useRef<HTMLButtonElement>(null)
-  const [dropRect,     setDropRect]     = useState<DOMRect | null>(null)
+  const [selectedTeam,  setSelectedTeam]  = useState<string | null>(null)
+  const [addingTeam,    setAddingTeam]    = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const addTriggerRef                     = useRef<HTMLButtonElement>(null)
+  const [dropRect,      setDropRect]      = useState<DOMRect | null>(null)
 
   useEffect(() => {
     setSelectedTeam(prev => {
@@ -445,7 +453,6 @@ function ContractTab({ p }: { p: ForecastProject }) {
     })
   }, [p.id])
 
-  // Close dropdown on outside click
   useEffect(() => {
     if (!addingTeam) return
     function handleClick(e: MouseEvent) {
@@ -458,11 +465,18 @@ function ContractTab({ p }: { p: ForecastProject }) {
   }, [addingTeam])
 
   const teamSteps = steps.filter(s => s.team === selectedTeam)
-  const doneCt    = teamSteps.filter(isOk).length
 
-  const canDelete = (team: string) =>
-    steps.filter(s => s.team === team).every(s => !isOk(s))
+  // Sort by catalog seq — position never shifts on toggle
+  const sortedTeamSteps = useMemo(() => {
+    if (catalogStepOrder.length === 0) return teamSteps
+    return [...teamSteps].sort((a, b) => {
+      const ia = catalogStepOrder.indexOf(a.step ?? "")
+      const ib = catalogStepOrder.indexOf(b.step ?? "")
+      return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
+    })
+  }, [teamSteps, catalogStepOrder])
 
+  const doneCt        = sortedTeamSteps.filter(isOk).length
   const availableTeams = catalogTeams.filter(t => !dbTeams.includes(t))
 
   function openAddTeam() {
@@ -502,49 +516,85 @@ function ContractTab({ p }: { p: ForecastProject }) {
 
   return (
     <div className="flex h-full gap-2 overflow-hidden">
-      {/* Left: Teams list */}
+
+      {/* ── Left: Teams panel ─────────────────────────────────────────── */}
       <div className="flex w-56 shrink-0 flex-col overflow-hidden rounded-lg border border-border">
         <div className="flex flex-1 flex-col overflow-y-auto">
-          {dbTeams.length === 0 && (
+          {dbTeams.length === 0 && !addTeam.isPending && (
             <p className="px-2 py-3 text-center text-[10px] text-muted-foreground">No teams</p>
           )}
           {dbTeams.map(team => (
             <div
               key={team}
-              onClick={() => setSelectedTeam(team)}
+              onClick={() => { setSelectedTeam(team); setConfirmDelete(null) }}
               className={`group flex cursor-pointer items-center gap-1 px-2 py-1.5 hover:bg-muted/50 ${selectedTeam === team ? "bg-muted" : ""}`}
             >
               <span className="flex-1 truncate text-xs font-medium">{team}</span>
-              <button
-                onClick={e => {
-                  e.stopPropagation()
-                  deleteTeam.mutate(
-                    { projectId: p.id, team },
-                    { onSuccess: () => { if (selectedTeam === team) setSelectedTeam(dbTeams.find(t => t !== team) ?? null) } },
-                  )
-                }}
-                disabled={!canDelete(team)}
-                className="hidden shrink-0 text-muted-foreground hover:text-destructive disabled:cursor-not-allowed disabled:opacity-30 group-hover:block"
-                title="Delete team"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
+
+              {/* Inline delete confirmation */}
+              {confirmDelete === team ? (
+                <div className="flex shrink-0 items-center gap-0.5" onClick={e => e.stopPropagation()}>
+                  <button
+                    onClick={() =>
+                      deleteTeam.mutate(
+                        { projectId: p.id, team },
+                        {
+                          onSuccess: () => {
+                            setConfirmDelete(null)
+                            if (selectedTeam === team)
+                              setSelectedTeam(dbTeams.find(t => t !== team) ?? null)
+                          },
+                        },
+                      )
+                    }
+                    className="rounded p-0.5 text-destructive hover:bg-destructive/10"
+                    title="Confirm delete"
+                  >
+                    {deleteTeam.isPending
+                      ? <Loader2 className="h-3 w-3 animate-spin" />
+                      : <Check    className="h-3 w-3" />}
+                  </button>
+                  <button
+                    onClick={() => setConfirmDelete(null)}
+                    className="rounded p-0.5 text-muted-foreground hover:bg-muted"
+                    title="Cancel"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={e => { e.stopPropagation(); setConfirmDelete(team) }}
+                  className="hidden shrink-0 text-muted-foreground hover:text-destructive group-hover:block"
+                  title="Delete team"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              )}
             </div>
           ))}
         </div>
+
+        {/* Add button / loading */}
         <div className="border-t border-border p-1">
-          <button
-            ref={addTriggerRef}
-            onClick={openAddTeam}
-            className="flex w-full items-center justify-center gap-1 rounded py-1 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Plus className="h-3 w-3" /> Add
-          </button>
+          {addTeam.isPending ? (
+            <div className="flex items-center justify-center py-1.5">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <button
+              ref={addTriggerRef}
+              onClick={openAddTeam}
+              className="flex w-full items-center justify-center gap-1 rounded py-1 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <Plus className="h-3 w-3" /> Add
+            </button>
+          )}
         </div>
         {teamDropdown}
       </div>
 
-      {/* Right: Steps for selected team */}
+      {/* ── Right: Steps panel ────────────────────────────────────────── */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {!selectedTeam ? (
           <p className="py-4 text-center text-xs text-muted-foreground">Select a team</p>
@@ -552,24 +602,31 @@ function ContractTab({ p }: { p: ForecastProject }) {
           <>
             <div className="mb-1 flex items-center">
               <span className="truncate text-xs font-semibold text-muted-foreground">{selectedTeam}</span>
-              <span className="ml-auto shrink-0 text-xs text-muted-foreground">{doneCt} / {teamSteps.length}</span>
+              <span className="ml-auto shrink-0 text-xs text-muted-foreground">{doneCt} / {sortedTeamSteps.length}</span>
             </div>
             <div className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
-              {teamSteps.length === 0 && (
+              {sortedTeamSteps.length === 0 && (
                 <p className="py-2 text-center text-[10px] text-muted-foreground">No steps</p>
               )}
-              {teamSteps.map((s, i) => {
-                const ok = isOk(s)
+              {sortedTeamSteps.map((s, i) => {
+                const ok          = isOk(s)
+                const isToggling  = toggleStep.isPending && toggleStep.variables?.stepId === s.id
                 return (
-                  <label key={s.id ?? i} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-muted/40">
-                    <input
-                      type="checkbox"
-                      className="h-3.5 w-3.5 shrink-0 accent-primary"
-                      checked={ok}
-                      onChange={e => {
-                        if (s.id != null) toggleStep.mutate({ stepId: s.id, status: e.target.checked })
-                      }}
-                    />
+                  <label
+                    key={s.id ?? i}
+                    className={`flex cursor-pointer items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
+                  >
+                    {isToggling
+                      ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                      : <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 shrink-0 accent-primary"
+                          checked={ok}
+                          onChange={e => {
+                            if (s.id != null) toggleStep.mutate({ stepId: s.id, status: e.target.checked })
+                          }}
+                        />
+                    }
                     <span className={`flex-1 truncate text-xs ${ok ? "text-muted-foreground line-through" : ""}`}>
                       {s.step?.trim() || `Step #${s.id ?? i + 1}`}
                     </span>
