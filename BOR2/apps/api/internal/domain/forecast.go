@@ -8,7 +8,6 @@ const (
 	ForecastStatusPlanned   ForecastStatus = "planned"
 	ForecastStatusActive    ForecastStatus = "active"
 	ForecastStatusCompleted ForecastStatus = "completed"
-	ForecastStatusCancelled ForecastStatus = "cancelled"
 )
 
 // Lightweight sub-resource types (from BOR1 migration tables)

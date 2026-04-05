@@ -10,6 +10,7 @@ export interface ForecastFieldwireDoc {
 export interface ForecastMachineItem {
   id?: number
   title?: string | null
+  unit?: string | null
   status?: string | null   // "scheduled" | "dispensed" | "true" | "yes" | "1" → active
 }
 

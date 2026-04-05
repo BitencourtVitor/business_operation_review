@@ -207,8 +207,6 @@ func statusToBOR1(s domain.ForecastStatus) string {
 		return "open"
 	case domain.ForecastStatusCompleted:
 		return "closed"
-	case domain.ForecastStatusCancelled:
-		return "closed"
 	default:
 		return "not started"
 	}

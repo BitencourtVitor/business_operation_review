@@ -1,8 +1,7 @@
-"use client"
+﻿"use client"
 
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -11,15 +10,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
 import {
   Table,
   TableBody,
@@ -33,16 +23,22 @@ import {
   useCreateForecast,
   useDeleteForecast,
   useForecast,
-  useUpdateForecast,
 } from "@/hooks/use-forecast"
-import type { Company, ForecastProject, ForecastStatus } from "@bor2/shared"
-import { Pencil, Plus, Search, Trash2 } from "lucide-react"
-import { useMemo, useState } from "react"
+import {
+  useCatalogTable,
+  useAddCatalogItem,
+  useDeleteCatalogItem,
+} from "@/hooks/use-catalog"
+import type { CatalogTable } from "@/services/catalog.service"
+import { NewProjectCard, ProjectCard, type ViewTab } from "@/components/features/data-control/project-card"
+import type { ForecastProject, ForecastStatus } from "@bor2/shared"
+import { Database, FilePlus2, Pencil, Plus, Search, Trash2 } from "lucide-react"
+import React, { useMemo, useState } from "react"
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-const COMPANIES: Company[] = ["hvac", "framing", "pcg"]
 const STATUSES: ForecastStatus[] = ["planned", "active", "completed", "cancelled"]
+const PROJECT_TYPES = ["Building", "Lot", "House"]
 
 const STATUS_BADGE: Record<ForecastStatus, string> = {
   planned: "secondary",
@@ -51,19 +47,20 @@ const STATUS_BADGE: Record<ForecastStatus, string> = {
   cancelled: "destructive",
 }
 
-function fmtDate(val: string) {
-  if (!val) return "—"
-  return new Date(val).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+function fmtDate(val: string | null | undefined) {
+  if (!val) return "â€”"
+  const [y, m, d] = val.slice(0, 10).split("-").map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
 }
 
 function fmtCurrency(val: number) {
-  if (!val) return "—"
+  if (!val) return "â€”"
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val)
 }
 
-// ─── Form state ───────────────────────────────────────────────────────────────
+// â”€â”€â”€ Form state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-type FormState = Omit<ForecastProject, "id" | "createdAt" | "updatedAt">
+type FormState = Omit<ForecastProject, "id" | "createdAt" | "updatedAt" | "fieldwire" | "machines" | "contractSteps">
 
 const EMPTY_FORM: FormState = {
   company: "framing",
@@ -89,117 +86,15 @@ const EMPTY_FORM: FormState = {
   previousEndDate: null,
 }
 
-// ─── Project form dialog ──────────────────────────────────────────────────────
-
-function ProjectDialog({
-  open,
-  onClose,
-  initial,
-  onSave,
-  saving,
-}: {
-  open: boolean
-  onClose: () => void
-  initial: FormState
-  onSave: (data: FormState) => void
-  saving: boolean
-}) {
-  const [form, setForm] = useState<FormState>(initial)
-
-  function set<K extends keyof FormState>(k: K, v: FormState[K]) {
-    setForm((f) => ({ ...f, [k]: v }))
-  }
-
-  // Sync when initial changes (edit mode)
-  useMemo(() => setForm(initial), [initial])
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{initial.name ? "Edit Project" : "New Project"}</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-2">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Company</Label>
-              <Select value={form.company} onValueChange={(v) => set("company", v as Company)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {COMPANIES.map((c) => <SelectItem key={c} value={c}>{c.toUpperCase()}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label>Status</Label>
-              <Select value={form.status} onValueChange={(v) => set("status", v as ForecastStatus)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Project Name</Label>
-            <Input value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="e.g. Orchard Hills Phase 2" />
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Team</Label>
-            <Input value={form.team} onChange={(e) => set("team", e.target.value)} placeholder="e.g. Team Alpha" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Start Date</Label>
-              <Input type="date" value={form.startDate?.slice(0, 10) ?? ""} onChange={(e) => set("startDate", e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>End Date</Label>
-              <Input type="date" value={form.endDate?.slice(0, 10) ?? ""} onChange={(e) => set("endDate", e.target.value)} />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label>Contract Value (USD)</Label>
-            <Input
-              type="number"
-              min={0}
-              value={form.contractValue || ""}
-              onChange={(e) => set("contractValue", +e.target.value || 0)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Switch
-              id="qbtime"
-              checked={form.qbTime}
-              onCheckedChange={(v) => set("qbTime", v)}
-            />
-            <Label htmlFor="qbtime" className="cursor-pointer">QB Time tracking</Label>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={saving}>Cancel</Button>
-          <Button onClick={() => onSave(form)} disabled={saving || !form.name.trim()}>
-            {saving ? "Saving..." : "Save"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
+function dateVal(v: string | null | undefined): string {
+  if (!v) return ""
+  return v.slice(0, 10)
 }
 
-// ─── Confirm delete dialog ────────────────────────────────────────────────────
+// â”€â”€â”€ Delete dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function DeleteDialog({
-  project,
-  onClose,
-  onConfirm,
-  deleting,
+  project, onClose, onConfirm, deleting,
 }: {
   project: ForecastProject | null
   onClose: () => void
@@ -207,11 +102,9 @@ function DeleteDialog({
   deleting: boolean
 }) {
   return (
-    <Dialog open={!!project} onOpenChange={(o) => !o && onClose()}>
+    <Dialog open={!!project} onOpenChange={o => !o && onClose()}>
       <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Delete project?</DialogTitle>
-        </DialogHeader>
+        <DialogHeader><DialogTitle>Delete project?</DialogTitle></DialogHeader>
         <p className="text-sm text-muted-foreground">
           This will permanently delete <span className="font-medium text-foreground">{project?.name}</span>. This action cannot be undone.
         </p>
@@ -226,246 +119,378 @@ function DeleteDialog({
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Catalog tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-export default function DataControlPage() {
-  const { data: projects, isLoading } = useForecast()
-  const createMutation = useCreateForecast()
-  const updateMutation = useUpdateForecast()
-  const deleteMutation = useDeleteForecast()
+const CATALOG_TABS: { key: CatalogTable; label: string; cols: { field: string; label: string }[] }[] = [
+  { key: "workforce",      label: "Workforce",          cols: [{ field: "name",               label: "Name"                }] },
+  { key: "providers",      label: "Machine Providers",  cols: [{ field: "name",               label: "Name"                }] },
+  { key: "contract-steps", label: "Contract Steps",     cols: [{ field: "step",               label: "Step"                }] },
+  {
+    key: "fieldwire", label: "Fieldwire Docs",
+    cols: [
+      { field: "category",       label: "Category" },
+      { field: "document",       label: "Document" },
+      { field: "where_location", label: "Where"    },
+      { field: "notes",          label: "Notes"    },
+    ],
+  },
+  {
+    key: "machines", label: "Machines",
+    cols: [
+      { field: "category",           label: "Category"   },
+      { field: "subcategory",        label: "Subcategory"},
+      { field: "equipment_category", label: "Equip. Cat."},
+      { field: "title",              label: "Title"      },
+    ],
+  },
+]
 
-  const [search, setSearch] = useState("")
-  const [companyFilter, setCompanyFilter] = useState<Company | "all">("all")
-  const [statusFilter, setStatusFilter] = useState<ForecastStatus | "all">("all")
+function CatalogSection() {
+  const [activeTable, setActiveTable] = useState<CatalogTable>("workforce")
+  const tableDef = CATALOG_TABS.find(t => t.key === activeTable)!
+  const { data: rows = [], isLoading } = useCatalogTable(activeTable)
+  const addMutation    = useAddCatalogItem(activeTable)
+  const deleteMutation = useDeleteCatalogItem(activeTable)
+  const [form, setForm] = useState<Record<string, string>>({})
 
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<ForecastProject | null>(null)
-  const [deletingProject, setDeletingProject] = useState<ForecastProject | null>(null)
+  // reset form when table changes
+  useMemo(() => setForm({}), [activeTable])
 
-  const filtered = useMemo(() => {
-    if (!projects) return []
-    return projects.filter((p) => {
-      if (companyFilter !== "all" && p.company !== companyFilter) return false
-      if (statusFilter !== "all" && p.status !== statusFilter) return false
-      if (search) {
-        const q = search.toLowerCase()
-        if (!p.name.toLowerCase().includes(q) && !p.team.toLowerCase().includes(q)) return false
-      }
-      return true
-    })
-  }, [projects, companyFilter, statusFilter, search])
-
-  const formInitial: FormState = editingProject
-    ? {
-        company: editingProject.company,
-        name: editingProject.name,
-        status: editingProject.status,
-        startDate: editingProject.startDate,
-        endDate: editingProject.endDate,
-        contractValue: editingProject.contractValue,
-        team: editingProject.team,
-        qbTime: editingProject.qbTime,
-        cliente: editingProject.cliente ?? "",
-        jobSite: editingProject.jobSite ?? "",
-        type: editingProject.type ?? "",
-        loteBld: editingProject.loteBld ?? "",
-        address: editingProject.address ?? "",
-        obs: editingProject.obs ?? "",
-        hvac: editingProject.hvac ?? false,
-        buildertrend: editingProject.buildertrend ?? false,
-        storage: editingProject.storage ?? false,
-        machineProvider: editingProject.machineProvider ?? "",
-        previousBeamsDate: editingProject.previousBeamsDate ?? null,
-        previousStartDate: editingProject.previousStartDate ?? null,
-        previousEndDate: editingProject.previousEndDate ?? null,
-      }
-    : EMPTY_FORM
-
-  async function handleSave(data: FormState) {
-    if (editingProject) {
-      await updateMutation.mutateAsync({ id: editingProject.id, data })
-    } else {
-      await createMutation.mutateAsync(data)
-    }
-    setDialogOpen(false)
-    setEditingProject(null)
+  function handleAdd() {
+    if (tableDef.cols.some(c => !form[c.field]?.trim())) return
+    addMutation.mutate(form, { onSuccess: () => setForm({}) })
   }
-
-  async function handleDelete() {
-    if (!deletingProject) return
-    await deleteMutation.mutateAsync(deletingProject.id)
-    setDeletingProject(null)
-  }
-
-  const isSaving = createMutation.isPending || updateMutation.isPending
-  const isDeleting = deleteMutation.isPending
-
-  // Summary counts
-  const active = projects?.filter((p) => p.status === "active").length ?? 0
-  const planned = projects?.filter((p) => p.status === "planned").length ?? 0
-  const completed = projects?.filter((p) => p.status === "completed").length ?? 0
-  const totalValue = projects?.reduce((acc, p) => acc + (p.contractValue ?? 0), 0) ?? 0
-
-  if (isLoading) return <PageSkeleton />
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Data Control</h1>
-          <p className="text-sm text-muted-foreground">Manage forecast projects — create, edit, and delete</p>
-        </div>
-        <Button onClick={() => { setEditingProject(null); setDialogOpen(true) }}>
-          <Plus className="mr-2 h-4 w-4" />New Project
-        </Button>
-      </div>
-
-      {/* Summary cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Active</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold text-green-600">{active}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Planned</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold text-blue-600">{planned}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{completed}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Total Contract Value</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{fmtCurrency(totalValue)}</p></CardContent>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search by name or team..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 max-w-xs"
-          />
-        </div>
-        <Select value={companyFilter} onValueChange={(v) => setCompanyFilter(v as Company | "all")}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Company" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All companies</SelectItem>
-            {COMPANIES.map((c) => <SelectItem key={c} value={c}>{c.toUpperCase()}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as ForecastStatus | "all")}>
-          <SelectTrigger className="w-36">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            {STATUSES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        {(search || companyFilter !== "all" || statusFilter !== "all") && (
+    <div className="space-y-4">
+      {/* Table selector */}
+      <div className="flex flex-wrap gap-2">
+        {CATALOG_TABS.map(t => (
           <button
-            className="text-sm text-muted-foreground hover:text-foreground underline"
-            onClick={() => { setSearch(""); setCompanyFilter("all"); setStatusFilter("all") }}
+            key={t.key}
+            onClick={() => setActiveTable(t.key)}
+            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+              activeTable === t.key
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-muted/80"
+            }`}
           >
-            Clear
+            {t.label}
           </button>
-        )}
-        <span className="ml-auto text-xs text-muted-foreground">{filtered.length} project{filtered.length !== 1 ? "s" : ""}</span>
+        ))}
       </div>
+
+      {/* Add form */}
+      <Card className="p-4">
+        <p className="mb-3 text-xs font-semibold uppercase text-muted-foreground">Add to {tableDef.label}</p>
+        <div className="flex flex-wrap gap-2">
+          {tableDef.cols.map(c => (
+            <Input
+              key={c.field}
+              placeholder={c.label}
+              value={form[c.field] ?? ""}
+              onChange={e => setForm(f => ({ ...f, [c.field]: e.target.value }))}
+              className="h-8 flex-1 min-w-[120px] text-sm"
+              onKeyDown={e => { if (e.key === "Enter") handleAdd() }}
+            />
+          ))}
+          <Button
+            size="sm"
+            onClick={handleAdd}
+            disabled={addMutation.isPending || tableDef.cols.some(c => !form[c.field]?.trim())}
+          >
+            <Plus className="mr-1 h-3.5 w-3.5" />Add
+          </Button>
+        </div>
+      </Card>
 
       {/* Table */}
       <Card>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead>Start</TableHead>
-              <TableHead>End</TableHead>
-              <TableHead>Contract Value</TableHead>
-              <TableHead>QB Time</TableHead>
-              <TableHead className="w-20"></TableHead>
+              <TableHead className="w-16">ID</TableHead>
+              {tableDef.cols.map(c => <TableHead key={c.field}>{c.label}</TableHead>)}
+              <TableHead className="w-12" />
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                  No projects found
+            {isLoading ? (
+              <TableRow><TableCell colSpan={tableDef.cols.length + 2} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+            ) : rows.length === 0 ? (
+              <TableRow><TableCell colSpan={tableDef.cols.length + 2} className="text-center py-8 text-muted-foreground">No items</TableCell></TableRow>
+            ) : rows.map((row, i) => (
+              <TableRow key={String(row.id ?? i)}>
+                <TableCell className="text-xs text-muted-foreground">{String(row.id)}</TableCell>
+                {tableDef.cols.map(c => (
+                  <TableCell key={c.field} className="text-sm">{String(row[c.field] ?? "â€”")}</TableCell>
+                ))}
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-destructive hover:text-destructive"
+                    onClick={() => deleteMutation.mutate(Number(row.id))}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
                 </TableCell>
               </TableRow>
-            ) : (
-              filtered.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium max-w-[200px] truncate">{p.name}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="uppercase text-xs">{p.company}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={STATUS_BADGE[p.status] as "default" | "secondary" | "outline" | "destructive"} className="capitalize">
-                      {p.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-sm">{p.team || "—"}</TableCell>
-                  <TableCell className="text-sm">{fmtDate(p.startDate)}</TableCell>
-                  <TableCell className="text-sm">{fmtDate(p.endDate)}</TableCell>
-                  <TableCell className="text-sm">{fmtCurrency(p.contractValue)}</TableCell>
-                  <TableCell>
-                    {p.qbTime
-                      ? <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-300">Yes</Badge>
-                      : <span className="text-muted-foreground text-sm">—</span>
-                    }
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={() => { setEditingProject(p); setDialogOpen(true) }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive"
-                        onClick={() => setDeletingProject(p)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            ))}
           </TableBody>
         </Table>
       </Card>
+    </div>
+  )
+}
 
-      <ProjectDialog
-        open={dialogOpen}
-        onClose={() => { setDialogOpen(false); setEditingProject(null) }}
-        initial={formInitial}
-        onSave={handleSave}
-        saving={isSaving}
+// â”€â”€â”€ View mode tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+const VIEW_TABS: { key: ViewTab; label: string }[] = [
+  { key: "info",      label: "Info & Dates" },
+  { key: "fieldwire", label: "Fieldwire"    },
+  { key: "machines",  label: "Machines"     },
+  { key: "contract",  label: "Contract"     },
+  { key: "optionals", label: "Optionals"    },
+]
+
+// â”€â”€â”€ New Project section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function NewProjectSection({ onCreated }: { onCreated: () => void }) {
+  const createMutation = useCreateForecast()
+  const { data: projects } = useForecast()
+  const availableClients  = useMemo(() => Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort(), [projects])
+  const availableJobSites = useMemo(() => Array.from(new Set(projects?.map(p => p.jobSite).filter(Boolean)  as string[])).sort(), [projects])
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">New Project</h1>
+        <p className="text-sm text-muted-foreground">Fill in the fields below and click Create</p>
+      </div>
+      <NewProjectCard
+        availableClients={availableClients}
+        availableJobSites={availableJobSites}
+        saving={createMutation.isPending}
+        onCancel={onCreated}
+        onSave={async data => {
+          await createMutation.mutateAsync({
+            ...data,
+            company: "framing",
+            name: "",
+            startDate: "",
+            endDate: "",
+            contractValue: 0,
+            previousBeamsDate: data.previousBeamsDate || null,
+            previousStartDate: data.previousStartDate || null,
+            previousEndDate:   data.previousEndDate   || null,
+          })
+          onCreated()
+        }}
       />
+    </div>
+  )
+}
+
+// â”€â”€â”€ Edit Projects section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function EditProjectSection() {
+  const { data: projects, isLoading } = useForecast()
+  const deleteMutation = useDeleteForecast()
+
+  const [search, setSearch]               = useState("")
+  const [clientFilter, setClientFilter]   = useState("all")
+  const [jobSiteFilter, setJobSiteFilter] = useState("all")
+  const [statusFilter, setStatusFilter]   = useState<ForecastStatus | "all">("all")
+  const [viewMode, setViewMode]           = useState<ViewTab>("info")
+  const [deletingProject, setDeletingProject] = useState<ForecastProject | null>(null)
+
+  const clientOpts  = useMemo(() => ["all", ...Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort()], [projects])
+  const jobSiteOpts = useMemo(() => {
+    const base = projects?.filter(p => clientFilter === "all" || p.cliente === clientFilter) ?? []
+    return ["all", ...Array.from(new Set(base.map(p => p.jobSite).filter(Boolean) as string[])).sort()]
+  }, [projects, clientFilter])
+
+  const filtered = useMemo(() => {
+    if (!projects) return []
+    return projects.filter(p => {
+      if (clientFilter  !== "all" && p.cliente !== clientFilter)  return false
+      if (jobSiteFilter !== "all" && p.jobSite !== jobSiteFilter) return false
+      if (statusFilter  !== "all" && p.status  !== statusFilter)  return false
+      if (search) {
+        const q = search.toLowerCase()
+        if (
+          !(p.cliente  || "").toLowerCase().includes(q) &&
+          !(p.jobSite  || "").toLowerCase().includes(q) &&
+          !(p.loteBld  || "").toLowerCase().includes(q) &&
+          !(p.team     || "").toLowerCase().includes(q) &&
+          !(p.address  || "").toLowerCase().includes(q)
+        ) return false
+      }
+      return true
+    })
+  }, [projects, clientFilter, jobSiteFilter, statusFilter, search])
+
+  const availableClients  = useMemo(() => Array.from(new Set(projects?.map(p => p.cliente).filter(Boolean) as string[])).sort(), [projects])
+  const availableJobSites = useMemo(() => Array.from(new Set(projects?.map(p => p.jobSite).filter(Boolean)  as string[])).sort(), [projects])
+
+  const active    = projects?.filter(p => p.status === "active").length ?? 0
+  const planned   = projects?.filter(p => p.status === "planned").length ?? 0
+  const completed = projects?.filter(p => p.status === "completed").length ?? 0
+
+  if (isLoading) return <PageSkeleton />
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div>
+        <h1 className="text-xl font-semibold tracking-tight">Edit Project</h1>
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-green-600">{active}</span> active Â·{" "}
+          <span className="font-medium text-blue-600">{planned}</span> planned Â·{" "}
+          <span className="font-medium">{completed}</span> completed Â·{" "}
+          <span className="font-medium text-foreground">{projects?.length ?? 0} total</span>
+        </p>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="h-7 pl-7 text-xs w-44" />
+        </div>
+        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={clientFilter} onChange={e => { setClientFilter(e.target.value); setJobSiteFilter("all") }}>
+          <option value="all">All clients</option>
+          {clientOpts.filter(c => c !== "all").map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={jobSiteFilter} onChange={e => setJobSiteFilter(e.target.value)}>
+          <option value="all">All job sites</option>
+          {jobSiteOpts.filter(j => j !== "all").map(j => <option key={j} value={j}>{j}</option>)}
+        </select>
+        <select className="h-7 rounded border border-border bg-background px-2 text-xs" value={statusFilter} onChange={e => setStatusFilter(e.target.value as ForecastStatus | "all")}>
+          <option value="all">All statuses</option>
+          {STATUSES.map(s => <option key={s} value={s} className="capitalize">{s}</option>)}
+        </select>
+        {(search || clientFilter !== "all" || jobSiteFilter !== "all" || statusFilter !== "all") && (
+          <button className="text-xs text-muted-foreground underline hover:text-foreground" onClick={() => { setSearch(""); setClientFilter("all"); setJobSiteFilter("all"); setStatusFilter("all") }}>
+            Clear
+          </button>
+        )}
+        <span className="ml-auto text-xs text-muted-foreground">{filtered.length} project{filtered.length !== 1 ? "s" : ""}</span>
+        <div className="ml-4 flex items-center gap-1 rounded-md border border-border bg-background p-0.5">
+          {VIEW_TABS.map(t => (
+            <button key={t.key} onClick={() => setViewMode(t.key)}
+              className={`rounded px-2.5 py-1 text-[11px] font-medium transition-colors ${viewMode === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Card list */}
+      <div>
+        {filtered.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">No projects found</p>
+        ) : filtered.map(p => (
+          <ProjectCard
+            key={p.id}
+            project={p}
+            forcedTab={viewMode}
+            availableClients={availableClients}
+            availableJobSites={availableJobSites}
+            onDelete={() => setDeletingProject(p)}
+          />
+        ))}
+      </div>
 
       <DeleteDialog
         project={deletingProject}
         onClose={() => setDeletingProject(null)}
-        onConfirm={handleDelete}
-        deleting={isDeleting}
+        onConfirm={async () => { await deleteMutation.mutateAsync(deletingProject!.id); setDeletingProject(null) }}
+        deleting={deleteMutation.isPending}
       />
+    </div>
+  )
+}
+
+// â”€â”€â”€ Inner sidebar nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+type DCSection = "new-project" | "edit-project" | "catalog"
+
+const DC_GROUPS: { label: string; items: { key: DCSection; label: string; icon: React.ElementType }[] }[] = [
+  {
+    label: "Forecast",
+    items: [
+      { key: "new-project",  label: "New Project",    icon: FilePlus2 },
+      { key: "edit-project", label: "Edit Project",   icon: Pencil    },
+      { key: "catalog",      label: "Catalog Tables", icon: Database  },
+    ],
+  },
+]
+
+function DataControlSidebar({
+  active, onSelect,
+}: {
+  active: DCSection
+  onSelect: (s: DCSection) => void
+}) {
+  return (
+    <aside className="flex w-52 shrink-0 flex-col border-r border-sidebar-border bg-sidebar">
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-sidebar-border">
+        <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-sidebar-foreground/40">
+          Forecast Controls
+        </p>
+      </div>
+
+      {/* Nav groups */}
+      <div className="flex-1 overflow-y-auto py-2">
+        {DC_GROUPS.map(g => (
+          <div key={g.label} className="mb-1">
+            <p className="mb-0.5 px-4 pt-2 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
+              {g.label}
+            </p>
+            <div className="px-2">
+              {g.items.map(item => {
+                const Icon = item.icon
+                const isActive = active === item.key
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => onSelect(item.key)}
+                    className={`flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </aside>
+  )
+}
+
+// â”€â”€â”€ Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export default function DataControlPage() {
+  const [section, setSection] = useState<DCSection>("edit-project")
+
+  return (
+    <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
+      <DataControlSidebar active={section} onSelect={setSection} />
+      <div className="flex-1 overflow-y-auto p-6">
+        {section === "new-project"  && <NewProjectSection onCreated={() => setSection("edit-project")} />}
+        {section === "edit-project" && <EditProjectSection />}
+        {section === "catalog"      && <CatalogSection />}
+      </div>
     </div>
   )
 }

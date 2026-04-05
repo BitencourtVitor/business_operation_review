@@ -17,6 +17,7 @@ import { useMemo, useState } from "react"
 interface PasswordResetModalProps {
   open: boolean
   onSuccess: () => void
+  onClose?: () => void
 }
 
 function checkStrength(password: string) {
@@ -46,13 +47,13 @@ const strengthColors = {
 }
 
 const strengthLabels = {
-  weak: "Fraca",
-  fair: "Razoável",
-  good: "Boa",
-  strong: "Forte",
+  weak: "Weak",
+  fair: "Fair",
+  good: "Good",
+  strong: "Strong",
 }
 
-export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps) {
+export function PasswordResetModal({ open, onSuccess, onClose }: PasswordResetModalProps) {
   const token = useAuthStore((s) => s.token)
   const [password, setPassword] = useState("")
   const [confirm, setConfirm] = useState("")
@@ -81,20 +82,20 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
   }
 
   const rules = [
-    { key: "minLength", label: "Mínimo 8 caracteres" },
-    { key: "lowercase", label: "Letra minúscula" },
-    { key: "uppercase", label: "Letra maiúscula" },
-    { key: "number", label: "Número" },
-    { key: "symbol", label: "Símbolo" },
+    { key: "minLength", label: "At least 8 characters" },
+    { key: "lowercase", label: "Lowercase letter" },
+    { key: "uppercase", label: "Uppercase letter" },
+    { key: "number", label: "Number" },
+    { key: "symbol", label: "Symbol" },
   ] as const
 
   return (
-    <Dialog open={open}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={v => { if (!v) onClose?.() }}>
+      <DialogContent className="sm:max-w-md" showCloseButton={!!onClose}>
         <DialogHeader>
-          <DialogTitle>Criar Nova Senha</DialogTitle>
+          <DialogTitle>Create New Password</DialogTitle>
           <DialogDescription>
-            Sua senha é provisória. Crie uma nova senha segura para continuar.
+            Your password is provisional. Create a new secure password to continue.
           </DialogDescription>
         </DialogHeader>
 
@@ -102,7 +103,7 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
           <div className="space-y-2">
             <IconInput
               type={showPassword ? "text" : "password"}
-              placeholder="Nova senha"
+              placeholder="New password"
               startIcon={Lock}
               endIcon={showPassword ? EyeOff : Eye}
               onEndIconClick={() => setShowPassword(!showPassword)}
@@ -132,7 +133,7 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
                   strength.level === "fair" ? "text-orange-500" :
                   "text-destructive"
                 }`}>
-                  Força: {strengthLabels[strength.level]}
+                  Strength: {strengthLabels[strength.level]}
                 </p>
               </div>
             )}
@@ -157,7 +158,7 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
           <div className="space-y-2">
             <IconInput
               type={showConfirm ? "text" : "password"}
-              placeholder="Confirmar nova senha"
+              placeholder="Confirm new password"
               startIcon={Lock}
               endIcon={showConfirm ? EyeOff : Eye}
               onEndIconClick={() => setShowConfirm(!showConfirm)}
@@ -166,11 +167,11 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
               onChange={(e) => setConfirm(e.target.value)}
             />
             {confirm.length > 0 && !passwordsMatch && (
-              <p className="text-xs text-destructive">As senhas não coincidem</p>
+              <p className="text-xs text-destructive">Passwords do not match</p>
             )}
             {passwordsMatch && (
               <p className="flex items-center gap-1 text-xs text-emerald-500">
-                <Check className="h-3 w-3" /> Senhas coincidem
+                <Check className="h-3 w-3" /> Passwords match
               </p>
             )}
           </div>
@@ -179,7 +180,7 @@ export function PasswordResetModal({ open, onSuccess }: PasswordResetModalProps)
 
           <Button type="submit" className="w-full rounded-full" disabled={!canSubmit || loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Confirmar Nova Senha
+            Confirm New Password
           </Button>
         </form>
       </DialogContent>
