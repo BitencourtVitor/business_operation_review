@@ -1,156 +1,79 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { useScreens, useUsers, useUpdateUserPermissions } from '@/hooks/use-settings';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from "@/hooks/use-auth"
+import Link from "next/link"
+import { Bell, ChevronRight, Loader2, ShieldAlert, Users } from "lucide-react"
+
+const options = [
+  {
+    href:        "/settings/users",
+    icon:        Users,
+    title:       "Manage Users",
+    description: "Create, edit and delete user accounts. Control roles and screen permissions for each user.",
+  },
+  {
+    href:        "/settings/notifications",
+    icon:        Bell,
+    title:       "Notifications",
+    description: "Send or schedule system notifications. Edit and delete pending scheduled notifications.",
+  },
+]
 
 export default function SettingsPage() {
-  const { user } = useAuth();
-  const { data: screens, isLoading: screensLoading } = useScreens();
-  const { data: users, isLoading: usersLoading } = useUsers();
-  const updatePermissions = useUpdateUserPermissions();
-  const [editing, setEditing] = useState<string | null>(null);
-  const [selectedTelas, setSelectedTelas] = useState<Record<string, Set<string>>>({});
+  const { user, isLoading } = useAuth()
 
-  // Only admin, dev, and owner can access
-  if (user && !['admin', 'dev', 'owner'].includes(user.role)) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Only administrators can access the Settings page.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
-    );
+    )
   }
 
-  if (screensLoading || usersLoading) {
+  if (user && !["admin", "dev", "owner"].includes(user.role)) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex h-full items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <ShieldAlert className="h-10 w-10 text-destructive/60" />
+          <p className="font-medium">Access Denied</p>
+          <p className="text-sm text-muted-foreground">Only administrators can access Settings.</p>
+        </div>
       </div>
-    );
+    )
   }
-
-  const startEditing = (userId: string, currentTelas: string[]) => {
-    setEditing(userId);
-    setSelectedTelas({ [userId]: new Set(currentTelas) });
-  };
-
-  const toggleTela = (userId: string, telaId: string) => {
-    setSelectedTelas((prev) => {
-      const current = prev[userId] || new Set();
-      const updated = new Set(current);
-      if (updated.has(telaId)) {
-        updated.delete(telaId);
-      } else {
-        updated.add(telaId);
-      }
-      return { ...prev, [userId]: updated };
-    });
-  };
-
-  const handleSave = async (userId: string) => {
-    const telas = Array.from(selectedTelas[userId] || []);
-    await updatePermissions.mutateAsync({ userId, telaIds: telas });
-    setEditing(null);
-  };
-
-  const handleCancel = () => {
-    setEditing(null);
-    setSelectedTelas({});
-  };
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          Manage user permissions and screen access
+        <h1 className="text-xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-sm text-muted-foreground">
+          Manage system configuration, users and communications
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>User Permissions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {users?.map((u) => (
-              <div key={u.id} className="flex items-start justify-between p-4 border rounded-lg">
-                <div>
-                  <p className="font-medium">{u.name}</p>
-                  <p className="text-sm text-muted-foreground">{u.email}</p>
-                  <Badge className="mt-2" variant="outline">
-                    {u.role}
-                  </Badge>
-                </div>
-
-                {editing === u.id ? (
-                  <div className="space-y-3 flex-1 ml-4">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {screens?.map((screen) => (
-                        <label key={screen.id} className="flex items-center space-x-2 cursor-pointer">
-                          <Checkbox
-                            checked={selectedTelas[u.id]?.has(screen.id) ?? false}
-                            onCheckedChange={() => toggleTela(u.id, screen.id)}
-                          />
-                          <span className="text-sm">{screen.description}</span>
-                        </label>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 pt-4">
-                      <Button
-                        size="sm"
-                        onClick={() => handleSave(u.id)}
-                        disabled={updatePermissions.isPending}
-                      >
-                        {updatePermissions.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          'Save'
-                        )}
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={handleCancel}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">
-                        {u.telas.length} screens assigned
-                      </p>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => startEditing(u.id, u.telas)}
-                    >
-                      Edit
-                    </Button>
-                  </div>
-                )}
+      <div className="flex flex-col overflow-hidden rounded-xl border border-border/30 bg-muted/40">
+        {options.map((opt, i) => {
+          const Icon = opt.icon
+          return (
+            <Link
+              key={opt.href}
+              href={opt.href}
+              className={`group flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/70 ${i < options.length - 1 ? "border-b border-border/30" : ""}`}
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-transparent text-muted-foreground transition-colors group-hover:border-primary/40 group-hover:bg-primary/5 group-hover:text-primary">
+                <Icon className="h-5 w-5" />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{opt.title}</p>
+                <p className="text-xs text-muted-foreground">{opt.description}</p>
+              </div>
+
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
+            </Link>
+          )
+        })}
+      </div>
     </div>
-  );
+  )
 }

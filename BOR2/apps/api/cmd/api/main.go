@@ -61,8 +61,9 @@ func main() {
 	destaqueRepo       := repository.NewPostgresDestaqueRepository(db)
 	oportunidadeRepo   := repository.NewPostgresOportunidadeRepository(db)
 	planoDeAcaoRepo    := repository.NewPostgresPlanoDeAcaoRepository(db)
-	receivableRepo     := repository.NewPostgresReceivableRepository(db)
-	payableRepo        := repository.NewPostgresPayableRepository(db)
+	receivableRepo       := repository.NewPostgresReceivableRepository(db)
+	payableRepo          := repository.NewPostgresPayableRepository(db)
+	notificationRepo     := repository.NewPostgresNotificationRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	authService           := service.NewAuthService(userRepo, sessionRepo)
@@ -80,6 +81,7 @@ func main() {
 	planoDeAcaoService    := service.NewPlanoDeAcaoService(planoDeAcaoRepo)
 	receivableService     := service.NewReceivableService(receivableRepo)
 	payableService        := service.NewPayableService(payableRepo)
+	notificationService  := service.NewNotificationService(notificationRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -99,6 +101,7 @@ func main() {
 	planoDeAcaoHandler       := handler.NewPlanoDeAcaoHandler(planoDeAcaoService)
 	receivableHandler        := handler.NewReceivableHandler(receivableService)
 	payableHandler           := handler.NewPayableHandler(payableService)
+	notificationHandler     := handler.NewNotificationHandler(notificationService, authService)
 	timesheetUploadHandler   := handler.NewTimesheetUploadHandler(db)
 	ofiHandler               := handler.NewOFIHandler(db)
 	workforceHandler         := handler.NewWorkforceHandler(db)
@@ -259,11 +262,24 @@ func main() {
 	payables.Put("/:id", payableHandler.Update)
 	payables.Delete("/:id", payableHandler.Delete)
 
+	// Notifications
+	notifications := api.Group("/notifications")
+	notifications.Get("/",          notificationHandler.List)
+	notifications.Get("/all",       notificationHandler.ListAll)
+	notifications.Post("/",         notificationHandler.Create)
+	notifications.Put("/:id",       notificationHandler.Update)
+	notifications.Patch("/:id/viewed", notificationHandler.MarkViewed)
+	notifications.Delete("/:id",    notificationHandler.Delete)
+
 	// Settings (Admin/Dev only)
 	settings := api.Group("/settings")
-	settings.Get("/screens", settingsHandler.GetScreens)
-	settings.Get("/users", settingsHandler.GetUsers)
-	settings.Patch("/users/:id/permissions", settingsHandler.UpdateUserPermissions)
+	settings.Get("/screens",                       settingsHandler.GetScreens)
+	settings.Get("/users",                         settingsHandler.GetUsers)
+	settings.Post("/users",                        settingsHandler.CreateUser)
+	settings.Put("/users/:id",                     settingsHandler.UpdateUser)
+	settings.Delete("/users/:id",                  settingsHandler.DeleteUser)
+	settings.Post("/users/:id/reset-password",     settingsHandler.ResetUserPassword)
+	settings.Patch("/users/:id/permissions",       settingsHandler.UpdateUserPermissions)
 
 	// Inventory (queries Premium Storage)
 	api.Get("/inventory", inventoryHandler.GetInventory)

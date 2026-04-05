@@ -1,51 +1,56 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+import { api } from "@/lib/api"
+import { useAuthStore } from "@/store/auth.store"
 
 export interface Screen {
-  id: string;
-  description: string;
+  id:          string
+  description: string
 }
 
 export interface UserWithPermissions {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  telas: string[];
+  id:          string
+  email:       string
+  name:        string
+  role:        string
+  permissions: Record<string, boolean>
+}
+
+export interface CreateUserInput {
+  name:  string
+  email: string
+  role:  string
+}
+
+export interface UpdateUserInput {
+  name:  string
+  email: string
+  role:  string
+}
+
+function getToken() {
+  return useAuthStore.getState().token ?? ""
 }
 
 export const settingsService = {
-  async getScreens(): Promise<Screen[]> {
-    const res = await fetch(`${API_URL}/api/v1/settings/screens`, {
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-      },
-    });
-    if (!res.ok) throw new Error(`Failed to fetch screens: ${res.statusText}`);
-    return res.json();
-  },
+  getScreens: () =>
+    api.get<Screen[]>("/api/v1/settings/screens", getToken()),
 
-  async getUsers(): Promise<UserWithPermissions[]> {
-    const res = await fetch(`${API_URL}/api/v1/settings/users`, {
-      credentials: 'include',
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-      },
-    });
-    if (!res.ok) throw new Error(`Failed to fetch users: ${res.statusText}`);
-    return res.json();
-  },
+  getUsers: () =>
+    api.get<UserWithPermissions[]>("/api/v1/settings/users", getToken()),
 
-  async updateUserPermissions(userId: string, telaIds: string[]): Promise<void> {
-    const res = await fetch(`${API_URL}/api/v1/settings/users/${userId}/permissions`, {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
-      },
-      body: JSON.stringify({ telas: telaIds }),
-    });
-    if (!res.ok) throw new Error(`Failed to update permissions: ${res.statusText}`);
-  },
-};
+  createUser: (data: CreateUserInput) =>
+    api.post<{ id: string; name: string; email: string; role: string; provisionalPassword: string }>(
+      "/api/v1/settings/users", data, getToken()
+    ),
+
+  updateUser: (id: string, data: UpdateUserInput) =>
+    api.put<{ message: string }>(`/api/v1/settings/users/${id}`, data, getToken()),
+
+  deleteUser: (id: string) =>
+    api.delete<void>(`/api/v1/settings/users/${id}`, getToken()),
+
+  resetPassword: (id: string) =>
+    api.post<{ provisionalPassword: string }>(`/api/v1/settings/users/${id}/reset-password`, {}, getToken()),
+
+  updateUserPermissions: (userId: string, permissions: Record<string, boolean>) =>
+    api.patch<{ message: string }>(`/api/v1/settings/users/${userId}/permissions`, { permissions }, getToken()),
+}
