@@ -11,6 +11,26 @@ const (
 	ForecastStatusCancelled ForecastStatus = "cancelled"
 )
 
+// Lightweight sub-resource types (from BOR1 migration tables)
+
+type ForecastFieldwireDoc struct {
+	ID     int64   `json:"id"`
+	Status *string `json:"status"`
+}
+
+type ForecastMachineDoc struct {
+	ID     int64   `json:"id"`
+	Title  *string `json:"title"`
+	Status *string `json:"status"`
+}
+
+type ForecastContractStepDoc struct {
+	ID     int64   `json:"id"`
+	Team   *string `json:"team"`
+	Step   *string `json:"step"`
+	Status *string `json:"status"`
+}
+
 type ForecastProject struct {
 	ID                string         `json:"id"`
 	Company           string         `json:"company"`
@@ -34,6 +54,9 @@ type ForecastProject struct {
 	PreviousBeamsDate *time.Time     `json:"previousBeamsDate,omitempty"`
 	PreviousStartDate *time.Time     `json:"previousStartDate,omitempty"`
 	PreviousEndDate   *time.Time     `json:"previousEndDate,omitempty"`
+	Fieldwire         []ForecastFieldwireDoc   `json:"fieldwire,omitempty"`
+	Machines          []ForecastMachineDoc     `json:"machines,omitempty"`
+	ContractSteps     []ForecastContractStepDoc `json:"contractSteps,omitempty"`
 	CreatedAt         time.Time      `json:"createdAt"`
 	UpdatedAt         time.Time      `json:"updatedAt"`
 }

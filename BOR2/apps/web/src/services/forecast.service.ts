@@ -12,6 +12,7 @@ export const forecastService = {
     if (filters?.company) params.set("company", filters.company)
     if (filters?.status) params.set("status", filters.status)
     if (filters?.year) params.set("year", String(filters.year))
+    if (filters?.month !== undefined) params.set("month", String(filters.month))
     return api.get<ForecastProject[]>(`/api/v1/forecast?${params}`, getToken())
   },
 

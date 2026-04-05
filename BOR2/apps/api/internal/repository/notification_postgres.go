@@ -16,6 +16,8 @@ type NotificationRepository interface {
 	List(ctx context.Context, userID string) ([]*domain.Notification, error)
 	// Admin-facing: all notifications regardless of schedule/recipient
 	ListAll(ctx context.Context) ([]*domain.Notification, error)
+	// Manager-facing: only notifications created by this user
+	ListByCreator(ctx context.Context, creatorID string) ([]*domain.Notification, error)
 	Create(ctx context.Context, n *domain.Notification) (*domain.Notification, error)
 	Update(ctx context.Context, n *domain.Notification) (*domain.Notification, error)
 	MarkViewed(ctx context.Context, id int64, userID string) error
@@ -93,6 +95,14 @@ func (r *PostgresNotificationRepository) ListAll(ctx context.Context) ([]*domain
 	rows, err := r.db.Query(ctx, notifSelect+`ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, fmt.Errorf("list all notifications: %w", err)
+	}
+	return scanNotifications(rows)
+}
+
+func (r *PostgresNotificationRepository) ListByCreator(ctx context.Context, creatorID string) ([]*domain.Notification, error) {
+	rows, err := r.db.Query(ctx, notifSelect+`WHERE created_by = $1 ORDER BY created_at DESC`, creatorID)
+	if err != nil {
+		return nil, fmt.Errorf("list notifications by creator: %w", err)
 	}
 	return scanNotifications(rows)
 }

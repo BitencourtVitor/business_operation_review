@@ -74,6 +74,19 @@ const EMPTY_FORM: FormState = {
   contractValue: 0,
   team: "",
   qbTime: false,
+  cliente: "",
+  jobSite: "",
+  type: "",
+  loteBld: "",
+  address: "",
+  obs: "",
+  hvac: false,
+  buildertrend: false,
+  storage: false,
+  machineProvider: "",
+  previousBeamsDate: null,
+  previousStartDate: null,
+  previousEndDate: null,
 }
 
 // ─── Project form dialog ──────────────────────────────────────────────────────
@@ -243,7 +256,29 @@ export default function DataControlPage() {
   }, [projects, companyFilter, statusFilter, search])
 
   const formInitial: FormState = editingProject
-    ? { company: editingProject.company, name: editingProject.name, status: editingProject.status, startDate: editingProject.startDate, endDate: editingProject.endDate, contractValue: editingProject.contractValue, team: editingProject.team, qbTime: editingProject.qbTime }
+    ? {
+        company: editingProject.company,
+        name: editingProject.name,
+        status: editingProject.status,
+        startDate: editingProject.startDate,
+        endDate: editingProject.endDate,
+        contractValue: editingProject.contractValue,
+        team: editingProject.team,
+        qbTime: editingProject.qbTime,
+        cliente: editingProject.cliente ?? "",
+        jobSite: editingProject.jobSite ?? "",
+        type: editingProject.type ?? "",
+        loteBld: editingProject.loteBld ?? "",
+        address: editingProject.address ?? "",
+        obs: editingProject.obs ?? "",
+        hvac: editingProject.hvac ?? false,
+        buildertrend: editingProject.buildertrend ?? false,
+        storage: editingProject.storage ?? false,
+        machineProvider: editingProject.machineProvider ?? "",
+        previousBeamsDate: editingProject.previousBeamsDate ?? null,
+        previousStartDate: editingProject.previousStartDate ?? null,
+        previousEndDate: editingProject.previousEndDate ?? null,
+      }
     : EMPTY_FORM
 
   async function handleSave(data: FormState) {

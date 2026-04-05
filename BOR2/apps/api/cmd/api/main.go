@@ -101,7 +101,7 @@ func main() {
 	planoDeAcaoHandler       := handler.NewPlanoDeAcaoHandler(planoDeAcaoService)
 	receivableHandler        := handler.NewReceivableHandler(receivableService)
 	payableHandler           := handler.NewPayableHandler(payableService)
-	notificationHandler     := handler.NewNotificationHandler(notificationService, authService)
+	notificationHandler     := handler.NewNotificationHandler(notificationService, authService, db)
 	timesheetUploadHandler   := handler.NewTimesheetUploadHandler(db)
 	ofiHandler               := handler.NewOFIHandler(db)
 	workforceHandler         := handler.NewWorkforceHandler(db)
@@ -280,6 +280,7 @@ func main() {
 	settings.Delete("/users/:id",                  settingsHandler.DeleteUser)
 	settings.Post("/users/:id/reset-password",     settingsHandler.ResetUserPassword)
 	settings.Patch("/users/:id/permissions",       settingsHandler.UpdateUserPermissions)
+	settings.Get("/me/permissions",               settingsHandler.GetMyPermissions)
 
 	// Inventory (queries Premium Storage)
 	api.Get("/inventory", inventoryHandler.GetInventory)

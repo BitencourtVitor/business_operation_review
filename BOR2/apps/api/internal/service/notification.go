@@ -23,6 +23,10 @@ func (s *NotificationService) ListAll(ctx context.Context) ([]*domain.Notificati
 	return s.repo.ListAll(ctx)
 }
 
+func (s *NotificationService) ListByCreator(ctx context.Context, creatorID string) ([]*domain.Notification, error) {
+	return s.repo.ListByCreator(ctx, creatorID)
+}
+
 func (s *NotificationService) Create(ctx context.Context, n *domain.Notification) (*domain.Notification, error) {
 	if n.Recipients == nil {
 		n.Recipients = []string{}

@@ -141,7 +141,7 @@ export function NotificationBell() {
             </div>
           ) : (
             <ScrollArea className="max-h-[360px]">
-              <div className="py-1">
+              <div className="px-1 py-1">
                 {notifications.map(n => (
                   <NotificationRow
                     key={n.id}

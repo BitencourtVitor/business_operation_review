@@ -1,5 +1,5 @@
 import { forecastService } from "@/services/forecast.service"
-import type { ForecastFilters } from "@bor2/shared"
+import type { ForecastFilters, ForecastProject } from "@bor2/shared"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { MOCK_FORECAST_PROJECTS } from "@/lib/mock-data"
 
