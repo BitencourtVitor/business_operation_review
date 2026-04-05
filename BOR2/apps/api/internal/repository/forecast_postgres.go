@@ -88,17 +88,17 @@ SELECT
 			'category', COALESCE(fw.category, ''),
 			'document', COALESCE(fw.document, '')
 		) ORDER BY fw.id)
-		 FROM forecast_fieldwire fw WHERE fw.project_id = m.id),
+		 FROM forecast_fieldwire fw WHERE LOWER(fw.project_id) = LOWER(m.id)),
 		'[]'::json
 	) AS fieldwire,
 	COALESCE(
 		(SELECT json_agg(json_build_object('id', mac.id, 'title', mac.title, 'unit', COALESCE(mac.unit,''), 'status', mac.status))
-		 FROM forecast_machines mac WHERE mac.project_id = m.id),
+		 FROM forecast_machines mac WHERE LOWER(mac.project_id) = LOWER(m.id)),
 		'[]'::json
 	) AS machines,
 	COALESCE(
 		(SELECT json_agg(json_build_object('id', cs.id, 'team', cs.team, 'step', cs.step, 'status', cs.status::text))
-		 FROM forecast_contract_steps cs WHERE cs.project_id = m.id),
+		 FROM forecast_contract_steps cs WHERE LOWER(cs.project_id) = LOWER(m.id)),
 		'[]'::json
 	) AS contract_steps
 FROM mapped m
@@ -237,8 +237,10 @@ func (r *PostgresForecastRepository) UpdateContractStepStatus(ctx context.Contex
 
 func (r *PostgresForecastRepository) CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error) {
 	var id int64
-	err := r.db.QueryRow(ctx,
-		"INSERT INTO forecast_contract_steps (project_id, team, step, status) VALUES ($1, $2, $3, false) RETURNING id",
+	err := r.db.QueryRow(ctx, `
+		INSERT INTO forecast_contract_steps (id, project_id, team, step, status)
+		SELECT COALESCE(MAX(id), 0) + 1, $1, $2, $3, false FROM forecast_contract_steps
+		RETURNING id`,
 		projectID, team, step,
 	).Scan(&id)
 	return id, err
@@ -247,7 +249,7 @@ func (r *PostgresForecastRepository) CreateContractStep(ctx context.Context, pro
 func (r *PostgresForecastRepository) DeleteContractTeam(ctx context.Context, projectID string, team string) error {
 	var count int
 	if err := r.db.QueryRow(ctx,
-		"SELECT COUNT(*) FROM forecast_contract_steps WHERE project_id=$1 AND team=$2 AND status=true",
+		"SELECT COUNT(*) FROM forecast_contract_steps WHERE LOWER(project_id)=LOWER($1) AND team=$2 AND status=true",
 		projectID, team,
 	).Scan(&count); err != nil {
 		return err
@@ -256,7 +258,7 @@ func (r *PostgresForecastRepository) DeleteContractTeam(ctx context.Context, pro
 		return fmt.Errorf("cannot delete team with active steps")
 	}
 	_, err := r.db.Exec(ctx,
-		"DELETE FROM forecast_contract_steps WHERE project_id=$1 AND team=$2",
+		"DELETE FROM forecast_contract_steps WHERE LOWER(project_id)=LOWER($1) AND team=$2",
 		projectID, team,
 	)
 	return err
@@ -264,8 +266,10 @@ func (r *PostgresForecastRepository) DeleteContractTeam(ctx context.Context, pro
 
 func (r *PostgresForecastRepository) AddContractTeam(ctx context.Context, projectID string, team string) error {
 	_, err := r.db.Exec(ctx, `
-		INSERT INTO forecast_contract_steps (project_id, team, step, status)
-		SELECT $1, $2, cs.step, false
+		INSERT INTO forecast_contract_steps (id, project_id, team, step, status)
+		SELECT
+			(SELECT COALESCE(MAX(id), 0) FROM forecast_contract_steps) + row_number() OVER (),
+			$1, $2, cs.step, false
 		FROM catalog_forecast_contract_steps cs
 	`, projectID, team)
 	return err
