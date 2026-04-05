@@ -14,13 +14,14 @@ import (
 type catalogDef struct {
 	pgTable string   // actual postgres table name
 	cols    []string // data columns (excluding id, created_at)
+	sortCol string   // ORDER BY column, defaults to "id"
 }
 
 var catalogDefs = map[string]catalogDef{
 	"workforce":      {pgTable: "catalog_forecast_workforce", cols: []string{"name"}},
 	"fieldwire":      {pgTable: "catalog_forecast_fieldwire", cols: []string{"category", "document", "where_location", "notes"}},
 	"machines":       {pgTable: "catalog_forecast_machines", cols: []string{"category", "subcategory", "equipment_category", "title"}},
-	"contract-steps": {pgTable: "catalog_forecast_contract_steps", cols: []string{"step"}},
+	"contract-steps": {pgTable: "catalog_forecast_contract_steps", cols: []string{"seq", "step"}, sortCol: "seq"},
 	"providers":      {pgTable: "catalog_forecast_machine_providers", cols: []string{"name"}},
 }
 
@@ -49,7 +50,11 @@ func (h *ForecastCatalogHandler) List(c *fiber.Ctx) error {
 
 	allCols := append([]string{"id"}, def.cols...)
 	allCols = append(allCols, "created_at")
-	q := fmt.Sprintf("SELECT %s FROM %s ORDER BY id ASC", strings.Join(allCols, ", "), def.pgTable)
+	sortCol := "id"
+	if def.sortCol != "" {
+		sortCol = def.sortCol
+	}
+	q := fmt.Sprintf("SELECT %s FROM %s ORDER BY %s ASC", strings.Join(allCols, ", "), def.pgTable, sortCol)
 
 	rows, err := h.db.Query(c.Context(), q)
 	if err != nil {
