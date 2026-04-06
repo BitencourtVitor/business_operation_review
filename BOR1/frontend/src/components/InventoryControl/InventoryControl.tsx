@@ -41,44 +41,32 @@ export const InventoryControl: React.FC<InventoryControlProps> = ({ theme = 'lig
     return Array.from(uniqueYears).sort((a, b) => b.localeCompare(a));
   }, [historicoSaldo]);
 
-  // Generate Month options dynamically based on available data
+  // When a year is selected always show all 12 months so the filter is always visible
+  // regardless of whether the user has data for each month.
+  // When no year is selected, derive months from available data across all years.
   const months = useMemo(() => {
+    if (selectedYear) {
+      return ['1','2','3','4','5','6','7','8','9','10','11','12'];
+    }
+
     const uniqueMonths = new Set<string>();
-    
-    // From historicoSaldo (YYYY-MM)
+
     historicoSaldo.forEach(h => {
       const match = h.mes.match(/^(\d{4})-(\d{2})/);
-      if (match) {
-        const [_, year, month] = match;
-        if (!selectedYear || year === selectedYear) {
-          uniqueMonths.add(parseInt(month).toString());
-        }
-      }
+      if (match) uniqueMonths.add(parseInt(match[2]).toString());
     });
 
-    // From detalhesExcesso (ISO string)
     detalhesExcesso.forEach(d => {
       try {
-        const date = parseISO(d.movement_date);
-        const year = format(date, 'yyyy');
-        const month = format(date, 'M');
-        if (!selectedYear || year === selectedYear) {
-          uniqueMonths.add(month);
-        }
+        uniqueMonths.add(format(parseISO(d.movement_date), 'M'));
       } catch (e) {
         // Ignore invalid dates
       }
     });
 
-    // From gastosUsuario (YYYY-MM)
     gastosUsuario.forEach(u => {
       const match = u.mes.match(/^(\d{4})-(\d{2})/);
-      if (match) {
-        const [_, year, month] = match;
-        if (!selectedYear || year === selectedYear) {
-          uniqueMonths.add(parseInt(month).toString());
-        }
-      }
+      if (match) uniqueMonths.add(parseInt(match[2]).toString());
     });
 
     return Array.from(uniqueMonths).sort((a, b) => Number(a) - Number(b));
