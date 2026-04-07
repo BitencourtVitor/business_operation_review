@@ -11,14 +11,18 @@ type DestaqueItem struct {
 }
 
 type Destaque struct {
-	ID        string         `json:"id"`
-	UsuarioID string         `json:"usuarioId"`
-	TelaID    string         `json:"telaId"`
-	Mes       int            `json:"mes"`
-	Ano       int            `json:"ano"`
-	CriadoEm  time.Time     `json:"criadoEm"`
-	Positivos []DestaqueItem `json:"positivos"`
-	Negativos []DestaqueItem `json:"negativos"`
+	ID             string         `json:"id"`
+	UsuarioID      string         `json:"usuarioId"`
+	TelaID         string         `json:"telaId"`
+	Mes            int            `json:"mes"`
+	Ano            int            `json:"ano"`
+	CriadoEm       time.Time      `json:"criadoEm"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
+	UpdatedByID    string         `json:"updatedById"`
+	CriadoPorNome  string         `json:"criadoPorNome"`
+	EditadoPorNome string         `json:"editadoPorNome"`
+	Positivos      []DestaqueItem `json:"positivos"`
+	Negativos      []DestaqueItem `json:"negativos"`
 }
 
 type DestaqueFilters struct {
@@ -37,15 +41,19 @@ type OportunidadeItem struct {
 }
 
 type Oportunidade struct {
-	ID        string             `json:"id"`
-	UsuarioID string             `json:"usuarioId"`
-	TelaID    string             `json:"telaId"`
-	Mes       int                `json:"mes"`
-	Ano       int                `json:"ano"`
-	Titulo    string             `json:"titulo"`
-	CriadoEm  time.Time         `json:"criadoEm"`
-	Desafios  []OportunidadeItem `json:"desafios"`
-	Melhorias []OportunidadeItem `json:"melhorias"`
+	ID             string             `json:"id"`
+	UsuarioID      string             `json:"usuarioId"`
+	TelaID         string             `json:"telaId"`
+	Mes            int                `json:"mes"`
+	Ano            int                `json:"ano"`
+	Titulo         string             `json:"titulo"`
+	CriadoEm       time.Time          `json:"criadoEm"`
+	UpdatedAt      time.Time          `json:"updatedAt"`
+	UpdatedByID    string             `json:"updatedById"`
+	CriadoPorNome  string             `json:"criadoPorNome"`
+	EditadoPorNome string             `json:"editadoPorNome"`
+	Desafios       []OportunidadeItem `json:"desafios"`
+	Melhorias      []OportunidadeItem `json:"melhorias"`
 }
 
 type OportunidadeFilters struct {
@@ -65,20 +73,25 @@ type Acao struct {
 	Status      string     `json:"status"`
 	DataLimite  *time.Time `json:"dataLimite,omitempty"`
 	CriadoEm    time.Time  `json:"criadoEm"`
+	UpdatedAt   time.Time  `json:"updatedAt"`
 }
 
 type PlanoDeAcao struct {
-	ID         string     `json:"id"`
-	UsuarioID  string     `json:"usuarioId"`
-	TelaID     string     `json:"telaId"`
-	Titulo     string     `json:"titulo"`
-	Descricao  string     `json:"descricao"`
-	DataInicio *time.Time `json:"dataInicio,omitempty"`
-	DataFim    *time.Time `json:"dataFim,omitempty"`
-	Status     string     `json:"status"`
-	Deletado   bool       `json:"deletado"`
-	CriadoEm   time.Time  `json:"criadoEm"`
-	Acoes      []Acao     `json:"acoes"`
+	ID             string     `json:"id"`
+	UsuarioID      string     `json:"usuarioId"`
+	TelaID         string     `json:"telaId"`
+	Titulo         string     `json:"titulo"`
+	Descricao      string     `json:"descricao"`
+	DataInicio     *time.Time `json:"dataInicio,omitempty"`
+	DataFim        *time.Time `json:"dataFim,omitempty"`
+	Status         string     `json:"status"`
+	Deletado       bool       `json:"deletado"`
+	CriadoEm       time.Time  `json:"criadoEm"`
+	UpdatedAt      time.Time  `json:"updatedAt"`
+	UpdatedByID    string     `json:"updatedById"`
+	CriadoPorNome  string     `json:"criadoPorNome"`
+	EditadoPorNome string     `json:"editadoPorNome"`
+	Acoes          []Acao     `json:"acoes"`
 }
 
 type PlanoDeAcaoFilters struct {
