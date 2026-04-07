@@ -5,7 +5,7 @@ import "time"
 // PermitRow maps to the permit_control table.
 type PermitRow struct {
 	ID          string     `json:"id"`
-	Model       string     `json:"model"`
+	Client      string     `json:"client"`
 	Jobsite     string     `json:"jobsite"`
 	LotAddress  string     `json:"lotAddress"`
 	Situacao    string     `json:"situacao"`

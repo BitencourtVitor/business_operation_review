@@ -7,11 +7,12 @@ import (
 )
 
 type PayableHandler struct {
-	svc *service.PayableService
+	svc   *service.PayableService
+	audit *service.AuditService
 }
 
-func NewPayableHandler(svc *service.PayableService) *PayableHandler {
-	return &PayableHandler{svc: svc}
+func NewPayableHandler(svc *service.PayableService, audit *service.AuditService) *PayableHandler {
+	return &PayableHandler{svc: svc, audit: audit}
 }
 
 func (h *PayableHandler) List(c *fiber.Ctx) error {
@@ -43,6 +44,8 @@ func (h *PayableHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "payable", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -55,6 +58,8 @@ func (h *PayableHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "payable", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -62,5 +67,7 @@ func (h *PayableHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "payable", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }

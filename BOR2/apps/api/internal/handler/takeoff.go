@@ -7,11 +7,12 @@ import (
 )
 
 type TakeoffWorkHandler struct {
-	svc *service.TakeoffWorkService
+	svc   *service.TakeoffWorkService
+	audit *service.AuditService
 }
 
-func NewTakeoffWorkHandler(svc *service.TakeoffWorkService) *TakeoffWorkHandler {
-	return &TakeoffWorkHandler{svc: svc}
+func NewTakeoffWorkHandler(svc *service.TakeoffWorkService, audit *service.AuditService) *TakeoffWorkHandler {
+	return &TakeoffWorkHandler{svc: svc, audit: audit}
 }
 
 func (h *TakeoffWorkHandler) List(c *fiber.Ctx) error {
@@ -42,6 +43,8 @@ func (h *TakeoffWorkHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "takeoffs", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -54,6 +57,8 @@ func (h *TakeoffWorkHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "takeoffs", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -61,5 +66,7 @@ func (h *TakeoffWorkHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "takeoffs", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }

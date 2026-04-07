@@ -7,11 +7,12 @@ import (
 )
 
 type ReceivableHandler struct {
-	svc *service.ReceivableService
+	svc   *service.ReceivableService
+	audit *service.AuditService
 }
 
-func NewReceivableHandler(svc *service.ReceivableService) *ReceivableHandler {
-	return &ReceivableHandler{svc: svc}
+func NewReceivableHandler(svc *service.ReceivableService, audit *service.AuditService) *ReceivableHandler {
+	return &ReceivableHandler{svc: svc, audit: audit}
 }
 
 func (h *ReceivableHandler) List(c *fiber.Ctx) error {
@@ -43,6 +44,8 @@ func (h *ReceivableHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "receivable", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -55,6 +58,8 @@ func (h *ReceivableHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "receivable", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -62,5 +67,7 @@ func (h *ReceivableHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "receivable", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }

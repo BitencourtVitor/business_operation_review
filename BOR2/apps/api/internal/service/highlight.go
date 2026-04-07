@@ -45,6 +45,7 @@ func (s *DestaqueService) Update(ctx context.Context, id string, r *domain.Desta
 	r.UsuarioID = existing.UsuarioID
 	r.TelaID = existing.TelaID
 	r.CriadoEm = existing.CriadoEm
+	r.UpdatedAt = time.Now()
 	if err := s.repo.Update(ctx, r); err != nil {
 		return nil, err
 	}
@@ -94,6 +95,7 @@ func (s *OportunidadeService) Update(ctx context.Context, id string, r *domain.O
 	r.UsuarioID = existing.UsuarioID
 	r.TelaID = existing.TelaID
 	r.CriadoEm = existing.CriadoEm
+	r.UpdatedAt = time.Now()
 	if err := s.repo.Update(ctx, r); err != nil {
 		return nil, err
 	}
@@ -143,6 +145,7 @@ func (s *PlanoDeAcaoService) Update(ctx context.Context, id string, r *domain.Pl
 	r.UsuarioID = existing.UsuarioID
 	r.TelaID = existing.TelaID
 	r.CriadoEm = existing.CriadoEm
+	r.UpdatedAt = time.Now()
 	if err := s.repo.Update(ctx, r); err != nil {
 		return nil, err
 	}

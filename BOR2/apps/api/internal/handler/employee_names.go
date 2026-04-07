@@ -7,11 +7,12 @@ import (
 )
 
 type EmployeeNameHandler struct {
-	svc *service.EmployeeNameService
+	svc   *service.EmployeeNameService
+	audit *service.AuditService
 }
 
-func NewEmployeeNameHandler(svc *service.EmployeeNameService) *EmployeeNameHandler {
-	return &EmployeeNameHandler{svc: svc}
+func NewEmployeeNameHandler(svc *service.EmployeeNameService, audit *service.AuditService) *EmployeeNameHandler {
+	return &EmployeeNameHandler{svc: svc, audit: audit}
 }
 
 func (h *EmployeeNameHandler) List(c *fiber.Ctx) error {
@@ -48,6 +49,8 @@ func (h *EmployeeNameHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "employee_names", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -60,6 +63,8 @@ func (h *EmployeeNameHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "employee_names", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -67,5 +72,7 @@ func (h *EmployeeNameHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "employee_names", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }

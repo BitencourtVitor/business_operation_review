@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -19,7 +20,7 @@ type catalogDef struct {
 
 var catalogDefs = map[string]catalogDef{
 	"workforce":      {pgTable: "catalog_forecast_workforce", cols: []string{"name"}},
-	"fieldwire":      {pgTable: "catalog_forecast_fieldwire", cols: []string{"category", "document", "where_location", "notes"}},
+	"fieldwire":      {pgTable: "catalog_forecast_fieldwire", cols: []string{"client", "type", "document", "where_location", "notes"}},
 	"machines":       {pgTable: "catalog_forecast_machines", cols: []string{"category", "subcategory", "equipment_category", "title"}},
 	"contract-steps": {pgTable: "catalog_forecast_contract_steps", cols: []string{"seq", "step"}, sortCol: "seq"},
 	"providers":      {pgTable: "catalog_forecast_machine_providers", cols: []string{"name"}},
@@ -28,11 +29,12 @@ var catalogDefs = map[string]catalogDef{
 // ─── Handler ───────────────────────────────────────────────────────────────────
 
 type ForecastCatalogHandler struct {
-	db *pgxpool.Pool
+	db    *pgxpool.Pool
+	audit *service.AuditService
 }
 
-func NewForecastCatalogHandler(db *pgxpool.Pool) *ForecastCatalogHandler {
-	return &ForecastCatalogHandler{db: db}
+func NewForecastCatalogHandler(db *pgxpool.Pool, audit *service.AuditService) *ForecastCatalogHandler {
+	return &ForecastCatalogHandler{db: db, audit: audit}
 }
 
 func (h *ForecastCatalogHandler) resolve(c *fiber.Ctx) (catalogDef, bool) {
@@ -119,7 +121,84 @@ func (h *ForecastCatalogHandler) Add(c *fiber.Ctx) error {
 	if err := h.db.QueryRow(c.Context(), q, args...).Scan(&newID); err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "forecast_catalog", fmt.Sprintf("%d", newID))
 	return c.Status(201).JSON(fiber.Map{"data": fiber.Map{"id": newID}})
+}
+
+// PATCH /api/v1/forecast/catalog/contract-steps/reorder
+func (h *ForecastCatalogHandler) Reorder(c *fiber.Ctx) error {
+	var body struct {
+		IDs []int64 `json:"ids"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+	if len(body.IDs) == 0 {
+		return c.Status(400).JSON(fiber.Map{"error": "ids required"})
+	}
+
+	tx, err := h.db.Begin(c.Context())
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	defer tx.Rollback(c.Context())
+
+	for i, id := range body.IDs {
+		if _, err := tx.Exec(c.Context(),
+			"UPDATE catalog_forecast_contract_steps SET seq = $1 WHERE id = $2",
+			i+1, id,
+		); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+	}
+
+	if err := tx.Commit(c.Context()); err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "reorder", "forecast_catalog", "")
+	return c.SendStatus(204)
+}
+
+// PATCH /api/v1/forecast/catalog/:table/:id
+func (h *ForecastCatalogHandler) Update(c *fiber.Ctx) error {
+	def, ok := h.resolve(c)
+	if !ok {
+		return c.Status(404).JSON(fiber.Map{"error": "unknown catalog table"})
+	}
+
+	id := c.Params("id")
+	body := make(map[string]any)
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "invalid body"})
+	}
+
+	setClauses := make([]string, 0, len(def.cols))
+	args := make([]any, 0, len(def.cols)+1)
+	for i, col := range def.cols {
+		v, _ := body[col]
+		setClauses = append(setClauses, fmt.Sprintf("%s = $%d", col, i+1))
+		args = append(args, v)
+	}
+	args = append(args, id)
+
+	q := fmt.Sprintf("UPDATE %s SET %s WHERE id = $%d",
+		def.pgTable,
+		strings.Join(setClauses, ", "),
+		len(args),
+	)
+
+	tag, err := h.db.Exec(c.Context(), q, args...)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+	if tag.RowsAffected() == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "not found"})
+	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "forecast_catalog", id)
+	return c.SendStatus(204)
 }
 
 // DELETE /api/v1/forecast/catalog/:table/:id
@@ -138,5 +217,7 @@ func (h *ForecastCatalogHandler) Delete(c *fiber.Ctx) error {
 	if tag.RowsAffected() == 0 {
 		return c.Status(404).JSON(fiber.Map{"error": "not found"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "forecast_catalog", id)
 	return c.SendStatus(204)
 }

@@ -17,7 +17,8 @@ type ForecastRepository interface {
 	Update(ctx context.Context, p *domain.ForecastProject) error
 	Delete(ctx context.Context, id string) error
 	UpdateFieldwireStatus(ctx context.Context, fwID int64, status bool) error
-	UpdateMachineStatus(ctx context.Context, machID int64, status bool) error
+	UpdateMachineStatus(ctx context.Context, machID int64, status string) error
+	UpdateMachineUnit(ctx context.Context, machID int64, unit string) error
 	UpdateContractStepStatus(ctx context.Context, stepID int64, status bool) error
 	CreateContractStep(ctx context.Context, projectID string, team string, step string) (int64, error)
 	DeleteContractTeam(ctx context.Context, projectID string, team string) error
@@ -164,7 +165,7 @@ func (r *PostgresForecastRepository) FindByID(ctx context.Context, id string) (*
 
 func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.ForecastProject) error {
 	now := time.Now()
-	_, err := r.db.Exec(ctx, `
+	if _, err := r.db.Exec(ctx, `
 		INSERT INTO forecast_core
 		  (id, name, company, status, previous_start_date, previous_end_date,
 		   contract_value, team, qb_time,
@@ -179,24 +180,37 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		p.Cliente, p.JobSite, p.Type, p.LoteBld, p.Address, p.Obs,
 		p.Hvac, p.Buildertrend, p.Storage, p.MachineProvider,
 		now,
-	)
-	return err
+	); err != nil {
+		return err
+	}
+
+	// Auto-seed fieldwire docs from catalog based on (client, type) match
+	if _, err := r.db.Exec(ctx, `
+		INSERT INTO forecast_fieldwire (project_id, category, document, status)
+		SELECT $1, c.client || ' – ' || c.type, c.document, false
+		FROM catalog_forecast_fieldwire c
+		WHERE LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3)
+	`, p.ID, p.Cliente, p.Type); err != nil {
+		return fmt.Errorf("seeding fieldwire docs: %w", err)
+	}
+
+	return nil
 }
 
 func (r *PostgresForecastRepository) Update(ctx context.Context, p *domain.ForecastProject) error {
 	_, err := r.db.Exec(ctx, `
 		UPDATE forecast_core SET
 		  name=$1, status=$2,
-		  previous_start_date=$3, previous_end_date=$4,
-		  contract_value=$5, team=$6, qb_time=$7,
-		  cliente=$8, job_site=$9, type=$10, lote_bld=$11,
-		  address=$12, obs=$13,
-		  hvac=$14, buildertrend=$15, storage=$16, machine_provider=$17,
+		  previous_beams_date=$3, previous_start_date=$4, previous_end_date=$5,
+		  contract_value=$6, team=$7, qb_time=$8,
+		  cliente=$9, job_site=$10, type=$11, lote_bld=$12,
+		  address=$13, obs=$14,
+		  hvac=$15, buildertrend=$16, storage=$17, machine_provider=$18,
 		  lastupdate_datetimez=NOW()
-		WHERE id=$18
+		WHERE id=$19
 	`,
 		p.Name, statusToBOR1(p.Status),
-		nullTime(p.StartDate), nullTime(p.EndDate),
+		p.PreviousBeamsDate, p.PreviousStartDate, p.PreviousEndDate,
 		p.ContractValue, p.Team, p.QBTime,
 		p.Cliente, p.JobSite, p.Type, p.LoteBld,
 		p.Address, p.Obs,
@@ -219,10 +233,22 @@ func (r *PostgresForecastRepository) UpdateFieldwireStatus(ctx context.Context, 
 	return err
 }
 
-func (r *PostgresForecastRepository) UpdateMachineStatus(ctx context.Context, machID int64, status bool) error {
+func (r *PostgresForecastRepository) UpdateMachineStatus(ctx context.Context, machID int64, status string) error {
+	var val *string
+	if status != "" {
+		val = &status
+	}
 	_, err := r.db.Exec(ctx,
 		"UPDATE forecast_machines SET status=$1 WHERE id=$2",
-		status, machID,
+		val, machID,
+	)
+	return err
+}
+
+func (r *PostgresForecastRepository) UpdateMachineUnit(ctx context.Context, machID int64, unit string) error {
+	_, err := r.db.Exec(ctx,
+		"UPDATE forecast_machines SET unit=$1 WHERE id=$2",
+		unit, machID,
 	)
 	return err
 }

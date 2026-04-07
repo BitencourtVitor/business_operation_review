@@ -7,11 +7,12 @@ import (
 )
 
 type PermitRowHandler struct {
-	svc *service.PermitRowService
+	svc   *service.PermitRowService
+	audit *service.AuditService
 }
 
-func NewPermitRowHandler(svc *service.PermitRowService) *PermitRowHandler {
-	return &PermitRowHandler{svc: svc}
+func NewPermitRowHandler(svc *service.PermitRowService, audit *service.AuditService) *PermitRowHandler {
+	return &PermitRowHandler{svc: svc, audit: audit}
 }
 
 func (h *PermitRowHandler) List(c *fiber.Ctx) error {
@@ -43,6 +44,8 @@ func (h *PermitRowHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "permit_control", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -55,6 +58,8 @@ func (h *PermitRowHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "permit_control", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -62,5 +67,25 @@ func (h *PermitRowHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "permit_control", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
+}
+
+func (h *PermitRowHandler) SyncFromSheet(c *fiber.Ctx) error {
+	total, inserted, err := h.svc.SyncFromSheet(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+			"code":  "SYNC_FAILED",
+		})
+	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "sync_sheet", "permit_control", "")
+	return c.JSON(fiber.Map{
+		"data": fiber.Map{
+			"total":    total,
+			"inserted": inserted,
+		},
+	})
 }

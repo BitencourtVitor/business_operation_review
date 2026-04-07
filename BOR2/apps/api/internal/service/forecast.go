@@ -36,6 +36,7 @@ func (s *ForecastService) Create(ctx context.Context, p *domain.ForecastProject)
 }
 
 func (s *ForecastService) Update(ctx context.Context, id string, p *domain.ForecastProject) (*domain.ForecastProject, error) {
+	p.ID = id // enforce URL param wins over any body-provided id
 	p.UpdatedAt = time.Now()
 	if err := s.repo.Update(ctx, p); err != nil {
 		return nil, err
@@ -54,8 +55,12 @@ func (s *ForecastService) ToggleFieldwire(ctx context.Context, fwID int64, statu
 	return s.repo.UpdateFieldwireStatus(ctx, fwID, status)
 }
 
-func (s *ForecastService) ToggleMachine(ctx context.Context, machID int64, status bool) error {
+func (s *ForecastService) ToggleMachine(ctx context.Context, machID int64, status string) error {
 	return s.repo.UpdateMachineStatus(ctx, machID, status)
+}
+
+func (s *ForecastService) UpdateMachineUnit(ctx context.Context, machID int64, unit string) error {
+	return s.repo.UpdateMachineUnit(ctx, machID, unit)
 }
 
 func (s *ForecastService) ToggleContractStep(ctx context.Context, stepID int64, status bool) error {

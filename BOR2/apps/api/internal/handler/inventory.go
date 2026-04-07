@@ -6,10 +6,36 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// flexString unmarshals both JSON strings and JSON numbers into a Go string.
+// Supabase may return integer IDs (e.g. product_id = 42) or UUID strings;
+// this type handles both so json.Unmarshal never fails on type mismatch.
+type flexString string
+
+func (s *flexString) UnmarshalJSON(b []byte) error {
+	trimmed := strings.TrimSpace(string(b))
+	if len(trimmed) > 0 && trimmed[0] == '"' {
+		// It's a JSON string — decode normally
+		var str string
+		if err := json.Unmarshal(b, &str); err != nil {
+			return err
+		}
+		*s = flexString(str)
+		return nil
+	}
+	// It's a number, bool, or null — convert the raw token to string
+	if trimmed == "null" {
+		*s = ""
+		return nil
+	}
+	*s = flexString(trimmed)
+	return nil
+}
 
 type InventoryHandler struct {
 	db *pgxpool.Pool
@@ -19,65 +45,66 @@ func NewInventoryHandler(db *pgxpool.Pool) *InventoryHandler {
 	return &InventoryHandler{db: db}
 }
 
-// Inventory data structures from Premium Storage
+// ─── Data structures ─────────────────────────────────────────────────────────
+
 type ConsumoVsLimite struct {
-	ProjectID          string  `json:"project_id"`
-	ProjectNome        string  `json:"project_nome"`
-	HouseModelID       string  `json:"house_model_id"`
-	HouseModelNome     string  `json:"house_model_nome"`
-	ProductID          string  `json:"product_id"`
-	ProductNome        string  `json:"product_nome"`
-	UnidadeMedida      string  `json:"unidade_medida"`
-	QuantidadeLimite   float64 `json:"quantidade_limite"`
-	QuantidadeConsumida float64 `json:"quantidade_consumida"`
+	ProjectID           string   `json:"project_id"`
+	ProjectNome         string   `json:"project_nome"`
+	HouseModelID        string   `json:"house_model_id"`
+	HouseModelNome      string   `json:"house_model_nome"`
+	ProductID           string   `json:"product_id"`
+	ProductNome         string   `json:"product_nome"`
+	UnidadeMedida       string   `json:"unidade_medida"`
+	QuantidadeLimite    float64  `json:"quantidade_limite"`
+	QuantidadeConsumida float64  `json:"quantidade_consumida"`
 	PercentualConsumido *float64 `json:"percentual_consumido"`
-	LimiteExcedido     bool    `json:"limite_excedido"`
+	LimiteExcedido      bool     `json:"limite_excedido"`
 }
 
 type HistoricoSaldo struct {
-	Mes              string  `json:"mes"`
-	ProductID        string  `json:"product_id"`
-	ProductNome      string  `json:"product_nome"`
-	SaldoMinimo      float64 `json:"saldo_minimo"`
-	SaldoAcumulado   float64 `json:"saldo_acumulado"`
-	AbaixoMinimo     bool    `json:"abaixo_minimo"`
+	Mes            string  `json:"mes"`
+	ProductID      string  `json:"product_id"`
+	ProductNome    string  `json:"product_nome"`
+	SaldoMinimo    float64 `json:"saldo_minimo"`
+	SaldoAcumulado float64 `json:"saldo_acumulado"`
+	AbaixoMinimo   bool    `json:"abaixo_minimo"`
 }
 
 type DetalheExcesso struct {
-	ProjectID                string   `json:"project_id"`
-	ProjectNome              string   `json:"project_nome"`
-	HouseModelNome           string   `json:"house_model_nome"`
-	ProductID                string   `json:"product_id"`
-	ProductNome              string   `json:"product_nome"`
-	UsuarioResponsavel       string   `json:"usuario_responsavel"`
-	DestinatarioID           *string  `json:"destinatario_id"`
-	MovementDate             string   `json:"movement_date"`
-	QuantidadeRetirada       float64  `json:"quantidade_retirada"`
-	QuantidadeLimite         float64  `json:"quantidade_limite"`
-	ConsumoAcumuladoMomento  float64  `json:"consumo_acumulado_momento"`
-	ExcedeuNesteMomento      bool     `json:"excedeu_neste_momento"`
-	ValorUnitario            *float64 `json:"valor_unitario"`
+	ProjectID               string   `json:"project_id"`
+	ProjectNome             string   `json:"project_nome"`
+	HouseModelNome          string   `json:"house_model_nome"`
+	ProductID               string   `json:"product_id"`
+	ProductNome             string   `json:"product_nome"`
+	UsuarioResponsavel      string   `json:"usuario_responsavel"`
+	DestinatarioID          *string  `json:"destinatario_id"`
+	MovementDate            string   `json:"movement_date"`
+	QuantidadeRetirada      float64  `json:"quantidade_retirada"`
+	QuantidadeLimite        float64  `json:"quantidade_limite"`
+	ConsumoAcumuladoMomento float64  `json:"consumo_acumulado_momento"`
+	ExcedeuNesteMomento     bool     `json:"excedeu_neste_momento"`
+	ValorUnitario           *float64 `json:"valor_unitario"`
 }
 
 type GastoUsuario struct {
-	UsuarioID       string  `json:"usuario_id"`
-	UsuarioNome     string  `json:"usuario_nome"`
-	Role            string  `json:"role"`
-	Mes             string  `json:"mes"`
-	TotalRetiradas  int     `json:"total_retiradas"`
+	UsuarioID          string  `json:"usuario_id"`
+	UsuarioNome        string  `json:"usuario_nome"`
+	Role               string  `json:"role"`
+	Mes                string  `json:"mes"`
+	TotalRetiradas     int     `json:"total_retiradas"`
 	ValorTotalRetirado float64 `json:"valor_total_retirado"`
 }
 
 type InventoryResponse struct {
-	ConsumoVsLimite  []ConsumoVsLimite  `json:"consumo_vs_limite"`
-	HistoricoSaldo   []HistoricoSaldo   `json:"historico_saldo"`
-	DetalhesExcesso  []DetalheExcesso   `json:"detalhes_excesso"`
-	GastosUsuario    []GastoUsuario     `json:"gastos_usuario"`
-	ProductPrices    map[string]float64 `json:"product_prices"`
+	ConsumoVsLimite []ConsumoVsLimite  `json:"consumo_vs_limite"`
+	HistoricoSaldo  []HistoricoSaldo   `json:"historico_saldo"`
+	DetalhesExcesso []DetalheExcesso   `json:"detalhes_excesso"`
+	GastosUsuario   []GastoUsuario     `json:"gastos_usuario"`
+	ProductPrices   map[string]float64 `json:"product_prices"`
 }
 
-// GetInventory fetches inventory data from Premium Storage
-// GET /api/v1/inventory
+// ─── Handler ──────────────────────────────────────────────────────────────────
+
 func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 	storageURL := os.Getenv("PREMIUM_STORAGE_URL")
 	storageKey := os.Getenv("PREMIUM_STORAGE_KEY")
@@ -90,93 +117,112 @@ func (h *InventoryHandler) GetInventory(c *fiber.Ctx) error {
 		ProductPrices:   map[string]float64{},
 	}
 
-	// Fetch ConsumoVsLimite view
-	if data, err := fetchPremiumStorageData(storageURL, storageKey, "vw_consumo_vs_limite", []ConsumoVsLimite{}); err == nil {
-		if consumoData, ok := data.([]ConsumoVsLimite); ok {
-			result.ConsumoVsLimite = consumoData
+	// Helper
+	fetch := func(table, query string) ([]byte, error) {
+		url := fmt.Sprintf("%s/rest/v1/%s?%s", storageURL, table, query)
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set("apikey", storageKey)
+		req.Header.Set("Authorization", "Bearer "+storageKey)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Range-Unit", "items")
+		req.Header.Set("Range", "0-9999")
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		if resp.StatusCode != 200 && resp.StatusCode != 206 {
+			return nil, fmt.Errorf("storage %d: %s", resp.StatusCode, string(body))
+		}
+		return body, nil
+	}
+
+	// ConsumoVsLimite
+	if body, err := fetch("vw_consumo_vs_limite", "select=*&limit=5000"); err == nil {
+		var data []ConsumoVsLimite
+		if json.Unmarshal(body, &data) == nil {
+			result.ConsumoVsLimite = data
 		}
 	}
 
-	// Fetch HistoricoSaldo view
-	if data, err := fetchPremiumStorageData(storageURL, storageKey, "vw_historico_saldo_mensal", []HistoricoSaldo{}); err == nil {
-		if historicoData, ok := data.([]HistoricoSaldo); ok {
-			result.HistoricoSaldo = historicoData
+	// HistoricoSaldo
+	if body, err := fetch("vw_historico_saldo_mensal", "select=*&limit=5000"); err == nil {
+		var data []HistoricoSaldo
+		if json.Unmarshal(body, &data) == nil {
+			result.HistoricoSaldo = data
 		}
 	}
 
-	// Fetch DetalhesExcesso view
-	if data, err := fetchPremiumStorageData(storageURL, storageKey, "vw_detalhes_excesso_limite", []DetalheExcesso{}); err == nil {
-		if excessoData, ok := data.([]DetalheExcesso); ok {
-			result.DetalhesExcesso = excessoData
+	// DetalhesExcesso
+	if body, err := fetch("vw_detalhes_excesso_limite", "select=*&limit=5000"); err == nil {
+		var data []DetalheExcesso
+		if json.Unmarshal(body, &data) == nil {
+			result.DetalhesExcesso = data
 		}
 	}
 
-	// Fetch GastosUsuario view
-	if data, err := fetchPremiumStorageData(storageURL, storageKey, "vw_gasto_por_usuario", []GastoUsuario{}); err == nil {
-		if gastosData, ok := data.([]GastoUsuario); ok {
-			result.GastosUsuario = gastosData
+	// GastosUsuario
+	if body, err := fetch("vw_gasto_por_usuario", "select=*&limit=5000"); err == nil {
+		var data []GastoUsuario
+		if json.Unmarshal(body, &data) == nil {
+			result.GastosUsuario = data
+		}
+	}
+
+	// Step 1 — Build a product id→name map from the products table (same as BOR1).
+	// This guarantees name-based price lookups work regardless of how product_id
+	// is typed in the view (UUID vs integer).
+	productNames := map[string]string{} // id-string → nome
+	if body, err := fetch("products", "select=id,nome&limit=5000"); err == nil {
+		var rawProducts []map[string]interface{}
+		if json.Unmarshal(body, &rawProducts) == nil {
+			for _, p := range rawProducts {
+				if rawID := p["id"]; rawID != nil {
+					pid := fmt.Sprintf("%v", rawID)
+					if nome, ok := p["nome"].(string); ok && nome != "" {
+						productNames[pid] = nome
+					}
+				}
+			}
+		}
+	}
+
+	// Step 2 — Build ProductPrices from stock_movement_items (latest first).
+	// Index by both product_id string and product name, mirroring BOR1.
+	if body, err := fetch("stock_movement_items", "select=product_id,valor_unitario&order=id.desc&limit=5000"); err == nil {
+		var rawItems []map[string]interface{}
+		if json.Unmarshal(body, &rawItems) == nil {
+			for _, item := range rawItems {
+				price, ok := item["valor_unitario"].(float64)
+				if !ok || price <= 0 {
+					continue
+				}
+				pid := ""
+				if rawID := item["product_id"]; rawID != nil {
+					pid = fmt.Sprintf("%v", rawID)
+				}
+				if pid != "" && pid != "<nil>" {
+					if _, exists := result.ProductPrices[pid]; !exists {
+						result.ProductPrices[pid] = price
+					}
+					// Also index by name using the products table map
+					if nome, ok := productNames[pid]; ok && nome != "" {
+						if _, exists := result.ProductPrices[nome]; !exists {
+							result.ProductPrices[nome] = price
+						}
+					}
+				}
+			}
 		}
 	}
 
 	return c.JSON(result)
-}
-
-// Helper function to fetch data from Premium Storage Supabase
-func fetchPremiumStorageData(storageURL, storageKey, table string, target interface{}) (interface{}, error) {
-	url := fmt.Sprintf("%s/rest/v1/%s?select=*", storageURL, table)
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("apikey", storageKey)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", storageKey))
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("premium storage error: %d - %s", resp.StatusCode, string(body))
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	switch v := target.(type) {
-	case []ConsumoVsLimite:
-		var data []ConsumoVsLimite
-		if err := json.Unmarshal(body, &data); err != nil {
-			return []ConsumoVsLimite{}, nil
-		}
-		return data, nil
-	case []HistoricoSaldo:
-		var data []HistoricoSaldo
-		if err := json.Unmarshal(body, &data); err != nil {
-			return []HistoricoSaldo{}, nil
-		}
-		return data, nil
-	case []DetalheExcesso:
-		var data []DetalheExcesso
-		if err := json.Unmarshal(body, &data); err != nil {
-			return []DetalheExcesso{}, nil
-		}
-		return data, nil
-	case []GastoUsuario:
-		var data []GastoUsuario
-		if err := json.Unmarshal(body, &data); err != nil {
-			return []GastoUsuario{}, nil
-		}
-		return data, nil
-	default:
-		return v, nil
-	}
 }
