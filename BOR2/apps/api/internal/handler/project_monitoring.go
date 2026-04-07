@@ -7,11 +7,12 @@ import (
 )
 
 type ProjectMonitoringHvacHandler struct {
-	svc *service.ProjectMonitoringHvacService
+	svc   *service.ProjectMonitoringHvacService
+	audit *service.AuditService
 }
 
-func NewProjectMonitoringHvacHandler(svc *service.ProjectMonitoringHvacService) *ProjectMonitoringHvacHandler {
-	return &ProjectMonitoringHvacHandler{svc: svc}
+func NewProjectMonitoringHvacHandler(svc *service.ProjectMonitoringHvacService, audit *service.AuditService) *ProjectMonitoringHvacHandler {
+	return &ProjectMonitoringHvacHandler{svc: svc, audit: audit}
 }
 
 func (h *ProjectMonitoringHvacHandler) List(c *fiber.Ctx) error {
@@ -44,6 +45,8 @@ func (h *ProjectMonitoringHvacHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "project_monitoring", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -56,6 +59,8 @@ func (h *ProjectMonitoringHvacHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "project_monitoring", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -63,5 +68,7 @@ func (h *ProjectMonitoringHvacHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), c.Params("id")); err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "project_monitoring", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }

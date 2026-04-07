@@ -7,11 +7,12 @@ import (
 )
 
 type SubcontractorHandler struct {
-	svc *service.SubcontractorService
+	svc   *service.SubcontractorService
+	audit *service.AuditService
 }
 
-func NewSubcontractorHandler(svc *service.SubcontractorService) *SubcontractorHandler {
-	return &SubcontractorHandler{svc: svc}
+func NewSubcontractorHandler(svc *service.SubcontractorService, audit *service.AuditService) *SubcontractorHandler {
+	return &SubcontractorHandler{svc: svc, audit: audit}
 }
 
 func (h *SubcontractorHandler) List(c *fiber.Ctx) error {
@@ -43,6 +44,8 @@ func (h *SubcontractorHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "subcontractors", created.ID)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -57,5 +60,7 @@ func (h *SubcontractorHandler) UpdateStatus(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "not found", "code": "NOT_FOUND"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "subcontractors", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }

@@ -21,10 +21,11 @@ type NotificationHandler struct {
 	svc     *service.NotificationService
 	authSvc *service.AuthService
 	db      *pgxpool.Pool
+	audit   *service.AuditService
 }
 
-func NewNotificationHandler(svc *service.NotificationService, authSvc *service.AuthService, db *pgxpool.Pool) *NotificationHandler {
-	return &NotificationHandler{svc: svc, authSvc: authSvc, db: db}
+func NewNotificationHandler(svc *service.NotificationService, authSvc *service.AuthService, db *pgxpool.Pool, audit *service.AuditService) *NotificationHandler {
+	return &NotificationHandler{svc: svc, authSvc: authSvc, db: db, audit: audit}
 }
 
 func (h *NotificationHandler) resolveUser(c *fiber.Ctx) (*domain.User, error) {
@@ -122,6 +123,8 @@ func (h *NotificationHandler) Create(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "notifications", strconv.FormatInt(created.ID, 10))
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"data": created})
 }
 
@@ -160,6 +163,8 @@ func (h *NotificationHandler) Update(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "notifications", c.Params("id"))
 	return c.JSON(fiber.Map{"data": updated})
 }
 
@@ -176,6 +181,8 @@ func (h *NotificationHandler) MarkViewed(c *fiber.Ctx) error {
 	if err := h.svc.MarkViewed(c.Context(), id, user.ID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "notifications", c.Params("id"))
 	return c.JSON(fiber.Map{"data": fiber.Map{"message": "marked as viewed"}})
 }
 
@@ -208,5 +215,7 @@ func (h *NotificationHandler) Delete(c *fiber.Ctx) error {
 	if err := h.svc.Delete(c.Context(), id); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error(), "code": "INTERNAL_ERROR"})
 	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "notifications", c.Params("id"))
 	return c.JSON(fiber.Map{"data": nil})
 }

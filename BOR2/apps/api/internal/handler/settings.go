@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/bitencourtVitor/bor2-api/internal/domain"
+	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -23,11 +24,12 @@ func cryptoRandN(max int64) (int64, error) {
 }
 
 type SettingsHandler struct {
-	db *pgxpool.Pool
+	db    *pgxpool.Pool
+	audit *service.AuditService
 }
 
-func NewSettingsHandler(db *pgxpool.Pool) *SettingsHandler {
-	return &SettingsHandler{db: db}
+func NewSettingsHandler(db *pgxpool.Pool, audit *service.AuditService) *SettingsHandler {
+	return &SettingsHandler{db: db, audit: audit}
 }
 
 // Screen represents a page/tela in the system
@@ -197,6 +199,8 @@ func (h *SettingsHandler) CreateUser(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to create user: %v", err)})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "create", "users", userID)
 	return c.Status(201).JSON(fiber.Map{
 		"data": fiber.Map{
 			"id":                userID,
@@ -235,6 +239,8 @@ func (h *SettingsHandler) UpdateUser(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to update user: %v", err)})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update", "users", c.Params("id"))
 	return c.JSON(fiber.Map{"data": fiber.Map{"message": "user updated"}})
 }
 
@@ -260,6 +266,8 @@ func (h *SettingsHandler) DeleteUser(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to delete user: %v", err)})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "delete", "users", c.Params("id"))
 	return c.JSON(fiber.Map{"data": nil})
 }
 
@@ -290,6 +298,8 @@ func (h *SettingsHandler) ResetUserPassword(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to reset password"})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "reset_password", "users", c.Params("id"))
 	return c.JSON(fiber.Map{"data": fiber.Map{"provisionalPassword": tempPass}})
 }
 
@@ -371,5 +381,7 @@ func (h *SettingsHandler) UpdateUserPermissions(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": fmt.Sprintf("failed to update permissions: %v", err)})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "update_permissions", "user_permissions", c.Params("id"))
 	return c.JSON(fiber.Map{"data": fiber.Map{"message": "permissions updated"}})
 }

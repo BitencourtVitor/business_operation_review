@@ -8,10 +8,11 @@ import (
 
 type AuthHandler struct {
 	authService *service.AuthService
+	audit       *service.AuditService
 }
 
-func NewAuthHandler(authService *service.AuthService) *AuthHandler {
-	return &AuthHandler{authService: authService}
+func NewAuthHandler(authService *service.AuthService, audit *service.AuditService) *AuthHandler {
+	return &AuthHandler{authService: authService, audit: audit}
 }
 
 type loginRequest struct {
@@ -142,5 +143,7 @@ func (h *AuthHandler) ChangePassword(c *fiber.Ctx) error {
 		})
 	}
 
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "change_password", "users", user.ID)
 	return c.JSON(fiber.Map{"message": "password changed successfully"})
 }
