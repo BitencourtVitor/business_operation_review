@@ -11,14 +11,17 @@ export const isFieldwireComplete = (project: WorkforceProject): boolean => {
   return project.fieldwire.every(fw => isTruthyFlag(fw.status));
 };
 
+// Verifica se o status de uma máquina individual é positivo (agendada ou dispensada)
+export const isMachineStatusOk = (status: string | null | undefined): boolean => {
+  if (!status) return false;
+  const s = status.toString().toLowerCase().trim();
+  return s === 'scheduled' || s === 'dispensed' || s === 'allocated' || s === 'true' || s === 'yes' || s === '1';
+};
+
 // Helper para verificar se Machines and Attachments está completo
 export const isMachinesComplete = (project: WorkforceProject): boolean => {
   if (!project.machines || project.machines.length === 0) return false;
-  return project.machines.every(m => {
-    if (!m.status) return false;
-    const s = m.status.toString().toLowerCase().trim();
-    return s === 'scheduled' || s === 'dispensed' || s === 'true' || s === 'yes' || s === '1';
-  });
+  return project.machines.every(m => isMachineStatusOk(m.status));
 };
 
 // Helper para verificar se tem contrato completo
@@ -44,11 +47,7 @@ export const getFieldwireProgress = (project: WorkforceProject): number => {
 // Helper para calcular porcentagem de máquinas ativas
 export const getMachinesProgress = (project: WorkforceProject): number => {
   if (!project.machines || project.machines.length === 0) return 0;
-  const active = project.machines.filter(m => {
-    if (!m.status) return false;
-    const s = m.status.toString().toLowerCase().trim();
-    return s === 'scheduled' || s === 'dispensed' || s === 'true' || s === 'yes' || s === '1';
-  }).length;
+  const active = project.machines.filter(m => isMachineStatusOk(m.status)).length;
   return (active / project.machines.length) * 100;
 };
 
