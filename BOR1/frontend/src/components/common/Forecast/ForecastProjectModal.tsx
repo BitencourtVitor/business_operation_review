@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react';
 import { formatDateUS } from '../../../utils/formatters';
 import type { WorkforceProject, ForecastProjectStatus } from './types';
-import { 
+import {
   getProjectCompletionMetrics,
   getForecastProjectStatus,
-  getProjectTeams
+  getProjectTeams,
+  isMachineStatusOk
 } from './helpers';
 import iconFieldwire from '../../../assets/fieldwire.png';
 import iconBuildertrend from '../../../assets/buildertrend.png';
@@ -627,17 +628,19 @@ export default function ForecastProjectModal({
                         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: 4 }}>
                           {m.title || 'N/A'}
                         </div>
-                        <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', opacity: 0.5, marginBottom: m.status && m.unit ? 4 : 0 }}>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-secondary)', opacity: 0.5, marginBottom: m.unit ? 4 : 0 }}>
                           {m.equipment_category || ''}
                         </div>
-                        {m.status && m.unit && (
-                          <div style={{ fontSize: 13, color: 'var(--color-text-primary)', fontWeight: 500 }}>
-                            Unit: {m.unit}
+                        {m.unit && (
+                          <div style={{ fontSize: 13, color: m.status?.toLowerCase() === 'dispensed' ? 'var(--color-text-secondary)' : 'var(--color-text-primary)', fontWeight: 500 }}>
+                            {m.status?.toLowerCase() === 'dispensed' ? 'Dispensed: ' : 'Unit: '}{m.unit.toUpperCase()}
                           </div>
                         )}
                       </div>
                       {/* Status alinhado à direita */}
-                      {m.status ? (
+                      {m.status?.toLowerCase() === 'dispensed' ? (
+                        <i className="bi bi-x-circle-fill" style={{ fontSize: 20, color: '#f87171', flexShrink: 0 }} />
+                      ) : isMachineStatusOk(m.status) ? (
                         <i className="bi bi-check-circle" style={{ fontSize: 20, color: '#4ade80', flexShrink: 0 }} />
                       ) : (
                         <i className="bi bi-x-circle" style={{ fontSize: 20, color: '#fbbf24', flexShrink: 0 }} />
