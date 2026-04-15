@@ -30,7 +30,8 @@
     "react-select": "^5.10.1",
     "recharts": "^3.7.0",
     "tailwindcss": "*",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.29.0",
