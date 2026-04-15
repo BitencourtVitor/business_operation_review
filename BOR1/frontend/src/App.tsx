@@ -7,6 +7,7 @@ import MobileForecast from './pages/MobileForecast'
 import OperationalForecastIndex from './pages/OperationalForecastIndex'
 import DataControl from './pages/DataControl'
 import AutoLog from './pages/AutoLog'
+import WexCategorization from './pages/WexCategorization'
 import ProtectedRoute from './components/common/ProtectedRoute'
 import { DataCacheProvider } from './contexts/DataCacheContext'
 import { GlobalFeedbackProvider } from './contexts/GlobalFeedbackContext'
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/data-control" element={<ProtectedRoute><DataControl /></ProtectedRoute>} />
             <Route path="/ofi" element={<ProtectedRoute><OperationalForecastIndex /></ProtectedRoute>} />
             <Route path="/auto-log" element={<ProtectedRoute><AutoLog /></ProtectedRoute>} />
+            <Route path="/wex-categorization" element={<ProtectedRoute><WexCategorization /></ProtectedRoute>} />
             <Route path="/" element={<Navigate to="/initial-loading" replace />} />
           </Routes>
         </Router>
