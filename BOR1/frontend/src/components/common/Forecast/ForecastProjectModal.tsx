@@ -397,7 +397,13 @@ export default function ForecastProjectModal({
             <div id="modal-section-fieldwire" style={{ marginBottom: 16, scrollMarginTop: '20px' }}>
               <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: 12, textAlign: 'left' }}>Fieldwire Documents</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {project.fieldwire.map((fw) => (
+                {[...project.fieldwire]
+                  .sort((a, b) => {
+                    const aLast = a.document === 'Shared with subcontractor' ? 1 : 0;
+                    const bLast = b.document === 'Shared with subcontractor' ? 1 : 0;
+                    return aLast - bLast;
+                  })
+                  .map((fw) => (
                   <div key={fw.id} style={{
                     display: 'flex',
                     alignItems: 'center',
