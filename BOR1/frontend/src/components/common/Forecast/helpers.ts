@@ -6,9 +6,12 @@ export const hasActiveFieldwire = (project: WorkforceProject): boolean => {
 };
 
 // Helper para verificar se Fieldwire está completo (todos os documentos com status true)
+// Entradas com status null/undefined são ignoradas (ainda não configuradas)
 export const isFieldwireComplete = (project: WorkforceProject): boolean => {
   if (!project.fieldwire || project.fieldwire.length === 0) return false;
-  return project.fieldwire.every(fw => isTruthyFlag(fw.status));
+  const settledItems = project.fieldwire.filter(fw => fw.status !== null && fw.status !== undefined);
+  if (settledItems.length === 0) return false;
+  return settledItems.every(fw => isTruthyFlag(fw.status));
 };
 
 // Verifica se o status de uma máquina individual é positivo (agendada ou dispensada)
@@ -38,10 +41,13 @@ export const getContractProgress = (project: WorkforceProject): number => {
 };
 
 // Helper para calcular porcentagem de Fieldwire completo
+// Entradas com status null/undefined são ignoradas (ainda não configuradas)
 export const getFieldwireProgress = (project: WorkforceProject): number => {
   if (!project.fieldwire || project.fieldwire.length === 0) return 0;
-  const completed = project.fieldwire.filter(fw => isTruthyFlag(fw.status)).length;
-  return (completed / project.fieldwire.length) * 100;
+  const settledItems = project.fieldwire.filter(fw => fw.status !== null && fw.status !== undefined);
+  if (settledItems.length === 0) return 0;
+  const completed = settledItems.filter(fw => isTruthyFlag(fw.status)).length;
+  return (completed / settledItems.length) * 100;
 };
 
 // Helper para calcular porcentagem de máquinas ativas
@@ -173,10 +179,11 @@ export const getProjectCompletionMetrics = (project: WorkforceProject) => {
   let completedPoints = 0;
   let totalPoints = 0;
 
-  // 1. Fieldwire Documents
+  // 1. Fieldwire Documents (entradas com status null são ignoradas — ainda não configuradas)
   if (project.fieldwire && project.fieldwire.length > 0) {
-    totalPoints += project.fieldwire.length;
-    completedPoints += project.fieldwire.filter(fw => isTruthyFlag(fw.status)).length;
+    const settledFw = project.fieldwire.filter(fw => fw.status !== null && fw.status !== undefined);
+    totalPoints += settledFw.length;
+    completedPoints += settledFw.filter(fw => isTruthyFlag(fw.status)).length;
   }
 
   // 2. BuilderTrend
