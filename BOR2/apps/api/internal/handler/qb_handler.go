@@ -64,3 +64,26 @@ func (h *QBHandler) Refresh(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"ok": true, "company": company, "message": "tokens refreshed"})
 }
+
+// POST /api/v1/qb/seed  (dev only — bootstrap existing tokens without OAuth flow)
+// Body: { "company": "hvac", "realm_id": "...", "access_token": "...", "refresh_token": "..." }
+func (h *QBHandler) Seed(c *fiber.Ctx) error {
+	var body struct {
+		Company      string `json:"company"`
+		RealmID      string `json:"realm_id"`
+		AccessToken  string `json:"access_token"`
+		RefreshToken string `json:"refresh_token"`
+	}
+	if err := c.BodyParser(&body); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid body")
+	}
+	if body.Company == "" || body.RealmID == "" || body.AccessToken == "" || body.RefreshToken == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "company, realm_id, access_token and refresh_token are required")
+	}
+
+	if err := h.oauth.SeedTokens(c.Context(), body.Company, body.RealmID, body.AccessToken, body.RefreshToken); err != nil {
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(fiber.Map{"ok": true, "company": body.Company, "message": "tokens seeded"})
+}
