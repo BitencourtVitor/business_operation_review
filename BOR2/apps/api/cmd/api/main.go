@@ -12,6 +12,7 @@ import (
 	"github.com/bitencourtVitor/bor2-api/internal/handler"
 	"github.com/bitencourtVitor/bor2-api/internal/jobs"
 	"github.com/bitencourtVitor/bor2-api/internal/middleware"
+	"github.com/bitencourtVitor/bor2-api/internal/pipeline/quickbooks"
 	"github.com/bitencourtVitor/bor2-api/internal/repository"
 	"github.com/bitencourtVitor/bor2-api/internal/service"
 	"github.com/bitencourtVitor/bor2-api/pkg/logger"
@@ -342,7 +343,13 @@ func main() {
 		ForecastRepo: forecastRepo,
 	})
 
-	scheduler := jobs.NewScheduler(alertsJob)
+	qbSyncJob := jobs.NewQBSyncJob(jobs.QBSyncConfig{
+		Syncer:   quickbooks.NewSyncer(db),
+		OAuthSvc: qbOAuthService,
+		Sandbox:  cfg.App.Env != "production",
+	})
+
+	scheduler := jobs.NewScheduler(alertsJob, qbSyncJob)
 	go scheduler.Start(jobCtx)
 
 	// ── Graceful Shutdown ─────────────────────────────────────────────────────
