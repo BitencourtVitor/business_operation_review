@@ -86,6 +86,14 @@ const activeGroup: NavGroup = {
     { title: "Inventory Control", href: "/inventory",        icon: Package  },
     { title: "Permit Control",   href: "/permits",           icon: FileCheck, editPermKey: 'permits'          },
     { title: "Service Requests", href: "/service-requests",  icon: Wrench,    editPermKey: 'service-requests' },
+    {
+      title: "Accounting", href: "/accounting", icon: Banknote,
+      children: [
+        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
+        { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
+        { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
+      ],
+    },
   ],
 }
 
@@ -106,14 +114,6 @@ const comingSoonGroup: NavGroup = {
     },
     { title: "HVAC Project Monitoring",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
     { title: "Operational Index",        href: "/ofi",                icon: BarChart2, disabled: true },
-    {
-      title: "Accounting", href: "/accounting", icon: Banknote,
-      children: [
-        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
-        { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
-        { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
-      ],
-    },
     { title: "Fuel Control",          href: "/fuel",                 icon: Fuel,       disabled: true },
     { title: "WEX Categorization",    href: "/wex-categorization",   icon: CreditCard, disabled: true },
     { title: "Takeoff Works",         href: "/takeoff",              icon: Ruler,      disabled: true },
