@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import {
   Sidebar,
@@ -107,7 +107,7 @@ const comingSoonGroup: NavGroup = {
     { title: "HVAC Project Monitoring",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
     { title: "Operational Index",        href: "/ofi",                icon: BarChart2, disabled: true },
     {
-      title: "Accounting", href: "/accounting", icon: Banknote, disabled: true,
+      title: "Accounting", href: "/accounting", icon: Banknote,
       children: [
         { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
         { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
