@@ -12,11 +12,12 @@ SELECT COALESCE(MAX(id), 0) + 1, '', '', 'Shared with subcontractor', 'Project M
 FROM catalog_forecast_fieldwire;
 
 -- 2. Backfill all existing projects (status = false / incomplete by default)
-INSERT INTO forecast_fieldwire (project_id, category, document, status)
-SELECT fc.id, '', 'Shared with subcontractor', false
-FROM forecast_core fc
+-- Note: column is obra_id (renamed from project_id in earlier migrations)
+INSERT INTO forecast_fieldwire (obra_id, category, document, status)
+SELECT fp.id, '', 'Shared with subcontractor', false
+FROM forecast_projects fp
 WHERE NOT EXISTS (
     SELECT 1 FROM forecast_fieldwire ff
-    WHERE LOWER(ff.project_id) = LOWER(fc.id)
+    WHERE LOWER(ff.obra_id) = LOWER(fp.id)
       AND ff.document = 'Shared with subcontractor'
 );
