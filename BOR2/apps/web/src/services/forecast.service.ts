@@ -31,8 +31,11 @@ export const forecastService = {
   toggleFieldwire: (fwId: number, status: boolean) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/fieldwire/${fwId}`, { status }, getToken()),
 
-  toggleMachine: (machId: number, status: boolean) =>
+  toggleMachine: (machId: number, status: string) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}`, { status }, getToken()),
+
+  updateMachineUnit: (machId: number, unit: string) =>
+    api.patch<{ ok: boolean }>(`/api/v1/forecast/machine/${machId}/unit`, { unit }, getToken()),
 
   toggleContractStep: (stepId: number, status: boolean) =>
     api.patch<{ ok: boolean }>(`/api/v1/forecast/contract/${stepId}`, { status }, getToken()),

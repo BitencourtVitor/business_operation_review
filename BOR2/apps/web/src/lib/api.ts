@@ -34,7 +34,9 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     body: body ? JSON.stringify(body) : undefined,
   })
 
-  const json = await res.json()
+  // 204 No Content has no body — skip JSON parsing
+  const json: Record<string, unknown> | null =
+    res.status === 204 ? null : await res.json()
 
   if (!res.ok) {
     if (res.status === 401 && typeof window !== "undefined") {
@@ -42,10 +44,14 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
       useAuthStore.getState().clearAuth()
       window.location.href = "/login"
     }
-    throw new ApiError(res.status, json.code ?? "UNKNOWN", json.error ?? "Unknown error")
+    throw new ApiError(
+      res.status,
+      (json?.["code"] as string) ?? "UNKNOWN",
+      (json?.["error"] as string) ?? "Unknown error",
+    )
   }
 
-  return json.data as T
+  return (json?.["data"] ?? null) as T
 }
 
 export const api = {

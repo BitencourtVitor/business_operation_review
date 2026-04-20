@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react"
 import { useState } from "react"
+import { ForecastProjectSheet } from "./forecast-project-sheet"
 
 // ─── Status config ────────────────────────────────────────────────────────────
 
@@ -210,6 +211,7 @@ function DateCell({ icon: Icon, value, label }: { icon: React.ElementType; value
 
 export function ForecastCard({ project: p }: { project: ForecastProject }) {
   const [hovered, setHovered] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const displayStatus = getForecastDisplayStatus(p)
   const cfg = STATUS_CONFIG[displayStatus]
   const StatusIcon = cfg.Icon
@@ -244,9 +246,12 @@ export function ForecastCard({ project: p }: { project: ForecastProject }) {
     : (p.team || null)
 
   return (
+    <>
+    <ForecastProjectSheet project={p} open={sheetOpen} onClose={() => setSheetOpen(false)} />
     <div
       style={{ borderColor: colors.border, transition: "border-color 0.25s ease, box-shadow 0.25s ease" }}
-      className="relative flex flex-col overflow-hidden rounded-xl border bg-card shadow-sm hover:shadow-md"
+      className="relative flex cursor-pointer flex-col overflow-hidden rounded-xl border bg-card shadow-sm hover:shadow-md"
+      onClick={() => setSheetOpen(true)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -402,5 +407,6 @@ export function ForecastCard({ project: p }: { project: ForecastProject }) {
 
       </div>
     </div>
+    </>
   )
 }

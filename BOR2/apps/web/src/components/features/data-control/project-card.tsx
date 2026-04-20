@@ -17,11 +17,12 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useUpdateForecast } from "@/hooks/use-forecast"
 import { useCatalogTable } from "@/hooks/use-catalog"
+
 import type { ForecastProject, ForecastStatus } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { CalendarIcon, Check, CheckCircle2, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, Wind, X } from "lucide-react"
+import { Ban, CalendarIcon, Check, ChevronsUpDown, FileText, Info, Loader2, Package, Plus, SlidersHorizontal, Trash2, Truck, X } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
-import { useToggleFieldwire, useToggleMachine, useToggleContractStep, useCreateContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
+import { useToggleFieldwire, useToggleMachine, useUpdateMachineUnit, useToggleContractStep, useCreateContractStep, useDeleteContractTeam, useAddContractTeam } from "@/hooks/use-forecast"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ const STATUS_COLORS: Record<string, string> = {
   planned:   "#3b82f6",
   overdue:   "#ef4444",
   completed: "#6b7280",
+  cancelled: "#6b7280",
 }
 
 const STATUS_LABELS: Record<ForecastStatus, string> = {
@@ -99,7 +101,7 @@ function FL({ children }: { children: React.ReactNode }) {
 // ─── Combobox with search + create-new ───────────────────────────────────────
 
 function ComboboxField({
-  label, value, options, onChange, placeholder, allowNew,
+  label, value, options, onChange, placeholder, allowNew, isSaving,
 }: {
   label:       string
   value:       string
@@ -107,6 +109,7 @@ function ComboboxField({
   onChange:    (v: string) => void
   placeholder?: string
   allowNew?:   boolean
+  isSaving?:   boolean
 }) {
   const [open, setOpen]   = useState(false)
   const [query, setQuery] = useState("")
@@ -189,7 +192,9 @@ function ComboboxField({
             ? value
             : <span className="text-muted-foreground">{placeholder ?? "Select…"}</span>}
         </span>
-        <ChevronsUpDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+        {isSaving
+          ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+          : <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
       </button>
       {dropdown}
     </div>
@@ -216,7 +221,7 @@ function displayToIso(display: string): string {
   return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
 }
 
-function DatePickerField({ label, value, onBlur }: { label: string; value: string; onBlur: (v: string) => void }) {
+function DatePickerField({ label, value, onBlur, isSaving }: { label: string; value: string; onBlur: (v: string) => void; isSaving?: boolean }) {
   const [inputText, setInputText] = useState(isoToDisplay(value))
   const [open, setOpen] = useState(false)
 
@@ -256,7 +261,7 @@ function DatePickerField({ label, value, onBlur }: { label: string; value: strin
   return (
     <div>
       <FL>{label}</FL>
-      <div className="flex h-8 items-center overflow-hidden rounded-lg border border-input bg-background">
+      <div className="flex h-8 items-center overflow-hidden rounded-lg border border-input bg-muted">
         <input
           className="h-full min-w-0 flex-1 bg-transparent px-2.5 text-xs outline-none placeholder:text-muted-foreground"
           placeholder="mm/dd/yyyy"
@@ -266,7 +271,9 @@ function DatePickerField({ label, value, onBlur }: { label: string; value: strin
         />
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger className="flex h-full items-center px-2 text-muted-foreground transition-colors hover:bg-muted/50">
-            <CalendarIcon className="h-3.5 w-3.5" />
+            {isSaving
+              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              : <CalendarIcon className="h-3.5 w-3.5" />}
           </PopoverTrigger>
           <PopoverContent
             side="bottom"
@@ -290,21 +297,24 @@ function DatePickerField({ label, value, onBlur }: { label: string; value: strin
 
 // ─── Tab content ──────────────────────────────────────────────────────────────
 
-function InfoTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
+function InfoTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: string, v: unknown) => void; savingField: string | null }) {
   const [obs, setObs] = useState(p.obs || "")
   useEffect(() => setObs(p.obs || ""), [p.id])
   return (
     <div className="flex h-full gap-4">
       <div className="flex flex-1 flex-col gap-1.5">
-        <FL>Observations</FL>
+        <div className="flex items-center gap-1.5">
+          <FL>Observations</FL>
+          {savingField === "obs" && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+        </div>
         <Textarea className="flex-1 resize-none text-xs" value={obs}
           onChange={e => setObs(e.target.value)} onBlur={() => onSave("obs", obs)}
           placeholder="Observations..." />
       </div>
       <div className="flex w-36 flex-col gap-2">
-        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v || null)} />
-        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v || null)} />
-        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v || null)} />
+        <DatePickerField label="Beams Date"  value={dateVal(p.previousBeamsDate)} onBlur={v => onSave("previousBeamsDate", v || null)} isSaving={savingField === "previousBeamsDate"} />
+        <DatePickerField label="Prev. Start" value={dateVal(p.previousStartDate)} onBlur={v => onSave("previousStartDate", v || null)} isSaving={savingField === "previousStartDate"} />
+        <DatePickerField label="Prev. End"   value={dateVal(p.previousEndDate)}   onBlur={v => onSave("previousEndDate",   v || null)} isSaving={savingField === "previousEndDate"} />
       </div>
     </div>
   )
@@ -339,22 +349,26 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
         {Object.entries(groups).map(([cat, items]) => (
           <div key={cat}>
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{cat}</p>
-            <div className="flex flex-col gap-0.5">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-0.5">
               {items.map((f, i) => {
-                const checked = isOk(f)
+                const checked    = isOk(f)
+                const isToggling = toggle.isPending && toggle.variables?.fwId === f.id
                 return (
                   <label
                     key={f.id ?? i}
-                    className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-muted/40"
+                    className={`flex cursor-pointer items-center gap-2 rounded px-1 py-1 transition-opacity hover:bg-muted/40 ${isToggling ? "opacity-50" : ""}`}
                   >
-                    <input
-                      type="checkbox"
-                      className="h-3.5 w-3.5 shrink-0 accent-primary"
-                      checked={checked}
-                      onChange={e => {
-                        if (f.id != null) toggle.mutate({ fwId: f.id, status: e.target.checked })
-                      }}
-                    />
+                    {isToggling
+                      ? <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+                      : <input
+                          type="checkbox"
+                          className="h-3.5 w-3.5 shrink-0 accent-primary"
+                          checked={checked}
+                          onChange={e => {
+                            if (f.id != null) toggle.mutate({ fwId: f.id, status: e.target.checked })
+                          }}
+                        />
+                    }
                     <span className={`flex-1 truncate text-xs ${checked ? "text-muted-foreground line-through" : ""}`}>
                       {f.document?.trim() || `Doc #${f.id ?? i + 1}`}
                     </span>
@@ -369,18 +383,46 @@ function FieldwireTab({ p }: { p: ForecastProject }) {
   )
 }
 
+// A unit is "dispensed" when it stores a justification string rather than a unit code.
+// BOR1 legacy: dispensed machines had unit = ISO timestamp (e.g. "2025-12-12T18:04:32Z").
+// BOR2 onwards: any non-empty string that isn't a plain unit code (letters+digits, max ~10 chars).
+function isDispensedUnit(unit: string | null | undefined): boolean {
+  if (!unit) return false
+  if (/^\d{4}-\d{2}-\d{2}T/.test(unit)) return true   // BOR1 legacy timestamp
+  return !/^[A-Za-z]{0,3}\d{1,8}$/.test(unit.trim())  // not a unit code
+}
+
 function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
-  const mach     = p.machines ?? []
-  const toggle   = useToggleMachine()
+  const mach       = p.machines ?? []
+  const toggle     = useToggleMachine()
+  const updateUnit = useUpdateMachineUnit()
+
   const { data: providerRows = [] } = useCatalogTable("providers")
   const providers = (providerRows as { name?: string }[]).map(r => r.name ?? "").filter(Boolean)
-  const isOn     = (m: typeof mach[0]) => !!(m.status && m.status !== "false" && m.status !== "0")
-  const active   = mach.filter(isOn).length
+
+  // Track which machines are in "dispense mode" (justification string instead of unit code)
+  const [dispensed, setDispensed] = useState<Record<number, boolean>>(() =>
+    Object.fromEntries(mach.filter(m => m.id != null).map(m => [m.id!, isDispensedUnit(m.unit)]))
+  )
+  // Reset when project changes
+  useEffect(() => {
+    setDispensed(Object.fromEntries(
+      mach.filter(m => m.id != null).map(m => [m.id!, isDispensedUnit(m.unit)])
+    ))
+  }, [p.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isOn = (m: typeof mach[0]) => !!(m.status && m.status !== "false" && m.status !== "0")
+
+  const totalNonDispensed = mach.filter(m => !dispensed[m.id ?? -1]).length
+  const active            = mach.filter(m => !dispensed[m.id ?? -1] && isOn(m)).length
+  const dispensedCt       = mach.filter(m => dispensed[m.id ?? -1]).length
 
   return (
-    <div className="flex h-full flex-col gap-2 overflow-hidden">
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-1.5">
-        <Label className="shrink-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Provider</Label>
+    <div className="flex h-full flex-col gap-1.5 overflow-hidden">
+
+      {/* Provider — loose, no container */}
+      <div className="flex items-center gap-2 px-1">
+        <span className="shrink-0 text-[11px] font-medium text-muted-foreground">Provider</span>
         <div className="flex-1">
           <ComboboxField
             label=""
@@ -390,29 +432,110 @@ function MachinesTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v:
             placeholder="Select provider…"
           />
         </div>
-        <span className={`ml-2 shrink-0 text-xs font-semibold ${active === mach.length && mach.length > 0 ? "text-green-600" : "text-muted-foreground"}`}>
-          {active} / {mach.length}
-        </span>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <span className={`text-xs font-semibold ${active === totalNonDispensed && totalNonDispensed > 0 ? "text-green-600" : "text-muted-foreground"}`}>
+            {active} / {totalNonDispensed}
+          </span>
+          {dispensedCt > 0 && (
+            <span className="text-[10px] text-amber-500/80" title={`${dispensedCt} dispensed`}>
+              <Ban className="h-3 w-3" />
+            </span>
+          )}
+        </div>
       </div>
+
+      {/* Machines list */}
       <div className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
-        {mach.length === 0 && <span className="py-4 text-center text-xs text-muted-foreground">No machines linked</span>}
+        {mach.length === 0 && (
+          <span className="py-4 text-center text-xs text-muted-foreground">No machines linked</span>
+        )}
         {mach.map((m, i) => {
-          const on = isOn(m)
+          const on          = isOn(m)
+          const isToggling  = toggle.isPending && toggle.variables?.machId === m.id
+          const isUpdating  = updateUnit.isPending && updateUnit.variables?.machId === m.id
+          const disp        = dispensed[m.id ?? -1] ?? false
+
+          function toggleDispense() {
+            if (m.id == null) return
+            const next = !disp
+            setDispensed(prev => ({ ...prev, [m.id!]: next }))
+            if (next) {
+              // Dispensing: set status to "dispensed", clear unit
+              toggle.mutate({ machId: m.id, status: "dispensed" })
+              updateUnit.mutate({ machId: m.id, unit: "" })
+            } else {
+              // Un-dispensing: set status to "" (absent), clear unit
+              toggle.mutate({ machId: m.id, status: "" })
+              updateUnit.mutate({ machId: m.id, unit: "" })
+            }
+          }
+
           return (
-            <label key={m.id ?? i} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 hover:bg-muted/40">
-              <input
-                type="checkbox"
-                className="h-3.5 w-3.5 shrink-0 accent-primary"
-                checked={on}
-                onChange={e => {
-                  if (m.id != null) toggle.mutate({ machId: m.id, status: e.target.checked })
-                }}
-              />
-              <span className={`flex-1 truncate text-xs ${on ? "text-muted-foreground line-through" : ""}`}>
+            <div
+              key={m.id ?? i}
+              className={`flex items-center gap-2 rounded px-1 py-1 hover:bg-muted/40 ${disp ? "opacity-60" : ""}`}
+            >
+              {/* Status toggle / dispensed indicator */}
+              {disp ? (
+                <Ban className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+              ) : isToggling ? (
+                <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground" />
+              ) : (
+                <input
+                  type="checkbox"
+                  className="h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
+                  checked={on}
+                  onChange={e => {
+                    if (m.id != null) toggle.mutate({ machId: m.id, status: e.target.checked ? "scheduled" : "" })
+                  }}
+                />
+              )}
+
+              {/* Title */}
+              <span className={`flex-1 truncate text-xs ${on && !disp ? "text-muted-foreground line-through" : ""}`}>
                 {m.title?.trim() || `Machine #${m.id ?? i + 1}`}
               </span>
-              {m.unit && <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">{m.unit}</span>}
-            </label>
+
+              {/* Dispense toggle button */}
+              <button
+                type="button"
+                title={disp ? "Un-dispense" : "Dispense"}
+                onClick={toggleDispense}
+                className={`shrink-0 rounded p-0.5 transition-colors ${disp ? "text-amber-500 hover:text-amber-600" : "text-muted-foreground/40 hover:text-amber-500"}`}
+              >
+                <Ban className="h-3 w-3" />
+              </button>
+
+              {/* Unit / Justification input */}
+              <div className="relative shrink-0">
+                <input
+                  key={`${m.id}-unit-${disp}`}
+                  type="text"
+                  defaultValue={disp && /^\d{4}-\d{2}-\d{2}T/.test(m.unit ?? "") ? "" : (m.unit || "")}
+                  placeholder={disp ? "Justification…" : "Unit #"}
+                  className={[
+                    "rounded border bg-transparent px-1.5 py-0.5 text-[11px] outline-none transition-colors",
+                    "placeholder:text-muted-foreground/50 focus:bg-background",
+                    disp
+                      ? "w-72 border-amber-500/40 text-left italic focus:border-amber-500"
+                      : "w-20 border-input text-center focus:border-ring",
+                    isUpdating ? "opacity-50" : "",
+                  ].join(" ")}
+                  onBlur={e => {
+                    if (m.id == null) return
+                    const val = e.target.value
+                    // For legacy timestamps being un-set treat empty as "" on blur when dispensed
+                    const current = disp && /^\d{4}-\d{2}-\d{2}T/.test(m.unit ?? "") ? "" : (m.unit || "")
+                    if (val !== current) {
+                      updateUnit.mutate({ machId: m.id, unit: val })
+                    }
+                  }}
+                />
+                {isUpdating && (
+                  <Loader2 className="absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 animate-spin text-muted-foreground" />
+                )}
+              </div>
+            </div>
           )
         })}
       </div>
@@ -641,19 +764,25 @@ function ContractTab({ p }: { p: ForecastProject }) {
   )
 }
 
-function OptionalsTab({ p, onSave }: { p: ForecastProject; onSave: (f: string, v: unknown) => void }) {
+function OptionalsTab({ p, onSave, savingField }: { p: ForecastProject; onSave: (f: string, v: unknown) => void; savingField: string | null }) {
   return (
     <div className="grid h-full grid-cols-2 gap-2 content-center">
-      {TOGGLES.map(({ key, label, desc, icon }) => (
-        <div key={key} className="flex items-center gap-2.5 rounded-lg border border-border px-2.5 py-2">
-          <Switch checked={!!p[key]} onCheckedChange={v => onSave(key, v)} id={`${p.id}-${key}`} />
-          <span className="flex shrink-0 items-center">{icon}</span>
-          <div className="flex min-w-0 flex-col">
-            <Label htmlFor={`${p.id}-${key}`} className="cursor-pointer text-xs font-medium leading-tight">{label}</Label>
-            <span className="truncate text-[10px] text-muted-foreground">{desc}</span>
+      {TOGGLES.map(({ key, label, desc, icon }) => {
+        const isSaving = savingField === key
+        return (
+          <div key={key} className="flex items-center gap-2.5 rounded-lg border border-border px-2.5 py-2">
+            {isSaving
+              ? <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+              : <Switch checked={!!p[key]} onCheckedChange={v => onSave(key, v)} id={`${p.id}-${key}`} />
+            }
+            <span className="flex shrink-0 items-center">{icon}</span>
+            <div className="flex min-w-0 flex-col">
+              <Label htmlFor={`${p.id}-${key}`} className={`text-xs font-medium leading-tight ${isSaving ? "" : "cursor-pointer"}`}>{label}</Label>
+              <span className="truncate text-[10px] text-muted-foreground">{desc}</span>
+            </div>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -664,7 +793,7 @@ function LeftPanel({
   cliente, jobSite, type, loteBld, status, address,
   availableClients, availableJobSites,
   onClienteChange, onJobSiteChange, onTypeChange, onLoteBldChange, onLoteBldBlur, onStatusChange, onAddressChange, onAddressBlur,
-  statusFixed, onDelete,
+  statusFixed, onDelete, savingField,
 }: {
   cliente:           string
   jobSite:           string
@@ -684,6 +813,7 @@ function LeftPanel({
   onAddressBlur?:    (v: string) => void
   statusFixed?:      boolean
   onDelete?:         () => void
+  savingField?:      string | null
 }) {
   return (
     <div className="flex w-[40%] shrink-0 flex-col gap-3 border-r border-border p-3">
@@ -697,6 +827,7 @@ function LeftPanel({
           onChange={onClienteChange}
           placeholder="Select client"
           allowNew
+          isSaving={savingField === "cliente"}
         />
         <ComboboxField
           label="Job Site"
@@ -705,14 +836,18 @@ function LeftPanel({
           onChange={onJobSiteChange}
           placeholder="Select job site"
           allowNew
+          isSaving={savingField === "jobSite"}
         />
       </div>
 
       {/* Type+Number joined + Status */}
       <div className="grid grid-cols-2 gap-2">
-        {/* Type + Number: joined input group */}
+        {/* Type + Number */}
         <div>
-          <FL>Type / Number</FL>
+          <div className="mb-1 flex items-center gap-1">
+            <p className="text-xs font-medium text-muted-foreground">Type / Number</p>
+            {savingField === "type" && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+          </div>
           <div className="flex h-8 items-center overflow-hidden rounded-lg border border-input">
             <Select value={type || "__none"} onValueChange={v => onTypeChange(v === "__none" ? "" : v as string)}>
               <SelectTrigger className="h-8 w-[70%] !rounded-none border-0 border-r border-input text-xs focus-visible:ring-0 focus-visible:ring-offset-0">
@@ -735,7 +870,10 @@ function LeftPanel({
 
         {/* Status */}
         <div>
-          <FL>Status</FL>
+          <div className="mb-1 flex items-center gap-1">
+            <p className="text-xs font-medium text-muted-foreground">Status</p>
+            {savingField === "status" && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+          </div>
           {statusFixed ? (
             <div className={`${TRIGGER_CLS} cursor-default`}>
               <span className="flex-1 text-left">{STATUS_LABELS[status]}</span>
@@ -755,9 +893,12 @@ function LeftPanel({
         </div>
       </div>
 
-      {/* Address + optional Delete button on same row */}
+      {/* Address + optional Delete button */}
       <div>
-        <FL>Address</FL>
+        <div className="mb-1 flex items-center gap-1">
+          <p className="text-xs font-medium text-muted-foreground">Address</p>
+          {savingField === "address" && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+        </div>
         <div className="flex gap-1">
           <Input
             className="h-8 flex-1 text-xs"
@@ -795,37 +936,48 @@ const NEW_FORM_TABS: { key: NewFormTab; label: string }[] = [
 
 export type NewFormState = {
   cliente: string; jobSite: string; type: string; loteBld: string
-  address: string; status: ForecastStatus; obs: string; team: string
-  machineProvider: string; previousBeamsDate: string; previousStartDate: string
+  address: string; status: ForecastStatus; obs: string
+  previousBeamsDate: string; previousStartDate: string
   previousEndDate: string; hvac: boolean; buildertrend: boolean; storage: boolean; qbTime: boolean
 }
 
 const EMPTY_NEW_FORM: NewFormState = {
   cliente: "", jobSite: "", type: "", loteBld: "", address: "", status: "planned",
-  obs: "", team: "", machineProvider: "", previousBeamsDate: "", previousStartDate: "",
+  obs: "", previousBeamsDate: "", previousStartDate: "",
   previousEndDate: "", hvac: false, buildertrend: false, storage: false, qbTime: false,
 }
 
+// Fields that survive a partial reset (persist across consecutive creates)
+const PERSISTENT_FIELDS = ["cliente", "jobSite", "type", "status"] as const
+
 export function NewProjectCard({
-  availableClients, availableJobSites, saving, onSave, onCancel,
+  availableClients, availableJobSites, saving, onSave,
 }: {
   availableClients:  string[]
   availableJobSites: string[]
   saving:            boolean
-  onSave:            (data: NewFormState) => void
-  onCancel:          () => void
+  onSave:            (data: NewFormState) => Promise<void>
 }) {
   const [form, setForm] = useState<NewFormState>(EMPTY_NEW_FORM)
   const [tab,  setTab]  = useState<NewFormTab>("info")
   function set<K extends keyof NewFormState>(k: K, v: NewFormState[K]) { setForm(f => ({ ...f, [k]: v })) }
 
+  async function handleCreate() {
+    await onSave(form)
+    // Partial reset — keep client, job site, type, status for the next project
+    setForm(f => ({
+      ...EMPTY_NEW_FORM,
+      ...Object.fromEntries(PERSISTENT_FIELDS.map(k => [k, f[k]])),
+    }))
+    setTab("info")
+  }
+
+  const canCreate = !saving && !!form.cliente.trim() && !!form.jobSite.trim()
+
   return (
     <div className="relative mb-3 w-full">
-      {/* Header row */}
-      <div className="flex items-end justify-between">
-        <div className="relative z-[2] mb-[-1px] ml-[1px] rounded-t-xl border border-b-0 bg-card px-4 py-1.5" style={{ borderColor: "#3b82f6" }}>
-          <span className="text-[11px] font-bold uppercase tracking-widest text-primary">New Project</span>
-        </div>
+      {/* Tab bar — right-aligned, same pattern as ProjectCard */}
+      <div className="flex items-end justify-end">
         <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor: "#3b82f6" }}>
           {NEW_FORM_TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)}
@@ -833,15 +985,11 @@ export function NewProjectCard({
               {t.label}
             </button>
           ))}
-          <span className="h-3 w-px bg-border" />
-          <button onClick={onCancel} className="text-muted-foreground transition-colors hover:text-foreground" title="Cancel">
-            <X className="h-3.5 w-3.5" />
-          </button>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="relative z-[1] flex overflow-hidden rounded-bl-lg rounded-br-lg rounded-tr-lg border bg-card"
+      {/* Body — top-left rounded, top-right flat (connects to tab bar above) */}
+      <div className="relative z-[1] flex overflow-hidden rounded-bl-lg rounded-br-lg rounded-tl-lg border bg-card"
         style={{ borderColor: "#3b82f6" }}>
 
         <LeftPanel
@@ -856,23 +1004,16 @@ export function NewProjectCard({
           onLoteBldChange={v => set("loteBld", v)}
           onStatusChange={v => set("status", v)}
           onAddressChange={v => set("address", v)}
-          statusFixed
         />
 
         {/* Right panel */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
           {tab === "info" && (
             <div className="flex h-full gap-4">
-              <div className="flex flex-1 flex-col gap-3">
-                <div className="flex flex-1 flex-col gap-1.5">
-                  <FL>Observations</FL>
-                  <Textarea className="flex-1 resize-none text-xs" value={form.obs}
-                    onChange={e => set("obs", e.target.value)} placeholder="Observations..." />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div><FL>Team</FL><Input className="h-8 text-xs" value={form.team} onChange={e => set("team", e.target.value)} placeholder="Team" /></div>
-                  <div><FL>Machine Provider</FL><Input className="h-8 text-xs" value={form.machineProvider} onChange={e => set("machineProvider", e.target.value)} placeholder="Provider" /></div>
-                </div>
+              <div className="flex flex-1 flex-col gap-1.5">
+                <FL>Observations</FL>
+                <Textarea className="flex-1 resize-none text-xs" value={form.obs}
+                  onChange={e => set("obs", e.target.value)} placeholder="Observations..." />
               </div>
               <div className="flex w-36 flex-col gap-2">
                 <DatePickerField label="Beams Date"  value={form.previousBeamsDate} onBlur={v => set("previousBeamsDate", v)} />
@@ -895,13 +1036,17 @@ export function NewProjectCard({
               ))}
             </div>
           )}
-          <div className="mt-auto flex justify-end pt-3">
-            <Button size="sm" onClick={() => onSave(form)} disabled={saving || !form.cliente.trim() || !form.jobSite.trim()}>
-              {saving && <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />}
-              {saving ? "Creating…" : "Create Project"}
-            </Button>
-          </div>
         </div>
+      </div>
+
+      {/* Create button — outside the card body */}
+      <div className="mt-3 flex justify-end">
+        <Button size="sm" onClick={handleCreate} disabled={!canCreate}>
+          {saving
+            ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+            : <Plus    className="mr-1.5 h-3.5 w-3.5" />}
+          {saving ? "Creating…" : "Create Project"}
+        </Button>
       </div>
     </div>
   )
@@ -919,10 +1064,8 @@ export function ProjectCard({
   onDelete:          () => void
 }) {
   const update  = useUpdateForecast()
-  const [activeTab, setActiveTab] = useState<ViewTab>(forcedTab)
-  const [saving, setSaving] = useState(false)
-  const [saved,  setSaved]  = useState(false)
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [activeTab,    setActiveTab]    = useState<ViewTab>(forcedTab)
+  const [savingField,  setSavingField]  = useState<string | null>(null)
 
   useEffect(() => setActiveTab(forcedTab), [forcedTab])
 
@@ -939,14 +1082,10 @@ export function ProjectCard({
     setAddress(project.address || ""); setStatus(project.status)
   }, [project.id])
 
-  function save(data: Partial<ForecastProject>) {
-    setSaving(true); setSaved(false)
-    if (saveTimer.current) clearTimeout(saveTimer.current)
+  function save(data: Partial<ForecastProject>, field: string) {
+    setSavingField(field)
     update.mutate({ id: project.id, data }, {
-      onSettled: () => {
-        setSaving(false); setSaved(true)
-        saveTimer.current = setTimeout(() => setSaved(false), 2000)
-      },
+      onSettled: () => setSavingField(null),
     })
   }
 
@@ -957,10 +1096,6 @@ export function ProjectCard({
     <div className="relative mb-3 w-full">
       {/* Tab bar */}
       <div className="flex items-center justify-end">
-        <span className="mr-2 flex items-center gap-1">
-          {saving           && <Loader2     className="h-3 w-3 animate-spin text-muted-foreground" />}
-          {!saving && saved && <CheckCircle2 className="h-3 w-3 text-green-500" />}
-        </span>
         <div className="relative z-[2] mb-[-1px] flex items-center gap-5 rounded-t-xl border border-b-0 bg-card px-6 py-1.5 text-[11px]" style={{ borderColor }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
@@ -982,24 +1117,25 @@ export function ProjectCard({
           status={status}     address={address}
           availableClients={availableClients}
           availableJobSites={availableJobSites}
-          onClienteChange={v => { setCliente(v); save({ cliente: v }) }}
-          onJobSiteChange={v => { setJobSite(v); save({ jobSite: v }) }}
-          onTypeChange={v   => { setType(v);    save({ type: v, loteBld }) }}
+          onClienteChange={v => { setCliente(v); save({ cliente: v }, "cliente") }}
+          onJobSiteChange={v => { setJobSite(v); save({ jobSite: v }, "jobSite") }}
+          onTypeChange={v   => { setType(v);    save({ type: v, loteBld }, "type") }}
           onLoteBldChange={v => setLoteBld(v)}
-          onLoteBldBlur={v  => save({ loteBld: v, type })}
-          onStatusChange={v  => { setStatus(v); save({ status: v }) }}
+          onLoteBldBlur={v  => save({ loteBld: v, type }, "loteBld")}
+          onStatusChange={v  => { setStatus(v); save({ status: v }, "status") }}
           onAddressChange={v => setAddress(v)}
-          onAddressBlur={v  => save({ address: v })}
+          onAddressBlur={v  => save({ address: v }, "address")}
           onDelete={onDelete}
+          savingField={savingField}
         />
 
         {/* Right panel */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
-          {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>)} />}
+          {activeTab === "info"      && <InfoTab      p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
           {activeTab === "fieldwire" && <FieldwireTab p={project} />}
-          {activeTab === "machines"  && <MachinesTab  p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>)} />}
+          {activeTab === "machines"  && <MachinesTab  p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} />}
           {activeTab === "contract"  && <ContractTab  p={project} />}
-          {activeTab === "optionals" && <OptionalsTab p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>)} />}
+          {activeTab === "optionals" && <OptionalsTab p={project} onSave={(f, v) => save({ [f]: v } as Partial<ForecastProject>, f)} savingField={savingField} />}
         </div>
       </div>
     </div>

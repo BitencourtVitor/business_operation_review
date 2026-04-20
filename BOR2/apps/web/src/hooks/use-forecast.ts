@@ -62,8 +62,17 @@ export function useToggleFieldwire() {
 export function useToggleMachine() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ machId, status }: { machId: number; status: boolean }) =>
+    mutationFn: ({ machId, status }: { machId: number; status: string }) =>
       forecastService.toggleMachine(machId, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
+  })
+}
+
+export function useUpdateMachineUnit() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ machId, unit }: { machId: number; unit: string }) =>
+      forecastService.updateMachineUnit(machId, unit),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["forecast"] }),
   })
 }

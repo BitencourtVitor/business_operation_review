@@ -8,7 +8,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <AuthGuard>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-w-0 overflow-x-hidden">
           <Header />
           <main className="h-[calc(100vh-3.5rem)] overflow-hidden p-6">
             {children}

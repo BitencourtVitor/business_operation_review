@@ -1,6 +1,7 @@
 "use client"
 
 import { ForecastCard } from "@/components/features/forecast/forecast-card"
+import { ForecastSkeleton } from "@/components/common/page-skeleton"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select"
@@ -328,7 +329,7 @@ export default function ForecastPage() {
   const [type, setType]         = useState<"all" | "building" | "lot">("all")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
 
-  const { data: projects } = useForecast({ year: year === "all" ? undefined : year })
+  const { data: projects, isLoading } = useForecast({ year: year === "all" ? undefined : year })
   const yearOptions = Array.from({ length: 4 }, (_, i) => CURRENT_YEAR - 1 + i)
 
   // Derived option lists from raw data
@@ -433,6 +434,8 @@ export default function ForecastPage() {
 
     return { grouped, metrics: m }
   }, [projects, year, month, dateMode, status, integ, client, location, type, sortOrder])
+
+  if (isLoading) return <ForecastSkeleton />
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -571,7 +574,7 @@ export default function ForecastPage() {
                     <span className="text-[11px] text-muted-foreground">{items.length} total</span>
                   </div>
                 </div>
-                <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid items-start gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
                   {items.map(p => <ForecastCard key={p.id} project={p} />)}
                 </div>
               </section>
