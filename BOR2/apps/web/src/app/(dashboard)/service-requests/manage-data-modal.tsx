@@ -637,7 +637,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
                         : visitDates.length === 1
                           ? <span>{visitDates[0]}</span>
                           : (
-                            <TooltipProvider delayDuration={200}>
+                            <TooltipProvider delay={200}>
                               <Tooltip>
                                 <TooltipTrigger render={<span className="cursor-default font-medium text-red-400" />}>
                                   {visitDates.length} visits

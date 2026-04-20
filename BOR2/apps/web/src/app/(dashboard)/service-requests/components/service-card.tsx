@@ -41,7 +41,7 @@ export function ServiceCard({ r, onClick }: ServiceCardProps) {
           {label}
         </span>
         {r.warranty && (
-          <TooltipProvider delayDuration={300}>
+          <TooltipProvider delay={300}>
             <Tooltip>
               <TooltipTrigger render={<span className="inline-flex cursor-default" />}>
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-orange-500" />

@@ -126,7 +126,7 @@ function ExcelIcon({ className }: { className?: string }) {
 
 function InfoBtn({ title, description }: { title: string; description: string }) {
   return (
-    <UITooltipProvider delayDuration={300}>
+    <UITooltipProvider delay={300}>
       <UITooltip>
         <UITooltipTrigger render={<span className="inline-flex cursor-default" />}>
           <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-40 hover:opacity-100 transition-opacity" />
@@ -511,7 +511,7 @@ export default function InventoryPage() {
           </div>
 
           {/* Safety Threshold — compact, tooltip on hover */}
-          <UITooltipProvider delayDuration={300}>
+          <UITooltipProvider delay={300}>
             <UITooltip>
               <UITooltipTrigger render={<div className="flex flex-col gap-1 cursor-default" />}>
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground text-left">SH</span>

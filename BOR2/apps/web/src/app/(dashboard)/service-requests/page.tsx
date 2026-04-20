@@ -26,7 +26,7 @@ import {
 
 function InfoBtn({ title, description }: { title: string; description: string }) {
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delay={300}>
       <Tooltip>
         <TooltipTrigger render={<span className="inline-flex cursor-default" />}>
           <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-40 transition-opacity hover:opacity-100" />
