@@ -1,5 +1,4 @@
-// Package quickbooks handles OAuth2 authentication and API requests
-// to the QuickBooks Online API for multiple companies.
+// Package quickbooks handles OAuth2 and API requests to QuickBooks Online.
 package quickbooks
 
 import (
@@ -14,10 +13,10 @@ import (
 )
 
 const (
-	baseURL      = "https://quickbooks.api.intuit.com"
-	tokenURL     = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
-	sandboxURL   = "https://sandbox-quickbooks.api.intuit.com"
-	pageSize     = 100
+	baseURL    = "https://quickbooks.api.intuit.com"
+	sandboxURL = "https://sandbox-quickbooks.api.intuit.com"
+	tokenURL   = "https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer"
+	pageSize   = 1000 // QB max per request
 )
 
 type Company string
@@ -28,6 +27,13 @@ const (
 	CompanyPCG     Company = "pcg"
 )
 
+var AllCompanies = []Company{CompanyHVAC, CompanyFraming, CompanyPCG}
+
+var AllEntities = []string{
+	"Bill", "BillPayment", "Estimate", "Invoice",
+	"Payment", "Purchase", "VendorCredit", "Deposit",
+}
+
 type CompanyConfig struct {
 	RealmID      string
 	AccessToken  string
@@ -36,17 +42,17 @@ type CompanyConfig struct {
 	ClientSecret string
 }
 
+type TokenResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	ExpiresIn    int    `json:"expires_in"`
+}
+
 type Client struct {
 	httpClient *http.Client
 	config     CompanyConfig
 	company    Company
 	sandbox    bool
-}
-
-type TokenResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	ExpiresIn    int    `json:"expires_in"`
 }
 
 func NewClient(company Company, config CompanyConfig, sandbox bool) *Client {
@@ -58,6 +64,10 @@ func NewClient(company Company, config CompanyConfig, sandbox bool) *Client {
 	}
 }
 
+func (c *Client) Company() Company { return c.company }
+func (c *Client) RealmID() string  { return c.config.RealmID }
+
+// RefreshToken obtains a new access+refresh token pair and updates the client in place.
 func (c *Client) RefreshToken(ctx context.Context) error {
 	data := url.Values{}
 	data.Set("grant_type", "refresh_token")
@@ -91,6 +101,46 @@ func (c *Client) RefreshToken(ctx context.Context) error {
 	return nil
 }
 
+// QueryUpdated fetches all records of an entity updated after `since`.
+// If since is zero, fetches all records (full sync).
+func (c *Client) QueryUpdated(ctx context.Context, entity string, since time.Time) ([]json.RawMessage, error) {
+	var all []json.RawMessage
+	startPos := 1
+
+	for {
+		var q string
+		if since.IsZero() {
+			q = fmt.Sprintf("SELECT * FROM %s STARTPOSITION %d MAXRESULTS %d", entity, startPos, pageSize)
+		} else {
+			q = fmt.Sprintf(
+				"SELECT * FROM %s WHERE MetaData.LastUpdatedTime > '%s' STARTPOSITION %d MAXRESULTS %d",
+				entity, since.UTC().Format("2006-01-02T15:04:05-07:00"), startPos, pageSize,
+			)
+		}
+
+		body, err := c.query(ctx, q)
+		if err != nil {
+			return nil, err
+		}
+
+		batch, err := extractRows(body, entity)
+		if err != nil {
+			return nil, err
+		}
+
+		all = append(all, batch...)
+
+		if len(batch) < pageSize {
+			break
+		}
+		startPos += pageSize
+	}
+
+	return all, nil
+}
+
+// ─── internal ────────────────────────────────────────────────────────────────
+
 func (c *Client) query(ctx context.Context, q string) ([]byte, error) {
 	base := baseURL
 	if c.sandbox {
@@ -102,24 +152,26 @@ func (c *Client) query(ctx context.Context, q string) ([]byte, error) {
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
-		return nil, fmt.Errorf("build query request: %w", err)
+		return nil, fmt.Errorf("build request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+c.config.AccessToken)
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("query request: %w", err)
+		return nil, fmt.Errorf("QB request: %w", err)
 	}
 	defer resp.Body.Close()
 
-	// Auto-refresh on 401
+	// Auto-refresh on 401 — rebuild request (original is consumed)
 	if resp.StatusCode == http.StatusUnauthorized {
 		if err := c.RefreshToken(ctx); err != nil {
 			return nil, fmt.Errorf("auto-refresh failed: %w", err)
 		}
-		req.Header.Set("Authorization", "Bearer "+c.config.AccessToken)
-		resp2, err := c.httpClient.Do(req)
+		req2, _ := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+		req2.Header.Set("Authorization", "Bearer "+c.config.AccessToken)
+		req2.Header.Set("Accept", "application/json")
+		resp2, err := c.httpClient.Do(req2)
 		if err != nil {
 			return nil, fmt.Errorf("retry after refresh: %w", err)
 		}
@@ -135,50 +187,23 @@ func (c *Client) query(ctx context.Context, q string) ([]byte, error) {
 	return io.ReadAll(resp.Body)
 }
 
-// QueryAll paginates through all results of a QB query.
-func (c *Client) QueryAll(ctx context.Context, entity string) ([]json.RawMessage, error) {
-	var all []json.RawMessage
-	startPos := 1
-
-	for {
-		q := fmt.Sprintf("SELECT * FROM %s STARTPOSITION %d MAXRESULTS %d", entity, startPos, pageSize)
-		body, err := c.query(ctx, q)
-		if err != nil {
-			return nil, err
-		}
-
-		var result map[string]json.RawMessage
-		if err := json.Unmarshal(body, &result); err != nil {
-			return nil, fmt.Errorf("unmarshal QB response: %w", err)
-		}
-
-		qr, ok := result["QueryResponse"]
-		if !ok {
-			break
-		}
-
-		var qrMap map[string]json.RawMessage
-		if err := json.Unmarshal(qr, &qrMap); err != nil {
-			break
-		}
-
-		rows, ok := qrMap[entity]
-		if !ok {
-			break
-		}
-
-		var batch []json.RawMessage
-		if err := json.Unmarshal(rows, &batch); err != nil {
-			break
-		}
-
-		all = append(all, batch...)
-
-		if len(batch) < pageSize {
-			break
-		}
-		startPos += pageSize
+func extractRows(body []byte, entity string) ([]json.RawMessage, error) {
+	var result struct {
+		QueryResponse map[string]json.RawMessage `json:"QueryResponse"`
+	}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("unmarshal QB response: %w", err)
 	}
 
-	return all, nil
+	rowsRaw, ok := result.QueryResponse[entity]
+	if !ok {
+		return nil, nil // empty result
+	}
+
+	var rows []json.RawMessage
+	if err := json.Unmarshal(rowsRaw, &rows); err != nil {
+		return nil, fmt.Errorf("unmarshal %s rows: %w", entity, err)
+	}
+
+	return rows, nil
 }
