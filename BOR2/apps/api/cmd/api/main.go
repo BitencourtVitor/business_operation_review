@@ -65,6 +65,7 @@ func main() {
 	payableRepo          := repository.NewPostgresPayableRepository(db)
 	notificationRepo     := repository.NewPostgresNotificationRepository(db)
 	auditLogRepo         := repository.NewPostgresAuditLogRepository(db)
+	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -84,6 +85,7 @@ func main() {
 	receivableService     := service.NewReceivableService(receivableRepo)
 	payableService        := service.NewPayableService(payableRepo)
 	notificationService  := service.NewNotificationService(notificationRepo)
+	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -109,6 +111,7 @@ func main() {
 	workforceHandler         := handler.NewWorkforceHandler(db)
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
+	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
@@ -318,6 +321,12 @@ func main() {
 
 	// Inventory (queries Premium Storage)
 	api.Get("/inventory", inventoryHandler.GetInventory)
+
+	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect)
+	qb := v1.Group("/qb")
+	qb.Get("/auth",     middleware.RequireAuth(), qbHandler.Auth)
+	qb.Get("/callback", qbHandler.Callback)
+	qb.Post("/refresh", middleware.RequireAuth(), qbHandler.Refresh)
 
 	// ── Background Jobs ──────────────────────────────────────────────────────
 	jobCtx, jobCancel := context.WithCancel(context.Background())
