@@ -327,6 +327,7 @@ func main() {
 	qb.Get("/auth",     middleware.RequireAuth(), qbHandler.Auth)
 	qb.Get("/callback", qbHandler.Callback)
 	qb.Post("/refresh", middleware.RequireAuth(), qbHandler.Refresh)
+	qb.Post("/seed",    middleware.RequireAuth(), qbHandler.Seed)
 
 	// ── Background Jobs ──────────────────────────────────────────────────────
 	jobCtx, jobCancel := context.WithCancel(context.Background())

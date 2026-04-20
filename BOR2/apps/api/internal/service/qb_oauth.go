@@ -148,6 +148,14 @@ func (s *QBOAuthService) GetAccessToken(ctx context.Context, company string) (st
 	return accessToken, creds.RealmID, nil
 }
 
+// SeedTokens saves an existing token pair directly (dev only — skips OAuth flow).
+func (s *QBOAuthService) SeedTokens(ctx context.Context, company, realmID, accessToken, refreshToken string) error {
+	if !validCompanies[company] {
+		return fmt.Errorf("unknown company: %s", company)
+	}
+	return s.saveTokens(ctx, company, realmID, accessToken, refreshToken)
+}
+
 // ─── internal ────────────────────────────────────────────────────────────────
 
 func (s *QBOAuthService) requestTokens(ctx context.Context, body url.Values) (*qbTokenResponse, error) {
