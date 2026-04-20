@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DashboardSkeleton } from "@/components/common/page-skeleton"
 import { useAccountingSummary } from "@/hooks/use-accounting"
 import { useForecast } from "@/hooks/use-forecast"
 import { useSubcontractors } from "@/hooks/use-subcontractors"
@@ -11,9 +12,11 @@ const fmt = (n: number) =>
 
 export default function DashboardPage() {
   const year = new Date().getFullYear()
-  const { data: projects } = useForecast({ year })
+  const { data: projects, isLoading } = useForecast({ year })
   const { data: summary } = useAccountingSummary(undefined, year)
   const { data: subs } = useSubcontractors()
+
+  if (isLoading) return <DashboardSkeleton />
 
   const activeProjects = projects?.filter((p) => p.status === "active").length ?? 0
   const activeSubs = subs?.filter((s) => s.status === "active").length ?? 0

@@ -184,12 +184,18 @@ func (r *PostgresForecastRepository) Create(ctx context.Context, p *domain.Forec
 		return err
 	}
 
-	// Auto-seed fieldwire docs from catalog based on (client, type) match
+	// Auto-seed fieldwire docs from catalog:
+	// - client+type specific entries (matched by project cliente and type)
+	// - universal entries (client = '' and type = '' → apply to all projects)
 	if _, err := r.db.Exec(ctx, `
 		INSERT INTO forecast_fieldwire (project_id, category, document, status)
-		SELECT $1, c.client || ' – ' || c.type, c.document, false
+		SELECT $1,
+		       CASE WHEN c.client = '' THEN '' ELSE c.client || ' – ' || c.type END,
+		       c.document,
+		       false
 		FROM catalog_forecast_fieldwire c
-		WHERE LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3)
+		WHERE (LOWER(c.client) = LOWER($2) AND LOWER(c.type) = LOWER($3))
+		   OR (c.client = '' AND c.type = '')
 	`, p.ID, p.Cliente, p.Type); err != nil {
 		return fmt.Errorf("seeding fieldwire docs: %w", err)
 	}

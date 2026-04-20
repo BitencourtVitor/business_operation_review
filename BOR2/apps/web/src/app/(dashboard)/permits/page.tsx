@@ -1,131 +1,166 @@
-"use client"
+'use client'
 
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { PageSkeleton } from "@/components/common/page-skeleton"
-import { usePermits } from "@/hooks/use-permits"
-import { ClipboardList, CheckCircle, Clock } from "lucide-react"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from 'react'
+import { useTheme } from 'next-themes'
+import { AlertCircle } from 'lucide-react'
+import { usePermits } from '@/hooks/use-permits'
+import { useAuth } from '@/hooks/use-auth'
+import { useMyPermissions } from '@/hooks/use-settings'
+import { PermitSkeleton } from '@/components/common/page-skeleton'
+import { useInsights } from '@/components/insights/insights-panel'
+import { ManageDataModal } from './manage-data-modal'
+import { ALL, MONTHS, type DateField } from './types'
+import { getDateStr, calcSit } from './lib'
+import { PermitFilters } from './components/permit-filters'
+import { PermitChart } from './components/permit-chart'
+import { PermitCards } from './components/permit-cards'
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PermitsPage() {
-  const [search, setSearch] = useState("")
-  const { data: permits, isLoading } = usePermits()
+  const { data: rawPermits, isLoading, error } = usePermits()
 
+  // Recompute situacao from dates so stale DB values never reach the UI
+  const permits = useMemo(
+    () => (rawPermits ?? []).map(p => ({ ...p, situacao: calcSit(p) })),
+    [rawPermits]
+  )
+
+  const { resolvedTheme } = useTheme()
+  const { user }          = useAuth()
+  const { data: myPerms } = useMyPermissions()
+
+  const canManage = user?.role === 'dev' || myPerms?.permissions?.['permits'] === 'write'
+
+  const [primaryHex, setPrimaryHex] = useState('#6366f1')
+  const [manageOpen, setManageOpen] = useState(false)
+
+  useEffect(() => {
+    const raw = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()
+    if (raw) setPrimaryHex(raw)
+  }, [resolvedTheme])
+
+  // ── Filters ──────────────────────────────────────────────────────────────────
+  const [dateField,     setDateField]     = useState<DateField>('solicitacao')
+  const [yearFilter,    setYearFilter]    = useState<string>(ALL)
+  const [monthFilter,   setMonthFilter]   = useState<string>(ALL)
+  const [situation,     setSituation]     = useState<string>(ALL)
+  const [clientFilter,  setClientFilter]  = useState<string[]>([])
+  const [jobsiteFilter, setJobsiteFilter] = useState<string[]>([])
+
+  const insights = useInsights({
+    pageKey:  'Permits',
+    mes:      monthFilter  !== ALL ? parseInt(monthFilter)  : new Date().getMonth() + 1,
+    ano:      yearFilter   !== ALL ? parseInt(yearFilter)   : new Date().getFullYear(),
+    userId:   user?.id ?? '',
+    canWrite: canManage,
+  })
+
+  // ── Dropdown options ──────────────────────────────────────────────────────────
+  const { years, clients, jobsites } = useMemo(() => {
+    if (!permits) return { years: [], clients: [], jobsites: [] }
+    const ySet = new Set<string>()
+    permits.forEach(p => {
+      ;[p.solicitacao, p.aplicacao, p.emissao].forEach(d => {
+        const y = getDateStr(d, 'year'); if (y) ySet.add(y)
+      })
+    })
+    return {
+      years:    Array.from(ySet).sort((a, b) => Number(b) - Number(a)),
+      clients:  Array.from(new Set(permits.map(p => p.client).filter(Boolean))).sort() as string[],
+      jobsites: Array.from(new Set(permits.map(p => p.jobsite).filter(Boolean))).sort() as string[],
+    }
+  }, [permits])
+
+  const availableMonths = useMemo(() => {
+    if (!permits || yearFilter === ALL) return MONTHS
+    const mSet = new Set<string>()
+    permits.forEach(p => {
+      const d = p[dateField] as string | null
+      if (getDateStr(d, 'year') === yearFilter) mSet.add(getDateStr(d, 'month'))
+    })
+    return MONTHS.filter(m => mSet.has(m.value))
+  }, [permits, yearFilter, dateField])
+
+  // ── Filtered rows ─────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     if (!permits) return []
-    if (!search) return permits
-    const q = search.toLowerCase()
-    return permits.filter((p) => p.jobsite?.toLowerCase().includes(q))
-  }, [permits, search])
+    return permits.filter(p => {
+      const dateVal = p[dateField] as string | null
+      if (yearFilter  !== ALL && getDateStr(dateVal, 'year')  !== yearFilter)  return false
+      if (monthFilter !== ALL && getDateStr(dateVal, 'month') !== monthFilter) return false
+      if (situation   !== ALL && p.situacao !== situation)                      return false
+      if (clientFilter.length  > 0 && !clientFilter.includes(p.client))        return false
+      if (jobsiteFilter.length > 0 && !jobsiteFilter.includes(p.jobsite))      return false
+      return true
+    })
+  }, [permits, dateField, yearFilter, monthFilter, situation, clientFilter, jobsiteFilter])
 
-  const totalPermits = permits?.length ?? 0
-  const pending = permits?.filter((p) => p.situacao?.toLowerCase() === "pending" || p.situacao?.toLowerCase() === "pendente").length ?? 0
-  const approved = permits?.filter((p) => p.situacao?.toLowerCase() === "approved" || p.situacao?.toLowerCase() === "aprovado").length ?? 0
+  // ── Render ────────────────────────────────────────────────────────────────────
 
-  if (isLoading) return <PageSkeleton />
+  if (isLoading) return <PermitSkeleton />
+  if (error) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex items-center gap-3">
+        <AlertCircle className="h-5 w-5 text-red-500" />
+        <p className="text-sm text-muted-foreground">Failed to load permit data.</p>
+      </div>
+    </div>
+  )
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">Permit Control</h1>
-        <p className="text-sm text-muted-foreground">Track permit applications and approvals</p>
-      </div>
+    <div className="flex h-full flex-col gap-4">
 
-      {/* Summary cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Permits</CardTitle>
-            <ClipboardList className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{totalPermits}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-yellow-600">{pending}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Approved</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold text-green-600">{approved}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search */}
-      <Input
-        placeholder="Search by jobsite..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="max-w-xs"
+      {/* ── Filters / Header ── */}
+      <PermitFilters
+        yearFilter={yearFilter}
+        monthFilter={monthFilter}
+        dateField={dateField}
+        availableMonths={availableMonths}
+        years={years}
+        onYearChange={setYearFilter}
+        onMonthChange={setMonthFilter}
+        onDateFieldChange={setDateField}
+        situation={situation}
+        onSituationChange={setSituation}
+        clients={clients}
+        jobsites={jobsites}
+        clientFilter={clientFilter}
+        jobsiteFilter={jobsiteFilter}
+        onClientFilterChange={setClientFilter}
+        onJobsiteFilterChange={setJobsiteFilter}
+        canManage={canManage}
+        onManageClick={() => setManageOpen(true)}
+        insightsTriggerButton={insights.triggerButton}
       />
 
-      {/* Table */}
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Model</TableHead>
-              <TableHead>Jobsite</TableHead>
-              <TableHead>Lot Address</TableHead>
-              <TableHead>Situacao</TableHead>
-              <TableHead>Solicitacao</TableHead>
-              <TableHead>Aplicacao</TableHead>
-              <TableHead>Emissao</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                  No permits found
-                </TableCell>
-              </TableRow>
-            ) : (
-              filtered.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.model}</TableCell>
-                  <TableCell>{p.jobsite}</TableCell>
-                  <TableCell>{p.lotAddress}</TableCell>
-                  <TableCell>
-                    <Badge variant={
-                      p.situacao?.toLowerCase() === "approved" || p.situacao?.toLowerCase() === "aprovado"
-                        ? "default"
-                        : p.situacao?.toLowerCase() === "pending" || p.situacao?.toLowerCase() === "pendente"
-                          ? "secondary"
-                          : "outline"
-                    }>
-                      {p.situacao}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{p.solicitacao ? new Date(p.solicitacao).toLocaleDateString() : "—"}</TableCell>
-                  <TableCell>{p.aplicacao ? new Date(p.aplicacao).toLocaleDateString() : "—"}</TableCell>
-                  <TableCell>{p.emissao ? new Date(p.emissao).toLocaleDateString() : "—"}</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+      {/* ── Body ── */}
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+
+        {/* Main content */}
+        <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
+          <div className="w-full shrink-0 overflow-hidden">
+            <PermitChart
+              permits={filtered}
+              dateField={dateField}
+              primaryHex={primaryHex}
+              isDark={resolvedTheme === 'dark'}
+            />
+          </div>
+          <PermitCards
+            permits={filtered}
+            primaryHex={primaryHex}
+            situation={situation}
+          />
+        </div>
+
+        {/* Insights panel — slides in, compresses main content */}
+        {insights.panel}
+
+      </div>
+
+      {manageOpen && <ManageDataModal onClose={() => setManageOpen(false)} />}
+
     </div>
   )
 }

@@ -5,7 +5,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { NotificationBell } from "@/components/layout/notification-bell"
 import { useAuth } from "@/hooks/use-auth"
 import { useFinancialStore } from "@/store/financial.store"
+import { permitService } from "@/services/permit.service"
 import { useQueryClient } from "@tanstack/react-query"
+import { usePathname } from "next/navigation"
 import {
   Award,
   Compass,
@@ -82,12 +84,19 @@ export function Header() {
   const { showFinancialData, toggleFinancialData } = useFinancialStore()
   const { resolvedTheme, setTheme } = useTheme()
   const queryClient = useQueryClient()
+  const pathname    = usePathname()
   const [refreshing, setRefreshing] = useState(false)
 
   async function handleRefresh() {
     setRefreshing(true)
-    await queryClient.invalidateQueries()
-    setTimeout(() => setRefreshing(false), 600)
+    try {
+      if (pathname === "/permits") {
+        await permitService.syncFromSheet()
+      }
+      await queryClient.invalidateQueries()
+    } finally {
+      setTimeout(() => setRefreshing(false), 600)
+    }
   }
 
   const role       = user?.role ?? "viewer"

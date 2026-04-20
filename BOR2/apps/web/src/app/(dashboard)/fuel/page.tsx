@@ -12,6 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { FuelSkeleton } from "@/components/common/page-skeleton"
 import { useSamsaraEvents, useWexTransactions } from "@/hooks/use-fuel"
 import { useState } from "react"
 
@@ -28,6 +29,8 @@ export default function FuelPage() {
   const { data: wex, isLoading: loadingWex } = useWexTransactions({
     driverName: driver || undefined,
   })
+
+  if (loadingSamsara || loadingWex) return <FuelSkeleton />
 
   const totalFuelCost = wex?.reduce((sum, t) => sum + t.totalFuelCost, 0) ?? 0
   const totalDistance = samsara

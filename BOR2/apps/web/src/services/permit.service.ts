@@ -7,15 +7,24 @@ function getToken() {
 
 export interface Permit {
   id: string
-  model: string
+  client: string
   jobsite: string
   lotAddress: string
   situacao: string
-  solicitacao: string
-  aplicacao: string
-  emissao: string
+  solicitacao: string | null
+  aplicacao: string | null
+  emissao: string | null
+  observacao: string
+  arquivo: string
+  createdAt: string
 }
 
+export type PermitInput = Omit<Permit, "id" | "createdAt">
+
 export const permitService = {
-  list: () => api.get<Permit[]>("/api/v1/permits", getToken()),
+  list:          ()                              => api.get<Permit[]>("/api/v1/permits", getToken()),
+  create:        (data: PermitInput)             => api.post<Permit>("/api/v1/permits", data, getToken()),
+  update:        (id: string, data: PermitInput) => api.put<Permit>(`/api/v1/permits/${id}`, data, getToken()),
+  remove:        (id: string)                    => api.delete<void>(`/api/v1/permits/${id}`, getToken()),
+  syncFromSheet: ()                              => api.post<{ total: number; inserted: number }>("/api/v1/permits/sync-sheet", {}, getToken()),
 }

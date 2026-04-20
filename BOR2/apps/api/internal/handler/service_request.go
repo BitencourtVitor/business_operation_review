@@ -71,3 +71,21 @@ func (h *ServiceRequestHandler) Delete(c *fiber.Ctx) error {
 	h.audit.Log(c.Context(), uid, uname, "delete", "service_requests", c.Params("id"))
 	return c.SendStatus(fiber.StatusNoContent)
 }
+
+func (h *ServiceRequestHandler) SyncFromSheet(c *fiber.Ctx) error {
+	total, inserted, err := h.svc.SyncFromSheet(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": err.Error(),
+			"code":  "SYNC_FAILED",
+		})
+	}
+	uid, uname := actor(c)
+	h.audit.Log(c.Context(), uid, uname, "sync_sheet", "service_requests", "")
+	return c.JSON(fiber.Map{
+		"data": fiber.Map{
+			"total":    total,
+			"inserted": inserted,
+		},
+	})
+}

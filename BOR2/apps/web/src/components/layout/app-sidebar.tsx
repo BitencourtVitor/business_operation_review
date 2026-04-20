@@ -31,6 +31,7 @@ import {
   ChevronDown,
   ClipboardCheck,
   ClipboardList,
+  CreditCard,
   FileCheck,
   Fuel,
   Gauge,
@@ -39,6 +40,7 @@ import {
   PanelLeftOpen,
   Ruler,
   Settings,
+  TrendingUp,
   Users,
   Wrench,
 } from "lucide-react"
@@ -47,6 +49,9 @@ import { usePathname, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useAuth } from "@/hooks/use-auth"
+import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashboard)/permits/manage-data-modal"
+import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type SubItem = {
   title: string
@@ -71,63 +76,57 @@ type NavGroup = {
   items: NavItem[]
 }
 
-const mainGroups: NavGroup[] = [
-  {
-    label: "Operations",
-    items: [
-      {
-        title: "Operational Efficiency",
-        href: "/monthly-execution",
-        icon: Gauge,
-        children: [
-          { title: "Monthly Execution", href: "/monthly-execution", icon: CalendarCheck },
-          { title: "Workforce Productivity", href: "/workforce", icon: Users },
-          { title: "Subcontractor Performance", href: "/subcontractors", icon: ClipboardCheck },
-        ],
-      },
-      { title: "Inventory Control", href: "/inventory", icon: Package },
-      { title: "Permit Control",    href: "/permits",          icon: FileCheck, editPermKey: "permits"          },
-      { title: "Service Requests",  href: "/service-requests", icon: Wrench,    editPermKey: "service_requests" },
-      {
-        title: "HVAC Project Monitoring",
-        href: "/project-monitoring",
-        image: "/images/sublogo_hvac.png",
-        editPermKey: "project_monitoring",
-      },
-    ],
-  },
-  {
-    label: "Finance & Analytics",
-    items: [
-      {
-        title: "Framing Forecast", href: "/forecast",
-        image: "/images/sublogo_framing.png",
-        // imageDark: "/images/sublogo_framing_dark.png",  ← add when available
-      },
-      { title: "Operational Index", href: "/ofi", icon: BarChart2 },
-      {
-        title: "Accounting",
-        href: "/accounting",
-        icon: Banknote,
-        disabled: true,
-        children: [
-          { title: "HVAC", href: "/accounting?company=hvac", image: "/images/sublogo_hvac.png" },
-          { title: "Framing", href: "/accounting?company=framing", image: "/images/sublogo_framing.png" },
-          { title: "PCG", href: "/accounting?company=pcg", image: "/images/sublogo_pcg.png" },
-        ],
-      },
-      { title: "Fuel Control", href: "/fuel", icon: Fuel },
-      { title: "Takeoff Works", href: "/takeoff", icon: Ruler, editPermKey: "takeoff" },
-    ],
-  },
-]
+// Active — no section label
+const activeGroup: NavGroup = {
+  items: [
+    {
+      title: "Framing Forecast", href: "/forecast",
+      image: "/images/sublogo_framing.png",
+    },
+    { title: "Inventory Control", href: "/inventory",        icon: Package  },
+    { title: "Permit Control",   href: "/permits",           icon: FileCheck, editPermKey: 'permits'          },
+    { title: "Service Requests", href: "/service-requests",  icon: Wrench,    editPermKey: 'service-requests' },
+  ],
+}
+
+// Not ready — disabled, shown at the bottom with a "Coming Soon" label
+const comingSoonGroup: NavGroup = {
+  label: "Coming Soon",
+  items: [
+    {
+      title: "Operational Efficiency",
+      href: "/monthly-execution",
+      icon: Gauge,
+      disabled: true,
+      children: [
+        { title: "Monthly Execution",         href: "/monthly-execution", icon: CalendarCheck  },
+        { title: "Workforce Productivity",    href: "/workforce",         icon: Users          },
+        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
+      ],
+    },
+    { title: "HVAC Project Monitoring",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
+    { title: "Operational Index",        href: "/ofi",                icon: BarChart2, disabled: true },
+    {
+      title: "Accounting", href: "/accounting", icon: Banknote, disabled: true,
+      children: [
+        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
+        { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
+        { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
+      ],
+    },
+    { title: "Fuel Control",          href: "/fuel",                 icon: Fuel,       disabled: true },
+    { title: "WEX Categorization",    href: "/wex-categorization",   icon: CreditCard, disabled: true },
+    { title: "Takeoff Works",         href: "/takeoff",              icon: Ruler,      disabled: true },
+    { title: "Forecast Improvement",  href: "/forecast-improvement", icon: TrendingUp, disabled: true },
+  ],
+}
 
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control", href: "/data-control", icon: ClipboardList },
-    { title: "Quickbooks Time Auto Log", href: "/autolog", image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
-    { title: "Settings",              href: "/settings",      icon: Settings      },
+    { title: "Forecast Data Control",     href: "/data-control", icon: ClipboardList },
+    { title: "Quickbooks Time Auto Log",  href: "/autolog",      image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
+    { title: "Settings",                  href: "/settings",     icon: Settings      },
   ],
 }
 
@@ -233,7 +232,7 @@ function NavGroupItems({
           <SidebarMenuItem key={item.title}>
             {!open ? (
               item.disabled ? (
-                <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon — QuickBooks integration pending">
+                <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
                 </SidebarMenuButton>
@@ -241,7 +240,7 @@ function NavGroupItems({
                 <CollapsedSubmenu item={item} isActive={isActive} />
               )
             ) : item.disabled ? (
-              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon — QuickBooks integration pending">
+              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
                 <NavItemIcon item={item} />
                 <span>{item.title}</span>
                 <ChevronDown className="ml-auto h-4 w-4 -rotate-90" />
@@ -286,23 +285,39 @@ function NavGroupItems({
           </SidebarMenuItem>
         ) : (
           <SidebarMenuItem key={item.title + item.href}>
-            <SidebarMenuButton
-              isActive={isActive(item.href)}
-              render={<Link href={item.href} />}
-              tooltip={item.title}
-              className={item.editPermKey && canEdit(item.editPermKey) ? "peer" : ""}
-            >
-              <NavItemIcon item={item} />
-              <span>{item.title}</span>
-            </SidebarMenuButton>
-            {item.editPermKey && canEdit(item.editPermKey) && (
-              <SidebarMenuAction
-                showOnHover
-                title={`Manage ${item.title}`}
-                onClick={e => { e.preventDefault(); onEditOpen(item) }}
-              >
-                <Settings className="h-3.5 w-3.5" />
-              </SidebarMenuAction>
+            {item.disabled ? (
+              <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
+                <NavItemIcon item={item} />
+                <span>{item.title}</span>
+              </SidebarMenuButton>
+            ) : (
+              <>
+                <SidebarMenuButton
+                  isActive={isActive(item.href)}
+                  render={<Link href={item.href} />}
+                  tooltip={item.title}
+                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer" : ""}
+                >
+                  <NavItemIcon item={item} />
+                  <span>{item.title}</span>
+                </SidebarMenuButton>
+                {item.editPermKey && canEdit(item.editPermKey) && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger render={
+                        <SidebarMenuAction
+                          showOnHover
+                          onClick={e => { e.preventDefault(); onEditOpen(item) }}
+                          className="hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
+                        />
+                      }>
+                        <Settings className="h-3.5 w-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">Manage Data</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </>
             )}
           </SidebarMenuItem>
         )
@@ -362,9 +377,23 @@ export function AppSidebar() {
 
   const groupProps = { open, isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit, onEditOpen: setEditItem }
 
+  const isPermitEdit         = editItem?.href === '/permits'
+  const isServiceRequestEdit = editItem?.href === '/service-requests'
+
   return (
     <>
-    <Sheet open={!!editItem} onOpenChange={v => { if (!v) setEditItem(null) }}>
+    {/* Permit Control — opens full-screen data modal */}
+    {isPermitEdit && (
+      <PermitManageDataModal onClose={() => setEditItem(null)} />
+    )}
+
+    {/* Service Requests — opens full-screen data modal */}
+    {isServiceRequestEdit && (
+      <ServiceRequestManageDataModal onClose={() => setEditItem(null)} />
+    )}
+
+    {/* Generic edit sheet for other items */}
+    <Sheet open={!!editItem && !isPermitEdit && !isServiceRequestEdit} onOpenChange={v => { if (!v) setEditItem(null) }}>
       <SheetContent side="right" className="w-[min(90vw,28rem)]">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2">
@@ -397,22 +426,28 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="overflow-x-hidden">
-        {/* Main groups */}
-        {mainGroups.map((group, index) => (
-          <div key={index}>
-            {index > 0 && <SidebarSeparator className="mx-0" />}
-            <SidebarGroup>
-              {group.label && open && <SidebarGroupLabel>{group.label}</SidebarGroupLabel>}
-              <SidebarGroupContent>
-                <NavGroupItems items={group.items} {...groupProps} />
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </div>
-        ))}
 
-        {/* Bottom group — Data Management pinned to bottom */}
+        {/* Active items — no label */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <NavGroupItems items={activeGroup.items} {...groupProps} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Full-width separator — outside any group so it has no horizontal padding */}
+        <div className="h-px shrink-0 bg-sidebar-border" />
+
+        {/* Coming Soon */}
+        <SidebarGroup>
+          {open && <SidebarGroupLabel className="text-muted-foreground/50">{comingSoonGroup.label}</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <NavGroupItems items={comingSoonGroup.items} {...groupProps} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Data Management — pinned to bottom */}
         <div className="mt-auto">
-          <SidebarSeparator className="mx-0" />
+          <div className="h-px bg-sidebar-border" />
           <SidebarGroup>
             {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
             <SidebarGroupContent>
@@ -420,6 +455,7 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </div>
+
       </SidebarContent>
 
       <SidebarFooter className="overflow-x-hidden">

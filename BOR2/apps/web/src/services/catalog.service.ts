@@ -21,4 +21,10 @@ export const catalogService = {
 
   delete: (table: CatalogTable, id: number) =>
     api.delete<void>(`/api/v1/forecast/catalog/${table}/${id}`, getToken()),
+
+  reorderContractSteps: (ids: number[]) =>
+    api.patch<void>(`/api/v1/forecast/catalog/contract-steps/reorder`, { ids }, getToken()),
+
+  update: (table: CatalogTable, id: number, data: Record<string, string>) =>
+    api.patch<void>(`/api/v1/forecast/catalog/${table}/${id}`, data, getToken()),
 }

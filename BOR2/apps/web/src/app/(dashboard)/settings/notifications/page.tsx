@@ -7,10 +7,10 @@ import { useAllNotifications, useCreateNotification, useUpdateNotification, useD
 import { useUsers } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog"
+import { DateTimePicker } from "@/components/ui/date-time-picker"
 import {
   ArrowLeft, Bell, CalendarClock, Check, Clock, Loader2,
   Pencil, Plus, Send, ShieldAlert, Trash2, Users,
@@ -30,6 +30,24 @@ function formatDate(iso: string) {
 function isScheduled(n: Notification): boolean {
   if (!n.scheduledAt) return false
   return new Date(n.scheduledAt) > new Date()
+}
+
+// ─── Role badge ───────────────────────────────────────────────────────────────
+
+const roleMeta: Record<string, { label: string; className: string }> = {
+  dev:     { label: "Developer", className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  owner:   { label: "Owner",     className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  manager: { label: "Manager",   className: "border-primary/40 bg-primary/10 text-primary" },
+  user:    { label: "User",      className: "border-border bg-secondary text-foreground" },
+}
+
+function RoleBadge({ role }: { role: string }) {
+  const m = roleMeta[role] ?? { label: role, className: "border-border bg-secondary text-foreground" }
+  return (
+    <span className={`inline-flex shrink-0 items-center rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${m.className}`}>
+      {m.label}
+    </span>
+  )
 }
 
 // ─── Notification form modal ──────────────────────────────────────────────────
@@ -104,7 +122,7 @@ function NotificationFormModal({
 
   return (
     <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="flex max-h-[90vh] max-w-lg flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isEdit ? <Pencil className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
@@ -112,7 +130,7 @@ function NotificationFormModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto pr-1">
           {/* Title */}
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-muted-foreground">Title</label>
@@ -155,11 +173,9 @@ function NotificationFormModal({
           {scheduleMode && (
             <div className="space-y-1.5 pl-6">
               <label className="text-xs font-medium text-muted-foreground">Send at</label>
-              <input
-                type="datetime-local"
-                className={inputCls}
+              <DateTimePicker
                 value={scheduledAt}
-                onChange={e => setScheduledAt(e.target.value)}
+                onChange={setScheduledAt}
                 min={new Date().toISOString().slice(0, 16)}
               />
             </div>
@@ -180,7 +196,7 @@ function NotificationFormModal({
               <span className="ml-auto text-xs text-muted-foreground">{users.length} users</span>
             </label>
 
-            <ScrollArea className="max-h-36 rounded-md border">
+            <div className="max-h-52 overflow-y-auto rounded-md border">
               <div className="p-1.5">
                 {users.map(u => (
                   <label key={u.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 transition-colors hover:bg-muted">
@@ -188,28 +204,28 @@ function NotificationFormModal({
                       checked={recipients.has(u.id)}
                       onCheckedChange={() => toggleRecipient(u.id)}
                     />
-                    <span className="truncate text-sm">{u.name}</span>
-                    <span className="ml-auto text-[11px] text-muted-foreground">{u.role}</span>
+                    <span className="flex-1 truncate text-sm">{u.name}</span>
+                    <RoleBadge role={u.role} />
                   </label>
                 ))}
               </div>
-            </ScrollArea>
+            </div>
           </div>
+        </div>
 
-          {/* Actions */}
-          <div className="flex justify-end gap-2 pt-1">
-            <Button variant="ghost" size="sm" onClick={onClose} disabled={pending}>Cancel</Button>
-            <Button size="sm" onClick={handleSubmit} disabled={!canSubmit || pending}>
-              {pending
-                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving…</>
-                : isEdit
-                  ? <><Check className="h-3.5 w-3.5" />Save Changes</>
-                  : scheduleMode
-                    ? <><CalendarClock className="h-3.5 w-3.5" />Schedule</>
-                    : <><Send className="h-3.5 w-3.5" />Send Now</>
-              }
-            </Button>
-          </div>
+        {/* Actions — fixed outside scroll */}
+        <div className="flex justify-end gap-2 border-t pt-3">
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={pending}>Cancel</Button>
+          <Button size="sm" onClick={handleSubmit} disabled={!canSubmit || pending}>
+            {pending
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Saving…</>
+              : isEdit
+                ? <><Check className="h-3.5 w-3.5" />Save Changes</>
+                : scheduleMode
+                  ? <><CalendarClock className="h-3.5 w-3.5" />Schedule</>
+                  : <><Send className="h-3.5 w-3.5" />Send Now</>
+            }
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

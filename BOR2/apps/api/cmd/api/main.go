@@ -212,6 +212,7 @@ func main() {
 	serviceRequests := api.Group("/service-requests")
 	serviceRequests.Get("/", serviceRequestHandler.List)
 	serviceRequests.Get("/:id", serviceRequestHandler.Get)
+	serviceRequests.Post("/sync-sheet", serviceRequestHandler.SyncFromSheet)
 	serviceRequests.Post("/", serviceRequestHandler.Create)
 	serviceRequests.Put("/:id", serviceRequestHandler.Update)
 	serviceRequests.Delete("/:id", serviceRequestHandler.Delete)

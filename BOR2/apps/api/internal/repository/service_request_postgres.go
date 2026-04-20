@@ -14,6 +14,7 @@ type ServiceRequestRepository interface {
 	Create(ctx context.Context, r *domain.ServiceRequestRow) error
 	Update(ctx context.Context, r *domain.ServiceRequestRow) error
 	Delete(ctx context.Context, id string) error
+	ReplaceAll(ctx context.Context, records []*domain.ServiceRequestRow) (int, error)
 }
 
 type PostgresServiceRequestRepository struct {
@@ -110,4 +111,38 @@ func (r *PostgresServiceRequestRepository) Update(ctx context.Context, rec *doma
 func (r *PostgresServiceRequestRepository) Delete(ctx context.Context, id string) error {
 	_, err := r.db.Exec(ctx, "DELETE FROM service_requests WHERE id=$1", id)
 	return err
+}
+
+// ReplaceAll deletes every row in service_requests and inserts records atomically.
+func (r *PostgresServiceRequestRepository) ReplaceAll(ctx context.Context, records []*domain.ServiceRequestRow) (int, error) {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	if _, err := tx.Exec(ctx, "DELETE FROM service_requests"); err != nil {
+		return 0, fmt.Errorf("delete all service_requests: %w", err)
+	}
+
+	count := 0
+	for _, rec := range records {
+		_, err := tx.Exec(ctx, `
+			INSERT INTO service_requests
+			  (id, contractor, job_site, city, lot, address,
+			   close_date, date_received, material_available_date,
+			   resident_available_date, date_completed, additional_visits,
+			   issue, warranty, tech, created_at)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+		`, rec.ID, rec.Contractor, rec.JobSite, rec.City, rec.Lot, rec.Address,
+			rec.CloseDate, rec.DateReceived, rec.MaterialAvailableDate,
+			rec.ResidentAvailableDate, rec.DateCompleted, rec.AdditionalVisits,
+			rec.Issue, rec.Warranty, rec.Tech, rec.CreatedAt)
+		if err != nil {
+			return count, fmt.Errorf("insert service_request row: %w", err)
+		}
+		count++
+	}
+
+	return count, tx.Commit(ctx)
 }

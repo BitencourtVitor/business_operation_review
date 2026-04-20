@@ -1,20 +1,8 @@
 "use client"
 
-import { Badge } from "@/components/ui/badge"
+import { useRef, useState, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { AlertTriangle, Download, FileSpreadsheet, Loader2, Upload } from "lucide-react"
-import { useRef, useState } from "react"
+import { Download, FolderOpen, Loader2, Upload } from "lucide-react"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -43,6 +31,7 @@ type EmployeeResultRow = {
 type DayResult = {
   type: "weekday"
   localDate: string
+  weekdayIndex: number
   weekdayLabel: string
   isWeekend: boolean
   policy: { expectedStartMinutes: number; expectedEndMinutes: number; toleranceEarlyMinutes: number; toleranceLateMinutes: number }
@@ -50,7 +39,14 @@ type DayResult = {
   imageDataUrl?: string
 }
 
-type WeekendEmployeeRow = { dayLabel: string; name: string; entryMinutes: number; exitMinutes: number; early: boolean; late: boolean }
+type WeekendEmployeeRow = {
+  dayLabel: string
+  name: string
+  entryMinutes: number
+  exitMinutes: number
+  early: boolean
+  late: boolean
+}
 
 type WeekendResult = {
   type: "weekend"
@@ -61,9 +57,9 @@ type WeekendResult = {
   imageDataUrl?: string
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Utilities ────────────────────────────────────────────────────────────────
 
-function clamp(v: number, min: number, max: number) {
+function clampNumber(v: number, min: number, max: number) {
   if (Number.isNaN(v)) return min
   return Math.min(max, Math.max(min, v))
 }
@@ -72,683 +68,588 @@ async function yieldToUi() {
   await new Promise<void>((r) => setTimeout(r, 0))
 }
 
-function normalizeKey(raw: string) {
+function normalizeHeaderKey(raw: string) {
   return raw.trim().toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "").replace(/_+/g, "_")
 }
 
-function normalizeKeyLoose(raw: string) {
-  return normalizeKey(raw).replace(/_/g, "")
+function normalizeHeaderKeyLoose(raw: string) {
+  return normalizeHeaderKey(raw).replace(/_/g, "")
 }
 
 function guessDelimiter(text: string): "," | ";" | "\t" {
-  const sample = text.split(/\r?\n/).filter(Boolean).slice(0, 5).join("\n")
+  const lines = text.split(/\r?\n/).filter((l) => l.trim() !== "").slice(0, 5)
+  const sample = lines.join("\n")
   const counts: Record<string, number> = { ",": 0, ";": 0, "\t": 0 }
-  let inQ = false
+  let inQuotes = false
   for (let i = 0; i < sample.length; i++) {
     const ch = sample[i]
-    if (ch === '"') { inQ = !inQ; continue }
-    if (!inQ && counts[ch] !== undefined) counts[ch]++
+    if (ch === '"') { if (inQuotes && sample[i + 1] === '"') { i++; continue } inQuotes = !inQuotes; continue }
+    if (!inQuotes && ch in counts) counts[ch]++
   }
-  return (Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? ",") as "," | ";" | "\t"
+  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]
+  return (best?.[0] as "," | ";" | "\t") || ","
 }
 
-function parseCsv(text: string): { headers: string[]; rows: string[][] } {
-  const delim = guessDelimiter(text)
-  const allRows: string[][] = []
+function parseCsv(text: string) {
+  const delimiter = guessDelimiter(text)
+  const rows: string[][] = []
   let row: string[] = []
   let field = ""
-  let inQ = false
+  let inQuotes = false
+  const pushField = () => { row.push(field); field = "" }
+  const pushRow = () => { rows.push(row); row = [] }
   for (let i = 0; i < text.length; i++) {
     const ch = text[i]
-    if (inQ) {
-      if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++ } else inQ = false }
-      else field += ch
+    if (inQuotes) {
+      if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++ } else { inQuotes = false } }
+      else { field += ch }
       continue
     }
-    if (ch === '"') { inQ = true; continue }
-    if (ch === delim) { row.push(field); field = ""; continue }
-    if (ch === "\n") { row.push(field); field = ""; allRows.push(row); row = []; continue }
-    if (ch === "\r") { if (text[i + 1] === "\n") continue; row.push(field); field = ""; allRows.push(row); row = []; continue }
+    if (ch === '"') { inQuotes = true; continue }
+    if (ch === delimiter) { pushField(); continue }
+    if (ch === "\n") { pushField(); pushRow(); continue }
+    if (ch === "\r") { if (text[i + 1] === "\n") continue; pushField(); pushRow(); continue }
     field += ch
   }
-  row.push(field)
-  if (row.length > 1 || row[0]?.trim()) allRows.push(row)
-  const headers = (allRows[0] ?? []).map((h) => h.trim())
-  const rows = allRows.slice(1).filter((r) => r.some((c) => c.trim()))
-  return { headers, rows }
+  pushField()
+  if (row.length > 1 || row[0]?.trim() !== "") pushRow()
+  const headers = (rows[0] || []).map((h) => h.trim())
+  const data = rows.slice(1).filter((r) => r.some((c) => c.trim() !== ""))
+  return { headers, rows: data }
 }
 
-function buildIndexMaps(headers: string[]) {
-  const exact = new Map<string, number>()
-  const loose = new Map<string, number>()
-  headers.forEach((h, i) => { exact.set(normalizeKey(h), i); loose.set(normalizeKeyLoose(h), i) })
-  return { exact, loose }
-}
-
-function findCol(maps: ReturnType<typeof buildIndexMaps>, candidates: string[]) {
-  for (const c of candidates) {
-    const e = maps.exact.get(normalizeKey(c))
-    if (e !== undefined) return e
-    const l = maps.loose.get(normalizeKeyLoose(c))
-    if (l !== undefined) return l
-  }
-  return -1
-}
-
-function parseDate(raw: string): string | null {
-  const v = raw.trim().split("T")[0].split(" ")[0]
-  const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v)
-  if (iso) {
-    const [, y, m, d] = iso
-    if (+m < 1 || +m > 12 || +d < 1 || +d > 31) return null
-    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-  }
-  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(v)
-  if (slash) {
-    const [, m, d, y] = slash
-    if (+m < 1 || +m > 12 || +d < 1 || +d > 31) return null
-    return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`
-  }
+function parseLocalDateToIso(raw: string): string | null {
+  const v = raw.trim()
+  if (!v) return null
+  const s = v.split("T")[0].split(" ")[0].trim()
+  const iso = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s)
+  if (iso) { const [, y, m, d] = iso; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
+  const slash = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(s)
+  if (slash) { const [, m, d, y] = slash; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
+  const dash = /^(\d{1,2})-(\d{1,2})-(\d{4})$/.exec(s)
+  if (dash) { const [, m, d, y] = dash; return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}` }
   return null
 }
 
-function parseTime(raw: string): number | null {
+function getWeekdayIndex(iso: string): number | null {
+  const d = new Date(`${iso}T00:00:00`)
+  const day = d.getDay()
+  return Number.isFinite(day) ? day : null
+}
+
+function weekdayLabel(idx: number) {
+  return ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][idx] || ""
+}
+
+function parseTimeToMinutes(raw: string): number | null {
   let v = raw.trim()
+  if (!v) return null
   const matches = Array.from(v.matchAll(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?\b/gi))
   const last = matches[matches.length - 1]
   if (last) v = last[0].trim()
   const ampm = /\s*(am|pm)\s*$/i.exec(v)
   if (ampm) {
     const mer = ampm[1].toLowerCase()
-    const base = v.replace(/\s*(am|pm)\s*$/i, "").trim().split(":")
-    if (base.length < 2) return null
-    let h = +base[0]; const m = +base[1]
-    if (h < 1 || h > 12 || m < 0 || m > 59) return null
+    const base = v.replace(/\s*(am|pm)\s*$/i, "").trim()
+    const parts = base.split(":").map((p) => p.trim())
+    if (parts.length < 2) return null
+    const h0 = Number(parts[0]); const m0 = Number(parts[1])
+    if (!Number.isFinite(h0) || !Number.isFinite(m0)) return null
+    if (h0 < 1 || h0 > 12 || m0 < 0 || m0 > 59) return null
+    let h = h0
     if (mer === "am") { if (h === 12) h = 0 } else { if (h !== 12) h += 12 }
-    return h * 60 + m
+    return h * 60 + m0
   }
-  const parts = v.split(":").map(Number)
-  if (parts.length < 2 || parts.some(Number.isNaN)) return null
-  const [h, m] = parts
+  const parts = v.split(":").map((p) => p.trim())
+  if (parts.length < 2) return null
+  const h = Number(parts[0]); const m = Number(parts[1])
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return null
   if (h < 0 || h > 23 || m < 0 || m > 59) return null
   return h * 60 + m
 }
 
-function fmtTime(minutes: number) {
+function formatMinutesToTime(minutes: number) {
   const h24 = Math.floor(minutes / 60)
   const m = minutes % 60
   const mer = h24 >= 12 ? "PM" : "AM"
   let h12 = h24 % 12
   if (h12 === 0) h12 = 12
-  return `${String(h12).padStart(2, "0")}:${String(m).padStart(2, "0")} ${mer}`
+  return `${String(h12).padStart(2,"0")}:${String(m).padStart(2,"0")} ${mer}`
 }
 
-function dayOfWeek(iso: string): number | null {
-  const d = new Date(`${iso}T00:00:00`).getDay()
-  return Number.isFinite(d) ? d : null
-}
-
-function addDays(iso: string, n: number): string {
+function addDaysIso(iso: string, delta: number) {
   const d = new Date(`${iso}T00:00:00`)
-  d.setDate(d.getDate() + n)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+  d.setDate(d.getDate() + delta)
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`
 }
 
-const WEEKDAY_LABELS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+// ─── Canvas rendering ─────────────────────────────────────────────────────────
 
-// ─── Canvas PNG rendering ─────────────────────────────────────────────────────
-
-function cssVar(name: string, fallback: string) {
-  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-  return v || fallback
+function getThemeColors() {
+  const isDark = document.documentElement.classList.contains("dark")
+  return {
+    bg:          isDark ? "#0a0a0a" : "#ffffff",
+    cardBg:      isDark ? "#141414" : "#f8f8f8",
+    textPrimary: isDark ? "#fafafa" : "#111827",
+    textSecondary: isDark ? "#9ca3af" : "#6b7280",
+    border:      isDark ? "#262626" : "#e5e7eb",
+    stripe:      isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+    negative:    "#DC3545",
+  }
 }
 
-function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  const rad = Math.min(r, w / 2, h / 2)
+function drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  const radius = Math.min(r, w / 2, h / 2)
   ctx.beginPath()
-  ctx.moveTo(x + rad, y)
-  ctx.arcTo(x + w, y, x + w, y + h, rad)
-  ctx.arcTo(x + w, y + h, x, y + h, rad)
-  ctx.arcTo(x, y + h, x, y, rad)
-  ctx.arcTo(x, y, x + w, y, rad)
+  ctx.moveTo(x + radius, y)
+  ctx.arcTo(x + w, y, x + w, y + h, radius)
+  ctx.arcTo(x + w, y + h, x, y + h, radius)
+  ctx.arcTo(x, y + h, x, y, radius)
+  ctx.arcTo(x, y, x + w, y, radius)
   ctx.closePath()
 }
 
-function renderDayPng(day: DayResult): string {
-  const bg = cssVar("--background", "#ffffff")
-  const card = cssVar("--muted", "#f5f5f5")
-  const textP = cssVar("--foreground", "#111827")
-  const textS = cssVar("--muted-foreground", "#6b7280")
-  const border = cssVar("--border", "#e5e7eb")
-  const neg = "#DC3545"
-  const isDark = document.documentElement.classList.contains("dark")
-  const stripe = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"
-
-  const W = 1200, pad = 54, hdrH = 110, tGap = 18, tHdrH = 52, rowH = 56, btm = 28
+function renderDayToPngDataUrl(day: DayResult): string {
+  const { bg, cardBg, textPrimary, textSecondary, border, stripe, negative } = getThemeColors()
+  const width = 1200, padding = 54, headerHeight = 110, tableTopGap = 18
+  const tableHeaderHeight = 52, rowHeight = 56, bottomGap = 28
   const rows = day.rows.length
-  const H = pad * 2 + hdrH + tGap + tHdrH + Math.max(1, rows) * rowH + btm
-
+  const height = padding * 2 + headerHeight + tableTopGap + tableHeaderHeight + Math.max(1, rows) * rowHeight + bottomGap
   const canvas = document.createElement("canvas")
-  canvas.width = W; canvas.height = H
-  const ctx = canvas.getContext("2d")
-  if (!ctx) return ""
-
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
-  rrect(ctx, pad, pad, W - pad * 2, H - pad * 2, 16)
-  ctx.fillStyle = card; ctx.fill()
+  canvas.width = width; canvas.height = height
+  const ctx = canvas.getContext("2d")!
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, width, height)
+  const [cX, cY, cW, cH] = [padding, padding, width - padding * 2, height - padding * 2]
+  drawRoundedRect(ctx, cX, cY, cW, cH, 16); ctx.fillStyle = cardBg; ctx.fill()
   ctx.strokeStyle = border; ctx.lineWidth = 2; ctx.stroke()
-
-  const titleY = pad + 66
-  ctx.fillStyle = textP; ctx.font = "800 34px Inter,system-ui,sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"
-  ctx.fillText("Auto-Log", pad + 28, titleY)
-  ctx.fillStyle = textS; ctx.font = "700 16px Inter,system-ui,sans-serif"; ctx.textAlign = "right"
-  ctx.fillText(`${day.localDate} • ${day.weekdayLabel}`, pad + W - pad * 2 - 28, titleY)
-
-  const divY = pad + hdrH
-  ctx.strokeStyle = border; ctx.lineWidth = 1.5
-  ctx.beginPath(); ctx.moveTo(pad + 22, divY); ctx.lineTo(W - pad - 22, divY); ctx.stroke()
-
-  const tX = pad + 22, tY = divY + tGap, tW = W - pad * 2 - 44
-  rrect(ctx, tX, tY, tW, tHdrH + Math.max(1, rows) * rowH, 12)
+  const titleY = cY + 66
+  ctx.fillStyle = textPrimary; ctx.font = "800 34px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; ctx.fillText("Auto-Log", cX + 28, titleY)
+  ctx.fillStyle = textSecondary; ctx.font = "700 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "right"; ctx.fillText(`${day.localDate} • ${day.weekdayLabel}`, cX + cW - 28, titleY)
+  const dividerY = cY + headerHeight
+  ctx.strokeStyle = border; ctx.lineWidth = 1.5; ctx.beginPath()
+  ctx.moveTo(cX + 22, dividerY); ctx.lineTo(cX + cW - 22, dividerY); ctx.stroke()
+  const tX = cX + 22, tY = dividerY + tableTopGap, tW = cW - 44
+  drawRoundedRect(ctx, tX, tY, tW, tableHeaderHeight + Math.max(1, rows) * rowHeight, 12)
   ctx.fillStyle = bg; ctx.fill(); ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.stroke()
-
-  const nF = 0.58, iF = 0.14, oF = 0.14
-  const colN = tX + 18, colI = tX + Math.floor(tW * nF), colO = tX + Math.floor(tW * (nF + iF))
-  const colS = tX + Math.floor(tW * (nF + iF + oF))
-  const iR = colI - 18, oR = colO - 18, sR = tX + tW - 18
-  const sW = sR - colS
-
-  ctx.fillStyle = textS; ctx.font = "800 13px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-  ctx.fillText("EMPLOYEE", colN, tY + 32); ctx.fillText("IN", colI, tY + 32)
-  ctx.fillText("OUT", colO, tY + 32); ctx.fillText("STATUS", colS, tY + 32)
-  ctx.strokeStyle = border; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(tX + 10, tY + tHdrH); ctx.lineTo(tX + tW - 10, tY + tHdrH); ctx.stroke()
-
+  const nameFrac = 0.58, inFrac = 0.14, outFrac = 0.14
+  const colNameX = tX + 18, inLeftX = tX + Math.floor(tW * nameFrac)
+  const outLeftX = tX + Math.floor(tW * (nameFrac + inFrac))
+  const statusLeftX = tX + Math.floor(tW * (nameFrac + inFrac + outFrac))
+  const inRightX = inLeftX - 18, outRightX = outLeftX - 18, statusRightX = tX + tW - 18
+  const statusWidth = statusRightX - statusLeftX
+  ctx.fillStyle = textSecondary; ctx.font = "800 13px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "left";  ctx.fillText("EMPLOYEE", colNameX, tY + 32)
+  ctx.textAlign = "right"; ctx.fillText("IN", inRightX, tY + 32)
+  ctx.textAlign = "right"; ctx.fillText("OUT", outRightX, tY + 32)
+  ctx.textAlign = "left";  ctx.fillText("STATUS", statusLeftX + Math.floor(statusWidth / 2) - Math.floor(ctx.measureText("STATUS").width / 2), tY + 32)
+  ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.beginPath()
+  ctx.moveTo(tX + 10, tY + tableHeaderHeight); ctx.lineTo(tX + tW - 10, tY + tableHeaderHeight); ctx.stroke()
   if (rows === 0) {
-    ctx.fillStyle = textS; ctx.font = "700 16px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-    ctx.fillText("No employees out of range", tX + 18, tY + tHdrH + 36)
+    ctx.fillStyle = textSecondary; ctx.font = "700 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+    ctx.textAlign = "left"; ctx.fillText("No employees out of range", tX + 18, tY + tableHeaderHeight + 36)
   } else {
     for (let i = 0; i < rows; i++) {
-      const r = day.rows[i]; const y = tY + tHdrH + i * rowH
-      if (i % 2 === 1) { ctx.fillStyle = stripe; ctx.fillRect(tX + 1, y, tW - 2, rowH) }
-      const alert = r.early || r.late
-      ctx.fillStyle = alert ? neg : textP; ctx.font = "700 18px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-      ctx.fillText(r.name, colN, y + 36)
-      ctx.fillStyle = r.early ? neg : textP; ctx.font = "800 16px Inter,system-ui,sans-serif"; ctx.textAlign = "right"
-      ctx.fillText(fmtTime(r.entryMinutes), iR, y + 36)
-      ctx.fillStyle = r.late ? neg : textP; ctx.textAlign = "right"
-      ctx.fillText(fmtTime(r.exitMinutes), oR, y + 36)
+      const r = day.rows[i]; const y = tY + tableHeaderHeight + i * rowHeight
+      if (i % 2 === 1) { ctx.fillStyle = stripe; ctx.fillRect(tX + 1, y, tW - 2, rowHeight) }
+      ctx.fillStyle = r.early || r.late ? negative : textPrimary
+      ctx.font = "700 18px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+      ctx.textAlign = "left"; ctx.fillText(r.name, colNameX, y + 36)
+      ctx.fillStyle = r.early ? negative : textPrimary; ctx.font = "800 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+      ctx.textAlign = "right"; ctx.fillText(formatMinutesToTime(r.entryMinutes), inRightX, y + 36)
+      ctx.fillStyle = r.late ? negative : textPrimary; ctx.fillText(formatMinutesToTime(r.exitMinutes), outRightX, y + 36)
       const badge = r.early && r.late ? "EARLY + LATE" : r.early ? "EARLY" : r.late ? "LATE" : ""
       if (badge) {
-        const bH = 28; ctx.font = "900 12px Inter,system-ui,sans-serif"
-        const bTW = ctx.measureText(badge).width
-        const bW = Math.min(sW - 12, Math.max(78, bTW + 20))
-        const bX = colS + Math.floor((sW - bW) / 2); const bY = y + Math.floor((rowH - bH) / 2)
-        rrect(ctx, bX, bY, bW, bH, 14)
+        const badgeH = 28; ctx.font = "900 12px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+        const badgeW = Math.min(statusWidth - 12, Math.max(78, ctx.measureText(badge).width + 20))
+        const badgeX = statusLeftX + Math.floor((statusWidth - badgeW) / 2)
+        const badgeY = y + Math.floor((rowHeight - badgeH) / 2)
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 14)
         ctx.fillStyle = "rgba(220,53,69,0.14)"; ctx.fill()
-        ctx.strokeStyle = neg; ctx.lineWidth = 1; ctx.stroke()
-        ctx.fillStyle = neg; ctx.textAlign = "center"
-        ctx.fillText(badge, bX + Math.floor(bW / 2), bY + 19)
+        ctx.strokeStyle = negative; ctx.lineWidth = 1; ctx.stroke()
+        ctx.fillStyle = negative; ctx.textAlign = "center"
+        ctx.fillText(badge, badgeX + Math.floor(badgeW / 2), badgeY + 19)
       }
     }
   }
   return canvas.toDataURL("image/png")
 }
 
-function renderWeekendPng(wk: WeekendResult): string {
-  const bg = cssVar("--background", "#ffffff")
-  const card = cssVar("--muted", "#f5f5f5")
-  const textP = cssVar("--foreground", "#111827")
-  const textS = cssVar("--muted-foreground", "#6b7280")
-  const border = cssVar("--border", "#e5e7eb")
-  const neg = "#DC3545"
-  const isDark = document.documentElement.classList.contains("dark")
-  const stripe = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"
-
-  const W = 1200, pad = 54, hdrH = 110, tGap = 18, tHdrH = 52, rowH = 56, btm = 28
-  const rows = wk.rows.length
-  const H = pad * 2 + hdrH + tGap + tHdrH + Math.max(1, rows) * rowH + btm
-
+function renderWeekendToPngDataUrl(weekend: WeekendResult): string {
+  const { bg, cardBg, textPrimary, textSecondary, border, stripe, negative } = getThemeColors()
+  const width = 1200, padding = 54, headerHeight = 110, tableTopGap = 18
+  const tableHeaderHeight = 52, rowHeight = 56, bottomGap = 28
+  const rows = weekend.rows.length
+  const height = padding * 2 + headerHeight + tableTopGap + tableHeaderHeight + Math.max(1, rows) * rowHeight + bottomGap
   const canvas = document.createElement("canvas")
-  canvas.width = W; canvas.height = H
-  const ctx = canvas.getContext("2d")
-  if (!ctx) return ""
-
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
-  rrect(ctx, pad, pad, W - pad * 2, H - pad * 2, 16)
-  ctx.fillStyle = card; ctx.fill()
+  canvas.width = width; canvas.height = height
+  const ctx = canvas.getContext("2d")!
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, width, height)
+  const [cX, cY, cW, cH] = [padding, padding, width - padding * 2, height - padding * 2]
+  drawRoundedRect(ctx, cX, cY, cW, cH, 16); ctx.fillStyle = cardBg; ctx.fill()
   ctx.strokeStyle = border; ctx.lineWidth = 2; ctx.stroke()
-
-  const titleY = pad + 66
-  ctx.fillStyle = textP; ctx.font = "800 34px Inter,system-ui,sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"
-  ctx.fillText("Auto-Log", pad + 28, titleY)
-  ctx.fillStyle = textS; ctx.font = "700 16px Inter,system-ui,sans-serif"; ctx.textAlign = "right"
-  ctx.fillText(`${wk.dates[0]} & ${wk.dates[1]} • Saturday & Sunday`, pad + W - pad * 2 - 28, titleY)
-
-  const divY = pad + hdrH
-  ctx.strokeStyle = border; ctx.lineWidth = 1.5
-  ctx.beginPath(); ctx.moveTo(pad + 22, divY); ctx.lineTo(W - pad - 22, divY); ctx.stroke()
-
-  const tX = pad + 22, tY = divY + tGap, tW = W - pad * 2 - 44
-  rrect(ctx, tX, tY, tW, tHdrH + Math.max(1, rows) * rowH, 12)
+  const titleY = cY + 66
+  ctx.fillStyle = textPrimary; ctx.font = "800 34px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "left"; ctx.textBaseline = "alphabetic"; ctx.fillText("Auto-Log", cX + 28, titleY)
+  ctx.fillStyle = textSecondary; ctx.font = "700 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "right"; ctx.fillText(`${weekend.dates[0]} & ${weekend.dates[1]} • Saturday & Sunday`, cX + cW - 28, titleY)
+  const dividerY = cY + headerHeight
+  ctx.strokeStyle = border; ctx.lineWidth = 1.5; ctx.beginPath()
+  ctx.moveTo(cX + 22, dividerY); ctx.lineTo(cX + cW - 22, dividerY); ctx.stroke()
+  const tX = cX + 22, tY = dividerY + tableTopGap, tW = cW - 44
+  drawRoundedRect(ctx, tX, tY, tW, tableHeaderHeight + Math.max(1, rows) * rowHeight, 12)
   ctx.fillStyle = bg; ctx.fill(); ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.stroke()
-
-  const dF = 0.16, nF = 0.42, iF = 0.14, oF = 0.14
-  const colD = tX + 18, colN = tX + Math.floor(tW * dF)
-  const colI = tX + Math.floor(tW * (dF + nF)), colO = tX + Math.floor(tW * (dF + nF + iF))
-  const colS = tX + Math.floor(tW * (dF + nF + iF + oF))
-  const iR = colI - 18, oR = colO - 18, sR = tX + tW - 18, sW = sR - colS
-
-  ctx.fillStyle = textS; ctx.font = "800 13px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-  ctx.fillText("DAY", colD, tY + 32); ctx.fillText("EMPLOYEE", colN, tY + 32)
-  ctx.fillText("IN", colI, tY + 32); ctx.fillText("OUT", colO, tY + 32); ctx.fillText("STATUS", colS, tY + 32)
-  ctx.strokeStyle = border; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(tX + 10, tY + tHdrH); ctx.lineTo(tX + tW - 10, tY + tHdrH); ctx.stroke()
-
+  const dayFrac = 0.16, nameFrac = 0.42, inFrac = 0.14, outFrac = 0.14
+  const colDayX = tX + 18, nameLeftX = tX + Math.floor(tW * dayFrac)
+  const inLeftX = tX + Math.floor(tW * (dayFrac + nameFrac))
+  const outLeftX = tX + Math.floor(tW * (dayFrac + nameFrac + inFrac))
+  const statusLeftX = tX + Math.floor(tW * (dayFrac + nameFrac + inFrac + outFrac))
+  const inRightX = inLeftX - 18, outRightX = outLeftX - 18, statusRightX = tX + tW - 18
+  const statusWidth = statusRightX - statusLeftX
+  ctx.fillStyle = textSecondary; ctx.font = "800 13px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+  ctx.textAlign = "left";  ctx.fillText("DAY", colDayX, tY + 32)
+  ctx.textAlign = "left";  ctx.fillText("EMPLOYEE", nameLeftX, tY + 32)
+  ctx.textAlign = "right"; ctx.fillText("IN", inRightX, tY + 32)
+  ctx.textAlign = "right"; ctx.fillText("OUT", outRightX, tY + 32)
+  ctx.textAlign = "left";  ctx.fillText("STATUS", statusLeftX + Math.floor(statusWidth / 2) - Math.floor(ctx.measureText("STATUS").width / 2), tY + 32)
+  ctx.strokeStyle = border; ctx.lineWidth = 1; ctx.beginPath()
+  ctx.moveTo(tX + 10, tY + tableHeaderHeight); ctx.lineTo(tX + tW - 10, tY + tableHeaderHeight); ctx.stroke()
   if (rows === 0) {
-    ctx.fillStyle = textS; ctx.font = "700 16px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-    ctx.fillText("No employees out of range", tX + 18, tY + tHdrH + 36)
+    ctx.fillStyle = textSecondary; ctx.font = "700 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+    ctx.textAlign = "left"; ctx.fillText("No employees out of range", tX + 18, tY + tableHeaderHeight + 36)
   } else {
     for (let i = 0; i < rows; i++) {
-      const r = wk.rows[i]; const y = tY + tHdrH + i * rowH
-      if (i % 2 === 1) { ctx.fillStyle = stripe; ctx.fillRect(tX + 1, y, tW - 2, rowH) }
-      const alert = r.early || r.late
-      ctx.fillStyle = textS; ctx.font = "800 13px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-      ctx.fillText(r.dayLabel, colD, y + 36)
-      ctx.fillStyle = alert ? neg : textP; ctx.font = "700 18px Inter,system-ui,sans-serif"; ctx.textAlign = "left"
-      ctx.fillText(r.name, colN, y + 36)
-      ctx.fillStyle = r.early ? neg : textP; ctx.font = "800 16px Inter,system-ui,sans-serif"; ctx.textAlign = "right"
-      ctx.fillText(fmtTime(r.entryMinutes), iR, y + 36)
-      ctx.fillStyle = r.late ? neg : textP; ctx.textAlign = "right"
-      ctx.fillText(fmtTime(r.exitMinutes), oR, y + 36)
+      const r = weekend.rows[i]; const y = tY + tableHeaderHeight + i * rowHeight
+      if (i % 2 === 1) { ctx.fillStyle = stripe; ctx.fillRect(tX + 1, y, tW - 2, rowHeight) }
+      ctx.fillStyle = textSecondary; ctx.font = "800 13px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+      ctx.textAlign = "left"; ctx.fillText(r.dayLabel, colDayX, y + 36)
+      ctx.fillStyle = r.early || r.late ? negative : textPrimary
+      ctx.font = "700 18px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+      ctx.fillText(r.name, nameLeftX, y + 36)
+      ctx.fillStyle = r.early ? negative : textPrimary; ctx.font = "800 16px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+      ctx.textAlign = "right"; ctx.fillText(formatMinutesToTime(r.entryMinutes), inRightX, y + 36)
+      ctx.fillStyle = r.late ? negative : textPrimary; ctx.fillText(formatMinutesToTime(r.exitMinutes), outRightX, y + 36)
       const badge = r.early && r.late ? "EARLY + LATE" : r.early ? "EARLY" : r.late ? "LATE" : ""
       if (badge) {
-        const bH = 28; ctx.font = "900 12px Inter,system-ui,sans-serif"
-        const bTW = ctx.measureText(badge).width
-        const bW = Math.min(sW - 12, Math.max(78, bTW + 20))
-        const bX = colS + Math.floor((sW - bW) / 2); const bY = y + Math.floor((rowH - bH) / 2)
-        rrect(ctx, bX, bY, bW, bH, 14)
+        const badgeH = 28; ctx.font = "900 12px Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial"
+        const badgeW = Math.min(statusWidth - 12, Math.max(78, ctx.measureText(badge).width + 20))
+        const badgeX = statusLeftX + Math.floor((statusWidth - badgeW) / 2)
+        const badgeY = y + Math.floor((rowHeight - badgeH) / 2)
+        drawRoundedRect(ctx, badgeX, badgeY, badgeW, badgeH, 14)
         ctx.fillStyle = "rgba(220,53,69,0.14)"; ctx.fill()
-        ctx.strokeStyle = neg; ctx.lineWidth = 1; ctx.stroke()
-        ctx.fillStyle = neg; ctx.textAlign = "center"
-        ctx.fillText(badge, bX + Math.floor(bW / 2), bY + 19)
+        ctx.strokeStyle = negative; ctx.lineWidth = 1; ctx.stroke()
+        ctx.fillStyle = negative; ctx.textAlign = "center"
+        ctx.fillText(badge, badgeX + Math.floor(badgeW / 2), badgeY + 19)
       }
     }
   }
   return canvas.toDataURL("image/png")
 }
 
-// ─── Policy Input ─────────────────────────────────────────────────────────────
+// ─── Input class ──────────────────────────────────────────────────────────────
 
-function PolicyForm({ label, policy, onChange }: { label: string; policy: TimePolicy; onChange: (p: TimePolicy) => void }) {
-  return (
-    <div className="space-y-3">
-      <p className="text-sm font-semibold">{label}</p>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1">
-          <Label className="text-xs">Expected Start</Label>
-          <Input
-            value={policy.expectedStart}
-            onChange={(e) => onChange({ ...policy, expectedStart: e.target.value })}
-            placeholder="07:00 AM"
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">Expected End</Label>
-          <Input
-            value={policy.expectedEnd}
-            onChange={(e) => onChange({ ...policy, expectedEnd: e.target.value })}
-            placeholder="05:00 PM"
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">Early tolerance (min)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={policy.toleranceEarlyMinutes}
-            onChange={(e) => onChange({ ...policy, toleranceEarlyMinutes: +e.target.value || 0 })}
-            className="h-8 text-sm"
-          />
-        </div>
-        <div className="space-y-1">
-          <Label className="text-xs">Late tolerance (min)</Label>
-          <Input
-            type="number"
-            min={0}
-            value={policy.toleranceLateMinutes}
-            onChange={(e) => onChange({ ...policy, toleranceLateMinutes: +e.target.value || 0 })}
-            className="h-8 text-sm"
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
+const inputCls = "h-8 w-full rounded-lg border border-input bg-transparent px-3 py-0 text-sm outline-none dark:bg-input/30 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AutoLogPage() {
-  const fileRef = useRef<HTMLInputElement>(null)
-  const [fileName, setFileName] = useState("")
-  const [csvText, setCsvText] = useState("")
-  const [dragging, setDragging] = useState(false)
-  const [error, setError] = useState("")
-  const [processing, setProcessing] = useState(false)
-  const [stage, setStage] = useState("")
-  const [results, setResults] = useState<(DayResult | WeekendResult)[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const [wdPolicy, setWdPolicy] = useState<TimePolicy>({
-    expectedStart: "07:00 AM",
-    expectedEnd: "05:00 PM",
-    toleranceEarlyMinutes: 0,
-    toleranceLateMinutes: 0,
+  const [fileName,       setFileName]       = useState("")
+  const [csvText,        setCsvText]        = useState("")
+  const [parseError,     setParseError]     = useState("")
+  const [dayResults,     setDayResults]     = useState<(DayResult | WeekendResult)[]>([])
+  const [isProcessing,   setIsProcessing]   = useState(false)
+  const [processingStage, setProcessingStage] = useState("")
+  const [isDragging,     setIsDragging]     = useState(false)
+
+  const [weekdayPolicy, setWeekdayPolicy] = useState<TimePolicy>({
+    expectedStart: "07:00 AM", expectedEnd: "05:00 PM",
+    toleranceEarlyMinutes: 0, toleranceLateMinutes: 0,
   })
-  const [wePolicy, setWePolicy] = useState<TimePolicy>({
-    expectedStart: "08:00 AM",
-    expectedEnd: "05:00 PM",
-    toleranceEarlyMinutes: 0,
-    toleranceLateMinutes: 0,
+  const [weekendPolicy, setWeekendPolicy] = useState<TimePolicy>({
+    expectedStart: "08:00 AM", expectedEnd: "05:00 PM",
+    toleranceEarlyMinutes: 0, toleranceLateMinutes: 0,
   })
 
-  async function pickFile(file: File | null) {
-    setError(""); setResults([])
-    setFileName(file?.name ?? "")
+  const canProcess = useMemo(() => csvText.trim() !== "" && !isProcessing, [csvText, isProcessing])
+
+  async function onPickFile(file: File | null) {
+    setParseError(""); setDayResults([]); setFileName(file?.name || "")
     if (!file) { setCsvText(""); return }
     setCsvText(await file.text())
   }
 
-  function downloadPng(dataUrl: string, name: string) {
-    const a = document.createElement("a")
-    a.href = dataUrl; a.download = name
-    document.body.appendChild(a); a.click(); a.remove()
+  function buildMaps(headers: string[]) {
+    const exact = new Map<string, number>()
+    const loose = new Map<string, number>()
+    headers.forEach((h, i) => { exact.set(normalizeHeaderKey(h), i); loose.set(normalizeHeaderKeyLoose(h), i) })
+    return { exact, loose }
+  }
+
+  function getIdx(maps: ReturnType<typeof buildMaps>, candidates: string[]) {
+    for (const c of candidates) {
+      const found = maps.exact.get(normalizeHeaderKey(c)) ?? maps.loose.get(normalizeHeaderKeyLoose(c))
+      if (found !== undefined) return found
+    }
+    return -1
   }
 
   async function process() {
-    setProcessing(true); setStage("Starting...")
+    setIsProcessing(true); setProcessingStage("Starting...")
     try {
-      setError(""); setResults([])
-      await yieldToUi()
-
-      setStage("Parsing CSV...")
-      const { headers, rows: csvRows } = parseCsv(csvText)
-      const maps = buildIndexMaps(headers)
-
-      const iDate = findCol(maps, ["local_date", "local date", "date"])
-      const iFname = findCol(maps, ["fname", "first_name", "first name", "first"])
-      const iLname = findCol(maps, ["lname", "last_name", "last name", "last"])
-      const iStart = findCol(maps, ["local_start_time", "local start time", "start_time", "start time"])
-      const iEnd = findCol(maps, ["local_end_time", "local end time", "end_time", "end time"])
-
+      setParseError(""); setDayResults([]); await yieldToUi()
+      setProcessingStage("Parsing CSV...")
+      const parsed = parseCsv(csvText)
+      const maps = buildMaps(parsed.headers)
+      const idxDate  = getIdx(maps, ["local_date","local date","date"])
+      const idxFName = getIdx(maps, ["fname","first_name","first name","first"])
+      const idxLName = getIdx(maps, ["lname","last_name","last name","last"])
+      const idxStart = getIdx(maps, ["local_start_time","local start time","start_time","start time"])
+      const idxEnd   = getIdx(maps, ["local_end_time","local end time","end_time","end time"])
       const missing: string[] = []
-      if (iDate < 0) missing.push("local_date")
-      if (iFname < 0) missing.push("fname")
-      if (iLname < 0) missing.push("lname")
-      if (iStart < 0) missing.push("local_start_time")
-      if (iEnd < 0) missing.push("local_end_time")
-      if (missing.length) { setError(`Required columns not found: ${missing.join(", ")}`); return }
+      if (idxDate < 0) missing.push("local_date")
+      if (idxFName < 0) missing.push("fname")
+      if (idxLName < 0) missing.push("lname")
+      if (idxStart < 0) missing.push("local_start_time")
+      if (idxEnd < 0) missing.push("local_end_time")
+      if (missing.length > 0) { setParseError(`Required columns not found: ${missing.join(", ")}`); return }
 
-      setStage("Aggregating...")
-      await yieldToUi()
-      const agg = new Map<string, EmployeeDayAggregate>()
-      let validDate = 0, validName = 0, validTime = 0, total = csvRows.length
-      for (const r of csvRows) {
-        const dateIso = parseDate(r[iDate] ?? "")
-        if (!dateIso) continue; validDate++
-        const fname = (r[iFname] ?? "").trim(), lname = (r[iLname] ?? "").trim()
+      await yieldToUi(); setProcessingStage("Aggregating per employee/day...")
+      const aggregates = new Map<string, EmployeeDayAggregate>()
+      let validDate = 0, validName = 0, validTimes = 0
+      for (const r of parsed.rows) {
+        const dateIso = parseLocalDateToIso(r[idxDate] || ""); if (!dateIso) continue; validDate++
+        const fname = (r[idxFName] || "").trim(), lname = (r[idxLName] || "").trim()
         if (!fname && !lname) continue; validName++
-        const start = parseTime(r[iStart] ?? ""), end = parseTime(r[iEnd] ?? "")
-        if (start == null || end == null) continue; validTime++
+        const start = parseTimeToMinutes(r[idxStart] || ""), end = parseTimeToMinutes(r[idxEnd] || "")
+        if (start == null || end == null) continue; validTimes++
         const key = `${dateIso}__${fname.toLowerCase()}__${lname.toLowerCase()}`
-        const prev = agg.get(key)
-        agg.set(key, prev
-          ? { fname: prev.fname, lname: prev.lname, entryMinutes: Math.min(prev.entryMinutes, start), exitMinutes: Math.max(prev.exitMinutes, end) }
-          : { fname, lname, entryMinutes: start, exitMinutes: end }
-        )
+        const prev = aggregates.get(key)
+        if (!prev) aggregates.set(key, { fname, lname, entryMinutes: start, exitMinutes: end })
+        else aggregates.set(key, { ...prev, entryMinutes: Math.min(prev.entryMinutes, start), exitMinutes: Math.max(prev.exitMinutes, end) })
       }
 
-      if (!agg.size) {
-        setError(`No valid rows found. Total: ${total} | Valid date: ${validDate} | Valid name: ${validName} | Valid time: ${validTime}`)
+      await yieldToUi(); setProcessingStage("Grouping by date...")
+      const byDate = new Map<string, EmployeeDayAggregate[]>()
+      for (const [key, agg] of aggregates) {
+        const d = key.split("__")[0]
+        const list = byDate.get(d) || []; list.push(agg); byDate.set(d, list)
+      }
+      if (byDate.size === 0) {
+        setParseError(`No valid rows found. Total: ${parsed.rows.length}. Valid date: ${validDate}. Valid name: ${validName}. Valid time: ${validTimes}.`)
         return
       }
 
-      setStage("Grouping by date...")
-      await yieldToUi()
-      const byDate = new Map<string, EmployeeDayAggregate[]>()
-      for (const [key, a] of agg.entries()) {
-        const d = key.split("__")[0]
-        const list = byDate.get(d) ?? []
-        list.push(a); byDate.set(d, list)
-      }
+      const wdStart = parseTimeToMinutes(weekdayPolicy.expectedStart)
+      const wdEnd   = parseTimeToMinutes(weekdayPolicy.expectedEnd)
+      const weStart = parseTimeToMinutes(weekendPolicy.expectedStart)
+      const weEnd   = parseTimeToMinutes(weekendPolicy.expectedEnd)
+      if (wdStart == null || wdEnd == null || weStart == null || weEnd == null) { setParseError("Invalid time parameters"); return }
 
-      const wdStart = parseTime(wdPolicy.expectedStart)!
-      const wdEnd = parseTime(wdPolicy.expectedEnd)!
-      const weStart = parseTime(wePolicy.expectedStart)!
-      const weEnd = parseTime(wePolicy.expectedEnd)!
-
-      if (wdStart == null || wdEnd == null || weStart == null || weEnd == null) {
-        setError("Invalid time policy values"); return
-      }
-
-      setStage("Building results...")
-      await yieldToUi()
-      const out: (DayResult | WeekendResult)[] = []
+      await yieldToUi(); setProcessingStage("Filtering and preparing results...")
+      const results: (DayResult | WeekendResult)[] = []
       const consumed = new Set<string>()
-      const sorted = Array.from(byDate.keys()).sort()
+      for (const dateIso of Array.from(byDate.keys()).sort()) {
+        if (consumed.has(dateIso)) continue
+        const idx = getWeekdayIndex(dateIso); if (idx == null) continue
 
-      for (const iso of sorted) {
-        if (consumed.has(iso)) continue
-        const dow = dayOfWeek(iso)
-        if (dow == null) continue
-
-        const isWeekend = dow === 0 || dow === 6
-
-        if (!isWeekend) {
-          // weekday
-          const tolEarly = clamp(wdPolicy.toleranceEarlyMinutes, 0, 600)
-          const tolLate = clamp(wdPolicy.toleranceLateMinutes, 0, 600)
-          const rows = (byDate.get(iso) ?? [])
-            .map<EmployeeResultRow>((e) => {
-              const name = `${e.fname} ${e.lname}`.trim()
-              return { name, entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < wdStart - tolEarly, late: e.exitMinutes > wdEnd + tolLate }
-            })
-            .filter((r) => r.early || r.late)
-            .sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: iso, weekdayLabel: WEEKDAY_LABELS[dow], isWeekend: false, policy: { expectedStartMinutes: wdStart, expectedEndMinutes: wdEnd, toleranceEarlyMinutes: tolEarly, toleranceLateMinutes: tolLate }, rows }
-          day.imageDataUrl = renderDayPng(day)
-          out.push(day)
-          continue
+        if (idx >= 1 && idx <= 5) {
+          const tolE = clampNumber(weekdayPolicy.toleranceEarlyMinutes, 0, 600)
+          const tolL = clampNumber(weekdayPolicy.toleranceLateMinutes, 0, 600)
+          const rows = (byDate.get(dateIso) || [])
+            .map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < wdStart! - tolE, late: e.exitMinutes > wdEnd! + tolL }))
+            .filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: weekdayLabel(idx), isWeekend: false, policy: { expectedStartMinutes: wdStart!, expectedEndMinutes: wdEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
-        if (dow === 6) {
-          // Saturday — try to pair with Sunday
-          const sunIso = addDays(iso, 1)
-          const hasSun = dayOfWeek(sunIso) === 0 && byDate.has(sunIso)
-          const tolEarly = clamp(wePolicy.toleranceEarlyMinutes, 0, 600)
-          const tolLate = clamp(wePolicy.toleranceLateMinutes, 0, 600)
-
-          if (hasSun) {
-            const satRows = (byDate.get(iso) ?? []).map<WeekendEmployeeRow>((e) => ({ dayLabel: "Saturday", name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolEarly, late: e.exitMinutes > weEnd + tolLate })).filter((r) => r.early || r.late)
-            const sunRows = (byDate.get(sunIso) ?? []).map<WeekendEmployeeRow>((e) => ({ dayLabel: "Sunday", name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolEarly, late: e.exitMinutes > weEnd + tolLate })).filter((r) => r.early || r.late)
-            const rows = [...satRows, ...sunRows].sort((a, b) => a.dayLabel === b.dayLabel ? a.name.localeCompare(b.name) : a.dayLabel.localeCompare(b.dayLabel))
-            const wknd: WeekendResult = { type: "weekend", dates: [iso, sunIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolEarly, toleranceLateMinutes: tolLate }, rows }
-            wknd.imageDataUrl = renderWeekendPng(wknd)
-            out.push(wknd); consumed.add(iso); consumed.add(sunIso)
-            continue
+        if (idx === 6) {
+          const sundayIso = addDaysIso(dateIso, 1)
+          const hasSunday = getWeekdayIndex(sundayIso) === 0 && byDate.has(sundayIso)
+          const tolE = clampNumber(weekendPolicy.toleranceEarlyMinutes, 0, 600)
+          const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
+          if (hasSunday) {
+            const mapRow = (dayLabel: string) => (e: EmployeeDayAggregate): WeekendEmployeeRow => ({ dayLabel, name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })
+            const rows = [...(byDate.get(dateIso) || []).map(mapRow("Saturday")).filter(r => r.early || r.late), ...(byDate.get(sundayIso) || []).map(mapRow("Sunday")).filter(r => r.early || r.late)].sort((a, b) => a.dayLabel === b.dayLabel ? a.name.localeCompare(b.name) : a.dayLabel.localeCompare(b.dayLabel))
+            const weekend: WeekendResult = { type: "weekend", dates: [dateIso, sundayIso], label: "Saturday & Sunday", policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+            weekend.imageDataUrl = renderWeekendToPngDataUrl(weekend); results.push(weekend); consumed.add(dateIso); consumed.add(sundayIso); continue
           }
-
-          const rows = (byDate.get(iso) ?? []).map<EmployeeResultRow>((e) => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolEarly, late: e.exitMinutes > weEnd + tolLate })).filter((r) => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: iso, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolEarly, toleranceLateMinutes: tolLate }, rows }
-          day.imageDataUrl = renderDayPng(day)
-          out.push(day)
-          continue
+          const rows = (byDate.get(dateIso) || []).map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Saturday", isWeekend: true, policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
 
-        if (dow === 0) {
-          // Sunday without paired Saturday
-          const tolEarly = clamp(wePolicy.toleranceEarlyMinutes, 0, 600)
-          const tolLate = clamp(wePolicy.toleranceLateMinutes, 0, 600)
-          const rows = (byDate.get(iso) ?? []).map<EmployeeResultRow>((e) => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart - tolEarly, late: e.exitMinutes > weEnd + tolLate })).filter((r) => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
-          const day: DayResult = { type: "weekday", localDate: iso, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart, expectedEndMinutes: weEnd, toleranceEarlyMinutes: tolEarly, toleranceLateMinutes: tolLate }, rows }
-          day.imageDataUrl = renderDayPng(day)
-          out.push(day)
+        if (idx === 0 && !consumed.has(dateIso)) {
+          const tolE = clampNumber(weekendPolicy.toleranceEarlyMinutes, 0, 600)
+          const tolL = clampNumber(weekendPolicy.toleranceLateMinutes, 0, 600)
+          const rows = (byDate.get(dateIso) || []).map(e => ({ name: `${e.fname} ${e.lname}`.trim(), entryMinutes: e.entryMinutes, exitMinutes: e.exitMinutes, early: e.entryMinutes < weStart! - tolE, late: e.exitMinutes > weEnd! + tolL })).filter(r => r.early || r.late).sort((a, b) => a.name.localeCompare(b.name))
+          const day: DayResult = { type: "weekday", localDate: dateIso, weekdayIndex: idx, weekdayLabel: "Sunday", isWeekend: true, policy: { expectedStartMinutes: weStart!, expectedEndMinutes: weEnd!, toleranceEarlyMinutes: tolE, toleranceLateMinutes: tolL }, rows }
+          day.imageDataUrl = renderDayToPngDataUrl(day); results.push(day); continue
         }
       }
 
-      setResults(out)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Unexpected error")
+      await yieldToUi(); setProcessingStage("Rendering PNG images...")
+      for (let i = 0; i < results.length; i++) {
+        const r = results[i]
+        r.imageDataUrl = r.type === "weekend" ? renderWeekendToPngDataUrl(r as WeekendResult) : renderDayToPngDataUrl(r as DayResult)
+        if (i % 2 === 1) await yieldToUi()
+      }
+      setDayResults(results)
+    } catch (err) {
+      setDayResults([]); setParseError(err instanceof Error ? err.message : "Unexpected error")
     } finally {
-      setProcessing(false); setStage("")
+      setIsProcessing(false); setProcessingStage("")
     }
   }
 
-  const totalAlerts = results.reduce((acc, r) => acc + r.rows.length, 0)
+  function downloadPng(dataUrl: string, name: string) {
+    const a = document.createElement("a"); a.href = dataUrl; a.download = name
+    document.body.appendChild(a); a.click(); a.remove()
+  }
+
+  function clear() {
+    setCsvText(""); setDayResults([]); setParseError(""); setFileName("")
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
+      {/* Header */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight">AutoLog</h1>
-        <p className="text-sm text-muted-foreground">CSV attendance analysis — flags early arrivals and late departures</p>
+        <h1 className="text-xl font-semibold tracking-tight">Quickbooks Time Auto Log</h1>
+        <p className="text-sm text-muted-foreground">CSV upload → local processing → per-day PNG image</p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
-        {/* Left: upload + process */}
-        <div className="space-y-4">
-          {/* Drop zone */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">Upload CSV</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div
-                role="button"
-                tabIndex={0}
-                className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed py-10 transition-colors cursor-pointer ${dragging ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"} ${processing ? "pointer-events-none opacity-50" : ""}`}
-                onDragEnter={(e) => { e.preventDefault(); if (!processing) setDragging(true) }}
-                onDragOver={(e) => { e.preventDefault(); if (!processing) setDragging(true) }}
-                onDragLeave={(e) => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragging(false) }}
-                onDrop={(e) => { e.preventDefault(); setDragging(false); if (!processing) void pickFile(e.dataTransfer.files?.[0] ?? null) }}
-                onClick={() => { if (!processing) fileRef.current?.click() }}
-                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileRef.current?.click() }}
-              >
-                <Upload className="mb-3 h-8 w-8 text-muted-foreground" />
-                {fileName ? (
-                  <p className="text-sm font-medium">{fileName}</p>
-                ) : (
-                  <>
-                    <p className="text-sm font-medium">Drag & drop your CSV here</p>
-                    <p className="text-xs text-muted-foreground mt-1">or click to browse</p>
-                  </>
-                )}
-                <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => void pickFile(e.target.files?.[0] ?? null)} disabled={processing} />
-              </div>
-            </CardContent>
-          </Card>
+      <div className="flex items-start gap-4">
+        {/* ── Left panel ── */}
+        <div className="flex w-80 shrink-0 flex-col gap-4">
 
-          {/* Process button + error */}
-          <div className="flex items-center gap-3">
-            <Button onClick={process} disabled={!csvText.trim() || processing}>
-              {processing ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />{stage}</> : <><FileSpreadsheet className="mr-2 h-4 w-4" />Analyze</>}
-            </Button>
-            {csvText && !processing && (
-              <Button variant="ghost" size="sm" onClick={() => { setCsvText(""); setFileName(""); setResults([]); setError("") }}>
-                Clear
-              </Button>
-            )}
+          {/* CSV upload */}
+          <div className="rounded-xl border bg-card p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">CSV</p>
+            <div
+              role="button"
+              tabIndex={0}
+              className={`rounded-lg border-2 border-dashed p-3 transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-border"} ${isProcessing ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+              onDragEnter={e => { e.preventDefault(); if (!isProcessing) setIsDragging(true) }}
+              onDragOver={e => { e.preventDefault(); if (!isProcessing) setIsDragging(true) }}
+              onDragLeave={e => { e.preventDefault(); if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setIsDragging(false) }}
+              onDrop={e => { e.preventDefault(); setIsDragging(false); if (!isProcessing) void onPickFile(e.dataTransfer.files?.[0] || null) }}
+              onClick={() => { if (!isProcessing) fileInputRef.current?.click() }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-sm font-semibold">Drag & drop your CSV here</p>
+                  <p className="text-xs text-muted-foreground">{fileName ? `Selected: ${fileName}` : "No file selected"}</p>
+                </div>
+                <FolderOpen className="h-5 w-5 shrink-0 text-muted-foreground" />
+              </div>
+              <p className="mt-2 text-xs text-muted-foreground">or click to browse</p>
+            </div>
+            <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="hidden" disabled={isProcessing} onChange={e => void onPickFile(e.target.files?.[0] || null)} />
           </div>
 
-          {error && (
-            <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+          {/* Monday–Friday policy */}
+          <div className="rounded-xl border bg-card p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Monday – Friday</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Clock-in</label>
+                <input className={inputCls} placeholder="07:00 AM" disabled={isProcessing} value={weekdayPolicy.expectedStart} onChange={e => setWeekdayPolicy(p => ({ ...p, expectedStart: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Clock-out</label>
+                <input className={inputCls} placeholder="05:00 PM" disabled={isProcessing} value={weekdayPolicy.expectedEnd} onChange={e => setWeekdayPolicy(p => ({ ...p, expectedEnd: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Early tol. (min)</label>
+                <input type="number" min={0} max={600} className={inputCls} disabled={isProcessing} value={weekdayPolicy.toleranceEarlyMinutes} onChange={e => setWeekdayPolicy(p => ({ ...p, toleranceEarlyMinutes: clampNumber(Number(e.target.value), 0, 600) }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Late tol. (min)</label>
+                <input type="number" min={0} max={600} className={inputCls} disabled={isProcessing} value={weekdayPolicy.toleranceLateMinutes} onChange={e => setWeekdayPolicy(p => ({ ...p, toleranceLateMinutes: clampNumber(Number(e.target.value), 0, 600) }))} />
+              </div>
+            </div>
+          </div>
+
+          {/* Saturday / Sunday policy */}
+          <div className="rounded-xl border bg-card p-4">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Saturday / Sunday</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Clock-in</label>
+                <input className={inputCls} placeholder="08:00 AM" disabled={isProcessing} value={weekendPolicy.expectedStart} onChange={e => setWeekendPolicy(p => ({ ...p, expectedStart: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Clock-out</label>
+                <input className={inputCls} placeholder="05:00 PM" disabled={isProcessing} value={weekendPolicy.expectedEnd} onChange={e => setWeekendPolicy(p => ({ ...p, expectedEnd: e.target.value }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Early tol. (min)</label>
+                <input type="number" min={0} max={600} className={inputCls} disabled={isProcessing} value={weekendPolicy.toleranceEarlyMinutes} onChange={e => setWeekendPolicy(p => ({ ...p, toleranceEarlyMinutes: clampNumber(Number(e.target.value), 0, 600) }))} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-muted-foreground">Late tol. (min)</label>
+                <input type="number" min={0} max={600} className={inputCls} disabled={isProcessing} value={weekendPolicy.toleranceLateMinutes} onChange={e => setWeekendPolicy(p => ({ ...p, toleranceLateMinutes: clampNumber(Number(e.target.value), 0, 600) }))} />
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col gap-2">
+            <Button disabled={!canProcess} onClick={() => void process()} className="h-10 w-full">
+              {isProcessing ? <><Loader2 className="h-4 w-4 animate-spin" />Processing…</> : <><Upload className="h-4 w-4" />Process and generate images</>}
+            </Button>
+            {isProcessing && <p className="text-center text-xs text-muted-foreground">{processingStage}</p>}
+            <Button variant="outline" size="sm" disabled={isProcessing} onClick={clear} className="w-full">Clear</Button>
+          </div>
+
+          {parseError && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs font-medium text-destructive">
+              {parseError}
             </div>
           )}
         </div>
 
-        {/* Right: policy */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader><CardTitle className="text-sm">Policy</CardTitle></CardHeader>
-            <CardContent className="space-y-5">
-              <PolicyForm label="Weekdays (Mon–Fri)" policy={wdPolicy} onChange={setWdPolicy} />
-              <div className="border-t" />
-              <PolicyForm label="Weekends (Sat–Sun)" policy={wePolicy} onChange={setWePolicy} />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+        {/* ── Results ── */}
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          {dayResults.length === 0 && !parseError && !isProcessing && (
+            <div className="flex h-40 items-center justify-center rounded-xl border border-dashed bg-muted/20">
+              <p className="text-sm text-muted-foreground">Upload a CSV and click "Process and generate images".</p>
+            </div>
+          )}
 
-      {/* Results */}
-      {results.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold">
-              Results — {results.length} day{results.length !== 1 ? "s" : ""}
-              {totalAlerts > 0 && <Badge variant="destructive" className="ml-2">{totalAlerts} alert{totalAlerts !== 1 ? "s" : ""}</Badge>}
-            </h2>
-          </div>
-
-          {results.map((r, i) => {
-            const title = r.type === "weekend" ? `${r.dates[0]} & ${r.dates[1]} — Saturday & Sunday` : `${r.localDate} — ${r.weekdayLabel}`
-            const fileName = r.type === "weekend" ? `autolog-${r.dates[0]}-weekend.png` : `autolog-${r.localDate}-${r.weekdayLabel.toLowerCase()}.png`
-
+          {dayResults.map(d => {
+            const isWeekend = d.type === "weekend"
+            const key = isWeekend ? (d as WeekendResult).dates.join("&") : (d as DayResult).localDate
+            const title = isWeekend ? `${(d as WeekendResult).dates[0]} & ${(d as WeekendResult).dates[1]} • Saturday & Sunday` : `${(d as DayResult).localDate} • ${(d as DayResult).weekdayLabel}`
+            const meta = `Out of range: ${d.rows.length} • Window: ${formatMinutesToTime(d.policy.expectedStartMinutes)}–${formatMinutesToTime(d.policy.expectedEndMinutes)} • Tolerance: -${d.policy.toleranceEarlyMinutes}/+${d.policy.toleranceLateMinutes} min`
+            const imgUrl = d.imageDataUrl
             return (
-              <Card key={i}>
-                <CardHeader className="flex flex-row items-center justify-between py-3">
-                  <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                  <div className="flex items-center gap-2">
-                    {r.rows.length === 0
-                      ? <Badge variant="outline" className="text-green-600 border-green-300">All clear</Badge>
-                      : <Badge variant="destructive">{r.rows.length} alert{r.rows.length !== 1 ? "s" : ""}</Badge>
-                    }
-                    {r.imageDataUrl && (
-                      <Button variant="outline" size="sm" onClick={() => downloadPng(r.imageDataUrl!, fileName)}>
-                        <Download className="mr-1.5 h-3.5 w-3.5" />PNG
-                      </Button>
-                    )}
+              <div key={key} className="rounded-xl border bg-card p-4">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold">{title}</p>
+                    <p className="text-xs text-muted-foreground">{meta}</p>
                   </div>
-                </CardHeader>
-                {r.rows.length > 0 && (
-                  <CardContent className="pt-0">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          {r.type === "weekend" && <TableHead>Day</TableHead>}
-                          <TableHead>Employee</TableHead>
-                          <TableHead>In</TableHead>
-                          <TableHead>Out</TableHead>
-                          <TableHead>Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {r.rows.map((row, j) => (
-                          <TableRow key={j}>
-                            {r.type === "weekend" && <TableCell className="text-sm text-muted-foreground">{(row as WeekendEmployeeRow).dayLabel}</TableCell>}
-                            <TableCell className="font-medium">{row.name}</TableCell>
-                            <TableCell className={`text-sm ${row.early ? "text-destructive font-semibold" : ""}`}>{fmtTime(row.entryMinutes)}</TableCell>
-                            <TableCell className={`text-sm ${row.late ? "text-destructive font-semibold" : ""}`}>{fmtTime(row.exitMinutes)}</TableCell>
-                            <TableCell>
-                              {row.early && row.late
-                                ? <Badge variant="destructive">Early + Late</Badge>
-                                : row.early
-                                  ? <Badge variant="destructive">Early</Badge>
-                                  : <Badge variant="destructive">Late</Badge>
-                              }
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
+                  <Button variant="outline" size="sm" className="shrink-0" disabled={!imgUrl}
+                    onClick={() => imgUrl && downloadPng(imgUrl, `auto-log_${key}.png`)}>
+                    <Download className="h-3.5 w-3.5" />Download PNG
+                  </Button>
+                </div>
+                {imgUrl && (
+                  <div className="overflow-y-auto rounded-lg border" style={{ maxHeight: "calc(100vh - 16rem)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={imgUrl} alt={`Auto-Log ${key}`} className="w-full" />
+                  </div>
                 )}
-              </Card>
+              </div>
             )
           })}
         </div>
-      )}
+      </div>
     </div>
   )
 }

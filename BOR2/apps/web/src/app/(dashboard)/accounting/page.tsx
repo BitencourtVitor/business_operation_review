@@ -43,7 +43,7 @@ export default function AccountingPage() {
   if (isLoading) return <PageSkeleton />
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-xl font-semibold tracking-tight">Accounting</h1>
         <p className="text-sm text-muted-foreground">

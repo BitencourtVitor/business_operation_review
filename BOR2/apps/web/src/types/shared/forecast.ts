@@ -66,8 +66,12 @@ export interface ForecastFilters {
 
 export function getForecastDisplayStatus(p: ForecastProject): ForecastDisplayStatus {
   if (p.status === "completed" || p.status === "cancelled") return p.status
-  const now = new Date()
-  const end = new Date(p.endDate)
-  if (end < now) return "overdue"
+  if (p.status === "active") return "active"
+  // planned: overdue when the scheduled start date has been reached but work hasn't started
+  if (p.status === "planned" && p.previousStartDate) {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    const start = new Date(p.previousStartDate); start.setHours(0, 0, 0, 0)
+    if (start <= today) return "overdue"
+  }
   return p.status
 }

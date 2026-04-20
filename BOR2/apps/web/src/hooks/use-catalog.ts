@@ -23,3 +23,20 @@ export function useDeleteCatalogItem(table: CatalogTable) {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["catalog", table] }),
   })
 }
+
+export function useUpdateCatalogItem(table: CatalogTable) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Record<string, string> }) =>
+      catalogService.update(table, id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["catalog", table] }),
+  })
+}
+
+export function useReorderContractSteps() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (ids: number[]) => catalogService.reorderContractSteps(ids),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["catalog", "contract-steps"] }),
+  })
+}

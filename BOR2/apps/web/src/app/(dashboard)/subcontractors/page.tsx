@@ -7,7 +7,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select"
 import {
   Table,
@@ -20,7 +19,7 @@ import {
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useSubcontractorPerf } from "@/hooks/use-subcontractor-perf"
 import type { SubcontractorPerfData, ForecastProjectData } from "@/services/subcontractor-perf.service"
-import { Award, BarChart3, TrendingDown, Users } from "lucide-react"
+import { Award, BarChart3, Calendar, TrendingDown, Users } from "lucide-react"
 import { useMemo, useState } from "react"
 
 const CURRENT_YEAR = new Date().getFullYear()
@@ -207,46 +206,48 @@ export default function SubcontractorPerformancePage() {
   if (isLoading) return <PageSkeleton />
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <div>
-        <h1 className="text-xl font-semibold tracking-tight">
-          Subcontractor Performance
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Performance scorecard and ranking
-        </p>
-      </div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Subcontractor Performance</h1>
+          <p className="text-sm text-muted-foreground">Performance scorecard and ranking</p>
+        </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3">
-        <Select value={year} onValueChange={(v) => v && setYear(v)}>
-          <SelectTrigger className="w-[130px]">
-            <SelectValue placeholder="Year" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Years</SelectItem>
-            {YEARS.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={month} onValueChange={(v) => v && setMonth(v)}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Month" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Months</SelectItem>
-            {MONTHS.map((m) => (
-              <SelectItem key={m} value={m}>
-                {m}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-end gap-3">
+          {/* Period */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
+            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+              <div className="flex items-center pl-2.5">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+              <Select value={year} onValueChange={(v) => v && setYear(v)}>
+                <SelectTrigger className="h-8 w-[72px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">
+                    {year === "all" ? "All" : year}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  {YEARS.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <div className="h-4 w-px bg-border" />
+              <Select value={month} onValueChange={(v) => v && setMonth(v)}>
+                <SelectTrigger className="h-8 w-[110px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">
+                    {month === "all" ? "All months" : month}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All months</SelectItem>
+                  {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Summary Cards */}
