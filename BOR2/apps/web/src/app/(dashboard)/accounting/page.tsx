@@ -1,13 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useQBChart, useQBProjects } from "@/hooks/use-qb-accounting"
 import {
-  ResponsiveContainer, LineChart, Line,
+  ResponsiveContainer, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from "recharts"
 import { Calendar, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
@@ -96,6 +96,14 @@ function ProjectCardItem({ project }: { project: ProjectCard }) {
 // ── page ─────────────────────────────────────────────────────────────────────
 
 export default function AccountingPage() {
+  return (
+    <Suspense>
+      <AccountingContent />
+    </Suspense>
+  )
+}
+
+function AccountingContent() {
   const searchParams = useSearchParams()
   const company = searchParams.get("company") || "hvac"
 
@@ -214,9 +222,21 @@ export default function AccountingPage() {
         <CardContent>
           {chartLoading ? (
             <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">Loading…</div>
+          ) : !chartData?.length ? (
+            <div className="h-64 flex items-center justify-center text-muted-foreground text-sm">No data for this period.</div>
           ) : (
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gradReceived" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#22c55e" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0}    />
+                  </linearGradient>
+                  <linearGradient id="gradPaid" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#ef4444" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}    />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis
                   dataKey="period"
@@ -226,9 +246,13 @@ export default function AccountingPage() {
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={fmtShort} width={64} />
                 <Tooltip formatter={(v: number, name: string) => [fmt(v), name]} />
                 <Legend />
-                <Line type="monotone" dataKey="received" name="Received" stroke="#22c55e" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-                <Line type="monotone" dataKey="paid"     name="Paid"     stroke="#ef4444" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
-              </LineChart>
+                <Area type="monotone" dataKey="received" name="Received"
+                  stroke="#22c55e" strokeWidth={2} fill="url(#gradReceived)"
+                  dot={false} activeDot={{ r: 4 }} />
+                <Area type="monotone" dataKey="paid" name="Paid"
+                  stroke="#ef4444" strokeWidth={2} fill="url(#gradPaid)"
+                  dot={false} activeDot={{ r: 4 }} />
+              </AreaChart>
             </ResponsiveContainer>
           )}
         </CardContent>
