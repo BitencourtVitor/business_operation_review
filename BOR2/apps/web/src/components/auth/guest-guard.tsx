@@ -15,7 +15,7 @@ export function GuestGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (hydrated && token) {
-      router.replace("/dashboard")
+      router.replace("/forecast")
     }
   }, [hydrated, token, router])
 
