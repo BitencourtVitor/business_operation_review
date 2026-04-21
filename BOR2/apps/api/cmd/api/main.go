@@ -113,6 +113,7 @@ func main() {
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
+	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
@@ -322,6 +323,11 @@ func main() {
 
 	// Inventory (queries Premium Storage)
 	api.Get("/inventory", inventoryHandler.GetInventory)
+
+	// QuickBooks Accounting (protected)
+	qbAccounting := api.Group("/qb/accounting")
+	qbAccounting.Get("/chart",    qbAccountingHandler.Chart)
+	qbAccounting.Get("/projects", qbAccountingHandler.Projects)
 
 	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect)
 	qb := v1.Group("/qb")
