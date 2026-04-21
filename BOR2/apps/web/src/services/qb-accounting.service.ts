@@ -27,8 +27,7 @@ export const qbAccountingService = {
       year: String(params.year),
       ...(params.month ? { month: String(params.month).padStart(2, "0") } : {}),
     })
-    const res = await api.get<{ data: ChartPoint[] }>(`/api/v1/qb/accounting/chart?${search}`, getToken())
-    return res.data ?? []
+    return (await api.get<ChartPoint[]>(`/api/v1/qb/accounting/chart?${search}`, getToken())) ?? []
   },
 
   async getProjects(params: { company: string; year?: number }): Promise<ProjectCard[]> {
@@ -36,7 +35,6 @@ export const qbAccountingService = {
       company: params.company,
       ...(params.year ? { year: String(params.year) } : {}),
     })
-    const res = await api.get<{ data: ProjectCard[] }>(`/api/v1/qb/accounting/projects?${search}`, getToken())
-    return res.data ?? []
+    return (await api.get<ProjectCard[]>(`/api/v1/qb/accounting/projects?${search}`, getToken())) ?? []
   },
 }
