@@ -1,4 +1,9 @@
-import { apiClient } from "@/lib/api-client"
+import { api } from "@/lib/api"
+import { useAuthStore } from "@/store/auth.store"
+
+function getToken() {
+  return useAuthStore.getState().token ?? ""
+}
 
 export interface ChartPoint {
   period: string
@@ -22,7 +27,7 @@ export const qbAccountingService = {
       year: String(params.year),
       ...(params.month ? { month: String(params.month).padStart(2, "0") } : {}),
     })
-    const res = await apiClient.get<{ data: ChartPoint[] }>(`/qb/accounting/chart?${search}`)
+    const res = await api.get<{ data: ChartPoint[] }>(`/api/v1/qb/accounting/chart?${search}`, getToken())
     return res.data ?? []
   },
 
@@ -31,7 +36,7 @@ export const qbAccountingService = {
       company: params.company,
       ...(params.year ? { year: String(params.year) } : {}),
     })
-    const res = await apiClient.get<{ data: ProjectCard[] }>(`/qb/accounting/projects?${search}`)
+    const res = await api.get<{ data: ProjectCard[] }>(`/api/v1/qb/accounting/projects?${search}`, getToken())
     return res.data ?? []
   },
 }
