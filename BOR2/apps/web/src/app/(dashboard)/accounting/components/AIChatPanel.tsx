@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { X, PenSquare, SendHorizonal, Trash2, Sparkles, PanelLeft, Check } from 'lucide-react'
+import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Columns3, Check, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -30,10 +30,10 @@ const MAX_CHARS = 2000
 const WARN_CHARS = 1800
 
 const loadingMessages = [
-  'Consultando QuickBooks…',
-  'Analisando dados…',
-  'Processando métricas…',
-  'Gerando insights…',
+  'Querying QuickBooks…',
+  'Analyzing data…',
+  'Processing metrics…',
+  'Generating insights…',
 ]
 
 // ── Inline panel (same mechanism as InsightsPanel) ────────────────────────────
@@ -44,8 +44,10 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null)
   const [input, setInput] = useState('')
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [inputVisible, setInputVisible] = useState(false)     // false = lobby/empty state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [optimisticMessage, setOptimisticMessage] = useState<string | null>(null)
   const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
 
@@ -65,20 +67,21 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
   )
 
+  // Input and messages area are visible once the user is "in chat" (past the lobby)
+  const isInChat = inputVisible || !!activeConversationId
+
   // ── Effects ──────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, optimisticMessage])
 
-  // Clear optimistic message only after real messages have loaded
   useEffect(() => {
     if (optimisticMessage && messages.length > 0 && !chatMutation.isPending) {
       setOptimisticMessage(null)
     }
   }, [messages, optimisticMessage, chatMutation.isPending])
 
-  // Cycle loading text
   useEffect(() => {
     if (!optimisticMessage) { setLoadingMsgIdx(0); return }
     const id = setInterval(() => setLoadingMsgIdx((i) => (i + 1) % loadingMessages.length), 1800)
@@ -86,17 +89,12 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   }, [optimisticMessage])
 
   useEffect(() => {
-    if (open) setTimeout(() => textareaRef.current?.focus(), 300)
+    if (!open) setSheetOpen(false)
   }, [open])
 
   useEffect(() => {
     if (editingId) setTimeout(() => editInputRef.current?.focus(), 50)
   }, [editingId])
-
-  // Close sheet when panel closes
-  useEffect(() => {
-    if (!open) setSheetOpen(false)
-  }, [open])
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -123,7 +121,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         refetchMessages()
       }
     } catch {
-      // keep optimistic message visible; isError shows the error state
+      // keep optimistic message visible; isError shows the error
     }
   }
 
@@ -141,31 +139,58 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     el.style.height = Math.min(el.scrollHeight, 24 * 4 + 16) + 'px'
   }
 
+  // Enter new chat mode — from sheet button or empty state
   const handleNewChat = () => {
     setActiveConversationId(null)
+    setInputVisible(true)
     setInput('')
     setSheetOpen(false)
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    setTimeout(() => textareaRef.current?.focus(), 80)
+  }
+
+  // Enter chat from the empty state "+ New" button
+  const handleStartNew = () => {
+    setInputVisible(true)
+    setTimeout(() => textareaRef.current?.focus(), 80)
   }
 
   const handleSelectConversation = (id: string) => {
     setActiveConversationId(id)
+    setInputVisible(true)
     setSheetOpen(false)
+    setDeletingId(null)
+    setEditingId(null)
   }
 
-  const handleDeleteConversation = (e: React.MouseEvent, id: string) => {
+  // Delete flow: request → confirm / cancel
+  const handleRequestDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation()
+    setDeletingId(id)
+    setEditingId(null)
+  }
+
+  const handleConfirmDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation()
     deleteMutation.mutate(id, {
       onSuccess: () => {
         if (activeConversationId === id) setActiveConversationId(null)
+        setDeletingId(null)
       },
     })
   }
 
+  const handleCancelDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setDeletingId(null)
+  }
+
+  // Rename flow
   const handleStartEdit = (e: React.MouseEvent, conv: AIConversation) => {
     e.stopPropagation()
     setEditingId(conv.id)
     setEditingTitle(conv.title)
+    setDeletingId(null)
   }
 
   const handleSaveTitle = (id: string) => {
@@ -198,7 +223,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
       style={{ backgroundColor: 'color-mix(in oklab, var(--color-card) 60%, transparent)' }}
     >
 
-      {/* ── Internal sheet (slides from left inside the container) ── */}
+      {/* ── Internal sheet ── */}
       <div
         className={cn(
           'absolute inset-0 z-20 transition-all duration-300',
@@ -225,14 +250,13 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         >
           {/* Sheet header */}
           <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5">
-            <span className="text-xs font-semibold">Conversas</span>
+            <span className="text-xs font-semibold text-foreground">Conversations</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleNewChat}
-                title="Nova conversa"
-                className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:text-foreground"
+                className="flex h-6 items-center gap-1 rounded px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
-                <PenSquare className="h-3.5 w-3.5" />
+                + New
               </button>
               <button
                 onClick={() => setSheetOpen(false)}
@@ -247,66 +271,104 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           <div className="flex-1 overflow-y-auto py-1">
             {sortedConversations.length === 0 && (
               <p className="mt-6 px-3 text-center text-xs text-muted-foreground">
-                Nenhuma conversa ainda
+                No conversations yet
               </p>
             )}
-            {sortedConversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={cn(
-                  'group mx-1 flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-2 text-xs transition-colors hover:bg-muted',
-                  activeConversationId === conv.id && 'bg-muted',
-                )}
-                onClick={() => handleSelectConversation(conv.id)}
-                title={conv.title}
-              >
-                {editingId === conv.id ? (
-                  <>
-                    <input
-                      ref={editInputRef}
-                      className="min-w-0 flex-1 border-b border-primary bg-transparent text-xs outline-none"
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveTitle(conv.id)
-                        if (e.key === 'Escape') { setEditingId(null); setEditingTitle('') }
-                      }}
-                      onBlur={() => handleSaveTitle(conv.id)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <button
-                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-primary hover:text-primary/80"
-                      onClick={(e) => { e.stopPropagation(); handleSaveTitle(conv.id) }}
-                    >
-                      <Check className="h-3 w-3" />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span className={cn('flex-1 truncate', activeConversationId === conv.id && 'font-medium')}>
-                      {conv.title}
-                    </span>
-                    {/* Actions — visible on hover */}
-                    <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                      <button
-                        className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/60 hover:text-foreground"
-                        onClick={(e) => handleStartEdit(e, conv)}
-                        title="Renomear"
-                      >
-                        <PenSquare className="h-3 w-3" />
-                      </button>
-                      <button
-                        className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/60 hover:text-destructive"
-                        onClick={(e) => handleDeleteConversation(e, conv.id)}
-                        title="Excluir"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+            {sortedConversations.map((conv) => {
+              const isEditing = editingId === conv.id
+              const isDeleting = deletingId === conv.id
+              const isSaving = updateTitleMutation.isPending && editingId === null && updateTitleMutation.variables?.id === conv.id
+
+              return (
+                <div
+                  key={conv.id}
+                  className={cn(
+                    'group mx-1 flex min-h-[32px] cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-xs transition-colors',
+                    activeConversationId === conv.id ? 'bg-muted' : 'hover:bg-muted',
+                  )}
+                  onClick={() => !isEditing && !isDeleting && handleSelectConversation(conv.id)}
+                  title={conv.title}
+                >
+                  {isEditing ? (
+                    /* ── Rename mode ── */
+                    <>
+                      <input
+                        ref={editInputRef}
+                        className="min-w-0 flex-1 border-b border-primary bg-transparent text-xs outline-none"
+                        value={editingTitle}
+                        onChange={(e) => setEditingTitle(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleSaveTitle(conv.id)
+                          if (e.key === 'Escape') { setEditingId(null); setEditingTitle('') }
+                        }}
+                        onBlur={() => handleSaveTitle(conv.id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      {isSaving ? (
+                        <Loader2 className="h-3 w-3 shrink-0 animate-spin text-muted-foreground" />
+                      ) : (
+                        <button
+                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-primary hover:text-primary/80"
+                          onClick={(e) => { e.stopPropagation(); handleSaveTitle(conv.id) }}
+                        >
+                          <Check className="h-3 w-3" />
+                        </button>
+                      )}
+                    </>
+                  ) : isDeleting ? (
+                    /* ── Delete confirmation ── */
+                    <>
+                      <span className="flex-1 truncate text-muted-foreground">{conv.title}</span>
+                      <div className="flex shrink-0 items-center gap-0.5">
+                        {deleteMutation.isPending && deleteMutation.variables === conv.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                        ) : (
+                          <>
+                            <button
+                              className="flex h-5 w-5 items-center justify-center rounded text-destructive hover:bg-destructive/10"
+                              onClick={(e) => handleConfirmDelete(e, conv.id)}
+                              title="Confirm delete"
+                            >
+                              <Check className="h-3 w-3" />
+                            </button>
+                            <button
+                              className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground"
+                              onClick={handleCancelDelete}
+                              title="Cancel"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    /* ── Default ── */
+                    <>
+                      <span className={cn('flex-1 truncate', activeConversationId === conv.id && 'font-medium')}>
+                        {conv.title}
+                      </span>
+                      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                        <button
+                          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/60 hover:text-foreground"
+                          onClick={(e) => handleStartEdit(e, conv)}
+                          title="Rename"
+                        >
+                          <PenSquare className="h-3 w-3" />
+                        </button>
+                        <button
+                          className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground/60 hover:text-destructive"
+                          onClick={(e) => handleRequestDelete(e, conv.id)}
+                          title="Delete"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -316,30 +378,24 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
         {/* Header */}
         <div className="flex shrink-0 items-center gap-2 border-b border-border px-3 py-2.5">
-          {/* Sheet trigger */}
           <button
             onClick={() => setSheetOpen(true)}
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:text-foreground"
-            title="Conversas"
           >
-            <PanelLeft className="h-3.5 w-3.5" />
+            <Columns3 className="h-3.5 w-3.5" />
           </button>
 
-          {/* Brand */}
           <div className="flex shrink-0 items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="text-sm font-semibold">Aria</span>
           </div>
 
-          {/* Vertical divider */}
           <div className="h-4 w-px shrink-0 bg-border" />
 
-          {/* Conversation title */}
           <span className="flex-1 truncate text-xs text-muted-foreground">
-            {activeConversation?.title ?? 'Nova conversa'}
+            {activeConversation?.title ?? 'New conversation'}
           </span>
 
-          {/* Close */}
           <button
             onClick={onClose}
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:text-foreground"
@@ -348,15 +404,40 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           </button>
         </div>
 
-        {/* Messages */}
+        {/* Messages or lobby */}
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
-          {!activeConversationId && messages.length === 0 && !optimisticMessage ? (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
-              <Sparkles className="h-7 w-7 opacity-30" />
-              <p className="text-xs">Inicie uma conversa</p>
+          {!isInChat ? (
+            /* ── Lobby / empty state ── */
+            <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+              <Sparkles className="h-7 w-7 text-muted-foreground opacity-25" />
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-medium">How can I help you?</p>
+                <p className="text-xs text-muted-foreground">Ask about cash flow, projects, billing, or forecasts.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSheetOpen(true)}
+                  className="flex h-7 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  Conversations
+                </button>
+                <button
+                  onClick={handleStartNew}
+                  className="flex h-7 items-center gap-1 rounded-lg border border-primary/40 bg-primary/10 px-3 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  + New
+                </button>
+              </div>
             </div>
           ) : (
+            /* ── Chat view ── */
             <>
+              {messages.length === 0 && !optimisticMessage && (
+                <div className="flex flex-1 items-center justify-center">
+                  <p className="text-xs text-muted-foreground/50">Ask me anything about your finances</p>
+                </div>
+              )}
+
               {messages.map((msg) => {
                 const isUser = msg.role === 'user'
                 const content = getMessageContent(msg)
@@ -404,10 +485,10 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 </div>
               )}
 
-              {/* Error state */}
+              {/* Error */}
               {chatMutation.isError && optimisticMessage && (
                 <p className="px-1 text-[10px] text-destructive">
-                  {(chatMutation.error as Error)?.message || 'Falha ao enviar'}
+                  {(chatMutation.error as Error)?.message || 'Failed to send'}
                 </p>
               )}
 
@@ -437,41 +518,43 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           )}
         </div>
 
-        {/* Input */}
-        <div className="shrink-0 border-t border-border px-2 py-2">
-          <div className="flex items-end gap-1.5">
-            <Textarea
-              ref={textareaRef}
-              value={input}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Pergunte à Aria…"
-              className="min-h-[36px] max-h-[96px] flex-1 resize-none py-2 text-xs leading-5"
-              rows={1}
-              disabled={chatMutation.isPending}
-            />
-            <Button
-              size="icon"
-              className="h-9 w-9 shrink-0"
-              onClick={handleSend}
-              disabled={!input.trim() || chatMutation.isPending || overLimit}
-            >
-              <SendHorizonal className="h-3.5 w-3.5" />
-            </Button>
+        {/* Input — only in chat mode */}
+        {isInChat && (
+          <div className="shrink-0 border-t border-border px-2 py-2">
+            <div className="flex items-end gap-1.5">
+              <Textarea
+                ref={textareaRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask Aria…"
+                className="min-h-[36px] max-h-[96px] flex-1 resize-none py-2 text-xs leading-5"
+                rows={1}
+                disabled={chatMutation.isPending}
+              />
+              <Button
+                size="icon"
+                className="h-9 w-9 shrink-0"
+                onClick={handleSend}
+                disabled={!input.trim() || chatMutation.isPending || overLimit}
+              >
+                <SendHorizonal className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div className="mt-1 flex justify-end">
+              <span className={cn('text-[10px] tabular-nums transition-colors', nearLimit ? 'text-destructive' : 'text-muted-foreground')}>
+                {charCount}/{MAX_CHARS}
+              </span>
+            </div>
           </div>
-          <div className="mt-1 flex justify-end">
-            <span className={cn('text-[10px] tabular-nums transition-colors', nearLimit ? 'text-destructive' : 'text-muted-foreground')}>
-              {charCount}/{MAX_CHARS}
-            </span>
-          </div>
-        </div>
+        )}
 
       </div>
     </div>
   )
 }
 
-// ── useAria hook (mirrors useInsights pattern) ────────────────────────────────
+// ── useAria hook ──────────────────────────────────────────────────────────────
 
 export function useAria(config: AriaConfig) {
   const [open, setOpen] = useState(false)
