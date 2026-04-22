@@ -6,17 +6,29 @@ import (
 )
 
 type AIChatHandler struct {
-	svc *service.AIService
+	svc     *service.AIService
+	authSvc *service.AuthService
 }
 
-func NewAIChatHandler(svc *service.AIService) *AIChatHandler {
-	return &AIChatHandler{svc: svc}
+func NewAIChatHandler(svc *service.AIService, authSvc *service.AuthService) *AIChatHandler {
+	return &AIChatHandler{svc: svc, authSvc: authSvc}
+}
+
+// resolveUserID extracts the token from Fiber locals (set by RequireAuth middleware)
+// and resolves the user ID via a session lookup — same pattern as other handlers.
+func (h *AIChatHandler) resolveUserID(c *fiber.Ctx) (string, error) {
+	token, _ := c.Locals("token").(string)
+	user, err := h.authSvc.GetUserByToken(c.Context(), token)
+	if err != nil {
+		return "", err
+	}
+	return user.ID, nil
 }
 
 // POST /api/v1/ai/chat
 func (h *AIChatHandler) Chat(c *fiber.Ctx) error {
-	userID, _ := actor(c)
-	if userID == "" {
+	userID, err := h.resolveUserID(c)
+	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
 	}
 
@@ -37,8 +49,8 @@ func (h *AIChatHandler) Chat(c *fiber.Ctx) error {
 
 // GET /api/v1/ai/conversations?company=
 func (h *AIChatHandler) ListConversations(c *fiber.Ctx) error {
-	userID, _ := actor(c)
-	if userID == "" {
+	userID, err := h.resolveUserID(c)
+	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
 	}
 	company := c.Query("company")
@@ -55,8 +67,8 @@ func (h *AIChatHandler) ListConversations(c *fiber.Ctx) error {
 
 // DELETE /api/v1/ai/conversations/:id
 func (h *AIChatHandler) DeleteConversation(c *fiber.Ctx) error {
-	userID, _ := actor(c)
-	if userID == "" {
+	userID, err := h.resolveUserID(c)
+	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
 	}
 	id := c.Params("id")
@@ -68,8 +80,8 @@ func (h *AIChatHandler) DeleteConversation(c *fiber.Ctx) error {
 
 // PATCH /api/v1/ai/conversations/:id/title
 func (h *AIChatHandler) UpdateTitle(c *fiber.Ctx) error {
-	userID, _ := actor(c)
-	if userID == "" {
+	userID, err := h.resolveUserID(c)
+	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
 	}
 	id := c.Params("id")
@@ -89,8 +101,8 @@ func (h *AIChatHandler) UpdateTitle(c *fiber.Ctx) error {
 
 // GET /api/v1/ai/conversations/:id/messages
 func (h *AIChatHandler) ListMessages(c *fiber.Ctx) error {
-	userID, _ := actor(c)
-	if userID == "" {
+	userID, err := h.resolveUserID(c)
+	if err != nil {
 		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
 	}
 	id := c.Params("id")
@@ -101,7 +113,7 @@ func (h *AIChatHandler) ListMessages(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": msgs})
 }
 
-// GET /api/v1/ai/context/:company  (admin)
+// GET /api/v1/ai/context/:company
 func (h *AIChatHandler) GetContext(c *fiber.Ctx) error {
 	company := c.Params("company")
 	ctx, err := h.svc.GetCompanyContext(c.Context(), company)
@@ -111,7 +123,7 @@ func (h *AIChatHandler) GetContext(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"data": ctx})
 }
 
-// PATCH /api/v1/ai/context/:company  (admin)
+// PATCH /api/v1/ai/context/:company
 func (h *AIChatHandler) UpsertContext(c *fiber.Ctx) error {
 	company := c.Params("company")
 	var body struct {
