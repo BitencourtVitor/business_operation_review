@@ -16,7 +16,7 @@ import { fmtDate, STATUS_CONFIG } from "./lib"
 
 // ── Action Plan Edit Form ─────────────────────────────────────────────────────
 
-const EMPTY_STEP = { titulo: "", responsavel: "", status: "pending" as const, dataLimite: "" }
+const EMPTY_STEP: { titulo: string; responsavel: string; status: "pending" | "in_progress" | "done"; dataLimite: string } = { titulo: "", responsavel: "", status: "pending", dataLimite: "" }
 const EMPTY_PLAN = { titulo: "", descricao: "", dataInicio: "", dataFim: "", acoes: [{ ...EMPTY_STEP }] }
 
 export function PlanoEditForm({

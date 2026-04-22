@@ -117,7 +117,7 @@ export function PermitFilters({
         {/* Situation */}
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Situation</span>
-          <Select value={situation} onValueChange={onSituationChange}>
+          <Select value={situation} onValueChange={v => { if (v) onSituationChange(v) }}>
             <SelectTrigger className="h-8 w-[148px] rounded-lg border border-input bg-transparent px-2.5 text-sm shadow-none ring-0 focus-visible:ring-0 dark:bg-input/30">
               <span className="flex flex-1 items-center gap-1.5 truncate text-left">
                 {SIT_OPTIONS.find(o => o.value === situation)?.icon}

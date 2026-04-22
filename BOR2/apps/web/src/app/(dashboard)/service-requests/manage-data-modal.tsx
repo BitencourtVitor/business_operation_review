@@ -198,10 +198,11 @@ function Td({ children, center, muted, date, first, className = '' }: {
   )
 }
 
-function EditTd({ children, date, first, className = '' }: {
+function EditTd({ children, date, first, center, className = '' }: {
   children:   React.ReactNode
   date?:      boolean
   first?:     boolean
+  center?:    boolean
   className?: string
 }) {
   return (
@@ -349,8 +350,8 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
     if (!sortCol) return base
     return [...base].sort((a, b) => {
-      const va = (a as Record<string, unknown>)[sortCol] ?? ''
-      const vb = (b as Record<string, unknown>)[sortCol] ?? ''
+      const va = (a as unknown as Record<string, unknown>)[sortCol] ?? ''
+      const vb = (b as unknown as Record<string, unknown>)[sortCol] ?? ''
       if (va === '' && vb === '') return 0
       if (va === '') return 1
       if (vb === '') return -1
@@ -510,7 +511,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
           <ThemeToggle />
 
-          {user?.role === 'dev' && (
+          {(user?.role as string) === 'dev' && (
             <button
               onClick={syncSheet}
               disabled={syncingSheet}

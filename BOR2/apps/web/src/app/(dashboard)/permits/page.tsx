@@ -30,7 +30,7 @@ export default function PermitsPage() {
   const { user }          = useAuth()
   const { data: myPerms } = useMyPermissions()
 
-  const canManage = user?.role === 'dev' || myPerms?.permissions?.['permits'] === 'write'
+  const canManage = (user?.role as string) === 'dev' || myPerms?.permissions?.['permits'] === 'write'
 
   const [primaryHex, setPrimaryHex] = useState('#6366f1')
   const [manageOpen, setManageOpen] = useState(false)

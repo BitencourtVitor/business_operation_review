@@ -265,7 +265,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient()
   const { data: permits = [], isLoading } = usePermits()
   const { user } = useAuth()
-  const isDev = user?.role === 'dev'
+  const isDev = (user?.role as string) === 'dev'
 
   const [search,      setSearch]      = useState('')
   const [hideIssued,  setHideIssued]  = useState(false)
@@ -326,8 +326,8 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
         const rank = (p: Permit) => SIT_RANK[calcSituacao(p.solicitacao, p.aplicacao, p.emissao)] ?? 99
         cmp = rank(a) - rank(b)
       } else {
-        const va = (a as Record<string, unknown>)[sortCol] ?? ''
-        const vb = (b as Record<string, unknown>)[sortCol] ?? ''
+        const va = (a as unknown as Record<string, unknown>)[sortCol] ?? ''
+        const vb = (b as unknown as Record<string, unknown>)[sortCol] ?? ''
         if (va === '' && vb === '') return 0
         if (va === '') return 1
         if (vb === '') return -1
