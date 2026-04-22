@@ -109,8 +109,13 @@ qb_vendor_credit_lines — Line items from vendor credits. Negative cost adjustm
   Also required: always include "general" alongside "forecast".
 
 "greeting"
-  No queries. Use ONLY when the message has zero financial intent.
-  Examples: "olá", "oi", "bom dia", "obrigado", "ok", "entendi", "perfeito", "valeu", "show".
+  No queries. Use for:
+  - Greetings and small talk: "olá", "oi", "bom dia", "obrigado", "ok", "entendi", "perfeito", "valeu", "show"
+  - Short follow-up questions that reference something already discussed: "e percentualmente?", "e em %?",
+    "qual a porcentagem?", "e ele?", "e isso?", "como assim?", "pode detalhar?", "explica melhor",
+    "e os outros?", "e o restante?", "quanto isso representa?", "em relação a quê?"
+  - Confirmations and reactions: "certeza?", "sério?", "mesmo?", "tem certeza?"
+  These messages rely on conversation history — no new data is needed.
   NEVER combine with any financial category.
 
 ━━━ RULES ━━━
@@ -121,7 +126,8 @@ qb_vendor_credit_lines — Line items from vendor credits. Negative cost adjustm
 4. Return multiple categories when the question spans multiple topics
 5. Prefer specific categories over "general" when intent is clear
 6. Default to ["general"] for any financial question that doesn't fit a specific category
-7. The user may write in Portuguese or English — handle both equally`
+7. The user may write in Portuguese or English — handle both equally
+8. Short messages using pronouns like "isso", "ele", "ela", "eles" without a new financial topic = "greeting" (answer from context)`
 
 // classifyWithLLM calls a lightweight LLM to classify the user message.
 // Falls back to ["general"] on any error.
