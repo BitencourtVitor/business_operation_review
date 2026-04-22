@@ -76,10 +76,10 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   }, [messages, optimisticMessage, chatMutation.isPending])
 
   useEffect(() => {
-    if (!chatMutation.isPending) { setLoadingMsgIdx(0); return }
+    if (!optimisticMessage) { setLoadingMsgIdx(0); return }
     const id = setInterval(() => setLoadingMsgIdx((i) => (i + 1) % loadingMessages.length), 1800)
     return () => clearInterval(id)
-  }, [chatMutation.isPending])
+  }, [optimisticMessage])
 
   useEffect(() => {
     if (open) setTimeout(() => textareaRef.current?.focus(), 300)
@@ -324,8 +324,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   </p>
                 )}
 
-                {/* Aria loading indicator */}
-                {chatMutation.isPending && (
+                {/* Aria loading indicator — shown until real messages arrive (covers HTTP gap + refetch gap) */}
+                {optimisticMessage !== null && !chatMutation.isError && (
                   <div className="flex flex-col items-start gap-0.5">
                     <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
                     <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
