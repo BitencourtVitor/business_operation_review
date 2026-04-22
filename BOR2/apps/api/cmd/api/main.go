@@ -115,7 +115,9 @@ func main() {
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
-	aiChatHandler            := handler.NewAIChatHandler(service.NewAIService(db, service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model), cfg.AI.Model), authService)
+	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
+	aiClassifierLLM         := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.ClassifierModel)
+	aiChatHandler           := handler.NewAIChatHandler(service.NewAIService(db, aiLLM, aiClassifierLLM, cfg.AI.Model), authService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{

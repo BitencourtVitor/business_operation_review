@@ -27,10 +27,11 @@ When a financially relevant question is asked, structured data is automatically 
 Available data sets and what they cover:
 • Cash Flow (last 12 months) — monthly received (customer payments), paid (vendor bill payments), and invoiced amounts
 • Open Pipeline — active estimates not yet closed or rejected, with customer, value, and status
-• Overdue Invoices — invoices past due date with outstanding balance and days overdue
+• Overdue Invoices (receivables) — customer invoices past due date with outstanding balance and days overdue
+• Overdue Bills (payables) — vendor bills past due date with outstanding balance and days overdue
 • Project Financial Summary — per-project breakdown: estimate vs invoiced vs expenses vs gross margin
 • Forecast — current pipeline total + historical monthly revenue + seasonality averages for next 3 months
-• Recent Invoices / Recent Bills — latest 20 invoices and vendor bills
+• Recent Invoices / Recent Bills — latest 20 invoices and vendor bills regardless of payment status
 • YTD Financial Snapshot — year-to-date totals: invoiced, received, paid, pipeline
 
 If data was retrieved but is empty, say so honestly. If no data was retrieved for a question, answer from context or say you need a more specific question.
@@ -42,6 +43,17 @@ CRITICAL: Never ask the user for data you already have. If financial data is pre
 Use data when the user asks something financial — even indirectly ("how are we doing?", "any problems?", "tô preocupado com o caixa").
 Do NOT use data for greetings, small talk, confirmations, or off-topic questions. Just respond naturally.
 If the question is ambiguous, ask one short clarifying question before pulling conclusions.
+
+━━━ FORECAST AND OUTLOOK QUESTIONS ━━━
+
+When asked about year-end results, targets, or projections: always commit to a verdict. Calculate using the data you have — do not just list it. Structure: current position → projection → risks → one-sentence conclusion. Risks must be specific and quantified from the actual data, never generic.
+
+━━━ HOW TO ANSWER RISK QUESTIONS ━━━
+
+When the user asks "onde estão os riscos", "what are the risks", or similar:
+- Never give generic answers ("market conditions", "economic uncertainty")
+- Risks must come from the actual data: overdue receivables aging, pipeline not converting, expense spikes, months with negative net flow, projects with losses
+- Quantify each risk with the actual dollar amount at stake
 
 ━━━ BOUNDARIES ━━━
 
@@ -60,6 +72,7 @@ You only discuss financials for {{COMPANY}}. You do not:
 - When uncertain about data, say so. When data is missing, say so. Never fabricate.
 - If the user is vague or informal, interpret charitably and respond — don't demand perfect phrasing
 - Short conversational messages get short conversational replies
+- Conclude analytical responses with a clear bottom line — don't leave the user to draw their own conclusions from raw numbers
 
 ━━━ COMPANY CONTEXT ━━━
 
@@ -73,11 +86,13 @@ type AIService struct {
 	model   string
 }
 
-func NewAIService(db *pgxpool.Pool, llm *OpenRouterClient, model string) *AIService {
+// NewAIService wires the service. classifierLLM is a lightweight model used only
+// for intent classification; llm is the full model used to generate responses.
+func NewAIService(db *pgxpool.Pool, llm, classifierLLM *OpenRouterClient, model string) *AIService {
 	return &AIService{
 		db:      db,
 		llm:     llm,
-		planner: NewAIQueryPlanner(db),
+		planner: NewAIQueryPlanner(db, classifierLLM),
 		model:   model,
 	}
 }
@@ -386,12 +401,30 @@ func (s *AIService) buildContext(ctx context.Context, convID, company, synthesiz
 	if dataText != "" {
 		userContent += "\n\n[Financial data retrieved for this question]\n" + dataText
 	}
+
+	// Inject a reminder when forecast data is present — the model tends to list
+	// data without concluding unless reminded immediately before generating.
+	if isForecastContext(queryResults) {
+		userContent += "\n\n[INSTRUCTION: The question above asks for a forward-looking assessment. Do NOT stop after listing data. You MUST: (1) calculate a projected net result using the numbers above, (2) state a clear verdict — positive or negative — with the key number that drives it, (3) list 2-4 specific risks found in the data with dollar amounts, (4) close with a one-sentence bottom line. Complete all four parts.]"
+	}
+
 	msgs = append(msgs, ChatMessage{Role: "user", Content: userContent})
 
 	return msgs, nil
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
+
+// isForecastContext returns true when the query results include forecast datasets,
+// signalling that the model should produce a full analytical response.
+func isForecastContext(results []QueryResult) bool {
+	for _, r := range results {
+		if strings.Contains(r.Label, "Historical") || strings.Contains(r.Label, "Seasonality") || strings.Contains(r.Label, "Pipeline") {
+			return true
+		}
+	}
+	return false
+}
 
 // synthesizeInput condenses a user message for context storage.
 // For messages ≤120 chars we keep them as-is; longer ones are trimmed to key sentences.

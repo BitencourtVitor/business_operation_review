@@ -261,7 +261,7 @@ function NavGroupItems({
                   />
                 </SidebarMenuButton>
                 {isItemExpanded(item) && (
-                  <SidebarMenuSub>
+                  <SidebarMenuSub className="gap-1 py-1">
                     {item.children.map((child) => (
                       <SidebarMenuSubItem key={child.title + child.href}>
                         <SidebarMenuSubButton

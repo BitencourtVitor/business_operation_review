@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -17,11 +19,12 @@ type QueryResult struct {
 
 // AIQueryPlanner classifies a user message and runs relevant DB queries.
 type AIQueryPlanner struct {
-	db *pgxpool.Pool
+	db  *pgxpool.Pool
+	llm *OpenRouterClient
 }
 
-func NewAIQueryPlanner(db *pgxpool.Pool) *AIQueryPlanner {
-	return &AIQueryPlanner{db: db}
+func NewAIQueryPlanner(db *pgxpool.Pool, llm *OpenRouterClient) *AIQueryPlanner {
+	return &AIQueryPlanner{db: db, llm: llm}
 }
 
 type queryCategory string
@@ -37,77 +40,146 @@ const (
 	catGreeting queryCategory = "greeting" // no DB queries needed
 )
 
-var greetingKeywords = []string{
-	"olá", "ola", "oi ", "oi,", "oi!", "oi.", "hello", "hi ", "hi,", "hi!", "hey",
-	"bom dia", "boa tarde", "boa noite", "tudo bem", "tudo bom", "good morning", "good afternoon",
-	// short follow-ups / confirmations that carry no financial intent
-	"certeza", "tem certeza", "sure?", "really?", "sério", "serio", "mesmo?",
-	"obrigado", "obrigada", "thanks", "thank you", "ok", "okay", "entendi", "entendido",
-	"show", "ótimo", "otimo", "perfeito", "legal", "certo", "blz", "valeu",
-}
+const classifySystemPrompt = `You are the query router for Aria, a financial assistant for Premium Group — a US-based construction company.
+Your ONLY job: decide which query tools to run based on the user's message, then return their names as a JSON array.
+Output NOTHING except a valid JSON array. No explanation, no prose, no markdown fences.
 
-var categoryKeywords = map[queryCategory][]string{
-	catCashFlow: {"cash", "caixa", "fluxo", "received", "paid", "pagamento", "recebido", "net", "revenue", "receita", "expense", "despesa"},
-	catPipeline: {"pipeline", "estimate", "orçamento", "projeto", "project", "andamento", "open", "aberto", "backlog"},
-	catOverdue:  {"overdue", "vencido", "atraso", "late", "pending", "pendente", "unpaid", "não pago", "aging"},
-	catProject:  {"project detail", "detalhe", "specific", "específico", "margin", "margem", "cost", "custo"},
-	catForecast: {
-		"forecast", "previsão", "predict", "futuro", "future", "next month", "próximo", "projection", "projeção", "season",
-		"fecha o ano", "fechar o ano", "ano positivo", "positivo no ano", "no positivo", "break even", "breakeven",
-		"end of year", "close the year", "annual", "anual", "rest of the year", "resto do ano",
-		"vai fechar", "vamos fechar", "conseguimos", "consegue fechar", "bater a meta",
-	},
-	catBilling:  {"invoice", "bill", "nota", "fatura", "vendor", "fornecedor", "payment history", "histórico"},
-}
+━━━ QUICKBOOKS DATA AVAILABLE ━━━
 
-// isGreeting returns true for short messages that are purely social (no financial intent).
-func isGreeting(msg string) bool {
-	trimmed := strings.TrimSpace(strings.ToLower(msg))
-	// pure greeting: short message containing a greeting keyword but no financial terms
-	if len([]rune(trimmed)) > 60 {
-		return false
-	}
-	for _, kw := range greetingKeywords {
-		if strings.Contains(" "+trimmed+" ", kw) || trimmed == strings.TrimSpace(kw) {
-			return true
-		}
-	}
-	return false
-}
+The following tables are synced daily from QuickBooks. Understanding them helps you pick the right tool.
 
-func classifyMessage(msg string) []queryCategory {
-	if isGreeting(msg) {
-		return []queryCategory{catGreeting}
+qb_payments        — Money RECEIVED from customers. Each row = one customer payment. Fields: txn_date, total_amount, customer_name.
+qb_bill_payments   — Money PAID to vendors. Each row = one vendor payment made. Fields: txn_date, total_amount.
+qb_invoices        — Invoices ISSUED to customers. Fields: doc_number, txn_date, due_date, customer_name, total_amount, balance.
+                     balance > 0 means partially or fully unpaid. due_date < today + balance > 0 = overdue receivable.
+qb_estimates       — Project estimates / quotes sent to customers. Fields: doc_number, txn_date, txn_status, accepted_date, customer_name, total_amount.
+                     txn_status: Pending, Accepted, Closed, Rejected. Active pipeline = NOT Closed AND NOT Rejected.
+qb_bills           — Bills RECEIVED from vendors (money we owe). Fields: doc_number, txn_date, due_date, vendor_name, total_amount, balance.
+                     balance > 0 = unpaid. due_date < today + balance > 0 = overdue payable.
+qb_bill_lines      — Line items inside vendor bills, each optionally linked to a customer/project via customer_id. Used for project cost attribution.
+qb_purchase_lines  — Line items from non-bill purchases (credit card, cash), also linked to customer/project. Used for project costs.
+qb_vendor_credit_lines — Line items from vendor credits. Negative cost adjustments per project.
+
+━━━ AVAILABLE QUERY TOOLS ━━━
+
+"cashflow"
+  Queries: qb_payments (received) + qb_bill_payments (paid) + qb_invoices (invoiced), last 12 months, grouped by month.
+  Returns: monthly received / paid / invoiced totals.
+  Use for: cash flow analysis, how much we received vs spent, monthly revenue trend, net cash per month,
+           "como está o caixa", "quanto recebemos", "fluxo de caixa", "gastando mais do que recebendo".
+
+"pipeline"
+  Queries: qb_estimates WHERE status NOT IN (Closed, Rejected), ordered by value DESC.
+  Returns: customer name, estimate value, estimate date, accepted date, status.
+  Use for: open pipeline, backlog, pending proposals, work not yet started,
+           "o que temos no pipeline", "orçamentos em aberto", "quais projetos estão pendentes".
+
+"overdue"
+  Queries: qb_invoices WHERE due_date < now AND balance > 0 (overdue receivables)
+           AND qb_bills WHERE due_date < now AND balance > 0 (overdue payables).
+  Returns: who owes US money + who WE owe, with days overdue for each.
+  Use for: overdue invoices, late payments from customers, unpaid vendor bills, aging,
+           "quem está devendo", "faturas vencidas", "contas em atraso", "aging report".
+
+"project"
+  Queries: qb_estimates + qb_invoices + qb_bill_lines + qb_purchase_lines + qb_vendor_credit_lines, grouped by customer/project.
+  Returns: per-project breakdown — estimate vs invoiced vs total expenses vs gross margin.
+  Use for: project profitability, margin analysis, cost vs revenue per client,
+           "margem do projeto", "como está o projeto X", "custo por cliente", "lucro por obra".
+
+"forecast"
+  Queries: qb_estimates (pipeline total) + qb_payments (24-month history) + qb_payments (seasonality avg for next 3 months).
+  Returns: total open pipeline value, historical monthly revenue, average monthly revenue for upcoming months.
+  Use for: revenue forecast, end-of-year projection, break-even analysis, annual targets,
+           "vamos fechar o ano positivo", "previsão de receita", "conseguimos bater a meta",
+           "how will we close the year", "rest of year outlook".
+  NOTE: always include "general" when using "forecast".
+
+"billing"
+  Queries: qb_invoices (last 20, any status) + qb_bills (last 20, any status).
+  Returns: recent invoices issued to customers and recent vendor bills received.
+  Use for: billing history, invoice records, vendor bill listing, not filtered by payment status,
+           "histórico de faturas", "últimas notas", "quais faturas emitimos recentemente".
+
+"general"
+  Queries: YTD totals from qb_invoices + qb_payments + qb_bill_payments + qb_estimates.
+  Returns: total invoiced YTD, total received YTD, total paid YTD, total active pipeline value.
+  Use for: overall business health, YTD performance snapshot, vague financial questions,
+           "como estamos indo", "resumo geral", "how are we doing", "give me an overview".
+  Also required: always include "general" alongside "forecast".
+
+"greeting"
+  No queries. Use ONLY when the message has zero financial intent.
+  Examples: "olá", "oi", "bom dia", "obrigado", "ok", "entendi", "perfeito", "valeu", "show".
+  NEVER combine with any financial category.
+
+━━━ RULES ━━━
+
+1. Return ONLY a JSON array, e.g. ["cashflow","overdue"] or ["greeting"]
+2. "greeting" is mutually exclusive with all other categories
+3. Always add "general" when "forecast" is present
+4. Return multiple categories when the question spans multiple topics
+5. Prefer specific categories over "general" when intent is clear
+6. Default to ["general"] for any financial question that doesn't fit a specific category
+7. The user may write in Portuguese or English — handle both equally`
+
+// classifyWithLLM calls a lightweight LLM to classify the user message.
+// Falls back to ["general"] on any error.
+func (p *AIQueryPlanner) classifyWithLLM(ctx context.Context, message string) []queryCategory {
+	if p.llm == nil {
+		return []queryCategory{catGeneral}
 	}
-	lower := strings.ToLower(msg)
+
+	resp, err := p.llm.Chat(ctx, []ChatMessage{
+		{Role: "system", Content: classifySystemPrompt},
+		{Role: "user", Content: message},
+	})
+	if err != nil {
+		log.Printf("classifyWithLLM: llm error: %v — falling back to general", err)
+		return []queryCategory{catGeneral}
+	}
+
+	// Parse JSON array from response text (strip markdown fences if present)
+	raw := strings.TrimSpace(resp.Text)
+	raw = strings.TrimPrefix(raw, "```json")
+	raw = strings.TrimPrefix(raw, "```")
+	raw = strings.TrimSuffix(raw, "```")
+	raw = strings.TrimSpace(raw)
+
+	var names []string
+	if err := json.Unmarshal([]byte(raw), &names); err != nil {
+		log.Printf("classifyWithLLM: parse error (%v) raw=%q — falling back to general", err, raw)
+		return []queryCategory{catGeneral}
+	}
+
+	valid := map[string]queryCategory{
+		"greeting": catGreeting,
+		"cashflow": catCashFlow,
+		"pipeline": catPipeline,
+		"overdue":  catOverdue,
+		"project":  catProject,
+		"forecast": catForecast,
+		"billing":  catBilling,
+		"general":  catGeneral,
+	}
+
 	seen := map[queryCategory]bool{}
 	var cats []queryCategory
-	for cat, keywords := range categoryKeywords {
-		for _, kw := range keywords {
-			if strings.Contains(lower, kw) && !seen[cat] {
-				seen[cat] = true
-				cats = append(cats, cat)
-				break
-			}
+	for _, name := range names {
+		if cat, ok := valid[strings.ToLower(strings.TrimSpace(name))]; ok && !seen[cat] {
+			seen[cat] = true
+			cats = append(cats, cat)
 		}
 	}
 	if len(cats) == 0 {
 		return []queryCategory{catGeneral}
 	}
-	// Forecast questions benefit from the YTD snapshot too — add it automatically
-	for _, c := range cats {
-		if c == catForecast {
-			seen[catGeneral] = true
-			cats = append(cats, catGeneral)
-			break
-		}
-	}
 	return cats
 }
 
-// Run classifies the message and executes relevant queries for the company.
+// Run classifies the message with LLM and executes relevant DB queries for the company.
 func (p *AIQueryPlanner) Run(ctx context.Context, company, message string) ([]QueryResult, error) {
-	cats := classifyMessage(message)
+	cats := p.classifyWithLLM(ctx, message)
 	var results []QueryResult
 
 	for _, cat := range cats {
@@ -193,14 +265,14 @@ func (p *AIQueryPlanner) queryPipeline(ctx context.Context, company string) ([]Q
 //   customer_name, total_amount, balance
 
 func (p *AIQueryPlanner) queryOverdue(ctx context.Context, company string) ([]QueryResult, error) {
-	rows, err := p.fetchRows(ctx, `
+	invoices, err := p.fetchRows(ctx, `
 		SELECT
 			customer_name,
 			doc_number,
-			ROUND(total_amount::numeric, 2)                      AS amount,
-			ROUND(balance::numeric, 2)                           AS balance_due,
+			ROUND(total_amount::numeric, 2)             AS amount,
+			ROUND(balance::numeric, 2)                  AS balance_due,
 			due_date,
-			DATE_PART('day', NOW() - due_date)::int              AS days_overdue
+			DATE_PART('day', NOW() - due_date)::int     AS days_overdue
 		FROM qb_invoices
 		WHERE company=$1
 		  AND due_date < NOW()
@@ -210,7 +282,29 @@ func (p *AIQueryPlanner) queryOverdue(ctx context.Context, company string) ([]Qu
 	if err != nil {
 		return nil, err
 	}
-	return []QueryResult{{Label: "Overdue Invoices", Rows: rows}}, nil
+
+	bills, err := p.fetchRows(ctx, `
+		SELECT
+			vendor_name,
+			doc_number,
+			ROUND(total_amount::numeric, 2)             AS amount,
+			ROUND(balance::numeric, 2)                  AS balance_due,
+			due_date,
+			DATE_PART('day', NOW() - due_date)::int     AS days_overdue
+		FROM qb_bills
+		WHERE company=$1
+		  AND due_date < NOW()
+		  AND balance > 0
+		ORDER BY days_overdue DESC
+		LIMIT 20`, company)
+	if err != nil {
+		return nil, err
+	}
+
+	return []QueryResult{
+		{Label: "Overdue Invoices (receivables)", Rows: invoices},
+		{Label: "Overdue Bills (payables)", Rows: bills},
+	}, nil
 }
 
 // ── Project financial summary ─────────────────────────────────────────────────
