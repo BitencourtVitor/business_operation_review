@@ -254,7 +254,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             <div className="flex items-center gap-1">
               <button
                 onClick={handleNewChat}
-                className="flex h-6 items-center gap-1 rounded px-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="flex h-6 items-center gap-1 rounded px-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/10"
               >
                 + New
               </button>
