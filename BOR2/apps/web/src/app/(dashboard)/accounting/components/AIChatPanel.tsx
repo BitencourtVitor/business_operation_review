@@ -525,8 +525,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
         {/* Input — only in chat mode */}
         {isInChat && (
-          <div className="shrink-0 border-t border-border px-2 pt-2 pb-4">
-            <div className="flex items-end gap-1.5">
+          <div className="shrink-0 border-t border-border px-2 py-2">
+            <div className="flex items-center gap-1.5">
               <div className="relative flex-1">
                 <Textarea
                   ref={textareaRef}
@@ -539,7 +539,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   disabled={chatMutation.isPending}
                 />
                 <span className={cn(
-                  'pointer-events-none absolute -bottom-4 right-0 text-[10px] tabular-nums transition-colors',
+                  'pointer-events-none absolute bottom-1.5 right-2 text-[10px] tabular-nums transition-colors',
                   nearLimit ? 'text-destructive' : 'text-muted-foreground/40',
                 )}>
                   {charCount}/{MAX_CHARS}
