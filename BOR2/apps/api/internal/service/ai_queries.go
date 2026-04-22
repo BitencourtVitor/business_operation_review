@@ -127,9 +127,9 @@ func (p *AIQueryPlanner) queryPipeline(ctx context.Context, company string) ([]Q
 			ROUND(total_amount::numeric, 2) AS estimate_value,
 			txn_date AS estimate_date,
 			expiry_date,
-			status
+			txn_status AS status
 		FROM qb_estimates
-		WHERE company=$1 AND status NOT IN ('Closed','Rejected')
+		WHERE company=$1 AND txn_status NOT IN ('Closed','Rejected')
 		ORDER BY total_amount DESC
 		LIMIT 20`, company)
 	if err != nil {
@@ -187,7 +187,7 @@ func (p *AIQueryPlanner) queryForecast(ctx context.Context, company string) ([]Q
 			ROUND(SUM(total_amount)::numeric, 2) AS total_pipeline,
 			COUNT(*) AS open_estimates
 		FROM qb_estimates
-		WHERE company=$1 AND status NOT IN ('Closed','Rejected')`, company)
+		WHERE company=$1 AND txn_status NOT IN ('Closed','Rejected')`, company)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +276,7 @@ func (p *AIQueryPlanner) querySnapshot(ctx context.Context, company string) ([]Q
 			UNION ALL
 			SELECT total_amount, 'Bill' FROM qb_bills WHERE company=$1 AND EXTRACT(YEAR FROM txn_date)=EXTRACT(YEAR FROM NOW())
 			UNION ALL
-			SELECT total_amount, 'Estimate' FROM qb_estimates WHERE company=$1 AND status NOT IN ('Closed','Rejected')
+			SELECT total_amount, 'Estimate' FROM qb_estimates WHERE company=$1 AND txn_status NOT IN ('Closed','Rejected')
 		) t`, company)
 	if err != nil {
 		return nil, err
