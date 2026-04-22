@@ -534,7 +534,9 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask Aria…"
-                  className="min-h-[36px] max-h-[96px] w-full resize-none [field-sizing:fixed] overflow-y-auto py-2 text-xs leading-5 no-scrollbar"
+                  className="min-h-[36px] max-h-[96px] w-full resize-none [field-sizing:fixed] overflow-y-auto py-2 text-xs leading-5"
+                  style={{ scrollbarWidth: 'none' }}
+                  data-hide-scrollbar=""
                   rows={1}
                   disabled={chatMutation.isPending}
                 />
