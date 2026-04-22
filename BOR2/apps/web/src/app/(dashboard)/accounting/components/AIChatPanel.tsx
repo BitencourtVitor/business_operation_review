@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Menu, Check, Loader2 } from 'lucide-react'
+import Image from 'next/image'
+import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Menu, Check, Loader2, MessagesSquare } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -15,6 +16,7 @@ import {
 } from '@/hooks/use-ai-chat'
 import type { AIConversation, AIMessage } from '@/services/ai.service'
 import { useQueryClient } from '@tanstack/react-query'
+import { useSidebar } from '@/components/ui/sidebar'
 
 interface AIChatPanelProps {
   company: string
@@ -24,6 +26,12 @@ interface AIChatPanelProps {
 
 interface AriaConfig {
   company: string
+}
+
+const COMPANY_LOGO: Record<string, string> = {
+  hvac:    '/images/sublogo_hvac.png',
+  framing: '/images/sublogo_framing.png',
+  pcg:     '/images/sublogo_pcg.png',
 }
 
 const MAX_CHARS = 2000
@@ -52,6 +60,8 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const [messageCountOnSend, setMessageCountOnSend] = useState(0)
   const [loadingDisplayIdx, setLoadingDisplayIdx] = useState(0)
   const [loadingVisible, setLoadingVisible] = useState(true)
+  const [streamingText, setStreamingText] = useState<string | null>(null)   // text being revealed
+  const [streamingFull, setStreamingFull] = useState<string | null>(null)   // full response to animate
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -78,12 +88,36 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, optimisticMessage])
 
-  // Only clear optimistic once NEW messages arrived (count > what it was when we sent)
+  // Only clear optimistic once animation is done AND new messages have arrived
   useEffect(() => {
-    if (optimisticMessage && messages.length > messageCountOnSend && !chatMutation.isPending) {
+    if (optimisticMessage && messages.length > messageCountOnSend && !chatMutation.isPending && streamingFull === null) {
       setOptimisticMessage(null)
     }
-  }, [messages, optimisticMessage, chatMutation.isPending, messageCountOnSend])
+  }, [messages, optimisticMessage, chatMutation.isPending, messageCountOnSend, streamingFull])
+
+  // Animate the full response text chunk by chunk (~40 ticks over ~1.5s)
+  useEffect(() => {
+    if (!streamingFull) return
+    const words = streamingFull.split(' ')
+    const TICKS = 40
+    const wordsPerTick = Math.max(1, Math.ceil(words.length / TICKS))
+    let idx = 0
+    setStreamingText('')
+    const id = setInterval(() => {
+      const chunk = words.slice(idx, idx + wordsPerTick).join(' ')
+      idx += wordsPerTick
+      setStreamingText((prev) => (prev ? prev + ' ' + chunk : chunk))
+      if (idx >= words.length) {
+        clearInterval(id)
+        setTimeout(() => {
+          setStreamingFull(null)
+          setStreamingText(null)
+          setOptimisticMessage(null)
+        }, 120)
+      }
+    }, 38)
+    return () => clearInterval(id)
+  }, [streamingFull])
 
   // Loading text: fade-out → swap text → fade-in
   useEffect(() => {
@@ -135,6 +169,9 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
       } else if (activeConversationId) {
         refetchMessages()
       }
+
+      // Start chunk-by-chunk reveal of the response
+      if (reply.response) setStreamingFull(reply.response)
     } catch {
       // keep optimistic message visible; isError shows the error
     }
@@ -290,11 +327,15 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           </div>
 
           {/* Conversation list */}
-          <div className="flex-1 overflow-y-auto py-1 no-scrollbar">
+          <div className={cn(
+            'flex-1 overflow-y-auto no-scrollbar',
+            sortedConversations.length === 0 ? 'flex items-center justify-center' : 'py-1',
+          )}>
             {sortedConversations.length === 0 && (
-              <p className="mt-6 px-3 text-center text-xs text-muted-foreground">
-                No conversations yet
-              </p>
+              <div className="flex flex-col items-center gap-2 text-center">
+                <MessagesSquare className="h-6 w-6 text-muted-foreground/25" />
+                <p className="text-xs text-muted-foreground">No conversations yet</p>
+              </div>
             )}
             {sortedConversations.map((conv) => {
               const isEditing = editingId === conv.id
@@ -438,10 +479,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             /* ── Lobby / empty state ── */
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
               <Sparkles className="h-7 w-7 text-muted-foreground opacity-25" />
-              <div className="flex flex-col gap-1">
-                <p className="text-sm font-medium">How can I help you?</p>
-                <p className="text-xs text-muted-foreground">Ask about cash flow, projects, billing, or forecasts.</p>
-              </div>
+              <p className="text-sm font-medium">How can I help you?</p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSheetOpen(true)}
@@ -461,7 +499,17 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             /* ── Chat view ── */
             <>
               {messages.length === 0 && !optimisticMessage && (
-                <div className="flex flex-1 items-center justify-center">
+                <div className="flex flex-1 flex-col items-center justify-center gap-2">
+                  {COMPANY_LOGO[company] && (
+                    <Image
+                      src={COMPANY_LOGO[company]}
+                      alt={company}
+                      width={200}
+                      height={64}
+                      className="h-16 w-auto object-contain opacity-25"
+                      style={{ filter: 'grayscale(1) brightness(1.1)' }}
+                    />
+                  )}
                   <p className="text-xs text-muted-foreground/50">Ask me anything about your finances</p>
                 </div>
               )}
@@ -520,27 +568,46 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 </p>
               )}
 
-              {/* Loading indicator — shown until real messages arrive */}
+              {/* Aria response — dots while waiting, text reveal while animating */}
               {optimisticMessage !== null && !chatMutation.isError && (
                 <div className="flex flex-col items-start gap-0.5">
                   <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
-                  <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
-                    <span className="flex gap-0.5">
-                      {[0, 150, 300].map((delay) => (
-                        <span
-                          key={delay}
-                          className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground/60"
-                          style={{ animationDelay: `${delay}ms` }}
-                        />
-                      ))}
-                    </span>
-                    <span className={cn(
-                      'text-xs text-muted-foreground transition-opacity duration-[250ms]',
-                      loadingVisible ? 'opacity-100' : 'opacity-0',
-                    )}>
-                      {loadingMessages[loadingDisplayIdx]}
-                    </span>
-                  </div>
+                  {streamingText !== null ? (
+                    /* Chunk-by-chunk reveal */
+                    <div className="max-w-[90%] break-words rounded-2xl rounded-bl-sm bg-muted px-3 py-2 text-xs prose prose-xs prose-invert max-w-none">
+                      <ReactMarkdown
+                        components={{
+                          p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                          ul: ({ children }) => <ul className="mb-1 ml-3 list-disc space-y-0.5">{children}</ul>,
+                          ol: ({ children }) => <ol className="mb-1 ml-3 list-decimal space-y-0.5">{children}</ol>,
+                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                          code: ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
+                        }}
+                      >
+                        {streamingText}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    /* Loading dots */
+                    <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
+                      <span className="flex gap-0.5">
+                        {[0, 150, 300].map((delay) => (
+                          <span
+                            key={delay}
+                            className="h-1 w-1 animate-bounce rounded-full bg-muted-foreground/60"
+                            style={{ animationDelay: `${delay}ms` }}
+                          />
+                        ))}
+                      </span>
+                      <span className={cn(
+                        'text-xs text-muted-foreground transition-opacity duration-[250ms]',
+                        loadingVisible ? 'opacity-100' : 'opacity-0',
+                      )}>
+                        {loadingMessages[loadingDisplayIdx]}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -595,11 +662,19 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 export function useAria(config: AriaConfig) {
   const [open, setOpen] = useState(false)
   const [everOpened, setEverOpened] = useState(false)
+  const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
+
+  // When sidebar expands, close Aria
+  useEffect(() => {
+    if (sidebarOpen && open) setOpen(false)
+  }, [sidebarOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggle = useCallback(() => {
+    const next = !open
     setEverOpened(true)
-    setOpen((v) => !v)
-  }, [])
+    setOpen(next)
+    if (next) setSidebarOpen(false) // collapse sidebar when opening Aria
+  }, [open, setSidebarOpen])
   const close = useCallback(() => setOpen(false), [])
 
   const triggerButton = (

@@ -15,8 +15,9 @@ type Config struct {
 }
 
 type AIConfig struct {
-	OpenRouterKey string
-	Model         string
+	OpenRouterKey   string
+	Model           string
+	ClassifierModel string
 }
 
 type AppConfig struct {
@@ -54,8 +55,9 @@ func Load() (*Config, error) {
 			URL:    getEnv("BETTER_AUTH_URL", "http://localhost:8080"),
 		},
 		AI: AIConfig{
-			OpenRouterKey: getEnv("OPENROUTER_API_KEY", ""),
-			Model:         getEnv("AI_MODEL", "google/gemini-2.0-flash-001"),
+			OpenRouterKey:   getEnv("OPENROUTER_API_KEY", ""),
+			Model:           getEnv("AI_MODEL", "google/gemini-2.0-flash-001"),
+			ClassifierModel: getEnv("AI_CLASSIFIER_MODEL", "google/gemini-2.0-flash-lite-001"),
 		},
 	}
 
