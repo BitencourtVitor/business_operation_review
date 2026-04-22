@@ -72,7 +72,7 @@ export function PermitFilters({
             <div className="flex items-center gap-0.5 pl-2.5">
               <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             </div>
-            <Select value={yearFilter} onValueChange={v => { onYearChange(v); onMonthChange(ALL) }}>
+            <Select value={yearFilter} onValueChange={v => { if (v) { onYearChange(v); onMonthChange(ALL) } }}>
               <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                 <span className="flex-1 truncate text-left text-sm">{yearFilter === ALL ? 'All' : yearFilter}</span>
               </SelectTrigger>
