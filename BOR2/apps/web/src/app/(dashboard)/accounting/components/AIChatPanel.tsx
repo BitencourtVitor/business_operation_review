@@ -49,7 +49,9 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const [editingTitle, setEditingTitle] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [optimisticMessage, setOptimisticMessage] = useState<string | null>(null)
-  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
+  const [messageCountOnSend, setMessageCountOnSend] = useState(0)
+  const [loadingDisplayIdx, setLoadingDisplayIdx] = useState(0)
+  const [loadingVisible, setLoadingVisible] = useState(true)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -76,15 +78,27 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, optimisticMessage])
 
+  // Only clear optimistic once NEW messages arrived (count > what it was when we sent)
   useEffect(() => {
-    if (optimisticMessage && messages.length > 0 && !chatMutation.isPending) {
+    if (optimisticMessage && messages.length > messageCountOnSend && !chatMutation.isPending) {
       setOptimisticMessage(null)
     }
-  }, [messages, optimisticMessage, chatMutation.isPending])
+  }, [messages, optimisticMessage, chatMutation.isPending, messageCountOnSend])
 
+  // Loading text: fade-out → swap text → fade-in
   useEffect(() => {
-    if (!optimisticMessage) { setLoadingMsgIdx(0); return }
-    const id = setInterval(() => setLoadingMsgIdx((i) => (i + 1) % loadingMessages.length), 1800)
+    if (!optimisticMessage) {
+      setLoadingDisplayIdx(0)
+      setLoadingVisible(true)
+      return
+    }
+    const id = setInterval(() => {
+      setLoadingVisible(false)
+      setTimeout(() => {
+        setLoadingDisplayIdx((i) => (i + 1) % loadingMessages.length)
+        setLoadingVisible(true)
+      }, 250)
+    }, 2000)
     return () => clearInterval(id)
   }, [optimisticMessage])
 
@@ -104,6 +118,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
     setInput('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    setMessageCountOnSend(messages.length)
     setOptimisticMessage(trimmed)
 
     const isNewConversation = !activeConversationId
@@ -519,8 +534,11 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                         />
                       ))}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {loadingMessages[loadingMsgIdx]}
+                    <span className={cn(
+                      'text-xs text-muted-foreground transition-opacity duration-[250ms]',
+                      loadingVisible ? 'opacity-100' : 'opacity-0',
+                    )}>
+                      {loadingMessages[loadingDisplayIdx]}
                     </span>
                   </div>
                 </div>
