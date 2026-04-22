@@ -37,6 +37,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const [input, setInput] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
+  const [optimisticMessage, setOptimisticMessage] = useState<string | null>(null)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -56,6 +57,13 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, chatMutation.isPending])
 
+  // Clear optimistic message only after real messages have loaded
+  useEffect(() => {
+    if (optimisticMessage && messages.length > 0 && !chatMutation.isPending) {
+      setOptimisticMessage(null)
+    }
+  }, [messages, optimisticMessage, chatMutation.isPending])
+
   useEffect(() => {
     if (open) setTimeout(() => textareaRef.current?.focus(), 300)
   }, [open])
@@ -70,6 +78,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
     setInput('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
+    setOptimisticMessage(trimmed)
 
     const isNewConversation = !activeConversationId
 
@@ -85,8 +94,9 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
       } else if (activeConversationId) {
         refetchMessages()
       }
+      // optimisticMessage cleared by useEffect once messages arrive
     } catch {
-      // error handled by mutation state
+      // on error: keep optimistic message visible, chatMutation.isError shows state
     }
   }
 
@@ -236,7 +246,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
           {/* Messages */}
           <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
-            {!activeConversationId && messages.length === 0 && !chatMutation.isPending ? (
+            {!activeConversationId && messages.length === 0 && !optimisticMessage ? (
               <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center text-muted-foreground">
                 <Sparkles className="h-7 w-7 opacity-30" />
                 <p className="text-xs">Start a new conversation</p>
@@ -268,6 +278,23 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   )
                 })}
 
+                {/* Optimistic user message while waiting for response */}
+                {optimisticMessage && (
+                  <div className="flex flex-col items-end gap-0.5">
+                    <div className="max-w-[90%] break-words rounded-2xl rounded-br-sm bg-primary px-3 py-2 text-xs whitespace-pre-wrap text-primary-foreground">
+                      {optimisticMessage}
+                    </div>
+                  </div>
+                )}
+
+                {/* Error state */}
+                {chatMutation.isError && optimisticMessage && (
+                  <p className="px-1 text-[10px] text-destructive">
+                    Failed to send — check if the API is running.
+                  </p>
+                )}
+
+                {/* Aria typing indicator */}
                 {chatMutation.isPending && (
                   <div className="flex flex-col items-start gap-0.5">
                     <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
@@ -327,7 +354,15 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
 export function useAria(config: AriaConfig) {
   const [open, setOpen] = useState(false)
-  const toggle = useCallback(() => setOpen((v) => !v), [])
+  // Lazy-mount: only render AIChatPanel after the first open click.
+  // This avoids firing authenticated queries before Zustand has hydrated
+  // the token from localStorage (Next.js async hydration race condition).
+  const [everOpened, setEverOpened] = useState(false)
+
+  const toggle = useCallback(() => {
+    setEverOpened(true)
+    setOpen((v) => !v)
+  }, [])
   const close = useCallback(() => setOpen(false), [])
 
   const triggerButton = (
@@ -345,7 +380,9 @@ export function useAria(config: AriaConfig) {
     </button>
   )
 
-  const panel = <AIChatPanel {...config} open={open} onClose={close} />
+  // Only mount the panel after first open — keeps it in DOM for open/close
+  // animations on subsequent toggles, but avoids the pre-hydration query.
+  const panel = everOpened ? <AIChatPanel {...config} open={open} onClose={close} /> : null
 
   return { open, triggerButton, panel }
 }
