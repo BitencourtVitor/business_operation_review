@@ -332,8 +332,8 @@ func main() {
 	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
 	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
 
-	// AI Chat (Aria)
-	ai := api.Group("/ai")
+	// AI Chat (Aria) — needs RequireAuthFull so actor() can resolve userID from locals
+	ai := api.Group("/ai", middleware.RequireAuthFull(authService))
 	ai.Post("/chat",                              aiChatHandler.Chat)
 	ai.Get("/conversations",                      aiChatHandler.ListConversations)
 	ai.Delete("/conversations/:id",               aiChatHandler.DeleteConversation)
