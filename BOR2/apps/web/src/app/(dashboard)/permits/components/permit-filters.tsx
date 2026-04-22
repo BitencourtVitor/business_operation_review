@@ -84,7 +84,7 @@ export function PermitFilters({
 
             <div className="h-5 w-px shrink-0 bg-border" />
 
-            <Select value={monthFilter} onValueChange={onMonthChange}>
+            <Select value={monthFilter} onValueChange={v => { if (v) onMonthChange(v) }}>
               <SelectTrigger className="h-8 w-[108px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                 <span className="flex-1 truncate text-left text-sm">
                   {monthFilter === ALL ? 'All months' : MONTHS.find(m => m.value === monthFilter)?.label ?? 'All'}
@@ -100,7 +100,7 @@ export function PermitFilters({
               <span className="select-none text-[10px] font-medium text-muted-foreground/50">by</span>
             </div>
 
-            <Select value={dateField} onValueChange={v => onDateFieldChange(v as DateField)}>
+            <Select value={dateField} onValueChange={v => { if (v) onDateFieldChange(v as DateField) }}>
               <SelectTrigger className="h-8 w-[148px] border-0 bg-transparent pl-0 pr-2 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                 <span className="flex-1 truncate text-left text-sm">
                   {DATE_FIELDS.find(f => f.value === dateField)?.label}
