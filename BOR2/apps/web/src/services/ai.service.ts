@@ -1,4 +1,9 @@
 import { api } from "@/lib/api"
+import { useAuthStore } from "@/store/auth.store"
+
+function getToken() {
+  return useAuthStore.getState().token ?? ""
+}
 
 export interface AIConversation {
   id: string
@@ -36,30 +41,30 @@ export interface ChatReply {
 
 export const aiService = {
   chat(company: string, message: string, conversationId?: string): Promise<ChatReply> {
-    return api.post("/ai/chat", { company, message, conversation_id: conversationId ?? "" })
+    return api.post("/api/v1/ai/chat", { company, message, conversation_id: conversationId ?? "" }, getToken())
   },
 
   listConversations(company: string): Promise<AIConversation[]> {
-    return api.get(`/ai/conversations?company=${company}`)
+    return api.get(`/api/v1/ai/conversations?company=${company}`, getToken())
   },
 
   deleteConversation(id: string): Promise<void> {
-    return api.delete(`/ai/conversations/${id}`)
+    return api.delete(`/api/v1/ai/conversations/${id}`, getToken())
   },
 
   updateTitle(id: string, title: string): Promise<void> {
-    return api.patch(`/ai/conversations/${id}/title`, { title })
+    return api.patch(`/api/v1/ai/conversations/${id}/title`, { title }, getToken())
   },
 
   listMessages(conversationId: string): Promise<AIMessage[]> {
-    return api.get(`/ai/conversations/${conversationId}/messages`)
+    return api.get(`/api/v1/ai/conversations/${conversationId}/messages`, getToken())
   },
 
   getContext(company: string): Promise<string> {
-    return api.get(`/ai/context/${company}`)
+    return api.get(`/api/v1/ai/context/${company}`, getToken())
   },
 
   upsertContext(company: string, context: string): Promise<void> {
-    return api.patch(`/ai/context/${company}`, { context })
+    return api.patch(`/api/v1/ai/context/${company}`, { context }, getToken())
   },
 }
