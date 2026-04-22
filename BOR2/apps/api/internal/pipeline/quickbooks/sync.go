@@ -40,7 +40,8 @@ type SyncResult struct {
 
 // SyncAll runs all company×entity combinations concurrently (bounded by semaphore).
 // Errors are collected and logged — a failing entity never blocks the others.
-func (s *Syncer) SyncAll(ctx context.Context, clients []*Client) []SyncResult {
+// An optional onResult callback is called immediately as each task completes.
+func (s *Syncer) SyncAll(ctx context.Context, clients []*Client, onResult ...func(SyncResult)) []SyncResult {
 	type task struct {
 		client *Client
 		entity string
@@ -69,13 +70,14 @@ func (s *Syncer) SyncAll(ctx context.Context, clients []*Client) []SyncResult {
 			start := time.Now()
 			count, err := s.syncOne(ctx, tk.client, tk.entity)
 
-			results[idx] = SyncResult{
+			r := SyncResult{
 				Company:  tk.client.Company(),
 				Entity:   tk.entity,
 				Count:    count,
 				Duration: time.Since(start),
 				Err:      err,
 			}
+			results[idx] = r
 
 			if err != nil {
 				logger.Error("qb sync failed",
@@ -90,6 +92,10 @@ func (s *Syncer) SyncAll(ctx context.Context, clients []*Client) []SyncResult {
 					"count", count,
 					"duration", time.Since(start),
 				)
+			}
+
+			if len(onResult) > 0 && onResult[0] != nil {
+				onResult[0](r)
 			}
 		}(i, t)
 	}
