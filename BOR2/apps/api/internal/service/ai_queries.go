@@ -40,6 +40,10 @@ const (
 var greetingKeywords = []string{
 	"olá", "ola", "oi ", "oi,", "oi!", "oi.", "hello", "hi ", "hi,", "hi!", "hey",
 	"bom dia", "boa tarde", "boa noite", "tudo bem", "tudo bom", "good morning", "good afternoon",
+	// short follow-ups / confirmations that carry no financial intent
+	"certeza", "tem certeza", "sure?", "really?", "sério", "serio", "mesmo?",
+	"obrigado", "obrigada", "thanks", "thank you", "ok", "okay", "entendi", "entendido",
+	"show", "ótimo", "otimo", "perfeito", "legal", "certo", "blz", "valeu",
 }
 
 var categoryKeywords = map[queryCategory][]string{

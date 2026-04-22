@@ -317,6 +317,7 @@ func (s *AIService) buildContext(ctx context.Context, convID, company, synthesiz
 		systemPrompt += "\n\nCOMPANY CONTEXT:\n" + theoreticalCtx
 	}
 
+	systemPrompt += fmt.Sprintf("\n\nToday's date: %s.", time.Now().Format("January 2, 2006"))
 	msgs = append(msgs, ChatMessage{Role: "system", Content: systemPrompt})
 
 	// history (last N messages, oldest compressed)
