@@ -390,11 +390,16 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             <span className="text-sm font-semibold">Aria</span>
           </div>
 
-          <div className="h-4 w-px shrink-0 bg-border" />
+          {isInChat && (
+            <>
+              <div className="h-4 w-px shrink-0 bg-border" />
+              <span className="flex-1 truncate text-xs text-muted-foreground">
+                {activeConversation?.title ?? 'New conversation'}
+              </span>
+            </>
+          )}
 
-          <span className="flex-1 truncate text-xs text-muted-foreground">
-            {activeConversation?.title ?? 'New conversation'}
-          </span>
+          {!isInChat && <div className="flex-1" />}
 
           <button
             onClick={onClose}
