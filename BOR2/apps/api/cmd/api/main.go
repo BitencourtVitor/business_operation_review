@@ -115,7 +115,7 @@ func main() {
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
-	aiChatHandler            := handler.NewAIChatHandler(service.NewAIService(db, service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model), cfg.AI.Model))
+	aiChatHandler            := handler.NewAIChatHandler(service.NewAIService(db, service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model), cfg.AI.Model), authService)
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
@@ -332,8 +332,8 @@ func main() {
 	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
 	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
 
-	// AI Chat (Aria) — needs RequireAuthFull so actor() can resolve userID from locals
-	ai := api.Group("/ai", middleware.RequireAuthFull(authService))
+	// AI Chat (Aria)
+	ai := api.Group("/ai")
 	ai.Post("/chat",                              aiChatHandler.Chat)
 	ai.Get("/conversations",                      aiChatHandler.ListConversations)
 	ai.Delete("/conversations/:id",               aiChatHandler.DeleteConversation)
