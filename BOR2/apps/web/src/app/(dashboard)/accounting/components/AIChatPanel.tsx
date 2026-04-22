@@ -268,7 +268,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           </div>
 
           {/* Conversation list */}
-          <div className="flex-1 overflow-y-auto py-1 [&::-webkit-scrollbar]:hidden">
+          <div className="flex-1 overflow-y-auto py-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
             {sortedConversations.length === 0 && (
               <p className="mt-6 px-3 text-center text-xs text-muted-foreground">
                 No conversations yet
@@ -410,7 +410,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         </div>
 
         {/* Messages or lobby */}
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3 [&::-webkit-scrollbar]:hidden">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
           {!isInChat ? (
             /* ── Lobby / empty state ── */
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
