@@ -268,7 +268,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
           </div>
 
           {/* Conversation list */}
-          <div className="flex-1 overflow-y-auto py-1">
+          <div className="flex-1 overflow-y-auto py-1 [&::-webkit-scrollbar]:hidden">
             {sortedConversations.length === 0 && (
               <p className="mt-6 px-3 text-center text-xs text-muted-foreground">
                 No conversations yet
@@ -410,7 +410,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         </div>
 
         {/* Messages or lobby */}
-        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-3 py-3 [&::-webkit-scrollbar]:hidden">
           {!isInChat ? (
             /* ── Lobby / empty state ── */
             <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
@@ -525,7 +525,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
         {/* Input — only in chat mode */}
         {isInChat && (
-          <div className="shrink-0 border-t border-border px-2 py-2">
+          <div className="shrink-0 border-t border-border px-2 pt-2 pb-4">
             <div className="flex items-end gap-1.5">
               <div className="relative flex-1">
                 <Textarea
@@ -534,12 +534,12 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   placeholder="Ask Aria…"
-                  className="min-h-[36px] max-h-[96px] w-full resize-none py-2 pb-4 text-xs leading-5"
+                  className="min-h-[36px] max-h-[96px] w-full resize-none py-2 text-xs leading-5"
                   rows={1}
                   disabled={chatMutation.isPending}
                 />
                 <span className={cn(
-                  'pointer-events-none absolute bottom-1.5 right-2 text-[10px] tabular-nums transition-colors',
+                  'pointer-events-none absolute -bottom-4 right-0 text-[10px] tabular-nums transition-colors',
                   nearLimit ? 'text-destructive' : 'text-muted-foreground/40',
                 )}>
                   {charCount}/{MAX_CHARS}
