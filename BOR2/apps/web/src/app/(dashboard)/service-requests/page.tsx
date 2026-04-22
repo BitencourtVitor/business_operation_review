@@ -285,7 +285,7 @@ export default function ServiceRequestsPage() {
               <div className="flex items-center gap-0.5 pl-2.5">
                 <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               </div>
-              <Select value={year} onValueChange={v => { setYear(v); setMonth("All") }}>
+              <Select value={year} onValueChange={v => { if (v) { setYear(v); setMonth("All") } }}>
                 <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                   <span className="flex-1 truncate text-left text-sm">{year === "All" ? "All" : year}</span>
                 </SelectTrigger>
@@ -295,7 +295,7 @@ export default function ServiceRequestsPage() {
                 </SelectContent>
               </Select>
               <div className="h-5 w-px shrink-0 bg-border" />
-              <Select value={month} onValueChange={setMonth}>
+              <Select value={month} onValueChange={v => { if (v) setMonth(v) }}>
                 <SelectTrigger className="h-8 w-[120px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                   <span className="flex-1 truncate text-left text-sm">
                     {month === "All" ? "All months" : MONTHS_FULL.find(m => m.value === month)?.label ?? "All"}
