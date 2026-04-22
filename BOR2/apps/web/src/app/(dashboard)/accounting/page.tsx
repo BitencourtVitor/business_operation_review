@@ -346,7 +346,7 @@ function AccountingContent() {
       <div className="flex min-h-0 flex-1 overflow-hidden">
 
       {/* Main scroll area */}
-      <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto no-scrollbar">
 
       {/* ── Summary metrics ── */}
       <div className="grid grid-cols-4 gap-4">
