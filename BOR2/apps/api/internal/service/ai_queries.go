@@ -34,7 +34,13 @@ const (
 	catForecast queryCategory = "forecast"
 	catBilling  queryCategory = "billing"
 	catGeneral  queryCategory = "general"
+	catGreeting queryCategory = "greeting" // no DB queries needed
 )
+
+var greetingKeywords = []string{
+	"olá", "ola", "oi ", "oi,", "oi!", "oi.", "hello", "hi ", "hi,", "hi!", "hey",
+	"bom dia", "boa tarde", "boa noite", "tudo bem", "tudo bom", "good morning", "good afternoon",
+}
 
 var categoryKeywords = map[queryCategory][]string{
 	catCashFlow: {"cash", "caixa", "fluxo", "received", "paid", "pagamento", "recebido", "net", "revenue", "receita", "expense", "despesa"},
@@ -45,7 +51,25 @@ var categoryKeywords = map[queryCategory][]string{
 	catBilling:  {"invoice", "bill", "nota", "fatura", "vendor", "fornecedor", "payment history", "histórico"},
 }
 
+// isGreeting returns true for short messages that are purely social (no financial intent).
+func isGreeting(msg string) bool {
+	trimmed := strings.TrimSpace(strings.ToLower(msg))
+	// pure greeting: short message containing a greeting keyword but no financial terms
+	if len([]rune(trimmed)) > 60 {
+		return false
+	}
+	for _, kw := range greetingKeywords {
+		if strings.Contains(" "+trimmed+" ", kw) || trimmed == strings.TrimSpace(kw) {
+			return true
+		}
+	}
+	return false
+}
+
 func classifyMessage(msg string) []queryCategory {
+	if isGreeting(msg) {
+		return []queryCategory{catGreeting}
+	}
 	lower := strings.ToLower(msg)
 	seen := map[queryCategory]bool{}
 	var cats []queryCategory
@@ -73,6 +97,8 @@ func (p *AIQueryPlanner) Run(ctx context.Context, company, message string) ([]Qu
 		var qrs []QueryResult
 		var err error
 		switch cat {
+		case catGreeting:
+			continue // no data needed — Aria responds conversationally
 		case catCashFlow:
 			qrs, err = p.queryCashFlow(ctx, company)
 		case catPipeline:

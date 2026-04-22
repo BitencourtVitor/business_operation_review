@@ -44,7 +44,9 @@ COMMUNICATION STYLE:
 - Respond in the same language the user writes (Portuguese or English)
 - Keep responses focused — the user wants metrics, not essays
 
-You are analyzing financial data for: {{COMPANY}}`
+You are analyzing financial data for: {{COMPANY}}
+
+IMPORTANT: If the user sends a greeting or small talk without asking a financial question, respond briefly and naturally — do NOT volunteer financial summaries or data. Wait for them to ask.`
 
 // AIService orchestrates the full chat pipeline.
 type AIService struct {
@@ -305,7 +307,7 @@ func (s *AIService) buildContext(ctx context.Context, convID, company, synthesiz
 	var msgs []ChatMessage
 
 	// system prompt
-	systemPrompt := strings.ReplaceAll(ariaSystemPrompt, "{{COMPANY}}", strings.ToUpper(company))
+	systemPrompt := strings.ReplaceAll(ariaSystemPrompt, "{{COMPANY}}", formatCompanyName(company))
 
 	// theoretical company context
 	var theoreticalCtx string
@@ -404,6 +406,29 @@ func formatQueryResults(results []QueryResult) string {
 		sb.WriteString("\n\n")
 	}
 	return sb.String()
+}
+
+// companyDisplayNames maps slug → display name for the system prompt.
+// Acronyms (≤4 chars) stay uppercase; longer names are title-cased.
+var companyDisplayNames = map[string]string{
+	"framing": "Framing",
+	"hvac":    "HVAC",
+	"pcg":     "PCG",
+}
+
+func formatCompanyName(company string) string {
+	lower := strings.ToLower(strings.TrimSpace(company))
+	if name, ok := companyDisplayNames[lower]; ok {
+		return name
+	}
+	// fallback: short = UPPER (acronym), long = Title Case
+	if len([]rune(lower)) <= 4 {
+		return strings.ToUpper(lower)
+	}
+	if len(lower) == 0 {
+		return company
+	}
+	return strings.ToUpper(lower[:1]) + lower[1:]
 }
 
 // estimateCost returns approximate USD cost for Gemini Flash 2.0 via OpenRouter.

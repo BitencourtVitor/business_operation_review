@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { X, PenSquare, SendHorizonal, Trash2, Sparkles } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
@@ -38,6 +39,14 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editingTitle, setEditingTitle] = useState('')
   const [optimisticMessage, setOptimisticMessage] = useState<string | null>(null)
+  const [loadingMsgIdx, setLoadingMsgIdx] = useState(0)
+
+  const loadingMessages = [
+    'Consultando QuickBooks…',
+    'Analisando dados…',
+    'Processando métricas…',
+    'Gerando insights…',
+  ]
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -65,6 +74,12 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
       setOptimisticMessage(null)
     }
   }, [messages, optimisticMessage, chatMutation.isPending])
+
+  useEffect(() => {
+    if (!chatMutation.isPending) { setLoadingMsgIdx(0); return }
+    const id = setInterval(() => setLoadingMsgIdx((i) => (i + 1) % loadingMessages.length), 1800)
+    return () => clearInterval(id)
+  }, [chatMutation.isPending])
 
   useEffect(() => {
     if (open) setTimeout(() => textareaRef.current?.focus(), 300)
@@ -267,13 +282,26 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                       )}
                       <div
                         className={cn(
-                          'max-w-[90%] break-words rounded-2xl px-3 py-2 text-xs whitespace-pre-wrap',
+                          'max-w-[90%] break-words rounded-2xl px-3 py-2 text-xs',
                           isUser
-                            ? 'bg-primary text-primary-foreground rounded-br-sm'
-                            : 'bg-muted rounded-bl-sm',
+                            ? 'bg-primary text-primary-foreground rounded-br-sm whitespace-pre-wrap'
+                            : 'bg-muted rounded-bl-sm prose prose-xs prose-invert max-w-none',
                         )}
                       >
-                        {content}
+                        {isUser ? content : (
+                          <ReactMarkdown
+                            components={{
+                              p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                              ul: ({ children }) => <ul className="mb-1 ml-3 list-disc space-y-0.5">{children}</ul>,
+                              ol: ({ children }) => <ol className="mb-1 ml-3 list-decimal space-y-0.5">{children}</ol>,
+                              li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                              code: ({ children }) => <code className="rounded bg-black/20 px-1 py-0.5 font-mono text-[11px]">{children}</code>,
+                            }}
+                          >
+                            {content}
+                          </ReactMarkdown>
+                        )}
                       </div>
                       <span className="px-1 text-[10px] text-muted-foreground">{ts}</span>
                     </div>
@@ -296,18 +324,23 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                   </p>
                 )}
 
-                {/* Aria typing indicator */}
+                {/* Aria loading indicator */}
                 {chatMutation.isPending && (
                   <div className="flex flex-col items-start gap-0.5">
                     <span className="px-1 text-[10px] font-medium text-muted-foreground">Aria</span>
-                    <div className="flex items-center gap-1 rounded-2xl rounded-bl-sm bg-muted px-3 py-2.5">
-                      {[0, 150, 300].map((delay) => (
-                        <span
-                          key={delay}
-                          className="h-1.5 w-1.5 rounded-full bg-muted-foreground animate-bounce"
-                          style={{ animationDelay: `${delay}ms` }}
-                        />
-                      ))}
+                    <div className="flex items-center gap-2 rounded-2xl rounded-bl-sm bg-muted px-3 py-2">
+                      <span className="flex gap-0.5">
+                        {[0, 150, 300].map((delay) => (
+                          <span
+                            key={delay}
+                            className="h-1 w-1 rounded-full bg-muted-foreground/60 animate-bounce"
+                            style={{ animationDelay: `${delay}ms` }}
+                          />
+                        ))}
+                      </span>
+                      <span className="text-xs text-muted-foreground transition-all duration-500">
+                        {loadingMessages[loadingMsgIdx]}
+                      </span>
                     </div>
                   </div>
                 )}
