@@ -326,8 +326,10 @@ func main() {
 
 	// QuickBooks Accounting (protected)
 	qbAccounting := api.Group("/qb/accounting")
-	qbAccounting.Get("/chart",    qbAccountingHandler.Chart)
-	qbAccounting.Get("/projects", qbAccountingHandler.Projects)
+	qbAccounting.Get("/years",           qbAccountingHandler.Years)
+	qbAccounting.Get("/chart",           qbAccountingHandler.Chart)
+	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
+	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
 
 	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect)
 	qb := v1.Group("/qb")
