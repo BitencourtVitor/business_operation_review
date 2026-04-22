@@ -292,7 +292,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                 {/* Error state */}
                 {chatMutation.isError && optimisticMessage && (
                   <p className="px-1 text-[10px] text-destructive">
-                    Failed to send — check if the API is running.
+                    {(chatMutation.error as Error)?.message || 'Failed to send'}
                   </p>
                 )}
 
