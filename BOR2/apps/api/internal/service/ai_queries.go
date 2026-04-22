@@ -51,7 +51,12 @@ var categoryKeywords = map[queryCategory][]string{
 	catPipeline: {"pipeline", "estimate", "orçamento", "projeto", "project", "andamento", "open", "aberto", "backlog"},
 	catOverdue:  {"overdue", "vencido", "atraso", "late", "pending", "pendente", "unpaid", "não pago", "aging"},
 	catProject:  {"project detail", "detalhe", "specific", "específico", "margin", "margem", "cost", "custo"},
-	catForecast: {"forecast", "previsão", "predict", "futuro", "future", "next month", "próximo", "projection", "projeção", "season"},
+	catForecast: {
+		"forecast", "previsão", "predict", "futuro", "future", "next month", "próximo", "projection", "projeção", "season",
+		"fecha o ano", "fechar o ano", "ano positivo", "positivo no ano", "no positivo", "break even", "breakeven",
+		"end of year", "close the year", "annual", "anual", "rest of the year", "resto do ano",
+		"vai fechar", "vamos fechar", "conseguimos", "consegue fechar", "bater a meta",
+	},
 	catBilling:  {"invoice", "bill", "nota", "fatura", "vendor", "fornecedor", "payment history", "histórico"},
 }
 
@@ -88,6 +93,14 @@ func classifyMessage(msg string) []queryCategory {
 	}
 	if len(cats) == 0 {
 		return []queryCategory{catGeneral}
+	}
+	// Forecast questions benefit from the YTD snapshot too — add it automatically
+	for _, c := range cats {
+		if c == catForecast {
+			seen[catGeneral] = true
+			cats = append(cats, catGeneral)
+			break
+		}
 	}
 	return cats
 }
