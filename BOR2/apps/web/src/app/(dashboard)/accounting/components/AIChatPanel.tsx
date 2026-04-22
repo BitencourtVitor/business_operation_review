@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Columns3, Check, Loader2 } from 'lucide-react'
+import { X, PenSquare, SendHorizonal, Trash2, Sparkles, Menu, Check, Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -382,7 +382,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             onClick={() => setSheetOpen(true)}
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-muted-foreground/60 transition-colors hover:text-foreground"
           >
-            <Columns3 className="h-3.5 w-3.5" />
+            <Menu className="h-3.5 w-3.5" />
           </button>
 
           <div className="flex shrink-0 items-center gap-1.5">
