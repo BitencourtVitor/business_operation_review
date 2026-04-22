@@ -195,9 +195,16 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
 
   const handleSaveTitle = (id: string) => {
     const trimmed = editingTitle.trim()
-    if (trimmed) updateTitleMutation.mutate({ id, title: trimmed })
-    setEditingId(null)
-    setEditingTitle('')
+    if (!trimmed) {
+      setEditingId(null)
+      setEditingTitle('')
+      return
+    }
+    // Keep editingId alive during mutation — clears on settle
+    updateTitleMutation.mutate({ id, title: trimmed }, {
+      onSuccess: () => { setEditingId(null); setEditingTitle('') },
+      onError:   () => { setEditingId(null); setEditingTitle('') },
+    })
   }
 
   // ── Derived ───────────────────────────────────────────────────────────────────
@@ -250,7 +257,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         >
           {/* Sheet header */}
           <div className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5">
-            <span className="text-xs font-semibold text-foreground">Conversations</span>
+            <span className="text-xs font-semibold text-foreground">Chat</span>
             <div className="flex items-center gap-1">
               <button
                 onClick={handleNewChat}
@@ -277,7 +284,7 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
             {sortedConversations.map((conv) => {
               const isEditing = editingId === conv.id
               const isDeleting = deletingId === conv.id
-              const isSaving = updateTitleMutation.isPending && editingId === null && updateTitleMutation.variables?.id === conv.id
+              const isSaving = isEditing && updateTitleMutation.isPending
 
               return (
                 <div
@@ -294,14 +301,15 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
                     <>
                       <input
                         ref={editInputRef}
-                        className="min-w-0 flex-1 border-b border-primary bg-transparent text-xs outline-none"
+                        className="min-w-0 flex-1 border-b border-primary bg-transparent text-xs outline-none disabled:opacity-50"
                         value={editingTitle}
+                        disabled={isSaving}
                         onChange={(e) => setEditingTitle(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveTitle(conv.id)
-                          if (e.key === 'Escape') { setEditingId(null); setEditingTitle('') }
+                          if (e.key === 'Escape' && !isSaving) { setEditingId(null); setEditingTitle('') }
                         }}
-                        onBlur={() => handleSaveTitle(conv.id)}
+                        onBlur={() => { if (!isSaving) handleSaveTitle(conv.id) }}
                         onClick={(e) => e.stopPropagation()}
                       />
                       {isSaving ? (
