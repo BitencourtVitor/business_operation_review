@@ -8,12 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/u
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { useQBChart, useQBProjects, useQBYears } from "@/hooks/use-qb-accounting"
 import { ProjectDetailModal } from "./components/ProjectDetailModal"
+import AIChatPanel from "./components/AIChatPanel"
 import {
   ResponsiveContainer, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
 } from "recharts"
-import { Calendar, GalleryHorizontal, Search, X, TrendingUp, TrendingDown, BarChart2, FolderOpen, Info, ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, ArrowUpRight, AlertTriangle, LayoutGrid } from "lucide-react"
+import { Calendar, GalleryHorizontal, Search, X, TrendingUp, TrendingDown, BarChart2, FolderOpen, Info, ArrowDownAZ, ArrowUpZA, ArrowDown01, ArrowUp01, ArrowUpRight, AlertTriangle, Sparkles } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { ProjectCard } from "@/services/qb-accounting.service"
 
@@ -214,6 +216,7 @@ function AccountingContent() {
   const [projectSortField, setProjectSortField] = useState<"name" | "profit">("name")
   const [projectFilter, setProjectFilter]   = useState<"all" | "profit" | "loss">("all")
   const [detailCustomerID, setDetailCustomerID] = useState<string | null>(null)
+  const [ariaOpen, setAriaOpen] = useState(false)
 
   const carouselRef = useRef<HTMLDivElement>(null)
   const drag        = useRef({ x: 0, scroll: 0, active: false })
@@ -293,6 +296,17 @@ function AccountingContent() {
         </div>
 
         <div className="flex items-end gap-2">
+          {/* Aria AI */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-8 gap-1.5 text-xs"
+            onClick={() => setAriaOpen(true)}
+          >
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            Ask Aria
+          </Button>
+
           {/* Period */}
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
@@ -576,6 +590,13 @@ function AccountingContent() {
           onClose={() => setDetailCustomerID(null)}
         />
       )}
+
+      {/* ── Aria AI Chat ── */}
+      <AIChatPanel
+        company={company}
+        open={ariaOpen}
+        onClose={() => setAriaOpen(false)}
+      />
 
     </div>
   )

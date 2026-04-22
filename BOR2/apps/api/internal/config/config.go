@@ -11,6 +11,12 @@ type Config struct {
 	App      AppConfig
 	Database DatabaseConfig
 	Auth     AuthConfig
+	AI       AIConfig
+}
+
+type AIConfig struct {
+	OpenRouterKey string
+	Model         string
 }
 
 type AppConfig struct {
@@ -46,6 +52,10 @@ func Load() (*Config, error) {
 		Auth: AuthConfig{
 			Secret: requireEnv("BETTER_AUTH_SECRET"),
 			URL:    getEnv("BETTER_AUTH_URL", "http://localhost:8080"),
+		},
+		AI: AIConfig{
+			OpenRouterKey: getEnv("OPENROUTER_API_KEY", ""),
+			Model:         getEnv("AI_MODEL", "google/gemini-2.0-flash-001"),
 		},
 	}
 

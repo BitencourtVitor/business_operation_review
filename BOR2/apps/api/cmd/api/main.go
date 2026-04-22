@@ -115,6 +115,7 @@ func main() {
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
+	aiChatHandler            := handler.NewAIChatHandler(service.NewAIService(db, service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model), cfg.AI.Model))
 
 	// ── Fiber App ─────────────────────────────────────────────────────────────
 	app := fiber.New(fiber.Config{
@@ -330,6 +331,16 @@ func main() {
 	qbAccounting.Get("/chart",           qbAccountingHandler.Chart)
 	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
 	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
+
+	// AI Chat (Aria)
+	ai := api.Group("/ai")
+	ai.Post("/chat",                              aiChatHandler.Chat)
+	ai.Get("/conversations",                      aiChatHandler.ListConversations)
+	ai.Delete("/conversations/:id",               aiChatHandler.DeleteConversation)
+	ai.Patch("/conversations/:id/title",          aiChatHandler.UpdateTitle)
+	ai.Get("/conversations/:id/messages",         aiChatHandler.ListMessages)
+	ai.Get("/context/:company",                   aiChatHandler.GetContext)
+	ai.Patch("/context/:company",                 aiChatHandler.UpsertContext)
 
 	// QuickBooks OAuth (dev/admin — no auth middleware on callback so QB can redirect)
 	qb := v1.Group("/qb")
