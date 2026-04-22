@@ -527,16 +527,24 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
         {isInChat && (
           <div className="shrink-0 border-t border-border px-2 py-2">
             <div className="flex items-end gap-1.5">
-              <Textarea
-                ref={textareaRef}
-                value={input}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="Ask Aria…"
-                className="min-h-[36px] max-h-[96px] flex-1 resize-none py-2 text-xs leading-5"
-                rows={1}
-                disabled={chatMutation.isPending}
-              />
+              <div className="relative flex-1">
+                <Textarea
+                  ref={textareaRef}
+                  value={input}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask Aria…"
+                  className="min-h-[36px] max-h-[96px] w-full resize-none py-2 pb-4 text-xs leading-5"
+                  rows={1}
+                  disabled={chatMutation.isPending}
+                />
+                <span className={cn(
+                  'pointer-events-none absolute bottom-1.5 right-2 text-[10px] tabular-nums transition-colors',
+                  nearLimit ? 'text-destructive' : 'text-muted-foreground/40',
+                )}>
+                  {charCount}/{MAX_CHARS}
+                </span>
+              </div>
               <Button
                 size="icon"
                 className="h-9 w-9 shrink-0"
@@ -545,11 +553,6 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
               >
                 <SendHorizonal className="h-3.5 w-3.5" />
               </Button>
-            </div>
-            <div className="mt-1 flex justify-end">
-              <span className={cn('text-[10px] tabular-nums transition-colors', nearLimit ? 'text-destructive' : 'text-muted-foreground')}>
-                {charCount}/{MAX_CHARS}
-              </span>
             </div>
           </div>
         )}
