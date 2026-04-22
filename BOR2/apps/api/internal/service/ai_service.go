@@ -85,7 +85,7 @@ func (s *AIService) ListConversations(ctx context.Context, userID, company strin
 	}
 	defer rows.Close()
 
-	var convs []Conversation
+	convs := make([]Conversation, 0)
 	for rows.Next() {
 		var c Conversation
 		if err := rows.Scan(&c.ID, &c.UserID, &c.Company, &c.Title, &c.CreatedAt, &c.UpdatedAt); err != nil {
@@ -162,7 +162,7 @@ func (s *AIService) ListMessages(ctx context.Context, convID, userID string) ([]
 	}
 	defer rows.Close()
 
-	var msgs []Message
+	msgs := make([]Message, 0)
 	for rows.Next() {
 		var m Message
 		var dataRaw []byte

@@ -43,8 +43,10 @@ export default function AIChatPanel({ company, open, onClose }: AIChatPanelProps
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
-  const { data: conversations = [] } = useAIConversations(company)
-  const { data: messages = [], refetch: refetchMessages } = useAIMessages(activeConversationId)
+  const { data: conversationsRaw } = useAIConversations(company)
+  const { data: messagesRaw, refetch: refetchMessages } = useAIMessages(activeConversationId)
+  const conversations = conversationsRaw ?? []
+  const messages = messagesRaw ?? []
   const chatMutation = useAIChat(company)
   const deleteMutation = useDeleteConversation(company)
   const updateTitleMutation = useUpdateConversationTitle(company)
