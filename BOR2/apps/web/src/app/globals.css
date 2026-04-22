@@ -11,7 +11,20 @@
   }
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+    width: 0;
+    height: 0;
   }
+}
+
+/* Force-hide scrollbar on any element with data-hide-scrollbar */
+[data-hide-scrollbar]::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+[data-hide-scrollbar] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 @theme inline {
