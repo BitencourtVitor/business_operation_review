@@ -67,6 +67,7 @@ func main() {
 	notificationRepo     := repository.NewPostgresNotificationRepository(db)
 	auditLogRepo         := repository.NewPostgresAuditLogRepository(db)
 	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
+	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -87,6 +88,7 @@ func main() {
 	payableService        := service.NewPayableService(payableRepo)
 	notificationService  := service.NewNotificationService(notificationRepo)
 	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
+	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -113,6 +115,7 @@ func main() {
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
+	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
@@ -206,6 +209,19 @@ func main() {
 	fuel := api.Group("/fuel")
 	fuel.Get("/samsara", fuelHandler.ListSamsara)
 	fuel.Get("/wex", fuelHandler.ListWex)
+
+	// WEX Categorization
+	wexNorm := api.Group("/wex/normalization")
+	wexNorm.Get("/", wexCatHandler.ListNorm)
+	wexNorm.Post("/", wexCatHandler.UpsertNorm)
+	wexNorm.Put("/:id", wexCatHandler.UpdateNorm)
+	wexNorm.Delete("/:id", wexCatHandler.DeleteNorm)
+
+	wexReports := api.Group("/wex/reports")
+	wexReports.Get("/", wexCatHandler.ListReports)
+	wexReports.Post("/", wexCatHandler.CreateReport)
+	wexReports.Get("/:id", wexCatHandler.GetReport)
+	wexReports.Delete("/:id", wexCatHandler.DeleteReport)
 
 	// Permits
 	permits := api.Group("/permits")

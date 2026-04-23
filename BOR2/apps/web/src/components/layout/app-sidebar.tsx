@@ -38,7 +38,6 @@ import {
   Package,
   PanelLeftClose,
   PanelLeftOpen,
-  Ruler,
   Settings,
   TrendingUp,
   Users,
@@ -115,8 +114,6 @@ const comingSoonGroup: NavGroup = {
     { title: "HVAC Project Monitoring",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
     { title: "Operational Index",        href: "/ofi",                icon: BarChart2, disabled: true },
     { title: "Fuel Control",          href: "/fuel",                 icon: Fuel,       disabled: true },
-    { title: "WEX Categorization",    href: "/wex-categorization",   icon: CreditCard, disabled: true },
-    { title: "Takeoff Works",         href: "/takeoff",              icon: Ruler,      disabled: true },
     { title: "Forecast Improvement",  href: "/forecast-improvement", icon: TrendingUp, disabled: true },
   ],
 }
@@ -124,9 +121,10 @@ const comingSoonGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control",     href: "/data-control", icon: ClipboardList },
-    { title: "Quickbooks Time Auto Log",  href: "/autolog",      image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
-    { title: "Settings",                  href: "/settings",     icon: Settings      },
+    { title: "Forecast Data Control",     href: "/data-control",       icon: ClipboardList },
+    { title: "WEX Categorization",        href: "/wex-categorization", icon: CreditCard    },
+    { title: "Quickbooks Time Auto Log",  href: "/autolog",            image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
+    { title: "Settings",                  href: "/settings",           icon: Settings      },
   ],
 }
 
