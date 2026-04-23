@@ -1,5 +1,14 @@
 import Cookies from 'js-cookie'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+
+const LS_AUTOLOG_EMPLOYEES = 'autolog_included_employees'
+function loadIncluded(): Set<string> | null {
+  try { const r = localStorage.getItem(LS_AUTOLOG_EMPLOYEES); return r ? new Set(JSON.parse(r) as string[]) : null } catch { return null }
+}
+function saveIncluded(s: Set<string>) {
+  try { localStorage.setItem(LS_AUTOLOG_EMPLOYEES, JSON.stringify([...s])) } catch { /**/ }
+}
 
 type ParsedCsv = {
   headers: string[]
@@ -637,6 +646,104 @@ function addDaysIso(iso: string, delta: number): string {
   return `${y}-${m}-${day}`
 }
 
+function EmployeeFilterDropdown({
+  all, included, onChange, disabled,
+}: { all: string[]; included: Set<string>; onChange: (s: Set<string>) => void; disabled: boolean }) {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
+  const [pos, setPos] = useState<{ top: number; left: number; width: number } | null>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const panelRef   = useRef<HTMLDivElement>(null)
+
+  function openDropdown() {
+    if (disabled) return
+    const r = triggerRef.current?.getBoundingClientRect()
+    if (r) setPos({ top: r.bottom + 4, left: r.left, width: Math.max(r.width, 360) })
+    setOpen(true)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    function onDown(e: MouseEvent) {
+      if (panelRef.current?.contains(e.target as Node) || triggerRef.current?.contains(e.target as Node)) return
+      setOpen(false)
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [open])
+
+  function toggle(name: string) {
+    const next = new Set(included)
+    if (next.has(name)) next.delete(name); else next.add(name)
+    onChange(next)
+  }
+
+  const filtered = all.filter(n => n.toLowerCase().includes(search.toLowerCase()))
+  const label = disabled ? 'Process a file first' : `${included.size} of ${all.length} included`
+
+  return (
+    <div>
+      <button ref={triggerRef} onClick={() => open ? setOpen(false) : openDropdown()}
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '8px 12px', borderRadius: 8, fontSize: 13,
+          border: '1.5px solid var(--color-border-divider)',
+          background: 'var(--color-background-primary)',
+          color: disabled ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
+          cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.55 : 1,
+        }}>
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{label}</span>
+        <i className={`bi bi-chevron-${open ? 'up' : 'down'}`} style={{ fontSize: 11, flexShrink: 0, marginLeft: 6, color: 'var(--color-text-secondary)' }} />
+      </button>
+
+      {open && pos && createPortal(
+        <div ref={panelRef} style={{
+          position: 'fixed', top: pos.top, left: pos.left, width: pos.width, zIndex: 9999,
+          background: 'var(--color-background-primary)',
+          border: '1.5px solid var(--color-border-divider)',
+          borderRadius: 10, boxShadow: '0 8px 32px rgba(0,0,0,0.26)', overflow: 'hidden',
+        }}>
+          <div style={{ padding: '8px 10px', borderBottom: '1px solid var(--color-border-divider)' }}>
+            <input autoFocus value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Search employees…"
+              style={{ width: '100%', padding: '5px 8px', borderRadius: 6, fontSize: 12,
+                border: '1px solid var(--color-border-divider)',
+                background: 'var(--color-background-secondary)',
+                color: 'var(--color-text-primary)', boxSizing: 'border-box' }} />
+          </div>
+          <div style={{ display: 'flex', gap: 6, padding: '6px 10px', borderBottom: '1px solid var(--color-border-divider)' }}>
+            <button onClick={() => onChange(new Set(all))}
+              style={{ flex: 1, padding: '4px', borderRadius: 5, fontSize: 11, border: '1px solid var(--color-border-divider)', background: 'rgba(46,107,230,0.06)', color: 'var(--color-accent-primary)', cursor: 'pointer', fontWeight: 600 }}>
+              Include all</button>
+            <button onClick={() => onChange(new Set())}
+              style={{ flex: 1, padding: '4px', borderRadius: 5, fontSize: 11, border: '1px solid var(--color-border-divider)', background: 'rgba(239,68,68,0.06)', color: '#ef4444', cursor: 'pointer', fontWeight: 600 }}>
+              Exclude all</button>
+          </div>
+          <div style={{ maxHeight: 280, overflowY: 'auto', padding: '4px 0' }}>
+            {filtered.length === 0 && <p style={{ padding: '12px', fontSize: 12, color: 'var(--color-text-secondary)', margin: 0 }}>No matches</p>}
+            {filtered.map(name => {
+              const on = included.has(name)
+              return (
+                <label key={name} style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '7px 12px', cursor: 'pointer',
+                  background: !on ? 'rgba(239,68,68,0.04)' : 'transparent',
+                  borderLeft: `2px solid ${!on ? '#ef4444' : 'transparent'}`,
+                }}>
+                  <input type="checkbox" checked={on} onChange={() => toggle(name)}
+                    style={{ accentColor: 'var(--color-accent-primary)', width: 13, height: 13, flexShrink: 0, cursor: 'pointer' }} />
+                  <span style={{ fontSize: 12, flex: 1, color: !on ? '#ef4444' : 'var(--color-text-primary)', fontWeight: !on ? 500 : 400 }}>{name}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>,
+        document.body
+      )}
+    </div>
+  )
+}
+
 export default function AutoLog() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -648,6 +755,8 @@ export default function AutoLog() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [processingStage, setProcessingStage] = useState<string>('')
   const [isDraggingFile, setIsDraggingFile] = useState(false)
+  const [allEmployees, setAllEmployees]     = useState<string[]>([])
+  const [includedEmployees, setIncludedEmployees] = useState<Set<string>>(loadIncluded() ?? new Set())
 
   const [weekdayPolicy, setWeekdayPolicy] = useState<TimePolicy>({
     expectedStart: '07:00 AM',
@@ -664,6 +773,8 @@ export default function AutoLog() {
   })
 
   const canProcess = useMemo(() => csvText.trim() !== '' && !isProcessing, [csvText, isProcessing])
+
+  useEffect(() => { saveIncluded(includedEmployees) }, [includedEmployees])
 
   useEffect(() => {
     Cookies.set('theme', theme, { expires: 365 })
@@ -780,8 +891,24 @@ export default function AutoLog() {
 
       await yieldToUi()
       setProcessingStage('Grouping by date...')
+
+      // Extract all unique employee names and update state
+      const namesSet = new Set<string>()
+      for (const agg of aggregates.values()) namesSet.add(`${agg.fname} ${agg.lname}`.trim())
+      const namesSorted = [...namesSet].sort((a, b) => a.localeCompare(b))
+      setAllEmployees(namesSorted)
+      // If no saved filter yet, include everyone
+      const activeFilter = loadIncluded()
+      const filterSet = (activeFilter && activeFilter.size > 0) ? activeFilter : new Set(namesSorted)
+      if (!activeFilter || activeFilter.size === 0) {
+        setIncludedEmployees(new Set(namesSorted))
+        saveIncluded(new Set(namesSorted))
+      }
+
       const byDate = new Map<string, EmployeeDayAggregate[]>()
       for (const [key, agg] of aggregates.entries()) {
+        const fullName = `${agg.fname} ${agg.lname}`.trim()
+        if (!filterSet.has(fullName)) continue
         const dateIso = key.split('__')[0]
         const list = byDate.get(dateIso) || []
         list.push(agg)
@@ -1287,6 +1414,27 @@ export default function AutoLog() {
                   />
                 </div>
               </div>
+            </div>
+
+            <div>
+              <div style={{ color: 'var(--color-text-primary)', fontWeight: 800, fontSize: 13, marginBottom: 8 }}>
+                Employee Filter
+              </div>
+              <p style={{ fontSize: 11, color: 'var(--color-text-secondary)', margin: '0 0 8px', lineHeight: 1.5 }}>
+                Select who appears in the report. Saved automatically.
+              </p>
+              <EmployeeFilterDropdown
+                all={allEmployees}
+                included={includedEmployees}
+                onChange={s => setIncludedEmployees(s)}
+                disabled={allEmployees.length === 0}
+              />
+              {allEmployees.length > 0 && (
+                <p style={{ marginTop: 6, marginBottom: 0, fontSize: 11, color: 'var(--color-text-secondary)' }}>
+                  <i className="bi bi-floppy" style={{ marginRight: 4 }} />
+                  {includedEmployees.size} of {allEmployees.length} included · re-process to apply
+                </p>
+              )}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
