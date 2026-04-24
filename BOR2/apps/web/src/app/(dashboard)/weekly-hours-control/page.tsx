@@ -229,8 +229,10 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
 
-  const filtered = allCategories.filter(c => c.toLowerCase().includes(search.toLowerCase()))
-  const includedCount = allCategories.length - excluded.size
+  const q = search.toLowerCase()
+  const filteredExcluded = allCategories.filter(c => excluded.has(c) && c.toLowerCase().includes(q))
+  const filteredIncluded = allCategories.filter(c => !excluded.has(c) && c.toLowerCase().includes(q))
+  const hasResults = filteredExcluded.length > 0 || filteredIncluded.length > 0
 
   function toggle(cat: string) {
     const next = new Set(excluded)
@@ -244,10 +246,14 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
         <Button variant="outline" size="sm" disabled={disabled} className="w-full justify-between font-normal text-xs" />
       }>
         <span className="truncate">
-          {disabled ? "Upload a file first" : `${includedCount} of ${allCategories.length} included`}
+          {disabled
+            ? "Upload a file first"
+            : `${allCategories.length - excluded.size} included · ${excluded.size} excluded`}
         </span>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0 gap-0" align="start">
+
+        {/* Search */}
         <div className="flex items-center gap-2 border-b px-3 py-2">
           <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           <input
@@ -256,6 +262,8 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
             className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground"
           />
         </div>
+
+        {/* Quick actions */}
         <div className="flex gap-2 border-b p-2">
           <Button variant="outline" size="sm"
             className="h-7 flex-1 border-destructive/30 text-xs text-destructive hover:text-destructive"
@@ -264,27 +272,56 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
             className="h-7 flex-1 border-emerald-600/30 text-xs text-emerald-600 hover:text-emerald-600"
             onClick={() => onChange(new Set())}>Include all</Button>
         </div>
-        <div className="max-h-64 overflow-y-auto py-1">
-          {filtered.length === 0 && <p className="px-3 py-3 text-xs text-muted-foreground">No matches</p>}
-          {filtered.map(cat => {
-            const isExcluded = excluded.has(cat)
-            return (
-              <label key={cat} className={cn(
-                "flex cursor-pointer items-center gap-2.5 border-l-2 px-3 py-1.5 transition-colors",
-                isExcluded ? "border-destructive bg-destructive/5" : "border-transparent hover:bg-muted/50",
-              )}>
-                <Checkbox checked={isExcluded} onCheckedChange={() => toggle(cat)}
-                  className={cn("h-3.5 w-3.5 shrink-0",
-                    isExcluded && "border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive"
-                  )}
-                />
-                <span title={cat} className={cn(
-                  "flex-1 text-xs leading-tight",
-                  isExcluded ? "font-medium text-destructive" : "text-foreground",
-                )}>{cat}</span>
-              </label>
-            )
-          })}
+
+        {/* Sectioned list */}
+        <div className="max-h-72 overflow-y-auto">
+          {!hasResults && (
+            <p className="px-3 py-4 text-xs text-muted-foreground">No matches</p>
+          )}
+
+          {/* ── Excluded ── */}
+          {filteredExcluded.length > 0 && (
+            <div>
+              <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-destructive/20 bg-destructive/8 px-3 py-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-destructive">
+                  Excluded
+                </span>
+                <span className="ml-auto text-[10px] tabular-nums text-destructive/70">
+                  {filteredExcluded.length}
+                </span>
+              </div>
+              {filteredExcluded.map(cat => (
+                <label key={cat} className="flex cursor-pointer items-center gap-2.5 border-l-2 border-destructive bg-destructive/5 px-3 py-1.5 transition-colors hover:bg-destructive/10">
+                  <Checkbox checked onCheckedChange={() => toggle(cat)}
+                    className="h-3.5 w-3.5 shrink-0 border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive"
+                  />
+                  <span title={cat} className="flex-1 truncate text-xs font-medium text-destructive">{cat}</span>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {/* ── Included ── */}
+          {filteredIncluded.length > 0 && (
+            <div>
+              <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-emerald-600/20 bg-emerald-600/5 px-3 py-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">
+                  Included
+                </span>
+                <span className="ml-auto text-[10px] tabular-nums text-emerald-700/70 dark:text-emerald-500/70">
+                  {filteredIncluded.length}
+                </span>
+              </div>
+              {filteredIncluded.map(cat => (
+                <label key={cat} className="flex cursor-pointer items-center gap-2.5 border-l-2 border-transparent px-3 py-1.5 transition-colors hover:bg-muted/50">
+                  <Checkbox checked={false} onCheckedChange={() => toggle(cat)}
+                    className="h-3.5 w-3.5 shrink-0"
+                  />
+                  <span title={cat} className="flex-1 truncate text-xs text-foreground">{cat}</span>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>
