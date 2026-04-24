@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import {
   ArrowDown,
   ArrowUp,
+  ChevronDown,
   FileUp,
   ImageIcon,
   RotateCcw,
@@ -240,16 +241,21 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
     onChange(next)
   }
 
+  const triggerLabel = disabled
+    ? "Upload a file first"
+    : excluded.size === 0
+      ? "All categories included"
+      : excluded.size === allCategories.length
+        ? "All categories excluded"
+        : `${excluded.size} excluded · ${allCategories.length - excluded.size} included`
+
   return (
     <Popover open={open && !disabled} onOpenChange={v => { if (!disabled) setOpen(v) }}>
       <PopoverTrigger render={
         <Button variant="outline" size="sm" disabled={disabled} className="w-full justify-between font-normal text-xs" />
       }>
-        <span className="truncate">
-          {disabled
-            ? "Upload a file first"
-            : `${allCategories.length - excluded.size} included · ${excluded.size} excluded`}
-        </span>
+        <span className="truncate">{triggerLabel}</span>
+        <ChevronDown className={cn("ml-1 h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0 gap-0" align="start">
 
@@ -263,16 +269,6 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
           />
         </div>
 
-        {/* Quick actions */}
-        <div className="flex gap-2 border-b p-2">
-          <Button variant="outline" size="sm"
-            className="h-7 flex-1 border-destructive/30 text-xs text-destructive hover:text-destructive"
-            onClick={() => onChange(new Set(allCategories))}>Exclude all</Button>
-          <Button variant="outline" size="sm"
-            className="h-7 flex-1 border-emerald-600/30 text-xs text-emerald-600 hover:text-emerald-600"
-            onClick={() => onChange(new Set())}>Include all</Button>
-        </div>
-
         {/* Sectioned list */}
         <div className="max-h-72 overflow-y-auto">
           {!hasResults && (
@@ -282,21 +278,15 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
           {/* ── Excluded ── */}
           {filteredExcluded.length > 0 && (
             <div>
-              <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-destructive/20 bg-destructive/8 px-3 py-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-destructive">
-                  Excluded
-                </span>
-                <span className="ml-auto text-[10px] tabular-nums text-destructive/70">
-                  {filteredExcluded.length}
-                </span>
+              <div className="sticky top-0 z-10 flex items-center border-b border-destructive/20 bg-destructive/8 px-3 py-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-destructive">Excluded</span>
+                <span className="ml-auto text-[10px] tabular-nums text-destructive/70">{filteredExcluded.length}</span>
               </div>
               {filteredExcluded.map(cat => (
-                <label key={cat} className="flex cursor-pointer items-center gap-2.5 border-l-2 border-destructive bg-destructive/5 px-3 py-1.5 transition-colors hover:bg-destructive/10">
-                  <Checkbox checked onCheckedChange={() => toggle(cat)}
-                    className="h-3.5 w-3.5 shrink-0 border-destructive data-[state=checked]:bg-destructive data-[state=checked]:border-destructive"
-                  />
-                  <span title={cat} className="flex-1 truncate text-xs font-medium text-destructive">{cat}</span>
-                </label>
+                <div key={cat} onClick={() => toggle(cat)}
+                  className="flex cursor-pointer items-center border-l-2 border-destructive bg-destructive/5 px-3 py-2 transition-colors hover:bg-destructive/10">
+                  <span title={cat} className="truncate text-xs font-medium text-destructive">{cat}</span>
+                </div>
               ))}
             </div>
           )}
@@ -304,21 +294,15 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
           {/* ── Included ── */}
           {filteredIncluded.length > 0 && (
             <div>
-              <div className="sticky top-0 z-10 flex items-center gap-1.5 border-b border-emerald-600/20 bg-emerald-600/5 px-3 py-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">
-                  Included
-                </span>
-                <span className="ml-auto text-[10px] tabular-nums text-emerald-700/70 dark:text-emerald-500/70">
-                  {filteredIncluded.length}
-                </span>
+              <div className="sticky top-0 z-10 flex items-center border-b border-emerald-600/20 bg-emerald-600/5 px-3 py-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-500">Included</span>
+                <span className="ml-auto text-[10px] tabular-nums text-emerald-700/70 dark:text-emerald-500/70">{filteredIncluded.length}</span>
               </div>
               {filteredIncluded.map(cat => (
-                <label key={cat} className="flex cursor-pointer items-center gap-2.5 border-l-2 border-transparent px-3 py-1.5 transition-colors hover:bg-muted/50">
-                  <Checkbox checked={false} onCheckedChange={() => toggle(cat)}
-                    className="h-3.5 w-3.5 shrink-0"
-                  />
-                  <span title={cat} className="flex-1 truncate text-xs text-foreground">{cat}</span>
-                </label>
+                <div key={cat} onClick={() => toggle(cat)}
+                  className="flex cursor-pointer items-center border-l-2 border-transparent px-3 py-2 transition-colors hover:bg-muted/50">
+                  <span title={cat} className="truncate text-xs text-foreground">{cat}</span>
+                </div>
               ))}
             </div>
           )}
