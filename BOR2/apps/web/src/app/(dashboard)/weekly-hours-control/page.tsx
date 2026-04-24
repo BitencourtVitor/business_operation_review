@@ -454,7 +454,7 @@ export default function WeeklyHoursControlPage() {
             </div>
           </div>
 
-          <div className="h-px bg-sidebar-border" />
+          <div className="-mx-4 h-px bg-sidebar-border" />
 
           {/* Job code categories */}
           <div className="flex flex-col gap-2">
@@ -482,7 +482,7 @@ export default function WeeklyHoursControlPage() {
           {/* Export — only when results are loaded */}
           {step === "results" && results.length > 0 && (
             <>
-              <div className="h-px bg-sidebar-border" />
+              <div className="-mx-4 h-px bg-sidebar-border" />
               <div className="flex flex-col gap-2.5">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
                   Export
@@ -509,7 +509,7 @@ export default function WeeklyHoursControlPage() {
           {/* New file — only when in results */}
           {step === "results" && (
             <>
-              <div className="mt-auto h-px bg-sidebar-border" />
+              <div className="-mx-4 mt-auto h-px bg-sidebar-border" />
               <Button variant="ghost" size="sm" className="w-full gap-1.5 text-muted-foreground" onClick={handleReset}>
                 <RotateCcw className="h-3.5 w-3.5" />
                 New file
