@@ -396,11 +396,11 @@ function exportResultsAsImage(
     ctx.fillStyle = T1
     ctx.font = `700 14px monospace`
     ctx.textAlign = 'center'
-    ctx.fillText(`${r.hoursMonWed.toFixed(2)}h`, cols[1].x + cols[1].w / 2, cy)
+    ctx.fillText(`${r.hoursMonWed.toFixed(1)}h`, cols[1].x + cols[1].w / 2, cy)
 
     // Surplus — inverted: positive = red (bad), negative = green (good)
     const surplusColor = r.surplus > 0 ? RED : r.surplus < 0 ? GREEN : T2
-    const surplusLabel = `${r.surplus > 0 ? '+' : ''}${r.surplus.toFixed(2)}h`
+    const surplusLabel = `${r.surplus > 0 ? '+' : ''}${r.surplus.toFixed(1)}h`
     ctx.fillStyle = surplusColor
     ctx.font = `700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
     ctx.fillText(surplusLabel, cols[2].x + cols[2].w / 2, cy)
@@ -408,7 +408,7 @@ function exportResultsAsImage(
     // Thu-Fri Available
     ctx.fillStyle = r.thursFriAvailable === 0 ? RED : T1
     ctx.font = `700 14px monospace`
-    ctx.fillText(`${r.thursFriAvailable.toFixed(2)}h`, cols[3].x + cols[3].w / 2, cy)
+    ctx.fillText(`${r.thursFriAvailable.toFixed(1)}h`, cols[3].x + cols[3].w / 2, cy)
 
     ctx.textAlign = 'left'
   })
@@ -848,7 +848,7 @@ export default function WeeklyHoursControl() {
                           <td style={{ padding: '12px 20px', color: 'var(--color-text-primary)', fontWeight: 500 }}>{r.name}</td>
 
                           <td style={{ padding: '12px 20px', textAlign: 'center', fontFamily: 'monospace', fontWeight: 700, fontSize: 16, color: 'var(--color-text-primary)' }}>
-                            {r.hoursMonWed.toFixed(2)}h
+                            {r.hoursMonWed.toFixed(1)}h
                           </td>
 
                           {/* Surplus: positive = red (bad), negative = green (good) */}
@@ -865,12 +865,12 @@ export default function WeeklyHoursControl() {
                             }}>
                               {r.surplus > 0 && <i className="bi bi-arrow-up" style={{ fontSize: 11 }} />}
                               {r.surplus < 0 && <i className="bi bi-arrow-down" style={{ fontSize: 11 }} />}
-                              {r.surplus > 0 ? '+' : ''}{r.surplus.toFixed(2)}h
+                              {r.surplus > 0 ? '+' : ''}{r.surplus.toFixed(1)}h
                             </span>
                           </td>
 
                           <td style={{ padding: '12px 20px', textAlign: 'center', fontFamily: 'monospace', fontWeight: 700, fontSize: 16, color: r.thursFriAvailable === 0 ? '#ef4444' : 'var(--color-text-primary)' }}>
-                            {r.thursFriAvailable.toFixed(2)}h
+                            {r.thursFriAvailable.toFixed(1)}h
                           </td>
                         </tr>
                       ))}
