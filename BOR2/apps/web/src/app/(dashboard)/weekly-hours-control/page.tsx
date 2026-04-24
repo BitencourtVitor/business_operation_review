@@ -243,11 +243,7 @@ function CategoryDropdown({ allCategories, excluded, onChange, disabled }: {
 
   const triggerLabel = disabled
     ? "Upload a file first"
-    : excluded.size === 0
-      ? "All categories included"
-      : excluded.size === allCategories.length
-        ? "All categories excluded"
-        : `${excluded.size} excluded · ${allCategories.length - excluded.size} included`
+    : `${allCategories.length} categor${allCategories.length !== 1 ? "ies" : "y"}`
 
   return (
     <Popover open={open && !disabled} onOpenChange={v => { if (!disabled) setOpen(v) }}>
@@ -494,9 +490,10 @@ export default function WeeklyHoursControlPage() {
               disabled={allCategories.length === 0}
             />
             {allCategories.length > 0 && (
-              <p className="text-[11px] text-muted-foreground">
-                {excluded.size} excluded · {allCategories.length - excluded.size} counted
-              </p>
+              <div className="flex text-[11px] text-muted-foreground">
+                <span className="flex-1 text-center text-destructive/80">{excluded.size} excluded</span>
+                <span className="flex-1 text-center">{allCategories.length - excluded.size} counted</span>
+              </div>
             )}
           </div>
 
