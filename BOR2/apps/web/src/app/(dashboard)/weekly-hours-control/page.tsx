@@ -341,12 +341,12 @@ export default function WeeklyHoursControlPage() {
 
     setResults(
       [...map.values()].map(({ name, hours }) => {
-        const h = Math.round(hours * 100) / 100
+        const h = Math.round(hours * 10) / 10
         return {
           name,
           hoursMonWed: h,
-          surplus: Math.round((h - expectedMonWed) * 100) / 100,
-          thursFriAvailable: Math.max(0, Math.round((fullWeek - h) * 100) / 100),
+          surplus: Math.round((h - expectedMonWed) * 10) / 10,
+          thursFriAvailable: Math.max(0, Math.round((fullWeek - h) * 10) / 10),
         }
       }).sort((a, b) => b.surplus - a.surplus),
     )
@@ -439,18 +439,18 @@ export default function WeeklyHoursControlPage() {
               <Button
                 variant="ghost" size="icon-sm"
                 className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.max(1, h - 1))}
+                onClick={() => setHoursPerDay(h => Math.round(Math.max(0.5, h - 0.5) * 10) / 10)}
               >−</Button>
-              <span className="min-w-[2ch] text-center text-sm font-bold tabular-nums">{hoursPerDay}</span>
+              <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{hoursPerDay.toFixed(1)}</span>
               <Button
                 variant="ghost" size="icon-sm"
                 className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.min(24, h + 1))}
+                onClick={() => setHoursPerDay(h => Math.round(Math.min(24, h + 0.5) * 10) / 10)}
               >+</Button>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Mon–Wed <span className="font-semibold text-foreground">{hoursPerDay * 3}h</span></span>
-              <span>Thu–Fri <span className="font-semibold text-foreground">{hoursPerDay * 2}h</span></span>
+              <span>Mon–Wed <span className="font-semibold text-foreground">{(hoursPerDay * 3).toFixed(1)}h</span></span>
+              <span>Thu–Fri <span className="font-semibold text-foreground">{(hoursPerDay * 2).toFixed(1)}h</span></span>
             </div>
           </div>
 
@@ -601,7 +601,7 @@ export default function WeeklyHoursControlPage() {
                     <span className="mx-1.5 text-border">·</span>
                     <span className="text-muted-foreground">{fileName}</span>
                     <span className="mx-1.5 text-border">·</span>
-                    <span className="text-muted-foreground">{hoursPerDay}h/day</span>
+                    <span className="text-muted-foreground">{hoursPerDay.toFixed(1)}h/day</span>
                   </span>
                   {onlyExceeding && (
                     <Badge variant="destructive" className="text-xs">Exceeding only</Badge>
@@ -630,7 +630,7 @@ export default function WeeklyHoursControlPage() {
                         <TableCell className="font-medium">{r.name}</TableCell>
 
                         <TableCell className="text-center font-mono font-bold tabular-nums">
-                          {r.hoursMonWed}h
+                          {r.hoursMonWed.toFixed(1)}h
                         </TableCell>
 
                         {/* Positive surplus = over hours = red (bad); negative = under = green (capacity available) */}
@@ -643,7 +643,7 @@ export default function WeeklyHoursControlPage() {
                           )}>
                             {r.surplus > 0 && <ArrowUp className="h-3 w-3" />}
                             {r.surplus < 0 && <ArrowDown className="h-3 w-3" />}
-                            {r.surplus > 0 ? "+" : ""}{r.surplus}h
+                            {r.surplus > 0 ? "+" : ""}{r.surplus.toFixed(1)}h
                           </span>
                         </TableCell>
 
@@ -651,7 +651,7 @@ export default function WeeklyHoursControlPage() {
                           "text-center font-mono font-bold tabular-nums",
                           r.thursFriAvailable === 0 && "text-destructive",
                         )}>
-                          {r.thursFriAvailable}h
+                          {r.thursFriAvailable.toFixed(1)}h
                         </TableCell>
                       </TableRow>
                     ))}
