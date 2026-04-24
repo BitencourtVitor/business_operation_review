@@ -10,7 +10,6 @@ import {
   Search,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -432,20 +431,26 @@ export default function WeeklyHoursControlPage() {
         <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
 
           {/* Hours per day */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2.5">
             <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
               Expected Hours / Day
             </p>
-            <div className="flex items-center gap-3">
-              <Input
-                type="number" min={1} max={24} value={hoursPerDay}
-                onChange={e => setHoursPerDay(Math.max(1, Math.min(24, parseInt(e.target.value) || 8)))}
-                className="w-16 text-center font-bold"
-              />
-              <div className="text-xs text-muted-foreground leading-relaxed">
-                <div>Mon–Wed: <span className="font-semibold text-foreground">{hoursPerDay * 3}h</span></div>
-                <div>Thu–Fri: <span className="font-semibold text-foreground">{hoursPerDay * 2}h</span></div>
-              </div>
+            <div className="flex items-center justify-between rounded-lg border border-border bg-background px-1 py-1">
+              <Button
+                variant="ghost" size="icon-sm"
+                className="h-6 w-6 text-muted-foreground"
+                onClick={() => setHoursPerDay(h => Math.max(1, h - 1))}
+              >−</Button>
+              <span className="min-w-[2ch] text-center text-sm font-bold tabular-nums">{hoursPerDay}</span>
+              <Button
+                variant="ghost" size="icon-sm"
+                className="h-6 w-6 text-muted-foreground"
+                onClick={() => setHoursPerDay(h => Math.min(24, h + 1))}
+              >+</Button>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Mon–Wed <span className="font-semibold text-foreground">{hoursPerDay * 3}h</span></span>
+              <span>Thu–Fri <span className="font-semibold text-foreground">{hoursPerDay * 2}h</span></span>
             </div>
           </div>
 
