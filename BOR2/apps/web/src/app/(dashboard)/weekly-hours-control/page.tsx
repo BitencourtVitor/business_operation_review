@@ -490,8 +490,9 @@ export default function WeeklyHoursControlPage() {
               disabled={allCategories.length === 0}
             />
             {allCategories.length > 0 && (
-              <div className="flex text-[11px] text-muted-foreground">
+              <div className="flex items-center text-[11px] text-muted-foreground">
                 <span className="flex-1 text-center text-destructive/80">{excluded.size} excluded</span>
+                <span className="h-3 w-px bg-border" />
                 <span className="flex-1 text-center">{allCategories.length - excluded.size} counted</span>
               </div>
             )}
