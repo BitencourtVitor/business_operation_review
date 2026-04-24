@@ -525,17 +525,17 @@ export default function WeeklyHoursControlPage() {
             </>
           )}
 
-          {/* New file — only when in results */}
-          {step === "results" && (
-            <>
-              <div className="-mx-4 mt-auto h-px bg-sidebar-border" />
-              <Button variant="ghost" size="sm" className="w-full gap-1.5 text-muted-foreground" onClick={handleReset}>
-                <RotateCcw className="h-3.5 w-3.5" />
-                New file
-              </Button>
-            </>
-          )}
         </div>
+
+        {/* Footer */}
+        {step === "results" && (
+          <div className="border-t border-sidebar-border p-2">
+            <Button variant="ghost" size="sm" className="w-full gap-1.5 text-muted-foreground" onClick={handleReset}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              New file
+            </Button>
+          </div>
+        )}
       </aside>
 
       {/* ── Main content ── */}
