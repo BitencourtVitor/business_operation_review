@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   Popover,
   PopoverContent,
@@ -513,32 +512,6 @@ export default function WeeklyHoursControlPage() {
             )}
           </div>
 
-          {/* Export — only when results are loaded */}
-          {step === "results" && results.length > 0 && (
-            <>
-              <div className="-mx-4 h-px bg-sidebar-border" />
-              <div className="flex flex-col gap-2.5">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40">
-                  Export
-                </p>
-                <label className="flex cursor-pointer select-none items-center gap-2">
-                  <Checkbox
-                    checked={onlyExceeding}
-                    onCheckedChange={v => setOnlyExceeding(v === true)}
-                    className="h-3.5 w-3.5"
-                  />
-                  <span className="text-xs text-muted-foreground">
-                    Only <span className="font-semibold text-destructive">exceeding</span> employees
-                  </span>
-                </label>
-                <Button variant="outline" size="sm" className="w-full gap-1.5"
-                  onClick={() => exportResultsAsImage(displayResults, hoursPerDay, fileName, currentIsDark())}>
-                  <ImageIcon className="h-3.5 w-3.5" />
-                  Export as Image
-                </Button>
-              </div>
-            </>
-          )}
 
         </div>
 
@@ -558,26 +531,54 @@ export default function WeeklyHoursControlPage() {
         <div className="flex-1 overflow-y-auto p-6">
 
           {/* Page title */}
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between gap-4">
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
               <p className="text-sm text-muted-foreground">Mon–Wed summary · Thu–Fri availability</p>
             </div>
-            <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
-              {(["decimal", "integer"] as HourFormat[]).map(fmt => (
-                <button
-                  key={fmt}
-                  onClick={() => setHourFormat(fmt)}
-                  className={cn(
-                    "rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                    hourFormat === fmt
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
+
+            <div className="flex shrink-0 items-center gap-2">
+              {/* Only exceeding filter — visible when results loaded */}
+              {step === "results" && results.length > 0 && (
+                <Button
+                  variant={onlyExceeding ? "destructive" : "outline"}
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={() => setOnlyExceeding(v => !v)}
                 >
-                  {fmt === "decimal" ? "8.3h" : "8h"}
-                </button>
-              ))}
+                  Only exceeding
+                </Button>
+              )}
+
+              {/* Hour format toggle */}
+              <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
+                {(["decimal", "integer"] as HourFormat[]).map(fmt => (
+                  <button
+                    key={fmt}
+                    onClick={() => setHourFormat(fmt)}
+                    className={cn(
+                      "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                      hourFormat === fmt
+                        ? "bg-background text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {fmt === "decimal" ? "8.3h" : "8h"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Export — visible when results loaded */}
+              {step === "results" && results.length > 0 && (
+                <Button
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={() => exportResultsAsImage(displayResults, hoursPerDay, fileName, currentIsDark())}
+                >
+                  <ImageIcon className="h-3.5 w-3.5" />
+                  Export as Image
+                </Button>
+              )}
             </div>
           </div>
 
