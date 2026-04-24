@@ -439,18 +439,18 @@ export default function WeeklyHoursControlPage() {
               <Button
                 variant="ghost" size="icon-sm"
                 className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.round(Math.max(0.5, h - 0.5) * 10) / 10)}
+                onClick={() => setHoursPerDay(h => Math.max(1, h - 1))}
               >−</Button>
-              <span className="min-w-[3ch] text-center text-sm font-bold tabular-nums">{hoursPerDay.toFixed(1)}</span>
+              <span className="min-w-[2ch] text-center text-sm font-bold tabular-nums">{hoursPerDay}</span>
               <Button
                 variant="ghost" size="icon-sm"
                 className="h-6 w-6 text-muted-foreground"
-                onClick={() => setHoursPerDay(h => Math.round(Math.min(24, h + 0.5) * 10) / 10)}
+                onClick={() => setHoursPerDay(h => Math.min(24, h + 1))}
               >+</Button>
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Mon–Wed <span className="font-semibold text-foreground">{(hoursPerDay * 3).toFixed(1)}h</span></span>
-              <span>Thu–Fri <span className="font-semibold text-foreground">{(hoursPerDay * 2).toFixed(1)}h</span></span>
+              <span>Mon–Wed <span className="font-semibold text-foreground">{hoursPerDay * 3}h</span></span>
+              <span>Thu–Fri <span className="font-semibold text-foreground">{hoursPerDay * 2}h</span></span>
             </div>
           </div>
 
@@ -601,7 +601,7 @@ export default function WeeklyHoursControlPage() {
                     <span className="mx-1.5 text-border">·</span>
                     <span className="text-muted-foreground">{fileName}</span>
                     <span className="mx-1.5 text-border">·</span>
-                    <span className="text-muted-foreground">{hoursPerDay.toFixed(1)}h/day</span>
+                    <span className="text-muted-foreground">{hoursPerDay}h/day</span>
                   </span>
                   {onlyExceeding && (
                     <Badge variant="destructive" className="text-xs">Exceeding only</Badge>
