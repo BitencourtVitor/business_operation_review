@@ -598,17 +598,16 @@ export default function WeeklyHoursControlPage() {
 
               {/* Results table */}
               <div className="overflow-hidden rounded-xl border border-border bg-card/60">
-                <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+                <div className="flex items-center border-b border-border px-4 py-2.5">
                   <span className="text-sm font-medium">
                     {results.length} employee{results.length !== 1 ? "s" : ""}
-                    <span className="mx-1.5 text-border">·</span>
-                    <span className="text-muted-foreground">{fileName}</span>
-                    <span className="mx-1.5 text-border">·</span>
-                    <span className="text-muted-foreground">{hoursPerDay}h/day</span>
+                    {onlyExceeding && <Badge variant="destructive" className="ml-2 text-xs">Exceeding only</Badge>}
                   </span>
-                  {onlyExceeding && (
-                    <Badge variant="destructive" className="text-xs">Exceeding only</Badge>
-                  )}
+                  <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>{fileName}</span>
+                    <span className="text-border">·</span>
+                    <span>{hoursPerDay}h/day</span>
+                  </span>
                 </div>
 
                 <Table>
