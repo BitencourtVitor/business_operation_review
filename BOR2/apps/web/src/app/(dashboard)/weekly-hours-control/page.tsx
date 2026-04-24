@@ -530,8 +530,8 @@ export default function WeeklyHoursControlPage() {
         {/* Footer */}
         {step === "results" && (
           <div className="border-t border-sidebar-border p-2">
-            <Button variant="ghost" size="sm" className="w-full gap-1.5 text-muted-foreground" onClick={handleReset}>
-              <RotateCcw className="h-3.5 w-3.5" />
+            <Button variant="ghost" className="w-full gap-2 text-sm text-muted-foreground" onClick={handleReset}>
+              <RotateCcw className="h-4 w-4" />
               New file
             </Button>
           </div>
