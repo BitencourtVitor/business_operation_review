@@ -596,22 +596,6 @@ export default function WeeklyHoursControlPage() {
           {step === "results" && (
             <div className="flex flex-col gap-4">
 
-              {/* Summary chips */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { label: "Employees",        value: `${results.length}`,   className: "text-primary" },
-                  { label: "Expected Mon–Wed",  value: `${hoursPerDay * 3}h`, className: ""            },
-                  { label: "Max Thu–Fri",       value: `${hoursPerDay * 2}h`, className: "text-emerald-600" },
-                ].map(s => (
-                  <div key={s.label} className="overflow-hidden rounded-xl border border-border bg-card/60">
-                    <div className="flex flex-col gap-0.5 px-4 py-3.5">
-                      <span className={cn("text-2xl font-bold tabular-nums", s.className)}>{s.value}</span>
-                      <span className="text-xs text-muted-foreground">{s.label}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
               {/* Results table */}
               <div className="overflow-hidden rounded-xl border border-border bg-card/60">
                 <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
