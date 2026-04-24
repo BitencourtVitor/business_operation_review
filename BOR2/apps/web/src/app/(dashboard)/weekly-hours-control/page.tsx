@@ -83,6 +83,17 @@ function parseHours(raw: string): number {
 
 const MON_WED = new Set(["Mon", "Tue", "Wed"])
 const LS_EXCLUDED_KEY = "whc_excluded_categories"
+const LS_FORMAT_KEY   = "whc_hour_format"
+
+type HourFormat = "integer" | "decimal"
+
+function loadSavedFormat(): HourFormat {
+  try { return (localStorage.getItem(LS_FORMAT_KEY) as HourFormat) || "decimal" } catch { return "decimal" }
+}
+
+function fmtH(h: number, format: HourFormat): string {
+  return format === "integer" ? `${Math.round(h)}h` : `${h.toFixed(1)}h`
+}
 
 const KNOWN_EXCLUDED_PREFIXES = [
   "Lunch break", "Lunch Break", "Lunch Break Paid", "Lunch Break Office",
@@ -320,6 +331,7 @@ export default function WeeklyHoursControlPage() {
   const [results, setResults]         = useState<EmployeeResult[]>([])
   const [onlyExceeding, setOnlyExceeding] = useState(false)
   const [hoursPerDay, setHoursPerDay] = useState(8)
+  const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
   const [error, setError]             = useState("")
   const [isDragging, setIsDragging]   = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -329,6 +341,9 @@ export default function WeeklyHoursControlPage() {
   }
 
   useEffect(() => { saveExcluded(excluded) }, [excluded])
+  useEffect(() => {
+    try { localStorage.setItem(LS_FORMAT_KEY, hourFormat) } catch { /* */ }
+  }, [hourFormat])
 
   useEffect(() => {
     if (!rows.length) return
@@ -543,10 +558,26 @@ export default function WeeklyHoursControlPage() {
         <div className="flex-1 overflow-y-auto p-6">
 
           {/* Page title */}
-          <div className="mb-6 flex items-start justify-between">
+          <div className="mb-6 flex items-center justify-between">
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
               <p className="text-sm text-muted-foreground">Mon–Wed summary · Thu–Fri availability</p>
+            </div>
+            <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
+              {(["decimal", "integer"] as HourFormat[]).map(fmt => (
+                <button
+                  key={fmt}
+                  onClick={() => setHourFormat(fmt)}
+                  className={cn(
+                    "rounded-md px-3 py-1 text-xs font-medium transition-colors",
+                    hourFormat === fmt
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {fmt === "decimal" ? "8.3h" : "8h"}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -632,7 +663,7 @@ export default function WeeklyHoursControlPage() {
                         <TableCell className="font-medium">{r.name}</TableCell>
 
                         <TableCell className="text-center font-mono font-bold tabular-nums">
-                          {r.hoursMonWed.toFixed(1)}h
+                          {fmtH(r.hoursMonWed, hourFormat)}
                         </TableCell>
 
                         {/* Positive surplus = over hours = red (bad); negative = under = green (capacity available) */}
@@ -645,7 +676,7 @@ export default function WeeklyHoursControlPage() {
                           )}>
                             {r.surplus > 0 && <ArrowUp className="h-3 w-3" />}
                             {r.surplus < 0 && <ArrowDown className="h-3 w-3" />}
-                            {r.surplus > 0 ? "+" : ""}{r.surplus.toFixed(1)}h
+                            {r.surplus > 0 ? "+" : ""}{fmtH(Math.abs(r.surplus), hourFormat)}
                           </span>
                         </TableCell>
 
@@ -653,7 +684,7 @@ export default function WeeklyHoursControlPage() {
                           "text-center font-mono font-bold tabular-nums",
                           r.thursFriAvailable === 0 && "text-destructive",
                         )}>
-                          {r.thursFriAvailable.toFixed(1)}h
+                          {fmtH(r.thursFriAvailable, hourFormat)}
                         </TableCell>
                       </TableRow>
                     ))}
