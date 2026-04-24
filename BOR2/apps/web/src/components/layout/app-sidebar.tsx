@@ -28,6 +28,7 @@ import {
   Banknote,
   BarChart2,
   CalendarCheck,
+  CalendarClock,
   ChevronDown,
   ClipboardCheck,
   ClipboardList,
@@ -121,10 +122,11 @@ const comingSoonGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control",     href: "/data-control",       icon: ClipboardList },
-    { title: "WEX Categorization",        href: "/wex-categorization", icon: CreditCard    },
-    { title: "Quickbooks Time Auto Log",  href: "/autolog",            image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
-    { title: "Settings",                  href: "/settings",           icon: Settings      },
+    { title: "Forecast Data Control",     href: "/data-control",          icon: ClipboardList },
+    { title: "WEX Categorization",        href: "/wex-categorization",   icon: CreditCard    },
+    { title: "QBTime Auto Log",           href: "/autolog",              image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
+    { title: "Weekly Hours Control",      href: "/weekly-hours-control", icon: CalendarClock },
+    { title: "Settings",                  href: "/settings",             icon: Settings      },
   ],
 }
 
