@@ -53,8 +53,10 @@ export function SearchableSelect({
             className={cn(
               iconOnly
                 ? cn(
-                    "h-8 w-8 p-0 justify-center",
-                    value !== "All" && "border-primary/60 text-primary"
+                    "h-8 w-auto gap-1.5 px-2.5",
+                    value !== "All"
+                      ? "border-primary/40 bg-primary/5 text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                   )
                 : "h-8 w-auto min-w-[100px] max-w-[200px] justify-between gap-1.5 px-2.5 text-sm font-normal",
               className
@@ -63,7 +65,15 @@ export function SearchableSelect({
         }
       >
         {iconOnly ? (
-          Icon && <Icon className={cn("h-3.5 w-3.5 shrink-0", value !== "All" ? "text-primary" : "text-muted-foreground")} />
+          <>
+            {Icon && <Icon className={cn("h-3.5 w-3.5 shrink-0", value !== "All" ? "text-primary" : "")} />}
+            {value !== "All" && (
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                1
+              </span>
+            )}
+            <ChevronDown className={cn("h-3 w-3 shrink-0 transition-transform", open && "rotate-180")} />
+          </>
         ) : (
           <>
             {Icon && <Icon className="mr-1 h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
