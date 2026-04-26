@@ -3,7 +3,10 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useWorkforceData } from "@/hooks/use-workforce"
-import { Clock, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
+import { Calendar, Clock, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
+import {
+  Select, SelectContent, SelectItem, SelectTrigger,
+} from "@/components/ui/select"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
   ResponsiveContainer, CartesianGrid, Cell,
@@ -25,6 +28,7 @@ function fmtHours(h: number) {
 export default function WorkforceProductivityPage() {
   const searchParams      = useSearchParams()
   const company           = searchParams.get("company") ?? undefined
+  const [year,  setYear]  = useState("")
   const [month, setMonth] = useState("")
 
   // Reactive chart colors — MutationObserver on <html class> like service-requests
@@ -50,17 +54,30 @@ export default function WorkforceProductivityPage() {
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => { setMonth("") }, [company])
+  useEffect(() => { setYear(""); setMonth("") }, [company])
 
-  const { data: rows = [], isLoading } = useWorkforceData({
-    company,
-    month: month || undefined,
-  })
+  // Fetch all data — filter client-side so year picker has full option list
+  const { data: allRows = [], isLoading } = useWorkforceData({ company })
 
-  const months = useMemo(() => {
-    const set = new Set(rows.map(r => r.referenceMonth))
+  const years = useMemo(() => {
+    const set = new Set(allRows.map(r => r.referenceMonth.split("-")[0]))
     return Array.from(set).sort((a, b) => b.localeCompare(a))
-  }, [rows])
+  }, [allRows])
+
+  const availableMonths = useMemo(() => {
+    const set = new Set(
+      allRows
+        .filter(r => !year || r.referenceMonth.startsWith(year))
+        .map(r => r.referenceMonth)
+    )
+    return Array.from(set).sort((a, b) => b.localeCompare(a))
+  }, [allRows, year])
+
+  const rows = useMemo(() => allRows.filter(r => {
+    if (year  && !r.referenceMonth.startsWith(year)) return false
+    if (month && r.referenceMonth !== month)          return false
+    return true
+  }), [allRows, year, month])
 
   // ── Metrics ───────────────────────────────────────────────────────────────
 
@@ -135,15 +152,33 @@ export default function WorkforceProductivityPage() {
           </p>
         </div>
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Month</span>
-          <select
-            value={month}
-            onChange={e => setMonth(e.target.value)}
-            className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm text-foreground outline-none focus:ring-1 focus:ring-ring dark:bg-input/30"
-          >
-            <option value="">All months</option>
-            {months.map(m => <option key={m} value={m}>{formatMonth(m)}</option>)}
-          </select>
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
+          <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+            <div className="flex items-center pl-2.5">
+              <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            </div>
+            <Select value={year || "all"} onValueChange={v => { setYear(v === "all" ? "" : v); setMonth("") }}>
+              <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className="flex-1 truncate text-left text-sm">{year || "All"}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="h-5 w-px shrink-0 bg-border" />
+            <Select value={month || "all"} onValueChange={v => { setMonth(v === "all" ? "" : v) }}>
+              <SelectTrigger className="h-8 w-[120px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className="flex-1 truncate text-left text-sm">
+                  {month ? formatMonth(month) : "All months"}
+                </span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All months</SelectItem>
+                {availableMonths.map(m => <SelectItem key={m} value={m}>{formatMonth(m)}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
