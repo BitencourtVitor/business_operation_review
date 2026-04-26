@@ -16,6 +16,8 @@ interface SearchableSelectProps {
   allLabel?: string
   /** Shows only the icon in the trigger (compact mode). Active filter highlights the icon. */
   iconOnly?: boolean
+  /** Strips border/bg so the trigger can live inside a shared container (use with iconOnly). */
+  inline?: boolean
 }
 
 export function SearchableSelect({
@@ -27,6 +29,7 @@ export function SearchableSelect({
   className,
   allLabel = "All",
   iconOnly = false,
+  inline = false,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -52,12 +55,17 @@ export function SearchableSelect({
             variant="outline"
             className={cn(
               iconOnly
-                ? cn(
-                    "h-8 w-auto gap-1.5 px-2.5",
-                    value !== "All"
-                      ? "border-primary/40 bg-primary/5 text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
-                  )
+                ? inline
+                  ? cn(
+                      "h-8 w-auto gap-1.5 rounded-none border-0 bg-transparent px-2.5 shadow-none ring-0 focus-visible:ring-0",
+                      value !== "All" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                    )
+                  : cn(
+                      "h-8 w-auto gap-1.5 px-2.5",
+                      value !== "All"
+                        ? "border-primary/40 bg-primary/5 text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    )
                 : "h-8 w-auto min-w-[100px] max-w-[200px] justify-between gap-1.5 px-2.5 text-sm font-normal",
               className
             )}
