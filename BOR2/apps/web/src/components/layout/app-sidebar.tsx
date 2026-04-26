@@ -272,14 +272,22 @@ function NavGroupItems({
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer" : ""}
+                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer !pr-14" : ""}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
-                  {/* Chevron always inside button — it's just an icon, not a button, so no hydration issue */}
-                  <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                  {/* Chevron inside button for no-gear items — no nested-button issue */}
+                  {!(item.editPermKey && canEdit(item.editPermKey)) && (
+                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                  )}
                 </SidebarMenuButton>
-                {/* Manage Data gear — appears on hover, before chevron */}
+                {/* Chevron sibling for gear items — right-1 + w-6 = center at 16px from right, same as Accounting */}
+                {item.editPermKey && canEdit(item.editPermKey) && (
+                  <span className="pointer-events-none absolute right-1 top-0 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                  </span>
+                )}
+                {/* Manage Data gear — right-7 (28px from right), starts exactly where chevron ends */}
                 {item.editPermKey && canEdit(item.editPermKey) && (
                   <TooltipProvider>
                     <Tooltip>
@@ -287,7 +295,7 @@ function NavGroupItems({
                         <SidebarMenuAction
                           showOnHover
                           onClick={e => { e.preventDefault(); e.stopPropagation(); onEditOpen(item) }}
-                          className="right-6 hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
+                          className="right-7 hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
                         />
                       }>
                         <Settings className="h-3.5 w-3.5" />
