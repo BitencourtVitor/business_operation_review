@@ -10,7 +10,7 @@ import {
 import { BarChartCard, DonutChartCard, LineChartCard, CHART_COLORS } from "@/components/charts"
 import { PageSkeleton } from "@/components/common/page-skeleton"
 import { SearchableSelect } from "@/components/common/searchable-select"
-import { useWorkforce } from "@/hooks/use-workforce"
+import { useWorkforceData } from "@/hooks/use-workforce"
 import type { WorkforceRow } from "@/services/workforce.service"
 import { Calendar, MapPin, Users2, Wrench } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -142,7 +142,7 @@ export default function WorkforcePage() {
   const [selectedWorktypes, setSelectedWorktypes] = useState<string[]>([])
   const [topN, setTopN] = useState<number>(10)
 
-  const { data: rawTimesheets, isLoading } = useWorkforce()
+  const { data: rawTimesheets, isLoading } = useWorkforceData()
 
   // ---- Available years derived from actual data ----
   const availableYears = useMemo(() => {

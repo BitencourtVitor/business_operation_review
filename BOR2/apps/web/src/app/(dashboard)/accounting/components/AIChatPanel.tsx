@@ -688,7 +688,7 @@ export function useAria(config: AriaConfig) {
       )}
     >
       <Sparkles className="h-3.5 w-3.5" />
-      Aria
+      Ask Aria
     </button>
   )
 

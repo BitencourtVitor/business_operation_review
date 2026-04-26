@@ -296,9 +296,6 @@ function AccountingContent() {
         </div>
 
         <div className="flex items-end gap-2">
-          {/* Aria AI */}
-          {aria.triggerButton}
-
           {/* Period */}
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
@@ -339,6 +336,9 @@ function AccountingContent() {
               )}
             </div>
           </div>
+
+          {/* Aria AI */}
+          {aria.triggerButton}
         </div>
       </div>
 
