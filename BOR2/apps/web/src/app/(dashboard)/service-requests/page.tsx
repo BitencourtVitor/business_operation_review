@@ -17,8 +17,8 @@ import { useInsights } from "@/components/insights/insights-panel"
 import { ManageDataModal } from "./manage-data-modal"
 import type { ServiceRequest } from "@/services/service-request.service"
 import {
-  BarChart2, Calendar, GalleryHorizontal, Info,
-  Search, ShieldCheck, Database, Wrench,
+  BarChart2, Building2, Calendar, GalleryHorizontal, Info,
+  MapPin, Search, ShieldCheck, Database, Wrench,
 } from "lucide-react"
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
@@ -319,6 +319,7 @@ export default function ServiceRequestsPage() {
               onValueChange={v => setContractor(v)}
               options={contractors.map(c => ({ value: c, label: c }))}
               icon={Wrench}
+              iconOnly
             />
           </div>
 
@@ -329,6 +330,8 @@ export default function ServiceRequestsPage() {
               value={jobSite}
               onValueChange={v => setJobSite(v)}
               options={jobSites.map(j => ({ value: j, label: j }))}
+              icon={MapPin}
+              iconOnly
             />
           </div>
 
@@ -339,6 +342,8 @@ export default function ServiceRequestsPage() {
               value={city}
               onValueChange={v => setCity(v)}
               options={cities.map(c => ({ value: c, label: c }))}
+              icon={Building2}
+              iconOnly
             />
           </div>
 
