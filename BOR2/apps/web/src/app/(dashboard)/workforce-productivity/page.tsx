@@ -171,6 +171,7 @@ export default function WorkforceProductivityPage() {
             {company ? `${company} · ` : ""}QBTime hours by project and work type
           </p>
         </div>
+        <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
           <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
@@ -217,6 +218,7 @@ export default function WorkforceProductivityPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {rows.length === 0 ? (
