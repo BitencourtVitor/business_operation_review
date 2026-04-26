@@ -166,7 +166,7 @@ func (h *TimesheetUploadHandler) processCSV(ctx context.Context, r io.Reader, co
 		}
 
 		_, err = h.db.Exec(ctx, `
-			INSERT INTO timesheet_data_new (id, client, jobsite, lot_building, worktype, employee_name, regular_rate, regular_hours, reference_month, company)
+			INSERT INTO workforce_productivity (id, client, jobsite, lot_building, worktype, employee_name, regular_rate, regular_hours, reference_month, company)
 			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 		`, uuid.NewString(), client, field(jobsiteCol), field(lotCol), worktype, emp, parseNum(field(rateCol)), hours, refMonth, company)
 

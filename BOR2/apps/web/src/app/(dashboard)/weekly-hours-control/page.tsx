@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   ArrowDown,
   ArrowUp,
+  ChevronsUpDown,
   ChevronDown,
+  FileText,
   FileUp,
+  Filter,
   ImageIcon,
   RotateCcw,
   Search,
@@ -83,15 +86,32 @@ function parseHours(raw: string): number {
 const MON_WED = new Set(["Mon", "Tue", "Wed"])
 const LS_EXCLUDED_KEY = "whc_excluded_categories"
 const LS_FORMAT_KEY   = "whc_hour_format"
+const LS_SORT_KEY     = "whc_sort"
 
-type HourFormat = "integer" | "decimal"
+type HourFormat = "number" | "time"
+type SortKey    = "name" | "hoursMonWed" | "surplus" | "thursFriAvailable"
+type SortDir    = "asc" | "desc"
 
 function loadSavedFormat(): HourFormat {
-  try { return (localStorage.getItem(LS_FORMAT_KEY) as HourFormat) || "decimal" } catch { return "decimal" }
+  try { return (localStorage.getItem(LS_FORMAT_KEY) as HourFormat) || "number" } catch { return "number" }
+}
+
+function loadSavedSort(): { key: SortKey; dir: SortDir } {
+  try {
+    const raw = localStorage.getItem(LS_SORT_KEY)
+    if (raw) { const p = JSON.parse(raw); if (p.key && p.dir) return p }
+  } catch { /* */ }
+  return { key: "name", dir: "asc" }
 }
 
 function fmtH(h: number, format: HourFormat): string {
-  return format === "integer" ? `${Math.round(h)}h` : `${h.toFixed(1)}h`
+  if (format === "time") {
+    const totalMin = Math.round(Math.abs(h) * 60)
+    const hrs = Math.floor(totalMin / 60)
+    const min = totalMin % 60
+    return `${hrs}:${String(min).padStart(2, "0")}`
+  }
+  return `${h.toFixed(1)}h`
 }
 
 const KNOWN_EXCLUDED_PREFIXES = [
@@ -142,7 +162,7 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
-function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean) {
+function buildResultsCanvas(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean): HTMLCanvasElement {
   const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const W = 860, padX = 40, padY = 36, rowH = 42, thH = 40, titleH = 72, statsH = 72, footerH = 32
   const H = padY + titleH + statsH + thH + results.length * rowH + padY + footerH
@@ -224,9 +244,34 @@ function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, fi
   ctx.fillStyle = T2; ctx.font = `11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif`
   ctx.fillText("Premium Group · Business Operations Review", padX, H - 10)
 
+  return canvas
+}
+
+function exportResultsAsImage(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, fileName, isDark)
   const link = document.createElement("a")
   link.download = `weekly-hours-${new Date().toISOString().split("T")[0]}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
+}
+
+function exportResultsAsPdf(results: EmployeeResult[], hoursPerDay: number, fileName: string, isDark: boolean) {
+  const canvas = buildResultsCanvas(results, hoursPerDay, fileName, isDark)
+  const dataUrl = canvas.toDataURL("image/png")
+  const win = window.open("", "_blank")
+  if (!win) return
+  win.document.write(`<!DOCTYPE html>
+<html><head><title>Weekly Hours Control</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; display: flex; justify-content: center; align-items: flex-start; }
+  img { width: 100%; height: auto; display: block; }
+  @page { margin: 0; size: auto; }
+  @media print { html, body { width: 100%; } }
+</style></head>
+<body><img src="${dataUrl}" /><script>
+  window.onload = function() { window.print(); setTimeout(() => window.close(), 500); }
+<\/script></body></html>`)
+  win.document.close()
 }
 
 // ─── Category Dropdown ────────────────────────────────────────────────────────
@@ -331,6 +376,8 @@ export default function WeeklyHoursControlPage() {
   const [onlyExceeding, setOnlyExceeding] = useState(false)
   const [hoursPerDay, setHoursPerDay] = useState(8)
   const [hourFormat, setHourFormat] = useState<HourFormat>(() => loadSavedFormat())
+  const [sortKey, setSortKey]         = useState<SortKey>(() => loadSavedSort().key)
+  const [sortDir, setSortDir]         = useState<SortDir>(() => loadSavedSort().dir)
   const [error, setError]             = useState("")
   const [isDragging, setIsDragging]   = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -343,6 +390,15 @@ export default function WeeklyHoursControlPage() {
   useEffect(() => {
     try { localStorage.setItem(LS_FORMAT_KEY, hourFormat) } catch { /* */ }
   }, [hourFormat])
+
+  useEffect(() => {
+    try { localStorage.setItem(LS_SORT_KEY, JSON.stringify({ key: sortKey, dir: sortDir })) } catch { /* */ }
+  }, [sortKey, sortDir])
+
+  function handleSort(key: SortKey) {
+    if (key === sortKey) { setSortDir(d => d === "asc" ? "desc" : "asc") }
+    else { setSortKey(key); setSortDir("asc") }
+  }
 
   useEffect(() => {
     if (!rows.length) return
@@ -443,7 +499,15 @@ export default function WeeklyHoursControlPage() {
     setAllCategories([]); setFileName(""); setResults([]); setError("")
   }
 
-  const displayResults = onlyExceeding ? results.filter(r => r.surplus > 0) : results
+  const displayResults = useMemo(() => {
+    const base = onlyExceeding ? results.filter(r => r.surplus > 0) : results
+    return [...base].sort((a, b) => {
+      const v = sortKey === "name"
+        ? a.name.localeCompare(b.name)
+        : a[sortKey] - b[sortKey]
+      return sortDir === "asc" ? v : -v
+    })
+  }, [results, onlyExceeding, sortKey, sortDir])
 
   return (
     <div className="-m-6 flex h-[calc(100%+3rem)] overflow-hidden">
@@ -531,53 +595,87 @@ export default function WeeklyHoursControlPage() {
         <div className="flex-1 overflow-y-auto p-6">
 
           {/* Page title */}
-          <div className="mb-6 flex items-center justify-between gap-4">
+          <div className="mb-6 flex items-end justify-between gap-4">
             <div>
               <h1 className="text-xl font-semibold tracking-tight">Weekly Hours Control</h1>
               <p className="text-sm text-muted-foreground">Mon–Wed summary · Thu–Fri availability</p>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-end gap-3">
               {/* Only exceeding filter — visible when results loaded */}
               {step === "results" && results.length > 0 && (
-                <Button
-                  variant={onlyExceeding ? "destructive" : "outline"}
-                  size="sm"
-                  className="h-8 gap-1.5"
-                  onClick={() => setOnlyExceeding(v => !v)}
-                >
-                  Only exceeding
-                </Button>
+                <div className="flex flex-col items-start gap-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Filter
+                  </p>
+                  <Button
+                    variant={onlyExceeding ? "destructive" : "outline"}
+                    size="sm"
+                    className="h-8 gap-1.5"
+                    onClick={() => setOnlyExceeding(v => !v)}
+                  >
+                    <Filter className="h-3.5 w-3.5" />
+                    Only exceeding
+                  </Button>
+                </div>
               )}
 
-              {/* Hour format toggle */}
-              <div className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1">
-                {(["decimal", "integer"] as HourFormat[]).map(fmt => (
-                  <button
-                    key={fmt}
-                    onClick={() => setHourFormat(fmt)}
-                    className={cn(
-                      "rounded-md px-3 py-1 text-xs font-medium transition-colors",
-                      hourFormat === fmt
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {fmt === "decimal" ? "8.3h" : "8h"}
-                  </button>
-                ))}
+              {/* Metric mode toggle */}
+              <div className="flex flex-col items-start gap-1">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  Metric Mode
+                </p>
+                <div className="flex h-8 w-36 items-center rounded-lg border border-border bg-muted/40 p-0.5">
+                  {([
+                    { fmt: "number", label: "Number" },
+                    { fmt: "time",   label: "Hour"   },
+                  ] as { fmt: HourFormat; label: string }[]).map(({ fmt, label }) => (
+                    <button
+                      key={fmt}
+                      onClick={() => setHourFormat(fmt)}
+                      className={cn(
+                        "flex h-7 flex-1 items-center justify-center rounded-md px-4 text-xs font-medium transition-colors",
+                        hourFormat === fmt
+                          ? "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Divider before export */}
+              {step === "results" && results.length > 0 && (
+                <div className="self-stretch w-px bg-border" />
+              )}
 
               {/* Export — visible when results loaded */}
               {step === "results" && results.length > 0 && (
-                <Button
-                  size="sm"
-                  className="h-8 gap-1.5"
-                  onClick={() => exportResultsAsImage(displayResults, hoursPerDay, fileName, currentIsDark())}
-                >
-                  <ImageIcon className="h-3.5 w-3.5" />
-                  Export as Image
-                </Button>
+                <div className="flex flex-col items-start gap-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    Export as
+                  </p>
+                  <div className="flex gap-1.5">
+                    <Button
+                      size="sm"
+                      className="h-8 gap-1.5"
+                      onClick={() => exportResultsAsImage(displayResults, hoursPerDay, fileName, currentIsDark())}
+                    >
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      Image
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-8 gap-1.5"
+                      onClick={() => exportResultsAsPdf(displayResults, hoursPerDay, fileName, currentIsDark())}
+                    >
+                      <FileText className="h-3.5 w-3.5" />
+                      PDF
+                    </Button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -633,7 +731,6 @@ export default function WeeklyHoursControlPage() {
                 <div className="flex items-center border-b border-border px-4 py-2.5">
                   <span className="text-sm font-medium">
                     {results.length} employee{results.length !== 1 ? "s" : ""}
-                    {onlyExceeding && <Badge variant="destructive" className="ml-2 text-xs">Exceeding only</Badge>}
                   </span>
                   <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
                     <span>{fileName}</span>
@@ -645,10 +742,37 @@ export default function WeeklyHoursControlPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border bg-muted/40 hover:bg-muted/40">
-                      <TableHead className="whitespace-nowrap text-[11px] font-bold uppercase tracking-wide">Employee</TableHead>
-                      <TableHead className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-wide">Hours Mon–Wed</TableHead>
-                      <TableHead className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-wide">Surplus</TableHead>
-                      <TableHead className="whitespace-nowrap text-center text-[11px] font-bold uppercase tracking-wide">Thu–Fri Available</TableHead>
+                      {([
+                        { key: "name"              as SortKey, label: "Employee",          align: "left"   },
+                        { key: "hoursMonWed"       as SortKey, label: "Hours Mon–Wed",     align: "center" },
+                        { key: "surplus"           as SortKey, label: "Surplus",           align: "center" },
+                        { key: "thursFriAvailable" as SortKey, label: "Thu–Fri Available", align: "center" },
+                      ]).map(({ key, label, align }) => (
+                        <TableHead
+                          key={key}
+                          className={cn(
+                            "whitespace-nowrap text-[11px] font-bold uppercase tracking-wide",
+                            align === "center" && "text-center",
+                          )}
+                        >
+                          <button
+                            onClick={() => handleSort(key)}
+                            className={cn(
+                              "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+                              align === "center" && "justify-center w-full",
+                              sortKey === key ? "text-foreground" : "text-muted-foreground",
+                            )}
+                          >
+                            {label}
+                            {sortKey === key
+                              ? sortDir === "asc"
+                                ? <ArrowUp className="h-3 w-3" />
+                                : <ArrowDown className="h-3 w-3" />
+                              : <ChevronsUpDown className="h-3 w-3 opacity-40" />
+                            }
+                          </button>
+                        </TableHead>
+                      ))}
                     </TableRow>
                   </TableHeader>
                   <TableBody>

@@ -278,7 +278,7 @@ export default function NotificationsSettingsPage() {
   const [editTarget,   setEditTarget]   = useState<Notification | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Notification | null>(null)
 
-  if (user && !["admin", "dev", "owner"].includes(user.role)) {
+  if (user && !["dev", "owner", "manager"].includes(user.role)) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">

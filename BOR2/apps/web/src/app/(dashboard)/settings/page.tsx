@@ -3,12 +3,14 @@
 import { useState } from "react"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
-import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, Users } from "lucide-react"
+import { Bell, ChevronRight, KeyRound, Loader2, ShieldAlert, ShieldCheck, Users, Clock } from "lucide-react"
 import { PasswordResetModal } from "@/components/auth/password-reset-modal"
+import { PermissionsModal } from "./permissions-modal"
 
 export default function SettingsPage() {
   const { user, isLoading } = useAuth()
-  const [resetOpen, setResetOpen] = useState(false)
+  const [resetOpen, setResetOpen]   = useState(false)
+  const [permsOpen, setPermsOpen]   = useState(false)
 
   if (isLoading) {
     return (
@@ -18,7 +20,7 @@ export default function SettingsPage() {
     )
   }
 
-  if (user && !["admin", "dev", "owner"].includes(user.role)) {
+  if (user && !["dev", "owner", "manager"].includes(user.role)) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
@@ -34,14 +36,26 @@ export default function SettingsPage() {
     {
       icon:        Users,
       title:       "Manage Users",
-      description: "Create, edit and delete user accounts. Control roles and screen permissions for each user.",
+      description: "Create, edit and delete user accounts. Control roles for each user.",
       href:        "/settings/users",
+    },
+    {
+      icon:        ShieldCheck,
+      title:       "Edit Permissions",
+      description: "Define what each user can view or edit across every section of the system.",
+      onClick:     () => setPermsOpen(true),
     },
     {
       icon:        Bell,
       title:       "Notifications",
       description: "Send or schedule system notifications. Edit and delete pending scheduled notifications.",
       href:        "/settings/notifications",
+    },
+    {
+      icon:        Clock,
+      title:       "Workforce Productivity",
+      description: "Manage QBTime CSV uploads. Upload, review and delete monthly timesheet data by company.",
+      href:        "/settings/workforce",
     },
     {
       icon:        KeyRound,
@@ -96,6 +110,10 @@ export default function SettingsPage() {
         open={resetOpen}
         onClose={() => setResetOpen(false)}
         onSuccess={() => setResetOpen(false)}
+      />
+      <PermissionsModal
+        open={permsOpen}
+        onClose={() => setPermsOpen(false)}
       />
     </>
   )

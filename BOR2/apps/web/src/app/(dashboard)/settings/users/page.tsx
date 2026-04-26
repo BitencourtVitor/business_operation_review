@@ -23,9 +23,9 @@ import {
   Tooltip, TooltipTrigger, TooltipContent, TooltipProvider,
 } from "@/components/ui/tooltip"
 import {
-  Activity, ArrowLeft, Award, BarChart2, Banknote, Bell,
+  Activity, ArrowLeft, BarChart2, Banknote, Bell,
   CalendarCheck, Check, ChevronDown, ChevronUp, ClipboardCheck, ClipboardList,
-  Compass, Eye, FileCheck, Fuel, Gauge,
+  Eye, FileCheck, Fuel, Gauge,
   Gem, KeyRound, Loader2,
   Package, Pencil, Plus, Ruler, Search,
   Settings, ShieldAlert, ShieldCheck, Trash2,
@@ -45,7 +45,7 @@ const ROLES = ["owner", "manager", "user"] as const
 
 // Role hierarchy — higher number = more authority
 const ROLE_RANK: Record<string, number> = {
-  dev: 100, owner: 80, admin: 70, manager: 60, gestor: 40, user: 10,
+  dev: 4, owner: 3, manager: 2, user: 1,
 }
 
 function canManage(myRole: string, targetRole: string): boolean {
@@ -53,12 +53,10 @@ function canManage(myRole: string, targetRole: string): boolean {
 }
 
 const roleMeta: Record<string, { label: string; icon: React.ElementType; className: string }> = {
-  dev:     { label: "Developer", icon: Gem,     className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
-  admin:   { label: "Admin",     icon: Award,   className: "border-primary/40 bg-primary/10 text-primary" },
-  owner:   { label: "Owner",     icon: Compass, className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  manager: { label: "Manager",   icon: Gauge,   className: "border-primary/40 bg-primary/10 text-primary" },
-  gestor:  { label: "Gestor",    icon: Users,   className: "border-sky-500/40 bg-sky-500/10 text-sky-600 dark:text-sky-400" },
-  user:    { label: "User",      icon: User,    className: "border-border bg-secondary text-foreground" },
+  dev:     { label: "Developer", icon: Gem,   className: "border-yellow-500/40 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+  owner:   { label: "Owner",     icon: Gauge, className: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  manager: { label: "Manager",   icon: Users, className: "border-primary/40 bg-primary/10 text-primary" },
+  user:    { label: "User",      icon: User,  className: "border-border bg-secondary text-foreground" },
 }
 
 function RoleBadge({ role }: { role: string }) {
@@ -606,7 +604,7 @@ export default function UsersPage() {
 
   const allRoles = [...new Set(users.map(u => u.role))].sort()
 
-  if (me && !["admin", "dev", "owner"].includes(me.role)) {
+  if (me && !["dev", "owner", "manager"].includes(me.role)) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -746,29 +744,23 @@ export default function UsersPage() {
                             <div className="flex items-center justify-center gap-1">
                               {canManage(me?.role ?? "", u.role) && (<>
                                 <Tooltip>
-                                  <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => setPermsTarget(u)} />}>
-                                    <UserCog className="h-3.5 w-3.5" />
-                                  </TooltipTrigger>
-                                  <TooltipContent side="left">Edit permissions</TooltipContent>
-                                </Tooltip>
-                                <Tooltip>
                                   <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => { setEditing(u); setFormOpen(true) }} />}>
                                     <Pencil className="h-3.5 w-3.5" />
                                   </TooltipTrigger>
-                                  <TooltipContent side="left">Edit user</TooltipContent>
+                                  <TooltipContent side="top">Edit user</TooltipContent>
                                 </Tooltip>
                                 <Tooltip>
                                   <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" onClick={() => setResetTarget(u)} />}>
                                     <KeyRound className="h-3.5 w-3.5" />
                                   </TooltipTrigger>
-                                  <TooltipContent side="left">Reset password</TooltipContent>
+                                  <TooltipContent side="top">Reset password</TooltipContent>
                                 </Tooltip>
                                 {u.id !== me?.id && (
                                   <Tooltip>
                                     <TooltipTrigger render={<button className="rounded p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive" onClick={() => setDeleteTarget(u)} />}>
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </TooltipTrigger>
-                                    <TooltipContent side="left">Delete user</TooltipContent>
+                                    <TooltipContent side="top">Delete user</TooltipContent>
                                   </Tooltip>
                                 )}
                               </>)}
