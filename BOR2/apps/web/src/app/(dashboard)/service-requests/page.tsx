@@ -323,9 +323,9 @@ export default function ServiceRequestsPage() {
             />
           </div>
 
-          {/* Job Site */}
+          {/* Jobsite */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Job Site</span>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
             <SearchableSelect
               value={jobSite}
               onValueChange={v => setJobSite(v)}
