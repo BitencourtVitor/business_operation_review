@@ -112,6 +112,9 @@ func main() {
 	timesheetUploadHandler   := handler.NewTimesheetUploadHandler(db)
 	ofiHandler               := handler.NewOFIHandler(db)
 	workforceHandler         := handler.NewWorkforceHandler(db)
+	workforceUploadRepo      := repository.NewPostgresWorkforceUploadRepository(db)
+	workforceUploadSvc       := service.NewWorkforceUploadService(workforceUploadRepo)
+	workforceUploadHandler   := handler.NewWorkforceUploadHandler(workforceUploadSvc, auditService)
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
@@ -253,8 +256,12 @@ func main() {
 	// OFI
 	api.Get("/ofi", ofiHandler.List)
 
-	// Workforce (timesheet_data_new)
-	api.Get("/workforce", workforceHandler.List)
+	// Workforce Productivity
+	workforce := api.Group("/workforce")
+	workforce.Get("/", workforceHandler.List)
+	workforce.Get("/uploads", workforceUploadHandler.List)
+	workforce.Post("/uploads", workforceUploadHandler.Upload)
+	workforce.Delete("/uploads/:id", workforceUploadHandler.Delete)
 
 	// Project Monitoring HVAC
 	monitoring := api.Group("/project-monitoring")
