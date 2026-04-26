@@ -311,9 +311,9 @@ export default function ServiceRequestsPage() {
             </div>
           </div>
 
-          {/* Contractor */}
+          {/* Client */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Contractor</span>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Client</span>
             <SearchableSelect
               value={contractor}
               onValueChange={v => setContractor(v)}
