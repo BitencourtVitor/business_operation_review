@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useWorkforceData } from "@/hooks/use-workforce"
-import { Calendar, Clock, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
+import { useAuth } from "@/hooks/use-auth"
+import { useMyPermissions } from "@/hooks/use-settings"
+import { useInsights } from "@/components/insights/insights-panel"
+import { WorkforceManageDataModal } from "./manage-data-modal"
+import { Calendar, Clock, Database, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
@@ -31,10 +35,14 @@ function fmtHours(h: number) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function WorkforceProductivityPage() {
-  const searchParams      = useSearchParams()
-  const company           = searchParams.get("company") ?? undefined
-  const [year,  setYear]  = useState(String(new Date().getFullYear()))
-  const [month, setMonth] = useState("")
+  const searchParams       = useSearchParams()
+  const company            = searchParams.get("company") ?? undefined
+  const { user }           = useAuth()
+  const { data: myPerms }  = useMyPermissions()
+  const canManage          = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce-productivity"] === "write"
+  const [manageOpen, setManageOpen] = useState(false)
+  const [year,  setYear]   = useState(String(new Date().getFullYear()))
+  const [month, setMonth]  = useState("")
 
   // Reactive chart colors — MutationObserver on <html class> like service-requests
   const [cc, setCC] = useState({
@@ -130,6 +138,14 @@ export default function WorkforceProductivityPage() {
   const cursor       = { fill: cc.muted, fillOpacity: 0.12 }
   const tick         = { fontSize: 11 }
 
+  const insights = useInsights({
+    pageKey:  "Workforce Productivity",
+    mes:      month ? parseInt(month.split("-")[1]) : new Date().getMonth() + 1,
+    ano:      year  ? parseInt(year)                : new Date().getFullYear(),
+    userId:   user?.id ?? "",
+    canWrite: canManage,
+  })
+
   // ── Loading ───────────────────────────────────────────────────────────────
 
   if (isLoading) {
@@ -184,6 +200,23 @@ export default function WorkforceProductivityPage() {
             </Select>
           </div>
         </div>
+
+        {/* Changes — Manage Data + Insights */}
+        {canManage && (
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Changes</span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setManageOpen(true)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <Database className="h-3.5 w-3.5" />
+                Manage Data
+              </button>
+              {insights.triggerButton}
+            </div>
+          </div>
+        )}
       </div>
 
       {rows.length === 0 ? (
@@ -191,7 +224,8 @@ export default function WorkforceProductivityPage() {
           <p className="text-sm text-muted-foreground">No data for the selected filters.</p>
         </div>
       ) : (
-        <>
+        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+          <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
           {/* ── Metrics ── */}
           <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
             {[
@@ -274,8 +308,12 @@ export default function WorkforceProductivityPage() {
               </div>
             </div>
           )}
-        </>
+          </div>
+          {insights.panel}
+        </div>
       )}
+
+      {manageOpen && <WorkforceManageDataModal onClose={() => setManageOpen(false)} />}
     </div>
   )
 }
