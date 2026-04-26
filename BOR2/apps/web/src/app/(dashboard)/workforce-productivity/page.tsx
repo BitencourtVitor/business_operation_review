@@ -19,6 +19,11 @@ function formatMonth(ym: string) {
   return new Date(Number(y), Number(m) - 1).toLocaleString("en-US", { month: "short", year: "2-digit" })
 }
 
+function formatMonthName(ym: string) {
+  const [y, m] = ym.split("-")
+  return new Date(Number(y), Number(m) - 1).toLocaleString("en-US", { month: "long" })
+}
+
 function fmtHours(h: number) {
   return h.toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
@@ -28,6 +33,7 @@ function fmtHours(h: number) {
 export default function WorkforceProductivityPage() {
   const searchParams      = useSearchParams()
   const company           = searchParams.get("company") ?? undefined
+  const [year,  setYear]  = useState(String(new Date().getFullYear()))
   const [month, setMonth] = useState("")
 
   // Reactive chart colors — MutationObserver on <html class> like service-requests
@@ -53,18 +59,29 @@ export default function WorkforceProductivityPage() {
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => { setMonth("") }, [company])
+  useEffect(() => { setYear(String(new Date().getFullYear())); setMonth("") }, [company])
 
   const { data: allRows = [], isLoading } = useWorkforceData({ company })
 
-  const availableMonths = useMemo(() => {
-    const set = new Set(allRows.map(r => r.referenceMonth))
+  const years = useMemo(() => {
+    const set = new Set(allRows.map(r => r.referenceMonth.split("-")[0]))
     return Array.from(set).sort((a, b) => b.localeCompare(a))
   }, [allRows])
 
-  const rows = useMemo(() =>
-    month ? allRows.filter(r => r.referenceMonth === month) : allRows
-  , [allRows, month])
+  const availableMonths = useMemo(() => {
+    const set = new Set(
+      allRows
+        .filter(r => !year || r.referenceMonth.startsWith(year))
+        .map(r => r.referenceMonth)
+    )
+    return Array.from(set).sort((a, b) => a.localeCompare(b))
+  }, [allRows, year])
+
+  const rows = useMemo(() => allRows.filter(r => {
+    if (year  && !r.referenceMonth.startsWith(year)) return false
+    if (month && r.referenceMonth !== month)          return false
+    return true
+  }), [allRows, year, month])
 
   // ── Metrics ───────────────────────────────────────────────────────────────
 
@@ -144,15 +161,25 @@ export default function WorkforceProductivityPage() {
             <div className="flex items-center pl-2.5">
               <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             </div>
+            <Select value={year || "all"} onValueChange={v => { setYear(v === "all" ? "" : (v ?? "")); setMonth("") }}>
+              <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className="flex-1 truncate text-left text-sm">{year || "All"}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="h-5 w-px shrink-0 bg-border" />
             <Select value={month || "all"} onValueChange={v => setMonth(v === "all" ? "" : (v ?? ""))}>
-              <SelectTrigger className="h-8 w-[108px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+              <SelectTrigger className="h-8 w-[120px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                 <span className="flex-1 truncate text-left text-sm">
-                  {month ? formatMonth(month) : "All months"}
+                  {month ? formatMonthName(month) : "All months"}
                 </span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All months</SelectItem>
-                {availableMonths.map(m => <SelectItem key={m} value={m}>{formatMonth(m)}</SelectItem>)}
+                {availableMonths.map(m => <SelectItem key={m} value={m}>{formatMonthName(m)}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
