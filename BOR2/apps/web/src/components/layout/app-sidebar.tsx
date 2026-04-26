@@ -281,9 +281,9 @@ function NavGroupItems({
                     <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
                   )}
                 </SidebarMenuButton>
-                {/* Chevron sibling for gear items — right-1 + w-6 = center at 16px from right, same as Accounting */}
+                {/* Chevron sibling for gear items — mirrors button color via peer classes */}
                 {item.editPermKey && canEdit(item.editPermKey) && (
-                  <span className="pointer-events-none absolute right-1 top-0 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
+                  <span className="pointer-events-none absolute right-1 top-0 flex h-8 w-6 items-center justify-center peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground">
                     <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
                   </span>
                 )}
