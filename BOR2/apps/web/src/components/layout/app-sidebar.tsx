@@ -272,15 +272,21 @@ function NavGroupItems({
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
-                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer pr-9" : "pr-9"}
+                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer" : ""}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
+                  {/* Chevron inside button — only when no gear (no nested-button issue) */}
+                  {!(item.editPermKey && canEdit(item.editPermKey)) && (
+                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                  )}
                 </SidebarMenuButton>
-                {/* Chevron — decorative, not interactive (avoids nested <button>) */}
-                <span className="pointer-events-none absolute right-1 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
-                </span>
+                {/* Chevron as sibling — only when gear is present (avoids nested <button>) */}
+                {item.editPermKey && canEdit(item.editPermKey) && (
+                  <span className="pointer-events-none absolute right-1 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
+                    <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                  </span>
+                )}
                 {/* Manage Data gear — appears on hover, before chevron */}
                 {item.editPermKey && canEdit(item.editPermKey) && (
                   <TooltipProvider>
