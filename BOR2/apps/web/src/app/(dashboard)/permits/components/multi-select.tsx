@@ -4,9 +4,10 @@ import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 
-export function MultiSelect({ label, options, selected, onChange }: {
-  label: string
-  options: string[]
+export function MultiSelect({ label, icon, options, selected, onChange }: {
+  label:    string
+  icon?:    React.ReactNode
+  options:  string[]
   selected: string[]
   onChange: (v: string[]) => void
 }) {
@@ -111,7 +112,7 @@ export function MultiSelect({ label, options, selected, onChange }: {
             : 'border-input bg-transparent dark:bg-input/30 text-muted-foreground hover:text-foreground'
         }`}
       >
-        <span>{label}</span>
+        {icon ?? <span>{label}</span>}
         {selected.length > 0 && (
           <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
             {selected.length}

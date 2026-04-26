@@ -1,18 +1,26 @@
 'use client'
 
-import { Calendar, CheckCircle2, CircleArrowUp, CircleDashed, Clock, Database } from 'lucide-react'
+import { Building2, Calendar, CalendarCheck, CalendarClock, CalendarDays, CheckCircle2, CircleArrowUp, CircleDashed, Clock, Database, List, MapPin } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { ALL, DATE_FIELDS, MONTHS, type DateField } from '../types'
 import { MultiSelect } from './multi-select'
 
+// ─── Date field icons (matches the icons used in PermitCards) ─────────────────
+
+const DATE_FIELD_ICONS: Record<string, React.ReactNode> = {
+  solicitacao: <CalendarDays  className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />,
+  aplicacao:   <CalendarClock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />,
+  emissao:     <CalendarCheck className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />,
+}
+
 // ─── Situation select options (with icons — defined here to keep types.ts JSX-free) ─
 
 export const SIT_OPTIONS = [
-  { value: ALL,           label: 'All',         icon: null,                                                                                              color: ''                                          },
-  { value: 'Pending',     label: 'Pending',     icon: <CircleDashed  className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400"              />, color: 'text-gray-500 dark:text-gray-400'          },
-  { value: 'Not Applied', label: 'Not Applied', icon: <Clock         className="h-3.5 w-3.5 text-red-500 dark:text-red-300"                />, color: 'text-red-500 dark:text-red-300'            },
-  { value: 'Applied',     label: 'Applied',     icon: <CircleArrowUp className="h-3.5 w-3.5 text-yellow-500 dark:text-yellow-300"          />, color: 'text-yellow-500 dark:text-yellow-300'      },
-  { value: 'Issued',      label: 'Issued',      icon: <CheckCircle2  className="h-3.5 w-3.5 text-primary"                                  />, color: 'text-primary'                              },
+  { value: ALL,           label: 'All',         icon: <List          className="h-3.5 w-3.5 text-muted-foreground"                        />, color: 'text-muted-foreground'                    },
+  { value: 'Pending',     label: 'Pending',     icon: <CircleDashed  className="h-3.5 w-3.5 text-gray-500 dark:text-gray-400"             />, color: 'text-gray-500 dark:text-gray-400'          },
+  { value: 'Not Applied', label: 'Not Applied', icon: <Clock         className="h-3.5 w-3.5 text-red-500 dark:text-red-300"               />, color: 'text-red-500 dark:text-red-300'            },
+  { value: 'Applied',     label: 'Applied',     icon: <CircleArrowUp className="h-3.5 w-3.5 text-yellow-500 dark:text-yellow-300"         />, color: 'text-yellow-500 dark:text-yellow-300'      },
+  { value: 'Issued',      label: 'Issued',      icon: <CheckCircle2  className="h-3.5 w-3.5 text-primary"                                 />, color: 'text-primary'                              },
 ]
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -101,13 +109,18 @@ export function PermitFilters({
             </div>
 
             <Select value={dateField} onValueChange={v => { if (v) onDateFieldChange(v as DateField) }}>
-              <SelectTrigger className="h-8 w-[148px] border-0 bg-transparent pl-0 pr-2 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                <span className="flex-1 truncate text-left text-sm">
-                  {DATE_FIELDS.find(f => f.value === dateField)?.label}
-                </span>
+              <SelectTrigger className="h-8 w-auto gap-1 border-0 bg-transparent px-2 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                {DATE_FIELD_ICONS[dateField]}
               </SelectTrigger>
               <SelectContent>
-                {DATE_FIELDS.map(f => <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>)}
+                {DATE_FIELDS.map(f => (
+                  <SelectItem key={f.value} value={f.value}>
+                    <span className="flex items-center gap-2">
+                      {DATE_FIELD_ICONS[f.value]}
+                      {f.label}
+                    </span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -118,13 +131,8 @@ export function PermitFilters({
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Situation</span>
           <Select value={situation} onValueChange={v => { if (v) onSituationChange(v) }}>
-            <SelectTrigger className="h-8 w-[148px] rounded-lg border border-input bg-transparent px-2.5 text-sm shadow-none ring-0 focus-visible:ring-0 dark:bg-input/30">
-              <span className="flex flex-1 items-center gap-1.5 truncate text-left">
-                {SIT_OPTIONS.find(o => o.value === situation)?.icon}
-                <span className={SIT_OPTIONS.find(o => o.value === situation)?.color || 'text-muted-foreground'}>
-                  {SIT_OPTIONS.find(o => o.value === situation)?.label ?? 'All'}
-                </span>
-              </span>
+            <SelectTrigger className="h-8 w-auto gap-1 rounded-lg border border-input bg-transparent px-2.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-input/30">
+              {SIT_OPTIONS.find(o => o.value === situation)?.icon}
             </SelectTrigger>
             <SelectContent>
               {SIT_OPTIONS.map(o => (
@@ -142,13 +150,13 @@ export function PermitFilters({
         {/* Client */}
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Client</span>
-          <MultiSelect label="Client" options={clients} selected={clientFilter} onChange={onClientFilterChange} />
+          <MultiSelect label="Client" icon={<Building2 className="h-3.5 w-3.5 shrink-0" />} options={clients} selected={clientFilter} onChange={onClientFilterChange} />
         </div>
 
         {/* Jobsite */}
         <div className="flex flex-col gap-1">
           <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
-          <MultiSelect label="Jobsite" options={jobsites} selected={jobsiteFilter} onChange={onJobsiteFilterChange} />
+          <MultiSelect label="Jobsite" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />} options={jobsites} selected={jobsiteFilter} onChange={onJobsiteFilterChange} />
         </div>
 
         {/* Changes + Insights — dev or permits-write only */}

@@ -51,6 +51,7 @@ import { useMyPermissions } from "@/hooks/use-settings"
 import { useAuth } from "@/hooks/use-auth"
 import { ManageDataModal as PermitManageDataModal }          from "@/app/(dashboard)/permits/manage-data-modal"
 import { ManageDataModal as ServiceRequestManageDataModal } from "@/app/(dashboard)/service-requests/manage-data-modal"
+import { ManageDataModal as WorkforceManageDataModal }      from "@/app/(dashboard)/workforce-productivity/manage-data-modal"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type SubItem = {
@@ -68,7 +69,7 @@ type NavItem = {
   imageDark?: string
   disabled?: boolean
   children?: SubItem[]
-  editPermKey?: string   // permission key that grants the gear edit button
+  editPermKey?: string   // permission key that grants the gear edit button (opens modal)
 }
 
 type NavGroup = {
@@ -83,8 +84,17 @@ const activeGroup: NavGroup = {
       title: "Framing Forecast", href: "/forecast",
       image: "/images/sublogo_framing.png",
     },
-    { title: "Inventory Control", href: "/inventory",        icon: Package  },
-    { title: "Permit Control",   href: "/permits",           icon: FileCheck, editPermKey: 'permits'          },
+    { title: "Inventory Control", href: "/inventory", icon: Package },
+    {
+      title: "Workforce", href: "/workforce-productivity", icon: Users,
+      editPermKey: "workforce",
+      children: [
+        { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
+        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
+        { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
+      ],
+    },
+    { title: "Permit Control", href: "/permits", icon: FileCheck, editPermKey: 'permits' },
     { title: "Service Requests", href: "/service-requests",  icon: Wrench,    editPermKey: 'service-requests' },
     {
       title: "Accounting", href: "/accounting", icon: Banknote,
@@ -108,7 +118,6 @@ const comingSoonGroup: NavGroup = {
       disabled: true,
       children: [
         { title: "Monthly Execution",         href: "/monthly-execution", icon: CalendarCheck  },
-        { title: "Workforce Productivity",    href: "/workforce",         icon: Users          },
         { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
       ],
     },
@@ -150,7 +159,7 @@ function NavItemIcon({ item }: { item: NavItem }) {
   return null
 }
 
-function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: string) => boolean }) {
+function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavItem; isActive: (href: string) => boolean; canEdit: (k: string) => boolean; onEditOpen: (item: NavItem) => void }) {
   const [show, setShow] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
@@ -173,7 +182,7 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
 
       {show && item.children && (
         <div
-          className="fixed z-50 ml-1 flex min-w-[160px] flex-col gap-1 rounded-lg border bg-popover p-1.5 shadow-lg"
+          className="fixed z-[200] ml-1 flex min-w-[160px] flex-col gap-1 rounded-lg border bg-popover p-1.5 shadow-lg"
           style={{
             left: ref.current ? ref.current.getBoundingClientRect().right : 0,
             top: ref.current ? ref.current.getBoundingClientRect().top : 0,
@@ -200,6 +209,18 @@ function CollapsedSubmenu({ item, isActive }: { item: NavItem; isActive: (href: 
               {child.title}
             </Link>
           ))}
+          {item.editPermKey && canEdit(item.editPermKey) && (
+            <>
+              <div className="my-1 h-px bg-border/60" />
+              <button
+                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                onClick={() => { setShow(false); onEditOpen(item) }}
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Manage Data
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -237,7 +258,7 @@ function NavGroupItems({
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               ) : (
-                <CollapsedSubmenu item={item} isActive={isActive} />
+                <CollapsedSubmenu item={item} isActive={isActive} canEdit={canEdit} onEditOpen={onEditOpen} />
               )
             ) : item.disabled ? (
               <SidebarMenuButton disabled className="cursor-not-allowed opacity-40" tooltip="Coming soon">
@@ -251,15 +272,32 @@ function NavGroupItems({
                   isActive={isGroupActive(item)}
                   tooltip={item.title}
                   onClick={() => toggleExpanded(item.title)}
+                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer pr-9" : "pr-9"}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
-                  <ChevronDown
-                    className={`ml-auto h-4 w-4 transition-transform ${
-                      isItemExpanded(item) ? "rotate-0" : "-rotate-90"
-                    }`}
-                  />
                 </SidebarMenuButton>
+                {/* Chevron — decorative, not interactive (avoids nested <button>) */}
+                <span className="pointer-events-none absolute right-1 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
+                </span>
+                {/* Manage Data gear — appears on hover, before chevron */}
+                {item.editPermKey && canEdit(item.editPermKey) && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger render={
+                        <SidebarMenuAction
+                          showOnHover
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); onEditOpen(item) }}
+                          className="right-6 hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary"
+                        />
+                      }>
+                        <Settings className="h-3.5 w-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">Manage Data</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 {isItemExpanded(item) && (
                   <SidebarMenuSub className="gap-1 py-1">
                     {item.children.map((child) => (
@@ -375,10 +413,14 @@ export function AppSidebar() {
     return expanded.includes(item.title) || isGroupActive(item)
   }
 
-  const groupProps = { open, isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit, onEditOpen: setEditItem }
+  const groupProps = {
+    open, isActive, isGroupActive, isItemExpanded, toggleExpanded, canEdit,
+    onEditOpen: setEditItem,
+  }
 
   const isPermitEdit         = editItem?.href === '/permits'
   const isServiceRequestEdit = editItem?.href === '/service-requests'
+  const isWorkforceEdit      = editItem?.href === '/workforce-productivity'
 
   return (
     <>
@@ -392,8 +434,13 @@ export function AppSidebar() {
       <ServiceRequestManageDataModal onClose={() => setEditItem(null)} />
     )}
 
+    {/* Workforce — opens full-screen data modal */}
+    {isWorkforceEdit && (
+      <WorkforceManageDataModal onClose={() => setEditItem(null)} />
+    )}
+
     {/* Generic edit sheet for other items */}
-    <Sheet open={!!editItem && !isPermitEdit && !isServiceRequestEdit} onOpenChange={v => { if (!v) setEditItem(null) }}>
+    <Sheet open={!!editItem && !isPermitEdit && !isServiceRequestEdit && !isWorkforceEdit} onOpenChange={v => { if (!v) setEditItem(null) }}>
       <SheetContent side="right" className="w-[min(90vw,28rem)]">
         <SheetHeader className="border-b pb-4">
           <SheetTitle className="flex items-center gap-2">

@@ -38,6 +38,13 @@ export interface PermitCardsProps {
   situation:  string
 }
 
+// ─── Layout constants (card-first sizing) ─────────────────────────────────────
+// Card sections sum to CARD_H; carousel = CARD_H + 2 × CAROUSEL_PAD
+
+const CARD_H        = 208   // px  — header(40) + identity(56) + dates(80) + footer(32)
+const CAROUSEL_PAD  = 12    // px  — p-3 on each side
+const CAROUSEL_H    = CARD_H + CAROUSEL_PAD * 2   // 280
+
 // ─── PermitCards (was PermitCarousel) ────────────────────────────────────────
 
 export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps) {
@@ -113,7 +120,7 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
+    <div className="flex shrink-0 flex-col overflow-hidden rounded-xl border border-border bg-card/60">
 
       {/* Controls bar */}
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-2">
@@ -218,13 +225,17 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
 
       {/* Carousel */}
       {displayData.length === 0 ? (
-        <div className="flex flex-1 items-center justify-center text-sm italic text-muted-foreground">
+        <div
+          className="flex items-center justify-center text-sm italic text-muted-foreground"
+          style={{ height: CAROUSEL_H }}
+        >
           No permits for the selected filters.
         </div>
       ) : (
         <div
           ref={carouselRef}
-          className="flex flex-1 gap-3 overflow-x-auto overflow-y-hidden p-3 cursor-grab active:cursor-grabbing select-none [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border"
+          className="flex gap-3 overflow-x-auto overflow-y-hidden p-3 cursor-grab active:cursor-grabbing select-none [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border"
+          style={{ height: CAROUSEL_H }}
           onMouseDown={onCarouselDown}
         >
           {displayData.map(permit => {
@@ -239,15 +250,16 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
                 className={`flex w-60 shrink-0 flex-col overflow-hidden rounded-xl border bg-card transition-all duration-150 cursor-pointer ${
                   isHov ? 'shadow-lg border-border' : 'shadow-sm border-border/50'
                 }`}
+                style={{ height: CARD_H }}
                 onMouseEnter={() => setHovered(permit.id)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => { if (!drag.current.moved) setSelected(permit) }}
               >
-                {/* Card header */}
+                {/* Card header — fixed 40 px */}
                 {(() => {
                   const conflicts = dateConflicts(permit)
                   return (
-                    <div className="flex items-center justify-between border-b border-border/60 px-4 py-2.5">
+                    <div className="flex h-10 shrink-0 items-center justify-between border-b border-border/60 px-4">
                       <span className={`flex items-center gap-1.5 text-xs font-semibold ${st.text}`}>
                         {SIT_ICON[permit.situacao] ?? <span className={`h-1.5 w-1.5 rounded-full ${st.dot}`} />}
                         {permit.situacao || 'Unknown'}
@@ -288,11 +300,11 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
                   )
                 })()}
 
-                {/* Body */}
-                <div className="flex flex-1 flex-col divide-y divide-border/40">
+                {/* Body — fills remaining card height */}
+                <div className="flex flex-1 flex-col divide-y divide-border/40 overflow-hidden">
 
-                  {/* Identity */}
-                  <div className="flex items-center gap-2.5 px-4 py-3">
+                  {/* Identity — fixed 56 px */}
+                  <div className="flex h-14 shrink-0 items-center gap-2.5 px-4">
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
                     <div className="min-w-0 flex flex-col gap-0.5">
                       <p className="truncate text-xs text-muted-foreground leading-tight">{permit.jobsite || '—'}</p>
@@ -302,8 +314,8 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
                     </div>
                   </div>
 
-                  {/* Dates */}
-                  <div className="flex flex-[2] flex-col justify-center gap-2 px-4">
+                  {/* Dates — flex-1: takes all space between identity and footer */}
+                  <div className="flex flex-1 flex-col justify-center gap-2 overflow-hidden px-4">
                     {([
                       { icon: CalendarDays,  label: 'Request',     value: fmtShort(permit.solicitacao) },
                       { icon: CalendarClock, label: 'Application', value: fmtShort(permit.aplicacao)   },
@@ -319,8 +331,8 @@ export function PermitCards({ permits, primaryHex, situation }: PermitCardsProps
                     ))}
                   </div>
 
-                  {/* Footer — processing time + notes */}
-                  <div className="flex flex-col items-center justify-center gap-1.5 px-4 py-3">
+                  {/* Footer — fixed 32 px */}
+                  <div className="flex h-8 shrink-0 items-center justify-center gap-1.5 px-4">
                     {permit.solicitacao && permit.situacao !== 'Pending'
                       ? (
                         <div className="flex items-center gap-2">

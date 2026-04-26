@@ -25,7 +25,7 @@ export const ALL = 'all'
 
 export const DAY_WIDTH  = 80
 export const SUB_H      = 40
-export const TIMELINE_H = 340
+export const TIMELINE_H = 270
 export const LABEL_H    = 40
 export const TOP_PAD    = 18
 export const STEM_MAX_H = TIMELINE_H - LABEL_H - TOP_PAD - 28

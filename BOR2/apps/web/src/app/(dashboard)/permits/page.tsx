@@ -139,7 +139,8 @@ export default function PermitsPage() {
 
         {/* Main content */}
         <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
-          <div className="w-full shrink-0 overflow-hidden">
+          {/* Chart grows to fill all space above the cards */}
+          <div className="min-h-0 flex-1 overflow-hidden">
             <PermitChart
               permits={filtered}
               dateField={dateField}

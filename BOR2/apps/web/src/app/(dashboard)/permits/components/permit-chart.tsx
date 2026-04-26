@@ -5,7 +5,7 @@ import { BarChart2, Clock } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Permit } from '@/services/permit.service'
 import {
-  DAY_WIDTH, MONTHS_SHORT, SUB_H, TIMELINE_H, LABEL_H, STEM_MAX_H,
+  DAY_WIDTH, MONTHS_SHORT, SUB_H, TIMELINE_H, LABEL_H, STEM_MAX_H, TOP_PAD,
   type DateField,
 } from '../types'
 import { stemColorForDay } from '../lib'
@@ -68,7 +68,22 @@ export interface PermitChartProps {
 // ─── TimelineChart ────────────────────────────────────────────────────────────
 
 export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitChartProps) {
+  // scrollH: measured by ResizeObserver on the scroll area — drives timelineH
+  const [scrollH, setScrollH] = useState(0)
   const scrollRef  = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setScrollH(entry.contentRect.height))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  // timelineH: usable chart body minus the subheader row
+  const timelineH = scrollH > SUB_H + 60 ? scrollH - SUB_H : TIMELINE_H
+  const stemMaxH  = timelineH - LABEL_H - TOP_PAD - 28
+
   const isDragging = useRef(false)
   const dragStartX = useRef(0)
   const dragScroll = useRef(0)
@@ -99,7 +114,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
 
   const todayIdx  = days.indexOf(TODAY)
   const maxCount  = useMemo(() => Math.max(...Array.from(grouped.values()).map(v => v.length), 1), [grouped])
-  const baselineY = TIMELINE_H - LABEL_H
+  const baselineY = timelineH - LABEL_H
 
   // Avg delivery days per month (Issued permits only, keyed by YYYY-MM of dateField)
   const avgByMonthKey = useMemo(() => {
@@ -198,7 +213,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
 
   const chartContent = days.length === 0
     ? (
-      <div className="flex flex-1 flex-col items-center justify-center gap-1.5" style={{ height: TIMELINE_H }}>
+      <div className="flex h-full flex-col items-center justify-center gap-1.5">
         <p className="text-sm text-muted-foreground">
           {pendingOnly ? 'All permits are pending — no dates to display.' : 'No permits with dates for the selected field.'}
         </p>
@@ -210,8 +225,8 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
     : (
       <div
         ref={scrollRef}
-        className="overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none [&::-webkit-scrollbar]:hidden"
-        style={{ height: TIMELINE_H + SUB_H, scrollbarWidth: 'none' }}
+        className="flex-1 overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing select-none [&::-webkit-scrollbar]:hidden"
+        style={{ scrollbarWidth: 'none' }}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
@@ -310,7 +325,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
               <div
                 key={`sep-${day}`}
                 className="absolute pointer-events-none bg-border"
-                style={{ left: i * DAY_WIDTH, width: 1, top: 0, height: TIMELINE_H + SUB_H }}
+                style={{ left: i * DAY_WIDTH, width: 1, top: 0, height: timelineH + SUB_H }}
               />
             )
           })}
@@ -320,7 +335,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
             <div
               key={`hz-${sec.label}`}
               className="absolute z-[5]"
-              style={{ left: sec.startX, width: sec.endX - sec.startX, top: 0, height: TIMELINE_H + SUB_H }}
+              style={{ left: sec.startX, width: sec.endX - sec.startX, top: 0, height: timelineH + SUB_H }}
               onMouseEnter={() => setHoveredMonth(sec.label)}
               onMouseLeave={() => setHoveredMonth(null)}
             />
@@ -333,7 +348,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
             return (
               <div
                 className="absolute pointer-events-none z-[15] border border-primary/35"
-                style={{ left: sec.startX, width: sec.endX - sec.startX, top: 0, height: TIMELINE_H + SUB_H }}
+                style={{ left: sec.startX, width: sec.endX - sec.startX, top: 0, height: timelineH + SUB_H }}
               />
             )
           })()}
@@ -403,7 +418,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
           {days.map((day, i) => {
             const dayPermits = grouped.get(day)!
             const count  = dayPermits.length
-            const stemH  = Math.max(20, (count / maxCount) * STEM_MAX_H)
+            const stemH  = Math.max(20, (count / maxCount) * stemMaxH)
             const hex    = stemColorForDay(dayPermits, primaryHex, isDark)
             const x      = i * DAY_WIDTH + DAY_WIDTH / 2
 
@@ -435,9 +450,9 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
 
   return (
     <>
-      <div className="w-full overflow-hidden rounded-xl border border-border">
+      <div className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border">
         {/* Title */}
-        <div className="flex items-center gap-2 border-b border-border bg-card/60 px-4 py-2.5">
+        <div className="flex shrink-0 items-center gap-2 border-b border-border bg-card/60 px-4 py-2.5">
           <BarChart2 className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-sm font-semibold">Permit Timeline</span>
           <div className="ml-auto flex items-center gap-2">
@@ -472,7 +487,7 @@ export function PermitChart({ permits, dateField, primaryHex, isDark }: PermitCh
             )}
           </div>
         </div>
-        <div className="relative bg-card">
+        <div className="relative flex flex-1 flex-col overflow-hidden bg-card">
           {chartContent}
           {days.length > 0 && (
             <div
