@@ -276,17 +276,9 @@ function NavGroupItems({
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
-                  {/* Chevron inside button — only when no gear (no nested-button issue) */}
-                  {!(item.editPermKey && canEdit(item.editPermKey)) && (
-                    <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
-                  )}
+                  {/* Chevron always inside button — it's just an icon, not a button, so no hydration issue */}
+                  <ChevronDown className={`ml-auto h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
                 </SidebarMenuButton>
-                {/* Chevron as sibling — only when gear is present (avoids nested <button>) */}
-                {item.editPermKey && canEdit(item.editPermKey) && (
-                  <span className="pointer-events-none absolute right-1 flex h-8 w-6 items-center justify-center text-muted-foreground/60">
-                    <ChevronDown className={`h-4 w-4 transition-transform ${isItemExpanded(item) ? "rotate-0" : "-rotate-90"}`} />
-                  </span>
-                )}
                 {/* Manage Data gear — appears on hover, before chevron */}
                 {item.editPermKey && canEdit(item.editPermKey) && (
                   <TooltipProvider>
