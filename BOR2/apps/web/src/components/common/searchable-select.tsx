@@ -14,6 +14,8 @@ interface SearchableSelectProps {
   icon?: React.ElementType
   className?: string
   allLabel?: string
+  /** Shows only the icon in the trigger (compact mode). Active filter highlights the icon. */
+  iconOnly?: boolean
 }
 
 export function SearchableSelect({
@@ -24,6 +26,7 @@ export function SearchableSelect({
   icon: Icon,
   className,
   allLabel = "All",
+  iconOnly = false,
 }: SearchableSelectProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -48,15 +51,26 @@ export function SearchableSelect({
           <Button
             variant="outline"
             className={cn(
-              "h-8 w-auto min-w-[100px] max-w-[200px] justify-between gap-1.5 px-2.5 text-sm font-normal",
+              iconOnly
+                ? cn(
+                    "h-8 w-8 p-0 justify-center",
+                    value !== "All" && "border-primary/60 text-primary"
+                  )
+                : "h-8 w-auto min-w-[100px] max-w-[200px] justify-between gap-1.5 px-2.5 text-sm font-normal",
               className
             )}
           />
         }
       >
-        {Icon && <Icon className="mr-1 h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
-        <span className="flex-1 truncate text-left">{selectedLabel}</span>
-        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+        {iconOnly ? (
+          Icon && <Icon className={cn("h-3.5 w-3.5 shrink-0", value !== "All" ? "text-primary" : "text-muted-foreground")} />
+        ) : (
+          <>
+            {Icon && <Icon className="mr-1 h-3.5 w-3.5 shrink-0 text-muted-foreground" />}
+            <span className="flex-1 truncate text-left">{selectedLabel}</span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          </>
+        )}
       </PopoverTrigger>
       <PopoverContent className="w-auto min-w-[180px] gap-0 p-0" align="end">
         {/* Search */}
