@@ -311,40 +311,34 @@ export default function ServiceRequestsPage() {
             </div>
           </div>
 
-          {/* Contractor */}
+          {/* Contractor · Job Site · City — grouped pill */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Contractor</span>
-            <SearchableSelect
-              value={contractor}
-              onValueChange={v => setContractor(v)}
-              options={contractors.map(c => ({ value: c, label: c }))}
-              icon={Wrench}
-              iconOnly
-            />
-          </div>
-
-          {/* Job Site */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Job Site</span>
-            <SearchableSelect
-              value={jobSite}
-              onValueChange={v => setJobSite(v)}
-              options={jobSites.map(j => ({ value: j, label: j }))}
-              icon={MapPin}
-              iconOnly
-            />
-          </div>
-
-          {/* City */}
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">City</span>
-            <SearchableSelect
-              value={city}
-              onValueChange={v => setCity(v)}
-              options={cities.map(c => ({ value: c, label: c }))}
-              icon={Building2}
-              iconOnly
-            />
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Location</span>
+            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+              <SearchableSelect
+                value={contractor}
+                onValueChange={v => setContractor(v)}
+                options={contractors.map(c => ({ value: c, label: c }))}
+                icon={Wrench}
+                iconOnly inline
+              />
+              <div className="h-5 w-px shrink-0 bg-border" />
+              <SearchableSelect
+                value={jobSite}
+                onValueChange={v => setJobSite(v)}
+                options={jobSites.map(j => ({ value: j, label: j }))}
+                icon={MapPin}
+                iconOnly inline
+              />
+              <div className="h-5 w-px shrink-0 bg-border" />
+              <SearchableSelect
+                value={city}
+                onValueChange={v => setCity(v)}
+                options={cities.map(c => ({ value: c, label: c }))}
+                icon={Building2}
+                iconOnly inline
+              />
+            </div>
           </div>
 
           {/* Warranty toggle */}
