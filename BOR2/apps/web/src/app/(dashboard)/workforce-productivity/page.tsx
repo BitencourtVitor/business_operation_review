@@ -6,7 +6,7 @@ import { useWorkforceData } from "@/hooks/use-workforce"
 import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useInsights } from "@/components/insights/insights-panel"
-import { WorkforceManageDataModal } from "./manage-data-modal"
+import { ManageDataModal as WorkforceManageDataModal } from "./manage-data-modal"
 import { Calendar, Clock, Database, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
