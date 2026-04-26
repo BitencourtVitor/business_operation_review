@@ -28,7 +28,7 @@ function fmtHours(h: number) {
 export default function WorkforceProductivityPage() {
   const searchParams      = useSearchParams()
   const company           = searchParams.get("company") ?? undefined
-  const [year,  setYear]  = useState("")
+  const [year,  setYear]  = useState(String(new Date().getFullYear()))
   const [month, setMonth] = useState("")
 
   // Reactive chart colors — MutationObserver on <html class> like service-requests
@@ -54,7 +54,7 @@ export default function WorkforceProductivityPage() {
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => { setYear(""); setMonth("") }, [company])
+  useEffect(() => { setYear(String(new Date().getFullYear())); setMonth("") }, [company])
 
   // Fetch all data — filter client-side so year picker has full option list
   const { data: allRows = [], isLoading } = useWorkforceData({ company })
