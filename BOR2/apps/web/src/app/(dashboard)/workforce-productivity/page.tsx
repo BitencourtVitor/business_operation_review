@@ -509,8 +509,7 @@ export default function WorkforceProductivityPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
-                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
-                            formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Avg hrs / emp"]} />
+                          <RechartsTooltip content={<ChartTooltip />} />
                           <Line dataKey="hpe" name="Hrs / emp" stroke="#f59e0b" strokeWidth={2}
                             dot={{ r: 4, fill: "#f59e0b", stroke: "#fff", strokeWidth: 2 }}
                             activeDot={{ r: 6 }} />
@@ -528,8 +527,7 @@ export default function WorkforceProductivityPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
-                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                            formatter={(v: unknown) => [String(v), "Employees"]} />
+                          <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                           <Bar dataKey="count" name="Employees" fill="#10b981" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
@@ -556,8 +554,7 @@ export default function WorkforceProductivityPage() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                             <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                             <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
-                            <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                              formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                            <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" fill={cc.primary} radius={[4, 4, 0, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
@@ -576,8 +573,7 @@ export default function WorkforceProductivityPage() {
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                             <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
                             <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
-                            <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                              formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                            <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
                               {hoursByWorktype.map((entry, i) => (
                                 <Cell key={i} fill={entry.color} />
@@ -595,18 +591,21 @@ export default function WorkforceProductivityPage() {
                   <div className="flex min-h-0 flex-[2] flex-col rounded-xl border border-border bg-card/60 p-4">
                     <div className="mb-3 flex shrink-0 items-center justify-between">
                       <span className="text-sm font-semibold">Hours by Project</span>
-                      <div className="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
-                        {TOP_N_OPTIONS.map(n => (
-                          <button key={n} onClick={() => setTopN(n)}
-                            className={`rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors ${
-                              topN === n
-                                ? "bg-primary text-primary-foreground"
-                                : "text-muted-foreground hover:text-foreground"
-                            }`}
-                          >
-                            Top {n}
-                          </button>
-                        ))}
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-medium text-muted-foreground">Top</span>
+                        <div className="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
+                          {TOP_N_OPTIONS.map(n => (
+                            <button key={n} onClick={() => setTopN(n)}
+                              className={`rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                                topN === n
+                                  ? "bg-primary text-primary-foreground"
+                                  : "text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              {n}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
