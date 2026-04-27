@@ -117,9 +117,10 @@ const comingSoonGroup: NavGroup = {
       title: "Operational Efficiency",
       href: "/monthly-execution",
       icon: Gauge,
+      disabled: true,
       children: [
         { title: "Monthly Execution",         href: "/monthly-execution", icon: CalendarCheck  },
-        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck, disabled: true },
+        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
       ],
     },
     { title: "HVAC Project Monitoring", href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },

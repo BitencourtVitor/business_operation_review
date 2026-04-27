@@ -118,7 +118,14 @@ func (h *OFIHandler) List(c *fiber.Ctx) error {
 		SELECT o.id, o.obra_id, o.reference_month, o.reference_year,
 		       o.fieldwire_score, o.machines_score, o.contract_score, o.systems_score, o.total_score,
 		       COALESCE(o.capture_date::text, ''),
-		       COALESCE(NULLIF(fc.name,''), NULLIF(fc.lote_bld,''), fc.job_site, o.obra_id) AS project_name
+		       CASE
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name     || ' - ' || fc.lote_bld
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
+		         WHEN NULLIF(fc.job_site,'') IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.job_site || ' - ' || fc.lote_bld
+		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
+		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
+		         ELSE o.obra_id
+		       END AS project_name
 		FROM   operational_forecast_index o
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(o.obra_id)
 		WHERE  ($1 = 0 OR o.reference_year  = $1)
@@ -154,7 +161,14 @@ func (h *OFIHandler) ListExecution(c *fiber.Ctx) error {
 	rows, err := h.db.Query(context.Background(), `
 		SELECT e.id, e.obra_id, e.reference_month, e.reference_year,
 		       e.planned_status, e.actual_status, e.reason, e.subcontractor, e.is_cycle_completed,
-		       COALESCE(NULLIF(fc.name,''), NULLIF(fc.lote_bld,''), fc.job_site, e.obra_id) AS project_name
+		       CASE
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.name     || ' - ' || fc.lote_bld
+		         WHEN NULLIF(fc.name,'')     IS NOT NULL                                        THEN fc.name
+		         WHEN NULLIF(fc.job_site,'') IS NOT NULL AND NULLIF(fc.lote_bld,'') IS NOT NULL THEN fc.job_site || ' - ' || fc.lote_bld
+		         WHEN NULLIF(fc.job_site,'') IS NOT NULL                                        THEN fc.job_site
+		         WHEN NULLIF(fc.lote_bld,'') IS NOT NULL                                        THEN fc.lote_bld
+		         ELSE e.obra_id
+		       END AS project_name
 		FROM   monthly_execution_history e
 		LEFT   JOIN forecast_core fc ON LOWER(fc.id) = LOWER(e.obra_id)
 		WHERE  ($1 = 0 OR e.reference_year  = $1)
