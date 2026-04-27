@@ -47,6 +47,32 @@ function fmtHours(h: number) {
   return h.toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
 
+// ─── Custom Tooltip ───────────────────────────────────────────────────────────
+
+function ChartTooltip({ active, payload, label }: {
+  active?:  boolean
+  payload?: { name: string; value: number; color?: string; fill?: string; stroke?: string }[]
+  label?:   string
+}) {
+  if (!active || !payload?.length) return null
+  return (
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg">
+      {label && <p className="mb-1.5 text-xs font-semibold text-foreground">{label}</p>}
+      <div className="flex flex-col gap-1">
+        {payload.map((p, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: p.color ?? p.fill ?? p.stroke }} />
+            <span className="text-xs text-muted-foreground">{p.name}</span>
+            <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-foreground">
+              {fmtHours(p.value)} hrs
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ─── Rule application ─────────────────────────────────────────────────────────
 
 function applyRules(rows: WorkforceRow[], rules: AttributionRule[]): WorkforceRow[] {
@@ -280,10 +306,8 @@ export default function WorkforceProductivityPage() {
 
   // ── Shared chart props ────────────────────────────────────────────────────
 
-  const tooltipStyle = { backgroundColor: cc.card, borderColor: cc.border, borderRadius: 8, fontSize: 12 }
-  const labelStyle   = { color: cc.muted }
-  const cursor       = { fill: cc.muted, fillOpacity: 0.12 }
-  const tick         = { fontSize: 11 }
+  const cursor = { fill: cc.muted, fillOpacity: 0.12 }
+  const tick   = { fontSize: 11 }
 
   // ── Insights ──────────────────────────────────────────────────────────────
 
@@ -437,8 +461,7 @@ export default function WorkforceProductivityPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
-                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
-                            formatter={(v: unknown, name?: string | number) => [fmtHours(Number(v)) + " hrs", String(name ?? "")]} />
+                          <RechartsTooltip content={<ChartTooltip />} />
                           <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                           {spWorktypes.length > 1 && (
                             <Line dataKey="total" name="Total" stroke={cc.muted}
@@ -466,8 +489,7 @@ export default function WorkforceProductivityPage() {
                               <Cell key={i} fill={entry.fill} />
                             ))}
                           </Pie>
-                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
-                            formatter={(v: unknown, name?: string | number) => [fmtHours(Number(v)) + " hrs", String(name ?? "")]} />
+                          <RechartsTooltip content={<ChartTooltip />} />
                           <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 10 }} />
                         </PieChart>
                       </ResponsiveContainer>
@@ -594,8 +616,7 @@ export default function WorkforceProductivityPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                           <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis type="category" dataKey="name" width={220} tick={tick} axisLine={false} tickLine={false} />
-                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                            formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                          <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                           <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
