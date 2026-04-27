@@ -256,12 +256,13 @@ func main() {
 	timesheets.Delete("/:id", timesheetRowHandler.Delete)
 	timesheets.Post("/upload-csv", timesheetUploadHandler.UploadCSV)
 
-	// OFI
+	// OFI — read/write under standard auth; calculate under cron-or-admin guard
 	ofi := api.Group("/ofi")
 	ofi.Get("/",                        ofiHandler.List)
 	ofi.Get("/monthly-execution",       ofiHandler.ListExecution)
 	ofi.Patch("/monthly-execution/:id", ofiHandler.UpdateExecutionReason)
-	ofi.Post("/calculate",              ofiHandler.Calculate)
+	// POST /calculate is outside RequireAuth so the cron binary can call it with X-Cron-Secret
+	v1.Post("/ofi/calculate", middleware.RequireCronOrAdmin(cfg.App.CronSecret, authService), ofiHandler.Calculate)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")
