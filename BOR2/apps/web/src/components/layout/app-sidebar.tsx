@@ -318,10 +318,10 @@ function NavGroupItems({
                     {item.children.map((child) => (
                       <SidebarMenuSubItem key={child.title + child.href}>
                         {child.disabled ? (
-                          <SidebarMenuSubButton disabled className="cursor-not-allowed opacity-40">
+                          <span className="flex cursor-not-allowed items-center gap-2 px-2 py-1.5 text-sm opacity-40">
                             {child.icon ? <child.icon className="h-3.5 w-3.5" /> : null}
-                            <span>{child.title}</span>
-                          </SidebarMenuSubButton>
+                            {child.title}
+                          </span>
                         ) : (
                           <SidebarMenuSubButton
                             isActive={isActive(child.href)}
