@@ -90,8 +90,8 @@ const activeGroup: NavGroup = {
       editPermKey: "workforce",
       children: [
         { title: "Framing", href: "/workforce-productivity?company=Framing", image: "/images/sublogo_framing.png" },
-        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
         { title: "HVAC",    href: "/workforce-productivity?company=HVAC",    image: "/images/sublogo_hvac.png"    },
+        { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
       ],
     },
     { title: "Permit Control", href: "/permits", icon: FileCheck, editPermKey: 'permits' },
@@ -99,8 +99,8 @@ const activeGroup: NavGroup = {
     {
       title: "Accounting", href: "/accounting", icon: Banknote,
       children: [
-        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
         { title: "Framing", href: "/accounting?company=framing",  image: "/images/sublogo_framing.png"  },
+        { title: "HVAC",    href: "/accounting?company=hvac",     image: "/images/sublogo_hvac.png"     },
         { title: "PCG",     href: "/accounting?company=pcg",      image: "/images/sublogo_pcg.png"      },
       ],
     },
