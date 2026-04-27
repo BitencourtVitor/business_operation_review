@@ -68,6 +68,7 @@ func main() {
 	auditLogRepo         := repository.NewPostgresAuditLogRepository(db)
 	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
+	qbtimeDailyRepo      := repository.NewPostgresQBTimeDailyReportRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -89,6 +90,7 @@ func main() {
 	notificationService  := service.NewNotificationService(notificationRepo)
 	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
 	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
+	qbtimeDailySvc       := service.NewQBTimeDailyReportService(qbtimeDailyRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -122,6 +124,7 @@ func main() {
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
+	qbtimeDailyHandler       := handler.NewQBTimeDailyReportHandler(qbtimeDailySvc, auditService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
@@ -215,6 +218,13 @@ func main() {
 	fuel := api.Group("/fuel")
 	fuel.Get("/samsara", fuelHandler.ListSamsara)
 	fuel.Get("/wex", fuelHandler.ListWex)
+
+	// QBTime Daily Report
+	qbtimeDaily := api.Group("/qbtime/daily")
+	qbtimeDaily.Get("/", qbtimeDailyHandler.List)
+	qbtimeDaily.Post("/", qbtimeDailyHandler.Create)
+	qbtimeDaily.Get("/:id", qbtimeDailyHandler.Get)
+	qbtimeDaily.Delete("/:id", qbtimeDailyHandler.Delete)
 
 	// WEX Categorization
 	wexNorm := api.Group("/wex/normalization")
