@@ -24,6 +24,7 @@ type AppConfig struct {
 	Port           string
 	Env            string
 	AllowedOrigins string
+	CronSecret     string
 }
 
 type DatabaseConfig struct {
@@ -46,6 +47,7 @@ func Load() (*Config, error) {
 			Port:           getEnv("API_PORT", "8080"),
 			Env:            getEnv("APP_ENV", "development"),
 			AllowedOrigins: getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),
+			CronSecret:     getEnv("CRON_SECRET", ""),
 		},
 		Database: DatabaseConfig{
 			URL: requireEnv("DATABASE_URL"),
