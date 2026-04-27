@@ -140,28 +140,27 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
             </div>
           </div>
 
-          {/* Reference Month — Year + Month selects */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted-foreground">Reference Month</label>
-            <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
-              <Select value={year} onValueChange={v => setYear(v ?? year)}>
-                <SelectTrigger className="h-9 flex-1 border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <span className="flex-1 text-left text-sm">{year}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {YEARS.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              <div className="h-5 w-px shrink-0 bg-border" />
-              <Select value={month || 'placeholder'} onValueChange={v => setMonth(v === 'placeholder' ? '' : (v ?? ''))}>
-                <SelectTrigger className="h-9 flex-[2] border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                  <span className={cn('flex-1 text-left text-sm', !month && 'text-muted-foreground')}>{month || 'Month'}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Reference Month — label + Year + Month inline */}
+          <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
+            <span className="shrink-0 pl-3 pr-2 text-xs font-medium text-muted-foreground">Reference Month</span>
+            <div className="h-5 w-px shrink-0 bg-border" />
+            <Select value={year} onValueChange={v => setYear(v ?? year)}>
+              <SelectTrigger className="h-9 w-[80px] border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className="flex-1 text-left text-sm">{year}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {YEARS.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <div className="h-5 w-px shrink-0 bg-border" />
+            <Select value={month || 'placeholder'} onValueChange={v => setMonth(v === 'placeholder' ? '' : (v ?? ''))}>
+              <SelectTrigger className="h-9 flex-1 border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <span className={cn('flex-1 text-left text-sm', !month && 'text-muted-foreground')}>{month || 'Month'}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* CSV File — drag & drop zone */}
