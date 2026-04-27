@@ -4,13 +4,15 @@ import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search } from 'lucide-react'
 
-export function MultiSelect({ label, icon, options, selected, onChange, minWidth = 208 }: {
-  label:     string
-  icon?:     React.ReactNode
-  options:   string[]
-  selected:  string[]
-  onChange:  (v: string[]) => void
-  minWidth?: number
+export function MultiSelect({ label, icon, options, selected, onChange, minWidth = 208, fitContent = false }: {
+  label:       string
+  icon?:       React.ReactNode
+  options:     string[]
+  selected:    string[]
+  onChange:    (v: string[]) => void
+  minWidth?:   number
+  /** Auto-sizes dropdown to fit the longest option (right-aligned to trigger) */
+  fitContent?: boolean
 }) {
   const [open,   setOpen]   = useState(false)
   const [search, setSearch] = useState('')
@@ -49,8 +51,9 @@ export function MultiSelect({ label, icon, options, selected, onChange, minWidth
       style={{
         position: 'fixed',
         top: rect.bottom + 4,
-        left: rect.right - Math.max(rect.width, minWidth),
-        width: Math.max(rect.width, minWidth),
+        ...(fitContent
+          ? { right: window.innerWidth - rect.right, width: 'max-content', minWidth: rect.width }
+          : { left: rect.right - Math.max(rect.width, minWidth), width: Math.max(rect.width, minWidth) }),
         zIndex: 9999,
       }}
     >
