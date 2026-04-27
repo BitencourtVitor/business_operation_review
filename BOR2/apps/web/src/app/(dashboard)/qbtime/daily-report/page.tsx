@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import {
-  Download,
   FileSpreadsheet,
   FileText,
+  ImageDown,
   Pencil,
   Plus,
   RotateCcw,
@@ -483,15 +483,20 @@ export default function QBTimeDailyReportPage() {
                     {employees.length} member{employees.length!==1?"s":""} · {fmtH(totalH)} total
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                    onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
-                    <FileSpreadsheet className="h-3.5 w-3.5" /> XLSX
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                    onClick={() => exportPDF(grouped, company, date, hasTeams)}>
-                    <FileText className="h-3.5 w-3.5" /> PDF
-                  </Button>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                    Export
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                      onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
+                      <FileSpreadsheet className="h-3.5 w-3.5" /> XLSX
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                      onClick={() => exportPDF(grouped, company, date, hasTeams)}>
+                      <FileText className="h-3.5 w-3.5" /> PDF
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -547,8 +552,8 @@ function SectionCard({ section, company, date, hasTeams }: {
             <span className="text-[11px] text-muted-foreground">{section.members.length}</span>
             <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal)}</span>
             <button onClick={handlePNG}
-              className="invisible rounded p-0.5 text-muted-foreground transition-colors hover:text-primary group-hover:visible">
-              <Download className="h-3.5 w-3.5" />
+              className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100">
+              <ImageDown className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -567,8 +572,8 @@ function SectionCard({ section, company, date, hasTeams }: {
             {/* Per-person download only when not using teams */}
             {!hasTeams && (
               <button onClick={handlePNG}
-                className="invisible rounded p-0.5 text-muted-foreground transition-colors hover:text-primary group-hover:visible">
-                <Download className="h-3.5 w-3.5" />
+                className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100">
+                <ImageDown className="h-3.5 w-3.5" />
               </button>
             )}
           </div>
