@@ -18,7 +18,7 @@ import type { AttributionRule } from "@/services/workforce.service"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
   ResponsiveContainer, CartesianGrid, Cell,
-  LineChart, Line, PieChart, Pie, Legend,
+  LineChart, Line, AreaChart, Area, PieChart, Pie, Legend,
 } from "recharts"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -457,7 +457,18 @@ export default function WorkforceProductivityPage() {
                     </span>
                     <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={spMonthlyData} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                        <AreaChart data={spMonthlyData} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                          <defs>
+                            {spWorktypes.map((wt, i) => {
+                              const color = WORKTYPE_COLORS[i % WORKTYPE_COLORS.length]
+                              return (
+                                <linearGradient key={wt} id={`grad-wt-${i}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%"  stopColor={color} stopOpacity={0.25} />
+                                  <stop offset="95%" stopColor={color} stopOpacity={0} />
+                                </linearGradient>
+                              )
+                            })}
+                          </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
@@ -467,12 +478,17 @@ export default function WorkforceProductivityPage() {
                             <Line dataKey="total" name="Total" stroke={cc.muted}
                               strokeWidth={2} strokeDasharray="6 3" dot={false} />
                           )}
-                          {spWorktypes.map((wt, i) => (
-                            <Line key={wt} dataKey={wt} name={wt}
-                              stroke={WORKTYPE_COLORS[i % WORKTYPE_COLORS.length]}
-                              strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                          ))}
-                        </LineChart>
+                          {spWorktypes.map((wt, i) => {
+                            const color = WORKTYPE_COLORS[i % WORKTYPE_COLORS.length]
+                            return (
+                              <Area key={wt} dataKey={wt} name={wt} type="monotone"
+                                stroke={color} strokeWidth={2}
+                                fill={`url(#grad-wt-${i})`}
+                                dot={{ r: 3, fill: color, stroke: "#fff", strokeWidth: 1.5 }}
+                                activeDot={{ r: 5 }} />
+                            )
+                          })}
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
@@ -505,15 +521,22 @@ export default function WorkforceProductivityPage() {
                     <span className="mb-2 shrink-0 text-sm font-semibold">Hours per Employee</span>
                     <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={spHoursPerEmp} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                        <AreaChart data={spHoursPerEmp} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                          <defs>
+                            <linearGradient id="grad-hpe" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%"  stopColor="#f59e0b" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
                           <RechartsTooltip content={<ChartTooltip />} />
-                          <Line dataKey="hpe" name="Hrs / emp" stroke="#f59e0b" strokeWidth={2}
+                          <Area dataKey="hpe" name="Hrs / emp" type="monotone"
+                            stroke="#f59e0b" strokeWidth={2} fill="url(#grad-hpe)"
                             dot={{ r: 4, fill: "#f59e0b", stroke: "#fff", strokeWidth: 2 }}
                             activeDot={{ r: 6 }} />
-                        </LineChart>
+                        </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
