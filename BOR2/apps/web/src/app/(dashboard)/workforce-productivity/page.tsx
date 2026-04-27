@@ -398,7 +398,7 @@ export default function WorkforceProductivityPage() {
         </div>
       ) : (
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 overflow-hidden">
 
             {/* ── KPI cards ── */}
             <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
@@ -421,10 +421,10 @@ export default function WorkforceProductivityPage() {
             {isSingleProject ? (
 
               /* ═══════════════ SINGLE PROJECT VIEW ═══════════════ */
-              <div className="flex flex-col gap-4">
+              <div className="flex min-h-0 flex-1 flex-col gap-4">
 
                 {/* Row 1 — Chart #4 (2/3) + Chart #5 doughnut (1/3) */}
-                <div className="grid grid-cols-3 gap-4" style={{ height: 320 }}>
+                <div className="grid min-h-0 flex-[3] grid-cols-3 gap-4">
 
                   {/* Chart #4 — Hours: Total vs Worktype */}
                   <div className="col-span-2 flex flex-col rounded-xl border border-border bg-card/60 p-4">
@@ -476,7 +476,7 @@ export default function WorkforceProductivityPage() {
                 </div>
 
                 {/* Row 2 — Chart #6 (left) + Chart #7 (right) */}
-                <div className="grid grid-cols-2 gap-4" style={{ height: 240 }}>
+                <div className="grid min-h-0 flex-[2] grid-cols-2 gap-4">
 
                   {/* Chart #6 — Hours per Employee */}
                   <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
@@ -519,10 +519,10 @@ export default function WorkforceProductivityPage() {
             ) : (
 
               /* ═══════════════ GENERAL VIEW ═══════════════ */
-              <div className="flex flex-col gap-4">
+              <div className="flex min-h-0 flex-1 flex-col gap-4">
 
                 {/* Row 1 — Chart #1 + Chart #3 */}
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" style={{ height: 300 }}>
+                <div className="grid min-h-0 flex-[3] grid-cols-1 gap-4 lg:grid-cols-2">
 
                   {/* Chart #1 — Total Hours by Month */}
                   {hoursByMonth.length > 1 && (
@@ -570,7 +570,7 @@ export default function WorkforceProductivityPage() {
 
                 {/* Chart #2 — Hours by Project (Top N) */}
                 {topJobsites.length > 0 && (
-                  <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                  <div className="flex min-h-0 flex-[2] flex-col rounded-xl border border-border bg-card/60 p-4">
                     <div className="mb-3 flex shrink-0 items-center justify-between">
                       <span className="text-sm font-semibold">Hours by Project</span>
                       <div className="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
@@ -587,8 +587,8 @@ export default function WorkforceProductivityPage() {
                         ))}
                       </div>
                     </div>
-                    <div className="[&_text]:fill-muted-foreground">
-                      <ResponsiveContainer width="100%" height={topJobsites.length * 30 + 24}>
+                    <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={topJobsites} layout="vertical" barSize={14}
                           margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
