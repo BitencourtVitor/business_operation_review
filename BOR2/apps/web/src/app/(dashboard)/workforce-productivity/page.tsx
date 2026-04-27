@@ -393,8 +393,8 @@ export default function WorkforceProductivityPage() {
 
           {/* Jobsite */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite & Lot</span>
-            <MultiSelect label="Jobsite & Lot" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />}
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Address</span>
+            <MultiSelect label="Address" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />}
               options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} fitContent />
           </div>
 
