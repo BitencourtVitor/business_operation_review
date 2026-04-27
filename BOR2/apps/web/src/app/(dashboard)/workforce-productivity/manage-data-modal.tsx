@@ -117,29 +117,6 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
 
         <div className="flex flex-col gap-5">
 
-          {/* Company */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted-foreground">Company</label>
-            <div className="flex gap-2">
-              {COMPANIES.map(c => (
-                <button key={c.name} onClick={() => setCompany(c.name)}
-                  className={cn(
-                    'flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-3 transition-all',
-                    company === c.name
-                      ? 'border-primary/50 bg-primary/8 ring-1 ring-primary/30'
-                      : 'border-border bg-muted/20 hover:bg-muted/50'
-                  )}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={c.logo} alt={c.name} className="h-5 w-auto object-contain" />
-                  <span className={cn('text-[11px] font-semibold', company === c.name ? 'text-foreground' : 'text-muted-foreground')}>
-                    {c.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Reference Month — label + Year + Month inline */}
           <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
             <span className="shrink-0 pl-3 pr-2 text-xs font-medium text-muted-foreground">Reference Month</span>
@@ -161,6 +138,29 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
                 {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Company */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted-foreground">Company</label>
+            <div className="flex gap-2">
+              {COMPANIES.map(c => (
+                <button key={c.name} onClick={() => setCompany(c.name)}
+                  className={cn(
+                    'flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-3 transition-all',
+                    company === c.name
+                      ? 'border-primary/50 bg-primary/8 ring-1 ring-primary/30'
+                      : 'border-border bg-muted/20 hover:bg-muted/50'
+                  )}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.logo} alt={c.name} className="h-5 w-auto object-contain" />
+                  <span className={cn('text-[11px] font-semibold', company === c.name ? 'text-foreground' : 'text-muted-foreground')}>
+                    {c.name}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* CSV File — drag & drop zone */}
