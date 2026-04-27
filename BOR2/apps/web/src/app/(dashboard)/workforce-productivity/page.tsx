@@ -12,6 +12,9 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
 import { MultiSelect } from "@/app/(dashboard)/permits/components/multi-select"
+import { useWorkforceRules } from "@/hooks/use-workforce"
+import type { WorkforceRow } from "@/services/workforce.service"
+import type { AttributionRule } from "@/services/workforce.service"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
   ResponsiveContainer, CartesianGrid, Cell,
@@ -42,6 +45,24 @@ function formatMonthName(ym: string) {
 
 function fmtHours(h: number) {
   return h.toLocaleString(undefined, { maximumFractionDigits: 0 })
+}
+
+// ─── Rule application ─────────────────────────────────────────────────────────
+
+function applyRules(rows: WorkforceRow[], rules: AttributionRule[]): WorkforceRow[] {
+  if (!rules.length) return rows
+  return rows.map(row => {
+    for (const rule of rules) {
+      const { company, client, jobsite, worktype } = rule.conditions
+      if (company  && row.company  !== company)  continue
+      if (client   && row.client   !== client)   continue
+      if (jobsite  && row.jobsite  !== jobsite)  continue
+      if (worktype && row.worktype !== worktype)  continue
+      // All non-empty conditions matched — redirect company
+      return { ...row, company: rule.targetCompany }
+    }
+    return row
+  })
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -93,7 +114,11 @@ export default function WorkforceProductivityPage() {
     setWorktypeFilter([])
   }, [company])
 
-  const { data: allRows = [], isLoading } = useWorkforceData({ company })
+  const { data: rawRows  = [], isLoading }  = useWorkforceData({ company })
+  const { data: rules    = [] }             = useWorkforceRules()
+
+  // Apply attribution rules: rows matching rule conditions get their company overridden
+  const allRows = useMemo(() => applyRules(rawRows, rules), [rawRows, rules])
 
   // ── Filter options ────────────────────────────────────────────────────────
 

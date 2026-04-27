@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { workforceService, type WorkforceFilters } from "@/services/workforce.service"
+import {
+  workforceService,
+  type WorkforceFilters,
+  type AttributionRule,
+} from "@/services/workforce.service"
 
 export function useWorkforceData(filters: WorkforceFilters = {}) {
   return useQuery({
@@ -37,5 +41,40 @@ export function useDeleteWorkforceUpload() {
   return useMutation({
     mutationFn: (id: string) => workforceService.deleteUpload(id),
     onSuccess:  () => qc.invalidateQueries({ queryKey: ["workforce"] }),
+  })
+}
+
+// ── Attribution Rules ──────────────────────────────────────────────────────
+
+export function useWorkforceRules() {
+  return useQuery({
+    queryKey: ["workforce", "rules"],
+    queryFn:  () => workforceService.listRules().then(d => d ?? []),
+  })
+}
+
+export function useCreateWorkforceRule() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (body: Omit<AttributionRule, "id" | "createdBy" | "createdAt" | "updatedAt">) =>
+      workforceService.createRule(body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workforce", "rules"] }),
+  })
+}
+
+export function useUpdateWorkforceRule() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...body }: Omit<AttributionRule, "createdBy" | "createdAt" | "updatedAt">) =>
+      workforceService.updateRule(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["workforce", "rules"] }),
+  })
+}
+
+export function useDeleteWorkforceRule() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => workforceService.deleteRule(id),
+    onSuccess:  () => qc.invalidateQueries({ queryKey: ["workforce", "rules"] }),
   })
 }

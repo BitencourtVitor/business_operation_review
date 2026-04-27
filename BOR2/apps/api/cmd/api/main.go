@@ -115,6 +115,9 @@ func main() {
 	workforceUploadRepo      := repository.NewPostgresWorkforceUploadRepository(db)
 	workforceUploadSvc       := service.NewWorkforceUploadService(workforceUploadRepo)
 	workforceUploadHandler   := handler.NewWorkforceUploadHandler(workforceUploadSvc, auditService)
+	workforceRuleRepo        := repository.NewPostgresWorkforceAttributionRuleRepository(db)
+	workforceRuleSvc         := service.NewWorkforceAttributionRuleService(workforceRuleRepo)
+	workforceRuleHandler     := handler.NewWorkforceAttributionRuleHandler(workforceRuleSvc, auditService)
 	settingsHandler          := handler.NewSettingsHandler(db, auditService)
 	inventoryHandler         := handler.NewInventoryHandler(db)
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
@@ -262,6 +265,10 @@ func main() {
 	workforce.Get("/uploads", workforceUploadHandler.List)
 	workforce.Post("/uploads", workforceUploadHandler.Upload)
 	workforce.Delete("/uploads/:id", workforceUploadHandler.Delete)
+	workforce.Get("/rules", workforceRuleHandler.List)
+	workforce.Post("/rules", workforceRuleHandler.Create)
+	workforce.Put("/rules/:id", workforceRuleHandler.Update)
+	workforce.Delete("/rules/:id", workforceRuleHandler.Delete)
 
 	// Project Monitoring HVAC
 	monitoring := api.Group("/project-monitoring")
