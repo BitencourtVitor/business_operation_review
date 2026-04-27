@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import {
+  useWorkforceData,
   useWorkforceRules,
   useCreateWorkforceRule,
   useUpdateWorkforceRule,
   useDeleteWorkforceRule,
 } from '@/hooks/use-workforce'
 import type { AttributionRule, RuleConditions } from '@/services/workforce.service'
-import { AlertTriangle, ArrowRight, Loader2, Pencil, Plus, Trash2, X } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Check, ChevronDown, Loader2, Pencil, Plus, Search, Trash2, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -19,44 +21,174 @@ const CONDITION_LABELS: Record<keyof RuleConditions, string> = {
   company:  'Company',
   client:   'Client',
   jobsite:  'Jobsite',
-  worktype: 'Worktype',
+  worktype: 'Work Type',
+}
+
+// ─── FieldSelect — searchable single-select with portal dropdown ───────────────
+
+function FieldSelect({
+  value,
+  onChange,
+  options,
+  placeholder = 'Any (skip)',
+}: {
+  value:       string
+  onChange:    (v: string) => void
+  options:     string[]
+  placeholder?: string
+}) {
+  const [open,   setOpen]   = useState(false)
+  const [search, setSearch] = useState('')
+  const triggerRef = useRef<HTMLButtonElement>(null)
+  const inputRef   = useRef<HTMLInputElement>(null)
+  const [rect, setRect]     = useState<DOMRect | null>(null)
+
+  function openDropdown() {
+    setRect(triggerRef.current?.getBoundingClientRect() ?? null)
+    setOpen(true)
+  }
+
+  useEffect(() => {
+    if (!open) { setSearch(''); return }
+    setTimeout(() => inputRef.current?.focus(), 0)
+    function handler(e: MouseEvent) {
+      if (!(e.target as Element).closest('[data-field-select-drop]') &&
+          e.target !== triggerRef.current) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()))
+
+  function select(v: string) { onChange(v); setOpen(false) }
+
+  const dropdown = open && rect && createPortal(
+    <div
+      data-field-select-drop
+      className="overflow-hidden rounded-lg border border-border bg-popover shadow-lg"
+      style={{
+        position: 'fixed',
+        top:   rect.bottom + 4,
+        left:  rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      }}
+    >
+      {/* Search */}
+      <div className="flex items-center gap-2 border-b border-border/60 px-2.5 py-1.5">
+        <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
+        <input
+          ref={inputRef}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search…"
+          className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/50"
+        />
+      </div>
+      {/* "Any" option */}
+      <div className="px-1 pt-1">
+        <button
+          onClick={() => select('')}
+          className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted"
+        >
+          <span className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${!value ? 'border-primary bg-primary' : 'border-border'}`}>
+            {!value && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+          </span>
+          <span className="italic">{placeholder}</span>
+        </button>
+      </div>
+      <div className="mx-0 my-1 h-px bg-border" />
+      {/* Options */}
+      <div className="max-h-44 overflow-y-auto px-1 pb-1">
+        {filtered.map(opt => (
+          <button
+            key={opt}
+            onClick={() => select(opt)}
+            className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors hover:bg-muted"
+          >
+            <span className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-sm border ${value === opt ? 'border-primary bg-primary' : 'border-border'}`}>
+              {value === opt && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+            </span>
+            <span className="truncate">{opt}</span>
+          </button>
+        ))}
+        {filtered.length === 0 && (
+          <p className="px-2.5 py-2 text-xs text-muted-foreground">No results</p>
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
+
+  return (
+    <>
+      <button
+        ref={triggerRef}
+        onClick={openDropdown}
+        type="button"
+        className={cn(
+          'flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border px-2.5 text-sm transition-colors',
+          value
+            ? 'border-primary/40 bg-primary/5 text-foreground'
+            : 'border-input bg-background text-muted-foreground hover:text-foreground'
+        )}
+      >
+        <span className="truncate">{value || placeholder}</span>
+        <ChevronDown className={cn('h-3 w-3 shrink-0 transition-transform', open && 'rotate-180')} />
+      </button>
+      {dropdown}
+    </>
+  )
 }
 
 // ─── Rule Form ────────────────────────────────────────────────────────────────
 
+interface FieldOptions {
+  clients:   string[]
+  jobsites:  string[]
+  worktypes: string[]
+}
+
 function RuleForm({
   initial,
+  fieldOptions,
   onSave,
   onCancel,
   isPending,
 }: {
-  initial?: Partial<AttributionRule>
-  onSave:   (data: Omit<AttributionRule, 'id' | 'createdBy' | 'createdAt' | 'updatedAt'>) => void
-  onCancel: () => void
-  isPending: boolean
+  initial?:      Partial<AttributionRule>
+  fieldOptions:  FieldOptions
+  onSave:        (data: Omit<AttributionRule, 'id' | 'createdBy' | 'createdAt' | 'updatedAt'>) => void
+  onCancel:      () => void
+  isPending:     boolean
 }) {
   const [name,   setName]   = useState(initial?.name ?? '')
   const [target, setTarget] = useState(initial?.targetCompany ?? '')
   const [cond,   setCond]   = useState<RuleConditions>(initial?.conditions ?? {})
   const [error,  setError]  = useState('')
 
-  function updateCond(key: keyof RuleConditions, val: string) {
-    setCond(prev => val ? { ...prev, [key]: val } : Object.fromEntries(
-      Object.entries(prev).filter(([k]) => k !== key)
-    ) as RuleConditions)
+  function setCondField(key: keyof RuleConditions, val: string) {
+    setCond(prev =>
+      val
+        ? { ...prev, [key]: val }
+        : (({ [key]: _, ...rest }) => rest)(prev) as RuleConditions
+    )
   }
 
   function submit() {
     setError('')
-    if (!name.trim())   return setError('Name is required.')
-    if (!target)        return setError('Target company is required.')
-    const hasCond = Object.values(cond).some(v => v)
-    if (!hasCond)       return setError('At least one condition is required.')
+    if (!name.trim()) return setError('Name is required.')
+    if (!target)      return setError('Target company is required.')
+    if (!Object.values(cond).some(v => v)) return setError('At least one condition is required.')
     onSave({ name: name.trim(), conditions: cond, targetCompany: target })
   }
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-muted/30 p-4">
+
       {/* Name */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-muted-foreground">Rule Name</label>
@@ -69,47 +201,68 @@ function RuleForm({
       </div>
 
       {/* Conditions */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-muted-foreground">
-          Conditions <span className="text-muted-foreground/60">(all non-empty fields must match)</span>
+          Conditions
+          <span className="ml-1 font-normal text-muted-foreground/60">— all filled fields must match</span>
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          {(Object.keys(CONDITION_LABELS) as (keyof RuleConditions)[]).map(key => (
-            <div key={key} className="flex flex-col gap-1">
-              <span className="text-[11px] text-muted-foreground">{CONDITION_LABELS[key]}</span>
-              {key === 'company' ? (
-                <select
-                  value={cond[key] ?? ''}
-                  onChange={e => updateCond(key, e.target.value)}
-                  className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:ring-1 focus:ring-primary/40"
-                >
-                  <option value="">Any</option>
-                  {COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              ) : (
-                <input
-                  value={cond[key] ?? ''}
-                  onChange={e => updateCond(key, e.target.value)}
-                  placeholder="Any"
-                  className="h-8 rounded-lg border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-primary/40"
-                />
-              )}
-            </div>
-          ))}
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+
+          {/* Company */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] font-medium text-muted-foreground">Company</span>
+            <FieldSelect
+              value={cond.company ?? ''}
+              onChange={v => setCondField('company', v)}
+              options={COMPANIES}
+              placeholder="Any company"
+            />
+          </div>
+
+          {/* Client */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] font-medium text-muted-foreground">Client</span>
+            <FieldSelect
+              value={cond.client ?? ''}
+              onChange={v => setCondField('client', v)}
+              options={fieldOptions.clients}
+              placeholder="Any client"
+            />
+          </div>
+
+          {/* Jobsite */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] font-medium text-muted-foreground">Jobsite</span>
+            <FieldSelect
+              value={cond.jobsite ?? ''}
+              onChange={v => setCondField('jobsite', v)}
+              options={fieldOptions.jobsites}
+              placeholder="Any jobsite"
+            />
+          </div>
+
+          {/* Worktype */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] font-medium text-muted-foreground">Work Type</span>
+            <FieldSelect
+              value={cond.worktype ?? ''}
+              onChange={v => setCondField('worktype', v)}
+              options={fieldOptions.worktypes}
+              placeholder="Any work type"
+            />
+          </div>
         </div>
       </div>
 
       {/* Target company */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium text-muted-foreground">Redirect hours to</label>
-        <select
+        <FieldSelect
           value={target}
-          onChange={e => setTarget(e.target.value)}
-          className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:ring-1 focus:ring-primary/40"
-        >
-          <option value="">Select company…</option>
-          {COMPANIES.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
+          onChange={setTarget}
+          options={COMPANIES}
+          placeholder="Select target company…"
+        />
       </div>
 
       {error && (
@@ -133,31 +286,44 @@ function RuleForm({
   )
 }
 
-// ─── Rule Card ────────────────────────────────────────────────────────────────
+// ─── Condition pills ──────────────────────────────────────────────────────────
 
-function conditionPills(cond: RuleConditions) {
-  return (Object.entries(cond) as [keyof RuleConditions, string][])
-    .filter(([, v]) => v)
-    .map(([k, v]) => (
-      <span key={k}
-        className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-medium">
-        <span className="text-muted-foreground">{CONDITION_LABELS[k]}:</span> {v}
-      </span>
-    ))
+function ConditionPills({ cond }: { cond: RuleConditions }) {
+  return (
+    <>
+      {(Object.entries(cond) as [keyof RuleConditions, string][])
+        .filter(([, v]) => v)
+        .map(([k, v]) => (
+          <span key={k}
+            className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-medium">
+            <span className="text-muted-foreground">{CONDITION_LABELS[k]}:</span> {v}
+          </span>
+        ))
+      }
+    </>
+  )
 }
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
 export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
-  const { data: rules = [], isLoading } = useWorkforceRules()
-  const createRule  = useCreateWorkforceRule()
-  const updateRule  = useUpdateWorkforceRule()
-  const deleteRule  = useDeleteWorkforceRule()
+  const { data: rules = [], isLoading: rulesLoading } = useWorkforceRules()
+  const { data: allRows = [], isLoading: dataLoading }  = useWorkforceData({})
+  const createRule = useCreateWorkforceRule()
+  const updateRule = useUpdateWorkforceRule()
+  const deleteRule = useDeleteWorkforceRule()
 
   const [showForm,   setShowForm]   = useState(false)
   const [editing,    setEditing]    = useState<AttributionRule | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId,  setConfirmId]  = useState<string | null>(null)
+
+  // Build option lists from live data
+  const fieldOptions = useMemo<FieldOptions>(() => ({
+    clients:   Array.from(new Set(allRows.map(r => r.client).filter(Boolean))).sort() as string[],
+    jobsites:  Array.from(new Set(allRows.map(r => r.jobsite).filter(Boolean))).sort() as string[],
+    worktypes: Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).sort() as string[],
+  }), [allRows])
 
   async function handleCreate(data: Omit<AttributionRule, 'id' | 'createdBy' | 'createdAt' | 'updatedAt'>) {
     await createRule.mutateAsync(data)
@@ -176,6 +342,8 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
     setDeletingId(null)
     setConfirmId(null)
   }
+
+  const isLoading = rulesLoading || dataLoading
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -205,12 +373,12 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
           ) : (
             <div className="flex flex-col gap-3">
 
-              {/* Existing rules */}
               {rules.map(rule => (
                 <div key={rule.id}>
                   {editing?.id === rule.id ? (
                     <RuleForm
                       initial={rule}
+                      fieldOptions={fieldOptions}
                       onSave={handleUpdate}
                       onCancel={() => setEditing(null)}
                       isPending={updateRule.isPending}
@@ -220,7 +388,7 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
                       <div className="flex items-start justify-between gap-3">
                         <span className="text-sm font-semibold">{rule.name}</span>
                         <div className="flex shrink-0 items-center gap-1">
-                          <button onClick={() => setEditing(rule)}
+                          <button onClick={() => { setEditing(rule); setShowForm(false) }}
                             className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
@@ -236,7 +404,7 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
 
                       {/* Conditions → target */}
                       <div className="flex flex-wrap items-center gap-1.5">
-                        {conditionPills(rule.conditions)}
+                        <ConditionPills cond={rule.conditions} />
                         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/50" />
                         <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                           {rule.targetCompany}
@@ -263,16 +431,15 @@ export function AttributionRulesModal({ onClose }: { onClose: () => void }) {
                 </div>
               ))}
 
-              {/* Empty state */}
               {rules.length === 0 && !showForm && (
                 <p className="py-6 text-center text-sm text-muted-foreground">
                   No attribution rules yet. Create one below.
                 </p>
               )}
 
-              {/* New rule form */}
               {showForm && (
                 <RuleForm
+                  fieldOptions={fieldOptions}
                   onSave={handleCreate}
                   onCancel={() => setShowForm(false)}
                   isPending={createRule.isPending}
