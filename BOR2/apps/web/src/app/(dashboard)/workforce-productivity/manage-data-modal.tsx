@@ -22,8 +22,18 @@ const MONTHS = [
   'July','August','September','October','November','December',
 ]
 
-const currentYear = new Date().getFullYear()
-const YEARS = Array.from({ length: 5 }, (_, i) => String(currentYear - 2 + i))
+const currentYear  = new Date().getFullYear()
+const currentMonth = new Date().getMonth() + 1 // 1-12
+// past 2 years up to 1 year ahead
+const YEARS = Array.from({ length: 4 }, (_, i) => String(currentYear - 2 + i))
+
+function availableMonths(selectedYear: number): string[] {
+  if (selectedYear < currentYear) return MONTHS
+  const maxMonth = selectedYear === currentYear
+    ? Math.min(12, currentMonth + 2)
+    : Math.max(0, currentMonth + 2 - 12) // overflow into next year
+  return MONTHS.slice(0, maxMonth)
+}
 
 const companyColor: Record<string, string> = {
   Framing: 'border-blue-500/40 bg-blue-500/10',
@@ -121,7 +131,12 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
           <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
             <span className="shrink-0 pl-3 pr-2 text-xs font-medium text-muted-foreground">Reference Month</span>
             <div className="h-5 w-px shrink-0 bg-border" />
-            <Select value={year} onValueChange={v => setYear(v ?? year)}>
+            <Select value={year} onValueChange={v => {
+              const y = v ?? year
+              setYear(y)
+              // reset month if it's no longer available in the new year
+              if (month && !availableMonths(Number(y)).includes(month)) setMonth('')
+            }}>
               <SelectTrigger className="h-9 w-[80px] border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                 <span className="flex-1 text-left text-sm">{year}</span>
               </SelectTrigger>
@@ -135,7 +150,7 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
                 <span className={cn('flex-1 text-left text-sm', !month && 'text-muted-foreground')}>{month || 'Month'}</span>
               </SelectTrigger>
               <SelectContent>
-                {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                {availableMonths(Number(year)).map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
