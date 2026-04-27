@@ -59,6 +59,7 @@ type SubItem = {
   href: string
   icon?: React.ElementType
   image?: string
+  disabled?: boolean
 }
 
 type NavItem = {
@@ -94,6 +95,7 @@ const activeGroup: NavGroup = {
         { title: "PCG",     href: "/workforce-productivity?company=PCG",     image: "/images/sublogo_pcg.png"     },
       ],
     },
+    { title: "Operational Index", href: "/ofi", icon: BarChart2 },
     { title: "Permit Control", href: "/permits", icon: FileCheck, editPermKey: 'permits' },
     { title: "Service Requests", href: "/service-requests",  icon: Wrench,    editPermKey: 'service-requests' },
     {
@@ -115,16 +117,13 @@ const comingSoonGroup: NavGroup = {
       title: "Operational Efficiency",
       href: "/monthly-execution",
       icon: Gauge,
-      disabled: true,
       children: [
         { title: "Monthly Execution",         href: "/monthly-execution", icon: CalendarCheck  },
-        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck },
+        { title: "Subcontractor Performance", href: "/subcontractors",    icon: ClipboardCheck, disabled: true },
       ],
     },
-    { title: "HVAC Project Monitoring",  href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
-    { title: "Operational Index",        href: "/ofi",                icon: BarChart2, disabled: true },
-    { title: "Fuel Control",          href: "/fuel",                 icon: Fuel,       disabled: true },
-    { title: "Forecast Improvement",  href: "/forecast-improvement", icon: TrendingUp, disabled: true },
+    { title: "HVAC Project Monitoring", href: "/project-monitoring", image: "/images/sublogo_hvac.png", disabled: true },
+    { title: "Fuel Control",            href: "/fuel",               icon: Fuel, disabled: true },
   ],
 }
 
@@ -192,22 +191,32 @@ function CollapsedSubmenu({ item, isActive, canEdit, onEditOpen }: { item: NavIt
         >
           <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{item.title}</div>
           {item.children.map((child) => (
-            <Link
-              key={child.href + child.title}
-              href={child.href}
-              className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
-                isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
-              }`}
-              onClick={() => setShow(false)}
-            >
-              {child.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-              ) : child.icon ? (
-                <child.icon className="h-3.5 w-3.5" />
-              ) : null}
-              {child.title}
-            </Link>
+            child.disabled ? (
+              <div
+                key={child.href + child.title}
+                className="flex cursor-not-allowed items-center gap-2 rounded-md px-2 py-1.5 text-sm opacity-40"
+              >
+                {child.icon ? <child.icon className="h-3.5 w-3.5" /> : null}
+                {child.title}
+              </div>
+            ) : (
+              <Link
+                key={child.href + child.title}
+                href={child.href}
+                className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-accent ${
+                  isActive(child.href) ? "bg-accent font-medium text-accent-foreground" : "text-popover-foreground"
+                }`}
+                onClick={() => setShow(false)}
+              >
+                {child.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+                ) : child.icon ? (
+                  <child.icon className="h-3.5 w-3.5" />
+                ) : null}
+                {child.title}
+              </Link>
+            )
           ))}
           {item.editPermKey && canEdit(item.editPermKey) && (
             <>
@@ -308,18 +317,25 @@ function NavGroupItems({
                   <SidebarMenuSub className="gap-1 py-1">
                     {item.children.map((child) => (
                       <SidebarMenuSubItem key={child.title + child.href}>
-                        <SidebarMenuSubButton
-                          isActive={isActive(child.href)}
-                          render={<Link href={child.href} />}
-                        >
-                          {child.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
-                          ) : child.icon ? (
-                            <child.icon className="h-3.5 w-3.5" />
-                          ) : null}
-                          <span>{child.title}</span>
-                        </SidebarMenuSubButton>
+                        {child.disabled ? (
+                          <SidebarMenuSubButton disabled className="cursor-not-allowed opacity-40">
+                            {child.icon ? <child.icon className="h-3.5 w-3.5" /> : null}
+                            <span>{child.title}</span>
+                          </SidebarMenuSubButton>
+                        ) : (
+                          <SidebarMenuSubButton
+                            isActive={isActive(child.href)}
+                            render={<Link href={child.href} />}
+                          >
+                            {child.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={child.image} alt={child.title} className="h-4 w-4 object-contain" />
+                            ) : child.icon ? (
+                              <child.icon className="h-3.5 w-3.5" />
+                            ) : null}
+                            <span>{child.title}</span>
+                          </SidebarMenuSubButton>
+                        )}
                       </SidebarMenuSubItem>
                     ))}
                   </SidebarMenuSub>
