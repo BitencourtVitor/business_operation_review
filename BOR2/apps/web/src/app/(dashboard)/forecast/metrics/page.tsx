@@ -103,7 +103,8 @@ interface MonthData {
 
 export default function ForecastMetricsPage() {
   const currentYear = new Date().getFullYear()
-  const [year,         setYear]         = useState(String(currentYear))
+  const [year,          setYear]         = useState(String(currentYear))
+  const [month,         setMonth]        = useState("")
   const [selectedMonth, setSelectedMonth] = useState("")
 
   const { data: projects = [], isLoading } = useForecast(
@@ -148,6 +149,14 @@ export default function ForecastMetricsPage() {
     return Array.from(set).sort((a, b) => b.localeCompare(a))
   }, [monthsData, currentYear])
 
+  const availableMonths = useMemo(() =>
+    monthsData.map(m => ({ key: String(m.month), label: MONTH_NAMES[m.month - 1] })),
+  [monthsData])
+
+  const visibleMonths = useMemo(() =>
+    month ? monthsData.filter(m => String(m.month) === month) : monthsData,
+  [monthsData, month])
+
   const detailMonth = selectedMonth
     ? (monthsData.find(m => m.key === selectedMonth) ?? null)
     : null
@@ -183,10 +192,10 @@ export default function ForecastMetricsPage() {
             </div>
           </div>
 
-          {/* Year filter */}
+          {/* Period filter */}
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-              Year
+              Period
             </span>
             <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
               <div className="flex items-center pl-2.5">
@@ -194,13 +203,30 @@ export default function ForecastMetricsPage() {
               </div>
               <Select
                 value={year}
-                onValueChange={v => { if (v) { setYear(v); setSelectedMonth("") } }}
+                onValueChange={v => { if (v) { setYear(v); setMonth(""); setSelectedMonth("") } }}
               >
-                <SelectTrigger className="h-8 w-[80px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
                   <span className="flex-1 truncate text-left text-sm">{year}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <div className="h-5 w-px shrink-0 bg-border" />
+              <Select
+                value={month || "all"}
+                onValueChange={v => { setMonth(v === "all" ? "" : (v ?? "")); setSelectedMonth("") }}
+              >
+                <SelectTrigger className="h-8 w-[130px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">
+                    {month ? (MONTH_NAMES[Number(month) - 1] ?? "All months") : "All months"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All months</SelectItem>
+                  {availableMonths.map(m => (
+                    <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -208,10 +234,10 @@ export default function ForecastMetricsPage() {
         </div>
 
         {/* ── Monthly summary strip (horizontal scroll) ── */}
-        {monthsData.length > 0 && (
+        {visibleMonths.length > 0 && (
           <div className="shrink-0 overflow-x-auto">
             <div className="flex gap-3 pb-1">
-              {monthsData.map(m => (
+              {visibleMonths.map(m => (
                 <button
                   key={m.key}
                   onClick={() => setSelectedMonth(prev => prev === m.key ? "" : m.key)}
@@ -241,9 +267,9 @@ export default function ForecastMetricsPage() {
         {/* ── Body ── */}
         <div className="min-h-0 flex-1 overflow-y-auto">
 
-          {monthsData.length === 0 ? (
+          {visibleMonths.length === 0 ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-              No projects with a start date in {year}.
+              No projects for the selected period.
             </div>
           ) : detailMonth ? (
             /* ── Detail view ── */
@@ -251,7 +277,7 @@ export default function ForecastMetricsPage() {
           ) : (
             /* ── Overview grid ── */
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {monthsData.map(m => (
+              {visibleMonths.map(m => (
                 <MonthCard
                   key={m.key}
                   month={m}
