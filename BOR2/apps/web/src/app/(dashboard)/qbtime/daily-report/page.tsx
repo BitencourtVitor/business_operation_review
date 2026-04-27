@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import * as XLSX from "xlsx"
 import { Button } from "@/components/ui/button"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -81,12 +82,13 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.closePath()
 }
 
-function downloadSectionPNG(
-  section: Section,
-  company: string,
-  date: string,
-  hasTeams: boolean,
-) {
+function sectionSlug(section: Section, hasTeams: boolean): string {
+  return hasTeams && section.team
+    ? section.team.name.toLowerCase().replace(/\s+/g, "-")
+    : section.members[0]?.displayName.toLowerCase().replace(/\s+/g, "-") ?? "export"
+}
+
+function buildSectionCanvas(section: Section, company: string, date: string, hasTeams: boolean): HTMLCanvasElement {
   const dark   = isDarkMode()
   const dpr    = Math.min(window.devicePixelRatio||1, 2)
   const W      = 680, PX = 28, PY = 20
@@ -95,7 +97,7 @@ function downloadSectionPNG(
 
   let H = PY + HDR_H + TEAM_H
   for (const e of section.members) H += EMP_H + e.rows.length * JOB_H + GAP_H
-  H += PY + 24 // footer
+  H += PY + 24
 
   const canvas = document.createElement("canvas")
   canvas.width = W*dpr; canvas.height = H*dpr
@@ -111,28 +113,21 @@ function downloadSectionPNG(
   const SF   = "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
   const MN   = "SFMono,'Fira Code',Consolas,monospace"
 
-  // background
   ctx.fillStyle = BG; ctx.fillRect(0,0,W,H)
-
-  // card
   ctx.fillStyle = CARD
   roundRect(ctx, PX-8, PY-8, W-2*(PX-8), H-2*(PY-8)+16, 12); ctx.fill()
   ctx.strokeStyle = BD; ctx.lineWidth = 1; ctx.stroke()
 
   let y = PY
-
-  // header row
   ctx.fillStyle = T2; ctx.font = `11px ${SF}`; ctx.textAlign = "left"
   ctx.fillText(`Premium Group · ${company} · ${fmtDate(date)}`, PX, y+16)
   ctx.fillStyle = PRI; ctx.font = `600 11px ${SF}`; ctx.textAlign = "right"
   ctx.fillText("QBTime Daily Report", W-PX, y+16)
   y += HDR_H
 
-  // divider
   ctx.strokeStyle = BD; ctx.lineWidth = 0.5
   ctx.beginPath(); ctx.moveTo(PX, y); ctx.lineTo(W-PX, y); ctx.stroke()
 
-  // team header
   if (hasTeams && section.team) {
     const tot = section.members.reduce((s,e)=>s+e.totalHours,0)
     ctx.fillStyle = T2; ctx.font = `700 10px ${SF}`; ctx.textAlign = "left"
@@ -146,13 +141,11 @@ function downloadSectionPNG(
 
   for (let ei = 0; ei < section.members.length; ei++) {
     const emp = section.members[ei]
-    // Employee row
     ctx.fillStyle = T1; ctx.font = `600 13px ${SF}`; ctx.textAlign = "left"
     ctx.fillText(emp.displayName, PX, y+EMP_H/2+4)
     ctx.fillStyle = PRI; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
     ctx.fillText(fmtH(emp.totalHours), W-PX, y+EMP_H/2+4)
     ctx.textAlign = "left"; y += EMP_H
-    // Job rows
     for (const row of emp.rows) {
       let jc = row.jobCode.split(" >> ").join(" › ")
       ctx.font = `11px ${SF}`
@@ -165,23 +158,38 @@ function downloadSectionPNG(
       ctx.textAlign = "left"; y += JOB_H
     }
     y += GAP_H
-    // divider between employees (not after last)
     if (ei < section.members.length-1) {
       ctx.strokeStyle = dark ? "#1e2035" : "#f0f4f8"; ctx.lineWidth = 1
       ctx.beginPath(); ctx.moveTo(PX, y-GAP_H/2); ctx.lineTo(W-PX, y-GAP_H/2); ctx.stroke()
     }
   }
 
-  // footer
   ctx.fillStyle = T2; ctx.font = `10px ${SF}`; ctx.textAlign = "center"
   ctx.fillText("Premium Group · Business Operations Review", W/2, H-PY/2+6)
+  return canvas
+}
 
+function downloadSectionPNG(section: Section, company: string, date: string, hasTeams: boolean) {
+  const canvas = buildSectionCanvas(section, company, date, hasTeams)
   const link = document.createElement("a")
-  const slug = hasTeams && section.team
-    ? section.team.name.toLowerCase().replace(/\s+/g,"-")
-    : section.members[0]?.displayName.toLowerCase().replace(/\s+/g,"-") ?? "export"
-  link.download = `daily_${company.toLowerCase()}_${date}_${slug}.png`
+  link.download = `daily_${company.toLowerCase()}_${date}_${sectionSlug(section, hasTeams)}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
+}
+
+async function exportAllPNG(grouped: Section[], company: string, date: string, hasTeams: boolean) {
+  const { default: JSZip } = await import("jszip")
+  const zip    = new JSZip()
+  const folder = zip.folder(`daily_${company.toLowerCase()}_${date}`)!
+  for (const section of grouped) {
+    const canvas  = buildSectionCanvas(section, company, date, hasTeams)
+    const base64  = canvas.toDataURL("image/png").replace("data:image/png;base64,", "")
+    folder.file(`${sectionSlug(section, hasTeams)}.png`, base64, { base64: true })
+  }
+  const blob = await zip.generateAsync({ type: "blob" })
+  const link = document.createElement("a")
+  link.download = `daily_${company.toLowerCase()}_${date}.zip`
+  link.href = URL.createObjectURL(blob); link.click()
+  URL.revokeObjectURL(link.href)
 }
 
 // ─── XLSX bulk export ─────────────────────────────────────────────────────────
@@ -483,18 +491,22 @@ export default function QBTimeDailyReportPage() {
                     {employees.length} member{employees.length!==1?"s":""} · {fmtH(totalH)} total
                   </p>
                 </div>
-                <div className="flex shrink-0 flex-col items-end gap-1">
+                <div className="flex shrink-0 flex-col items-start gap-1">
                   <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                     Export
                   </span>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
                       onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
-                      <FileSpreadsheet className="h-3.5 w-3.5" /> XLSX
+                      <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
                     </Button>
                     <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
                       onClick={() => exportPDF(grouped, company, date, hasTeams)}>
                       <FileText className="h-3.5 w-3.5" /> PDF
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
+                      onClick={() => exportAllPNG(grouped, company, date, hasTeams)}>
+                      <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
                     </Button>
                   </div>
                 </div>
@@ -551,10 +563,17 @@ function SectionCard({ section, company, date, hasTeams }: {
           <div className="flex items-center gap-2">
             <span className="text-[11px] text-muted-foreground">{section.members.length}</span>
             <span className="text-xs font-bold tabular-nums">{fmtH(sectionTotal)}</span>
-            <button onClick={handlePNG}
-              className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100">
-              <ImageDown className="h-3.5 w-3.5" />
-            </button>
+            <TooltipProvider delay={200}>
+              <Tooltip>
+                <TooltipTrigger
+                  onClick={handlePNG}
+                  className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100"
+                >
+                  <ImageDown className="h-3.5 w-3.5" />
+                </TooltipTrigger>
+                <TooltipContent side="top">Export as PNG</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       )}
@@ -571,10 +590,17 @@ function SectionCard({ section, company, date, hasTeams }: {
             <span className="text-sm font-bold tabular-nums text-primary">{fmtH(emp.totalHours)}</span>
             {/* Per-person download only when not using teams */}
             {!hasTeams && (
-              <button onClick={handlePNG}
-                className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100">
-                <ImageDown className="h-3.5 w-3.5" />
-              </button>
+              <TooltipProvider delay={200}>
+                <Tooltip>
+                  <TooltipTrigger
+                    onClick={handlePNG}
+                    className="translate-x-2 rounded p-0.5 text-muted-foreground opacity-0 transition-all duration-200 hover:text-primary group-hover:translate-x-0 group-hover:opacity-100"
+                  >
+                    <ImageDown className="h-3.5 w-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Export as PNG</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
           {/* Job rows */}
