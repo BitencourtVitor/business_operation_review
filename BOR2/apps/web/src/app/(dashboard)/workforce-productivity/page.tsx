@@ -7,10 +7,11 @@ import { useAuth } from "@/hooks/use-auth"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useInsights } from "@/components/insights/insights-panel"
 import { ManageDataModal as WorkforceManageDataModal } from "./manage-data-modal"
-import { Calendar, Clock, Database, Loader2, MapPin, TrendingUp, Users } from "lucide-react"
+import { Building2, Calendar, Clock, Database, Loader2, MapPin, TrendingUp, Users, Wrench } from "lucide-react"
 import {
   Select, SelectContent, SelectItem, SelectTrigger,
 } from "@/components/ui/select"
+import { MultiSelect } from "@/app/(dashboard)/permits/components/multi-select"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
   ResponsiveContainer, CartesianGrid, Cell,
@@ -41,8 +42,11 @@ export default function WorkforceProductivityPage() {
   const { data: myPerms }  = useMyPermissions()
   const canManage          = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce-productivity"] === "write"
   const [manageOpen, setManageOpen] = useState(false)
-  const [year,  setYear]   = useState(String(new Date().getFullYear()))
-  const [month, setMonth]  = useState("")
+  const [year,  setYear]    = useState(String(new Date().getFullYear()))
+  const [month, setMonth]   = useState("")
+  const [clientFilter,   setClientFilter]   = useState<string[]>([])
+  const [jobsiteFilter,  setJobsiteFilter]  = useState<string[]>([])
+  const [worktypeFilter, setWorktypeFilter] = useState<string[]>([])
 
   // Reactive chart colors — MutationObserver on <html class> like service-requests
   const [cc, setCC] = useState({
@@ -67,7 +71,13 @@ export default function WorkforceProductivityPage() {
     return () => obs.disconnect()
   }, [])
 
-  useEffect(() => { setYear(String(new Date().getFullYear())); setMonth("") }, [company])
+  useEffect(() => {
+    setYear(String(new Date().getFullYear()))
+    setMonth("")
+    setClientFilter([])
+    setJobsiteFilter([])
+    setWorktypeFilter([])
+  }, [company])
 
   const { data: allRows = [], isLoading } = useWorkforceData({ company })
 
@@ -85,11 +95,26 @@ export default function WorkforceProductivityPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b))
   }, [allRows, year])
 
+  const clientOptions  = useMemo(() =>
+    Array.from(new Set(allRows.map(r => r.client).filter(Boolean))).sort() as string[]
+  , [allRows])
+
+  const jobsiteOptions = useMemo(() =>
+    Array.from(new Set(allRows.map(r => r.jobsite).filter(Boolean))).sort() as string[]
+  , [allRows])
+
+  const worktypeOptions = useMemo(() =>
+    Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).sort() as string[]
+  , [allRows])
+
   const rows = useMemo(() => allRows.filter(r => {
-    if (year  && !r.referenceMonth.startsWith(year)) return false
-    if (month && r.referenceMonth !== month)          return false
+    if (year  && !r.referenceMonth.startsWith(year))              return false
+    if (month && r.referenceMonth !== month)                       return false
+    if (clientFilter.length  > 0 && !clientFilter.includes(r.client))    return false
+    if (jobsiteFilter.length > 0 && !jobsiteFilter.includes(r.jobsite))  return false
+    if (worktypeFilter.length > 0 && !worktypeFilter.includes(r.worktype)) return false
     return true
-  }), [allRows, year, month])
+  }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
 
   // ── Metrics ───────────────────────────────────────────────────────────────
 
@@ -200,6 +225,24 @@ export default function WorkforceProductivityPage() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Client */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Client</span>
+          <MultiSelect label="Client" icon={<Building2 className="h-3.5 w-3.5 shrink-0" />} options={clientOptions} selected={clientFilter} onChange={setClientFilter} />
+        </div>
+
+        {/* Jobsite */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
+          <MultiSelect label="Jobsite" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />} options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} />
+        </div>
+
+        {/* Worktype */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Worktype</span>
+          <MultiSelect label="Worktype" icon={<Wrench className="h-3.5 w-3.5 shrink-0" />} options={worktypeOptions} selected={worktypeFilter} onChange={setWorktypeFilter} />
         </div>
 
         {/* Changes — Manage Data + Insights */}
