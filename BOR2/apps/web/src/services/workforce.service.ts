@@ -81,4 +81,36 @@ export const workforceService = {
 
   deleteUpload: (id: string) =>
     api.delete(`/api/v1/workforce/uploads/${id}`, getToken()),
+
+  // ── Attribution Rules ──────────────────────────────────────────────────────
+  listRules: () =>
+    api.get<AttributionRule[]>("/api/v1/workforce/rules", getToken()),
+
+  createRule: (body: Omit<AttributionRule, "id" | "createdBy" | "createdAt" | "updatedAt">) =>
+    api.post<AttributionRule>("/api/v1/workforce/rules", body, getToken()),
+
+  updateRule: (id: string, body: Omit<AttributionRule, "id" | "createdBy" | "createdAt" | "updatedAt">) =>
+    api.put<AttributionRule>(`/api/v1/workforce/rules/${id}`, body, getToken()),
+
+  deleteRule: (id: string) =>
+    api.delete(`/api/v1/workforce/rules/${id}`, getToken()),
+}
+
+// ── Attribution Rule types ─────────────────────────────────────────────────
+
+export interface RuleConditions {
+  company?:  string
+  client?:   string
+  jobsite?:  string
+  worktype?: string
+}
+
+export interface AttributionRule {
+  id:            string
+  name:          string
+  conditions:    RuleConditions
+  targetCompany: string
+  createdBy:     string
+  createdAt:     string
+  updatedAt:     string
 }

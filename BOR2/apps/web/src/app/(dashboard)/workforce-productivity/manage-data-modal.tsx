@@ -6,8 +6,9 @@ import { useWorkforceUploads, useWorkforceUpload, useDeleteWorkforceUpload } fro
 import type { WorkforceUpload } from '@/services/workforce.service'
 import { ThemeToggle } from '@/components/common/theme-toggle'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
-import { AlertTriangle, Building2, CloudUpload, FileSpreadsheet, Loader2, Trash2, Upload, X } from 'lucide-react'
+import { AlertTriangle, Building2, CloudUpload, FileSpreadsheet, GitBranch, Loader2, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { AttributionRulesModal } from './attribution-rules-modal'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -245,6 +246,7 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
   const { data: uploads = [], isLoading } = useWorkforceUploads()
   const deleteUpload = useDeleteWorkforceUpload()
   const [uploadOpen,  setUploadOpen]  = useState(false)
+  const [rulesOpen,   setRulesOpen]   = useState(false)
   const [deletingId,  setDeletingId]  = useState<string | null>(null)
 
   async function handleDelete(id: string) {
@@ -276,6 +278,13 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setRulesOpen(true)}
+            className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            <GitBranch className="h-3.5 w-3.5" />
+            Rules
+          </button>
           <button
             onClick={() => setUploadOpen(true)}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
@@ -349,6 +358,9 @@ export function ManageDataModal({ onClose }: { onClose: () => void }) {
 
       {uploadOpen && (
         <UploadDialog onClose={() => setUploadOpen(false)} existingUploads={uploads} />
+      )}
+      {rulesOpen && (
+        <AttributionRulesModal onClose={() => setRulesOpen(false)} />
       )}
     </div>,
     document.body
