@@ -45,7 +45,7 @@ import {
   Wrench,
 } from "lucide-react"
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
 import { useMyPermissions } from "@/hooks/use-settings"
 import { useAuth } from "@/hooks/use-auth"
@@ -71,6 +71,7 @@ type NavItem = {
   disabled?: boolean
   children?: SubItem[]
   editPermKey?: string   // permission key that grants the gear edit button (opens modal)
+  metricsHref?: string   // if set, shows a "See Metrics" action button linking here
 }
 
 type NavGroup = {
@@ -84,6 +85,7 @@ const activeGroup: NavGroup = {
     {
       title: "Framing Forecast", href: "/forecast",
       image: "/images/sublogo_framing.png",
+      metricsHref: "/forecast/metrics",
     },
     { title: "Inventory Control", href: "/inventory", icon: Package },
     {
@@ -256,6 +258,7 @@ function NavGroupItems({
   canEdit: (permKey: string) => boolean
   onEditOpen: (item: NavItem) => void
 }) {
+  const router = useRouter()
   return (
     <SidebarMenu>
       {items.map((item) =>
@@ -357,11 +360,27 @@ function NavGroupItems({
                   isActive={isActive(item.href)}
                   render={<Link href={item.href} />}
                   tooltip={item.title}
-                  className={item.editPermKey && canEdit(item.editPermKey) ? "peer" : ""}
+                  className={(item.editPermKey && canEdit(item.editPermKey)) || item.metricsHref ? "peer" : ""}
                 >
                   <NavItemIcon item={item} />
                   <span>{item.title}</span>
                 </SidebarMenuButton>
+                {item.metricsHref && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger render={
+                        <SidebarMenuAction
+                          showOnHover
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); router.push(item.metricsHref!) }}
+                          className={`hover:bg-primary/15 hover:text-primary focus-visible:bg-primary/15 focus-visible:text-primary ${item.editPermKey && canEdit(item.editPermKey) ? "right-7" : ""}`}
+                        />
+                      }>
+                        <TrendingUp className="h-3.5 w-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">See Metrics</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 {item.editPermKey && canEdit(item.editPermKey) && (
                   <TooltipProvider>
                     <Tooltip>
