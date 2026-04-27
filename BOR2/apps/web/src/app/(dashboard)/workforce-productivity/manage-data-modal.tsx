@@ -1,22 +1,34 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useWorkforceUploads, useWorkforceUpload, useDeleteWorkforceUpload } from '@/hooks/use-workforce'
 import type { WorkforceUpload } from '@/services/workforce.service'
 import { ThemeToggle } from '@/components/common/theme-toggle'
-import { AlertTriangle, Building2, Loader2, Trash2, Upload, X } from 'lucide-react'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
+import { AlertTriangle, Building2, CloudUpload, FileSpreadsheet, Loader2, Trash2, Upload, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const COMPANIES = ['Framing', 'PCG', 'HVAC'] as const
-type Company = (typeof COMPANIES)[number]
+const COMPANIES: { name: string; logo: string }[] = [
+  { name: 'Framing', logo: '/images/sublogo_framing.png' },
+  { name: 'PCG',     logo: '/images/sublogo_pcg.png'     },
+  { name: 'HVAC',    logo: '/images/sublogo_hvac.png'    },
+]
+
+const MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December',
+]
+
+const currentYear = new Date().getFullYear()
+const YEARS = Array.from({ length: 5 }, (_, i) => String(currentYear - 2 + i))
 
 const companyColor: Record<string, string> = {
-  Framing: 'border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400',
-  PCG:     'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  HVAC:    'border-orange-500/40 bg-orange-500/10 text-orange-600 dark:text-orange-400',
+  Framing: 'border-blue-500/40 bg-blue-500/10',
+  PCG:     'border-emerald-500/40 bg-emerald-500/10',
+  HVAC:    'border-orange-500/40 bg-orange-500/10',
 }
 
 function formatMonth(ym: string) {
@@ -34,28 +46,39 @@ function formatDate(iso: string) {
 // ─── Upload Dialog ────────────────────────────────────────────────────────────
 
 function UploadDialog({ onClose, existingUploads }: { onClose: () => void; existingUploads: WorkforceUpload[] }) {
-  const [company,  setCompany]  = useState<Company>('Framing')
+  const [company,  setCompany]  = useState('Framing')
+  const [year,     setYear]     = useState(String(currentYear))
   const [month,    setMonth]    = useState('')
   const [file,     setFile]     = useState<File | null>(null)
+  const [dragging, setDragging] = useState(false)
   const [conflict, setConflict] = useState<WorkforceUpload | null>(null)
   const [error,    setError]    = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const upload  = useWorkforceUpload()
 
-  const existing = existingUploads.find(u => u.referenceMonth === month && u.company === company)
+  // "YYYY-MM" for API
+  const referenceMonth = year && month ? `${year}-${String(MONTHS.indexOf(month) + 1).padStart(2, '0')}` : ''
+  const existing = existingUploads.find(u => u.referenceMonth === referenceMonth && u.company === company)
 
   async function handleSubmit(overwrite = false) {
-    if (!file || !month) return
+    if (!file || !referenceMonth) return
     setError('')
     if (existing && !overwrite) { setConflict(existing); return }
-    const res = await upload.mutateAsync({ file, company, referenceMonth: month, overwrite })
+    const res = await upload.mutateAsync({ file, company, referenceMonth, overwrite })
     if (!res.ok) { setError(res.error ?? 'Upload failed'); return }
     onClose()
   }
 
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setDragging(false)
+    const dropped = e.dataTransfer.files[0]
+    if (dropped?.name.endsWith('.csv')) setFile(dropped)
+  }, [])
+
   if (conflict) {
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
         <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
           <div className="mb-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-yellow-500" />
@@ -71,8 +94,7 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
           </p>
           <div className="flex justify-end gap-2">
             <button onClick={() => setConflict(null)} className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-muted">Cancel</button>
-            <button
-              onClick={() => { setConflict(null); handleSubmit(true) }}
+            <button onClick={() => { setConflict(null); handleSubmit(true) }}
               className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
             >Overwrite</button>
           </div>
@@ -82,52 +104,119 @@ function UploadDialog({ onClose, existingUploads }: { onClose: () => void; exist
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-xl">
-        <h2 className="mb-5 text-base font-semibold">Upload Timesheet CSV</h2>
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
+
+        {/* Header */}
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-base font-semibold">Upload Timesheet CSV</h2>
+          <button onClick={onClose} className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-5">
+
+          {/* Company */}
+          <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted-foreground">Company</label>
             <div className="flex gap-2">
               {COMPANIES.map(c => (
-                <button key={c} onClick={() => setCompany(c)}
-                  className={cn('flex-1 rounded-lg border py-2 text-xs font-medium transition-colors',
-                    company === c ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-muted/30 text-muted-foreground hover:bg-muted'
+                <button key={c.name} onClick={() => setCompany(c.name)}
+                  className={cn(
+                    'flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-3 transition-all',
+                    company === c.name
+                      ? 'border-primary/50 bg-primary/8 ring-1 ring-primary/30'
+                      : 'border-border bg-muted/20 hover:bg-muted/50'
                   )}
-                >{c}</button>
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.logo} alt={c.name} className="h-5 w-auto object-contain" />
+                  <span className={cn('text-[11px] font-semibold', company === c.name ? 'text-foreground' : 'text-muted-foreground')}>
+                    {c.name}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
-          <div className="flex flex-col gap-1.5">
+
+          {/* Reference Month — Year + Month selects */}
+          <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted-foreground">Reference Month</label>
-            <input type="month" value={month} onChange={e => setMonth(e.target.value)}
-              className="rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm outline-none focus:border-primary" />
+            <div className="flex h-9 items-center gap-0 overflow-hidden rounded-lg border border-input bg-muted/20">
+              <Select value={year} onValueChange={v => setYear(v ?? year)}>
+                <SelectTrigger className="h-9 flex-1 border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 text-left text-sm">{year}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {YEARS.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <div className="h-5 w-px shrink-0 bg-border" />
+              <Select value={month || 'placeholder'} onValueChange={v => setMonth(v === 'placeholder' ? '' : (v ?? ''))}>
+                <SelectTrigger className="h-9 flex-[2] border-0 bg-transparent shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className={cn('flex-1 text-left text-sm', !month && 'text-muted-foreground')}>{month || 'Month'}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {MONTHS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div className="flex flex-col gap-1.5">
+
+          {/* CSV File — drag & drop zone */}
+          <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted-foreground">CSV File</label>
-            <button onClick={() => fileRef.current?.click()}
-              className={cn('flex items-center gap-2 rounded-lg border border-dashed px-4 py-3 text-sm transition-colors',
-                file ? 'border-primary/40 bg-primary/5 text-primary' : 'border-border text-muted-foreground hover:bg-muted'
+            <div
+              onClick={() => fileRef.current?.click()}
+              onDragOver={e => { e.preventDefault(); setDragging(true) }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={handleDrop}
+              className={cn(
+                'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-6 transition-all',
+                dragging
+                  ? 'border-primary bg-primary/8 scale-[1.01]'
+                  : file
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40'
               )}
             >
-              <Upload className="h-4 w-4 shrink-0" />
-              {file ? file.name : 'Choose CSV file…'}
-            </button>
-            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={e => setFile(e.target.files?.[0] ?? null)} />
+              {file ? (
+                <>
+                  <FileSpreadsheet className="h-8 w-8 text-primary" />
+                  <span className="max-w-full truncate text-center text-sm font-medium text-primary">{file.name}</span>
+                  <span className="text-xs text-muted-foreground">{(file.size / 1024).toFixed(1)} KB · click to replace</span>
+                </>
+              ) : (
+                <>
+                  <CloudUpload className={cn('h-8 w-8 transition-colors', dragging ? 'text-primary' : 'text-muted-foreground/50')} />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {dragging ? 'Drop to attach' : 'Drag & drop or click to attach'}
+                  </span>
+                  <span className="text-xs text-muted-foreground/60">CSV files only</span>
+                </>
+              )}
+            </div>
+            <input ref={fileRef} type="file" accept=".csv" className="hidden"
+              onChange={e => setFile(e.target.files?.[0] ?? null)} />
           </div>
+
+          {/* Conflict warning */}
           {existing && (
             <p className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-600 dark:text-yellow-400">
-              ⚠ An upload already exists for {company} · {formatMonth(month)}
+              ⚠ An upload already exists for {company} · {formatMonth(referenceMonth)}
             </p>
           )}
           {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
+
+        {/* Actions */}
         <div className="mt-6 flex justify-end gap-2">
           <button onClick={onClose} className="rounded-lg border border-border px-4 py-2 text-sm transition-colors hover:bg-muted">Cancel</button>
-          <button onClick={() => handleSubmit(false)} disabled={!file || !month || upload.isPending}
+          <button onClick={() => handleSubmit(false)} disabled={!file || !referenceMonth || upload.isPending}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {upload.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {upload.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
             Upload
           </button>
         </div>
