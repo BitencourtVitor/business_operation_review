@@ -15,7 +15,18 @@ import { MultiSelect } from "@/app/(dashboard)/permits/components/multi-select"
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip,
   ResponsiveContainer, CartesianGrid, Cell,
+  LineChart, Line, PieChart, Pie, Legend,
 } from "recharts"
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const WORKTYPE_COLORS = [
+  "#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6",
+  "#06b6d4", "#f97316", "#84cc16", "#ec4899", "#14b8a6",
+  "#a78bfa", "#fb923c", "#64748b", "#e11d48", "#0ea5e9",
+]
+
+const TOP_N_OPTIONS = [5, 10, 15, 20]
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -36,19 +47,21 @@ function fmtHours(h: number) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function WorkforceProductivityPage() {
-  const searchParams       = useSearchParams()
-  const company            = searchParams.get("company") ?? undefined
-  const { user }           = useAuth()
-  const { data: myPerms }  = useMyPermissions()
-  const canManage          = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce-productivity"] === "write"
-  const [manageOpen, setManageOpen] = useState(false)
-  const [year,  setYear]    = useState(String(new Date().getFullYear()))
-  const [month, setMonth]   = useState("")
+  const searchParams      = useSearchParams()
+  const company           = searchParams.get("company") ?? undefined
+  const { user }          = useAuth()
+  const { data: myPerms } = useMyPermissions()
+  const canManage         = (user?.role as string) === "dev" || myPerms?.permissions?.["workforce-productivity"] === "write"
+
+  const [manageOpen,     setManageOpen]     = useState(false)
+  const [year,           setYear]           = useState(String(new Date().getFullYear()))
+  const [month,          setMonth]          = useState("")
   const [clientFilter,   setClientFilter]   = useState<string[]>([])
   const [jobsiteFilter,  setJobsiteFilter]  = useState<string[]>([])
   const [worktypeFilter, setWorktypeFilter] = useState<string[]>([])
+  const [topN,           setTopN]           = useState(10)
 
-  // Reactive chart colors — MutationObserver on <html class> like service-requests
+  // Reactive CSS-var colors (light/dark)
   const [cc, setCC] = useState({
     border:  "oklch(0.922 0 0)",
     muted:   "oklch(0.556 0 0)",
@@ -71,6 +84,7 @@ export default function WorkforceProductivityPage() {
     return () => obs.disconnect()
   }, [])
 
+  // Reset filters when company changes
   useEffect(() => {
     setYear(String(new Date().getFullYear()))
     setMonth("")
@@ -80,6 +94,8 @@ export default function WorkforceProductivityPage() {
   }, [company])
 
   const { data: allRows = [], isLoading } = useWorkforceData({ company })
+
+  // ── Filter options ────────────────────────────────────────────────────────
 
   const years = useMemo(() => {
     const set = new Set(allRows.map(r => r.referenceMonth.split("-")[0]))
@@ -92,14 +108,14 @@ export default function WorkforceProductivityPage() {
         .filter(r => !year || r.referenceMonth.startsWith(year))
         .map(r => r.referenceMonth)
     )
-    return Array.from(set).sort((a, b) => a.localeCompare(b))
+    return Array.from(set).sort()
   }, [allRows, year])
 
-  const clientOptions  = useMemo(() =>
+  const clientOptions   = useMemo(() =>
     Array.from(new Set(allRows.map(r => r.client).filter(Boolean))).sort() as string[]
   , [allRows])
 
-  const jobsiteOptions = useMemo(() =>
+  const jobsiteOptions  = useMemo(() =>
     Array.from(new Set(allRows.map(r => r.jobsite).filter(Boolean))).sort() as string[]
   , [allRows])
 
@@ -107,24 +123,29 @@ export default function WorkforceProductivityPage() {
     Array.from(new Set(allRows.map(r => r.worktype).filter(Boolean))).sort() as string[]
   , [allRows])
 
+  // ── Filtered rows ─────────────────────────────────────────────────────────
+
   const rows = useMemo(() => allRows.filter(r => {
-    if (year  && !r.referenceMonth.startsWith(year))              return false
-    if (month && r.referenceMonth !== month)                       return false
-    if (clientFilter.length  > 0 && !clientFilter.includes(r.client))    return false
-    if (jobsiteFilter.length > 0 && !jobsiteFilter.includes(r.jobsite))  return false
+    if (year           && !r.referenceMonth.startsWith(year))          return false
+    if (month          && r.referenceMonth !== month)                   return false
+    if (clientFilter.length   > 0 && !clientFilter.includes(r.client))    return false
+    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(r.jobsite))  return false
     if (worktypeFilter.length > 0 && !worktypeFilter.includes(r.worktype)) return false
     return true
   }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
 
-  // ── Metrics ───────────────────────────────────────────────────────────────
+  const isSingleProject = jobsiteFilter.length === 1
+
+  // ── KPI metrics ───────────────────────────────────────────────────────────
 
   const totalHours     = useMemo(() => rows.reduce((s, r) => s + r.regularHours, 0), [rows])
   const totalEmployees = useMemo(() => new Set(rows.map(r => r.employeeName)).size, [rows])
   const totalJobsites  = useMemo(() => new Set(rows.map(r => r.jobsite).filter(Boolean)).size, [rows])
   const avgHoursPerEmp = totalEmployees > 0 ? totalHours / totalEmployees : 0
 
-  // ── Chart data ────────────────────────────────────────────────────────────
+  // ── General view chart data ───────────────────────────────────────────────
 
+  // Chart #1 — Total Hours by Month
   const hoursByMonth = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => { map[r.referenceMonth] = (map[r.referenceMonth] ?? 0) + r.regularHours })
@@ -133,6 +154,7 @@ export default function WorkforceProductivityPage() {
       .map(([m, h]) => ({ month: formatMonth(m), hours: Math.round(h) }))
   }, [rows])
 
+  // Chart #3 — Hours by Service Type (worktype)
   const hoursByWorktype = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
@@ -141,10 +163,14 @@ export default function WorkforceProductivityPage() {
     })
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 8)
-      .map(([name, hours]) => ({ name, hours: Math.round(hours) }))
+      .map(([name, hours], i) => ({
+        name,
+        hours: Math.round(hours),
+        color: WORKTYPE_COLORS[i % WORKTYPE_COLORS.length],
+      }))
   }, [rows])
 
+  // Chart #2 — Hours by Project (Top N)
   const topJobsites = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
@@ -153,15 +179,88 @@ export default function WorkforceProductivityPage() {
     })
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
-      .slice(0, 8)
+      .slice(0, topN)
       .map(([name, hours]) => ({ name, hours: Math.round(hours) }))
-  }, [rows])
+  }, [rows, topN])
 
-  // Shared chart props
+  // ── Single-project view chart data ────────────────────────────────────────
+
+  const spMonths = useMemo(() =>
+    isSingleProject ? Array.from(new Set(rows.map(r => r.referenceMonth))).sort() : []
+  , [rows, isSingleProject])
+
+  const spWorktypes = useMemo(() =>
+    isSingleProject
+      ? Array.from(new Set(rows.map(r => r.worktype || "Unclassified")))
+      : []
+  , [rows, isSingleProject])
+
+  // Chart #4 — Hours: Total vs Worktype by month (multi-series line)
+  const spMonthlyData = useMemo(() => {
+    if (!isSingleProject) return []
+    return spMonths.map(m => {
+      const mRows = rows.filter(r => r.referenceMonth === m)
+      const total = mRows.reduce((s, r) => s + r.regularHours, 0)
+      const entry: Record<string, string | number> = {
+        month: formatMonth(m),
+        total: Math.round(total),
+      }
+      spWorktypes.forEach(wt => {
+        entry[wt] = Math.round(
+          mRows
+            .filter(r => (r.worktype || "Unclassified") === wt)
+            .reduce((s, r) => s + r.regularHours, 0)
+        )
+      })
+      return entry
+    })
+  }, [rows, isSingleProject, spMonths, spWorktypes])
+
+  // Chart #5 — Work Type Proportion (doughnut)
+  const spWorktypePie = useMemo(() => {
+    if (!isSingleProject) return []
+    const map: Record<string, number> = {}
+    rows.forEach(r => {
+      const wt = r.worktype || "Unclassified"
+      map[wt] = (map[wt] ?? 0) + r.regularHours
+    })
+    return Object.entries(map)
+      .sort(([, a], [, b]) => b - a)
+      .map(([name, value], i) => ({
+        name,
+        value: Math.round(value),
+        fill: WORKTYPE_COLORS[i % WORKTYPE_COLORS.length],
+      }))
+  }, [rows, isSingleProject])
+
+  // Chart #6 — Hours per Employee by month
+  const spHoursPerEmp = useMemo(() => {
+    if (!isSingleProject) return []
+    return spMonths.map(m => {
+      const mRows = rows.filter(r => r.referenceMonth === m)
+      const total = mRows.reduce((s, r) => s + r.regularHours, 0)
+      const emp   = new Set(mRows.map(r => r.employeeName)).size
+      return { month: formatMonth(m), hpe: emp > 0 ? Math.round(total / emp) : 0 }
+    })
+  }, [rows, isSingleProject, spMonths])
+
+  // Chart #7 — Employee Count by month
+  const spEmpCount = useMemo(() => {
+    if (!isSingleProject) return []
+    return spMonths.map(m => {
+      const mRows = rows.filter(r => r.referenceMonth === m)
+      return { month: formatMonth(m), count: new Set(mRows.map(r => r.employeeName)).size }
+    })
+  }, [rows, isSingleProject, spMonths])
+
+  // ── Shared chart props ────────────────────────────────────────────────────
+
   const tooltipStyle = { backgroundColor: cc.card, borderColor: cc.border, borderRadius: 8, fontSize: 12 }
   const labelStyle   = { color: cc.muted }
   const cursor       = { fill: cc.muted, fillOpacity: 0.12 }
   const tick         = { fontSize: 11 }
+
+  // ── Insights ──────────────────────────────────────────────────────────────
 
   const insights = useInsights({
     pageKey:  "Workforce Productivity",
@@ -182,8 +281,6 @@ export default function WorkforceProductivityPage() {
   }
 
   // ── Layout ────────────────────────────────────────────────────────────────
-  // Mirrors service-requests: flex h-full flex-col, fixed rows shrink-0,
-  // middle section min-h-0 flex-1 so charts fill remaining viewport height.
 
   return (
     <div className="flex h-full flex-col gap-4">
@@ -196,71 +293,77 @@ export default function WorkforceProductivityPage() {
             {company ? `${company} · ` : ""}QBTime hours by project and work type
           </p>
         </div>
+
         <div className="flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
-          <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
-            <div className="flex items-center pl-2.5">
-              <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            </div>
-            <Select value={year || "all"} onValueChange={v => { setYear(v === "all" ? "" : (v ?? "")); setMonth("") }}>
-              <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                <span className="flex-1 truncate text-left text-sm">{year || "All"}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <div className="h-5 w-px shrink-0 bg-border" />
-            <Select value={month || "all"} onValueChange={v => setMonth(v === "all" ? "" : (v ?? ""))}>
-              <SelectTrigger className="h-8 w-[120px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
-                <span className="flex-1 truncate text-left text-sm">
-                  {month ? formatMonthName(month) : "All months"}
-                </span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All months</SelectItem>
-                {availableMonths.map(m => <SelectItem key={m} value={m}>{formatMonthName(m)}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
 
-        {/* Client */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Client</span>
-          <MultiSelect label="Client" icon={<Building2 className="h-3.5 w-3.5 shrink-0" />} options={clientOptions} selected={clientFilter} onChange={setClientFilter} />
-        </div>
-
-        {/* Jobsite */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
-          <MultiSelect label="Jobsite" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />} options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} fitContent />
-        </div>
-
-        {/* Worktype */}
-        <div className="flex flex-col gap-1">
-          <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Worktype</span>
-          <MultiSelect label="Worktype" icon={<Wrench className="h-3.5 w-3.5 shrink-0" />} options={worktypeOptions} selected={worktypeFilter} onChange={setWorktypeFilter} />
-        </div>
-
-        {/* Changes — Manage Data + Insights */}
-        {canManage && (
+          {/* Period */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Changes</span>
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setManageOpen(true)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-              >
-                <Database className="h-3.5 w-3.5" />
-                Manage Data
-              </button>
-              {insights.triggerButton}
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Period</span>
+            <div className="flex h-8 items-center rounded-lg border border-input bg-transparent dark:bg-input/30">
+              <div className="flex items-center pl-2.5">
+                <Calendar className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              </div>
+              <Select value={year || "all"} onValueChange={v => { setYear(v === "all" ? "" : (v ?? "")); setMonth("") }}>
+                <SelectTrigger className="h-8 w-[68px] border-0 bg-transparent pl-1.5 pr-1 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">{year || "All"}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  {years.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <div className="h-5 w-px shrink-0 bg-border" />
+              <Select value={month || "all"} onValueChange={v => setMonth(v === "all" ? "" : (v ?? ""))}>
+                <SelectTrigger className="h-8 w-[120px] border-0 bg-transparent pl-1.5 shadow-none ring-0 focus-visible:ring-0 dark:bg-transparent">
+                  <span className="flex-1 truncate text-left text-sm">
+                    {month ? formatMonthName(month) : "All months"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All months</SelectItem>
+                  {availableMonths.map(m => <SelectItem key={m} value={m}>{formatMonthName(m)}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
           </div>
-        )}
+
+          {/* Client */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Client</span>
+            <MultiSelect label="Client" icon={<Building2 className="h-3.5 w-3.5 shrink-0" />}
+              options={clientOptions} selected={clientFilter} onChange={setClientFilter} />
+          </div>
+
+          {/* Jobsite */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
+            <MultiSelect label="Jobsite" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />}
+              options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} fitContent />
+          </div>
+
+          {/* Worktype */}
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Worktype</span>
+            <MultiSelect label="Worktype" icon={<Wrench className="h-3.5 w-3.5 shrink-0" />}
+              options={worktypeOptions} selected={worktypeFilter} onChange={setWorktypeFilter} />
+          </div>
+
+          {/* Changes */}
+          {canManage && (
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Changes</span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setManageOpen(true)}
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                >
+                  <Database className="h-3.5 w-3.5" />
+                  Manage Data
+                </button>
+                {insights.triggerButton}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -270,89 +373,212 @@ export default function WorkforceProductivityPage() {
         </div>
       ) : (
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-hidden">
-          {/* ── Metrics ── */}
-          <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
-            {[
-              { label: "Total Hours",   value: fmtHours(totalHours),     Icon: Clock      },
-              { label: "Employees",     value: String(totalEmployees),    Icon: Users      },
-              { label: "Job Sites",     value: String(totalJobsites),     Icon: MapPin     },
-              { label: "Avg hrs / emp", value: fmtHours(avgHoursPerEmp), Icon: TrendingUp },
-            ].map(({ label, value, Icon }) => (
-              <div key={label} className="flex flex-col gap-0.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2.5">
-                <div className="flex items-center gap-1.5">
-                  <Icon className="h-3 w-3 text-muted-foreground/60" />
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+          <div className="flex min-w-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto">
+
+            {/* ── KPI cards ── */}
+            <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4">
+              {([
+                { label: "Total Hours",   value: fmtHours(totalHours),     Icon: Clock      },
+                { label: "Employees",     value: String(totalEmployees),    Icon: Users      },
+                { label: "Job Sites",     value: String(totalJobsites),     Icon: MapPin     },
+                { label: "Avg hrs / emp", value: fmtHours(avgHoursPerEmp), Icon: TrendingUp },
+              ] as const).map(({ label, value, Icon }) => (
+                <div key={label} className="flex flex-col gap-0.5 rounded-lg border border-border/50 bg-card/60 px-3 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className="h-3 w-3 text-muted-foreground/60" />
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+                  </div>
+                  <span className="text-2xl font-bold tracking-tight">{value}</span>
                 </div>
-                <span className="text-2xl font-bold tracking-tight">{value}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* ── Top charts row — grows to fill remaining height ── */}
-          <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
-
-            {/* Hours by month */}
-            {hoursByMonth.length > 1 && (
-              <div className="flex min-h-0 flex-col rounded-xl border border-border bg-card/60 p-4">
-                <span className="mb-2 shrink-0 text-sm font-semibold">Hours by Month</span>
-                <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={hoursByMonth} barSize={24} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                      <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                      <YAxis tick={tick} axisLine={false} tickLine={false} width={40} />
-                      <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                        formatter={(v: any) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
-                      <Bar dataKey="hours" fill={cc.primary} radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-
-            {/* Hours by work type */}
-            {hoursByWorktype.length > 0 && (
-              <div className="flex min-h-0 flex-col rounded-xl border border-border bg-card/60 p-4">
-                <span className="mb-2 shrink-0 text-sm font-semibold">Hours by Work Type</span>
-                <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={hoursByWorktype} layout="vertical" barSize={14} margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                      <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
-                      <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
-                      <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                        formatter={(v: any) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
-                      <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
-                        {hoursByWorktype.map((_, i) => (
-                          <Cell key={i} fill={cc.primary} fillOpacity={1 - i * 0.07} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* ── Top job sites — fixed height at bottom ── */}
-          {topJobsites.length > 0 && (
-            <div className="flex shrink-0 flex-col rounded-xl border border-border bg-card/60 p-4">
-              <span className="mb-2 shrink-0 text-sm font-semibold">Top Job Sites by Hours</span>
-              <div className="[&_text]:fill-muted-foreground">
-                <ResponsiveContainer width="100%" height={topJobsites.length * 28 + 24}>
-                  <BarChart data={topJobsites} layout="vertical" barSize={14} margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                    <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="name" width={210} tick={tick} axisLine={false} tickLine={false} />
-                    <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                      formatter={(v: any) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
-                    <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              ))}
             </div>
-          )}
+
+            {isSingleProject ? (
+
+              /* ═══════════════ SINGLE PROJECT VIEW ═══════════════ */
+              <div className="flex flex-col gap-4">
+
+                {/* Row 1 — Chart #4 (2/3) + Chart #5 doughnut (1/3) */}
+                <div className="grid grid-cols-3 gap-4" style={{ height: 320 }}>
+
+                  {/* Chart #4 — Hours: Total vs Worktype */}
+                  <div className="col-span-2 flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <span className="mb-2 shrink-0 text-sm font-semibold">
+                      Hours by Month — {jobsiteFilter[0]}
+                    </span>
+                    <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={spMonthlyData} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                          <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
+                            formatter={(v: unknown, name: string) => [fmtHours(Number(v)) + " hrs", name]} />
+                          <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
+                          {spWorktypes.length > 1 && (
+                            <Line dataKey="total" name="Total" stroke={cc.muted}
+                              strokeWidth={2} strokeDasharray="6 3" dot={false} />
+                          )}
+                          {spWorktypes.map((wt, i) => (
+                            <Line key={wt} dataKey={wt} name={wt}
+                              stroke={WORKTYPE_COLORS[i % WORKTYPE_COLORS.length]}
+                              strokeWidth={2} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+                          ))}
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart #5 — Work Type Proportion */}
+                  <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <span className="mb-2 shrink-0 text-sm font-semibold">Work Type Proportion</span>
+                    <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={spWorktypePie} dataKey="value" nameKey="name"
+                            innerRadius="52%" outerRadius="78%" paddingAngle={2} stroke="none">
+                            {spWorktypePie.map((entry, i) => (
+                              <Cell key={i} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
+                            formatter={(v: unknown, name: string) => [fmtHours(Number(v)) + " hrs", name]} />
+                          <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 10 }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2 — Chart #6 (left) + Chart #7 (right) */}
+                <div className="grid grid-cols-2 gap-4" style={{ height: 240 }}>
+
+                  {/* Chart #6 — Hours per Employee */}
+                  <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <span className="mb-2 shrink-0 text-sm font-semibold">Hours per Employee</span>
+                    <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={spHoursPerEmp} margin={{ top: 4, right: 16, bottom: 0, left: -10 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                          <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
+                            formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Avg hrs / emp"]} />
+                          <Line dataKey="hpe" name="Hrs / emp" stroke="#f59e0b" strokeWidth={2}
+                            dot={{ r: 4, fill: "#f59e0b", stroke: "#fff", strokeWidth: 2 }}
+                            activeDot={{ r: 6 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart #7 — Employee Count */}
+                  <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <span className="mb-2 shrink-0 text-sm font-semibold">Employee Count</span>
+                    <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={spEmpCount} barSize={20} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                          <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
+                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
+                            formatter={(v: unknown) => [v, "Employees"]} />
+                          <Bar dataKey="count" name="Employees" fill="#10b981" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            ) : (
+
+              /* ═══════════════ GENERAL VIEW ═══════════════ */
+              <div className="flex flex-col gap-4">
+
+                {/* Row 1 — Chart #1 + Chart #3 */}
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" style={{ height: 300 }}>
+
+                  {/* Chart #1 — Total Hours by Month */}
+                  {hoursByMonth.length > 1 && (
+                    <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                      <span className="mb-2 shrink-0 text-sm font-semibold">Total Hours by Month</span>
+                      <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={hoursByMonth} barSize={24} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                            <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
+                            <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                            <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
+                              formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                            <Bar dataKey="hours" fill={cc.primary} radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Chart #3 — Hours by Service Type */}
+                  {hoursByWorktype.length > 0 && (
+                    <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                      <span className="mb-2 shrink-0 text-sm font-semibold">Hours by Work Type</span>
+                      <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={hoursByWorktype} layout="vertical" barSize={14}
+                            margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                            <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
+                            <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
+                            <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
+                              formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                            <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
+                              {hoursByWorktype.map((entry, i) => (
+                                <Cell key={i} fill={entry.color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Chart #2 — Hours by Project (Top N) */}
+                {topJobsites.length > 0 && (
+                  <div className="flex flex-col rounded-xl border border-border bg-card/60 p-4">
+                    <div className="mb-3 flex shrink-0 items-center justify-between">
+                      <span className="text-sm font-semibold">Hours by Project</span>
+                      <div className="flex items-center gap-0.5 rounded-lg border border-border p-0.5">
+                        {TOP_N_OPTIONS.map(n => (
+                          <button key={n} onClick={() => setTopN(n)}
+                            className={`rounded-md px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                              topN === n
+                                ? "bg-primary text-primary-foreground"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Top {n}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="[&_text]:fill-muted-foreground">
+                      <ResponsiveContainer width="100%" height={topJobsites.length * 30 + 24}>
+                        <BarChart data={topJobsites} layout="vertical" barSize={14}
+                          margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                          <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
+                          <YAxis type="category" dataKey="name" width={220} tick={tick} axisLine={false} tickLine={false} />
+                          <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
+                            formatter={(v: unknown) => [fmtHours(Number(v)) + " hrs", "Hours"]} />
+                          <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           {insights.panel}
         </div>
