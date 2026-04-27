@@ -34,11 +34,13 @@ import {
   ClipboardList,
   CreditCard,
   FileCheck,
+  FileText,
   Fuel,
   Gauge,
   Package,
   PanelLeftClose,
   PanelLeftOpen,
+  Receipt,
   Settings,
   TrendingUp,
   Users,
@@ -133,11 +135,19 @@ const comingSoonGroup: NavGroup = {
 const bottomGroup: NavGroup = {
   label: "Data Management",
   items: [
-    { title: "Forecast Data Control",     href: "/data-control",          icon: ClipboardList },
-    { title: "WEX Categorization",        href: "/wex-categorization",   icon: CreditCard    },
-    { title: "QBTime Auto Log",           href: "/autolog",              image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png" },
-    { title: "Weekly Hours Control",      href: "/weekly-hours-control", icon: CalendarClock },
-    { title: "Settings",                  href: "/settings",             icon: Settings      },
+    { title: "Forecast Data Control", href: "/data-control",        icon: ClipboardList },
+    { title: "WEX Categorization",    href: "/wex-categorization", icon: CreditCard    },
+    {
+      title: "QBTime Reports", href: "/autolog",
+      image: "/images/icon_qbtime.png", imageDark: "/images/icon_qbtime_dark.png",
+      children: [
+        { title: "Auto Log",             href: "/autolog",                icon: ClipboardList },
+        { title: "Daily Report",         href: "/qbtime/daily-report",    icon: FileText      },
+        { title: "Job Costing Report",   href: "/qbtime/job-costing",     icon: Receipt       },
+        { title: "Weekly Hours Control", href: "/weekly-hours-control",   icon: CalendarClock },
+      ],
+    },
+    { title: "Settings", href: "/settings", icon: Settings },
   ],
 }
 
