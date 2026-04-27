@@ -2,6 +2,12 @@
 
 import { useMemo, useState } from "react"
 import {
+  AreaChart, Area,
+  XAxis, YAxis, CartesianGrid,
+  Tooltip as RechartsTooltip,
+  ResponsiveContainer,
+} from "recharts"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -27,7 +33,9 @@ import {
   ArrowLeft,
   Calendar,
   CheckCircle2,
+  LayoutGrid,
   Loader2,
+  TrendingUp,
   XCircle,
 } from "lucide-react"
 import Link from "next/link"
@@ -91,12 +99,14 @@ function labelColor(pct: number) {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface MonthData {
-  key:      string          // "YYYY-MM"
-  month:    number
-  year:     number
-  label:    string          // "April 2026"
-  projects: ForecastProject[]
-  done:     Record<AspectKey, number>
+  key:           string          // "YYYY-MM"
+  month:         number
+  year:          number
+  label:         string          // "April 2026"
+  short:         string          // "Apr"
+  projects:      ForecastProject[]
+  done:          Record<AspectKey, number>
+  avgCompletion: number          // 0–100 average of all 6 aspect %
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -129,8 +139,10 @@ export default function ForecastMetricsPage() {
           month: m,
           year: y,
           label: `${MONTH_NAMES[m - 1]} ${y}`,
+          short: MONTH_NAMES[m - 1].slice(0, 3),
           projects: [],
           done: { fieldwire: 0, machines: 0, contract: 0, buildertrend: 0, storage: 0, qbTime: 0 },
+          avgCompletion: 0,
         }
       }
       map[key].projects.push(p)
@@ -139,7 +151,15 @@ export default function ForecastMetricsPage() {
         if (aspects[a.key]) map[key].done[a.key]++
       }
     })
-    return Object.values(map).sort((a, b) => a.key.localeCompare(b.key))
+    const result = Object.values(map).sort((a, b) => a.key.localeCompare(b.key))
+    // Compute avgCompletion after all projects are tallied
+    result.forEach(m => {
+      const total = m.projects.length
+      if (total === 0) { m.avgCompletion = 0; return }
+      const sum = ASPECTS.reduce((acc, a) => acc + (m.done[a.key] / total * 100), 0)
+      m.avgCompletion = Math.round(sum / ASPECTS.length)
+    })
+    return result
   }, [projects])
 
   const years = useMemo(() => {
@@ -233,33 +253,34 @@ export default function ForecastMetricsPage() {
           </div>
         </div>
 
-        {/* ── Monthly summary strip (horizontal scroll) ── */}
-        {visibleMonths.length > 0 && (
-          <div className="shrink-0 overflow-x-auto">
-            <div className="flex gap-3 pb-1">
-              {visibleMonths.map(m => (
-                <button
-                  key={m.key}
-                  onClick={() => setSelectedMonth(prev => prev === m.key ? "" : m.key)}
-                  className={`flex min-w-[140px] flex-col gap-1.5 rounded-xl border px-4 py-3 text-left transition-colors ${
-                    selectedMonth === m.key
-                      ? "border-primary/40 bg-primary/10"
-                      : "border-border/50 bg-card/60 hover:border-border hover:bg-card"
-                  }`}
-                >
-                  <span className={`text-[10px] font-semibold uppercase tracking-wider ${
-                    selectedMonth === m.key ? "text-primary" : "text-muted-foreground"
-                  }`}>
-                    {m.label}
-                  </span>
-                  <span className="text-2xl font-bold tabular-nums leading-none text-foreground">
-                    {m.projects.length}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground">
-                    {m.projects.length === 1 ? "project" : "projects"}
-                  </span>
-                </button>
-              ))}
+        {/* ── Avg completion trend chart ── */}
+        {monthsData.length > 0 && (
+          <div className="flex shrink-0 flex-col gap-2 rounded-xl border border-border bg-card/60 p-4" style={{ height: 180 }}>
+            <div className="flex shrink-0 items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-sm font-medium">Average Readiness</span>
+              <span className="text-xs text-muted-foreground">per month</span>
+            </div>
+            <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthsData.map(m => ({ month: m.short, avg: m.avgCompletion }))} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
+                  <defs>
+                    <linearGradient id="readinessGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor="var(--color-primary)" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}    />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[0, 100]} tickFormatter={v => `${v}%`} tick={{ fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <RechartsTooltip
+                    formatter={(v) => [v != null ? `${v}%` : "", "Avg readiness"]}
+                    contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    cursor={{ fill: "currentColor", fillOpacity: 0.06 }}
+                  />
+                  <Area type="monotone" dataKey="avg" stroke="var(--color-primary)" fill="url(#readinessGrad)" strokeWidth={2} dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
           </div>
         )}
@@ -276,14 +297,24 @@ export default function ForecastMetricsPage() {
             <DetailView month={detailMonth} onBack={() => setSelectedMonth("")} />
           ) : (
             /* ── Overview grid ── */
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {visibleMonths.map(m => (
-                <MonthCard
-                  key={m.key}
-                  month={m}
-                  onClick={() => setSelectedMonth(m.key)}
-                />
-              ))}
+            <div className="rounded-xl border border-border bg-card/60 overflow-hidden">
+              {/* Grid header */}
+              <div className="flex items-center gap-2 border-b border-border px-4 py-2.5">
+                <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-sm font-medium">Monthly Breakdown</span>
+                <span className="text-xs text-muted-foreground">
+                  {visibleMonths.length} {visibleMonths.length === 1 ? "month" : "months"}
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                {visibleMonths.map(m => (
+                  <MonthCard
+                    key={m.key}
+                    month={m}
+                    onClick={() => setSelectedMonth(m.key)}
+                  />
+                ))}
+              </div>
             </div>
           )}
         </div>
