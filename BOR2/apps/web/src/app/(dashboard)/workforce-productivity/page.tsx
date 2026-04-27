@@ -413,7 +413,7 @@ export default function WorkforceProductivityPage() {
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
                           <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
-                            formatter={(v: unknown, name: string) => [fmtHours(Number(v)) + " hrs", name]} />
+                            formatter={(v: unknown, name: string | number) => [fmtHours(Number(v)) + " hrs", String(name)]} />
                           <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                           {spWorktypes.length > 1 && (
                             <Line dataKey="total" name="Total" stroke={cc.muted}
@@ -442,7 +442,7 @@ export default function WorkforceProductivityPage() {
                             ))}
                           </Pie>
                           <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle}
-                            formatter={(v: unknown, name: string) => [fmtHours(Number(v)) + " hrs", name]} />
+                            formatter={(v: unknown, name: string | number) => [fmtHours(Number(v)) + " hrs", String(name)]} />
                           <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 10 }} />
                         </PieChart>
                       </ResponsiveContainer>
@@ -482,7 +482,7 @@ export default function WorkforceProductivityPage() {
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
                           <YAxis tick={tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
                           <RechartsTooltip contentStyle={tooltipStyle} labelStyle={labelStyle} cursor={cursor}
-                            formatter={(v: unknown) => [v, "Employees"]} />
+                            formatter={(v: unknown) => [String(v), "Employees"]} />
                           <Bar dataKey="count" name="Employees" fill="#10b981" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
