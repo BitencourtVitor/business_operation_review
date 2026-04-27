@@ -639,19 +639,30 @@ export default function WorkforceProductivityPage() {
                         </div>
                       </div>
                     </div>
+                    {/* scrollable bars — XAxis hidden */}
                     <div className="min-h-0 flex-1 overflow-y-auto [&_text]:fill-muted-foreground">
-                      <div style={{ height: Math.max(topJobsites.length * 28 + 24, 80) }}>
+                      <div style={{ height: Math.max(topJobsites.length * 28 + 8, 80) }}>
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={topJobsites} layout="vertical" barSize={14}
                             margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                            <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
+                            <XAxis type="number" domain={[0, "auto"]} height={0} tick={false} axisLine={false} tickLine={false} />
                             <YAxis type="category" dataKey="name" width={220} tick={tick} axisLine={false} tickLine={false} />
                             <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
+                    </div>
+                    {/* fixed X axis */}
+                    <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 28 }}>
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={topJobsites} layout="vertical"
+                          margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
+                          <XAxis type="number" domain={[0, "auto"]} tick={tick} axisLine={false} tickLine={false} />
+                          <YAxis type="category" dataKey="name" width={220} tick={false} axisLine={false} tickLine={false} />
+                        </BarChart>
+                      </ResponsiveContainer>
                     </div>
                   </div>
                 )}
