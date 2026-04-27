@@ -487,7 +487,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Full-width separator — outside any group so it has no horizontal padding */}
+        {/* Full-width separator */}
         <div className="h-px shrink-0 bg-sidebar-border" />
 
         {/* Coming Soon */}
@@ -498,22 +498,19 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Data Management — pinned to bottom */}
-        <div className="mt-auto">
-          <div className="h-px bg-sidebar-border" />
-          <SidebarGroup>
-            {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
-            <SidebarGroupContent>
-              <NavGroupItems items={bottomGroup.items} {...groupProps} />
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </div>
-
       </SidebarContent>
 
-      <SidebarFooter className="overflow-x-hidden">
-        <div className="-mx-2 h-px bg-sidebar-border" />
-        <SidebarMenu>
+      {/* Data Management — always pinned to bottom, outside scroll area */}
+      <SidebarFooter className="gap-0 overflow-x-hidden p-0">
+        <div className="h-px bg-sidebar-border" />
+        <SidebarGroup>
+          {open && <SidebarGroupLabel>{bottomGroup.label}</SidebarGroupLabel>}
+          <SidebarGroupContent>
+            <NavGroupItems items={bottomGroup.items} {...groupProps} />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <div className="h-px bg-sidebar-border" />
+        <SidebarMenu className="p-2">
           <SidebarMenuItem>
             <SidebarMenuButton onClick={toggleSidebar} tooltip="Toggle sidebar">
               {open ? <PanelLeftClose /> : <PanelLeftOpen />}

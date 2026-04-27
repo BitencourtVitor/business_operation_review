@@ -47,6 +47,12 @@ function fmtHours(h: number) {
   return h.toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
 
+function fmtAxisY(v: number) {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000)     return `${(v / 1_000).toFixed(0)}k`
+  return String(v)
+}
+
 function getJobsiteLabel(r: { jobsite?: string; lotBuilding?: string; client?: string }): string {
   const jobsite = r.jobsite?.trim() ?? ""
   const lot     = r.lotBuilding?.trim() ?? ""
@@ -479,7 +485,7 @@ export default function WorkforceProductivityPage() {
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} tickFormatter={fmtAxisY} />
                           <RechartsTooltip content={<ChartTooltip />} />
                           <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                           {spWorktypes.length > 1 && (
@@ -538,7 +544,7 @@ export default function WorkforceProductivityPage() {
                           </defs>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} tickFormatter={fmtAxisY} />
                           <RechartsTooltip content={<ChartTooltip />} />
                           <Area dataKey="hpe" name="Hrs / emp" type="monotone"
                             stroke="#f59e0b" strokeWidth={2} fill="url(#grad-hpe)"
@@ -557,7 +563,7 @@ export default function WorkforceProductivityPage() {
                         <BarChart data={spEmpCount} barSize={20} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                           <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} />
+                          <YAxis tick={tick} axisLine={false} tickLine={false} width={44} allowDecimals={false} tickFormatter={fmtAxisY} />
                           <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                           <Bar dataKey="count" name="Employees" fill="#10b981" radius={[4, 4, 0, 0]} />
                         </BarChart>
@@ -584,7 +590,7 @@ export default function WorkforceProductivityPage() {
                           <BarChart data={hoursByMonth} barSize={24} margin={{ top: 4, right: 4, bottom: 0, left: -10 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                             <XAxis dataKey="month" tick={tick} axisLine={false} tickLine={false} />
-                            <YAxis tick={tick} axisLine={false} tickLine={false} width={44} />
+                            <YAxis tick={tick} axisLine={false} tickLine={false} width={44} tickFormatter={fmtAxisY} />
                             <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" fill={cc.primary} radius={[4, 4, 0, 0]} />
                           </BarChart>
@@ -602,7 +608,7 @@ export default function WorkforceProductivityPage() {
                           <BarChart data={hoursByWorktype} layout="vertical" barSize={14}
                             margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                            <XAxis type="number" tick={tick} axisLine={false} tickLine={false} />
+                            <XAxis type="number" tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} />
                             <YAxis type="category" dataKey="name" width={120} tick={tick} axisLine={false} tickLine={false} />
                             <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" radius={[0, 4, 4, 0]}>
@@ -647,20 +653,22 @@ export default function WorkforceProductivityPage() {
                             margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
                             <XAxis type="number" domain={[0, "auto"]} height={0} tick={false} axisLine={false} tickLine={false} />
-                            <YAxis type="category" dataKey="name" width={220} tick={tick} axisLine={false} tickLine={false} />
+                            <YAxis type="category" dataKey="name" width={300} tick={tick} axisLine={false} tickLine={false} />
                             <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
                             <Bar dataKey="hours" fill={cc.primary} radius={[0, 4, 4, 0]} />
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
                     </div>
-                    {/* fixed X axis */}
-                    <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 28 }}>
+                    {/* fixed X axis — orientation="top" pins labels to the top edge of the strip */}
+                    <div className="shrink-0 [&_text]:fill-muted-foreground" style={{ height: 24 }}>
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={topJobsites} layout="vertical"
                           margin={{ top: 0, right: 8, bottom: 0, left: 0 }}>
-                          <XAxis type="number" domain={[0, "auto"]} tick={tick} axisLine={false} tickLine={false} />
-                          <YAxis type="category" dataKey="name" width={220} tick={false} axisLine={false} tickLine={false} />
+                          <XAxis type="number" domain={[0, "auto"]} orientation="top"
+                            tick={tick} axisLine={false} tickLine={false} tickFormatter={fmtAxisY} />
+                          <YAxis type="category" dataKey="name" width={300} tick={false} axisLine={false} tickLine={false} />
+                          <Bar dataKey="hours" opacity={0} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
