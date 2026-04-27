@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import {
   Select,
   SelectContent,
@@ -33,7 +33,7 @@ import {
 } from "recharts"
 import {
   ArrowUpDown, BarChart3, Calendar, ClipboardList,
-  FileText, Layers, Loader2, TableIcon, TrendingUp, Truck, X,
+  FileText, Info, Layers, Loader2, TableIcon, TrendingUp, Truck, X,
 } from "lucide-react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -63,11 +63,12 @@ function scoreColor(score: number, max: number, primaryAtMax = false) {
 // ─── Recharts tooltip ─────────────────────────────────────────────────────────
 
 function ChartTooltip({
-  active, payload, label,
+  active, payload, label, unit = "",
 }: {
   active?:  boolean
   payload?: { name: string; value: number; color?: string; stroke?: string; fill?: string }[]
   label?:   string
+  unit?:    string
 }) {
   if (!active || !payload?.length) return null
   return (
@@ -82,7 +83,7 @@ function ChartTooltip({
             />
             <span className="text-xs text-muted-foreground">{p.name}</span>
             <span className="ml-auto pl-4 text-xs font-semibold tabular-nums text-foreground">
-              {p.value}
+              {p.value}{unit}
             </span>
           </div>
         ))}
@@ -113,16 +114,33 @@ export default function OFIPage() {
   const [panelOpen, setPanelOpen] = useState(false)
 
   const { open: sidebarOpen, setOpen: setSidebarOpen } = useSidebar()
+  const sidebarCollapsedByPanel = useRef(false)
 
-  // Mirror Aria: when sidebar re-expands, close the panel
+  // When user manually re-expands the sidebar, close the panel (and forget the ref)
   useEffect(() => {
-    if (sidebarOpen && panelOpen) setPanelOpen(false)
+    if (sidebarOpen && panelOpen) {
+      setPanelOpen(false)
+      sidebarCollapsedByPanel.current = false
+    }
   }, [sidebarOpen]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  function openPanel() {
+    sidebarCollapsedByPanel.current = sidebarOpen // remember whether sidebar was open
+    setSidebarOpen(false)
+    setPanelOpen(true)
+  }
+
+  function closePanel() {
+    setPanelOpen(false)
+    if (sidebarCollapsedByPanel.current) {
+      setSidebarOpen(true)
+      sidebarCollapsedByPanel.current = false
+    }
+  }
+
   function togglePanel() {
-    const next = !panelOpen
-    setPanelOpen(next)
-    if (next) setSidebarOpen(false) // collapse sidebar when opening scores panel
+    if (panelOpen) closePanel()
+    else openPanel()
   }
 
   const { data: allData = [], isLoading } = useOfi(
@@ -229,10 +247,10 @@ export default function OFIPage() {
   // ── Aspect bar data ───────────────────────────────────────────────────────
 
   const aspectData = [
-    { name: "Fieldwire", score: kpis.fieldwire },
-    { name: "Machines",  score: kpis.machines  },
-    { name: "Contract",  score: kpis.contract  },
-    { name: "Systems",   score: kpis.systems   },
+    { name: "Fieldwire", pct: round2(kpis.fieldwire / 2 * 100) },
+    { name: "Machines",  pct: round2(kpis.machines  / 2 * 100) },
+    { name: "Contract",  pct: round2(kpis.contract  / 2 * 100) },
+    { name: "Systems",   pct: round2(kpis.systems   / 1 * 100) },
   ]
 
   // ── Sorted table ──────────────────────────────────────────────────────────
@@ -320,7 +338,7 @@ export default function OFIPage() {
               </div>
             </div>
 
-            {/* Scores trigger — after filter */}
+            {/* Scores trigger */}
             <button
               onClick={togglePanel}
               className={`inline-flex h-8 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-colors ${
@@ -381,7 +399,7 @@ export default function OFIPage() {
                         type="monotone"
                         dataKey="total"
                         name="OFI Total"
-                        stroke="#3b82f6"
+                        stroke="var(--color-primary)"
                         strokeWidth={2}
                         dot={false}
                         isAnimationActive={false}
@@ -430,7 +448,7 @@ export default function OFIPage() {
                           type="monotone"
                           dataKey={a.key}
                           name={a.label}
-                          stroke={a.color}
+                          stroke="var(--color-primary)"
                           strokeWidth={2}
                           dot={false}
                           isAnimationActive={false}
@@ -447,6 +465,12 @@ export default function OFIPage() {
               <div className="flex shrink-0 items-center gap-2">
                 <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-sm font-medium">OFI Score Trend</span>
+                <Tooltip>
+                  <TooltipTrigger className="ml-auto cursor-default">
+                    <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-40 transition-opacity hover:opacity-100" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Average total OFI score per month (max 7).</TooltipContent>
+                </Tooltip>
               </div>
               <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                 <ResponsiveContainer width="100%" height="100%">
@@ -480,15 +504,21 @@ export default function OFIPage() {
               <div className="flex shrink-0 items-center gap-2">
                 <BarChart3 className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-sm font-medium">Aspect Comparison</span>
+                <Tooltip>
+                  <TooltipTrigger className="ml-auto cursor-default">
+                    <Info className="h-3.5 w-3.5 shrink-0 text-muted-foreground opacity-40 transition-opacity hover:opacity-100" />
+                  </TooltipTrigger>
+                  <TooltipContent side="top">Each aspect as % of its maximum score, all on the same scale.</TooltipContent>
+                </Tooltip>
               </div>
               <div className="min-h-0 flex-1 [&_text]:fill-muted-foreground">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={aspectData} margin={{ top: 4, right: 8, bottom: 0, left: -16 }}>
                     <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} vertical={false} />
                     <XAxis dataKey="name" tick={tick} axisLine={false} tickLine={false} />
-                    <YAxis tick={tick} axisLine={false} tickLine={false} />
-                    <RechartsTooltip content={<ChartTooltip />} cursor={cursor} />
-                    <Bar dataKey="score" name="Score" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={v => `${v}%`} tick={tick} axisLine={false} tickLine={false} />
+                    <RechartsTooltip content={<ChartTooltip unit="%" />} cursor={cursor} />
+                    <Bar dataKey="pct" name="Score" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -516,14 +546,14 @@ export default function OFIPage() {
                 <span className="text-xs text-muted-foreground">· {filtered.length} projects</span>
               )}
               <button
-                onClick={() => setPanelOpen(false)}
+                onClick={closePanel}
                 className="ml-auto flex h-5 w-5 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            {/* Table — sticky header, full borders */}
+            {/* Table: sticky header, full borders */}
             <div className="flex-1 overflow-y-auto">
               <Table className="[&_td]:border [&_td]:border-border [&_th]:border [&_th]:border-border">
                 <TableHeader className="sticky top-0 z-10 bg-card">
@@ -540,22 +570,22 @@ export default function OFIPage() {
                     <SortableHead
                       label="FW"        sortKey="fieldwireScore"
                       current={sortKey} dir={sortDir} onSort={handleSort}
-                      center tip="Fieldwire — task completion rate (max 2)"
+                      center tip="Fieldwire: task completion rate (max 2)"
                     />
                     <SortableHead
                       label="MC"        sortKey="machinesScore"
                       current={sortKey} dir={sortDir} onSort={handleSort}
-                      center tip="Machines — equipment scheduling rate (max 2)"
+                      center tip="Machines: equipment scheduling rate (max 2)"
                     />
                     <SortableHead
                       label="CT"        sortKey="contractScore"
                       current={sortKey} dir={sortDir} onSort={handleSort}
-                      center tip="Contract — documentation steps completion (max 2)"
+                      center tip="Contract: documentation steps completion (max 2)"
                     />
                     <SortableHead
                       label="SY"        sortKey="systemsScore"
                       current={sortKey} dir={sortDir} onSort={handleSort}
-                      center tip="Systems — Storage, QBTime & BuilderTrend (max 1)"
+                      center tip="Systems: Storage, QBTime & BuilderTrend (max 1)"
                     />
                   </TableRow>
                 </TableHeader>
