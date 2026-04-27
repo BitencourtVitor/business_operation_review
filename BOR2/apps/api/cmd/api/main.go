@@ -257,7 +257,11 @@ func main() {
 	timesheets.Post("/upload-csv", timesheetUploadHandler.UploadCSV)
 
 	// OFI
-	api.Get("/ofi", ofiHandler.List)
+	ofi := api.Group("/ofi")
+	ofi.Get("/",                        ofiHandler.List)
+	ofi.Get("/monthly-execution",       ofiHandler.ListExecution)
+	ofi.Patch("/monthly-execution/:id", ofiHandler.UpdateExecutionReason)
+	ofi.Post("/calculate",              ofiHandler.Calculate)
 
 	// Workforce Productivity
 	workforce := api.Group("/workforce")
