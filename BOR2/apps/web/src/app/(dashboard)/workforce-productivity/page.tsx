@@ -47,6 +47,14 @@ function fmtHours(h: number) {
   return h.toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
 
+function getJobsiteLabel(r: { jobsite?: string; lotBuilding?: string; client?: string }): string {
+  const jobsite = r.jobsite?.trim() ?? ""
+  const lot     = r.lotBuilding?.trim() ?? ""
+  if (!jobsite && !lot) return r.client?.trim() || "Unknown"
+  if (jobsite && lot)   return `${jobsite} - ${lot}`
+  return jobsite || lot
+}
+
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
 function ChartTooltip({ active, payload, label }: {
@@ -167,7 +175,7 @@ export default function WorkforceProductivityPage() {
   , [allRows])
 
   const jobsiteOptions  = useMemo(() =>
-    Array.from(new Set(allRows.map(r => r.jobsite).filter(Boolean))).sort() as string[]
+    Array.from(new Set(allRows.map(r => getJobsiteLabel(r)).filter(Boolean))).sort()
   , [allRows])
 
   const worktypeOptions = useMemo(() =>
@@ -180,7 +188,7 @@ export default function WorkforceProductivityPage() {
     if (year           && !r.referenceMonth.startsWith(year))          return false
     if (month          && r.referenceMonth !== month)                   return false
     if (clientFilter.length   > 0 && !clientFilter.includes(r.client))    return false
-    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(r.jobsite))  return false
+    if (jobsiteFilter.length  > 0 && !jobsiteFilter.includes(getJobsiteLabel(r)))  return false
     if (worktypeFilter.length > 0 && !worktypeFilter.includes(r.worktype)) return false
     return true
   }), [allRows, year, month, clientFilter, jobsiteFilter, worktypeFilter])
@@ -191,7 +199,7 @@ export default function WorkforceProductivityPage() {
 
   const totalHours     = useMemo(() => rows.reduce((s, r) => s + r.regularHours, 0), [rows])
   const totalEmployees = useMemo(() => new Set(rows.map(r => r.employeeName)).size, [rows])
-  const totalJobsites  = useMemo(() => new Set(rows.map(r => r.jobsite).filter(Boolean)).size, [rows])
+  const totalJobsites  = useMemo(() => new Set(rows.map(r => getJobsiteLabel(r))).size, [rows])
   const avgHoursPerEmp = totalEmployees > 0 ? totalHours / totalEmployees : 0
 
   // ── General view chart data ───────────────────────────────────────────────
@@ -225,8 +233,8 @@ export default function WorkforceProductivityPage() {
   const topJobsites = useMemo(() => {
     const map: Record<string, number> = {}
     rows.forEach(r => {
-      if (!r.jobsite) return
-      map[r.jobsite] = (map[r.jobsite] ?? 0) + r.regularHours
+      const label = getJobsiteLabel(r)
+      map[label] = (map[label] ?? 0) + r.regularHours
     })
     return Object.entries(map)
       .sort(([, a], [, b]) => b - a)
@@ -385,8 +393,8 @@ export default function WorkforceProductivityPage() {
 
           {/* Jobsite */}
           <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite</span>
-            <MultiSelect label="Jobsite" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />}
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Jobsite & Lot</span>
+            <MultiSelect label="Jobsite & Lot" icon={<MapPin className="h-3.5 w-3.5 shrink-0" />}
               options={jobsiteOptions} selected={jobsiteFilter} onChange={setJobsiteFilter} fitContent />
           </div>
 
