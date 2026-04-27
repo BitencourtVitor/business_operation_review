@@ -9,9 +9,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useForecast } from "@/hooks/use-forecast"
 import type { ForecastDisplayStatus, ForecastProject } from "@bor2/shared"
 import { getForecastDisplayStatus } from "@bor2/shared"
-import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, SlidersHorizontal, Truck, X } from "lucide-react"
+import { ArrowDown, ArrowUp, Building2, Calendar, CalendarDays, FileText, Flag, MapPin, Package, SlidersHorizontal, TrendingUp, Truck, X } from "lucide-react"
 import { useMemo, useState } from "react"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -530,6 +531,15 @@ export default function ForecastPage() {
               onClear={clearFilters}
             />
           </div>
+
+          {/* Metrics */}
+          <Link
+            href="/forecast/metrics"
+            className="inline-flex h-8 items-center gap-1.5 self-end rounded-lg border border-border bg-transparent px-3 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            Metrics
+          </Link>
         </div>
       </div>
 
