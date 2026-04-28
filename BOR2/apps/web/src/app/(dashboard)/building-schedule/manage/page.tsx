@@ -381,18 +381,18 @@ function BuildingCard({ building }: { building: BuildingListItem }) {
                       </div>
                     )}
                   </div>
-                  <div className="flex gap-1.5 pt-0.5">
+                  <div className="flex gap-1.5 pt-1">
                     <button
                       onClick={() => setShowUpload(true)}
-                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground border border-border rounded px-2 py-1 hover:bg-muted transition-colors"
+                      className="flex flex-1 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground border border-border rounded-md py-1.5 hover:bg-muted transition-colors"
                     >
                       <RefreshCw className="h-3 w-3" /> Replace
                     </button>
                     <button
                       onClick={() => delSched.mutate(building.id)}
-                      className="text-xs text-muted-foreground hover:text-destructive border border-border rounded px-2 py-1 hover:bg-destructive/10 transition-colors"
+                      className="flex flex-1 items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-destructive border border-border rounded-md py-1.5 hover:bg-destructive/10 transition-colors"
                     >
-                      Remove
+                      <Trash2 className="h-3 w-3" /> Remove
                     </button>
                   </div>
                 </>
