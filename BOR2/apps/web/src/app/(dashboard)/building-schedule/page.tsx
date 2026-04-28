@@ -410,7 +410,6 @@ export default function BuildingSchedulePage() {
               )}
             >
               <div className="font-medium truncate">{b.name}</div>
-              {b.address && <div className="text-xs text-muted-foreground truncate">{b.address}</div>}
               {b.has_schedule ? (
                 <div className="text-[10px] text-muted-foreground mt-0.5">
                   {b.task_count ?? 0} tasks
