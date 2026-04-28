@@ -446,17 +446,26 @@ export default function BuildingScheduleManagePage() {
             Manage buildings and upload MS Project PDF schedules
           </p>
         </div>
-        <Button size="sm" onClick={() => setShowAdd(s => !s)}>
+        <Button size="sm" onClick={() => setShowAdd(true)}>
           <Plus className="h-4 w-4 mr-1.5" />
           Add Building
         </Button>
       </div>
 
-      {/* Add form */}
+      {/* Add building modal */}
       {showAdd && (
-        <div className="mb-4 rounded-xl border border-border bg-card p-4 shrink-0">
-          <h3 className="text-sm font-semibold mb-3">New Building</h3>
-          <BuildingForm onSave={handleCreate} onCancel={() => setShowAdd(false)} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background rounded-xl border border-border shadow-xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <h2 className="font-semibold text-sm">New Building</h2>
+              <button onClick={() => setShowAdd(false)} className="text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-5">
+              <BuildingForm onSave={handleCreate} onCancel={() => setShowAdd(false)} />
+            </div>
+          </div>
         </div>
       )}
 
@@ -468,12 +477,13 @@ export default function BuildingScheduleManagePage() {
           </div>
         )}
 
-        {!isLoading && buildings.length === 0 && !showAdd && (
+        {!isLoading && buildings.length === 0 && (
           <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
             <Building2 className="h-12 w-12 opacity-20" />
             <p className="text-sm">No buildings yet. Click &ldquo;Add Building&rdquo; to get started.</p>
           </div>
         )}
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
           {buildings.map(b => (
