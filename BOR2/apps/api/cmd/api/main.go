@@ -130,6 +130,7 @@ func main() {
 	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
+	buildingsHandler         := handler.NewBuildingsHandler(db)
 	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
 	aiClassifierLLM         := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.ClassifierModel)
 	aiChatHandler           := handler.NewAIChatHandler(service.NewAIService(db, aiLLM, aiClassifierLLM, cfg.AI.Model), authService)
@@ -393,6 +394,16 @@ func main() {
 	qbAccounting.Get("/chart",           qbAccountingHandler.Chart)
 	qbAccounting.Get("/projects",        qbAccountingHandler.Projects)
 	qbAccounting.Get("/projects/detail", qbAccountingHandler.ProjectDetail)
+
+	// Construction Buildings & Schedules
+	buildings := api.Group("/buildings")
+	buildings.Get("/",                    buildingsHandler.ListBuildings)
+	buildings.Post("/",                   buildingsHandler.CreateBuilding)
+	buildings.Put("/:id",                 buildingsHandler.UpdateBuilding)
+	buildings.Delete("/:id",              buildingsHandler.DeleteBuilding)
+	buildings.Get("/:id/schedule",        buildingsHandler.GetSchedule)
+	buildings.Post("/:id/schedule",       buildingsHandler.UpsertSchedule)
+	buildings.Delete("/:id/schedule",     buildingsHandler.DeleteSchedule)
 
 	// AI Chat (Aria)
 	ai := api.Group("/ai")
