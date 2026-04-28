@@ -27,6 +27,7 @@ import {
 import {
   Banknote,
   BarChart2,
+  Building2,
   CalendarCheck,
   CalendarClock,
   CalendarDays,
@@ -104,6 +105,15 @@ const activeGroup: NavGroup = {
       ],
     },
     { title: "Operational Index", href: "/ofi", icon: BarChart2, permKey: "ofi" },
+    {
+      title: "Building Schedule", href: "/building-schedule",
+      icon: Building2,
+      permKey: "building_schedule",
+      children: [
+        { title: "View Schedule", href: "/building-schedule",         icon: Building2    },
+        { title: "Manage Data",   href: "/building-schedule/manage",  icon: ClipboardList },
+      ],
+    },
     { title: "Permit Control", href: "/permits", icon: FileCheck, permKey: "permits", editPermKey: "permits" },
     { title: "Service Requests", href: "/service-requests", icon: Wrench, permKey: "service_requests", editPermKey: "service_requests" },
     {
