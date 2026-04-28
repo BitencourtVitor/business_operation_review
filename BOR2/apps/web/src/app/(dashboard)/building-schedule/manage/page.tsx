@@ -462,15 +462,15 @@ export default function BuildingScheduleManagePage() {
       )}
 
       {/* Building grid */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto flex flex-col">
         {isLoading && (
-          <div className="flex items-center justify-center h-32">
+          <div className="flex flex-1 items-center justify-center">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         )}
 
         {!isLoading && buildings.length === 0 && !showAdd && (
-          <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-3">
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
             <Building2 className="h-12 w-12 opacity-20" />
             <p className="text-sm">No buildings yet. Click &ldquo;Add Building&rdquo; to get started.</p>
           </div>
