@@ -172,7 +172,7 @@ function sectionSlug(section: Section, period: PayPeriod): string {
 }
 
 function buildSectionCanvas(
-  section: Section, company: string, period: PayPeriod, hasTeams: boolean
+  section: Section, company: string, period: PayPeriod, hasTeams: boolean, hourFormat: HourFormat = "number"
 ): HTMLCanvasElement {
   const dpr    = Math.min(window.devicePixelRatio || 1, 2)
   const W      = 680, PX = 28, PY = 14
@@ -227,7 +227,7 @@ function buildSectionCanvas(
     ctx.fillStyle = T2; ctx.font = `700 10px ${SF}`; ctx.textAlign = "left"
     ctx.fillText(section.team.name.toUpperCase(), PX, y + TEAM_H / 2 + 4)
     ctx.fillStyle = T1; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(tot), W - PX, y + TEAM_H / 2 + 4)
+    ctx.fillText(fmtH(tot, hourFormat), W - PX, y + TEAM_H / 2 + 4)
     ctx.textAlign = "left"; y += TEAM_H
     hline(y, 1.5, SEP_HD)
   }
@@ -240,7 +240,7 @@ function buildSectionCanvas(
     ctx.fillStyle = T1; ctx.font = `600 13px ${SF}`; ctx.textAlign = "left"
     ctx.fillText(emp.displayName, PX, y + NAME_H / 2 + 4)
     ctx.fillStyle = PRI; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(emp.totalHours), W - PX, y + NAME_H / 2 + 4)
+    ctx.fillText(fmtH(emp.totalHours, hourFormat), W - PX, y + NAME_H / 2 + 4)
     ctx.textAlign = "left"; y += NAME_H
 
     hline(y, 1, SEP_NM)
@@ -256,7 +256,7 @@ function buildSectionCanvas(
       ctx.fillStyle = T2; ctx.textAlign = "left"
       ctx.fillText(label, PX + 10, y + JOB_H / 2 + 4)
       ctx.font = `11px ${MN}`; ctx.textAlign = "right"
-      ctx.fillText(fmtH(job.hours), W - PX, y + JOB_H / 2 + 4)
+      ctx.fillText(fmtH(job.hours, hourFormat), W - PX, y + JOB_H / 2 + 4)
       ctx.textAlign = "left"; y += JOB_H
 
       if (!isLastJob) hline(y, 0.5, SEP_JB)
@@ -268,14 +268,14 @@ function buildSectionCanvas(
   return canvas
 }
 
-function downloadSectionPNG(section: Section, company: string, period: PayPeriod, hasTeams: boolean) {
-  const canvas = buildSectionCanvas(section, company, period, hasTeams)
+function downloadSectionPNG(section: Section, company: string, period: PayPeriod, hasTeams: boolean, hourFormat: HourFormat = "number") {
+  const canvas = buildSectionCanvas(section, company, period, hasTeams, hourFormat)
   const link = document.createElement("a")
   link.download = `jobcost_${company.toLowerCase()}_${sectionSlug(section, period)}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
 }
 
-async function exportAllPNG(periods: PayPeriod[], company: string, hasTeams: boolean) {
+async function exportAllPNG(periods: PayPeriod[], company: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const { default: JSZip } = await import("jszip")
   const zip = new JSZip()
 
@@ -283,7 +283,7 @@ async function exportAllPNG(periods: PayPeriod[], company: string, hasTeams: boo
     const folderName = `jobcost_${company.toLowerCase()}_${period.startDate}`
     const folder = zip.folder(folderName)!
     for (const section of period.sections) {
-      const canvas = buildSectionCanvas(section, company, period, hasTeams)
+      const canvas = buildSectionCanvas(section, company, period, hasTeams, hourFormat)
       const slug   = sectionSlug(section, period)
       const base64 = canvas.toDataURL("image/png").replace("data:image/png;base64,", "")
       folder.file(`${slug}.png`, base64, { base64: true })
@@ -299,7 +299,7 @@ async function exportAllPNG(periods: PayPeriod[], company: string, hasTeams: boo
 
 // ─── XLSX export ──────────────────────────────────────────────────────────────
 
-function exportXLSX(periods: PayPeriod[], company: string, hasTeams: boolean) {
+function exportXLSX(periods: PayPeriod[], company: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const rows: (string | number)[][] = []
 
   for (const period of periods) {
@@ -308,12 +308,12 @@ function exportXLSX(periods: PayPeriod[], company: string, hasTeams: boolean) {
     for (const section of period.sections) {
       if (hasTeams && section.team) {
         const tot = section.members.reduce((s, e) => s + e.totalHours, 0)
-        rows.push([section.team.name, "", +tot.toFixed(2)])
+        rows.push([section.team.name, "", fmtH(tot, hourFormat)])
       }
       for (const emp of section.members) {
-        rows.push([emp.displayName, "", +emp.totalHours.toFixed(2)])
+        rows.push([emp.displayName, "", fmtH(emp.totalHours, hourFormat)])
         for (const j of emp.jobs)
-          rows.push(["", j.path, +j.hours.toFixed(2)])
+          rows.push(["", j.path, fmtH(j.hours, hourFormat)])
       }
       rows.push([""])
     }
@@ -329,7 +329,7 @@ function exportXLSX(periods: PayPeriod[], company: string, hasTeams: boolean) {
 
 // ─── PDF export ───────────────────────────────────────────────────────────────
 
-function exportPDF(periods: PayPeriod[], company: string, hasTeams: boolean) {
+function exportPDF(periods: PayPeriod[], company: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const win = window.open("", "_blank"); if (!win) return
   let html = `<!DOCTYPE html><html><head><title>${company} · Pay Period Report</title>
 <style>
@@ -353,12 +353,12 @@ function exportPDF(periods: PayPeriod[], company: string, hasTeams: boolean) {
       html += `<div class="section">`
       if (hasTeams && section.team) {
         const tot = section.members.reduce((s, e) => s + e.totalHours, 0)
-        html += `<div class="team-hdr"><span>${section.team.name}</span><span class="hours">${fmtH(tot)}</span></div>`
+        html += `<div class="team-hdr"><span>${section.team.name}</span><span class="hours">${fmtH(tot, hourFormat)}</span></div>`
       }
       for (const emp of section.members) {
-        html += `<div class="emp"><div class="emp-row"><span>${emp.displayName}</span><span class="hours">${fmtH(emp.totalHours)}</span></div>`
+        html += `<div class="emp"><div class="emp-row"><span>${emp.displayName}</span><span class="hours">${fmtH(emp.totalHours, hourFormat)}</span></div>`
         for (const j of emp.jobs)
-          html += `<div class="job-row"><span>${j.path}</span><span class="hours">${fmtH(j.hours)}</span></div>`
+          html += `<div class="job-row"><span>${j.path}</span><span class="hours">${fmtH(j.hours, hourFormat)}</span></div>`
         html += `</div>`
       }
       html += `</div>`
@@ -747,10 +747,12 @@ export default function QBTimeJobCostingPage() {
             <div className="flex flex-col gap-5">
 
               {/* Top header */}
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-end justify-between gap-4">
                 <div>
                   <h1 className="text-xl font-semibold tracking-tight">Pay Period Report</h1>
-                  <p className="text-sm text-muted-foreground">{company}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {allEmployees.length} member{allEmployees.length !== 1 ? "s" : ""} · {fmtH(totalH, hourFormat)} total
+                  </p>
                 </div>
                 <div className="flex items-end gap-4">
                   {/* Metric Mode toggle */}
@@ -775,20 +777,22 @@ export default function QBTimeJobCostingPage() {
                       ))}
                     </div>
                   </div>
+                  {/* Divider */}
+                  <div className="w-px self-stretch bg-border" />
                   {/* Export */}
-                  <div className="flex shrink-0 flex-col items-end gap-1">
+                  <div className="flex shrink-0 flex-col items-start gap-1">
                     <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Export</span>
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportXLSX(periods, company, hasTeams)}>
+                        onClick={() => exportXLSX(periods, company, hasTeams, hourFormat)}>
                         <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
                       </Button>
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportPDF(periods, company, hasTeams)}>
+                        onClick={() => exportPDF(periods, company, hasTeams, hourFormat)}>
                         <FileText className="h-3.5 w-3.5" /> PDF
                       </Button>
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportAllPNG(periods, company, hasTeams)}>
+                        onClick={() => exportAllPNG(periods, company, hasTeams, hourFormat)}>
                         <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
                       </Button>
                     </div>
@@ -841,7 +845,7 @@ function SectionCard({ section, company, period, hasTeams, hourFormat }: {
   section: Section; company: string; period: PayPeriod; hasTeams: boolean; hourFormat: HourFormat
 }) {
   const sectionTotal = section.members.reduce((s, e) => s + e.totalHours, 0)
-  function handlePNG() { downloadSectionPNG(section, company, period, hasTeams) }
+  function handlePNG() { downloadSectionPNG(section, company, period, hasTeams, hourFormat) }
 
   return (
     <div className="group rounded-xl border border-border bg-card/60 transition-colors hover:border-primary/50">

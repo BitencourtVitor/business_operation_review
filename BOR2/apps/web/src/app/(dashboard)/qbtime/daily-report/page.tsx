@@ -97,7 +97,7 @@ function sectionSlug(section: Section, hasTeams: boolean): string {
     : section.members[0]?.displayName.toLowerCase().replace(/\s+/g, "-") ?? "export"
 }
 
-function buildSectionCanvas(section: Section, company: string, date: string, hasTeams: boolean): HTMLCanvasElement {
+function buildSectionCanvas(section: Section, company: string, date: string, hasTeams: boolean, hourFormat: HourFormat = "number"): HTMLCanvasElement {
   // Always render in light mode regardless of user's system theme
   const dpr    = Math.min(window.devicePixelRatio||1, 2)
   const W      = 680, PX = 28, PY = 14
@@ -153,7 +153,7 @@ function buildSectionCanvas(section: Section, company: string, date: string, has
     ctx.fillStyle = T2; ctx.font = `700 10px ${SF}`; ctx.textAlign = "left"
     ctx.fillText(section.team.name.toUpperCase(), PX, y + TEAM_H/2 + 4)
     ctx.fillStyle = T1; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(tot), W-PX, y + TEAM_H/2 + 4)
+    ctx.fillText(fmtH(tot, hourFormat), W-PX, y + TEAM_H/2 + 4)
     ctx.textAlign = "left"; y += TEAM_H
     hline(y, 1.5, SEP_HD)
   }
@@ -167,7 +167,7 @@ function buildSectionCanvas(section: Section, company: string, date: string, has
     ctx.fillStyle = T1; ctx.font = `600 13px ${SF}`; ctx.textAlign = "left"
     ctx.fillText(emp.displayName, PX, y + NAME_H/2 + 4)
     ctx.fillStyle = PRI; ctx.font = `700 13px ${MN}`; ctx.textAlign = "right"
-    ctx.fillText(fmtH(emp.totalHours), W-PX, y + NAME_H/2 + 4)
+    ctx.fillText(fmtH(emp.totalHours, hourFormat), W-PX, y + NAME_H/2 + 4)
     ctx.textAlign = "left"; y += NAME_H
 
     // Separator: name → addresses
@@ -185,7 +185,7 @@ function buildSectionCanvas(section: Section, company: string, date: string, has
       ctx.fillStyle = T2; ctx.textAlign = "left"
       ctx.fillText(jc, PX+10, y + JOB_H/2 + 4)
       ctx.font = `11px ${MN}`; ctx.textAlign = "right"
-      ctx.fillText(fmtH(row.totalHours), W-PX, y + JOB_H/2 + 4)
+      ctx.fillText(fmtH(row.totalHours, hourFormat), W-PX, y + JOB_H/2 + 4)
       ctx.textAlign = "left"; y += JOB_H
 
       // Line between addresses — but NOT after the last one
@@ -199,21 +199,21 @@ function buildSectionCanvas(section: Section, company: string, date: string, has
   return canvas
 }
 
-function downloadSectionPNG(section: Section, company: string, date: string, hasTeams: boolean) {
-  const canvas = buildSectionCanvas(section, company, date, hasTeams)
+function downloadSectionPNG(section: Section, company: string, date: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
+  const canvas = buildSectionCanvas(section, company, date, hasTeams, hourFormat)
   const link = document.createElement("a")
   link.download = `daily_${company.toLowerCase()}_${date}_${sectionSlug(section, hasTeams)}.png`
   link.href = canvas.toDataURL("image/png"); link.click()
 }
 
-async function exportAllPNG(grouped: Section[], company: string, date: string, hasTeams: boolean) {
+async function exportAllPNG(grouped: Section[], company: string, date: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const { default: JSZip } = await import("jszip")
   const folderName = `daily_${company.toLowerCase()}_${date}`
   const zip        = new JSZip()
   const folder     = zip.folder(folderName)!
 
   for (const section of grouped) {
-    const canvas = buildSectionCanvas(section, company, date, hasTeams)
+    const canvas = buildSectionCanvas(section, company, date, hasTeams, hourFormat)
     const slug   = sectionSlug(section, hasTeams)
     const base64 = canvas.toDataURL("image/png").replace("data:image/png;base64,", "")
     folder.file(`${slug}.png`, base64, { base64: true })
@@ -229,7 +229,7 @@ async function exportAllPNG(grouped: Section[], company: string, date: string, h
 
 // ─── XLSX bulk export ─────────────────────────────────────────────────────────
 
-function exportXLSX(grouped: Section[], company: string, date: string, hasTeams: boolean) {
+function exportXLSX(grouped: Section[], company: string, date: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const rows: (string | number)[][] = []
   rows.push([`${company} · Daily Report · ${fmtDate(date)}`])
   rows.push([""])
@@ -237,12 +237,12 @@ function exportXLSX(grouped: Section[], company: string, date: string, hasTeams:
   for (const section of grouped) {
     if (hasTeams && section.team) {
       const tot = section.members.reduce((s,e)=>s+e.totalHours,0)
-      rows.push([section.team.name, "", "", +tot.toFixed(2)])
+      rows.push([section.team.name, "", "", fmtH(tot, hourFormat)])
     }
     for (const emp of section.members) {
-      rows.push([emp.displayName, "", "", +emp.totalHours.toFixed(2)])
+      rows.push([emp.displayName, "", "", fmtH(emp.totalHours, hourFormat)])
       for (const r of emp.rows) {
-        rows.push(["", r.jobCode.split(" >> ").join(" › "), "", +r.totalHours.toFixed(2)])
+        rows.push(["", r.jobCode.split(" >> ").join(" › "), "", fmtH(r.totalHours, hourFormat)])
       }
     }
     rows.push([""])
@@ -257,7 +257,7 @@ function exportXLSX(grouped: Section[], company: string, date: string, hasTeams:
 
 // ─── PDF bulk export ──────────────────────────────────────────────────────────
 
-function exportPDF(grouped: Section[], company: string, date: string, hasTeams: boolean) {
+function exportPDF(grouped: Section[], company: string, date: string, hasTeams: boolean, hourFormat: HourFormat = "number") {
   const win = window.open("", "_blank"); if (!win) return
   let html = `<!DOCTYPE html><html><head><title>${company} · ${date}</title>
 <style>
@@ -281,12 +281,12 @@ function exportPDF(grouped: Section[], company: string, date: string, hasTeams: 
     html += `<div class="section">`
     if (hasTeams && section.team) {
       const tot = section.members.reduce((s,e)=>s+e.totalHours,0)
-      html += `<div class="team-hdr"><span>${section.team.name}</span><span class="hours">${fmtH(tot)}</span></div>`
+      html += `<div class="team-hdr"><span>${section.team.name}</span><span class="hours">${fmtH(tot, hourFormat)}</span></div>`
     }
     for (const emp of section.members) {
-      html += `<div class="emp"><div class="emp-row"><span>${emp.displayName}</span><span class="hours">${fmtH(emp.totalHours)}</span></div>`
+      html += `<div class="emp"><div class="emp-row"><span>${emp.displayName}</span><span class="hours">${fmtH(emp.totalHours, hourFormat)}</span></div>`
       for (const r of emp.rows)
-        html += `<div class="job-row"><span>${r.jobCode.split(" >> ").join(" › ")}</span><span class="hours">${fmtH(r.totalHours)}</span></div>`
+        html += `<div class="job-row"><span>${r.jobCode.split(" >> ").join(" › ")}</span><span class="hours">${fmtH(r.totalHours, hourFormat)}</span></div>`
       html += `</div>`
     }
     html += `</div>`
@@ -684,6 +684,8 @@ export default function QBTimeDailyReportPage() {
                       ))}
                     </div>
                   </div>
+                  {/* Divider */}
+                  <div className="w-px self-stretch bg-border" />
                   {/* Export */}
                   <div className="flex shrink-0 flex-col items-start gap-1">
                     <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
@@ -691,15 +693,15 @@ export default function QBTimeDailyReportPage() {
                     </span>
                     <div className="flex items-center gap-2">
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportXLSX(grouped, company, date, hasTeams)}>
+                        onClick={() => exportXLSX(grouped, company, date, hasTeams, hourFormat)}>
                         <FileSpreadsheet className="h-3.5 w-3.5" /> Excel
                       </Button>
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportPDF(grouped, company, date, hasTeams)}>
+                        onClick={() => exportPDF(grouped, company, date, hasTeams, hourFormat)}>
                         <FileText className="h-3.5 w-3.5" /> PDF
                       </Button>
                       <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs"
-                        onClick={() => exportAllPNG(grouped, company, date, hasTeams)}>
+                        onClick={() => exportAllPNG(grouped, company, date, hasTeams, hourFormat)}>
                         <ImageDown className="h-3.5 w-3.5" /> Export All as PNG
                       </Button>
                     </div>
@@ -735,7 +737,7 @@ function SectionCard({ section, company, date, hasTeams, hourFormat }: {
   section: Section; company: string; date: string; hasTeams: boolean; hourFormat: HourFormat
 }) {
   const sectionTotal = section.members.reduce((s,e)=>s+e.totalHours,0)
-  function handlePNG() { downloadSectionPNG(section, company, date, hasTeams) }
+  function handlePNG() { downloadSectionPNG(section, company, date, hasTeams, hourFormat) }
 
   return (
     <div className="group rounded-xl border border-border bg-card/60 transition-colors hover:border-primary/50">
