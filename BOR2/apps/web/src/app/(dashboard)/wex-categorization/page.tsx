@@ -809,9 +809,37 @@ function NewReportSheet({ open, onClose, company, onSave }: {
       const saved = await wexCategorizationService.createReport({
         company, filterFrom, filterTo, meta, results,
       })
+
+      // Persist manual driver overrides to the normalization table so they are
+      // automatically applied to all future reports — no need to re-map every month.
+      const overrideEntries = Object.entries(overrides)
+      if (overrideEntries.length > 0) {
+        // Build driverId → wexName lookup from the processed results
+        const wexNameMap = new Map<string, string>()
+        for (const r of results) {
+          if (!wexNameMap.has(r.driverId)) wexNameMap.set(r.driverId, r.driverWexName)
+        }
+        // Upsert all overrides; use allSettled so one failure doesn't abort the rest
+        await Promise.allSettled(
+          overrideEntries.map(([driverId, qbName]) =>
+            wexCategorizationService.upsertNorm({
+              company,
+              driverId,
+              wexName:  wexNameMap.get(driverId) ?? "",
+              // "__office__" = driver has no QB Time entry (office worker)
+              qbName:   qbName === "__office__" ? "Sem QB Time" : qbName,
+              isActive: true,
+            })
+          )
+        )
+        const n = overrideEntries.length
+        toast.success(`Report saved · ${n} driver mapping${n > 1 ? "s" : ""} saved for future reports`)
+      } else {
+        toast.success("Report saved.")
+      }
+
       onSave(saved)
       onClose()
-      toast.success("Report saved.")
     } catch { toast.error("Failed to save report.") }
     finally { setIsSaving(false) }
   }
