@@ -69,6 +69,7 @@ func main() {
 	qbCredsRepo          := repository.NewPostgresQBCredentialsRepository(db)
 	wexCatRepo           := repository.NewPostgresWexCategorizationRepository(db)
 	qbtimeDailyRepo      := repository.NewPostgresQBTimeDailyReportRepository(db)
+	qbtimeTeamRepo       := repository.NewPostgresQBTimeTeamRepository(db)
 
 	// ── Services ──────────────────────────────────────────────────────────────
 	auditService          := service.NewAuditService(auditLogRepo)
@@ -91,6 +92,7 @@ func main() {
 	qbOAuthService       := service.NewQBOAuthService(qbCredsRepo)
 	wexCatService        := service.NewWexCategorizationService(wexCatRepo)
 	qbtimeDailySvc       := service.NewQBTimeDailyReportService(qbtimeDailyRepo)
+	qbtimeTeamSvc        := service.NewQBTimeTeamService(qbtimeTeamRepo)
 
 	// ── Handlers ──────────────────────────────────────────────────────────────
 	healthHandler            := handler.NewHealthHandler()
@@ -125,6 +127,7 @@ func main() {
 	qbHandler                := handler.NewQBHandler(qbOAuthService)
 	wexCatHandler            := handler.NewWexCategorizationHandler(wexCatService)
 	qbtimeDailyHandler       := handler.NewQBTimeDailyReportHandler(qbtimeDailySvc, auditService)
+	qbtimeTeamHandler        := handler.NewQBTimeTeamHandler(qbtimeTeamSvc, auditService)
 	qbAccountingHandler      := handler.NewQBAccountingHandler(db)
 	catalogHandler           := handler.NewForecastCatalogHandler(db, auditService)
 	aiLLM                   := service.NewOpenRouterClient(cfg.AI.OpenRouterKey, cfg.AI.Model)
@@ -225,6 +228,13 @@ func main() {
 	qbtimeDaily.Post("/", qbtimeDailyHandler.Create)
 	qbtimeDaily.Get("/:id", qbtimeDailyHandler.Get)
 	qbtimeDaily.Delete("/:id", qbtimeDailyHandler.Delete)
+
+	// QBTime Teams
+	qbtimeTeams := api.Group("/qbtime/teams")
+	qbtimeTeams.Get("/", qbtimeTeamHandler.List)
+	qbtimeTeams.Post("/", qbtimeTeamHandler.Create)
+	qbtimeTeams.Patch("/:id", qbtimeTeamHandler.Update)
+	qbtimeTeams.Delete("/:id", qbtimeTeamHandler.Delete)
 
 	// WEX Categorization
 	wexNorm := api.Group("/wex/normalization")

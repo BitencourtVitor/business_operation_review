@@ -144,7 +144,7 @@ const bottomGroup: NavGroup = {
       children: [
         { title: "Auto Log",             href: "/autolog",              icon: ImageIcon    },
         { title: "Daily Report",         href: "/qbtime/daily-report",  icon: CalendarDays },
-        { title: "Job Costing Report",   href: "/qbtime/job-costing",   icon: ScrollText   },
+        { title: "Pay Period Report",    href: "/qbtime/job-costing",   icon: ScrollText   },
         { title: "Weekly Hours Control", href: "/weekly-hours-control", icon: CalendarClock },
       ],
     },

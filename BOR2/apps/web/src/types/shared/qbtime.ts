@@ -19,3 +19,11 @@ export interface QBTimeDailyReportEntry {
   overtimeHours: number
   totalHours: number
 }
+
+export interface QBTimeTeam {
+  id: string
+  company: string
+  name: string
+  members: string[]
+  createdAt: string
+}
