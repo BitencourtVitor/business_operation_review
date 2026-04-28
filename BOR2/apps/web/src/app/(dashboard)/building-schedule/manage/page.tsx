@@ -439,8 +439,7 @@ export default function BuildingScheduleManagePage() {
       {/* Header */}
       <div className="flex items-center justify-between pb-4 shrink-0">
         <div>
-          <h1 className="text-xl font-semibold flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
+          <h1 className="text-xl font-semibold">
             Schedule Data Management
           </h1>
           <p className="text-sm text-muted-foreground mt-0.5">
